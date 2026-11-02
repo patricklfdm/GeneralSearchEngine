@@ -1,15 +1,21 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining process authority](PHASE_3_JOINING_PROCESS_AUTHORITY.md) adds export,
+control, maintenance, continuous-ledger and ballot replay plus a declared
+130-case negative driver. The local development subset is not the complete
+catalogue; final-source whole-process admission and Phase 3 remain OPEN.
+
 [Joining process composition](PHASE_3_JOINING_PROCESS_COMPOSITION.md) checks the
 same original's full physical continuation, child lifetimes, transport and durable
-ACKs. Complete export/control and continuous-ledger authority, final-source
-process execution and Phase 3 closure remain deferred.
+ACKs. The additional authority reader is available; final-source process
+execution and Phase 3 closure remain deferred.
 
 [Joining initialization process capture](PHASE_3_JOINING_INITIALIZATION_PROCESS.md)
 declares 36 initial write cuts, two death modes and five ADD/REPLACE profiles.
 Whole histories retain original custody across child death and native continuation.
-Transaction-prefix replay alone is PARTIAL; remaining process/network authority and
-the final-source execution catalogue remain deferred, with no Phase 3 closure.
+Transaction-prefix replay alone is PARTIAL; the authority composition above is
+available. Complete negative qualification and the final-source execution
+catalogue remain deferred, with no Phase 3 closure.
 
 [Late unused PREPARE replay](PHASE_3_NODE_LATE_PREPARE.md) adds an explicitly
 undelivered reply path to the successful post-allocation ACCEPT/halt original.

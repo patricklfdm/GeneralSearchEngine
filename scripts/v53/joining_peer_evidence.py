@@ -76,10 +76,18 @@ class Replay(m.Replay):
 
     def initialize_chain(self):
         self.floor_inputs=[];self.state={};self.steps=[];self.used=set();self.files_cache={};self.comparisons=0
-        self.owner_lifetimes=owner_lifetimes(self.model)
+        self.owner_lifetimes=self.lifetimes()
         self.tx=transactions(self.events);self.completions=set();self.reseals=reseal_lifetimes(self.events,self.owner_lifetimes)
         need(all(not v['event'].startswith('RETENTION_') or v['event'] in WRITES+RESEAL for v in self.events),
              'joining peer unsupported retention event')
+
+    def lifetimes(self):
+        return owner_lifetimes(self.model)
+
+    def initialization_point(self):
+        points=[i for i,v in enumerate(self.events) if v['event']=='JOINING_RETENTION_BEFORE_RETURN']
+        need(len(points)==1,'joining peer original initialization count')
+        return points[0]
 
     def acquired(self,own,lower,start):
         copies,used=super().acquired(own,lower,start)
@@ -206,8 +214,7 @@ class Replay(m.Replay):
             if own['start']>=0 and self.events[own['start']]['event']=='INSTALL_BEFORE_RETURN':actions.append((own['start'],'selection',own))
             elif own['start']>=0 and self.events[own['start']]['event']=='ADOPTION_INSTALL_BEFORE_RETURN':actions.append((own['start'],'adoption',own))
         for (index,node),points in self.phases.items():actions.append((points['PUBLICATION_BEFORE_RETURN'],'publication',(index,node)))
-        initialized=[i for i,v in enumerate(self.events) if v['event']=='JOINING_RETENTION_BEFORE_RETURN']
-        need(len(initialized)==1,'joining peer original initialization count');actions.append((initialized[0],'initialize',initialized[0]))
+        initialized=self.initialization_point();actions.append((initialized,'initialize',initialized))
         actions.extend((v['start'],'capture',v) for v in self.sources)
         actions.extend((at,'reseal',(at,node)) for at,node in self.reseals)
         for _,kind,value in sorted(actions,key=lambda v:v[0]):

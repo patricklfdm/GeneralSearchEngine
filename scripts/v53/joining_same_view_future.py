@@ -137,6 +137,23 @@ class Replay:
                      v['response']['payload']['digest']==sha(state['raw']) for v in rows),
                  'joining future remote ACK after force')
 
+    def lifetimes(self):
+        return a.peer.owner_lifetimes(self.model)
+
+    def initialization_point(self):
+        points=[i for i,v in enumerate(self.events) if v['event']=='JOINING_RETENTION_BEFORE_RETURN']
+        need(len(points)==1,'joining future original initialization count')
+        return points[0]
+
+    def reopen_boundary(self,node,scope,at,order,rows):
+        if scope=='initial-owner':
+            initialized=[i for i,p in rows if p=='JOINING_RETENTION_BEFORE_RETURN']
+            need(len(initialized)==1 and initialized[0]<order[1],'joining future reopen after initialization')
+        else:
+            recovered={name:[i for i,p in rows if p==name] for name in ('ACCEPT_ACTIVE_FORCED','ACCEPT_ACTIVE_PARENT_FORCED')}
+            need(all(len(v)==1 for v in recovered.values()) and at<recovered['ACCEPT_ACTIVE_FORCED'][0]<recovered['ACCEPT_ACTIVE_PARENT_FORCED'][0],
+                 'joining future reopen before accept recovery')
+
     def reopen(self,node,scope,at):
         rows=[(i,v['event']) for i,v in enumerate(self.events) if v.get('node')==node and v.get('scope')==scope]
         points={name:[i for i,p in rows if p==name] for name in ['RETENTION_RECOVERY_PARENT_FORCED',*RESEAL]}
@@ -145,13 +162,7 @@ class Replay:
         need(order[0]<order[1]<order[2]==at,'joining future reopen force order')
         if node==self.model.joining:
             a.c.owner_lifetime(self.events,node,scope,order[1],at)
-        if scope=='initial-owner':
-            initialized=[i for i,p in rows if p=='JOINING_RETENTION_BEFORE_RETURN']
-            need(len(initialized)==1 and initialized[0]<order[1],'joining future reopen after initialization')
-        else:
-            recovered={name:[i for i,p in rows if p==name] for name in ('ACCEPT_ACTIVE_FORCED','ACCEPT_ACTIVE_PARENT_FORCED')}
-            need(all(len(v)==1 for v in recovered.values()) and at<recovered['ACCEPT_ACTIVE_FORCED'][0]<recovered['ACCEPT_ACTIVE_PARENT_FORCED'][0],
-                 'joining future reopen before accept recovery')
+        self.reopen_boundary(node,scope,at,order,rows)
         if scope=='stable-cold-owner':
             finishes=[i for i,p in rows if p=='FIXTURE_OPEN_RETURNED']
             need(len(finishes)==1 and at<finishes[0],'joining future reopen before owner return')
@@ -164,15 +175,14 @@ class Replay:
             derived=dict(files,**{future.FILE:future.frame(future.initial(files),{})})
             self.initialize(node,derived);self.compare(node,disk.inventory(self.root/'before-network'/node),'before-network')
         actions=[]
-        initialized=[i for i,v in enumerate(self.events) if v['event']=='JOINING_RETENTION_BEFORE_RETURN']
-        need(len(initialized)==1,'joining future original initialization count')
-        actions.append((initialized[0],'initialize',(self.model.joining,disk.inventory(self.root/'joining-originals-native/replica'))))
+        initialized=self.initialization_point()
+        actions.append((initialized,'initialize',(self.model.joining,disk.inventory(self.root/'joining-originals-native/replica'))))
         for (index,node),points in self.base.phases.items():actions.append((points['PUBLICATION_BEFORE_RETURN'],'phase',(index,node)))
         for own in self.base.windows:
             if own['start']<0:continue
             if self.events[own['start']]['event'] in ('INSTALL_BEFORE_RETURN','ADOPTION_INSTALL_BEFORE_RETURN'):
                 actions.append((own['start'],'compare',(own['node'],disk.inventory(self.root/own['path']),'generation')))
-        for node,scope in a.peer.owner_lifetimes(self.model):
+        for node,scope in self.lifetimes():
             found=[i for i,v in enumerate(self.events) if v.get('node')==node and v.get('scope')==scope and v['event']==RESEAL[-1]]
             need(len(found)==1,'joining future exact reopen count');actions.append((found[0],'reopen',(node,scope,found[0])))
         for _,kind,values in sorted(actions,key=lambda v:v[0]):getattr(self,kind)(*values)

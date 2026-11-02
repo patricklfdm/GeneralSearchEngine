@@ -1,0 +1,623 @@
+{
+  "authorityReplay": {
+    "ballotCompositionVerified": true,
+    "ballots": {
+      "allocatorComparisons": 90,
+      "ballotForceQualified": true,
+      "chainSha256": "807d6378bb6ac2ca3b14f7f9502486a1332b87b6db455240f82373df0e56d7b9",
+      "completePhysicalQualified": false,
+      "finalCounters": {
+        "node-1": 9,
+        "node-2": 1,
+        "node-3": 1,
+        "node-4": 7
+      },
+      "forcedPromises": 19,
+      "phase3Complete": false,
+      "reservations": 10,
+      "sameViewPhysicalQualified": false,
+      "scope": "one-native-ADD-continuous-ballot",
+      "selfGrants": 9,
+      "status": "PASS",
+      "unusedReservations": 1
+    },
+    "case": "3-ADD,JOINING_RETENTION_SEED_PREFIX_WRITTEN,halt",
+    "continuousLedgersQualified": true,
+    "controls": {
+      "allExportFamiliesQualified": false,
+      "completePhysicalQualified": false,
+      "confirmedHeads": 2,
+      "controls": {
+        "completion": 2,
+        "intent": 2,
+        "preparation": 2,
+        "retention": 4,
+        "root": 1
+      },
+      "forceAndNetworkQualified": false,
+      "learnerSessions": {
+        "published": 2,
+        "recorded": 4
+      },
+      "observedCommittedContents": 689,
+      "observedContentSessions": 364,
+      "observedControlExportsQualified": true,
+      "observedLearnerRetentionQualified": true,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "retentionRounds": 2,
+      "scope": "one-native-ADD-original-control-exports-and-learner-retention",
+      "status": "PASS"
+    },
+    "exportControlAuthorityVerified": true,
+    "exports": {
+      "allExportFamiliesQualified": false,
+      "boundSessions": {
+        "current-generation": 104,
+        "frozen-source": 20,
+        "journal": 18,
+        "learner-current-content": 6,
+        "native-applied-checkpoint": 27,
+        "native-vote-receipt": 90,
+        "pending-joining-checkpoint": 2,
+        "pending-payload": 7,
+        "pending-record": 52,
+        "published-local-checkpoint": 4,
+        "published-record": 23
+      },
+      "boundTransfers": {
+        "current-generation": 368,
+        "frozen-source": 60,
+        "journal": 18,
+        "learner-current-content": 27,
+        "native-applied-checkpoint": 27,
+        "native-vote-receipt": 90,
+        "pending-joining-checkpoint": 2,
+        "pending-payload": 7,
+        "pending-record": 52,
+        "published-local-checkpoint": 4,
+        "published-record": 23
+      },
+      "completePhysicalQualified": false,
+      "forceAndNetworkQualified": false,
+      "generationWindows": 42,
+      "joiningExportLifetimes": 40,
+      "learnerRetentionAuthorizationQualified": false,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "recordWindows": 382,
+      "scope": "native-ADD-temporal-exports-and-original-record-capabilities",
+      "sourceWindows": 19,
+      "status": "PARTIAL",
+      "unqualifiedSessionCount": 11,
+      "unqualifiedSessions": [
+        {
+          "firstEvent": 5119,
+          "firstKind": "ROOT",
+          "owner": "node-1",
+          "reader": "node-4",
+          "reference": "8e20eb145dec108db75288dac6d65e89b4c68d7b9963a5165d83b1047827011c",
+          "trace": "33777c7e-7f95-4348-ad80-81e4ad8b3368",
+          "transfers": 1
+        },
+        {
+          "firstEvent": 12315,
+          "firstKind": "unframed-record",
+          "owner": "node-1",
+          "reader": "node-4",
+          "reference": "10795d6ade634433ab532c4cf26d4cadc2a50b621f774a4faa3d383759ce919a",
+          "trace": "ff891954-5b67-48e5-8ded-c3d591e0f7a8",
+          "transfers": 1
+        },
+        {
+          "firstEvent": 12335,
+          "firstKind": "unframed-record",
+          "owner": "node-1",
+          "reader": "node-4",
+          "reference": "10795d6ade634433ab532c4cf26d4cadc2a50b621f774a4faa3d383759ce919a",
+          "trace": "8e840068-4966-4a53-acea-e5e0d0a58203",
+          "transfers": 1
+        },
+        {
+          "firstEvent": 13574,
+          "firstKind": "unframed-record",
+          "owner": "node-1",
+          "reader": "node-4",
+          "reference": "ab90535fdeb059551c9a926e205d41b178834483fd3d57dd70d7ed63455489da",
+          "trace": "b450a6fb-581c-43bb-add9-56987b810f81",
+          "transfers": 1
+        },
+        {
+          "firstEvent": 13586,
+          "firstKind": "unframed-record",
+          "owner": "node-1",
+          "reader": "node-4",
+          "reference": "36bbb0ed20546553fe1506cf75ef3e113243d1a67b757ede1e12d5137e2feec9",
+          "trace": "0fed0424-f6ef-4abc-ad7a-22e6ff8ccbc8",
+          "transfers": 1
+        },
+        {
+          "firstEvent": 13598,
+          "firstKind": "unframed-record",
+          "owner": "node-2",
+          "reader": "node-4",
+          "reference": "36bbb0ed20546553fe1506cf75ef3e113243d1a67b757ede1e12d5137e2feec9",
+          "trace": "44acd51e-7856-43d3-8b36-983bd4d45ed9",
+          "transfers": 1
+        },
+        {
+          "firstEvent": 13623,
+          "firstKind": "unframed-record",
+          "owner": "node-1",
+          "reader": "node-4",
+          "reference": "ab90535fdeb059551c9a926e205d41b178834483fd3d57dd70d7ed63455489da",
+          "trace": "99005ae8-0aa2-40e7-a204-12b4f2e4c075",
+          "transfers": 1
+        },
+        {
+          "firstEvent": 13635,
+          "firstKind": "unframed-record",
+          "owner": "node-1",
+          "reader": "node-4",
+          "reference": "36bbb0ed20546553fe1506cf75ef3e113243d1a67b757ede1e12d5137e2feec9",
+          "trace": "61b02ecc-874d-496f-b3ee-b7a15e005fba",
+          "transfers": 1
+        },
+        {
+          "firstEvent": 13647,
+          "firstKind": "unframed-record",
+          "owner": "node-2",
+          "reader": "node-4",
+          "reference": "36bbb0ed20546553fe1506cf75ef3e113243d1a67b757ede1e12d5137e2feec9",
+          "trace": "4353d0bd-fa6a-46b7-b6a0-797bd06fb61c",
+          "transfers": 1
+        },
+        {
+          "firstEvent": 13700,
+          "firstKind": "unframed-record",
+          "owner": "node-4",
+          "reader": "node-1",
+          "reference": "e218c5738fa12eb9da5745d34b99954b8081647ea5b4506ee05f3dc557fce54f",
+          "trace": "ffc963b3-d2d9-469c-9e94-33e66c50109c",
+          "transfers": 1
+        },
+        {
+          "firstEvent": 14505,
+          "firstKind": "unframed-record",
+          "owner": "node-4",
+          "reader": "node-1",
+          "reference": "e218c5738fa12eb9da5745d34b99954b8081647ea5b4506ee05f3dc557fce54f",
+          "trace": "1ab69eff-c34f-4c3e-8535-47b74c3c83d2",
+          "transfers": 1
+        }
+      ],
+      "unqualifiedTransfers": 11
+    },
+    "future": {
+      "chainSha256": "e50107da5b29a3d3264c207c72c72544c0262ae114edf171ed726b6830fdb782",
+      "completePhysicalQualified": false,
+      "durableWrites": 54,
+      "finalRevisions": {
+        "node-1": 24,
+        "node-2": 24,
+        "node-3": 0,
+        "node-4": 6
+      },
+      "futureLedgerCompositionQualified": true,
+      "learnerLedgerCompositionQualified": false,
+      "ledgerComparisons": 82,
+      "openReseals": 9,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "scope": "one-native-ADD-continuous-future-ledger",
+      "status": "PASS",
+      "writesByKind": {
+        "clear": 24,
+        "record": 30
+      }
+    },
+    "joiningLearnerWrites": 1,
+    "learner": {
+      "admissionCustodyEvents": 11,
+      "capturedLedgers": 19,
+      "chainSha256": "ae1021075cbcb2e83b4251571b03ecc8fd66335a66c90f18cbb886f75bf82c01",
+      "completePhysicalQualified": false,
+      "durableWrites": 9,
+      "finalRevisions": {
+        "node-1": 4,
+        "node-2": 4,
+        "node-3": 0,
+        "node-4": 1
+      },
+      "learnerLedgerCompositionQualified": true,
+      "ledgerComparisons": 102,
+      "openReseals": 9,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "sameViewPhysicalQualified": false,
+      "scope": "one-native-ADD-continuous-learner-ledger",
+      "selectedTransitions": 14,
+      "status": "PASS",
+      "writesByKind": {
+        "confirm": 2,
+        "record": 4,
+        "selected": 3
+      }
+    },
+    "maintenance": {
+      "acquiredRemoteCopies": 52,
+      "boundRetirementEvents": 2141,
+      "completeCopies": 96,
+      "completePhysicalQualified": false,
+      "directFixtureFloors": 2,
+      "discoveryHints": 55,
+      "floorEvents": 3447,
+      "forceAndNetworkQualified": false,
+      "maintenanceForceQualified": true,
+      "networkFloors": 38,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "retiredGenerations": 35,
+      "scope": "one-native-ADD-discovery-and-complete-copy-floor-lifetimes",
+      "status": "PASS"
+    },
+    "maintenanceAuthorityVerified": true,
+    "peers": {
+      "capturedLedgers": 19,
+      "chainSha256": "8a7e6111425dc405def61942e449f31ee04cc0383d2500398188db5ff077dae0",
+      "completePhysicalQualified": false,
+      "durableWrites": 90,
+      "finalRevisions": {
+        "node-1": 40,
+        "node-2": 40,
+        "node-3": 0,
+        "node-4": 10
+      },
+      "forceAndNetworkQualified": false,
+      "ledgerComparisons": 98,
+      "openReseals": 9,
+      "peerLedgerCompositionQualified": true,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "scope": "one-native-ADD-original-peer-ledger-chain",
+      "status": "PASS",
+      "writesByKind": {
+        "maintenance": 54,
+        "publication": 24,
+        "selected": 12
+      }
+    },
+    "phase3Complete": false,
+    "precondition": {
+      "case": "3-ADD,JOINING_RETENTION_SEED_PREFIX_WRITTEN,halt",
+      "childLifecycle": {
+        "interruptedCallbacks": 10,
+        "recoveredCallbacks": 50
+      },
+      "completeNetworkAuthorityQualified": false,
+      "continuation": {
+        "capturedGrantComparisons": 19,
+        "completePhysicalQualified": false,
+        "finalCut": 11,
+        "forceAndNetworkQualified": false,
+        "ownerSnapshotComparisons": 28,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "profile": "3-ADD",
+        "recovery": null,
+        "scope": "profile-selected-continuation",
+        "sourceRetirementLocalOrderSegments": 16,
+        "status": "PARTIAL"
+      },
+      "continuousLedgersQualified": false,
+      "durableACKsVerified": true,
+      "durableNetwork": {
+        "currentLifecycle": {
+          "bindings": 69,
+          "callbacks": 265,
+          "chainSha256": "ad405da07347c4717d7eb877ea623c902fe380b9723d0da828307966891c3c5f"
+        },
+        "grants": {
+          "boundPromiseReplies": 10,
+          "forcedGrants": 19
+        },
+        "installations": {
+          "boundInstallReplies": 8,
+          "forcedSelections": 14,
+          "proposerLocalInstallations": 6
+        },
+        "slots": {
+          "boundPhaseResponses": 69,
+          "completeSlotStorageCallbacks": 3680,
+          "futureTargets": 13,
+          "ownedSlotTransactions": 24,
+          "slots": 11
+        }
+      },
+      "eventCount": 21642,
+      "failedAttempts": 0,
+      "observedTransportVerified": true,
+      "originalPhysicalHistoryVerified": true,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "projectionSha256": "34cff4a269f40c845e9595ac9df1b42a6eac83f7f62f8296e4c859add2f06cc4",
+      "scope": "original-joining-process-physical-and-transport-composition",
+      "status": "PARTIAL",
+      "transaction": {
+        "case": "3-ADD,JOINING_RETENTION_SEED_PREFIX_WRITTEN,halt",
+        "firstCallbacks": 2,
+        "forcePrefixVerified": true,
+        "nativeHistoryQualified": false,
+        "networkQualified": false,
+        "oldSources": 2,
+        "originalInodesPreserved": true,
+        "originalTransactionVerified": true,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "recoveryCallbacks": 34,
+        "scope": "original-joining-initialization-transaction",
+        "seedSha256": "d3e651a98088a430ca1b37f7f96c2af51fccf4065da9f4e0d6aeb66dfa2e274d",
+        "status": "PARTIAL"
+      },
+      "transfers": {
+        "committedTransfers": 689,
+        "exactTransferRetries": 2,
+        "rejectedTransferAttempts": 1,
+        "transferSessions": 365,
+        "transferredBytes": 3957884
+      },
+      "wireCount": 2216
+    },
+    "processDeathQualified": false,
+    "scope": "original-joining-process-export-control-and-maintenance",
+    "status": "PARTIAL"
+  },
+  "baseHead": "324e0a011bc6613fd4e715ab1420e304fe6797c1",
+  "finalSourceCohort": false,
+  "hostedExecution": "NOT_RUN",
+  "implementationFiles": {
+    "scripts/v53/joining_peer_evidence.py": "dede4991ce6f47470842143b50887eb6d68af9db48b5bb7a424ab297162a9cd7",
+    "scripts/v53/joining_process_authority.py": "937bbc29df4e98ecfe446294ab26c79ebc0b8fd5323e1ef1289f9bcc16a20a92",
+    "scripts/v53/joining_same_view_future.py": "819efead76097f933531b26aab22b4a06dfc57868fa2351bcf6cfdb7fb1fdf2c",
+    "scripts/v53/joining_same_view_learner.py": "88bc942c3d3f2ce347c91b5807041bfc772443d52609e958f645d985175b75bd",
+    "scripts/v53/test_joining_process_authority.py": "b537e64ae977b295a4f3ebbc82f0249fb006a37232ae5b352c5786a74ec57301"
+  },
+  "logs": {
+    "target/v53-joining-process-authority/authority-1.json": "e8e5d4360399711970a9a638a1cc1dba5032ec49e11e6185955a572fc00156b6",
+    "target/v53-joining-process-authority/authority-1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-joining-process-authority/authority-2.json": "b5abdb832a785f89e84fbbfee794013941388f97dc5eaeb518712919df4bc90a",
+    "target/v53-joining-process-authority/authority-2.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-joining-process-authority/authority-anchors.json": "09eb900982043334b6ab13b32b3c8acd8ff238776ecc95a91bd9f59ea6961c7c",
+    "target/v53-joining-process-authority/authority-anchors.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-joining-process-authority/doc-contract-owner-open.json": "15cd96cb488da837638dbc053d543574673b817e244dbf231374025d365a0dbc",
+    "target/v53-joining-process-authority/optimized-final.log": "6585b308fad272f8c742cedb6bfcab17bd27ac503703a70f9774f006efcccdd6",
+    "target/v53-joining-process-authority/optimized-owner-open.log": "ffc14ce35682c4eb402d9679eee2950478b9ee36667f01e590e8ed5c6594c9c5",
+    "target/v53-joining-process-authority/optimized-tests.log": "34b4831bbbfc94110176c6fc26ffab7afb283c046d04312a6c65cb1cf2195a31",
+    "target/v53-joining-process-authority/owner-open-tests.log": "5d027a1521a8ae5ffd93af5f131b672e170ef46b5c0b37417d78872d2f9bfb11",
+    "target/v53-joining-process-authority/portable-final.json": "a82998c81b5a41270c8183ea26dd6458c683f6416525f3a73d6191fc105d57ef",
+    "target/v53-joining-process-authority/portable-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-joining-process-authority/portable-owner-open.json": "a82998c81b5a41270c8183ea26dd6458c683f6416525f3a73d6191fc105d57ef",
+    "target/v53-joining-process-authority/portable-owner-open.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-joining-process-authority/python-suite-final.log": "1da761fb214007b6938ffbf425f7d07070899b406bdd633a3f08933357993339",
+    "target/v53-joining-process-authority/python-suite-owner-open.log": "f75dc276a0f2254ceb92d4a17054b448eb965e43c94cfa5d2c5b3fcbdfec7521",
+    "target/v53-joining-process-authority/python-suite.log": "2b7a9dc3ebd28395ab2119081e55d06cab53a77f3f976c9af8039a6f66c78d40",
+    "target/v53-joining-process-authority/reader-manifest-owner-open.json": "bf38b37a19d26b15519112b32caebe658ea2ac5a51104bfdd991814062366f7d",
+    "target/v53-joining-process-authority/record_validation.py": "aa1445baedb8a7db29b00e43cc594d0f3bdc176066aed84a7f8e0fe596d16793",
+    "target/v53-joining-process-authority/selected-negatives-final.json": "e8bea8aea99123ffe0aa5df1952cc8b92cf759674f8c68a2ff99963cf124ebce",
+    "target/v53-joining-process-authority/selected-negatives-final.log": "2aab1c031f1866436b0e278a59ef108fbf7f0833d7a0d4c834737eccb7105e57",
+    "target/v53-joining-process-authority/selected-negatives-owner-open.json": "e8bea8aea99123ffe0aa5df1952cc8b92cf759674f8c68a2ff99963cf124ebce",
+    "target/v53-joining-process-authority/selected-negatives-owner-open.log": "3ffab6ff8ac57b606d6cc542274d23537a8df44f97e5bb0471d8b4db8a409059",
+    "target/v53-joining-process-authority/selected-negatives.json": "6538e9a1bae6bd28e714408c9f9935e610aaa7afb29e265bd6bd05be6f1b10c2",
+    "target/v53-joining-process-authority/selected-negatives.log": "5269ddadbdf9a032cb7330f1b96b44c40525fcce16b34d1f606e33900fcdc9f1",
+    "target/v53-joining-process-authority/shared-tests.log": "c39b9e727b2f606a2ab8d1334a704de27fe5f2f3950182379ab4c1466bc50b9e",
+    "target/v53-joining-process-authority/unit-1.log": "cdbc87e67be26223518a2575f20830959c69d725c3f96ca92f2d232eaca4481a",
+    "target/v53-joining-process-authority/unit-final.log": "f641e1bf9d2074294aac1811cebed76c5bf6c9f4bff971ce16fd6bc9fde4e595",
+    "target/v53-joining-process-authority/validation-inputs-owner-open.json": "9af593f52d60db3dce55541e378c7b85d8e18f0d7da2c62ea80e7b31117f026b",
+    "target/v53-joining-process-authority/validation-inputs.json": "81903a8d6bda8f2edc7f79c722ed4070027205067aa4a88370a3c44b62a0556c"
+  },
+  "nativeWorkloadRerun": false,
+  "negativeCatalogue": {
+    "complete": false,
+    "declared": 130,
+    "executed": 21,
+    "remainingDeferred": true
+  },
+  "negativeResults": [
+    {
+      "case": "exports/source-after-retirement",
+      "reason": "joining export inactive frozen source",
+      "status": "REJECTED"
+    },
+    {
+      "case": "exports/generation-alias",
+      "reason": "joining export current generation alias",
+      "status": "REJECTED"
+    },
+    {
+      "case": "controls/hint-source",
+      "reason": "joining control exact original export",
+      "status": "REJECTED"
+    },
+    {
+      "case": "controls/fragment-wrapper",
+      "reason": "joining control exact original export",
+      "status": "REJECTED"
+    },
+    {
+      "case": "controls/completion-before-initialization",
+      "reason": "joining control completion initialization/fence",
+      "status": "REJECTED"
+    },
+    {
+      "case": "controls/completion-closed-owner",
+      "reason": "joining control original owner lifetime",
+      "status": "REJECTED"
+    },
+    {
+      "case": "maintenance/authority-before-copies",
+      "reason": "joining maintenance exact copy force/release order",
+      "status": "REJECTED"
+    },
+    {
+      "case": "maintenance/missing-floor-transaction",
+      "reason": "joining profile maintenance unbound retirement event",
+      "status": "REJECTED"
+    },
+    {
+      "case": "peers/maintenance-omit-write",
+      "reason": "joining peer maintenance durable write count",
+      "status": "REJECTED"
+    },
+    {
+      "case": "peers/reseal-parent-missing",
+      "reason": "joining peer exact open reseal count",
+      "status": "REJECTED"
+    },
+    {
+      "case": "future/record-write-omitted",
+      "reason": "joining future exact recording count",
+      "status": "REJECTED"
+    },
+    {
+      "case": "future/reopen-parent-missing",
+      "reason": "joining future exact reopen count",
+      "status": "REJECTED"
+    },
+    {
+      "case": "learner/confirm-before-delivery",
+      "reason": "joining learner confirm durable write count",
+      "status": "REJECTED"
+    },
+    {
+      "case": "learner/reopen-parent-missing",
+      "reason": "joining learner exact reopen count",
+      "status": "REJECTED"
+    },
+    {
+      "case": "ballots/unused-after-owner",
+      "reason": "joining ballot retained unused reservation lifetime",
+      "status": "REJECTED"
+    },
+    {
+      "case": "ballots/promise-force-before-write",
+      "reason": "joining ballot exact promise force order",
+      "status": "REJECTED"
+    },
+    {
+      "case": "process/missing-control-anchor",
+      "reason": "joining process original control anchors",
+      "status": "REJECTED"
+    },
+    {
+      "case": "process/completion-before-ready",
+      "reason": "joining process original endpoint lifetime",
+      "status": "REJECTED"
+    },
+    {
+      "case": "process/completion-after-close",
+      "reason": "joining process original endpoint lifetime",
+      "status": "REJECTED"
+    },
+    {
+      "case": "process/partial-native-refusal-missing",
+      "reason": "joining process incomplete owner native refusal",
+      "status": "REJECTED"
+    },
+    {
+      "case": "process/reseal-old-owner",
+      "reason": "joining peer exact open reseal count",
+      "status": "REJECTED"
+    }
+  ],
+  "orchestrationCorrection": "After complete original validation, protect other callbacks, wire and physical bytes and replay the designated future/learner/ballot chain, matching existing profile gates. Initial unrelated rejections remain FAIL in retained logs.",
+  "originalInventorySha256": "87b9551f55337d12b71667c02440584d2d0e5e75f9c6510731a2a9de840430e8",
+  "originalPreserved": true,
+  "paidCloudExecution": "NOT_RUN",
+  "pending": [
+    "complete 130-case negative catalogue",
+    "final-source whole-process collection and cohort",
+    "hosted whole-history qualification",
+    "Phase 3 closure"
+  ],
+  "phase3Complete": false,
+  "portableReplay": {
+    "path": "target/v53-joining-process/unpacked/data",
+    "resultSha256": "a82998c81b5a41270c8183ea26dd6458c683f6416525f3a73d6191fc105d57ef",
+    "sameResult": true,
+    "status": "PASS"
+  },
+  "processDeathQualified": false,
+  "producer": "target/v53-joining-process/native-seed-prefix-halt-corrected",
+  "producerBuildSha256": "c1af9128b548aae4d796e204478c6c207681d6529c9e4a0f78d07a13457391cc",
+  "producerReceiptSha256": "b1d2cbc4340132dfc3e4c3388895ec35a2745db3a3c26968050fa80189f5eef5",
+  "producerSourceSha256": "6ed68cd14ea55c7879ed2a18dd2e6f476857280cbf1de97add60cae022f4fab7",
+  "producerToolchainSha256": "a64ef01c98325426b9504859ae3018c4d222ef3eee01ae85d6a749e88a8aa72e",
+  "readerSha256": "5861aebd8d5ec1318f2aba33b0bb8ef14dcf8f6587fdef5aa19ce3a85650036b",
+  "retainedInitialNegativeFailures": [
+    {
+      "case": "future/record-write-omitted",
+      "failure": {
+        "message": "joining process unrelated authority negative: future/record-write-omitted: joining future write/force/rename sequence",
+        "type": "ValueError"
+      },
+      "status": "FAIL"
+    },
+    {
+      "case": "learner/confirm-before-delivery",
+      "failure": {
+        "message": "joining process unrelated authority negative: learner/confirm-before-delivery: joining control head confirmation force",
+        "type": "ValueError"
+      },
+      "status": "FAIL"
+    },
+    {
+      "case": "learner/reopen-parent-missing",
+      "failure": {
+        "message": "joining process unrelated authority negative: learner/reopen-parent-missing: joining peer exact open reseal count",
+        "type": "ValueError"
+      },
+      "status": "FAIL"
+    },
+    {
+      "case": "ballots/promise-force-before-write",
+      "failure": {
+        "message": "joining process unrelated authority negative: ballots/promise-force-before-write: joining network durable grant order",
+        "type": "ValueError"
+      },
+      "status": "FAIL"
+    }
+  ],
+  "schema": "gse-v53-joining-process-authority-development-v1",
+  "scopeNote": "Same retained development history; producer predates the final read-only discovery-scan adjustment and current readers. Not final-source qualification.",
+  "status": "PARTIAL",
+  "validation": {
+    "documentationContract": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 2173,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "focused": {
+      "log": "target/v53-joining-process-authority/owner-open-tests.log",
+      "seconds": 0.261,
+      "status": "PASS",
+      "tests": 15
+    },
+    "optimizedFocused": {
+      "log": "target/v53-joining-process-authority/optimized-owner-open.log",
+      "seconds": 0.383,
+      "status": "PASS",
+      "tests": 72
+    },
+    "pythonSuite": {
+      "log": "target/v53-joining-process-authority/python-suite-owner-open.log",
+      "seconds": 108.026,
+      "status": "PASS",
+      "tests": 2113
+    }
+  }
+}

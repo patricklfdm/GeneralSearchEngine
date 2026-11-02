@@ -181,12 +181,19 @@ class Replay:
                 actions.append((finish,'record',(peer,row,remote,row['received'],row['offered'])))
         return actions
 
+    def lifetimes(self):
+        return a.peer.owner_lifetimes(self.model)
+
+    def initialization_point(self):
+        points=[i for i,v in enumerate(self.events) if v['event']=='JOINING_RETENTION_BEFORE_RETURN']
+        need(len(points)==1,'joining learner original initialization count')
+        return points[0]
+
     def run(self):
         for node,files in learner.initialize(self.model.original).items():
             self.state[node]=files[FILE];self.compare(node,disk.inventory(self.root/'before-network'/node)[FILE],'bootstrap')
         actions=[]
-        initialized=[i for i,v in enumerate(self.events) if v['event']=='JOINING_RETENTION_BEFORE_RETURN']
-        need(len(initialized)==1,'joining learner original initialization count');actions.append((initialized[0],'initialize',(initialized[0],)))
+        initialized=self.initialization_point();actions.append((initialized,'initialize',(initialized,)))
         actions.extend(self.recording_actions())
         for row in self.base.rows:
             q=row['request'];node=q['sender']['node'];peer=q['recipient']['node']
@@ -202,7 +209,7 @@ class Replay:
             for label,point in [('applied','APPLY_BEFORE_RETURN'),('published','PUBLICATION_BEFORE_RETURN')]:
                 actions.append((points[point],'compare',(node,self.model.owner(label,index,node)[FILE],label+'-'+str(index))))
         actions.extend((v['start'],'capture',(v,)) for v in self.base.sources)
-        for node,scope in a.peer.owner_lifetimes(self.model):
+        for node,scope in self.lifetimes():
             found=[i for i,v in enumerate(self.events) if v.get('node')==node and v.get('scope')==scope and v['event']==RESEAL[-1]]
             need(len(found)==1,'joining learner exact reopen count');actions.append((found[0],'reopen',(node,scope,found[0])))
         for _,kind,args in sorted(actions,key=lambda v:v[0]):getattr(self,kind)(*args)

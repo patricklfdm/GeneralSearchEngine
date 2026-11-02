@@ -3,8 +3,13 @@
 `scripts.v53.joining_process_composition` now replays one original joining
 process history from bootstrap through placement, interrupted initialization,
 native FINAL, the new-view BARRIER and stable cold reopen. The result remains
-`PARTIAL`: complete export/control authority, continuous retention-ledger
-composition, the final-source process catalogue and Phase 3 are still **OPEN**.
+`PARTIAL`: this reader alone does not establish export/control or continuous
+retention-ledger authority. The final-source process catalogue and Phase 3
+are still **OPEN**.
+
+The subsequent [process authority reader](PHASE_3_JOINING_PROCESS_AUTHORITY.md)
+now adds those export/control and continuous-ledger checks to development
+replay. Its complete negative catalogue and final-source cohort remain deferred.
 
 This extends the [initialization transaction reader](PHASE_3_JOINING_INITIALIZATION_PROCESS.md).
 No production Java, wire/storage format, fixture workload, time/resource limit,
