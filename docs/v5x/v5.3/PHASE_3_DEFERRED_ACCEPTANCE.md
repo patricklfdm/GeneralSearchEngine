@@ -1,9 +1,14 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Profile maintenance authority](PHASE_3_PROFILE_MAINTENANCE.md) now verifies
+actual old/new majorities, complete original copies and every floor lifecycle.
+Direct calls retain the original INTENT proof cohort and actual joiner identity.
+Larger-profile continuous ledgers and the final-source cohort remain OPEN.
+
 [Profile control exports](PHASE_3_PROFILE_CONTROLS.md) now aggregate original
 retention ACKs into actual governing majorities and bind head confirmations to
-the INTENT proof voters. Larger-profile maintenance/ledger composition and
-the complete current-source cohort remain OPEN.
+the INTENT proof voters. Maintenance composition is recorded above; larger-profile
+continuous ledgers and the complete current-source cohort remain OPEN.
 
 [Profile-bound temporal exports](PHASE_3_PROFILE_EXPORTS.md) now use each ADD/REPLACE
 profile's actual joining identity and every original voter. Content authority and

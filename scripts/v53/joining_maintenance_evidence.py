@@ -99,9 +99,9 @@ class Replay(c.Replay):
                  'joining maintenance exact discovery hint')
             # Historical correlation does not become the responder's current
             # view/ballot, a new PROMISE, READY or a retained-copy observation.
-            if own['node']=='node-4':
+            if own['node']==self.model.joining:
                 need(self.events[row['received']].get('scope')=='continuation-endpoint','joining maintenance discovery endpoint')
-                c.owner_lifetime(self.events,'node-4','continuation-owner',row['received'],row['offered'])
+                c.owner_lifetime(self.events,self.model.joining,'continuation-owner',row['received'],row['offered'])
             self.status_rows.append(row)
         if self.expected_status_count is not None:
             need(len(self.status_rows)==self.expected_status_count,'joining maintenance complete discovery observations')
@@ -172,7 +172,7 @@ class Replay(c.Replay):
             self.governing(copies,own)
             need([v['event'] for _,v in actual]==floor_events(copies,node,is_network) and all(v.get('scope')==scope for _,v in actual),
                  'joining maintenance exact copy force/release order')
-            if node=='node-4':c.owner_lifetime(self.events,node,'continuation-owner',start,end)
+            if node==self.model.joining:c.owner_lifetime(self.events,node,'continuation-owner',start,end)
             generations+=retirement_order(self.events,node,start,end,scope)
             covered.update(i for i,_ in actual);copies_total+=len(copies);previous[node]=end
         eligible={i for i,v in enumerate(self.events) if v['event'].startswith('FLOOR_') and v['event']!='FLOOR_COPY_BEFORE_RETURN'}
@@ -184,7 +184,7 @@ class Replay(c.Replay):
 
     def run(self):
         self.statuses();result=self.floors()
-        return dict(status='PASS',scope='one-native-ADD-discovery-and-complete-copy-floor-lifetimes',**result,
+        return dict(status='PASS',scope='one-native-'+self.kind+'-discovery-and-complete-copy-floor-lifetimes',**result,
                     discoveryHints=len(self.status_rows),maintenanceForceQualified=True,phase3Complete=False,
                     completePhysicalQualified=False,forceAndNetworkQualified=False,processDeathQualified=False)
 
@@ -245,7 +245,7 @@ def mutate(root,name,*,reader=None):
         elif name=='release-member-count':event('FLOOR_RELEASE_FILE_DELETED')['event']='REMOVED_RELEASE_DELETION'
         elif name=='retirement-before-floor':move(event('RETIREMENT_RESERVED'),event('FLOOR_BEFORE_RETURN'))
         elif name=='retirement-after-release':move(event('RETIREMENT_BEFORE_RETURN'),event('FLOOR_RELEASE_RELINQUISHED'),True)
-        elif name=='direct-copy-missing':event('FLOOR_COPY_BEFORE_RETURN','node-4')['event']='REMOVED_DIRECT_COPY'
+        elif name=='direct-copy-missing':event('FLOOR_COPY_BEFORE_RETURN',reader.model.joining)['event']='REMOVED_DIRECT_COPY'
         else:events.append(dict(node='node-1',event='FLOOR_MANIFEST_FORCED'))
     (root/'events.json').write_bytes(f.canonical(events))
 

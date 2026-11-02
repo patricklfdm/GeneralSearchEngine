@@ -1,0 +1,224 @@
+{
+  "actions": {
+    "localCommit": true,
+    "nativeRerun": false,
+    "paidCloud": false,
+    "pomChanged": false,
+    "push": false,
+    "runtimeJavaChanged": false,
+    "workflowChanged": false
+  },
+  "allMembershipProfilesQualified": false,
+  "archive": {
+    "allMembershipProfilesQualified": false,
+    "archiveBytes": 45795601,
+    "archiveSha256": "3071d0a5d984a70c58c5efc51c66a43e37a1869e9bfeb380ba6e713bae2c9514",
+    "directories": 4054,
+    "exactNegatives": 30,
+    "files": 25439,
+    "identicalResults": true,
+    "manifest": {
+      "bytes": 4298111,
+      "path": "target/v53-profile-maintenance-20261102/v2/artifact/manifest.json",
+      "sha256": "2b2b897abbe1b326dc4a3af3990e7e758c48b75c0a2ec1d1c24a95352e7e7c26"
+    },
+    "nativeRerun": false,
+    "path": "target/v53-profile-maintenance-20261102/v2/artifact/bundle.tar.gz",
+    "phase3Complete": false,
+    "portable": {
+      "legacy": {
+        "elapsedSeconds": 47.399,
+        "exit": 0
+      },
+      "replace": {
+        "elapsedSeconds": 39.799,
+        "exit": 0
+      },
+      "same-view": {
+        "elapsedSeconds": 54.27,
+        "exit": 0
+      }
+    },
+    "pythonSeconds": 98.485,
+    "pythonTests": 1838,
+    "status": "PASS",
+    "unchangedOriginals": true
+  },
+  "baseHead": "3ebcb7b92aa9804e44abd1c6ac0b7eccc7982d5a",
+  "currentSourceNativeCohortQualified": false,
+  "developmentTestAttempts": [
+    {
+      "bytes": 1338,
+      "path": "target/v53-profile-maintenance-20261102/focused.log",
+      "sha256": "34f8b9b1de628f043b93b3d3c7af1a0d203425cf2ca79f9f13cbc6de51d21ddc"
+    },
+    {
+      "bytes": 1456,
+      "path": "target/v53-profile-maintenance-20261102/focused-v2.log",
+      "sha256": "cfb0239c67182b2af61723f8ebd8d9f07590fd650a6d25c39112159775f3ca74"
+    },
+    {
+      "bytes": 127,
+      "path": "target/v53-profile-maintenance-20261102/focused-v3.log",
+      "sha256": "24e7f457db71261082429552c0f3ffe85edc2850cc33c510d6038328f465d964"
+    }
+  ],
+  "firstAdapterRegression": {
+    "log": {
+      "bytes": 674,
+      "path": "target/v53-profile-maintenance-20261102/orphan-regression.log",
+      "sha256": "0376a374d98800c0434f7fbfa1d2d026e3e36d08e6e76a7492992cff39d1b61a"
+    },
+    "networkExportControlPrecondition": "PASS",
+    "readerManifest": {
+      "bytes": 624064,
+      "path": "target/v53-profile-maintenance-20261102/reader/source.json",
+      "sha256": "cdffce74c54bb993c042cdf212028ca74f8fe3b4c523deaa8a16e3d85b20a277"
+    },
+    "receipt": {
+      "bytes": 750,
+      "path": "target/v53-profile-maintenance-20261102/orphan-regression/receipt.json",
+      "sha256": "252ad0a5c1614118c7012a42cf698d4455fb9e058aeeef32eb94c019a8a2977e"
+    }
+  },
+  "maintenanceForceQualified": true,
+  "originalReplays": {
+    "legacy": {
+      "counts": {
+        "acquiredRemoteCopies": 52,
+        "boundRetirementEvents": 2141,
+        "completeCopies": 96,
+        "completePhysicalQualified": false,
+        "directFixtureFloors": 2,
+        "discoveryHints": 55,
+        "floorEvents": 3447,
+        "forceAndNetworkQualified": false,
+        "maintenanceForceQualified": true,
+        "networkFloors": 38,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "retiredGenerations": 35,
+        "scope": "one-native-ADD-discovery-and-complete-copy-floor-lifetimes",
+        "status": "PASS"
+      },
+      "execution": {
+        "elapsedSeconds": 515.372,
+        "exit": 0
+      },
+      "inputInventory": {
+        "bytes": 573262,
+        "path": "target/v53-profile-maintenance-20261102/v2/legacy-inputs.json",
+        "sha256": "97c32eafa035d70a610b80bf3fbc2d49e5993e97c72dad590cab1d36e590718d"
+      },
+      "negativeCases": 15,
+      "result": {
+        "bytes": 11827,
+        "path": "target/v53-profile-maintenance-20261102/v2/legacy.json",
+        "sha256": "4eef74da6b0ad975178b7f0b691799958dd9b229f9f4b2e46575f4b54c65e2d5"
+      }
+    },
+    "replace": {
+      "counts": {
+        "acquiredRemoteCopies": 34,
+        "boundRetirementEvents": 1942,
+        "completeCopies": 74,
+        "completePhysicalQualified": false,
+        "directFixtureFloors": 2,
+        "discoveryHints": 38,
+        "floorEvents": 2798,
+        "forceAndNetworkQualified": false,
+        "maintenanceForceQualified": true,
+        "networkFloors": 34,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "retiredGenerations": 32,
+        "scope": "one-native-REPLACE-discovery-and-complete-copy-floor-lifetimes",
+        "status": "PASS"
+      },
+      "execution": {
+        "elapsedSeconds": 392.419,
+        "exit": 0
+      },
+      "inputInventory": {
+        "bytes": 558304,
+        "path": "target/v53-profile-maintenance-20261102/v2/replace-inputs.json",
+        "sha256": "84d9e7f36e165b68d6d26c83b2ea9b8c7eab5c24e69decc214d9e538e6764a3c"
+      },
+      "negativeCases": 15,
+      "result": {
+        "bytes": 12284,
+        "path": "target/v53-profile-maintenance-20261102/v2/replace.json",
+        "sha256": "11d3147fd4933757204e13af65f392efd3ca11d19b8cb6be7a872f33815f79b0"
+      }
+    },
+    "same-view": {
+      "execution": {
+        "elapsedSeconds": 55.808,
+        "exit": 0
+      },
+      "inputInventory": {
+        "bytes": 600356,
+        "path": "target/v53-profile-maintenance-20261102/v2/same-view-inputs.json",
+        "sha256": "efc38f2303e5129c11d042153170d210a7ad40997206981f5e9b89f5babc8e9b"
+      },
+      "result": {
+        "bytes": 12761,
+        "path": "target/v53-profile-maintenance-20261102/v2/same-view.json",
+        "sha256": "0aab434047dec01cfc1e9318ba73773a3a460a5cb9e4b3bd18fddc62ca4c7789"
+      }
+    }
+  },
+  "peerLedgerCompositionQualified": false,
+  "phase3Complete": false,
+  "precedingOriginalAudit": {
+    "bytes": 960,
+    "path": "target/v53-profile-controls-20261102/next-maintenance-audit.json",
+    "sha256": "402c82cd1260c26018f02cc50c65b7fc0d81d9594c5c39169b71783561b24417"
+  },
+  "previousHeadRegression": {
+    "errors": 0,
+    "failures": 1,
+    "log": {
+      "bytes": 911,
+      "path": "target/v53-profile-maintenance-20261102/previous-regression.log",
+      "sha256": "53929675bf1f7e31ef3e99bd0fe5224bc60af87f0991232fd32106fb21ba02c9"
+    },
+    "previousImplementation": {
+      "bytes": 18364,
+      "path": "target/v53-profile-maintenance-20261102/previous-maintenance.py",
+      "sha256": "262ff521b78fef2bd6d18d7760a7404ea85e0fa8182e18a8d3ace5c29d91e7a9"
+    },
+    "scope": "conditional actual joining endpoint lifetime",
+    "status": "REPRODUCED",
+    "tests": 1
+  },
+  "python": {
+    "elapsedSeconds": 98.485,
+    "log": {
+      "bytes": 3927,
+      "path": "target/v53-profile-maintenance-20261102/v2/python-tests.log",
+      "sha256": "06f3bd5d60a5467851116c614659bb7a9f209c3f95c5cd23fc6c05aa0f35241a"
+    },
+    "newTests": 16,
+    "tests": 1838
+  },
+  "reader": {
+    "code": {
+      "scripts/v53/joining_maintenance_evidence.py": "a458738c485a42ee89acbb07159f2e6c78e398ba19aded0840445a4c806256dc",
+      "scripts/v53/joining_profile_maintenance_evidence.py": "955a2341f9e34266c600f0f5618efd5dab755656619daf997ab80edeb2793976",
+      "scripts/v53/test_joining_profile_maintenance_evidence.py": "4bc497ec1b49a15a95151c32248d60dfb14466f32f027014850a97ac2c1f493f"
+    },
+    "manifest": {
+      "bytes": 624064,
+      "path": "target/v53-profile-maintenance-20261102/v2/reader/source.json",
+      "sha256": "b8a1dda919580a06eeb008bb8786d807f8af37999b7dbd56221496b87364f80b"
+    }
+  },
+  "remaining": [
+    "Larger-profile continuous peer/learner/future and ballot composition",
+    "Final-source seven-profile and process/fault cohorts",
+    "Combined bounds and frozen S/N mapping"
+  ],
+  "schema": "gse-v53-profile-maintenance-entry-v1",
+  "status": "PARTIAL"
+}
