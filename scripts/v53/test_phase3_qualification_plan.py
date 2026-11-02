@@ -28,9 +28,9 @@ class Phase3QualificationPlanTest(unittest.TestCase):
     def test_current_sources_and_complete_planning_inventory(self):
         result = self.check()
         self.assertEqual(12, result['requirements'])
-        self.assertEqual(426, result['plannedHostedHistories'])
+        self.assertEqual(428, result['plannedHostedHistories'])
         self.assertEqual({'profiles':7, 'joining-reply-loss':3, 'remove-process':52,
-                          'node-renames':4, 'joining-process':360},
+                          'node-renames':4, 'joining-process':360, 'learner-histories':2},
                          {k:v['members'] for k,v in result['cohorts'].items()})
         self.assertEqual(120, result['cohorts']['joining-process']['executionGroups'])
         self.assertEqual(3310, result['frozenAcceptance']['scenarios'])

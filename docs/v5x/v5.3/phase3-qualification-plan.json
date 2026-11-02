@@ -130,17 +130,21 @@
       "tests": [
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerAlternationNetworkTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerCancellationQualification.java",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerResourceOwnerTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerResourceOwnerTest.java",
+        "scripts/v53/test_learner_history_cohort.py"
       ],
       "readers": [
-        "scripts/v53/learner_cycles_evidence.py"
+        "scripts/v53/learner_cycles_evidence.py",
+        "scripts/v53/learner_history_cohort.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_LEARNER_CYCLE_REPLAY.md",
-        "docs/v5x/v5.3/PHASE_3_LEARNER_CANCELLATION_NATIVE.md"
+        "docs/v5x/v5.3/PHASE_3_LEARNER_CANCELLATION_NATIVE.md",
+        "docs/v5x/v5.3/PHASE_3_LEARNER_HISTORY_COHORT.md"
       ],
       "cohorts": [
-        "profiles"
+        "profiles",
+        "learner-histories"
       ],
       "gaps": [
         "component-cohorts",
@@ -393,7 +397,8 @@
         "joining-reply-loss",
         "remove-process",
         "node-renames",
-        "joining-process"
+        "joining-process",
+        "learner-histories"
       ],
       "gaps": [
         "frozen-coverage",
@@ -440,7 +445,8 @@
         "joining-reply-loss",
         "remove-process",
         "node-renames",
-        "joining-process"
+        "joining-process",
+        "learner-histories"
       ],
       "gaps": [
         "cohort-admission",
@@ -473,6 +479,11 @@
       "members": 360,
       "casesSha256": "a18d832f8ce978ef973b535f949f8e836a5acced0fd535980927e6b9eee25e4f",
       "status": "ENTRY_READY_EXECUTION_PENDING"
+    },
+    "learner-histories": {
+      "members": 2,
+      "casesSha256": "0cd587342a4d456407e706d537f1bbdfae3a65a8e2cc099e08a0fc605c509c1b",
+      "status": "ENTRY_READY_EXECUTION_PENDING"
     }
   },
   "gaps": [
@@ -480,7 +491,7 @@
       "id": "component-cohorts",
       "status": "OPEN",
       "dependsOn": [],
-      "work": "Inventory and wire final-source capture/admission for remaining native component histories, starting with whole learner revision/cancellation and competing-owner histories, then transfer/carried/transition recovery. Reuse their existing producers/readers; do not rebuild implemented protocol components.",
+      "work": "The focused 3-ADD learner pair now has source-bound capture, admission and hosted replay. Continue final-source entries for competing owners and transfer/carried/transition recovery, then uncovered learner profiles. Reuse existing producers/readers; do not rebuild implemented protocol components.",
       "acceptance": "Exact source/build/toolchain/reader-bound originals and independent original-first replay. Missing observations, unsupported histories or an original deadline failure remain failures. Whole ownership and revision histories stay indivisible."
     },
     {

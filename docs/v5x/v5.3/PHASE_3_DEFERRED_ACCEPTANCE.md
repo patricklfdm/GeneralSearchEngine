@@ -7,6 +7,11 @@ admission/execution. Historical notes below remain scoped to their original
 source; their former implementation gaps must be reconciled with later work.
 The optional inspector cannot close any runtime requirement.
 
+[Whole learner histories](PHASE_3_LEARNER_HISTORY_COHORT.md) now have immutable
+capture, a two-member exact-source gate and independent downloaded hosted replay.
+The six revisions stay on one worker; retained cancellation and cold reopen stay
+on another. The final-source native pair is deferred, with prior failures intact.
+
 [Hosted joining process qualification](PHASE_3_JOINING_PROCESS_HOSTED.md) now
 provides source-bound preparation, 120 execution/replay groups and complete
 360-member aggregation. Grouping preserves every indivisible original history.

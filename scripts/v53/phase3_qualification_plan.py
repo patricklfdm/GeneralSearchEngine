@@ -38,6 +38,7 @@ COHORTS = {
     'remove-process': ('remove_process_matrix', 'KINDS', 'remove_process_hosted'),
     'node-renames': ('node_rename_matrix', 'KINDS', 'node_rename_hosted'),
     'joining-process': ('joining_process_matrix', 'KINDS', 'joining_process_hosted'),
+    'learner-histories': ('learner_history_cohort', 'KINDS', 'learner_history_hosted'),
 }
 GAPS = ('component-cohorts', 'combined-resources', 'frozen-coverage', 'cohort-admission', 'final-source-execution')
 need, encoded, digest = inventory.need, inventory.encoded, inventory.digest

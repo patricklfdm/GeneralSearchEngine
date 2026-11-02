@@ -1,0 +1,70 @@
+{
+  "schema": "gse-v53-learner-history-cohort-development-v1",
+  "status": "IMPLEMENTED_NOT_NATIVE_QUALIFIED",
+  "baseCommit": "121337459dadc10c0b986f6a9e2c650de8181e20",
+  "scope": "focused 3-ADD six-revision history and retained READY/CANCEL cold recovery",
+  "cases": [
+    "alternating-slots",
+    "retained-cancellation"
+  ],
+  "requiredNegativeCases": 43,
+  "nativeExecution": false,
+  "hostedExecution": false,
+  "paidCloudExecution": false,
+  "finalSourceQualified": false,
+  "allMembershipProfilesQualified": false,
+  "processDeathQualified": false,
+  "fullNetworkQualification": false,
+  "combinedPeakResourcesQualified": false,
+  "phase3Complete": false,
+  "implementationInputs": {
+    ".github/workflows/v53-learner-histories.yml": "4a8000275b3763f0d757f03ec36a31b0ee005be40efcf46e552bb755c34444ef",
+    "scripts/v53/learner_history_run.py": "380184d06ff08800dbb82cd633d2c4c8d9a31ca85336cfa5582fb45c6e6c98c2",
+    "scripts/v53/learner_history_cohort.py": "15aa5f4335afec259197708caed159bc86638d9f0a8e130c8f25d10119794b1e",
+    "scripts/v53/learner_history_hosted.py": "991f981076be32f715d1620eff42f510ea1cc806b857c4649fd4edcb0005c82a",
+    "scripts/v53/test_learner_history_cohort.py": "d5f2e4e7775c8a38870f99a5936b16e5e5c37ae09731130bf3f09f5349bed2dc",
+    "scripts/v53/test_learner_history_hosted.py": "08fc54b6f42a059c7742a972f14ce1745fdf393ee7abe90dbd71cc8a93e30624",
+    "scripts/v53/test_learner_history_workflow.py": "105710caafbfd2265b301404904617a16a5fb03b754e0d75eabe0d410e187dbd",
+    "scripts/v53/phase3_qualification_plan.py": "f5dfe52046ee5277ca9db2596768d10b25b10c8f5b37bfe90322b9ebc8c85b6a",
+    "scripts/v53/test_phase3_qualification_plan.py": "593ae7978f5883cf6e6f735433da0a658591edc0103e312676bf2d42f217df7e",
+    "docs/v5x/v5.3/phase3-qualification-plan.json": "bd13fef7047c47c92eba04e241f6fb4282682eb6daba47ec3e73919a46890719"
+  },
+  "validation": {
+    "pythonSuite": {
+      "path": "target/v53-learner-history-cohort/python-suite.log",
+      "sha256": "c48fd4761f663f6a0185cd2ec6b94f29f2234b5939f64c7f7845307bf166872a",
+      "tests": 2205,
+      "status": "PASS",
+      "scope": "before one additional artifact-shape regression; implementation unchanged"
+    },
+    "finalOptimized": {
+      "path": "target/v53-learner-history-cohort/optimized-final.log",
+      "sha256": "fee0fb4a72938b2f3ede55a7b326e99e2b1f82341a5d879a0eb2eb638643f5ce",
+      "tests": 52,
+      "status": "PASS",
+      "scope": "final capture/cohort/hosted/workflow and planning tests, includes artifact-shape regression"
+    },
+    "portableHistorical": {
+      "path": "target/v53-learner-history-cohort/portable-diagnostic/receipt.json",
+      "sha256": "2aeb90606b7fde6d6ae74616341eebb8f196133e4479b9ccca642a005624baa0",
+      "status": "PASS",
+      "negativeCases": 31,
+      "finalSourceQualified": false
+    },
+    "workflow": {
+      "path": "target/v53-learner-history-cohort/workflow-validation.json",
+      "sha256": "944b3c7f636b94a1f11de46c60cffcbbab929992255d168a50de48c41afb4289",
+      "status": "PASS",
+      "expandedJobs": 6,
+      "expandedUploadArtifacts": 9,
+      "shellBlocks": 5,
+      "actionlint": "UNAVAILABLE"
+    }
+  },
+  "limitsUnchanged": {
+    "alternatingHistorySeconds": 900,
+    "cancellationHistorySeconds": 600,
+    "nativeRetries": 0
+  },
+  "next": "Run the implemented whole-history cohort on the final source after authorization; remaining Phase 3 obligations stay in phase3-qualification-plan.json."
+}

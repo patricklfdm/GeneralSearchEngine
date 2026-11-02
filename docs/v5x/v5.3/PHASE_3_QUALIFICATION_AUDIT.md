@@ -1,7 +1,7 @@
 # Phase 3 qualification inventory and remaining work
 
-Phase 3 remains **OPEN**. This audit reconciles the implementation at baseline
-`867df7c4` with the current source and chronological development notes. It does
+Phase 3 remains **OPEN**. This inventory originated from baseline `867df7c4`;
+the current table also includes the subsequent learner-history cohort. It does
 not execute a native history, accept an old receipt as current-source evidence,
 or declare the implementation complete.
 
@@ -21,8 +21,9 @@ the backlog as a new feature.
 | [REMOVE process](PHASE_3_REMOVE_PROCESS_HOSTED.md) | 52 | 52 | Declared departure/retirement process subset |
 | [Node renames](PHASE_3_NODE_RENAME_MATRIX.md) | 4 | 4 | ACCEPT/PROOF rename, halt/SIGKILL, original disks |
 | [Joining initialization](PHASE_3_JOINING_PROCESS_HOSTED.md) | 360 | 120 | Five joining profiles, 36 cuts, two death modes |
+| [Continuous learner histories](PHASE_3_LEARNER_HISTORY_COHORT.md) | 2 | 2 | Six revisions and retained READY/CANCEL, complete cold reopen |
 
-These **426 planned native histories** are complementary subsets. This is neither
+These **428 planned native histories** are complementary subsets. This is neither
 a pass count nor a count of covered rows in the frozen S matrix. The inspector
 reads their actual Python catalogues and checks declared counts and ordered-case
 hashes. Joining groups must partition all 360 whole histories exactly. Workflow
@@ -30,7 +31,7 @@ and implementation references must exist as regular repository files. This
 checks inventory drift, not workflow scheduling behavior.
 
 Existing per-workflow admission binds its own source/build, tools, reader, seed
-and run/attempt. Those gates are not redeveloped here. Separate preparations do
+and run/attempt. Those gates are not redeveloped by the inspector. Separate preparations do
 not automatically form one accepted phase-wide cohort; that admission still
 needs integration. No hosted workflow was dispatched for this audit.
 
@@ -46,7 +47,7 @@ prove its semantics.
 | 3A activation | Durable grant, selected sources, fence and original deadline | Final-source schedules and exact failure coverage |
 | 3B transfer | Bounded native TCP, receiving custody, retries and process readers | Current-source component cohorts; combined lifetimes |
 | 3B recovery | Retained ancestry, owned reopening and cross-view adoption | Final-source restart/discovery coverage |
-| 3C learner | Six-revision history, cancellation, source retention and readers | Complete final-source histories and profile coverage |
+| 3C learner | Six-revision/cancellation producers, source retention, readers and hosted pair | Complete final-source histories and profile coverage |
 | 3C initialization | Actual joining owner, three-ledger initialization and 360-case entry | Final-source matrix; combined bounds |
 | 3C joint | Private INTENT/FINAL/BARRIER coordination for all seven profiles | Final-source profiles and interrupted transitions |
 | 3D rounds | Carried-first publication, two durable phases and round reuse | Current-source carried/stable/process qualification |
@@ -54,7 +55,7 @@ prove its semantics.
 | 3D removal | Departure fencing, retirement and original-disk recovery | Final-source original/negative process matrix |
 | 3E resources | Accounting, bounded transfers, publication refusal and conditional-prefix tests | Simultaneous physical peak and admitted completion |
 | 3E coverage | Frozen finite inventory and this dependency map | Concrete schedule/evidence/rejection mapping |
-| 3E cohort | Five source-bound subset gates | Complete final admission, execution and closure audit |
+| 3E cohort | Six source-bound subset gates | Complete final admission, execution and closure audit |
 
 `MembershipStorageOperations` still refuses public learner operations and
 `MembershipSearchEngine` keeps reads disabled. Phase 3 private protocol work does
@@ -67,9 +68,9 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
 
 ## Execution sequence
 
-1. **Complete component cohort entries.** Start with whole native learner
-   revision/cancellation histories and competing owners, then inventory transfer,
-   carried and transition recovery entries. Reuse existing producers/readers.
+1. **Complete component cohort entries.** The focused 3-ADD learner pair now has
+   its entry. Continue with competing owners, then inventory transfer, carried
+   and transition recovery entries and uncovered learner profiles. Reuse existing producers/readers.
    Historical qualification remains scoped to its source, not a new cohort slot.
    The six-revision history's recorded final-CANCEL deadline failure remains a
    failure; retrying, extending budgets or reconstructing observations cannot

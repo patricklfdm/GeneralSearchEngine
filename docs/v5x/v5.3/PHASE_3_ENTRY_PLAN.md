@@ -1,11 +1,17 @@
 # V5.3 Phase 3 entry and closure checklist
 
 [The current qualification audit](PHASE_3_QUALIFICATION_AUDIT.md) reconciles the
-implementation and historical notes into twelve review obligations, five
-implemented hosted subsets (426 planned whole histories) and five open work
+implementation and historical notes into twelve review obligations, six
+implemented hosted subsets (428 planned whole histories) and five open work
 groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
+
+[The whole learner-history pair](PHASE_3_LEARNER_HISTORY_COHORT.md) adds immutable
+capture, exact-source replay and an opt-in hosted entry for six PREPARE revisions
+and retained READY/CANCEL recovery. Twelve and thirty-one exact negatives remain
+required; historical diagnostics do not fill final-source slots. The full native
+pair, all-profile/combined bounds and Phase 3 closure remain unqualified.
 
 [Hosted joining process qualification](PHASE_3_JOINING_PROCESS_HOSTED.md) now
 wires the 360-case catalogue as 120 groups of three whole histories, with one
