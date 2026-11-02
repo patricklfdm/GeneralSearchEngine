@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[REMOVE maintenance across process death](PHASE_3_REMOVE_PROCESS_MAINTENANCE.md)
+binds all complete-copy acquisitions, the original retained-floor reuse and every
+release in the same v2 SIGKILL member. Fifteen exact negatives preserve the
+physical/network/export precondition. Continuous retention revisions, complete
+retirement callbacks and the remaining process/profile matrix remain OPEN.
+
 [REMOVE exports across process death](PHASE_3_REMOVE_PROCESS_EXPORTS.md) now bind
 all 167 original sessions in the same v2 SIGKILL history to original generation,
 source and record lifetimes. Eleven exact export negatives preserve physical and

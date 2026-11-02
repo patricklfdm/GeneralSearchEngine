@@ -68,3 +68,8 @@ layer. No complete maintenance-floor recovery, continuous retention revisions,
 all-cut process qualification, public readiness or Phase 3 closure is claimed.
 Rollback removes this reader and its optional selection-inventory argument; no
 runtime data migration, cloud execution or workflow change is involved.
+
+The subsequent [maintenance-floor reader](PHASE_3_REMOVE_PROCESS_MAINTENANCE.md)
+qualifies acquisition, retained-copy recovery and release in this same history.
+It preserves this receipt's narrower flags; continuous retention revisions and
+complete retirement callback composition remain OPEN.

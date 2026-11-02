@@ -217,6 +217,11 @@ adds that export-authority layer using the unchanged v2 history. The original
 network receipt remains scoped as recorded; continuous maintenance/retention
 composition and the complete process matrix remain open.
 
+The [maintenance-floor reader](PHASE_3_REMOVE_PROCESS_MAINTENANCE.md) additionally
+binds original complete-copy acquisition, cross-process reuse and release, with
+fifteen exact negatives. Continuous retention revisions and complete retirement
+callback composition remain separate open layers.
+
 The reader declares both REMOVE profiles and all 13 cuts in the 52-member
 catalogue. Only the one retained native member above has been replayed here;
 unit tests of both borrowing/copying branches and all six source-retirement cuts

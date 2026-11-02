@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[REMOVE maintenance across process death](PHASE_3_REMOVE_PROCESS_MAINTENANCE.md)
+qualifies 16 network floors, one original retained-floor reuse and 16 releases,
+with fifteen exact negatives. Continuous retention revisions, complete retirement
+callbacks and the remaining process/profile matrix remain OPEN.
+
 [REMOVE exports across process death](PHASE_3_REMOVE_PROCESS_EXPORTS.md) qualify
 all 327 committed transfers in the retained v2 SIGKILL member, with eleven exact
 export negatives. Original owner lifetimes and source-retirement boundaries are

@@ -1,0 +1,423 @@
+{
+  "archive": {
+    "bytes": 7972566,
+    "files": 5481,
+    "path": "target/v53-remove-process-maintenance-20261101/remove-process-maintenance.tar.gz",
+    "sha256": "b7b78dc82ec40161264042af862f5dfe0df1ba7fbb70a05bb3ef6d8485531d6d",
+    "verifiedEveryMember": true
+  },
+  "baseHead": "df7c2c46126419138e2f1925af4a56d7a3c35245",
+  "case": "4-REMOVE,RETIREMENT_BORROW_PREFIX_WRITTEN,kill",
+  "completeCopyFloorsQualified": true,
+  "completeRetirementCallbacksQualified": false,
+  "currentReaderMatchesReplay": true,
+  "declaredNativeMembers": 52,
+  "diagnostics": [
+    "The development replay predates the explicit floor owner/scope guard and mutation removal by object identity. Its fifteen successful rejections are retained; only the final frozen-reader and portable results qualify the committed reader."
+  ],
+  "evidenceFiles": {
+    "target/v53-remove-process-maintenance-20261101/archive-inputs.json": {
+      "bytes": 819773,
+      "sha256": "c609c9b47f1423475534499b46f6a047390da6b6aca3e35ea3defb2a13ce030a"
+    },
+    "target/v53-remove-process-maintenance-20261101/focused-final.log": {
+      "bytes": 107,
+      "sha256": "ca18ffc8e8fdc6b71e49e9b4fd64e04661daa3243fb767d57a64ce80ea2d7b63"
+    },
+    "target/v53-remove-process-maintenance-20261101/initial.json": {
+      "bytes": 4674,
+      "sha256": "91ff3b646a08c966f06640ca93dbbc68b0a6522b724d5c9484771dcc8371a626"
+    },
+    "target/v53-remove-process-maintenance-20261101/initial.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "target/v53-remove-process-maintenance-20261101/inputs/provenance.json": {
+      "bytes": 334,
+      "sha256": "77c000db367379f371c98a02a8dbce53fbfd35bfb68fc130d727d68c6f738228"
+    },
+    "target/v53-remove-process-maintenance-20261101/inputs/raw-inputs.json": {
+      "bytes": 726240,
+      "sha256": "3355222f7591f20f0c451b758497e9309596d20782d268ea9da3996eb5cdddcf"
+    },
+    "target/v53-remove-process-maintenance-20261101/inputs/reader-inputs.json": {
+      "bytes": 64833,
+      "sha256": "f8f263c1e4b3572cc1044e849d99efca43cb2d074d3118d877888715428f7f74"
+    },
+    "target/v53-remove-process-maintenance-20261101/original.json": {
+      "bytes": 7128,
+      "sha256": "c04161cfbd64a3ec3cb097ee699f1e181fa4c47e2744be7a8e393402d7861f73"
+    },
+    "target/v53-remove-process-maintenance-20261101/original.log": {
+      "bytes": 2851,
+      "sha256": "dd55a15d080914cec05c43f1698d9aa51d7f992bcdc6f05fa578bc2c8a3c9d2e"
+    },
+    "target/v53-remove-process-maintenance-20261101/portable-optimized.json": {
+      "bytes": 7128,
+      "sha256": "c04161cfbd64a3ec3cb097ee699f1e181fa4c47e2744be7a8e393402d7861f73"
+    },
+    "target/v53-remove-process-maintenance-20261101/portable-optimized.log": {
+      "bytes": 2851,
+      "sha256": "22bbef1cf78023d3909daf3d5c4ab7742085943589094cc81c7df17ce5f6de0b"
+    },
+    "target/v53-remove-process-maintenance-20261101/portable.json": {
+      "bytes": 469,
+      "sha256": "4ee765e1c53b87c00841367d0132f2008c016f4357c22a42bcabb52dacb382ab"
+    },
+    "target/v53-remove-process-maintenance-20261101/python-final.log": {
+      "bytes": 3752,
+      "sha256": "8fa4c254e4f8660f2dfea58a50b6b383aec5d1e89d5bbf7ef249eddc73a28e30"
+    },
+    "target/v53-remove-process-maintenance-20261101/qualification-initial.json": {
+      "bytes": 7143,
+      "sha256": "6d68ef11e177d42ede47fd8a2eda76dd5d8bdf192091b014aef7132468f27354"
+    },
+    "target/v53-remove-process-maintenance-20261101/qualification-initial.log": {
+      "bytes": 2866,
+      "sha256": "5f9542a7b0c01aee11fe61a69bb01cd13e1721e37f0ff567769b922257caac4a"
+    },
+    "target/v53-remove-process-maintenance-20261101/receipt.py": {
+      "bytes": 2777,
+      "sha256": "77bd83142821cad651ea9022820dfa32d6aad27e177e89cdd7dfcf81f01ce865"
+    },
+    "target/v53-remove-process-maintenance-20261101/seal.py": {
+      "bytes": 3792,
+      "sha256": "954890c3740de9292a6d5b43f4256c3fb55ea1e5721d7e0e63108e6c11578074"
+    }
+  },
+  "focusedTests": 9,
+  "nativeExecutionsThisBatch": 0,
+  "negativeResults": [
+    {
+      "case": "authority-before-copies",
+      "physicalNetworkExportPrecondition": "PASS",
+      "reason": "REMOVE process complete floor acquisition force order",
+      "status": "REJECTED"
+    },
+    {
+      "case": "copy-after-reservation",
+      "physicalNetworkExportPrecondition": "PASS",
+      "reason": "joining maintenance copy delivered after floor",
+      "status": "REJECTED"
+    },
+    {
+      "case": "discovery-after-packet",
+      "physicalNetworkExportPrecondition": "PASS",
+      "reason": "joining maintenance acquisition before discovery",
+      "status": "REJECTED"
+    },
+    {
+      "case": "floor-forged-scope",
+      "physicalNetworkExportPrecondition": "PASS",
+      "reason": "REMOVE process floor observation shape",
+      "status": "REJECTED"
+    },
+    {
+      "case": "handoff-before-directory",
+      "physicalNetworkExportPrecondition": "PASS",
+      "reason": "REMOVE process complete floor acquisition force order",
+      "status": "REJECTED"
+    },
+    {
+      "case": "journal-outside-floor",
+      "physicalNetworkExportPrecondition": "PASS",
+      "reason": "REMOVE process retirement outside original floor",
+      "status": "REJECTED"
+    },
+    {
+      "case": "local-copy-duplicate",
+      "physicalNetworkExportPrecondition": "PASS",
+      "reason": "REMOVE process exact local copy observations",
+      "status": "REJECTED"
+    },
+    {
+      "case": "local-copy-missing",
+      "physicalNetworkExportPrecondition": "PASS",
+      "reason": "REMOVE process exact local copy observations",
+      "status": "REJECTED"
+    },
+    {
+      "case": "manifest-force",
+      "physicalNetworkExportPrecondition": "PASS",
+      "reason": "REMOVE process complete floor acquisition force order",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-release",
+      "physicalNetworkExportPrecondition": "PASS",
+      "reason": "REMOVE process complete floor release",
+      "status": "REJECTED"
+    },
+    {
+      "case": "release-before-force",
+      "physicalNetworkExportPrecondition": "PASS",
+      "reason": "REMOVE process complete floor release force order",
+      "status": "REJECTED"
+    },
+    {
+      "case": "release-member-count",
+      "physicalNetworkExportPrecondition": "PASS",
+      "reason": "REMOVE process complete floor release force order",
+      "status": "REJECTED"
+    },
+    {
+      "case": "retained-reseal-force",
+      "physicalNetworkExportPrecondition": "PASS",
+      "reason": "REMOVE process complete floor acquisition force order",
+      "status": "REJECTED"
+    },
+    {
+      "case": "retirement-after-release",
+      "physicalNetworkExportPrecondition": "PASS",
+      "reason": "joining maintenance generation retirement lifetime",
+      "status": "REJECTED"
+    },
+    {
+      "case": "unbound-floor",
+      "physicalNetworkExportPrecondition": "PASS",
+      "reason": "REMOVE process unbound floor observation",
+      "status": "REJECTED"
+    }
+  ],
+  "original": {
+    "acquiredRemoteCopies": 28,
+    "completeCopies": 47,
+    "completeCopyFloorsQualified": true,
+    "completeRetirementCallbacksQualified": false,
+    "discoveryHints": 28,
+    "floorObservations": 1521,
+    "floorReleases": 16,
+    "interruptedFloors": 1,
+    "networkFloors": 16,
+    "phase3Complete": false,
+    "precondition": {
+      "boundSessions": {
+        "current-generation": 56,
+        "frozen-source": 20,
+        "journal": 14,
+        "native-applied-checkpoint": 6,
+        "native-vote-receipt": 42,
+        "pending-payload": 4,
+        "pending-record": 20,
+        "published-local-checkpoint": 4,
+        "published-record": 1
+      },
+      "boundTransfers": {
+        "current-generation": 176,
+        "frozen-source": 60,
+        "journal": 14,
+        "native-applied-checkpoint": 6,
+        "native-vote-receipt": 42,
+        "pending-payload": 4,
+        "pending-record": 20,
+        "published-local-checkpoint": 4,
+        "published-record": 1
+      },
+      "generationWindows": 24,
+      "maintenanceCompositionQualified": false,
+      "observedExportAuthorityQualified": true,
+      "phase3Complete": false,
+      "precondition": {
+        "completeExportAuthorityQualified": false,
+        "durableActivationAndSlotACKsQualified": true,
+        "maintenanceCompositionQualified": false,
+        "network": {
+          "boundFailedControls": 15,
+          "boundInstallReplies": 7,
+          "boundPhaseResponses": 29,
+          "boundStatusReplies": 28,
+          "committedTransfers": 327,
+          "completeSlotStorageCallbacks": 1120,
+          "exactTransferRetries": 0,
+          "exchanges": 1052,
+          "failedAttempts": 15,
+          "futureTargets": 5,
+          "normalizedEvents": 9248,
+          "originalGrants": 11,
+          "originalObservations": 9243,
+          "ownedSlotTransactions": 8,
+          "proposerInstallations": 4,
+          "rejectedTransferAttempts": 0,
+          "slots": 3,
+          "transferSessions": 167,
+          "transferredBytes": 2224484
+        },
+        "observedAttemptsQualified": true,
+        "phase3Complete": false,
+        "physical": {
+          "activationAcknowledgementsQualified": false,
+          "networkDiagnosticsSha256": "9857ab58813c6ff0632d0aa66d1e1ef355f260fcc4f7bc22c0401d9c4cd5a941",
+          "networkQualified": false,
+          "phase3Complete": false,
+          "physicalHistoryQualified": true,
+          "processDeathQualified": true,
+          "profile": {
+            "index": 5,
+            "mode": "kill",
+            "point": "RETIREMENT_BORROW_PREFIX_WRITTEN",
+            "profile": "4-REMOVE",
+            "schema": "gse-v53-remove-retirement-process-v2"
+          },
+          "publicationAcknowledgementsQualified": true,
+          "retirement": {
+            "authority": "1650faf796b0c75fc2fc62f00973a15455d049284d6c288cce0ed18ddf39482d",
+            "borrowedImages": true,
+            "imageMembers": 1,
+            "members": 9,
+            "physicalImagesBefore": 7,
+            "physicalImagesPeak": 7,
+            "prefixEvents": [
+              "RETIREMENT_OLD_FILES_FORCED",
+              "RETIREMENT_RESERVED",
+              "RETIREMENT_CREATED",
+              "RETIREMENT_BORROW_PREFIX_WRITTEN"
+            ],
+            "recoveryEvents": [
+              "RETIREMENT_OLD_FILES_FORCED",
+              "RETIREMENT_RESERVED",
+              "RETIREMENT_CREATED",
+              "RETIREMENT_BORROW_PREFIX_WRITTEN",
+              "RETIREMENT_BORROW_WRITTEN",
+              "RETIREMENT_BORROW_FORCED",
+              "RETIREMENT_PROPOSAL_WRITTEN",
+              "RETIREMENT_PROPOSAL_FORCED",
+              "RETIREMENT_SOURCE_CREATED",
+              "RETIREMENT_MANIFEST_WRITTEN",
+              "RETIREMENT_MANIFEST_FORCED",
+              "RETIREMENT_MEMBER_WRITTEN",
+              "RETIREMENT_MEMBER_FORCED",
+              "RETIREMENT_MEMBER_WRITTEN",
+              "RETIREMENT_MEMBER_FORCED",
+              "RETIREMENT_MEMBER_WRITTEN",
+              "RETIREMENT_MEMBER_FORCED",
+              "RETIREMENT_MEMBER_WRITTEN",
+              "RETIREMENT_MEMBER_FORCED",
+              "RETIREMENT_MEMBER_WRITTEN",
+              "RETIREMENT_MEMBER_FORCED",
+              "RETIREMENT_MEMBER_WRITTEN",
+              "RETIREMENT_MEMBER_FORCED",
+              "RETIREMENT_MEMBER_WRITTEN",
+              "RETIREMENT_MEMBER_FORCED",
+              "RETIREMENT_SOURCE_FORCED",
+              "RETIREMENT_BORROWED_IMAGES_FORCED",
+              "RETIREMENT_AUTHORITY_WRITTEN",
+              "RETIREMENT_AUTHORITY_FORCED",
+              "RETIREMENT_PARENT_FORCED",
+              "RETIREMENT_DELETE_VALIDATED",
+              "RETIREMENT_FILE_DELETED",
+              "RETIREMENT_FILE_DELETED",
+              "RETIREMENT_FILE_DELETED",
+              "RETIREMENT_FILE_DELETED",
+              "RETIREMENT_FILE_DELETED",
+              "RETIREMENT_FILE_DELETED",
+              "RETIREMENT_FILE_DELETED",
+              "RETIREMENT_FILE_DELETED",
+              "RETIREMENT_FILE_DELETED",
+              "RETIREMENT_DIRECTORY_DELETED",
+              "RETIREMENT_SAVED_FILE_DELETED",
+              "RETIREMENT_SAVED_FILE_DELETED",
+              "RETIREMENT_SAVED_FILE_DELETED",
+              "RETIREMENT_SAVED_FILE_DELETED",
+              "RETIREMENT_SAVED_FILE_DELETED",
+              "RETIREMENT_SAVED_FILE_DELETED",
+              "RETIREMENT_SAVED_FILE_DELETED",
+              "RETIREMENT_SAVED_FILE_DELETED",
+              "RETIREMENT_SAVED_DIRECTORY_DELETED",
+              "RETIREMENT_PROPOSAL_CLEARED",
+              "RETIREMENT_BORROW_CLEARED",
+              "RETIREMENT_AUTHORITY_CLEARED",
+              "RETIREMENT_CLEARED",
+              "RETIREMENT_BEFORE_RETURN"
+            ],
+            "slot": "b"
+          },
+          "scope": "same-proposer-REMOVE-retirement-recovery",
+          "slots": [
+            {
+              "index": 5,
+              "kind": "INTENT"
+            },
+            {
+              "index": 6,
+              "kind": "FINAL"
+            },
+            {
+              "index": 7,
+              "kind": "BARRIER"
+            }
+          ],
+          "status": "PASS",
+          "unqualifiedNetworkDiagnostics": 15
+        },
+        "processDeathQualified": true,
+        "status": "PARTIAL"
+      },
+      "proposerLifetimes": 2,
+      "recordWindows": 112,
+      "sourceWindows": 15,
+      "status": "PARTIAL",
+      "unqualifiedTransfers": 0
+    },
+    "proposerLifetimes": 2,
+    "retainedFloorRecoveryQualified": true,
+    "retainedFloorReuses": 1,
+    "retentionRevisionCompositionQualified": false,
+    "retirementLifetimeObservations": 951,
+    "status": "PARTIAL"
+  },
+  "phase3Complete": false,
+  "portable": {
+    "inputsUnchanged": true,
+    "nativeExecutionsThisBatch": 0,
+    "negativeCases": 15,
+    "optimizedPython": true,
+    "originalUnchanged": true,
+    "phase3Complete": false,
+    "profileCases": 1,
+    "results": [
+      {
+        "exit": 0,
+        "name": "original",
+        "negatives": 15,
+        "seconds": 144.249
+      },
+      {
+        "exit": 0,
+        "name": "portable-optimized",
+        "negatives": 15,
+        "seconds": 140.43
+      }
+    ],
+    "sameResult": true,
+    "status": "PASS"
+  },
+  "producer": {
+    "nativeExecutionsThisBatch": 0,
+    "phase3Complete": false,
+    "priorArchive": {
+      "bytes": 24452263,
+      "files": 11792,
+      "path": "target/v53-remove-process-network-20261101/remove-process-network.tar.gz",
+      "sha256": "68fd5acb56102aa5574b6e3e6bddab817d3f87102ee4d4fadc738f3a328a6b86",
+      "verifiedEveryMember": true
+    }
+  },
+  "pythonTests": {
+    "errors": 0,
+    "failures": 0,
+    "seconds": 111.396,
+    "tests": 1662
+  },
+  "qualifiedNativeMembers": 1,
+  "remaining": [
+    "continuous peer/future revision chain across original process opens",
+    "complete retirement callback composition",
+    "remaining native process members",
+    "complete seven-profile cohort and frozen acceptance mapping"
+  ],
+  "retainedFloorRecoveryQualified": true,
+  "retentionRevisionCompositionQualified": false,
+  "runtimeJavaChanged": false,
+  "schema": "gse-v53-remove-process-maintenance-receipt-v1",
+  "status": "PARTIAL"
+}
