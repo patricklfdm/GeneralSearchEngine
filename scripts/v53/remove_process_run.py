@@ -71,7 +71,7 @@ def collect(raw,case):
                 physicalHistoryQualified=False,phase3Complete=False,case=case,inventory=original)
 
 
-def run(output,maven,case,*,source_from=None):
+def run(output,maven,case,*,source_from=None,portable_toolchain=False):
     selected(case);output=Path(output).absolute()
     h.need(source_from is None or not output.resolve().is_relative_to(Path(source_from).resolve()),'REMOVE process source separation')
     output.mkdir(parents=True,exist_ok=False)
@@ -81,9 +81,13 @@ def run(output,maven,case,*,source_from=None):
         work=output/'workspace'
         source=h.source_copy(h.ROOT,work) if source_from is None else h.recorded_source(source_from,work)
         h.save(output/'source.json',source);receipt.update(baseHead=source['head'],sourceSha256=h.digest((output/'source.json').read_bytes()))
-        version=subprocess.run([maven,'-version'],cwd=work,text=True,capture_output=True,timeout=30)
-        h.save(output/'toolchain.json',dict(exit=version.returncode,stdout=version.stdout,stderr=version.stderr))
-        h.need(version.returncode==0,'REMOVE process toolchain unavailable')
+        if portable_toolchain:
+            from . import process_toolchain
+            h.save(output/'toolchain.json',process_toolchain.capture(maven,work))
+        else:
+            version=subprocess.run([maven,'-version'],cwd=work,text=True,capture_output=True,timeout=30)
+            h.save(output/'toolchain.json',dict(exit=version.returncode,stdout=version.stdout,stderr=version.stderr))
+            h.need(version.returncode==0,'REMOVE process toolchain unavailable')
         receipt['toolchainSha256']=h.digest((output/'toolchain.json').read_bytes())
         command=[maven,'-o','-B','-ntp','-f','reactor/pom.xml','-pl','../'+h.MODULE,'-am',
                  '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+CLASS.rsplit('.',1)[-1]+'#'+METHOD,

@@ -1,7 +1,8 @@
 # Phase 3 — exact-source REMOVE process matrix
 
 Status: the declared 52-member execution and aggregation interface is implemented.
-Its guard tests are not a completed native matrix. Whole-history hosted execution,
+Its guard tests are not a completed native matrix. [Hosted orchestration](PHASE_3_REMOVE_PROCESS_HOSTED.md) is now implemented.
+Whole-history hosted execution,
 all seven membership profiles and the frozen acceptance mapping remain required;
 Phase 3 stays OPEN.
 
@@ -18,7 +19,9 @@ compiled class inventories, original zero-retry JUnit report, exact Maven comman
 original execution record, complete collection and current v2 capture schema.
 It independently recollects process observations; `collectionComplete` by itself
 cannot establish a successful process history. The supplied source, build,
-toolchain and reader hashes must all match. The reader hash includes every V5.3
+toolchain and reader hashes must all match. Legacy toolchains retain their raw
+diagnostic hash; hosted v2 binds actual tool files and versions while retaining
+host-specific diagnostics separately, as described in the hosted entry. The reader hash includes every V5.3
 Python module, its V4.3 format dependency and the frozen format catalogue.
 
 The member then runs the complete existing physical/network/export/floor/
@@ -79,8 +82,8 @@ Archive complete producer directories, including original source, classes, logs,
 JUnit, receipts and raw history, alongside the frozen reader. A relocated replay
 must compare the exact same result and unchanged inputs. Output directories are
 exclusive, failed receipts are retained, and no command here dispatches a workflow
-or changes existing Required checks. Workflow integration remains a subsequent
-step after representative native members qualify.
+or changes existing Required checks. The separate hosted entry now implements
+workflow/artifact integration; it does not claim a completed hosted campaign.
 
 Fifteen synthetic guard tests cover the complete 52-item inventory, missing or
 aliased members, mixed inputs, copied plans, altered source/classes/observations,

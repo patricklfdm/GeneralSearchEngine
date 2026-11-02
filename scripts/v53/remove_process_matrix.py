@@ -12,6 +12,7 @@ import sys
 from . import joining_history_run as h
 from . import remove_process_ballot as gate
 from . import remove_process_run as run
+from . import process_toolchain
 
 KINDS=run.CASES
 BUILDS=('target/classes',h.MODULE+'/target/classes',h.MODULE+'/target/test-classes')
@@ -61,7 +62,8 @@ def member(path,kind,source_sha256,build_sha256,toolchain_sha256):
     for name in BUILDS:need(h.inventory(work/name)==build[name],'REMOVE process matrix original built bytes: '+kind)
     toolchain=read(path/'toolchain.json');toolchain_hash=h.digest((path/'toolchain.json').read_bytes())
     need(type(toolchain) is dict and type(toolchain.get('exit')) is int and toolchain['exit']==0 and
-         receipt.get('toolchainSha256')==toolchain_hash==toolchain_sha256,'REMOVE process matrix toolchain receipt: '+kind)
+         receipt.get('toolchainSha256')==toolchain_hash and
+         process_toolchain.pin((path/'toolchain.json').read_bytes())==toolchain_sha256,'REMOVE process matrix toolchain receipt: '+kind)
     name=receipt.get('raw')
     need(type(name) is str and re.fullmatch('workspace/'+h.MODULE+r'/target/v53-remove-retirement-process/run-[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}',name),
          'REMOVE process matrix original history path: '+kind)
@@ -79,7 +81,7 @@ def member(path,kind,source_sha256,build_sha256,toolchain_sha256):
     need(collection==run.collect(raw,kind),'REMOVE process matrix independently recollected member: '+kind)
     need(gate.p.profile_at(raw)==run.selected(kind),'REMOVE process matrix current capture schema: '+kind)
     plan_hash=h.digest(h.snapshot.s.regular(raw/'history/original-plan.gsbp',h.snapshot.MIB))
-    return dict(raw=raw,toolchain=toolchain_hash,plan=plan_hash,inventory=inventory,
+    return dict(raw=raw,toolchain=toolchain_sha256,observedToolchain=toolchain_hash,plan=plan_hash,inventory=inventory,
                 receiptSha256=h.digest((path/'receipt.json').read_bytes()))
 
 

@@ -1,8 +1,13 @@
 # V5.3 — controlled cluster operations
 
+[Hosted REMOVE process qualification](PHASE_3_REMOVE_PROCESS_HOSTED.md) now wires
+immutable preparation, 52 whole-history executions, 52 downloaded replays and
+exact-attempt aggregation. The workflow is opt-in and has not been executed;
+complete native qualification and Phase 3 remain OPEN.
+
 [The exact-source REMOVE process matrix](PHASE_3_REMOVE_PROCESS_MATRIX.md) adds
 pinned member qualification and independent aggregation of all 52 whole histories.
-The complete native matrix and hosted workflow remain OPEN.
+The complete native matrix remains OPEN; hosted wiring is recorded above.
 
 [Continuous REMOVE ballot forces](PHASE_3_REMOVE_PROCESS_BALLOT.md) add original
 allocator/promise composition across SIGKILL/reopen, with eighteen exact negatives.

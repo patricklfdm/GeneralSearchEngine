@@ -1,0 +1,12 @@
+name: V5.3 process qualification tools
+description: Exact Java and Python; Maven comes from the checksum-pinned repository wrapper.
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+      with:
+        distribution: temurin
+        java-version: '21.0.12+8.0.LTS'
+    - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+      with:
+        python-version: '3.11'

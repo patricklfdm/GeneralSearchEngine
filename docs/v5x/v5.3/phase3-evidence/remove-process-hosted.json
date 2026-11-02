@@ -1,0 +1,105 @@
+{
+  "baseHead": "3bba1535",
+  "evidenceDirectory": "target/v53-remove-hosted-20261102",
+  "implementation": {
+    "allMembershipProfilesQualified": false,
+    "artifactRetentionDays": 90,
+    "downloadedOriginalFirstReplay": true,
+    "exactRunAttemptSourceSeed": true,
+    "exactWholeHistories": 52,
+    "executeParallelLimit": 6,
+    "originalObservationCoverageComplete": false,
+    "originalRetries": 0,
+    "pomChanged": false,
+    "requiredCiChanged": false,
+    "runtimeJavaChanged": false,
+    "verifyParallelLimit": 6
+  },
+  "notPerformed": [
+    "hosted workflow dispatch",
+    "experiment branch push",
+    "52-history native matrix",
+    "new native process history",
+    "repeat of historical full physical qualification",
+    "paid cloud execution"
+  ],
+  "phase3Complete": false,
+  "remaining": [
+    "Final-source 52-member native hosted execution and downloaded replay",
+    "Other membership profiles and frozen Phase 3 acceptance mapping",
+    "Complete original observation coverage"
+  ],
+  "schema": "gse-v53-remove-process-hosted-entry-v1",
+  "status": "IMPLEMENTED_LOCAL_CHECKED",
+  "validation": {
+    "classInventoriesEqualEarlierQualifiedNativeProducer": true,
+    "documentationContract": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 2019,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "existingCiContractElapsedSeconds": 59.094,
+    "existingCiContractTests": 62,
+    "finalPreparationAndOfflineBuildTests": 20,
+    "historicalRelocation": {
+      "archiveBytes": 33111210,
+      "archiveSha256": "a91cad1ed4b1d53f9fb919f191ddf2192fb60b964937a62d04244e4f8a6fc1a7",
+      "buildSha256": "f58a5c18a43a572e6d8d14d0e854ec4f8fff1cb1f858139d951df9dcc3d49e50",
+      "case": "5-REMOVE,JOURNAL_ROTATION_RENAMED,halt",
+      "elapsedSeconds": 16.511,
+      "fullPhysicalReplayRepeated": false,
+      "hostedExecuted": false,
+      "legacyToolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b",
+      "nativeRerun": false,
+      "phase3Complete": false,
+      "scope": "historical-producer-metadata-and-collection-only",
+      "sourceSha256": "b8beebeb61f8b589a8bb5398aef011d2ee64dd98590e69bfee59073ad3cac848",
+      "status": "PASS"
+    },
+    "initialFixtureFailure": "Two hosted execution fixtures incorrectly supplied legacy raw-diagnostic hashes to a v2 normalized-tool path; fixtures now use v2. Production validation was not weakened.",
+    "localJava": {
+      "java.runtime.version": "21.0.12.1+1-1-22.04.4-Ubuntu",
+      "java.vendor": "Ubuntu",
+      "java.version": "21.0.12.1",
+      "java.vm.name": "OpenJDK 64-Bit Server VM",
+      "java.vm.version": "21.0.12.1+1-1-22.04.4-Ubuntu",
+      "os.arch": "amd64",
+      "os.name": "Linux"
+    },
+    "localMaven": "3.9.11 (3e54c93a704957b63ee3494413a2b544fd3d825b)",
+    "localPreparation": {
+      "buildSha256": "f58a5c18a43a572e6d8d14d0e854ec4f8fff1cb1f858139d951df9dcc3d49e50",
+      "hostedExecuted": false,
+      "nativeMatrixExecuted": false,
+      "offlineExecution": {
+        "elapsedSeconds": 16.047,
+        "exit": 0
+      },
+      "phase3Complete": false,
+      "preparationExecution": {
+        "elapsedSeconds": 21.304,
+        "exit": 0
+      },
+      "readerSha256": "7c9d02bb957941ff7fe45e8d507d4175d02d4fd0ae897322f41aca7a298f1f76",
+      "repositorySha256": "df9c1f88b7513ee56db0836faa9fe274a91beb5585715d3acefb6c287f3e5f99",
+      "scope": "local-preparation-archive-and-offline-short-suite-only",
+      "seedArchiveBytes": 29150002,
+      "seedArchiveSha256": "e84ef8ff7a23d2c50f346d503184d5a855956c14261ad051156d20319070ffe3",
+      "sourceSha256": "0ce81c2de0a47006168b97b61f57930e2916b0d46b857b9d48e8d41ad2cf120d",
+      "status": "PASS",
+      "toolchainSha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+    },
+    "newGuardTests": 27,
+    "pythonElapsedSeconds": 104.093,
+    "pythonTests": 1736,
+    "shellBlocks": 5,
+    "shortTestsPerBuild": 10,
+    "yamlFiles": 2
+  },
+  "workflow": ".github/workflows/v53-remove-process.yml"
+}

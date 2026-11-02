@@ -1,10 +1,15 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Hosted REMOVE process qualification](PHASE_3_REMOVE_PROCESS_HOSTED.md) now wires
+immutable preparation, 52 whole-history executions, 52 downloaded replays and
+exact-attempt aggregation. The workflow is opt-in and has not been executed;
+complete native qualification and Phase 3 remain OPEN.
+
 [The exact-source REMOVE process matrix](PHASE_3_REMOVE_PROCESS_MATRIX.md) now
 has a fixed 52-member catalogue and independent member/aggregate entry points.
 Each complete history is bound to original source, classes, tools and reader;
 missing members and copied histories cannot substitute. Native whole-matrix
-execution, hosted wiring and full Phase 3 remain OPEN.
+execution and full Phase 3 remain OPEN; hosted wiring is recorded above.
 
 [Continuous REMOVE ballot forces](PHASE_3_REMOVE_PROCESS_BALLOT.md) bind four
 original reservations and eleven forced promises across SIGKILL/reopen, with
