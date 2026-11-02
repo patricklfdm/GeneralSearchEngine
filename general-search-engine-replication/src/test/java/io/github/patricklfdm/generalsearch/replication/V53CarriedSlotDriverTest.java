@@ -14,16 +14,20 @@ class V53CarriedSlotDriverTest {
     @TempDir Path temp;
     static final class Stop extends IOException {}
     static void prepare(V53BootstrapPublicationTest.Fixture f,String phase)throws Exception {
+        prepare(f,phase,false);
+    }
+    static void prepare(V53BootstrapPublicationTest.Fixture f,String phase,boolean data)throws Exception {
         f.campaign(1);
         String stop=switch(phase){case "ACCEPT" -> "proof-1";case "PROOF" -> "certificate-1";default -> "apply-1";};
         f.observer=(target,operation,event)->{if(operation.equals(stop))throw new Stop();};
-        try{assertThrows(Stop.class,()->f.publish(1,false));}
+        try{assertThrows(Stop.class,()->f.publish(1,data));}
         finally{f.observer=(target,operation,event)->{};}
         if(phase.equals("APPLIED"))for(var t:f.request.targets())try(var owner=f.open(t,"old-apply")) {
             owner.applyCurrent(builder().configuration(),t.materialization());
         }
         f.observations.clear();f.snapshot("old-"+phase.toLowerCase(Locale.ROOT));
         Files.writeString(f.raw.resolve("carried-phase.txt"),phase);
+        if(data)Files.writeString(f.raw.resolve("carried-kind.txt"),"DATA");
     }
     V53NativeDispatchTest.Network network(String phase)throws Exception {
         var helper=new V53NativeDispatchTest();helper.temp=temp;

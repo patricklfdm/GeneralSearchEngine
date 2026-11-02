@@ -22,7 +22,8 @@ s, future = d.s, d.future
 PHASES = {'ACCEPT': (), 'PROOF': ('PROOF',), 'CERTIFICATE': ('PROOF', 'CERTIFICATE'), 'APPLIED': ('PROOF', 'CERTIFICATE')}
 
 
-def prelude(root, phase):
+def prelude(root, phase, *, kind='BARRIER'):
+    need(kind in ('BARRIER','DATA'), 'carried payload kind')
     group = s.initialize(b.original(root, 3, False))
     group = {n: dict(files, **{future.FILE: future.frame(future.initial(files), {})}) for n, files in group.items()}
     prepared, chosen, installed = s.campaign(root, group, 2, 'round-1-prepared', selected_prefix=d.slot.prefix)
@@ -31,9 +32,10 @@ def prelude(root, phase):
     group = b.settled(installed); b.match(root, 'round-1-settled', group)
     _, local, packet = c.current(group['node-1']); cap = packet['capsule']
     selected = f.decode(local['selected.gsr'], 'records', 'SELECTED')
+    payload = d.fixture_data((303,'admitted-original')) if kind=='DATA' else b''
     entry = f.encode('records', 'ENTRY', dict(root=cap['root'], authority=selected['view'], index=1,
-        previous=cap['cut']['entry'], origin=selected['ballot'], kind='BARRIER', payload=e.digest(b'')))
-    need(b.t.plans.read(root/'entry-1.gsr', 8192) == entry and b.t.plans.read(root/'payload-1.bin', e.MIB) == b'', 'carried original entry/payload')
+        previous=cap['cut']['entry'], origin=selected['ballot'], kind=kind, payload=e.digest(payload)))
+    need(b.t.plans.read(root/'entry-1.gsr', 8192) == entry and b.t.plans.read(root/'payload-1.bin', e.MIB) == payload, 'carried original entry/payload')
     accept = f.encode('records', 'ACCEPT', dict(root=cap['root'], authority=selected['view'], ballot=selected['ballot'], index=1, entry=e.digest(entry)))
     def witnesses(raw, kind):
         return [dict(voter=n, incarnation=future.identity(files)['storage'], receipt=e.digest(f.canonical(dict(root=cap['root'], voter=n,
@@ -42,24 +44,29 @@ def prelude(root, phase):
     cert = f.encode('records', 'CERTIFICATE', dict(f.decode(proof, 'records', 'PROOF'), proofs=witnesses(proof, 'PROOF')))
     originals = [('ACCEPT', b''), ('PROOF', proof), ('CERTIFICATE', proof+cert)]
     after = dict(group)
-    for kind, extra in originals:
-        if kind != 'ACCEPT' and kind not in PHASES[phase]: break
+    for vote_kind, extra in originals:
+        if vote_kind != 'ACCEPT' and vote_kind not in PHASES[phase]: break
         after = {}
         for n, files in group.items():
             _, own, _ = c.current(files)
-            vote = e.container([files['selector.gsr'], own['promise.gsr'], own['selected.gsr'], entry, accept], b'')+extra
+            vote = e.container([files['selector.gsr'], own['promise.gsr'], own['selected.gsr'], entry, accept], payload)+extra
             vote = vote[:8]+struct.pack('>I', len(vote))+vote[12:]
             after[n] = dict(files, **{'pending.accept': vote})
-        b.match(root, 'slot-1-'+{'ACCEPT':'accepted', 'PROOF':'proved', 'CERTIFICATE':'certified'}[kind], after)
+        b.match(root, 'slot-1-'+{'ACCEPT':'accepted', 'PROOF':'proved', 'CERTIFICATE':'certified'}[vote_kind], after)
     if phase == 'APPLIED':
         catalog = copy.deepcopy(f.decode(packet['objects'][cap['catalog']], 'records', 'CATALOG'))
+        raw_image = local[cap['application']+'.image']
+        if kind=='DATA':
+            raw_image = b.t.plans.read(root/'old-applied/node-1/applied-end/application.image',64*e.MIB)
+            d.image.application(raw_image, f.decode(group['node-1']['root.gsr'],'records','ROOT')['historyId'],1,[(303,'admitted-original')])
+            catalog.update(application=e.digest(raw_image),applicationSequence=1,lastDataIndex=1)
         catalog['cut'] = dict(cap['cut'], index=1, entry=e.digest(entry)); catalog_raw = f.encode('records', 'CATALOG', catalog)
         statement = f.encode('records', 'CHECKPOINT', dict(root=cap['root'], scope='RANGE', start=cap['cut'], end=catalog['cut'],
-            catalogBefore=cap['catalog'], catalogAfter=e.digest(catalog_raw), applicationBefore=cap['application'], applicationAfter=cap['application']))
+            catalogBefore=cap['catalog'], catalogAfter=e.digest(catalog_raw), applicationBefore=cap['application'], applicationAfter=e.digest(raw_image)))
         for n, files in after.items():
             ack = f.encode('records', 'CHECKPOINT_ACK', dict(root=cap['root'], voter=n, incarnation=future.identity(files)['storage'], cut=catalog['cut'], statement=e.digest(statement)))
             end = dict(zip(('selector.gsr','certificate.gsr','catalog.gsr','statement.gsr','application.image','ack.gsr'),
-                (files['selector.gsr'], cert, catalog_raw, statement, local[cap['application']+'.image'], ack)))
+                (files['selector.gsr'], cert, catalog_raw, statement, raw_image, ack)))
             end['plan.json'] = f.canonical(dict(schema='gse-v53-applied-end/1.3', root=cap['root'], node=n,
                 files=[dict(path=k, **e.info(v)) for k, v in sorted(end.items())]))
             after[n] = dict(files, **{'applied-end':None}, **{'applied-end/'+k:v for k,v in end.items()})
@@ -96,7 +103,8 @@ def activation(root, group, phase):
     return installed, f.decode(chosen, 'records', 'SELECTED')
 
 
-def validate(root, *, confirmed_retention=False):
+def validate(root, *, confirmed_retention=False, kind='BARRIER'):
+    need(kind in ('BARRIER','DATA'), 'carried payload kind')
     root = Path(root); phase = b.t.plans.read(root/'carried-phase.txt', 32).decode()
     need(phase in PHASES, 'carried phase')
     expected = {'initial','original-plan.gsbp','original-application.image','carried-phase.txt','carried-result.json',
@@ -104,15 +112,18 @@ def validate(root, *, confirmed_retention=False):
         'after-close','calls.json','events.json','wire.json','failures.json','old-'+phase.lower()}
     expected |= {'round-1-'+v for v in ('prepared','selected','installed','settled')}
     expected |= {'slot-1-'+{'ACCEPT':'accepted','PROOF':'proved','CERTIFICATE':'certified'}[k] for k in ('ACCEPT', *PHASES[phase])}
+    if kind=='DATA':
+        expected.add('carried-kind.txt')
+        need(b.t.plans.read(root/'carried-kind.txt',32)==b'DATA','carried declared DATA payload')
     b.selection.layout(root, expected, 'carried slot inventory')
-    before, entry = prelude(root, phase); group, selected = activation(root, before, phase)
-    states, rounds, selected, identities = d.slots(root, group, selected, carried=entry, kinds=('BARRIER','BARRIER'), confirmed_retention=confirmed_retention)
+    before, entry = prelude(root, phase, kind=kind); group, selected = activation(root, before, phase)
+    states, rounds, selected, identities = d.slots(root, group, selected, carried=entry, kinds=(kind,'BARRIER'), confirmed_retention=confirmed_retention, data_document=(303,'admitted-original'))
     transfers = d.network(root, states, rounds, selected, identities, carried_first=True, confirmed_retention=confirmed_retention)
     calls = d.read(root/'calls.json')
-    for kind in ('ACCEPT', *PHASES[phase]):
-        rows = [v for v in calls if v['operation'] == {'ACCEPT':'accept','PROOF':'proof','CERTIFICATE':'certificate'}[kind]+'-1']
+    for vote_kind in ('ACCEPT', *PHASES[phase]):
+        rows = [v for v in calls if v['operation'] == {'ACCEPT':'accept','PROOF':'proof','CERTIFICATE':'certificate'}[vote_kind]+'-1']
         need([v['node'] for v in rows] == sorted(before), 'carried original phased owners')
-        for row in rows: s.ordered(row['events'], [kind+'_CANDIDATE_FORCED',kind+'_PARENT_FORCED',kind+'_BEFORE_RETURN'], 'carried old '+kind)
+        for row in rows: s.ordered(row['events'], [vote_kind+'_CANDIDATE_FORCED',vote_kind+'_PARENT_FORCED',vote_kind+'_BEFORE_RETURN'], 'carried old '+vote_kind)
     events = d.read(root/'events.json'); stop = next(i for i,v in enumerate(events) if v['event'] == 'SLOT_BEGIN' and v['index'] == 2)
     for n in d.VOTERS:
         names = [v['event'] for v in events[:stop] if v['node'] == n]
@@ -127,6 +138,7 @@ def validate(root, *, confirmed_retention=False):
         and v['failure']=='java.lang.IllegalArgumentException: higher ballot observed; fresh campaign required' for v in failures), 'carried unexpected network failure')
     result=dict(status='PASS', phase=phase, slots=2, voters=3, selected=2, transfers=transfers, automaticElection=False, publicReady=False, phase3Complete=False)
     if confirmed_retention:result['retentionSemantics']='original-copy-confirmation'
+    if kind=='DATA':result.update(carriedKind='DATA',applicationSequence=1,lastDataIndex=1)
     return result
 
 
@@ -143,18 +155,56 @@ NEGATIVES = {
 }
 
 
-def qualify(root, *, confirmed_retention=False):
+DATA_NEGATIVES = {
+    'data-marker': 'carried declared DATA payload',
+    'data-payload': 'carried original entry/payload',
+    'data-entry': 'carried original entry/payload',
+    'data-second-image': 'cross-view application sequence/documents',
+    'data-peer-image': 'admitted exact applied-1: node-2',
+    'data-final-image': 'admitted exact published-2: node-2',
+}
+
+
+def negative_cases(phase, *, confirmed_retention=False, kind='BARRIER'):
+    need(phase in PHASES and kind in ('BARRIER','DATA'), 'carried declared negative scope')
+    cases=dict(NEGATIVES,**d.OBSERVATION_NEGATIVES,**retirement.NEGATIVES) if confirmed_retention else dict(NEGATIVES)
+    if kind=='DATA':
+        cases.update(DATA_NEGATIVES)
+        if phase=='APPLIED':cases['data-old-image']='cross-view application sequence/documents'
+    return {name:reason.format(phase=phase.lower()) for name,reason in cases.items()}
+
+
+def mutate_data(path, name):
+    if name=='data-marker':(path/'carried-kind.txt').write_text('BARRIER')
+    elif name=='data-payload':(path/'payload-1.bin').write_bytes(d.fixture_data((304,'changed')))
+    elif name=='data-entry':
+        p=path/'entry-1.gsr';value=f.decode(p.read_bytes(),'records','ENTRY');value['origin']['counter']+=1
+        p.write_bytes(f.encode('records','ENTRY',value))
+    else:
+        empty=(path/'original-application.image').read_bytes()
+        if name=='data-second-image':target=path/'applied-2/node-1/applied-end/application.image'
+        elif name=='data-peer-image':target=path/'applied-1/node-2/applied-end/application.image'
+        elif name=='data-old-image':target=path/'old-applied/node-1/applied-end/application.image'
+        elif name=='data-final-image':
+            files=c.inventory(path/'published-2/node-2');directory,_,packet=c.current(files)
+            target=path/'published-2/node-2'/(directory+packet['capsule']['application']+'.image')
+        else:raise ValueError('unknown carried DATA mutation')
+        target.write_bytes(empty)
+
+
+def qualify(root, *, confirmed_retention=False, kind='BARRIER'):
     options={'confirmed_retention':True} if confirmed_retention else {}
+    if kind!='BARRIER':options['kind']=kind
     root=Path(root); original=validate(root,**options); negatives=[]
-    cases=dict(NEGATIVES,**d.OBSERVATION_NEGATIVES,**retirement.NEGATIVES) if confirmed_retention else NEGATIVES
+    cases=negative_cases(original['phase'],confirmed_retention=confirmed_retention,kind=kind)
     for name,reason in cases.items():
-        reason=reason.format(phase=original['phase'].lower())
         with tempfile.TemporaryDirectory(prefix='v53-carried-slot-negative-') as temp:
             path=Path(temp)/'raw';shutil.copytree(root,path)
             files={'old-vote':'old-'+original['phase'].lower()+'/node-1/pending.accept', 'installed-original':'installed/node-2/selector.gsr',
                 'new-vote':'applied-1/node-1/pending.accept','published':'published-1/node-2/selector.gsr',
                 'fresh-barrier':'applied-2/node-2/pending.accept','unselected':'after-close/node-3/pending.accept'}
-            if name in retirement.NEGATIVES:retirement.mutate(path,name)
+            if name.startswith('data-'):mutate_data(path,name)
+            elif name in retirement.NEGATIVES:retirement.mutate(path,name)
             elif name in d.OBSERVATION_NEGATIVES:d.mutate_observation(path,name)
             elif name in files: (path/files[name]).write_bytes(b'changed')
             elif name in ('missing-accept','early-floor'):
@@ -174,5 +224,5 @@ def qualify(root, *, confirmed_retention=False):
 
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('root');parser.add_argument('--qualify',action='store_true');parser.add_argument('--confirmed-retention',action='store_true');args=parser.parse_args()
-    print(json.dumps((qualify if args.qualify else validate)(args.root,confirmed_retention=args.confirmed_retention),sort_keys=True))
+    parser=argparse.ArgumentParser();parser.add_argument('root');parser.add_argument('--qualify',action='store_true');parser.add_argument('--confirmed-retention',action='store_true');parser.add_argument('--kind',choices=('BARRIER','DATA'),default='BARRIER');args=parser.parse_args()
+    print(json.dumps((qualify if args.qualify else validate)(args.root,confirmed_retention=args.confirmed_retention,kind=args.kind),sort_keys=True))

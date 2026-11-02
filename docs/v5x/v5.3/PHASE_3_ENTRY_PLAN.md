@@ -7,6 +7,13 @@ groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
 
+[Native carried DATA admission](PHASE_3_CARRIED_DATA_COHORT.md) now adds the
+four old vote/application phases, immutable payload completion and the next
+fresh BARRIER. Exact typed images retain application sequence and last DATA
+index 1 through cut 2. Its four histories bound to one source require 129 original-first
+negative checks. This local entry does not add hosted members; carried control,
+INTENT/FINAL readers and remaining native process coverage stay open.
+
 [Hosted native rounds](PHASE_3_NATIVE_ROUND_HOSTED.md) now provide one immutable
 seed, seven whole native executions and seven independent downloaded replays.
 The exact-attempt aggregate requires all original plans and 287 negative results.

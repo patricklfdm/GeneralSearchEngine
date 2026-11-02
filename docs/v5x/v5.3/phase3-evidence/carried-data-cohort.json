@@ -1,0 +1,183 @@
+{
+  "aggregate": {
+    "bytes": 31271,
+    "negativeCases": 129,
+    "path": "target/v53-carried-data/aggregate/receipt.json",
+    "sha256": "839621fd9e8d48949be02702218efd1d361278a1910d47b29388ed809f1d0bfe",
+    "status": "PASS",
+    "wholeHistories": 4
+  },
+  "aggregateExecution": {
+    "elapsedSeconds": 44.818,
+    "status": "PASS"
+  },
+  "allMembershipProfilesQualified": false,
+  "autonomousCompetitionQualified": false,
+  "combinedPeakResourcesQualified": false,
+  "finalSourceQualified": false,
+  "hostedDispatched": false,
+  "native": [
+    {
+      "case": "data-accept",
+      "elapsedSeconds": 99.054,
+      "junit": {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53CarriedDataDriverTest",
+        "errors": 0,
+        "failures": 0,
+        "method": "acceptedDataReplaysOnceBeforeFreshBarrier",
+        "retries": 0,
+        "skipped": 0,
+        "tests": 1
+      },
+      "nativeExecutions": 1,
+      "raw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-65be0146-030b-42b2-88cd-85a3917ce734",
+      "receipt": {
+        "bytes": 1577,
+        "path": "target/v53-carried-data/inputs/data-accept/receipt.json",
+        "sha256": "7d0927a4900a1d2b4c64ab31f177fd05f670d100aea1ba934f9becc25f448d0e"
+      },
+      "retries": 0
+    },
+    {
+      "case": "data-proof",
+      "elapsedSeconds": 100.207,
+      "junit": {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53CarriedDataDriverTest",
+        "errors": 0,
+        "failures": 0,
+        "method": "provenDataReplaysOnceBeforeFreshBarrier",
+        "retries": 0,
+        "skipped": 0,
+        "tests": 1
+      },
+      "nativeExecutions": 1,
+      "raw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-a482f8ce-acd1-4116-8939-5aae5fd3e14f",
+      "receipt": {
+        "bytes": 1573,
+        "path": "target/v53-carried-data/inputs/data-proof/receipt.json",
+        "sha256": "5c1551e4339e02cf3155d5d46b67033b1e77636b21b04d17f34a8e16de39fda6"
+      },
+      "retries": 0
+    },
+    {
+      "case": "data-certificate",
+      "elapsedSeconds": 98.874,
+      "junit": {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53CarriedDataDriverTest",
+        "errors": 0,
+        "failures": 0,
+        "method": "certifiedDataReplaysOnceBeforeFreshBarrier",
+        "retries": 0,
+        "skipped": 0,
+        "tests": 1
+      },
+      "nativeExecutions": 1,
+      "raw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-9a7bbddc-19e3-4d8e-b795-0245dc6426a4",
+      "receipt": {
+        "bytes": 1584,
+        "path": "target/v53-carried-data/inputs/data-certificate/receipt.json",
+        "sha256": "5915ab7be2059d10862cfa48f81afcb7bcda4a1e1724e49f03af490dfe0ada91"
+      },
+      "retries": 0
+    },
+    {
+      "case": "data-applied",
+      "elapsedSeconds": 99.199,
+      "junit": {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53CarriedDataDriverTest",
+        "errors": 0,
+        "failures": 0,
+        "method": "appliedDataReplaysOnceBeforeFreshBarrier",
+        "retries": 0,
+        "skipped": 0,
+        "tests": 1
+      },
+      "nativeExecutions": 1,
+      "raw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-e6964c0e-c9df-4c65-82f5-9ea24676edb0",
+      "receipt": {
+        "bytes": 1576,
+        "path": "target/v53-carried-data/inputs/data-applied/receipt.json",
+        "sha256": "6c14c93758d2f918d8fc25f05bf246d6eeae59fce13cb0251c29bc46e6068666"
+      },
+      "retries": 0
+    }
+  ],
+  "nativeExecuted": true,
+  "phase3Complete": false,
+  "pins": {
+    "buildSha256": "02c00d098de7f31847c007e34d6008147e2d5d766f722bcf6d69036af0f5c66b",
+    "readerSha256": "33c2c52f2a9d17f7ba6e81c7e622fd06302d8ea71f15bb9a1b027725312587c3",
+    "sourceSha256": "b9e9def2358e98c4665b7612f7652ebd603c1549b6caab0bd6a13d55e2bbe9ef",
+    "toolchainSha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+  },
+  "portable": {
+    "bytes": 952,
+    "members": 4,
+    "originalsPreserved": true,
+    "path": "target/v53-carried-data/portable-executions.json",
+    "pythonOptimized": true,
+    "sha256": "194257f3557ebda0e9843fbca14610103a69c46c0d82073dce76b1dc45727d3e",
+    "status": "PASS"
+  },
+  "powerLossQualified": false,
+  "priorRoundRegression": {
+    "bytes": 1123498,
+    "members": 7,
+    "negatives": 287,
+    "path": "target/v53-round-history/carried-data-regression/receipt.json",
+    "scope": "unchanged historical originals replayed by current reader; original-source failed receipt remains retained",
+    "sha256": "92bb77281341c74387f7da2b8225fa9d4a21d9866b1ea019111078d8df3bcc01",
+    "status": "PASS"
+  },
+  "processDeathQualified": false,
+  "runtimeChanged": false,
+  "schema": "gse-v53-carried-data-development-v1",
+  "scope": "native carried DATA four-phase component, not final-source phase qualification",
+  "sourceNote": "Four original histories share the frozen source at base 5d1b1e89 plus this batch implementation and tests. Documentation was added afterwards. No native retry or copied Phase 2 authority.",
+  "status": "PARTIAL",
+  "validation": {
+    "contracts": {
+      "bytes": 253,
+      "elapsedSeconds": 0.606,
+      "path": "target/v53-carried-data/contract-tests.log",
+      "sha256": "d75537aec34d7dd449e9210cfc17f7655b1350dd567920cb65a213c9b9a7463b",
+      "status": "PASS",
+      "tests": 21
+    },
+    "documentContract": {
+      "path": "target/v53-carried-data/document-contract.json",
+      "sha256": "6785ceb0226cd7322ddfa5947fbbee2916c53680c6c5fcb996962ddd48096734",
+      "status": "PASS"
+    },
+    "focused": {
+      "bytes": 124,
+      "elapsedSeconds": 0.519,
+      "path": "target/v53-carried-data/tests-final.log",
+      "sha256": "ccbc2731ca6d052b90936b25e03b3c0f780ce806c3acf7ec7acff87a23d34297",
+      "status": "PASS",
+      "tests": 25
+    },
+    "optimized": {
+      "bytes": 124,
+      "elapsedSeconds": 0.595,
+      "path": "target/v53-carried-data/optimized-tests.log",
+      "sha256": "6a4d99e3d56760460822e7c63f0eaf9715e98cbb41af00352da259ffe239bc6d",
+      "status": "PASS",
+      "tests": 25
+    },
+    "python": {
+      "bytes": 4639,
+      "elapsedSeconds": 130.555,
+      "path": "target/v53-carried-data/python-suite.log",
+      "sha256": "a21cfaf6eb2bf19201afde23717395c9c8a244341ba0d965f8802e623f20f7a9",
+      "status": "PASS",
+      "tests": 2416
+    },
+    "sourceInventory": {
+      "path": "target/v53-carried-data/inventory/receipt.json",
+      "sha256": "44047685fe9de51ea3a653e0832082e04b06dd6fa3d3d8ca0774e62811dd06e9",
+      "status": "PASS"
+    }
+  },
+  "workflowChanged": false
+}

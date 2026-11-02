@@ -104,10 +104,16 @@ def physical(root, *, confirmed_retention=False):
     return slots(root, group, selection, confirmed_retention=confirmed_retention)
 
 
-def slots(root, group, selection, *, carried=None, kinds=('BARRIER', 'DATA'), confirmed_retention=False):
+def fixture_data(document):
+    key, value = document; text = (str(key)+':'+value).encode('utf-8')
+    return b'\x01'+struct.pack('>HIII', 1, 1, 4, key)+struct.pack('>I', len(text))+text
+
+
+def slots(root, group, selection, *, carried=None, kinds=('BARRIER', 'DATA'), confirmed_retention=False,
+          data_document=(100, 'next-slot')):
     """Replay two complete slots from an independently established installation."""
     chosen = f.encode('records', 'SELECTED', selection)
-    states = [copy.deepcopy(group)]; rounds = []; first = None
+    states = [copy.deepcopy(group)]; rounds = []; first = None; documents = []
     identities = {n: future.identity(files) for n, files in group.items()}
     for index, kind in enumerate(kinds, 1):
         before = group
@@ -119,7 +125,7 @@ def slots(root, group, selection, *, carried=None, kinds=('BARRIER', 'DATA'), co
             group, retirement_events = retire_predecessor(group, VOTERS)
             states[-1] = copy.deepcopy(group)
         _, local, packet = c.current(group['node-1']); cap = packet['capsule']
-        text = b'100:next-slot'; payload = b'\x01'+struct.pack('>HIII', 1, 1, 4, 100)+struct.pack('>I', len(text))+text if kind == 'DATA' else b''
+        payload = fixture_data(data_document) if kind == 'DATA' else b''
         entry = f.encode('records', 'ENTRY', dict(root=cap['root'], authority=selection['view'], index=index,
             previous=cap['cut']['entry'], origin=selection['ballot'], kind=kind, payload=e.digest(payload)))
         if index == 1 and carried is not None:
@@ -136,11 +142,13 @@ def slots(root, group, selection, *, carried=None, kinds=('BARRIER', 'DATA'), co
         certificate = f.encode('records', 'CERTIFICATE', dict(f.decode(proof, 'records', 'PROOF'), proofs=witnesses('PROOF', proof)))
         raw_image = b.t.plans.read(root/f'applied-{index}/node-1/applied-end/application.image', 64*e.MIB)
         root_record = f.decode(group['node-1']['root.gsr'], 'records', 'ROOT')
-        image.application(raw_image, root_record['historyId'], 1 if kind == 'DATA' else 0, [(100, 'next-slot')] if kind == 'DATA' else [])
-        if kind == 'BARRIER': need(raw_image == local[cap['application']+'.image'], 'native dispatch barrier image')
         catalog = copy.deepcopy(f.decode(packet['objects'][cap['catalog']], 'records', 'CATALOG'))
+        sequence = catalog['applicationSequence'] + (1 if kind == 'DATA' else 0)
+        if kind == 'DATA': documents = [data_document]
+        image.application(raw_image, root_record['historyId'], sequence, documents)
+        if kind == 'BARRIER': need(raw_image == local[cap['application']+'.image'], 'native dispatch barrier image')
         catalog['cut'] = dict(cap['cut'], index=index, entry=e.digest(entry))
-        if kind == 'DATA': catalog.update(application=e.digest(raw_image), applicationSequence=1, lastDataIndex=index)
+        if kind == 'DATA': catalog.update(application=e.digest(raw_image), applicationSequence=sequence, lastDataIndex=index)
         catalog = f.encode('records', 'CATALOG', catalog)
         after = f.decode(catalog, 'records', 'CATALOG'); upper = dict(cut=after['cut'], catalog=e.digest(catalog), application=after['application'])
         start = f.decode(packet['objects'][cap['items'][0]['statement']], 'records', 'CHECKPOINT') if cap['items'] else dict(

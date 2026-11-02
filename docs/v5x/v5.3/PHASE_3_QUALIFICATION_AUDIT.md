@@ -53,7 +53,7 @@ prove its semantics.
 | 3C learner | Six-revision/cancellation producers, source retention, readers and hosted pair | Complete final-source histories and profile coverage |
 | 3C initialization | Actual joining owner, three-ledger initialization and 360-case entry | Final-source matrix; combined bounds |
 | 3C joint | Private INTENT/FINAL/BARRIER coordination for all seven profiles | Final-source profiles and interrupted transitions |
-| 3D rounds | Carried-first publication, two durable phases, round reuse and [seven-history admission](PHASE_3_NATIVE_ROUND_COHORT.md) | Final-source native round execution, carried payload axes and process faults |
+| 3D rounds | Carried-first publication, two durable phases, round reuse and [seven-history admission](PHASE_3_NATIVE_ROUND_COHORT.md) | Final-source native round execution; carried DATA now has a [four-history local entry](PHASE_3_CARRIED_DATA_COHORT.md); other carried payload axes and process faults remain |
 | 3D automatic | Competing owners, heartbeat, original grants, both campaign networks, maintenance, installation/publication, [observed export authority](PHASE_3_COMPETING_EXPORTS.md), [actual lifecycle collection](PHASE_3_AUTOMATIC_LIFECYCLE.md) and [pre-grant-loss whole replay](PHASE_3_PREGRANT_LOSS_REPLAY.md) | Export expiry/close faults, complete lifecycle/recovery, final-source competition and failure coverage |
 | 3D removal | Departure fencing, retirement and original-disk recovery | Final-source original/negative process matrix |
 | 3E resources | Accounting, bounded transfers, publication refusal and conditional-prefix tests | Simultaneous physical peak and admitted completion |
@@ -93,7 +93,11 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    carried BARRIER phases and three guarded rounds, including their complete
    underlying physical and lifecycle negatives. Its [hosted adapter](PHASE_3_NATIVE_ROUND_HOSTED.md)
    now retains seven independent whole histories and exact downloaded replays.
-   Additional carried payload/process axes remain; conditional Phase 2 fixtures cannot
+   The [carried DATA entry](PHASE_3_CARRIED_DATA_COHORT.md) adds four original
+   phases, unchanged payload completion and the next BARRIER with 129 negatives.
+   Its local admission has no hosted adapter yet. The existing node-rename matrix
+   already covers DATA ACCEPT/PROOF process cuts and is not redeveloped here.
+   Other carried payload/process axes remain; conditional Phase 2 fixtures cannot
    substitute for native originals. Continue competing-owner and transition
    recovery entries and uncovered learner profiles. Reuse existing producers/readers.
    Historical qualification remains scoped to its source, not a new cohort slot.
