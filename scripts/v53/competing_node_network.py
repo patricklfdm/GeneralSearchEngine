@@ -12,6 +12,13 @@ from . import discovered_selection_evidence as exchange
 n,c,e,f,need=net.n,net.c,net.e,net.f,net.need
 
 
+def intent_sequence(identities,leader,peer):
+    # MembershipFutureRetentionQuorum reserves sequence 1 for the local owner,
+    # then visits sorted remote voters, regardless of the leader's node name.
+    need(leader in identities and peer in identities and peer!=leader,'competing intent original remote owner')
+    return sorted(set(identities)-{leader}).index(peer)+2
+
+
 def raw_sends(events,entries,identities,selected):
     pending=defaultdict(deque);received=defaultdict(deque);by_hash={};sends=defaultdict(list)
     for at,row in enumerate(events):
@@ -130,7 +137,7 @@ def slot(history,events,entries,identities,start,stop,index,sends):
     need(phase.recording(leader)<quorum,'competing local future force before quorum')
     _,trace,_=phase.control('FUTURE_RETENTION_INTENT',leader,peer,intent,'FUTURE_RETENTION_ACK',
         dict(intent=e.digest(f.canonical(intent)),storage='FUTURE',revision=index*2-1,digest=e.digest(recorded[peer])),
-        ballot,phase.recording(peer),quorum,sequence=sorted(identities).index(peer)+1)
+        ballot,phase.recording(peer),quorum,sequence=intent_sequence(identities,leader,peer))
     prefix,_,packet=c.current(published[peer])
     _,_,rows=phase.control('PUBLISH',leader,peer,dict(certificate=certificate),'PUBLISH_ACK',dict(certificate=certificate,selection=e.digest(history.chosen),
         published=c.anchor(packet['capsule']),generation=e.digest(published[peer][prefix+'generation.gsr'])),ballot,
@@ -193,7 +200,7 @@ def validate(root,history,events,held):
     unused=next(v for v in identities if v not in history.voters);allowed=set()
     for result,index in zip(results[1:],(1,2)):
         request=dict(root=history.selected['root'],view=history.selected['view'],ballot=history.selected['ballot'],sender=identities[history.proposer],
-            recipient=identities[unused],trace=result.pop('_intentTrace'),sequence=sorted(identities).index(unused)+1,payload=result.pop('_intent'))
+            recipient=identities[unused],trace=result.pop('_intentTrace'),sequence=intent_sequence(identities,history.proposer,unused),payload=result.pop('_intent'))
         h=e.digest(f.encode('wire','FUTURE_RETENTION_INTENT',request))
         need(h in by_hash and by_hash[h]==('FUTURE_RETENTION_INTENT',request) and 1<=len(sends[h])<=3,'competing original unused intent')
         start,stop=(held[1][0],held[2][0]) if index==1 else (held[4][0],held[5][0])

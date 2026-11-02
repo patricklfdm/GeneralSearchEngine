@@ -1,0 +1,253 @@
+{
+  "baseCommit": "fa701aea1e730bf3bb90eafa4b24f691f52cec24",
+  "finalSourceCohortQualified": false,
+  "hostedExecuted": false,
+  "implementationInputs": {
+    "scripts/v53/competing_campaign_maintenance.py": "fa996ec92394a5ee8a6f748f7c78e2fc550fbc1c2b80a612a054816069b6254a",
+    "scripts/v53/competing_campaign_prefix.py": "dcdced5150de92e8e332bf0a2187965b5d035c489600b5d0b0cd6caf28fb5cbc",
+    "scripts/v53/competing_campaign_publication.py": "0bc00c5e280f85fcb98be26c8733fd213f444c7e7b544a400d2b4de7e852d917",
+    "scripts/v53/competing_node_evidence.py": "880952fa8df7f72cb51d1c46f82228f500e5cb55d2f20c49d21c713f9e763731",
+    "scripts/v53/competing_node_network.py": "31ed05afb882d1f743a708842598d04aa3b4165c1a7d4dc9090db4ecf5bf9b0e",
+    "scripts/v53/joining_install_storage.py": "a310d93c2e8126ba1a9baaa245a115a55fa6af61b2d0273d8fa3ffa3626d30c3",
+    "scripts/v53/joining_slot_storage.py": "704a9f6deb37ae7e3ffbf7ded817d1876373c4f4cc71474e5aa5a709530be55a",
+    "scripts/v53/test_competing_campaign_publication.py": "cabb536593531165a2b8bcab2ff8010d68bf04d5c72ad9d0a87b29639a012934",
+    "scripts/v53/test_joining_slot_storage.py": "2d18f325b78be3c69070a1a275a2c7db715d5b0d33049216bda03c8250f1659d"
+  },
+  "newNativeExecution": false,
+  "next": "Complete original preinstallation network/export/lifecycle composition, then final-source competing-owner admission and the other open Phase 3 audit groups.",
+  "originalSource": {
+    "build": {
+      "path": "target/v53-competing-campaign-replay/original-e1af4813/build.json",
+      "sha256": "3a2c1b11847f7528cb482b5f6453e7f490e1d8375bfca804c8568f85c94fb223"
+    },
+    "execution": {
+      "elapsedSeconds": 104.791,
+      "exit": 0,
+      "path": "target/v53-competing-campaign-replay/original-e1af4813/execution.json",
+      "sha256": "e435e240e1762dc430b05b7a824a7c9cada0e4829ff11472b032821fea771f23"
+    },
+    "inventory": {
+      "path": "target/v53-competing-campaign-replay/native-inventory.json",
+      "sha256": "bbbfaadaeb80af760a2b3a9ca9fc9a4b9353cbfd668863873bcf6403bd7ea88f"
+    },
+    "log": {
+      "path": "target/v53-competing-campaign-replay/original-e1af4813/maven.log",
+      "sha256": "8b828890befb22f00c1879bce65d6c31f9d3b904f9bdfc828b7403ad8087509d"
+    },
+    "producerStatus": "PARTIAL",
+    "raw": "target/v53-competing-campaign-replay/original-e1af4813/workspace/general-search-engine-replication/target/v53-competing-node/run-102ee903-d1e2-4343-834f-dbe8d1fb724c",
+    "request": {
+      "path": "target/v53-competing-campaign-replay/original-e1af4813/request.json",
+      "sha256": "55543a9b700745df016c0f24bbd2badf2d8e5e2aceba24c74af41b367a32ddf8"
+    },
+    "retries": 0,
+    "source": {
+      "path": "target/v53-competing-campaign-replay/original-e1af4813/source.json",
+      "sha256": "c57d33c0898790596a4bf9da15ccac3939284460ce0c2863912e46a633eca53f"
+    },
+    "toolchain": {
+      "path": "target/v53-competing-campaign-replay/original-e1af4813/toolchain.json",
+      "sha256": "0f3a531ebcff52e9f921162b7ca70b7a1826f64519f32650b1874cbee59f5c0e"
+    }
+  },
+  "paidCloudExecuted": false,
+  "phase3Complete": false,
+  "priorDevelopmentReceipt": {
+    "path": "docs/v5x/v5.3/phase3-evidence/competing-maintenance.json",
+    "sha256": "fa1c32a2557f443bf7f4039f1d1feeaa3fb433e8e188e355b12137633200de57"
+  },
+  "protocolBudgetsChanged": false,
+  "replay": {
+    "clientCompletionQualified": true,
+    "clientMutations": 1,
+    "exportLifetimeQualified": false,
+    "finalInventories": 3,
+    "fullLifecycleQualified": false,
+    "fullNetworkQualified": false,
+    "installation": {
+      "callbacks": 56,
+      "owners": 2
+    },
+    "phase3Complete": false,
+    "physicalPublicationQualified": true,
+    "precondition": {
+      "allCampaignsQualified": false,
+      "finalGrantSourceProjection": true,
+      "fullNetworkQualified": false,
+      "installationQualified": false,
+      "nextBoundary": "INSTALL_RESERVED",
+      "phase3Complete": false,
+      "precondition": {
+        "allCampaignsQualified": false,
+        "capturedGrants": 4,
+        "competingBallots": 2,
+        "distinctSelections": 2,
+        "fullNetworkQualified": false,
+        "installationQualified": false,
+        "phase3Complete": false,
+        "physicalPrefix": {
+          "capturedComparisons": 4,
+          "nextBoundary": "FLOOR_RESERVED",
+          "reservations": 2,
+          "stateSha256": "dfed14bc11fc74abee4cbfb914d8324c5868cab34d03ac593c58683d65364de7",
+          "throughEvent": 309
+        },
+        "precondition": {
+          "admittedOwners": true,
+          "allCampaignsQualified": false,
+          "bytes": 97583,
+          "captures": 4,
+          "completeGrantWrites": true,
+          "fullNetworkQualified": false,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "publicationQualified": false,
+          "scope": "competing-original-grant-collection",
+          "status": "PARTIAL"
+        },
+        "publicationQualified": false,
+        "retirementQualified": false,
+        "scope": "competing-bootstrap-campaign-prefix",
+        "selectionWrites": {
+          "callbacks": 12,
+          "selections": 3
+        },
+        "status": "PARTIAL"
+      },
+      "publicationQualified": false,
+      "scope": "competing-bootstrap-preinstall-maintenance",
+      "stateSha256": "d5aceeea4c1696b43a42626f1916fc270aeacf7e75321a9343c31e8f832dc43a",
+      "status": "PARTIAL",
+      "throughEvent": 470,
+      "transactions": [
+        {
+          "decisions": [
+            {
+              "authority": "b2c6ee556f859be7e06b59e0dba4d819a741489dce86497ee8190a961d48d517",
+              "identifier": "ca9f74ee-62f6-41c3-aa86-1fc69aa51a7d",
+              "journal": "b34182242f9ff3c0aabd003a10b3955f971c8a6585d1d179dabf05aaf1da04c6"
+            }
+          ],
+          "end": 374,
+          "forceCallbacks": 67,
+          "network": {
+            "exchanges": 10,
+            "transfers": 2,
+            "unusedIncompleteTransfers": 0
+          },
+          "node": "node-1",
+          "retiredSources": 1,
+          "start": 310,
+          "voters": [
+            "node-1",
+            "node-2"
+          ]
+        }
+      ],
+      "transientRetirementBytesQualified": false
+    },
+    "processDeathQualified": false,
+    "proposer": "node-3",
+    "publicationNetwork": {
+      "exchanges": 175,
+      "exhaustedCheckpointPulls": 3,
+      "heartbeat": {
+        "completedContacts": 10,
+        "responses": 20,
+        "samples": 10
+      },
+      "slotStorageCallbacks": 604,
+      "slots": [
+        {
+          "exchanges": 79,
+          "transfers": 16,
+          "unusedIncompleteTransfers": 0
+        },
+        {
+          "exchanges": 96,
+          "transfers": 19,
+          "unusedIncompleteTransfers": 0
+        }
+      ],
+      "unansweredIntents": 2
+    },
+    "scope": "competing-bootstrap-installed-and-published-files",
+    "scratchTransfersDrained": true,
+    "selected": [
+      "node-1",
+      "node-3"
+    ],
+    "slots": 2,
+    "status": "PARTIAL"
+  },
+  "runtimeJavaChanged": false,
+  "schema": "gse-v53-competing-publication-development-v1",
+  "scope": "original competing bootstrap installation, uninterrupted BARRIER/DATA publication, client completion and transfer drain",
+  "status": "PARTIAL",
+  "validation": {
+    "contracts": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 2227,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "path": "target/v53-competing-publication/contracts.log",
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "sha256": "4d6c1070bc6bebe646dd6921f6e04131332c6d607f89a4ee6f1f904bb64663e4",
+      "status": "PASS"
+    },
+    "legacyQualification": {
+      "negatives": 32,
+      "path": "target/v53-competing-publication/legacy-qualification.json",
+      "pythonOptimized": true,
+      "sha256": "076a1805979dc39e46f0adbd9ce0443858e70f019e7470fa5f504824db24cd53",
+      "status": "PASS"
+    },
+    "optimized": {
+      "path": "target/v53-competing-publication/optimized-tests.log",
+      "seconds": 0.151,
+      "sha256": "ab5f1b5ff19e08530fbd26d0de05b6899eb8de1ecac59017b69097a0d7098fe5",
+      "status": "PASS",
+      "tests": 56
+    },
+    "originalSequenceRegression": {
+      "errors": 0,
+      "failedProposerPeerPairs": 3,
+      "oldFormulaRejected": true,
+      "path": "target/v53-competing-publication/original-sequence-regression.json",
+      "sha256": "2d064844cfae6e9b2a1a00e523c31a7b66c317931330dd2675bb5cb477a01657",
+      "status": "PASS"
+    },
+    "planInspection": {
+      "execution": "source-inventory-only",
+      "path": "target/v53-competing-publication/plan-inspection/receipt.json",
+      "sha256": "b086abbb6334cead28945ca29bc0f867d3c6f559667c4298289b6c4add456ffc",
+      "status": "PASS"
+    },
+    "portableQualification": {
+      "negatives": 25,
+      "path": "target/v53-competing-publication/portable-qualification.json",
+      "pythonOptimized": true,
+      "sha256": "808da780f8551c3c69087cd84531904e75dc830ab0e093421f55448fff11e656",
+      "status": "PASS"
+    },
+    "portableReceipt": {
+      "inventorySha256": "0deac1dccaef9fb94dbb3015d2d651526f83413c9f8b493c4a532e794b964515",
+      "negatives": 25,
+      "originalUnchanged": true,
+      "path": "target/v53-competing-publication/portable-receipt.json",
+      "seconds": 33.135,
+      "sha256": "967517cfb90dd74284c03b7514c37a802a5b8cdb401b1821a706597f176630ce",
+      "status": "PASS"
+    },
+    "python": {
+      "path": "target/v53-competing-publication/python-suite.log",
+      "seconds": 103.948,
+      "sha256": "3ad48c7f98eb3015709e293de0c6375fb675da5567705ee79347b6a3a515e59b",
+      "status": "PASS",
+      "tests": 2254
+    }
+  },
+  "workflowChanged": false
+}

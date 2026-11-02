@@ -7,6 +7,14 @@ groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
 
+[Competing installation and publication](PHASE_3_COMPETING_PUBLICATION.md) now
+continues the same original through two installed owners, BARRIER/DATA and all
+three final inventories, including the losing history. It replays publication
+network, bounded unsuccessful checkpoint pulls, client completion and drained
+scratch. Twenty-five exact mutations and portable replay qualify this PARTIAL
+continuation; complete activation network/export/lifecycle and cohort admission
+remain OPEN.
+
 [Competing maintenance](PHASE_3_COMPETING_MAINTENANCE.md) now continues that
 original through floor acquisition, old-source retirement and release, with
 full-ballot ordering, exact callbacks/deliveries and final grant/source comparison.

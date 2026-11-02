@@ -51,6 +51,23 @@ class JoiningSlotStorageTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'^joining slot unsupported application history$'):
             s.application(fixture()[1],'DATA')
 
+    def test_explicit_data_requires_the_complete_output_cleanup(self):
+        data=fixture();events,end,members=data
+        start=next(i for i,v in enumerate(events) if v['event']=='REPLAY_BEFORE_RETURN')
+        events[start:start]=[dict(node='node-1',event=n) for n in ('REPLAY_BEFORE_DELETE','REPLAY_DELETED')]*4
+        own={v['event']:i for i,v in enumerate(events)}
+        self.assertEqual(len(events),s.validate_slot(events,'node-1',None,own,end,members,'DATA',allow_data=True))
+        self.assertEqual(11,s.application(end,'DATA',allow_data=True).count('REPLAY_DELETED'))
+        self.assertEqual(7,s.application(end,'BARRIER',allow_data=True).count('REPLAY_DELETED'))
+        for at in range(start,start+8):
+            changed=events[:at]+events[at+1:];own={v['event']:i for i,v in enumerate(changed)}
+            with self.subTest(at=at),self.assertRaisesRegex(ValueError,'complete application storage order'):
+                s.validate_slot(changed,'node-1',None,own,end,members,'DATA',allow_data=True)
+
+    def test_data_opt_in_never_admits_unknown_application_kinds(self):
+        with self.assertRaisesRegex(ValueError,'unsupported application history'):
+            s.application(fixture()[1],'UNMODELED',allow_data=True)
+
     def test_each_internal_storage_step_is_mandatory(self):
         data=fixture(); boundaries={'ACCEPT_VALIDATED','ACCEPT_BEFORE_RETURN','PROOF_VALIDATED','PROOF_BEFORE_RETURN',
             'CERTIFICATE_VALIDATED','CERTIFICATE_BEFORE_RETURN','APPLICATION_AUTHORITY_VALIDATED','APPLY_BEFORE_RETURN',

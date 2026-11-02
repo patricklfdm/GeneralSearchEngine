@@ -41,15 +41,16 @@ def applied_members(end):
     return ordered
 
 
-def application(end, kind):
-    # This original history contains only membership controls and barriers: no
-    # DATA projection creates an output bundle. The core input has three members;
-    # input/work directories plus claim/root make seven forced removals.
-    need(kind in CONTROL, 'joining slot unsupported application history')
+def application(end, kind, *, allow_data=False):
+    # Default joining histories contain controls/barriers only. An explicitly
+    # admitted DATA projection also materializes output's three core members
+    # and directory. Claim/work/root plus each complete four-entry bundle are
+    # removed by MembershipReplayFiles; the count never comes from the trace.
+    need(kind in CONTROL or allow_data and kind=='DATA', 'joining slot unsupported application history')
     names = ['APPLICATION_AUTHORITY_VALIDATED', 'REPLAY_RESERVED', 'REPLAY_DIRECTORY_CREATED',
              'REPLAY_CLAIM_CREATED', 'REPLAY_CLAIM_PREFIX_WRITTEN', 'REPLAY_CLAIM_WRITTEN',
              'REPLAY_CLAIM_FORCED', 'REPLAY_BEFORE_APPLICATION', 'REPLAY_APPLICATION_FINISHED']
-    names += ['REPLAY_BEFORE_DELETE', 'REPLAY_DELETED'] * 7
+    names += ['REPLAY_BEFORE_DELETE', 'REPLAY_DELETED'] * (11 if kind=='DATA' else 7)
     names += ['REPLAY_BEFORE_RETURN', 'APPLY_VALIDATED', 'APPLY_DIRECTORY_CREATED']
     for _, label in applied_members(end):
         if label == 'ACK': names.append('APPLY_END_FORCED')
@@ -72,14 +73,14 @@ def retirement(end):
             *['COVERED_VOTE_'+suffix for suffix in VOTE_WRITE], 'PUBLICATION_RETIRED']
 
 
-def validate_slot(events, node, scope, own, end, members, kind):
+def validate_slot(events, node, scope, own, end, members, kind, *, allow_data=False):
     count = 0
     for phase in ('ACCEPT', 'PROOF', 'CERTIFICATE'):
         count += exact(events, node, scope, own[phase+'_VALIDATED'], own[phase+'_BEFORE_RETURN'],
                        [phase+'_VALIDATED', *[phase+'_'+s for s in VOTE_WRITE], phase+'_BEFORE_RETURN'],
                        (phase+'_',), 'joining slot complete '+phase.lower()+' storage order')
     count += exact(events, node, scope, own['APPLICATION_AUTHORITY_VALIDATED'], own['APPLY_BEFORE_RETURN'],
-                   application(end, kind), ('APPLICATION_AUTHORITY_', 'REPLAY_', 'APPLY_'),
+                   application(end, kind, allow_data=allow_data), ('APPLICATION_AUTHORITY_', 'REPLAY_', 'APPLY_'),
                    'joining slot complete application storage order')
     count += exact(events, node, scope, own['PUBLICATION_VALIDATED'], own['PUBLICATION_SELECTOR_FORCED'],
                    publication(members), ('PUBLICATION_', 'INSTALL_', 'CURRENT_'),

@@ -51,7 +51,7 @@ prove its semantics.
 | 3C initialization | Actual joining owner, three-ledger initialization and 360-case entry | Final-source matrix; combined bounds |
 | 3C joint | Private INTENT/FINAL/BARRIER coordination for all seven profiles | Final-source profiles and interrupted transitions |
 | 3D rounds | Carried-first publication, two durable phases and round reuse | Current-source carried/stable/process qualification |
-| 3D automatic | Competing owners, heartbeat, single-campaign replay, original grant capture, competing prefix and preinstall maintenance derivation | Install/publication and complete network/export replay across campaigns, final-source competition and failure coverage |
+| 3D automatic | Competing owners, heartbeat, single-campaign replay, original grant capture, competing prefix, preinstall maintenance and installation/publication continuation | Complete activation network/export/lifecycle replay across campaigns, final-source competition and failure coverage |
 | 3D removal | Departure fencing, retirement and original-disk recovery | Final-source original/negative process matrix |
 | 3E resources | Accounting, bounded transfers, publication refusal and conditional-prefix tests | Simultaneous physical peak and admitted completion |
 | 3E coverage | Frozen finite inventory and this dependency map | Concrete schedule/evidence/rejection mapping |
@@ -73,8 +73,10 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    retains losing/superseded grants. The [new native prefix](PHASE_3_COMPETING_CAMPAIGN_PREFIX.md)
    derives four grants and both choices; [preinstall maintenance](PHASE_3_COMPETING_MAINTENANCE.md)
    now derives its original floor/source release and final grant/source projection.
-   Continue installation, publication and complete network/export replay before
-   adding a general competition gate.
+   [Installation/publication continuation](PHASE_3_COMPETING_PUBLICATION.md) now
+   derives the selected generations, both slots, client completion and drained
+   scratch from that original. Complete remaining activation network, temporal
+   exports and lifecycle composition before adding a general competition gate.
    Continue with competing owners, then inventory transfer, carried
    and transition recovery entries and uncovered learner profiles. Reuse existing producers/readers.
    Historical qualification remains scoped to its source, not a new cohort slot.

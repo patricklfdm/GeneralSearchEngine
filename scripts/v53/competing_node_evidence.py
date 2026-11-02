@@ -210,7 +210,8 @@ def completion(history,index):
     return dict(certificate=e.digest(certificate),selection=e.digest(history.chosen),published=c.anchor(packet['capsule']),generation=e.digest(files[prefix+'generation.gsr']))
 
 
-def lifecycle(root,history,events):
+def completion_lifecycle(root,history,events):
+    """Client/slot observations shared after independently derived activation."""
     leader=history.proposer;held=[(i,v) for i,v in enumerate(events) if v['event'].startswith('ROUND_')]
     need([v['event'] for _,v in held]==['ROUND_'+v for v in ['INSTALLED','SLOT_BEGIN','SLOT_COMPLETE','BEFORE_READY','SLOT_BEGIN','SLOT_COMPLETE']],
          'competing exact round lifecycle')
@@ -236,6 +237,12 @@ def lifecycle(root,history,events):
     need(opened==[dict(node=v,event='NODE_OPEN') for v in sorted(history.initial)],'competing all owners opened')
     before=[v for v in events[:events.index(opened[-1])+1] if v['event']!='NODE_OPEN']
     wait.lifecycle(n.read(root/'calls.json'),before,history.initial)
+    return held
+
+
+def lifecycle(root,history,events):
+    held=completion_lifecycle(root,history,events)
+    opened=[v for v in events if v['event']=='NODE_OPEN']
     unused=next(v for v in history.initial if v not in history.voters)
     need(all(v['event'] in ('NETWORK_SEND','NETWORK_REQUEST','NETWORK_RECEIVED','WIRE_RESPONSE')
              for v in events[events.index(opened[-1])+1:] if v['node']==unused), 'competing unselected owner remains nonwriting')
@@ -248,12 +255,19 @@ def cleanup(root,history):
          physicalReplay=False,phase3Complete=False),'competing producer scope')
     need(n.read(root/'diagnostics.json')==[dict(node=v,state='READY' if v==history.proposer else 'STARTING',rounds=1,losses=[],failure='')
          for v in sorted(history.initial)],'competing diagnostic scope')
+    scratch(root,history,{history.proposer})
+
+
+def scratch(root,history,outgoing):
+    """Exact drained original owners; caller derives which owners campaigned."""
+    need(type(outgoing) is set and history.proposer in outgoing and outgoing<=set(history.initial),
+         'competing scratch outgoing owners')
     drains=n.read(root/'drains.json');nodes=sorted(history.initial,reverse=True)
     need(type(drains) is list and [v.get('node') for v in drains]==nodes,'competing drain owners')
     b.selection.layout(root/'drain-scratch',set(nodes),'competing scratch owners')
     paths=set();keys=set()
     for row in drains:
-        node=row['node'];roles=['incoming','outgoing'] if node==history.proposer else ['incoming']
+        node=row['node'];roles=['incoming','outgoing'] if node in outgoing else ['incoming']
         files=c.inventory(root/'drain-scratch'/node)
         need(set(files)=={v for role in roles for v in (role,role+'/owner.json',role+'/scope.lock')}
              and all(files[role] is None and files[role+'/scope.lock']==b'' for role in roles), 'competing exact drained scratch')
