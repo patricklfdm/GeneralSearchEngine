@@ -18,14 +18,19 @@ m=maintenance; c=m.c; e=m.e; n=m.n; f=m.f; disk=m.disk; need=m.need; sha=m.sha
 init=c.init; t=init.transition; peers=init.peers; FILE=init.PEERS
 WRITES=['RETENTION_'+v for v in ('BEFORE_WRITE','PREFIX_WRITTEN','WRITTEN','FORCED','CANDIDATE_PARENT_FORCED','RENAMED','PARENT_FORCED')]
 RESEAL=['RETENTION_RECOVERY_ACTIVE_FORCED','RETENTION_RECOVERY_PARENT_FORCED']
-OWNERS=[('node-'+str(i),None) for i in (1,2,3)]+[
-    ('node-4',s) for s in ('initial-owner','retaining-owner','repeated-basis-owner','continuation-owner','stable-cold-owner')]
+JOINING_SCOPES=('initial-owner','retaining-owner','repeated-basis-owner','continuation-owner','stable-cold-owner')
+OWNERS=[('node-'+str(i),None) for i in (1,2,3)]+[('node-4',s) for s in JOINING_SCOPES]
 
 
-def reseal_lifetimes(events):
-    """Existing active bytes are forced again on the eight original opens."""
+def owner_lifetimes(model):
+    need(model.joining not in model.old and len(set(model.old))==len(model.old),'joining peer original owner cohort')
+    return [(node,None) for node in model.old]+[(model.joining,scope) for scope in JOINING_SCOPES]
+
+
+def reseal_lifetimes(events,owners=OWNERS):
+    """Existing active bytes are forced again on every declared original open."""
     result=[];used=set()
-    for node,scope in OWNERS:
+    for node,scope in owners:
         rows=[(i,v['event']) for i,v in enumerate(events) if v.get('node')==node and v.get('scope')==scope]
         points={name:[i for i,event in rows if event==name] for name in
                 ['CURRENT_VALIDATED','LEARNER_RETENTION_RECOVERY_PARENT_FORCED',*RESEAL,'FUTURE_RETENTION_RECOVERY_FORCED']}
@@ -67,8 +72,12 @@ class Replay(m.Replay):
     expected_write_counts=dict(maintenance=54,selected=12,publication=24)
 
     def __init__(self,root):
-        super().__init__(root);self.floor_inputs=[];self.state={};self.steps=[];self.used=set();self.files_cache={};self.comparisons=0
-        self.tx=transactions(self.events);self.completions=set();self.reseals=reseal_lifetimes(self.events)
+        super().__init__(root);self.initialize_chain()
+
+    def initialize_chain(self):
+        self.floor_inputs=[];self.state={};self.steps=[];self.used=set();self.files_cache={};self.comparisons=0
+        self.owner_lifetimes=owner_lifetimes(self.model)
+        self.tx=transactions(self.events);self.completions=set();self.reseals=reseal_lifetimes(self.events,self.owner_lifetimes)
         need(all(not v['event'].startswith('RETENTION_') or v['event'] in WRITES+RESEAL for v in self.events),
              'joining peer unsupported retention event')
 
@@ -93,7 +102,7 @@ class Replay(m.Replay):
         actual=[v for v in self.tx if v['node']==node and lower<v['start'] and v['end']<upper]
         need(len(actual)==len(changes),'joining peer '+kind+' durable write count')
         for tx,change in zip(actual,changes):
-            need(tx['start'] not in self.used and tx['scope']==('continuation-owner' if node=='node-4' else None),
+            need(tx['start'] not in self.used and tx['scope']==('continuation-owner' if node==self.model.joining else None),
                  'joining peer original write owner')
             before,after,cause=change
             need(peers.decode(before)['owner']['node']==node,'joining peer original write owner')
@@ -114,8 +123,8 @@ class Replay(m.Replay):
         view=own['packet']['capsule']['cut']['view'];wanted=set(view['old']+view['new']);known={v['identity']['node'] for v in plan['peers']}
         if plan['view']!=view:
             if wanted-known:
-                need(wanted-known=={'node-4'} and 'node-4' in copies,'joining peer reconcile original joining copy')
-                changed=init.reconcile(self.state[node],files,self.files(copies['node-4']))
+                need(wanted-known=={self.model.joining} and self.model.joining in copies,'joining peer reconcile original joining copy')
+                changed=init.reconcile(self.state[node],files,self.files(copies[self.model.joining]))
             else:
                 need(wanted==known,'joining peer reconcile exact retained identities');plan['view']=view;changed=updated(self.state[node],plan)
             self.change(node,changed,'reconcile',changes)
@@ -156,7 +165,7 @@ class Replay(m.Replay):
         self.compare(node,self.model.owner('published',index,node)[FILE],'published-'+str(index))
 
     def initialize(self,at):
-        node='node-4';need(node not in self.state,'joining peer duplicate joining initialization')
+        node=self.model.joining;need(node not in self.state,'joining peer duplicate joining initialization')
         own=self.current(node,at,at);originals=[];ancestry=[]
         for peer in own['packet']['capsule']['cut']['view']['old']:
             available=[v for v in self.sources if v['node']==peer and v['start']<at]
@@ -173,11 +182,15 @@ class Replay(m.Replay):
 
     def reseal(self,value):
         at,node=value
-        # The old owners open only at bootstrap. The inactive third voter has
-        # no export-generation window; its original bootstrap file still binds
-        # its reseal, and the complete physical reader checks its cold state.
-        files=disk.inventory(self.root/'before-network'/node) if node!='node-4' else self.files(self.current(node,at,at))
+        # Old owners open only at bootstrap, including original voters unused
+        # by later selections. Their original bootstrap files bind each reseal.
+        files=disk.inventory(self.root/'before-network'/node) if node!=self.model.joining else self.files(self.current(node,at,at))
         self.compare(node,files[FILE],'open-reseal')
+
+    def adoption(self,own):
+        # New authority changes CURRENT but must preserve this continuous
+        # ledger; an observed generation cannot reset the derived predecessor.
+        self.compare(own['node'],self.files(own)[FILE],'adoption')
 
     def run(self):
         self.statuses();self.floors()
@@ -191,6 +204,7 @@ class Replay(m.Replay):
             actions.append((end,'floor',row))
         for own in self.windows:
             if own['start']>=0 and self.events[own['start']]['event']=='INSTALL_BEFORE_RETURN':actions.append((own['start'],'selection',own))
+            elif own['start']>=0 and self.events[own['start']]['event']=='ADOPTION_INSTALL_BEFORE_RETURN':actions.append((own['start'],'adoption',own))
         for (index,node),points in self.phases.items():actions.append((points['PUBLICATION_BEFORE_RETURN'],'publication',(index,node)))
         initialized=[i for i,v in enumerate(self.events) if v['event']=='JOINING_RETENTION_BEFORE_RETURN']
         need(len(initialized)==1,'joining peer original initialization count');actions.append((initialized[0],'initialize',initialized[0]))
@@ -203,7 +217,7 @@ class Replay(m.Replay):
         need(self.completions=={i for i,v in enumerate(self.events) if v['event']=='SELECTED_RETENTION_COMPLETED'},
              'joining peer unbound selected completions')
         for node in self.state:
-            path='joining-originals-stable-cold/replica' if node=='node-4' else 'after-close/'+node
+            path='joining-originals-stable-cold/replica' if node==self.model.joining else 'after-close/'+node
             self.compare(node,disk.inventory(self.root/path)[FILE],'cold')
         counts=Counter(v['kind'] for v in self.steps)
         if self.expected_write_counts is not None:

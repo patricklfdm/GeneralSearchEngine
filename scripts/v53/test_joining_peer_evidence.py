@@ -2,6 +2,7 @@
 from contextlib import ExitStack
 import copy
 from pathlib import Path
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -21,6 +22,7 @@ class JoiningPeerEvidenceTest(unittest.TestCase):
 
     def reader(self):
         reader=p.Replay.__new__(p.Replay)
+        reader.model=SimpleNamespace(joining='node-4')
         reader.tx=p.transactions([dict(node='node-2',event='start'),*self.events()])
         reader.used=set();reader.steps=[]
         return reader

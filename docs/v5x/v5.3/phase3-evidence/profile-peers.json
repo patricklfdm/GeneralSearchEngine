@@ -1,0 +1,230 @@
+{
+  "actions": {
+    "localCommit": true,
+    "nativeRerun": false,
+    "paidCloud": false,
+    "pomChanged": false,
+    "push": false,
+    "runtimeJavaChanged": false,
+    "workflowChanged": false
+  },
+  "allMembershipProfilesQualified": false,
+  "archive": {
+    "allMembershipProfilesQualified": false,
+    "archiveBytes": 40432914,
+    "archiveSha256": "c4cbf35346111e13d301338ea89aa1655bc5381d122babf23b0289b68aab0640",
+    "directories": 3197,
+    "exactNegatives": 40,
+    "files": 21441,
+    "identicalResults": true,
+    "manifest": {
+      "bytes": 3525248,
+      "path": "target/v53-profile-peers-20261102/v2/artifact/manifest.json",
+      "sha256": "83ac8f55f585d5e912a84e1d79bee16794ad6d808e1b4abd04f911a61245a48c"
+    },
+    "nativeRerun": false,
+    "path": "target/v53-profile-peers-20261102/v2/artifact/bundle.tar.gz",
+    "phase3Complete": false,
+    "portable": {
+      "legacy": {
+        "elapsedSeconds": 57.107,
+        "exit": 0
+      },
+      "replace": {
+        "elapsedSeconds": 45.34,
+        "exit": 0
+      },
+      "same-view": {
+        "elapsedSeconds": 54.052,
+        "exit": 0
+      }
+    },
+    "pythonSeconds": 95.731,
+    "pythonTests": 1854,
+    "status": "PASS",
+    "unchangedOriginals": true
+  },
+  "baseHead": "3a8538442b5dada37f20f2e6695e9b56d3864934",
+  "currentSourceNativeCohortQualified": false,
+  "firstCollectionAttempt": {
+    "log": {
+      "bytes": 1551,
+      "path": "target/v53-profile-peers-20261102/qualification.log",
+      "sha256": "1e8d63ea98109563fd554741fc60e47a75c05327f33e988cd8c0bfa2ef69faab"
+    },
+    "nativeRerun": false,
+    "phase": "input-discovery",
+    "reason": "temporary collector referenced incorrect input directory",
+    "status": "FAIL"
+  },
+  "futureLedgerCompositionQualified": false,
+  "learnerLedgerCompositionQualified": false,
+  "originalReplays": {
+    "legacy": {
+      "counts": {
+        "capturedLedgers": 19,
+        "chainSha256": "280871d960e4948d946655ac821e4848e0e517f5ca76ca3757af299ab9958481",
+        "completePhysicalQualified": false,
+        "durableWrites": 90,
+        "finalRevisions": {
+          "node-1": 40,
+          "node-2": 40,
+          "node-3": 0,
+          "node-4": 10
+        },
+        "forceAndNetworkQualified": false,
+        "ledgerComparisons": 97,
+        "openReseals": 8,
+        "peerLedgerCompositionQualified": true,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "scope": "one-native-ADD-original-peer-ledger-chain",
+        "status": "PASS",
+        "writesByKind": {
+          "maintenance": 54,
+          "publication": 24,
+          "selected": 12
+        }
+      },
+      "execution": {
+        "elapsedSeconds": 888.093,
+        "exit": 0
+      },
+      "inputInventory": {
+        "bytes": 573262,
+        "path": "target/v53-profile-peers-20261102/v2/legacy-inputs.json",
+        "sha256": "97c32eafa035d70a610b80bf3fbc2d49e5993e97c72dad590cab1d36e590718d"
+      },
+      "negativeCases": 20,
+      "result": {
+        "bytes": 14496,
+        "path": "target/v53-profile-peers-20261102/v2/legacy.json",
+        "sha256": "c5bea03a2c89dba639adddb3e0cc68eb67d2ee5b06dade55ccf19fef606d8bdb"
+      }
+    },
+    "replace": {
+      "counts": {
+        "capturedLedgers": 17,
+        "chainSha256": "b65e2c7d2c909f1a242cd7c21af985dfdd2e8ef2d05c6a51e779863dcabbd683",
+        "completePhysicalQualified": false,
+        "durableWrites": 78,
+        "finalRevisions": {
+          "node-1": 39,
+          "node-2": 39,
+          "node-3": 0,
+          "node-4": 0
+        },
+        "forceAndNetworkQualified": false,
+        "ledgerComparisons": 90,
+        "openReseals": 8,
+        "peerLedgerCompositionQualified": true,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "scope": "one-native-REPLACE-original-peer-ledger-chain",
+        "status": "PASS",
+        "writesByKind": {
+          "maintenance": 46,
+          "publication": 22,
+          "selected": 10
+        }
+      },
+      "execution": {
+        "elapsedSeconds": 674.941,
+        "exit": 0
+      },
+      "inputInventory": {
+        "bytes": 558304,
+        "path": "target/v53-profile-peers-20261102/v2/replace-inputs.json",
+        "sha256": "84d9e7f36e165b68d6d26c83b2ea9b8c7eab5c24e69decc214d9e538e6764a3c"
+      },
+      "negativeCases": 20,
+      "result": {
+        "bytes": 14986,
+        "path": "target/v53-profile-peers-20261102/v2/replace.json",
+        "sha256": "f16b300f1fc2fb0afbc7edbe5e4925969444ba7abf508c2d063bb34580540c1d"
+      }
+    },
+    "same-view": {
+      "execution": {
+        "elapsedSeconds": 55.003,
+        "exit": 0
+      },
+      "inputInventory": {
+        "bytes": 600356,
+        "path": "target/v53-profile-peers-20261102/v2/same-view-inputs.json",
+        "sha256": "efc38f2303e5129c11d042153170d210a7ad40997206981f5e9b89f5babc8e9b"
+      },
+      "result": {
+        "bytes": 12761,
+        "path": "target/v53-profile-peers-20261102/v2/same-view.json",
+        "sha256": "8e387f772f18fafd15aaadead220a62c1d9f0e2d1403e2d3abe332a7cb90b695"
+      }
+    }
+  },
+  "peerLedgerCompositionQualified": true,
+  "phase3Complete": false,
+  "previousHeadRegression": {
+    "errors": 2,
+    "log": {
+      "bytes": 2178,
+      "path": "target/v53-profile-peers-20261102/previous-regression.log",
+      "sha256": "6db0da81d281acb1f7cf68ae66b0ceef7796943bce7b6ebcf4750b377093a819"
+    },
+    "previousImplementation": {
+      "bytes": 20638,
+      "path": "target/v53-profile-peers-20261102/previous-peer.py",
+      "sha256": "ffa6d1b307244fc5d7fa5caaa7ececd8095500e12a9aabc39436f9de109acd2b"
+    },
+    "reason": "joining peer original write owner",
+    "scope": "conditional valid profile owner writes rejected by previous reader",
+    "status": "REPRODUCED",
+    "tests": 2
+  },
+  "python": {
+    "elapsedSeconds": 95.731,
+    "log": {
+      "bytes": 3943,
+      "path": "target/v53-profile-peers-20261102/python-tests.log",
+      "sha256": "67b46db8ea7c5e2ee77bb6b2abcd59d57ded147b97275fca1c46d31ebd7f3e20"
+    },
+    "newTests": 16,
+    "tests": 1854
+  },
+  "reader": {
+    "code": {
+      "scripts/v53/joining_peer_evidence.py": "b4b874eb1fc99673d487742ba0484d108d9708a4c3ffed662a91932970b72958",
+      "scripts/v53/joining_profile_peer_evidence.py": "31900650a64500e391c0558140052fa7980b255e6ca1e4de99e795cbc7ee42ef",
+      "scripts/v53/test_joining_peer_evidence.py": "86a373b00d325125143a21a18b43778681669edabddc4d46b32dd2211d61e5d9",
+      "scripts/v53/test_joining_profile_peer_evidence.py": "4bdef6713b3a83f73e8e528e7e932e3aa541ec97a7f529827cc8c46786d71006"
+    },
+    "manifest": {
+      "bytes": 624553,
+      "path": "target/v53-profile-peers-20261102/v2/reader/source.json",
+      "sha256": "d26a601fe07aaf7e570f7403963a092c8e6aa59af115112e93b3faf5875759a9"
+    }
+  },
+  "remaining": [
+    "Larger-profile continuous learner/future and ballot composition",
+    "Final-source seven-profile and process/fault cohorts",
+    "Combined bounds and frozen S/N mapping"
+  ],
+  "sameViewCompatibility": {
+    "changes": [
+      {
+        "after": 94,
+        "before": 93,
+        "path": "/precondition/precondition/precondition/peers/ledgerComparisons"
+      }
+    ],
+    "otherFieldsIdentical": true,
+    "reason": "explicit unchanged-ledger comparison at original adoption",
+    "receipt": {
+      "bytes": 279,
+      "path": "target/v53-profile-peers-20261102/v2/same-view-compatibility.json",
+      "sha256": "c631c16bb3f2343f66b6dc528ae750eea98428491d0761e322f5bb191d230a0c"
+    },
+    "status": "PASS"
+  },
+  "schema": "gse-v53-profile-peers-entry-v1",
+  "status": "PARTIAL"
+}

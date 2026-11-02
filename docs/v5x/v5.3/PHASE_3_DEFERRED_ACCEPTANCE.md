@@ -1,9 +1,15 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Profile continuous peer ledgers](PHASE_3_PROFILE_PEERS.md) now bind every old
+voter and actual joining owner to continuous revisions, original forces, reseals
+and cold bytes, including an explicit adoption comparison. Larger-profile
+learner/future/ballot composition and the final-source cohort remain OPEN.
+
 [Profile maintenance authority](PHASE_3_PROFILE_MAINTENANCE.md) now verifies
 actual old/new majorities, complete original copies and every floor lifecycle.
 Direct calls retain the original INTENT proof cohort and actual joiner identity.
-Larger-profile continuous ledgers and the final-source cohort remain OPEN.
+Peer-ledger composition is recorded above; the remaining continuous ledgers
+and the final-source cohort remain OPEN.
 
 [Profile control exports](PHASE_3_PROFILE_CONTROLS.md) now aggregate original
 retention ACKs into actual governing majorities and bind head confirmations to
