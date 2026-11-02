@@ -1,5 +1,10 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Profile-bound temporal exports](PHASE_3_PROFILE_EXPORTS.md) now use each ADD/REPLACE
+profile's actual joining identity and every original voter. Content authority and
+final-adoption lifetimes are replayed; larger-profile control/maintenance composition
+and the complete native cohort remain OPEN.
+
 [CURRENT ownership across complete histories](PHASE_3_CURRENT_OWNERSHIP.md)
 accounts for every original CURRENT callback across startup, joining takeover,
 installation, publication, adoption, capture and cold/process reopen. Four retained

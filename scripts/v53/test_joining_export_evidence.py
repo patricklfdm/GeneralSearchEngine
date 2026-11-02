@@ -144,7 +144,7 @@ class JoiningExportEvidenceTest(unittest.TestCase):
                          (3,'LEARNER_JOINING_ACK_BEFORE_RETURN'),(15,'LEARNER_JOINING_RETAIN_CREATED')):
             events[at]['event']=point
         events[10]['scope']='pending-listener'
-        model=SimpleNamespace(phases=[{'SELECTED':b'selected'}]*9,states=[dict(identities=identities,cut=dict(view=dict(old=['node-1','node-2']))) for _ in range(10)])
+        model=SimpleNamespace(joining='node-4',phases=[{'SELECTED':b'selected'}]*9,states=[dict(identities=identities,cut=dict(view=dict(old=['node-1','node-2']))) for _ in range(10)])
         return q,raw,values,events,model
 
     def test_pending_checkpoint_requires_forced_parent_completed_return_and_live_pending_owner(self):

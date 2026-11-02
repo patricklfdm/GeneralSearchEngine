@@ -1,0 +1,414 @@
+{
+  "actions": {
+    "localCommit": true,
+    "nativeRerun": false,
+    "paidCloud": false,
+    "pomChanged": false,
+    "push": false,
+    "runtimeJavaChanged": false,
+    "workflowChanged": false
+  },
+  "allMembershipProfilesQualified": false,
+  "archive": {
+    "allMembershipProfilesQualified": false,
+    "archiveBytes": 40862402,
+    "archiveSha256": "e6f265d6ce3fca9a26fb087a2b19beb478722c5a8894cf782ce95acea932fe83",
+    "directories": 3197,
+    "exactNegatives": 23,
+    "files": 21428,
+    "identicalResults": true,
+    "manifest": {
+      "bytes": 3503481,
+      "path": "target/v53-profile-exports-20261102/v2/artifact/manifest.json",
+      "sha256": "296bc4d3e656713efc4f5d1620b8725f75bbca9064e7ab390ac6bcda38827f23"
+    },
+    "nativeRerun": false,
+    "path": "target/v53-profile-exports-20261102/v2/artifact/bundle.tar.gz",
+    "phase3Complete": false,
+    "portable": {
+      "legacy": {
+        "elapsedSeconds": 33.718,
+        "exit": 0
+      },
+      "replace": {
+        "elapsedSeconds": 28.224,
+        "exit": 0
+      },
+      "same-view": {
+        "elapsedSeconds": 53.15,
+        "exit": 0
+      }
+    },
+    "pythonSeconds": 101.047,
+    "pythonTests": 1801,
+    "status": "PASS",
+    "unchangedOriginals": true
+  },
+  "baseHead": "c89400c7",
+  "completeControlExportQualified": false,
+  "currentSourceNativeCohortQualified": false,
+  "firstAttempt": {
+    "log": {
+      "bytes": 1944,
+      "path": "target/v53-profile-exports-20261102/replace.log",
+      "sha256": "80e38f80d4f103590c46073c9b3429b938b4ad9b9cac4e4bb545bb3da1682b13"
+    },
+    "nativeRerun": false,
+    "readerManifest": {
+      "bytes": 622948,
+      "path": "target/v53-profile-exports-20261102/reader/source.json",
+      "sha256": "b237260052a0891caa4cbfb7cbc837dd18b346ad511ce3207527a5e665d704f4"
+    },
+    "reason": "REPLACE pending-ACK mutation target absent in original",
+    "status": "FAIL"
+  },
+  "originalReplays": {
+    "legacy": {
+      "counts": {
+        "allExportFamiliesQualified": false,
+        "boundSessions": {
+          "current-generation": 104,
+          "frozen-source": 20,
+          "journal": 18,
+          "learner-current-content": 6,
+          "native-applied-checkpoint": 27,
+          "native-vote-receipt": 90,
+          "pending-joining-checkpoint": 2,
+          "pending-payload": 7,
+          "pending-record": 52,
+          "published-local-checkpoint": 4,
+          "published-record": 23
+        },
+        "boundTransfers": {
+          "current-generation": 368,
+          "frozen-source": 60,
+          "journal": 18,
+          "learner-current-content": 27,
+          "native-applied-checkpoint": 27,
+          "native-vote-receipt": 90,
+          "pending-joining-checkpoint": 2,
+          "pending-payload": 7,
+          "pending-record": 52,
+          "published-local-checkpoint": 4,
+          "published-record": 23
+        },
+        "completePhysicalQualified": false,
+        "forceAndNetworkQualified": false,
+        "generationWindows": 42,
+        "joiningExportLifetimes": 40,
+        "learnerRetentionAuthorizationQualified": false,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "recordWindows": 382,
+        "scope": "native-ADD-temporal-exports-and-original-record-capabilities",
+        "sourceWindows": 19,
+        "status": "PARTIAL",
+        "unqualifiedSessionCount": 8,
+        "unqualifiedSessions": [
+          {
+            "firstEvent": 5119,
+            "firstKind": "ROOT",
+            "owner": "node-1",
+            "reader": "node-4",
+            "reference": "92f1c3603f42b9283435187dab0d14a99b866ab2ec918fca8e9ceeb67649170c",
+            "trace": "ceabccab-b41e-4c98-b269-64010a7a9e1e",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 12315,
+            "firstKind": "unframed-record",
+            "owner": "node-1",
+            "reader": "node-4",
+            "reference": "50307b306ad1ed2567704d3161081ca982bd504349c295b57e61e96162b6883f",
+            "trace": "31f3b45a-b182-4a59-9062-802c5e3c45f8",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 12335,
+            "firstKind": "unframed-record",
+            "owner": "node-1",
+            "reader": "node-4",
+            "reference": "50307b306ad1ed2567704d3161081ca982bd504349c295b57e61e96162b6883f",
+            "trace": "78351174-94a0-4724-8360-36a6a69cbcf0",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 13570,
+            "firstKind": "unframed-record",
+            "owner": "node-1",
+            "reader": "node-4",
+            "reference": "faff38cf35bf08a97f26a569112c2d40c3dcd816cb731d1cb04c4cb53cf91293",
+            "trace": "eb03f3af-4560-47c0-9dce-55ccdbc65550",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 13582,
+            "firstKind": "unframed-record",
+            "owner": "node-1",
+            "reader": "node-4",
+            "reference": "a13c804c6f3e5eef57376c49cb3a1260fc3f49fc9ef33534bc5da11767dc4c92",
+            "trace": "f907776f-e9cb-470e-a2b5-448dea6b8f61",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 13594,
+            "firstKind": "unframed-record",
+            "owner": "node-2",
+            "reader": "node-4",
+            "reference": "a13c804c6f3e5eef57376c49cb3a1260fc3f49fc9ef33534bc5da11767dc4c92",
+            "trace": "5d438b92-cb99-432d-bcbb-5d56b985aed7",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 13649,
+            "firstKind": "unframed-record",
+            "owner": "node-4",
+            "reader": "node-1",
+            "reference": "f3542bcfb26d02d3c8e3734d2b28e87bebf77a943a4108ce71197c778414b8fd",
+            "trace": "e404b8b5-53e7-448f-a2a0-3704bd52110d",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 14434,
+            "firstKind": "unframed-record",
+            "owner": "node-4",
+            "reader": "node-1",
+            "reference": "f3542bcfb26d02d3c8e3734d2b28e87bebf77a943a4108ce71197c778414b8fd",
+            "trace": "6b31508b-18d2-4511-b0e5-c038a2da2d0b",
+            "transfers": 1
+          }
+        ],
+        "unqualifiedTransfers": 8
+      },
+      "execution": {
+        "elapsedSeconds": 265.756,
+        "exit": 0
+      },
+      "inputInventory": {
+        "bytes": 573262,
+        "path": "target/v53-profile-exports-20261102/v2/legacy-inputs.json",
+        "sha256": "97c32eafa035d70a610b80bf3fbc2d49e5993e97c72dad590cab1d36e590718d"
+      },
+      "negativeCases": 12,
+      "notApplicable": [],
+      "result": {
+        "bytes": 8139,
+        "path": "target/v53-profile-exports-20261102/v2/legacy.json",
+        "sha256": "16b5302da0f7517809271861cf89dd3cf8dd7e36c92898ca9c133b2c8c071153"
+      }
+    },
+    "replace": {
+      "counts": {
+        "allExportFamiliesQualified": false,
+        "boundSessions": {
+          "current-generation": 70,
+          "frozen-source": 12,
+          "journal": 14,
+          "learner-current-content": 6,
+          "native-applied-checkpoint": 23,
+          "native-vote-receipt": 66,
+          "pending-payload": 6,
+          "pending-record": 44,
+          "published-local-checkpoint": 2,
+          "published-record": 21
+        },
+        "boundTransfers": {
+          "current-generation": 255,
+          "frozen-source": 36,
+          "journal": 14,
+          "learner-current-content": 27,
+          "native-applied-checkpoint": 23,
+          "native-vote-receipt": 66,
+          "pending-payload": 6,
+          "pending-record": 44,
+          "published-local-checkpoint": 2,
+          "published-record": 21
+        },
+        "completePhysicalQualified": false,
+        "forceAndNetworkQualified": false,
+        "generationWindows": 39,
+        "joiningExportLifetimes": 2,
+        "learnerRetentionAuthorizationQualified": false,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "recordWindows": 357,
+        "scope": "native-REPLACE-temporal-exports-and-original-record-capabilities",
+        "sourceWindows": 17,
+        "status": "PARTIAL",
+        "unqualifiedSessionCount": 8,
+        "unqualifiedSessions": [
+          {
+            "firstEvent": 5119,
+            "firstKind": "ROOT",
+            "owner": "node-1",
+            "reader": "node-4",
+            "reference": "4ec03265f63aa59326ed4b4c554e4fa28529421c1713420ed9a1cb6fccc87ec3",
+            "trace": "e9726842-04a1-4e3d-bbb7-4654d10bc986",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 12315,
+            "firstKind": "unframed-record",
+            "owner": "node-1",
+            "reader": "node-4",
+            "reference": "3b8ff8539650dc88b0e5c61072f681248476e0195b656285b510cc24659648f5",
+            "trace": "59c819ad-05d6-435a-add0-f908fad3cdf9",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 12335,
+            "firstKind": "unframed-record",
+            "owner": "node-1",
+            "reader": "node-4",
+            "reference": "3b8ff8539650dc88b0e5c61072f681248476e0195b656285b510cc24659648f5",
+            "trace": "2f23154a-a98c-439a-884b-861cdbaf6d31",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 13546,
+            "firstKind": "unframed-record",
+            "owner": "node-1",
+            "reader": "node-4",
+            "reference": "adf61896459cea7f800def752a7fe9d6179aec4026600a35417fdef17fcb3973",
+            "trace": "5bbcbe88-8027-4b84-982e-25a07b281055",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 13558,
+            "firstKind": "unframed-record",
+            "owner": "node-1",
+            "reader": "node-4",
+            "reference": "375d0526c7975ac35cae9217a2b99f59a4d8390c810fd93e89650872945d944e",
+            "trace": "7a787e26-833e-4124-869f-f9f226175371",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 13570,
+            "firstKind": "unframed-record",
+            "owner": "node-2",
+            "reader": "node-4",
+            "reference": "375d0526c7975ac35cae9217a2b99f59a4d8390c810fd93e89650872945d944e",
+            "trace": "c0bfcab9-f414-47a2-98de-5e32d822622b",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 13625,
+            "firstKind": "unframed-record",
+            "owner": "node-4",
+            "reader": "node-1",
+            "reference": "4e4c17626b2918e735ca8374b89e10a3ca3ac705594e7f5d11cfc5e817bdfed9",
+            "trace": "cd07927f-acdf-449d-a77b-a7dccee7fe84",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 14238,
+            "firstKind": "unframed-record",
+            "owner": "node-4",
+            "reader": "node-1",
+            "reference": "4e4c17626b2918e735ca8374b89e10a3ca3ac705594e7f5d11cfc5e817bdfed9",
+            "trace": "602b50f7-7f6a-4996-81e7-9f98529c745b",
+            "transfers": 1
+          }
+        ],
+        "unqualifiedTransfers": 8
+      },
+      "execution": {
+        "elapsedSeconds": 195.54,
+        "exit": 0
+      },
+      "inputInventory": {
+        "bytes": 558304,
+        "path": "target/v53-profile-exports-20261102/v2/replace-inputs.json",
+        "sha256": "84d9e7f36e165b68d6d26c83b2ea9b8c7eab5c24e69decc214d9e538e6764a3c"
+      },
+      "negativeCases": 11,
+      "notApplicable": [
+        {
+          "case": "pending-after-retain",
+          "reason": "no committed pending checkpoint export in original",
+          "status": "NOT_APPLICABLE"
+        }
+      ],
+      "result": {
+        "bytes": 8514,
+        "path": "target/v53-profile-exports-20261102/v2/replace.json",
+        "sha256": "5d88261d37628e514f17a8749a33c02d7ae4a1105479c0b7e24dd91f8c8faae5"
+      }
+    },
+    "same-view": {
+      "execution": {
+        "elapsedSeconds": 56.457,
+        "exit": 0
+      },
+      "inputInventory": {
+        "bytes": 600356,
+        "path": "target/v53-profile-exports-20261102/v2/same-view-inputs.json",
+        "sha256": "efc38f2303e5129c11d042153170d210a7ad40997206981f5e9b89f5babc8e9b"
+      },
+      "result": {
+        "bytes": 12761,
+        "path": "target/v53-profile-exports-20261102/v2/same-view.json",
+        "sha256": "0aab434047dec01cfc1e9318ba73773a3a460a5cb9e4b3bd18fddc62ca4c7789"
+      }
+    }
+  },
+  "phase3Complete": false,
+  "python": {
+    "elapsedSeconds": 101.047,
+    "log": {
+      "bytes": 3891,
+      "path": "target/v53-profile-exports-20261102/v2/python-tests.log",
+      "sha256": "970b3918c10d1a7511583bf00a117ee00a6252425cf741d9a0d826344da68fd4"
+    },
+    "newTests": 15,
+    "tests": 1801
+  },
+  "reader": {
+    "code": {
+      "scripts/v53/joining_export_evidence.py": "112c634a94ef629e89264826942d4620bc44e6b3825e936d84ce4f77b578da60",
+      "scripts/v53/joining_profile_export_evidence.py": "c2de0d563992b33251b71f312b1a450bf4776d1c1dd9ca3a354571f5626fde83",
+      "scripts/v53/test_joining_export_evidence.py": "a261caf9a2c3dbe68ca7bde29c14dc5846d0e3d279a79142d2bf9b9d1b26e09e",
+      "scripts/v53/test_joining_profile_export_evidence.py": "ff765210e38fd8ae1fbce713ab07bf3b632a058d7ae0149be181157dbf9df3cd"
+    },
+    "manifest": {
+      "bytes": 623064,
+      "path": "target/v53-profile-exports-20261102/v2/final-reader/source.json",
+      "sha256": "fdb6c6e64e11bf0cb97ff2b2422fcf8903227c7faff154db9e9208d47bfbe145"
+    },
+    "qualifiedManifest": {
+      "bytes": 623064,
+      "path": "target/v53-profile-exports-20261102/v2/reader/source.json",
+      "sha256": "94acbc94ee42dfe269e9181be503ad7ef3939f0c68c4f91cef0e54556e99d86e"
+    }
+  },
+  "regression": {
+    "cases": [
+      "test_all_profiles_bind_actual_joiner_and_unused_original_voters",
+      "test_pending_ack_comes_from_actual_joiner",
+      "test_pending_force_and_recipient_cannot_borrow_node_four_for_larger_profiles"
+    ],
+    "errors": 7,
+    "failures": 0,
+    "log": {
+      "bytes": 6700,
+      "path": "target/v53-profile-exports-20261102/previous-regressions.log",
+      "sha256": "75b1c707a84bda8932fe768a3c4154c3c0ccaab67049542faac320aa4898bff1"
+    },
+    "nativeExecution": false,
+    "previousImplementation": {
+      "bytes": 31551,
+      "path": "target/v53-profile-exports-20261102/previous-exports.py",
+      "sha256": "f56681dea81835a661bec8943c12301ef3cea2b186b87764b1ff29873779345a"
+    },
+    "status": "REPRODUCED",
+    "tests": 3
+  },
+  "remaining": [
+    "Larger-profile control/retention exports and maintenance/ledger composition",
+    "Final-source seven-profile and process/fault cohorts",
+    "Combined bounds and frozen S/N mapping"
+  ],
+  "schema": "gse-v53-profile-exports-entry-v1",
+  "status": "PARTIAL",
+  "temporalContentExportsQualified": true
+}

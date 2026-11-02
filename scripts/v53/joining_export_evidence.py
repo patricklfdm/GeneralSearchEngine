@@ -25,23 +25,33 @@ def record_kind(raw):
     need(kind is not None,'joining export record kind');f.decode(raw,'records',kind);return kind
 
 
-def generation_windows(root,events,replay,*,recovery=None):
+def generation_windows(root,events,replay,*,recovery=None,nodes=None,final_adoption=False):
     """Snapshots are accepted only after independent physical derivation."""
     result=[]
-    for node in ('node-1','node-2','node-4'):
+    for node in (('node-1','node-2','node-4') if nodes is None else nodes):
         changes=[];seen=set()
         for index,parts in enumerate(replay.phases,1):
             chosen=f.decode(parts['SELECTED'],'records','SELECTED')
             if sha(parts['SELECTED']) not in seen and node in [v['voter'] for v in chosen['sources']]:
                 cut=chosen['cut']['index'];need(cut in LABELS,'joining export installation snapshot')
-                path=f'joining-installed-{cut}/replica' if node=='node-4' else LABELS[cut]+'/'+node
+                path=f'joining-installed-{cut}/replica' if node==replay.joining else LABELS[cut]+'/'+node
                 changes.append(('INSTALL_BEFORE_RETURN',path));seen.add(sha(parts['SELECTED']))
             cert=f.decode(parts['CERTIFICATE'],'records','CERTIFICATE')
             if node in [v['voter'] for v in cert['proofs']]:
-                path=f'joining-published-{index}/replica' if node=='node-4' else f'published-{index}/{node}'
+                path=f'joining-published-{index}/replica' if node==replay.joining else f'published-{index}/{node}'
                 changes.append(('PUBLICATION_BEFORE_RETURN',path))
             if recovery is not None and node==replay.joining and index==10:
                 changes.append(('ADOPTION_INSTALL_BEFORE_RETURN','joining-after-final-prefix/replica'))
+        if final_adoption and node==replay.joining:
+            need(recovery is None,'joining export distinct recovery modes')
+            current=0
+            for parts in replay.phases:
+                selected=f.decode(parts['SELECTED'],'records','SELECTED')
+                if node in [v['voter'] for v in selected['sources']]:current=max(current,selected['cut']['index'])
+                cert=f.decode(parts['CERTIFICATE'],'records','CERTIFICATE')
+                if node in [v['voter'] for v in cert['proofs']]:current=max(current,cert['index'])
+            if current<replay.states[-1]['cut']['index']:
+                changes.append(('ADOPTION_INSTALL_BEFORE_RETURN','joining-after-final-recovery/replica'))
         if recovery is not None:
             chosen=f.decode(recovery,'records','SELECTED',replay.root)
             need(chosen['cut']==replay.states[11]['cut'] and chosen['ballot']['proposer']==replay.joining,
@@ -54,7 +64,7 @@ def generation_windows(root,events,replay,*,recovery=None):
                  row['event'] in ('INSTALL_BEFORE_RETURN','PUBLICATION_BEFORE_RETURN','ADOPTION_INSTALL_BEFORE_RETURN')]
         need(len(renames)==len(returns)==len(changes) and [point for _,point in returns]==[point for point,_ in changes],
              'joining export complete generation timeline')
-        if node=='node-4':
+        if node==replay.joining:
             starts=[at for at,row in enumerate(events) if row.get('node')==node and row.get('scope')=='initial-owner' and
                     row['event']=='CURRENT_DIRECTORY_FORCED']
             need(len(starts)==1,'joining export initial joining generation force')
@@ -67,7 +77,7 @@ def generation_windows(root,events,replay,*,recovery=None):
             need(identity['node']==node,'joining export generation owner')
             result.append(dict(node=node,start=start,end=end,path=path,members=members,packet=packet,
                                manifest=files[prefix+'generation.gsr'],identity=identity))
-        add(path,start,renames[0])
+        add(path,start,renames[0] if renames else len(events))
         for i,((_,path),(at,_)) in enumerate(zip(changes,returns)):
             need(renames[i]<at and (i==0 or returns[i-1][0]<renames[i]),'joining export selector completion order')
             add(path,at,renames[i+1] if i+1<len(renames) else len(events))
@@ -277,7 +287,7 @@ def authorize_record(values,windows,records):
 def pending_ack(model):
     start,_,scope=n.s.capsules.spans(model.entries,9)[-1]
     statement=f.encode('records','CHECKPOINT',model.checkpoint(start,9,scope))
-    return model.acks[sha(statement),'node-4']
+    return model.acks[sha(statement),model.joining]
 
 
 def native_receipt(raw):
@@ -287,7 +297,7 @@ def native_receipt(raw):
 def authorize_pending(values,events,model):
     need(len(values)==1,'joining export singleton pending ACK')
     value=values[0];first,last=value['offer'],value['commit'];q=first['request'];raw=pending_ack(model)
-    points=[(at,row['event']) for at,row in enumerate(events) if row.get('node')=='node-4' and row.get('scope')=='pending-intent']
+    points=[(at,row['event']) for at,row in enumerate(events) if row.get('node')==model.joining and row.get('scope')=='pending-intent']
     returned=[at for at,point in points if point=='LEARNER_JOINING_ACK_BEFORE_RETURN' and at<first['received']]
     end=[at for at,point in points if point=='LEARNER_JOINING_RETAIN_CREATED']
     need(returned and len(end)==1 and returned[-1]<first['received']<=last['offered']<end[0],
@@ -297,14 +307,14 @@ def authorize_pending(values,events,model):
     need(forced and parents and forced[-1]<parents[-1]<returned[-1], 'joining export pending ACK durability')
     selected=f.decode(model.phases[8]['SELECTED'],'records','SELECTED')
     identities=n.s.catalog.identities(model.states[9]['identities']);view=model.states[8]['cut']['view']
-    need(q['recipient']==identities['node-4'] and q['sender']==identities.get(q['sender']['node']) and
+    need(q['recipient']==identities[model.joining] and q['sender']==identities.get(q['sender']['node']) and
          q['sender']['node'] in view['old'] and q['view']==selected['view'] and q['ballot']==selected['ballot'] and
          events[first['received']].get('scope')=='pending-listener','joining export pending ACK original scope')
     exact(values,[(sha(raw),raw,'RECORD')],'joining export exact pending ACK')
 
 
 def replay(root,*,kind='ADD',recovery=None):
-    profile_kind=kind;root=Path(root);model=n.s.Replay(root,kind=kind)
+    root=Path(root);model=n.s.Replay(root,kind=kind)
     for index in range(1,12):model.step(index)
     events=n.s.collection.read_json(root,'events.json',n.s.collection.EVENT_BYTES)
     wires=n.s.collection.read_json(root,'wire.json',n.s.collection.WIRE_BYTES)
@@ -312,6 +322,11 @@ def replay(root,*,kind='ADD',recovery=None):
     rows=n.causal(events,wires,identities,model.root);contents=[];n.transfers(rows,contents=contents)
     generations=generation_windows(root,events,model,recovery=recovery);sources=source_windows(root,events)
     records=record_windows(root,events,model,generations,sources,recovery=recovery)
+    return authorize_contents(model,events,contents,generations,sources,records)
+
+
+def authorize_contents(model,events,contents,generations,sources,records):
+    """Shared capability checks after the caller derives its original windows."""
     covered=Counter();transfers=Counter();remaining=[]
     for values in sessions(contents):
         first=values[0];kind=record_kind(first['raw']);scope=None
@@ -330,7 +345,7 @@ def replay(root,*,kind='ADD',recovery=None):
             remaining.append(dict(owner=q['recipient']['node'],reader=q['sender']['node'],trace=q['trace'],
                 firstEvent=first['offer']['sent'],reference=q['payload']['digest'],firstKind=kind or 'unframed-record',transfers=len(values)))
     need(covered['current-generation']>0 and covered['frozen-source']>0,'joining export target families absent')
-    return dict(status='PARTIAL',scope='native-'+profile_kind+'-temporal-exports-and-original-record-capabilities',
+    return dict(status='PARTIAL',scope='native-'+model.kind+'-temporal-exports-and-original-record-capabilities',
         generationWindows=len(generations),sourceWindows=len(sources),recordWindows=len(records),boundSessions=dict(covered),
         boundTransfers=dict(transfers),unqualifiedSessions=remaining,unqualifiedSessionCount=len(remaining),
         unqualifiedTransfers=sum(v['transfers'] for v in remaining),allExportFamiliesQualified=False,
@@ -376,7 +391,7 @@ def mutate(root,name,*,kind='ADD',recovery=None,reader=None):
     else:
         windows=generation_windows(root,events,model,recovery=recovery) if reader is None else reader.windows
         values=next(v for v in groups if record_kind(v[0]['raw'])=='CHECKPOINT_ACK' and
-            v[0]['offer']['request']['recipient']['node']!='node-4' and v[0]['offer']['request']['view']!=
+            v[0]['offer']['request']['recipient']['node']!=model.joining and v[0]['offer']['request']['view']!=
             n.s.catalog.authority(model.root,current(windows,v[0]['offer']['request']['recipient']['node'],
                 v[0]['offer']['received'],v[-1]['commit']['offered'])['packet']['capsule']['cut']['view']))
     first=values[0]['offer'];q=first['request'];trace=q['trace'];owner=q['recipient']['node']
