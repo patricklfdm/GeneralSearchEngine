@@ -10,6 +10,35 @@ from . import transition_round_evidence as r
 
 
 class RemoveMaintenanceEvidenceTest(unittest.TestCase):
+    def test_owner_subset_requires_complete_distinct_floor_cohort(self):
+        for group,voters,owners in (({'node-1':{}},('node-1','node-2'),('node-1',)),
+                                    ({'node-1':{}},('node-1','node-1'),('node-1',)),
+                                    ({'node-1':{}},('node-1',),()),
+                                    ({'node-1':{}},('node-1',),('node-2',)),
+                                    ({'node-1':{}},('node-1',),('node-1','node-1'))):
+            with self.subTest(voters=voters,owners=owners),patch.object(m,'covering_floor') as floor:
+                with self.assertRaisesRegex(ValueError,'exact owner/cohort'):m.maintenance(group,voters,owners=owners)
+                floor.assert_not_called()
+
+    def test_pending_peer_supplies_unchanged_generation_without_becoming_retirement_owner(self):
+        local={'pending.accept':m.c.EMPTY,'grants.gsr':b'journal',m.d.s.FILE:b'ledger'}
+        peer={'pending.accept':b'original pending vote','grants.gsr':b'owned journal','sources/old/source.gscp':b'owned source'}
+        group={'local':local,'peer':peer};before=copy.deepcopy(group)
+        cap=dict(root='root',cut=dict(index=2));higher=dict(root='root',cut=dict(index=3))
+        def current(files):return ('generations/a/',{'promise.gsr':b'current'},dict(capsule=higher if files.get('pending.accept')==b'original pending vote' else cap))
+        with patch.object(m.c,'current',side_effect=current),patch.object(m,'covering_floor') as floor, \
+                patch.object(m.observation,'observe_same_cut',return_value=b'observed') as observed, \
+                patch.object(m.c,'anchor',side_effect=lambda cap:cap), \
+                patch.object(m.confirmation,'endpoints',return_value={}), \
+                patch.object(m.d.s.r,'decode',return_value=dict(plan=dict(peers=[]))), \
+                patch.object(m.c,'journal',return_value=[('PROMISE',b'journal',dict(basisId=None,ballot=dict(counter=2))) ]):
+            result=m.maintenance(group,('local','peer'),owners=('local',))
+        self.assertEqual(before,group);self.assertEqual(peer,result['peer'])
+        self.assertEqual(b'observed',result['local'][m.d.s.FILE])
+        floor.assert_called_once();self.assertEqual(before,floor.call_args.args[1])
+        # The higher copy covers the floor but cannot narrow same-cut debt.
+        observed.assert_called_once_with(b'ledger',local,local,defer_renewal=True)
+
     def projection(self,*,uncovered_source=False,uncovered_debt=False,unsettled=False):
         point=dict(cut=dict(index=4));old=dict(cut=dict(index=0))
         members={'promise.gsr':b'current'};packet=dict(capsule=dict(root='root'))

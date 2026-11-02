@@ -64,12 +64,74 @@ class NodeCurrentEvidenceTest(unittest.TestCase):
                     m.maintenance({'node-1':files},('node-1',),after_accept=True)
                 project.assert_not_called()
 
-    def test_half_pending_cohort_requires_its_own_floor_proof(self):
+    def test_half_pending_cohort_uses_complete_floor_without_retiring_pending_owner(self):
         files,_,_=self.vote()
-        with patch.object(m.current,'maintenance') as project:
-            with self.assertRaisesRegex(ValueError,'partial pending maintenance'):
+        group={'node-1':files,'node-2':dict(files,**{'pending.accept':m.c.EMPTY})};before=deepcopy(group)
+        projected={'node-1':{'invalid':'must not replace this owner'},'node-2':{'new':'derived bytes'}}
+        with patch.object(m.current,'maintenance',return_value=projected) as project:
+            result=m.maintenance(group,('node-1','node-2'))
+        project.assert_called_once_with(before,('node-1','node-2'),owners=['node-2'])
+        self.assertEqual(before['node-1'],result['node-1']);self.assertEqual(projected['node-2'],result['node-2'])
+        self.assertEqual(before,group)
+
+    def test_half_pending_cohort_propagates_failed_covering_floor(self):
+        files,_,_=self.vote()
+        with patch.object(m.current,'maintenance',side_effect=ValueError('joining same-view exact covering ancestor')):
+            with self.assertRaisesRegex(ValueError,'exact covering ancestor'):
                 m.maintenance({'node-1':files,'node-2':dict(files,**{'pending.accept':m.c.EMPTY})},('node-1','node-2'))
-            project.assert_not_called()
+
+    def test_unselected_grant_identity_is_only_a_fresh_suffix_and_selected_stays_exact(self):
+        service=m.Service.__new__(m.Service);ballot=dict(counter=4)
+        prior=[('PROMISE',b'old',dict(ballot=dict(counter=3),basisId='old'))]
+        suffix=[('PROMISE',b'new',dict(ballot=ballot,basisId='new')),('BASIS',b'basis',dict(ballot=ballot,basisId='new'))]
+        self.assertEqual('new',service.grant_identifier(prior,suffix,ballot,False))
+        for rows in (suffix[::-1],suffix+suffix[:1],suffix[:1],
+                     [('PROMISE',b'other',dict(ballot=dict(counter=5),basisId='new')),suffix[1]]):
+            with self.subTest(rows=rows),self.assertRaisesRegex(ValueError,'unselected fresh grant suffix'):
+                service.grant_identifier(prior,rows,ballot,False)
+        with self.assertRaisesRegex(ValueError,'exact grant history'):
+            service.grant_identifier(prior,suffix,ballot,True)
+        legacy=m.p.p.Service.__new__(m.p.p.Service)
+        with self.assertRaisesRegex(ValueError,'exact grant history'):
+            legacy.grant_identifier(prior,suffix,ballot,False)
+
+    def same_cut_grant(self,*,accepted=None,old_cut=0,current_promise=b'current',current_basis=b'current-basis',covered=True,extra_accepted=False):
+        service=m.Service.__new__(m.Service);cap=dict(root='root',cut=dict(index=0))
+        files={'pending.accept':m.c.EMPTY,'grants.gsr':b'journal','sources/old/source.gscp':b'old-source'}
+        members={'promise.gsr':current_promise,'basis.gsr':current_basis}
+        rows=[('PROMISE',b'old',dict(ballot=dict(counter=3),basisId='old')),
+              ('BASIS',b'old-basis',dict(basisId='old',cut=dict(index=old_cut),accepted=accepted)),
+              ('PROMISE',b'fresh',dict(ballot=dict(counter=4),basisId='fresh'))]
+        if extra_accepted:
+            files['sources/pending/source.gscp']=b'pending-source'
+            rows[:0]=[('PROMISE',b'pending',dict(ballot=dict(counter=2),basisId='pending')),
+                      ('BASIS',b'pending-basis',dict(basisId='pending',cut=dict(index=0),accepted='unresolved-tail'))]
+        group={'node-1':{'original':'covering peer'},'node-3':{'original':'pre-grant'}}
+        with patch.object(m.c,'current',return_value=('generations/a/',members,dict(capsule=cap))), \
+                patch.object(m.c,'journal',return_value=rows), \
+                patch.object(m,'floor_voters',return_value=('node-3','node-1')) as floor, \
+                patch.object(m.current,'maintenance',return_value={'node-3':{'derived':'retired'}},
+                    side_effect=None if covered else ValueError('joining same-view exact covering ancestor')) as project:
+            result=service.after_grant(group,'node-3',files)
+        return result,files,group,floor,project
+
+    def test_same_cut_unselected_source_retires_only_after_complete_floor(self):
+        result,files,group,floor,project=self.same_cut_grant()
+        copies=dict(group,**{'node-3':files})
+        floor.assert_called_once_with(copies,'node-3')
+        project.assert_called_once_with(copies,('node-3','node-1'),owners=('node-3',))
+        self.assertEqual({'derived':'retired'},result)
+        with self.assertRaisesRegex(ValueError,'exact covering ancestor'):self.same_cut_grant(covered=False)
+
+    def test_grant_keeps_accepted_other_cut_and_current_source_owned(self):
+        for options in (dict(accepted='retained vote'),dict(old_cut=1),dict(current_promise=b'old'),dict(current_basis=b'old-basis')):
+            with self.subTest(options=options):
+                result,files,group,floor,project=self.same_cut_grant(**options)
+                self.assertIs(result,files);floor.assert_not_called();project.assert_not_called()
+
+    def test_unaccepted_source_cannot_authorize_retirement_of_another_accepted_tail(self):
+        with self.assertRaisesRegex(ValueError,'same-cut retirement accepted tail'):
+            self.same_cut_grant(extra_accepted=True)
 
     def test_invalid_original_precedes_negative_generation(self):
         with patch.object(m,'validate',side_effect=ValueError('invalid original')),patch.object(m.shutil,'copytree') as copied:

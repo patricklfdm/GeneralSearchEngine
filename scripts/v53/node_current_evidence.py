@@ -13,6 +13,7 @@ import tempfile
 from . import node_inflight_evidence as p
 from . import remove_maintenance_evidence as current
 from . import node_current_network as network
+from .joining_same_view_physical import floor_voters
 
 n, b, c, e, f, need = p.n, p.b, p.c, p.e, p.f, p.need
 
@@ -45,8 +46,7 @@ def maintenance(group, voters, *, after_accept=False):
     # copies whose pending vote prevents their own maintenance.
     result = copy.deepcopy(group)
     if not eligible: return result
-    need(len(eligible) == len(voters), 'current node partial pending maintenance')
-    projected_group = current.maintenance(copies, voters)
+    projected_group = current.maintenance(copies, voters, owners=eligible)
     for node in eligible:
         projected = projected_group[node]
         result[node] = projected
@@ -64,6 +64,41 @@ class Service(p.Service):
 
     def merge_peers(self, before, sources):
         return current.merge(self.group, before, sources)
+
+    def grant_identifier(self, prior, rows, ballot, selected):
+        if selected or rows[:len(prior)] == prior:
+            return super().grant_identifier(prior, rows, ballot, selected)
+        # A lagging unselected peer may retire a superseded same-cut source
+        # after forcing its fresh grant. Only the random source identity comes
+        # from this suffix; after_grant derives the whole pruned journal/source
+        # inventory independently and installed-N must match it byte for byte.
+        suffix=[row for row in rows if row[2].get('ballot') == ballot]
+        need([row[0] for row in suffix] == ['PROMISE','BASIS'] and rows[-2:] == suffix,
+             'current node unselected fresh grant suffix')
+        return suffix[0][2]['basisId']
+
+    def after_grant(self, group, node, files):
+        _,members,packet=c.current(files);cap=packet['capsule']
+        rows=c.journal(files['grants.gsr'],cap['root'],node)
+        latest=next(value['ballot'] for kind,_,value in reversed(rows) if kind=='PROMISE')
+        promises={value['basisId']:(raw,value) for kind,raw,value in rows if kind=='PROMISE' and value['basisId'] is not None}
+        bases={value['basisId']:(raw,value) for kind,raw,value in rows if kind=='BASIS'}
+        required=False
+        for name in files:
+            if not name.startswith('sources/') or not name.endswith('/source.gscp'):continue
+            identifier=name.split('/')[1];promise,prior=promises[identifier];basis,value=bases[identifier]
+            required |= (promise != members['promise.gsr'] and basis != members.get('basis.gsr') and
+                         value['accepted'] is None and value['cut'] == cap['cut'] and
+                         prior['ballot']['counter'] < latest['counter'])
+        if not required:return files
+        # This original-backed same-cut path has no retired accepted tail.
+        # Another unaccepted source must not lend it a retirement trigger.
+        for identifier,(promise,prior) in promises.items():
+            if ('sources/'+identifier+'/source.gscp' in files and promise != members['promise.gsr']
+                    and prior['ballot']['counter'] < latest['counter']):
+                need(bases[identifier][1]['accepted'] is None, 'current node same-cut retirement accepted tail')
+        copies=dict(group,**{node:files});voters=floor_voters(copies,node)
+        return current.maintenance(copies,voters,owners=(node,))[node]
 
     def installation_ancestry(self, files, packet, sources):
         _, old, previous = c.current(files)

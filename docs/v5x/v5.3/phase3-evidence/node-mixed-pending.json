@@ -1,0 +1,163 @@
+{
+  "actions": {
+    "maven": false,
+    "nativeExecution": false,
+    "paidCloud": false,
+    "push": false,
+    "runtimeJavaChanged": false,
+    "workflowDispatch": false
+  },
+  "baseHead": "1c042108af30706a0c463dc8487a7c4ca1995bc0",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 2136,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "evidence": "target/v53-node-mixed-pending",
+  "fullNativeQualification": false,
+  "incompleteOriginal": {
+    "reason": "context selection node owner original history inventory",
+    "status": "REJECTED",
+    "unchanged": true
+  },
+  "legacy": {
+    "exactPrevious": true,
+    "negativeRejections": 158,
+    "originals": 7,
+    "status": "PASS",
+    "summarySha256": "dc2ac9810aefd877e97aabee48eaaadfc741f3cf8c1ce6b59a5f193c48bc874b"
+  },
+  "newUnitTests": 7,
+  "phase3Complete": false,
+  "physicalOriginal": {
+    "admissionReason": "inflight exact lifecycle order",
+    "fullNativeQualification": false,
+    "fullWireReplay": false,
+    "inventorySha256": "b23f1977729b445f8dd0b6b373e33b1617a46ace059e0e27684b15cfa147a772",
+    "matchedOwnerStates": 54,
+    "matchedSnapshots": 18,
+    "original": "target/v53-node-startup-20261102/one-native-capture/workspace/general-search-engine-replication/target/v53-node-process/run-e2abccfb-35cc-4693-9f2c-919db26e7ea3",
+    "originalProducer": "FAIL",
+    "originalUnchanged": true,
+    "phase3Complete": false,
+    "physicalNegatives": {
+      "pending-original-source-erased": {
+        "reason": "admitted exact before-reopen: node-1",
+        "status": "REJECTED"
+      },
+      "pending-source-pruned-early": {
+        "reason": "admitted exact applied-2: node-1",
+        "status": "REJECTED"
+      },
+      "pending-vote-cleared": {
+        "reason": "admitted exact before-reopen: node-1",
+        "status": "REJECTED"
+      },
+      "reaccepted-peer-vote-cleared": {
+        "reason": "admitted exact applied-2: node-2",
+        "status": "REJECTED"
+      },
+      "selected-retention-replaced": {
+        "reason": "admitted exact installed-2: node-2",
+        "status": "REJECTED"
+      },
+      "unselected-debt-replaced": {
+        "reason": "admitted exact installed-3: node-3",
+        "status": "REJECTED"
+      },
+      "unselected-fresh-source-missing": {
+        "reason": "admitted exact installed-3: node-3",
+        "status": "REJECTED"
+      },
+      "unselected-journal-reverted": {
+        "reason": "admitted exact installed-3: node-3",
+        "status": "REJECTED"
+      },
+      "unselected-old-source-restored": {
+        "reason": "admitted exact installed-3: node-3",
+        "status": "REJECTED"
+      }
+    },
+    "physicalReplay": true,
+    "processAdmission": "REJECTED",
+    "publishedSnapshots": 5,
+    "seconds": 8.634,
+    "stages": [
+      "before-network",
+      "installed-1",
+      "applied-1",
+      "published-1",
+      "first-ready",
+      "before-reopen",
+      "installed-2",
+      "applied-2",
+      "published-2",
+      "applied-3",
+      "published-3",
+      "second-ready",
+      "installed-3",
+      "applied-4",
+      "published-4",
+      "applied-5",
+      "published-5",
+      "after-close"
+    ],
+    "status": "PARTIAL"
+  },
+  "producerSource": "41a520992086a08a3ac50f6f4058a0d53d610621",
+  "producerSourceSha256": "e1678988b78f393526f7646a473683e21cf6857697b2ec2255e62b08920cc9cc",
+  "proofOriginal": {
+    "exactPrevious": true,
+    "fullWireReplay": true,
+    "negativeRejections": 34,
+    "originalUnchanged": true,
+    "receiptSha256": "586fab820d741b747bbf9d302bbe8f22250983b8b65497cc8dacb4f11bf734a6",
+    "status": "PASS"
+  },
+  "protected": {
+    "files": {
+      ".github/workflows/ci.yml": "e6bec4aab5e4a56f5a1c5082fe222938280e93e8180798841e9f6dcf7f95566c",
+      "docs/v5x/v5.3/acceptance-plan.json": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717",
+      "general-search-engine-replication/pom.xml": "89464f59e787a6c304a393c366e4945deaea3ea82653a501f0dca7dbfa071057",
+      "pom.xml": "018c326ad09234c4a84c6469fe3477bf3d2936ef99bddfc6a6c60bbe4ed39f6c",
+      "reactor/pom.xml": "d0d46a2df83eb37a4a2eb1d3546f0b528124480fa30a391071e838eb9f7ab08c"
+    },
+    "javaFiles": 1382,
+    "producerJavaUnchanged": true
+  },
+  "readerManifestSha256": "06c934784dc3a0d459200037fb403c9bcfa5ae707b2a880f8a53f7540d69af76",
+  "remaining": [
+    "failed original force/network/process composition including unselected post-grant maintenance",
+    "original scope guard and protocol/storage cost investigation",
+    "remaining rename modes and complete final-source cohorts",
+    "joining process composition and combined bounds/frozen S-N audit"
+  ],
+  "schema": "gse-v53-node-mixed-pending-v1",
+  "status": "PARTIAL",
+  "tests": {
+    "optimized-final.log": {
+      "seconds": 0.056,
+      "sha256": "cdb334880144af8fa4cd87cfa2926d7cafbbc5a8b73e46c12034b833843c222c",
+      "status": "PASS",
+      "tests": 45
+    },
+    "python-final.log": {
+      "seconds": 105.187,
+      "sha256": "7bd6cb05fb10efaa1bd51c0340a7070fe9c8532df99e12fbf749da06fea86743",
+      "status": "PASS",
+      "tests": 2019
+    },
+    "unit-final.log": {
+      "seconds": 0.046,
+      "sha256": "7e2b7db98d8032970ad231b573a1d31a016fb426623566525d1e16cf58e345ad",
+      "status": "PASS",
+      "tests": 32
+    }
+  },
+  "wholeFailedCaptureQualified": false
+}

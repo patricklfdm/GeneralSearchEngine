@@ -46,16 +46,26 @@ def boundaries(root,ordinal,voters,before_group,after_group):
              'REMOVE maintenance exact pre-grant retirement: '+node)
 
 
-def maintenance(group,voters):
+def maintenance(group,voters,*,owners=None):
+    # A pending owner can supply its immutable published generation without
+    # permitting retirement of its own still-owned vote/source. Keep the floor
+    # cohort complete and select local mutation targets separately.
+    voters=tuple(voters);owners=voters if owners is None else tuple(owners)
+    need(voters and len(set(voters))==len(voters) and all(n in group for n in voters)
+         and owners and len(set(owners))==len(owners) and set(owners)<=set(voters),
+         'REMOVE maintenance exact owner/cohort')
     result=copy.deepcopy(group)
-    for node in voters:
+    for node in owners:
         files=result[node];prefix,members,packet=c.current(files);cap=packet['capsule']
         need(files['pending.accept']==c.EMPTY and not any(k=='applied-end' or k.startswith('applied-end/') for k in files),
              'REMOVE maintenance unsettled publication')
         copies={n:group[n] for n in voters}
         covering_floor(files,copies,node)
         for peer in (node,*(n for n in voters if n!=node)):
-            files[d.s.FILE]=observation.observe_same_cut(files[d.s.FILE],group[node],group[peer],defer_renewal=True)
+            # A later published copy can cover this floor but cannot be recorded
+            # as a same-cut observation in a lagging owner's current capsule.
+            if c.anchor(c.current(group[peer])[2]['capsule'])==c.anchor(cap):
+                files[d.s.FILE]=observation.observe_same_cut(files[d.s.FILE],group[node],group[peer],defer_renewal=True)
         available=confirmation.endpoints(packet,members.get('ancestry.gsr',b''))
         plan=d.s.r.decode(files[d.s.FILE])['plan']
         for row in plan['peers']:

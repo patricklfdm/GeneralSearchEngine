@@ -41,6 +41,14 @@ class Service(p.Service):
     def installation_ancestry(self, files, packet, sources):
         return b''
 
+    def grant_identifier(self, prior, rows, ballot, selected):
+        need(rows[:len(prior)] == prior and [v[0] for v in rows[len(prior):]] ==
+             ['PROMISE', 'BASIS']+(['SELECTED'] if selected else []), 'node owner exact grant history')
+        return rows[len(prior)][2]['basisId']
+
+    def after_grant(self, group, node, files):
+        return files
+
     def campaign(self, number, counter):
         if number > 1: self.group = self.maintenance(self.group, self.voters)
         chosen = (self.root/f'selected-{number}.gsr').read_bytes()
@@ -55,9 +63,7 @@ class Service(p.Service):
             _, members, packet = c.current(files); cap = packet['capsule']
             prior = c.journal(files['grants.gsr'], cap['root'], node)
             rows = c.journal(actual['grants.gsr'], cap['root'], node)
-            need(rows[:len(prior)] == prior and [v[0] for v in rows[len(prior):]] ==
-                 ['PROMISE', 'BASIS']+(['SELECTED'] if node in voters else []), 'node owner exact grant history')
-            identifier = rows[len(prior)][2]['basisId']
+            identifier = self.grant_identifier(prior, rows, ballot, node in voters)
             need(str(uuid.UUID(identifier)) == identifier and identifier not in source_ids
                  and all(v[2].get('basisId') != identifier for v in prior), 'node owner fresh source identity')
             source_ids.add(identifier)
@@ -71,7 +77,8 @@ class Service(p.Service):
             changed = dict(files, **{'grants.gsr':files['grants.gsr']+promise+basis, source:None, source+'/source.gscp':raw},
                 **{source+'/'+h+'.image':members[h+'.image'] for h in packet['images']})
             if node == 'node-1': changed['allocator.gsr'] = f.encode('records', 'ALLOCATOR', dict(root=cap['root'], node=node, counter=counter))
-            prepared[node] = changed; frozen[node] = dict(promise=promise, basis=basis, packet=packet, wrapper=wrapper, members=members)
+            prepared[node] = self.after_grant(self.group, node, changed)
+            frozen[node] = dict(promise=promise, basis=basis, packet=packet, wrapper=wrapper, members=members)
         cap = frozen['node-1']['packet']['capsule']
         need(all(frozen[node]['packet']['capsule']['cut']['index'] <= cap['cut']['index'] for node in voters),
              'node owner proposer owns highest source')

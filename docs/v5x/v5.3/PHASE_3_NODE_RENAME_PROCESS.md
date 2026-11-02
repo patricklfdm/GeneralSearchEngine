@@ -119,10 +119,11 @@ small. These overlapping counters do not account for the long protocol/storage
 work and are not deducted from the service budget. They provide no support for
 attributing this execution's duration to pipe ACK observation overhead.
 
-The current independent reader refuses this original at
-`current node partial pending maintenance`: it has not yet modeled the mixed
-pending cohort in this ACCEPT capture. This is a reader coverage gap, not an
-accepted physical history. Even after a future original-backed reader extension,
+At capture time, the independent reader refused this original at
+`current node partial pending maintenance`: it had not yet modeled the mixed
+pending cohort in this ACCEPT capture. The later
+[physical extension](PHASE_3_NODE_MIXED_PENDING.md) now covers the retained storage
+states; process admission still rejects them. Even after a reader extension,
 the failed client/producer must remain failed. Next work must isolate expensive
 protocol/storage work and model the retained pending cohort separately; neither
 deadline relaxation nor retry-to-green is part of this capture.
@@ -176,9 +177,12 @@ contact. Force and heartbeat mutations update the child and aggregate streams
 consistently. The failed ACCEPT original remains rejected.
 
 The current entry point qualifies this bounded three-campaign history. It does
-not silently guess a model from a receipt, admit a partially pending maintenance
-cohort, or promote an incomplete startup trace. Other complete layouts require
-their own original-backed extension and replay.
+not silently guess a model from a receipt or promote an incomplete startup trace.
+The [mixed-pending extension](PHASE_3_NODE_MIXED_PENDING.md) separates eligible
+maintenance owners from complete floor copies and derives same-cut source
+retirement on a lagging unselected peer. It physically replays the failed
+diagnostic ACCEPT original without granting process admission. Other complete
+layouts require their own original-backed extension and replay.
 
 ## Validation and remaining work
 

@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Mixed pending owners](PHASE_3_NODE_MIXED_PENDING.md) now independently replay
+all saved physical states of the failed diagnostic ACCEPT/halt original. Exact
+floor copies and lagging-peer source retirement are derived per owner; full
+process admission still rejects the failed client/lifecycle. Native qualification,
+latency investigation and Phase 3 closure remain OPEN.
+
 [Native rename interruption](PHASE_3_NODE_RENAME_PROCESS.md) now independently
 replays the retained PROOF/SIGKILL history through current peer-debt reconciliation,
 three campaigns and five published slots, with all 34 evidence negatives rejected.
