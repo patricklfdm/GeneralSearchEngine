@@ -48,9 +48,10 @@ comparison. This verifies the allocation reduction, not native latency closure.
 
 The [receipt](phase3-evidence/owner-check-allocation.json) retains exact source,
 original inventory, profile, logs and probe hashes. Full native qualification
-remains OPEN. A single declared post-change native execution will assess the
-same history under unchanged limits; no automatic retry is allowed. Final-source
-cohorts remain separate hosted acceptance work.
+remains OPEN. The [single post-change native execution](PHASE_3_NODE_LATE_PREPARE.md)
+completed under unchanged limits and exposed an unused-grant reply classification
+gap in independent replay. Its separate receipt retains that failed replay and
+the correction. Final-source cohorts remain separate hosted acceptance work.
 
 Rollback restores the fixed buffer allocation. Original failures and all
 validation requirements remain retained.

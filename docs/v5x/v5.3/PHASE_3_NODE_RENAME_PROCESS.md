@@ -1,12 +1,19 @@
 # Phase 3 — native pending-vote rename interruption
 
+The later [allocation and late-reply batch](PHASE_3_NODE_LATE_PREPARE.md) retains
+a successful ACCEPT/halt original on `a7d35e71`. Its independent replay models
+an undelivered unused PREPARE response after installation. The failures described
+below remain historical failures; two other combinations and the final-source
+matrix remain open.
+
 This implements four whole-process fixtures: `ACCEPT_RENAMED` and
 `PROOF_RENAMED`, each with halt and external SIGKILL. It also fixes two stale
 observation assumptions exposed by the new executions. **Complete qualification
-remains OPEN**. The retained PROOF/SIGKILL original now passes the explicit
-current physical/network/process reader and all 34 evidence negatives. The
-retained ACCEPT/halt original still fails its startup deadline; two combinations
-remain unexecuted. This is one qualified original, not a final-source matrix.
+remains OPEN**. The retained PROOF/SIGKILL original passes the explicit current
+physical/network/process reader and all 34 evidence negatives. The later
+ACCEPT/halt original passes with 37 negatives, including the late-reply path.
+Earlier ACCEPT/halt failures remain retained; two combinations remain unexecuted.
+These originals use different runtime sources and are not a final-source matrix.
 
 ## Original process boundary
 

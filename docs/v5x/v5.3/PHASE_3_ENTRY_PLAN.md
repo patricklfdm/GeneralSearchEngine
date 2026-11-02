@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Late unused PREPARE replay](PHASE_3_NODE_LATE_PREPARE.md) records one successful
+post-allocation ACCEPT/halt native history and its original-backed undelivered
+reply classification. Two rename combinations now have independently checked
+originals on different sources; the other two and final-source cohorts remain OPEN.
+
 [Owner-check allocation](PHASE_3_OWNER_CHECK_ALLOCATION.md) records a fresh
 180-second deadline failure and reduces the measured small-file hash-buffer
 allocation hotspot while preserving every integrity check. Native latency and

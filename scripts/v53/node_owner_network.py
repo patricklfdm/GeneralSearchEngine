@@ -81,7 +81,7 @@ def unreceived_prepare(phase, peer, promise, basis, ballot, lower, upper, sequen
 
 
 def activate(root, events, entries, start, stop, identities, number, *, carried=False, reconciled=False, maintenance_replay=None,
-             grant_maintenance_replay=None):
+             grant_maintenance_replay=None, late_prepares=None):
     need(type(reconciled) is bool and (not reconciled or number == 3 and not carried), 'node network reconciliation scope')
     maintain = maintenance_replay or a.maintenance
     before = a.group(root,'published-3' if reconciled else 'before-network' if number == 1 else 'before-reopen')
@@ -90,6 +90,13 @@ def activate(root, events, entries, start, stop, identities, number, *, carried=
     ballot = selected['ballot']; voters = tuple(v['voter'] for v in selected['sources']); peer = voters[1]
     old = f.decode(c.current(before['node-1'])[1]['promise.gsr'],'records','PROMISE')['ballot']
     phase = a.Phase(events,entries,start,stop,identities)
+    late_peers=set()
+    if late_prepares:
+        for row in late_prepares['entries']:
+            need(row['kind']=='PREPARE' and row['answer']=='PROMISE' and not row['deliveries']
+                 and stop<row['offered']<late_prepares['upper'], 'node late prepare phase classification')
+            key=('PREPARE',row['request']['sender']['node'],row['request']['recipient']['node'])
+            phase.entries.append(row);phase.controls[key].append(row);late_peers.add(key[2])
     allocation = phase.at('node-1','ALLOCATOR_BEFORE_WRITE')
     need(type(carried) is bool and (not carried or number == 2 and selected['nextEntry'] is not None), 'node network carried activation scope')
     discovery_end = allocation if number == 1 or carried else phase.at('node-1','FLOOR_PARENT_FORCED')
@@ -117,7 +124,8 @@ def activate(root, events, entries, start, stop, identities, number, *, carried=
         phase.ordered(voter,['PROMISE_FORCED','SOURCE_DIRECTORY_FORCED','BASIS_FORCED','GRANT_BEFORE_RETURN'])
         phase.transfer(voter,'node-1',a.record(local_promise),ballot,phase.at('node-1','BASIS_FORCED'),phase.at(voter,'PROMISE_FORCED'))
         if voter != peer and not any(v['deliveries'] for v in phase.controls['PREPARE','node-1',voter]):
-            trace = unreceived_prepare(phase,voter,local_promise,basis,ballot,phase.at(voter,'GRANT_BEFORE_RETURN'),stop,ordinal,campaign_trace)
+            upper=late_prepares['upper'] if voter in late_peers else stop
+            trace = unreceived_prepare(phase,voter,local_promise,basis,ballot,phase.at(voter,'GRANT_BEFORE_RETURN'),upper,ordinal,campaign_trace)
             delivery = None
         else:
             delivery,trace,_ = phase.control('PREPARE','node-1',voter,dict(promise=e.digest(local_promise)),
@@ -215,13 +223,17 @@ def silent_attempts(root, events, unanswered, phases, identities, traces):
     return results
 
 
-def request_phases(sent, boundaries, originals):
+def request_phases(sent, boundaries, originals, *, late_responses=None):
     for rows in sent.values():
         for row in rows:
             matches = [(ordinal,start,stop) for ordinal,(start,stop) in enumerate(boundaries) if start < row['at'] < stop]
             need(len(matches)==1,'node network request outside history')
             ordinal,start,stop = matches[0]
-            need(all(start < row[k] < stop for k in ('received','response') if row[k] is not None),
+            late=(late_responses or {}).get(row['response'])
+            allowed=(late is not None and late[:2]==(start,stop) and row['kind']=='PREPARE'
+                     and row['received'] is not None and start<row['received']<stop
+                     and stop<row['response']<late[2])
+            need(all(start < row[k] < stop or k=='response' and allowed for k in ('received','response') if row[k] is not None),
                  'node network request crosses completed phase')
             if row['request']['sender']['node']=='node-1':
                 need(originals[row['at']]['incarnation']==(1 if ordinal<3 else 2),'node network request wrong node lifetime')

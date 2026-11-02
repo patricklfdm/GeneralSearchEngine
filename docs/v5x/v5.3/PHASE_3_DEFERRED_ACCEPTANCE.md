@@ -1,5 +1,10 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Late unused PREPARE replay](PHASE_3_NODE_LATE_PREPARE.md) adds an explicitly
+undelivered reply path to the successful post-allocation ACCEPT/halt original.
+The other two rename combinations, final-source cohorts and Phase 3 closure
+remain OPEN; earlier failed originals stay retained.
+
 [Owner-check allocation](PHASE_3_OWNER_CHECK_ALLOCATION.md) reduces measured
 temporary allocation without relaxing integrity or original deadlines. The
 instrumented failed capture remains FAIL; native latency and final-source

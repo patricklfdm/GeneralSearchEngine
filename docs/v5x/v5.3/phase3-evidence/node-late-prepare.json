@@ -1,0 +1,233 @@
+{
+  "actions": {
+    "paidCloud": false,
+    "push": false,
+    "workflowDispatch": false
+  },
+  "baseHead": "a7d35e7137d47c206df248256a192d83b91d1b55",
+  "correctedReplay": {
+    "execution": {
+      "elapsedSeconds": 101.462,
+      "originalUnchanged": true,
+      "status": "PASS"
+    },
+    "latestMutationChecksSha256": "39a96e800b5c3ebd7277b3e5d40ccf880a87a0907a71bbf28e459ecb77082a79",
+    "negativeCases": 37,
+    "original": {
+      "campaigns": 3,
+      "carriedOriginalEntry": true,
+      "childMessages": [
+        789,
+        2954
+      ],
+      "cut": "ACCEPT_RENAMED",
+      "freshLeaderJvms": 2,
+      "interruptedClientSuccess": false,
+      "mode": "halt",
+      "network": {
+        "background": {
+          "contactOnly": true,
+          "exchanges": 50,
+          "samples": 25,
+          "silentRequests": 0
+        },
+        "exchanges": 755,
+        "fullWireReplay": true,
+        "lateUnusedPrepares": [
+          {
+            "authority": false,
+            "ballot": 4,
+            "delivered": false,
+            "installed": 5265,
+            "node": "node-3",
+            "response": 5268,
+            "slotBegin": 5277
+          }
+        ],
+        "phases": [
+          {
+            "exchanges": 28,
+            "transfers": 4,
+            "unusedIncompleteTransfers": 0,
+            "voters": [
+              "node-1",
+              "node-2"
+            ]
+          },
+          {
+            "exchanges": 79,
+            "index": 1,
+            "recordingQuorums": 1,
+            "transfers": 16,
+            "unusedIncompleteTransfers": 0
+          },
+          {
+            "exchanges": 22,
+            "transfers": 2,
+            "unusedIncompleteTransfers": 0
+          },
+          {
+            "exchanges": 62,
+            "transfers": 8,
+            "unusedIncompleteTransfers": 1,
+            "voters": [
+              "node-1",
+              "node-2"
+            ]
+          },
+          {
+            "exchanges": 96,
+            "index": 2,
+            "recordingQuorums": 1,
+            "transfers": 19,
+            "unusedIncompleteTransfers": 0
+          },
+          {
+            "exchanges": 105,
+            "index": 3,
+            "recordingQuorums": 1,
+            "transfers": 20,
+            "unusedIncompleteTransfers": 0
+          },
+          {
+            "exchanges": 112,
+            "transfers": 12,
+            "unusedIncompleteTransfers": 0,
+            "voters": [
+              "node-1",
+              "node-2"
+            ]
+          },
+          {
+            "exchanges": 93,
+            "index": 4,
+            "recordingQuorums": 1,
+            "transfers": 18,
+            "unusedIncompleteTransfers": 0
+          },
+          {
+            "exchanges": 108,
+            "index": 5,
+            "recordingQuorums": 1,
+            "transfers": 21,
+            "unusedIncompleteTransfers": 0
+          }
+        ],
+        "requests": 768,
+        "silent": [
+          {
+            "attempts": 3,
+            "index": 1,
+            "kind": "FUTURE_RETENTION_INTENT"
+          },
+          {
+            "attempts": 2,
+            "index": 2,
+            "kind": "FUTURE_RETENTION_INTENT"
+          },
+          {
+            "attempts": 3,
+            "index": 3,
+            "kind": "FUTURE_RETENTION_INTENT"
+          },
+          {
+            "attempts": 2,
+            "index": 4,
+            "kind": "FUTURE_RETENTION_INTENT"
+          },
+          {
+            "attempts": 3,
+            "index": 5,
+            "kind": "FUTURE_RETENTION_INTENT"
+          }
+        ],
+        "silentRequests": 13
+      },
+      "originalFirst": true,
+      "phase3Complete": false,
+      "physicalReplay": true,
+      "powerLoss": false,
+      "processRestart": true,
+      "publicRuntime": false,
+      "publishedSlots": 5,
+      "scope": "current-node-rename-recovery",
+      "status": "PASS"
+    },
+    "receiptSha256": "aa7730f9c8819a5ad92d1b1518874a592261583961eab609d94d7ea8e1f8aaef"
+  },
+  "currentBatchRuntimeChanged": false,
+  "evidence": "target/v53-node-late-prepare",
+  "finalSourceCohortQualified": false,
+  "initialReplay": {
+    "elapsedSeconds": 2.724,
+    "message": "node network request crosses completed phase",
+    "originalUnchanged": true,
+    "status": "FAIL",
+    "type": "ValueError"
+  },
+  "initialReplayLogSha256": "7773406e16af0cca09622b0341c2a3a4534d0570db81893b66b2270824a18c71",
+  "legacy": {
+    "comparisonScriptCorrection": "initial local comparison selected the receipt wrapper rather than result.original; corrected without rerunning a native experiment",
+    "exactPrevious": true,
+    "receiptSha256": "79c10676e23bd9596174336abf5b5197c5baf823013ebd06f6b817049372c5ae"
+  },
+  "native": {
+    "automaticRetry": false,
+    "callWaitSeconds": 180,
+    "classesSha256": "443636d73cdbc2a0b3f9e17ff7ed731394b19fc2729886eb654b701b493bd656",
+    "execution": {
+      "elapsedSeconds": 241.818,
+      "exit": 0
+    },
+    "instrumented": false,
+    "junit": {
+      "cases": [
+        {
+          "classname": "io.github.patricklfdm.generalsearch.replication.V53NodeRenameProcessTest",
+          "name": "haltAfterAcceptRename",
+          "time": "229.562"
+        }
+      ],
+      "errors": 0,
+      "failures": 0,
+      "name": "io.github.patricklfdm.generalsearch.replication.V53NodeRenameProcessTest",
+      "seconds": "229.578",
+      "sha256": "5e66e73d6f015b915628d5e992f52a5235d6964a0502165a727f49fe2d4c4769",
+      "skipped": 0,
+      "tests": 1
+    },
+    "original": "target/v53-owner-check-allocation/one-native-capture/workspace/general-search-engine-replication/target/v53-node-process/run-7d1537fe-a1c8-4377-9220-298735dc29b1",
+    "originalInventorySha256": "155c1bcf38afd1d4e09d8748f32da5a546f238120b13892765da83c4dcea4d49",
+    "originalUnchanged": true,
+    "parentWaitSeconds": 210,
+    "serviceSeconds": 180,
+    "source": "a7d35e7137d47c206df248256a192d83b91d1b55",
+    "sourceSha256": "8fba6a83e70434a709bd3aace3d63a8c3eadf8db533bf9003dd3ce722239af10"
+  },
+  "phase3Complete": false,
+  "profiledFailureRemainsFail": true,
+  "readerManifestSha256": "0eb89a2c93363a546e11205de293b9d421edfbcf0cba189f6d43efa70cc69a7b",
+  "runtimeLatencyResolved": false,
+  "schema": "gse-v53-node-late-prepare-v1",
+  "status": "PARTIAL",
+  "tests": {
+    "optimized.log": {
+      "seconds": 0.068,
+      "sha256": "215e36af3f2909e5c22c53d58c64c8f2527eef232495799e0091f04f69c77047",
+      "status": "PASS",
+      "tests": 37
+    },
+    "python.log": {
+      "seconds": 103.789,
+      "sha256": "046d6d2ac09135771e316cc7ac6157886f9cccd266a4af3047982db344459ecb",
+      "status": "PASS",
+      "tests": 2040
+    },
+    "unit.log": {
+      "seconds": 0.084,
+      "sha256": "8437cc2697e413f7bfb64c4ea2e228df39830481ead57c53e7a27d6e13f24001",
+      "status": "PASS",
+      "tests": 37
+    }
+  }
+}

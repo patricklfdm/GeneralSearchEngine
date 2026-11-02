@@ -190,9 +190,11 @@ def validate(root):
     result = n.read(root/'process/result.json'); raw=root/'history'; point=result.get('cut')
     service=physical(raw, point); events,death=p.lifecycle(raw,point,reconciled=True)
     from .node_grant_maintenance import Replay
+    from .node_late_prepare import collect
     grants=Replay(getattr(service,'grant_retirements',{}))
     replay=p.network(raw,events,death,point,reconciled=True,maintenance_replay=maintenance_network,
-        background_replay=network.heartbeats,grant_maintenance_replay=grants)
+        background_replay=network.heartbeats,grant_maintenance_replay=grants,
+        late_prepare_replay=lambda *args:collect(*args,grants.derived))
     grants.complete()
     p.process.configuration(root); rows=p.process.children(result,cut=point)
     messages=p.process.observations(root,rows,cut=point,reconciled=True)
@@ -261,6 +263,8 @@ def heartbeat_mutation(root, name):
 
 
 def mutate(root, name):
+    from . import node_late_prepare as late
+    if name in late.NEGATIVES:return late.mutate(root,name)
     if name not in EXTRA_NEGATIVES:return p.mutate(root,name)
     raw=root/'history'
     files={'reconciliation-barrier':'published-4/node-1/selector.gsr',
@@ -304,8 +308,11 @@ def mutate(root, name):
 
 
 def qualify(root):
+    from . import node_late_prepare as late
     root=Path(root);original=validate(root);negatives=[]
-    for name,reason in (p.negative_cases(original['cut'])|EXTRA_NEGATIVES).items():
+    cases=p.negative_cases(original['cut'])|EXTRA_NEGATIVES
+    if original['network'].get('lateUnusedPrepares'):cases.update(late.NEGATIVES)
+    for name,reason in cases.items():
         with tempfile.TemporaryDirectory(prefix='v53-current-node-negative-') as temp:
             path=Path(temp)/'raw';shutil.copytree(root,path);mutate(path,name)
             try:validate(path)
