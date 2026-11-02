@@ -14,6 +14,32 @@ def replay(events):
 
 
 class CompetingCampaignMaintenanceTest(unittest.TestCase):
+    def test_first_install_without_retirement_keeps_derived_original_group(self):
+        r=replay([('node-1','INSTALL_RESERVED')]);r.group={'node-1':{'grants.gsr':b'original'}}
+        original=r.group;before=copy.deepcopy(original)
+        with patch.object(m.prefix.Replay,'run',return_value={'original':True}), \
+                patch.object(r,'transaction') as tx,patch.object(m.disk,'inventory',return_value=before['node-1']):
+            result=r.run();tx.assert_not_called()
+        self.assertEqual(before,r.group);self.assertEqual(before,original)
+        self.assertEqual([],result['transactions']);self.assertEqual(set(),r.maintenance_traces)
+        self.assertEqual(0,r.stop);self.assertEqual(-1,result['throughEvent'])
+        self.assertTrue(result['finalGrantSourceProjection']);self.assertFalse(result['fullNetworkQualified'])
+
+    def test_no_retirement_still_compares_final_grants_allocator_and_sources(self):
+        for name in ('grants.gsr','allocator.gsr','sources/old/source.gscp','sources.retirement.gsr'):
+            r=replay([('node-1','INSTALL_RESERVED')]);r.group={'node-1':{name:b'original'}}
+            with self.subTest(name=name),patch.object(m.prefix.Replay,'run',return_value={}), \
+                    patch.object(m.disk,'inventory',return_value={name:b'changed'}):
+                with self.assertRaisesRegex(ValueError,'final grant/source projection'):r.run()
+
+    def test_no_retirement_cannot_skip_earlier_unmodeled_work_or_missing_install(self):
+        for points,reason in ((['SOURCE_RETIREMENT_CREATED','INSTALL_RESERVED'],'original floor absent'),
+                              (['NETWORK_SEND','INSTALL_RESERVED'],'original floor absent'),
+                              ([], 'first installation boundary')):
+            r=replay([('node-1',v) for v in points])
+            with self.subTest(points=points),patch.object(m.prefix.Replay,'run',return_value={}):
+                with self.assertRaisesRegex(ValueError,reason):r.run()
+
     def test_original_prefix_failure_prevents_any_continuation(self):
         r=replay([])
         with patch.object(m.prefix.Replay,'run',side_effect=ValueError('prefix')),patch.object(r,'transaction') as tx:

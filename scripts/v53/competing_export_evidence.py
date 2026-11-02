@@ -78,7 +78,10 @@ def transfer_contents(replay):
     """Separate the already checked incomplete selection from complete transfers."""
     successful={v['request']['trace'] for v in replay.rows if v['answer']=='INSTALL_ACK'}
     losing=[v for v in replay.attempts if v['kind']=='SELECTED' and v['request']['trace'] not in successful]
-    need(len(losing)==1,'competing export original incomplete selection')
+    need(len(losing)<=1,'competing export original incomplete selection')
+    if not losing:
+        contents=[];counts=transcript.transfers(replay.rows,contents=contents)
+        return contents,None,counts
     choice=losing[0]['request']['payload']['selection']
     offers=[v for v in replay.rows if v['answer']=='SOURCE_OFFER' and v['request']['payload']['digest']==choice]
     need(len(offers)==1,'competing export incomplete selection offer');offer=offers[0]
@@ -107,11 +110,13 @@ def authorize(groups,partial,windows,sources,records):
         scope=authorize_session(values,windows,sources,records)
         families[scope]+=1;transfers[scope]+=len(values)
     need(families['current-generation'] and families['frozen-source'], 'competing export required original families')
-    need('commit' not in partial,'competing export incomplete transfer cannot commit')
-    scope=e.authorize_record_interval(partial,windows,records,partial['through'])
-    need(scope=='journal','competing export incomplete original journal authority')
+    scope=None
+    if partial is not None:
+        need('commit' not in partial,'competing export incomplete transfer cannot commit')
+        scope=e.authorize_record_interval(partial,windows,records,partial['through'])
+        need(scope=='journal','competing export incomplete original journal authority')
     return dict(boundSessions=dict(families),boundTransfers=dict(transfers),
-                incompleteTransfers=1,incompleteFamily=scope,incompleteTransferCommitted=False,unqualifiedTransfers=0)
+                incompleteTransfers=int(partial is not None),incompleteFamily=scope,incompleteTransferCommitted=False,unqualifiedTransfers=0)
 
 
 class Replay:
@@ -176,7 +181,7 @@ def negative_claim(reader,name):
     gate (which would reject a changed transcript earlier). Never advertise
     these as native executions or fault-injection histories.
     """
-    need(name in NEGATIVES,'competing export unknown capability negative')
+    need(name in NEGATIVES or name=='journal-after-history','competing export unknown capability negative')
     windows,sources,records=reader.windows,reader.sources,reader.records
     if name.startswith('partial-'):
         partial=copy.deepcopy(reader.partial);q=partial['offer']['request']
@@ -196,7 +201,7 @@ def negative_claim(reader,name):
         family={'receipt':'native-vote-receipt','pending':'pending-payload' if name.startswith('pending-payload') else 'pending-record',
                 'checkpoint':'native-applied-checkpoint','journal':'journal','published':'published-record'}[prefix]
         original=next(v for v in reader.groups if len(v)==1 and authorize_session(v,windows,sources,records)==family
-                      and (prefix!='journal' or any(z['reference']==v[0]['offer']['request']['payload']['digest'] and
+                      and (name!='journal-after-retirement' or any(z['reference']==v[0]['offer']['request']['payload']['digest'] and
                            z['node']==v[0]['offer']['request']['recipient']['node'] and z['end']<len(reader.replay.events) for z in records)))
     values=copy.deepcopy(original);first=values[0];q=first['offer']['request'];reference=q['payload']['digest']
     own=e.current(windows,q['recipient']['node'],first['offer']['received'],values[-1]['commit']['offered'])
@@ -214,16 +219,30 @@ def negative_claim(reader,name):
     elif name in ('receipt-before-force','checkpoint-before-apply'):first['offer']['received']=held['start']
     elif name=='checkpoint-after-window':values[-1]['commit']['offered']=held['end']
     elif name=='pending-record-view':q['view']='f'*64
-    elif name=='journal-after-retirement':values[-1]['commit']['offered']=held['end']
+    elif name in ('journal-after-retirement','journal-after-history'):values[-1]['commit']['offered']=held['end']
     if prefix=='generation':return e.authorize_generation(values,windows)
     if prefix=='source':return e.authorize_source(values,windows,sources)
     return e.authorize_record(values,windows,records)
 
 
+def negative_cases(reader):
+    cases=dict(NEGATIVES);not_applicable={}
+    if reader.partial is None:
+        for name in tuple(cases):
+            if name.startswith('partial-'):
+                not_applicable[name]='Original history has no incomplete SELECTED transfer.';del cases[name]
+    if not any(v['retiredSources'] for v in reader.replay.transactions):
+        cases.pop('journal-after-retirement')
+        not_applicable['journal-after-retirement']='Original history has no source retirement.'
+        cases['journal-after-history']='joining export inactive current generation'
+    return cases,not_applicable
+
+
 def qualify(root):
     inventory=activation.publication.preceding.prefix.collection.h.inventory;root=Path(root);before=inventory(root)
     reader=Replay(root);original=reader.run();outcomes=[]
-    for name,reason in NEGATIVES.items():
+    cases,not_applicable=negative_cases(reader)
+    for name,reason in cases.items():
         try:negative_claim(reader,name)
         except ValueError as error:need(str(error)==reason,'unrelated competing export negative: '+name+': '+str(error))
         else:raise ValueError('competing export capability mutation accepted: '+name)
@@ -234,7 +253,8 @@ def qualify(root):
          {k:original[k] for k in ('boundSessions','boundTransfers','incompleteTransfers','incompleteFamily',
           'incompleteTransferCommitted','unqualifiedTransfers')},'competing export negative changed derived original')
     need(inventory(root)==before,'competing export negative changed native original')
-    return dict(original=original,negativeScope='derived-capability-claims-not-native-faults',negatives=outcomes)
+    return dict(original=original,negativeScope='derived-capability-claims-not-native-faults',negatives=outcomes,
+                notApplicable=not_applicable)
 
 
 if __name__=='__main__':

@@ -186,7 +186,10 @@ def closed(root,replay,history,events,activation_at):
     need(all(v['event'] in ('NETWORK_SEND','NETWORK_REQUEST','NETWORK_RECEIVED','WIRE_RESPONSE')
              for v in events[activation_at+1:] if v['node']==unused),
          'competing publication nonselected owner work')
-    outgoing={v['node'] for v in replay.by_basis.values() if v['ballot']['proposer']==v['node']}
+    # Activation owns OUTGOING before reserving its ballot. A higher PREPARE
+    # may fence it before any local grant exists; retained grants alone cannot
+    # inventory these drained owners. Reservations come from physical replay.
+    outgoing={v['node'] for v in replay.allocations}
     p.scratch(root,history,outgoing)
 
 

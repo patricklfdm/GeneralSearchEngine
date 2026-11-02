@@ -69,9 +69,13 @@ class Replay(prefix.Replay):
     def run(self):
         preceding = super().run()
         installs = [i for i,v in enumerate(self.events) if v['event'] == 'INSTALL_RESERVED']
-        need(installs and self.stop < min(installs), 'competing maintenance first installation boundary')
+        need(installs and self.stop <= min(installs), 'competing maintenance first installation boundary')
         stop = min(installs); starts = [i for i in range(self.stop, stop) if self.events[i]['event'] == 'FLOOR_RESERVED']
-        need(starts, 'competing maintenance original floor absent')
+        # An owner can lose before capturing a local grant. With no obsolete
+        # source, the original prefix ends directly at installation. Replay the
+        # empty interval, but still compare every derived grant/source below.
+        # A nonempty interval cannot silently omit a floor transaction.
+        need(starts or self.stop == stop, 'competing maintenance original floor absent')
         spans = []
         for start in starts:
             node = self.events[start]['node']

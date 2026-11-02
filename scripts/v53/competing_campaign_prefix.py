@@ -216,6 +216,7 @@ class Replay:
         need(promise_points=={i for i,v in enumerate(self.events[:stop]) if v['event'] in ballot.PROMISE},
              'competing prefix unbound promise writes')
         group = copy.deepcopy(self.initial); actions = []; identifiers = set(); comparisons = 0
+        self.allocations = []
         tx = ballot.allocations(self.events[:stop], tuple(group), None)
         need(all(any(cap['node']==row['node'] and row['end']<cap['capturedEvent'] for cap in self.by_basis.values()) for row in tx),
              'competing prefix unobserved allocation')
@@ -231,6 +232,8 @@ class Replay:
                 counter = max(value['counter'], *[v['ballot']['counter'] for _,_,v in records])+1
                 need(counter <= 2**63-2, 'competing prefix counter capacity')
                 group[node] = dict(files, **{'allocator.gsr':f.encode('records','ALLOCATOR',dict(value,counter=counter))})
+                self.allocations.append(dict(row,ballot=dict(counter=counter,proposer=node,
+                    incarnation=self.identities[node]['storage'])))
             elif kind == 'grant':
                 if row['ballot']['proposer'] == node:
                     need(f.decode(files['allocator.gsr'],'records','ALLOCATOR')['counter'] == row['ballot']['counter'],

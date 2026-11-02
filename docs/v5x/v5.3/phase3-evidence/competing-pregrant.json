@@ -1,0 +1,241 @@
+{
+  "baseCommit": "afe1ccfa9bd6611a714425f5ca207c3017fa719f",
+  "completeExportLifetimesQualified": false,
+  "finalSourceCohortQualified": false,
+  "fullLifecycleQualified": false,
+  "hostedExecuted": false,
+  "implementationInputs": {
+    "scripts/v53/competing_activation_network.py": "e9152728838aced38e6faf30261e5598805d307303d7a14b20e1dde1b6072582",
+    "scripts/v53/competing_campaign_maintenance.py": "f20729f1b9f0b04519a73ee25f8a43e38c133b5e230714368e01e989792d671e",
+    "scripts/v53/competing_campaign_prefix.py": "dd0c33d8a488f21e44e0a95036febf81efd2039c72c241b281e622dabd06f4a8",
+    "scripts/v53/competing_campaign_publication.py": "e2f86f811b01ed5296c01aec802787d20c5f322f1c1f8973b3ae3b496abaf1b5",
+    "scripts/v53/competing_export_evidence.py": "eb033f6a28f14475e3f7457e5c6abb55075b26437d6afafd5c4b454cc5441833",
+    "scripts/v53/competing_pregrant_evidence.py": "a993cafe6f0da8e4107603c4dad0535d2fde9968dfcc6be265aad57b4d5ad9d4",
+    "scripts/v53/test_competing_campaign_maintenance.py": "025aab22ce4386775d941d2d3ba6c2a4ec8b7a606c0ccbb688e205f76251d3f4",
+    "scripts/v53/test_competing_campaign_publication.py": "fc2fb89e269d098a0d7542c5c8a82ee8533228a8c6efe1c3310472725184f41a",
+    "scripts/v53/test_competing_export_evidence.py": "a050bb081709dc7bb4f904eb64c81600adc365db2c909edd2c23f36ba8ab1884",
+    "scripts/v53/test_competing_pregrant_evidence.py": "6131cc8dcb46a94248b4ed04293d5f355214b12d7f7b8fd53c1dc38733c5b6f1"
+  },
+  "nativeExecuted": false,
+  "nativeRerun": false,
+  "next": "Complete automatic lifecycle/loss and export-expiry/close fault coverage; compose final-source competition and other Phase 3 cohorts without equating local reader checks to native acceptance.",
+  "originalInventory": {
+    "path": "target/v53-competing-pregrant/native-inventory.json",
+    "sha256": "cede619fad3dd7291c32441dcff8701bc67370646a48462ce0bea01b4d71d169"
+  },
+  "originalSource": {
+    "build": {
+      "path": "target/v53-automatic-lifecycle/native/build.json",
+      "sha256": "eca5c38940c10a5f2dc73acbe941266f9c97c12fb1a1733a1c62cdd99c4773c5"
+    },
+    "collection": {
+      "path": "target/v53-automatic-lifecycle/native/collection.json",
+      "sha256": "fa8c0a890cdf903e8fe15757d2e4a5b4be5c61d6ade2653b073d5ee395988d3d"
+    },
+    "execution": {
+      "elapsedSeconds": 98.334,
+      "exit": 0
+    },
+    "inventory": {
+      "path": "target/v53-automatic-lifecycle/native-inventory.json",
+      "sha256": "cede619fad3dd7291c32441dcff8701bc67370646a48462ce0bea01b4d71d169"
+    },
+    "log": {
+      "path": "target/v53-automatic-lifecycle/native/maven.log",
+      "sha256": "9e82fc2668a45aa4a8b15b624c9a1e70b03693a2b7f952bf5d0d14b02fad7f25"
+    },
+    "raw": "target/v53-automatic-lifecycle/native/workspace/general-search-engine-replication/target/v53-competing-node/run-07db2cf0-31db-4fbc-86b3-b6b89770806c",
+    "request": {
+      "path": "target/v53-automatic-lifecycle/native/request.json",
+      "sha256": "c8d2a8afd7a3ac52bfad307af49cb938c0bf7783d817dfebf1f11b32f0570e09"
+    },
+    "retries": 0,
+    "source": {
+      "path": "target/v53-automatic-lifecycle/native/source.json",
+      "sha256": "b6a204cd41acd98e090ffc03ad03ed32f8aa3e7596496531d589e6fb1a77d0f7"
+    },
+    "sourceNote": "Immutable recorded working bytes at baseline 579fae3c; not an exact-final-source cohort.",
+    "toolchain": {
+      "path": "target/v53-automatic-lifecycle/native/toolchain.json",
+      "sha256": "227bb62ad494cb79680fe9432d9f3cfe07d7c6717cabf245bf4167b1a16a8612"
+    }
+  },
+  "paidCloudExecuted": false,
+  "phase3Complete": false,
+  "portableArchive": {
+    "path": "target/v53-competing-pregrant/portable-original.tar.gz",
+    "sha256": "73d2318239b56e63d13f354ec787ddb41b579f7be6e9eaf72e3c824fbe02540d"
+  },
+  "priorDevelopmentReceipt": {
+    "path": "docs/v5x/v5.3/phase3-evidence/automatic-lifecycle.json",
+    "sha256": "d4de9454b2559bb6903ad22236808e92ef41d968683d27bf078886aa0c1b3117"
+  },
+  "protocolBudgetsChanged": false,
+  "result": {
+    "campaigns": 2,
+    "committedTransfers": 61,
+    "generationWindows": 9,
+    "incompleteTransfers": 0,
+    "maintenanceTransactions": 0,
+    "observedExportAuthorityQualified": true,
+    "originalNetworkQualified": true,
+    "originalPublicationQualified": true,
+    "pregrantLosses": [
+      {
+        "allocation": 94,
+        "ballot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000001",
+          "proposer": "node-1"
+        },
+        "capture": 95,
+        "higherBallot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000003",
+          "proposer": "node-3"
+        },
+        "higherRequest": 97,
+        "localGrantCreated": false,
+        "lossAt": 97,
+        "node": "node-1",
+        "remoteGrant": 137
+      }
+    ],
+    "recordWindows": 54,
+    "sourceWindows": 2,
+    "wholeHistoryAttempts": 240,
+    "wholeHistoryExchanges": 225
+  },
+  "retainedDevelopmentFailures": [
+    {
+      "note": "New empty-interval regressions fail on the previous implementation.",
+      "path": "target/v53-competing-pregrant/before-maintenance.log",
+      "sha256": "98af053d4dff2d5cc418c5597b8286c05337a4a9569819a068ad3d0e18be16a1"
+    },
+    {
+      "note": "After the zero-retirement boundary, old scratch inference omitted a pre-grant campaign owner.",
+      "path": "target/v53-competing-pregrant/publication.json",
+      "sha256": "66417eaa17a9e47b69f88b95f808198c84661ec6a2b924d4fb667a247555fad5"
+    },
+    {
+      "note": "Before reservation-based discovery, abandoned pre-grant probes were unclassified.",
+      "path": "target/v53-competing-pregrant/network.json",
+      "sha256": "b73431b229e98c2ec89f22b5eb289354ffdb2fcd56ada7d296d865a0e9d5b8d1"
+    },
+    {
+      "note": "New end-of-history negative initially expected a narrower journal error; actual current-generation boundary rejects first.",
+      "path": "target/v53-competing-pregrant/exports.json",
+      "sha256": "52c21d4e93969441f1514b57091f6d0a5d48ac55d4e241a0eabd7dfdc92c925a"
+    },
+    {
+      "note": "New scratch unit fixture lacked enough event rows for the existing diagnostics bound; fixture corrected.",
+      "path": "target/v53-competing-pregrant/focused-tests-final.log",
+      "sha256": "16f9865eb685be5068f7b809f08451f1216785776f4ef9b3d86bb044d4f7675e"
+    }
+  ],
+  "runtimeJavaChanged": false,
+  "schema": "gse-v53-competing-pregrant-development-v1",
+  "scope": "Original-preserving replay of a previously rejected pre-grant-loss history; no final-source cohort claim.",
+  "status": "PARTIAL",
+  "validation": {
+    "contracts": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 2243,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "path": "target/v53-competing-pregrant/contracts.log",
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "sha256": "3187041afc816dfe12130e7a1acb8265803041b7e9761d261f32754c1f3bbfe7",
+      "status": "PASS"
+    },
+    "focused": {
+      "path": "target/v53-competing-pregrant/focused-tests-corrected.log",
+      "sha256": "d0768e33f68f3ad52cbd6adc206b132ebe4ab2de2565d7e39a5fd5e454ddf21d",
+      "status": "PASS",
+      "tests": 76
+    },
+    "legacyExecution": {
+      "path": "target/v53-competing-pregrant/legacy-executions.json",
+      "sha256": "ed71dc3779db7743e972ab4dd6f8024c8f9cc6806a8f0f433f6d65f855d1307b"
+    },
+    "legacyExports": {
+      "negatives": 26,
+      "path": "target/v53-competing-pregrant/legacy-exports.json",
+      "pythonOptimized": true,
+      "sha256": "a57232811df04d9ca9d73500dcc187fcbf17a4588c289fbfa52036a24264fd05",
+      "status": "PASS"
+    },
+    "legacyMaintenance": {
+      "negatives": 14,
+      "path": "target/v53-competing-pregrant/legacy-maintenance.json",
+      "pythonOptimized": true,
+      "sha256": "3633560121f3f39f1b238280914844de80317991280eff2d4cfe2f1abf054e2b",
+      "status": "PASS"
+    },
+    "optimized": {
+      "path": "target/v53-competing-pregrant/optimized-tests.log",
+      "sha256": "3831aee428c9fed62494da3ca7b3d8b719fe8ec23417cdb75fa0c3ea9b72c86a",
+      "status": "PASS",
+      "tests": 76
+    },
+    "originalEvidenceNegatives": {
+      "negatives": 7,
+      "path": "target/v53-competing-pregrant/original-negatives.json",
+      "sha256": "c9942efb5c09f4ce6ca836c09df9e9a4510b56ffdab3375a60844f3910e8face",
+      "status": "PASS"
+    },
+    "planInspection": {
+      "execution": "source-inventory-only",
+      "path": "target/v53-competing-pregrant/plan-inspection/receipt.json",
+      "sha256": "d8af967f475ea619b423eb1060c4c74e82c4f09767426ac543916c8fe984aedb",
+      "status": "PASS"
+    },
+    "portableEvidenceNegatives": {
+      "negatives": 7,
+      "path": "target/v53-competing-pregrant/portable-original-negatives.json",
+      "pythonOptimized": true,
+      "sha256": "c9942efb5c09f4ce6ca836c09df9e9a4510b56ffdab3375a60844f3910e8face",
+      "status": "PASS"
+    },
+    "portableExecution": {
+      "path": "target/v53-competing-pregrant/portable-executions.json",
+      "sha256": "e5c80e038a764f1dc031c13bdda38468aa88c54c7795e86d102e86da48eece16"
+    },
+    "portableExports": {
+      "negatives": 20,
+      "notApplicable": {
+        "journal-after-retirement": "Original history has no source retirement.",
+        "partial-after-retirement": "Original history has no incomplete SELECTED transfer.",
+        "partial-before-selection": "Original history has no incomplete SELECTED transfer.",
+        "partial-bytes": "Original history has no incomplete SELECTED transfer.",
+        "partial-other-owner": "Original history has no incomplete SELECTED transfer.",
+        "partial-received-at-retirement": "Original history has no incomplete SELECTED transfer.",
+        "partial-view": "Original history has no incomplete SELECTED transfer."
+      },
+      "path": "target/v53-competing-pregrant/portable-exports.json",
+      "pythonOptimized": true,
+      "sha256": "dfc3e348864e922a972ab78fbb7800c8783848aac0ae99b53b9f9abd056a7b9a",
+      "status": "PASS"
+    },
+    "portableLifecycle": {
+      "negatives": 12,
+      "path": "target/v53-competing-pregrant/portable-lifecycle.json",
+      "pythonOptimized": true,
+      "sha256": "35f73dc13abe81e0253ac3cbffc9d82e28dce6821a9580f1ac3619a4a36e072b",
+      "status": "PASS"
+    },
+    "python": {
+      "execution": {
+        "exit": 0,
+        "seconds": 104.124
+      },
+      "path": "target/v53-competing-pregrant/python-suite.log",
+      "sha256": "4892e04e303184da253fd053cb4cbecfdb361788c9733cc9a8ca7697ba164624",
+      "status": "PASS",
+      "tests": 2312
+    }
+  },
+  "workflowChanged": false
+}

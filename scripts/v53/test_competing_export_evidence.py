@@ -18,6 +18,31 @@ def partial():
 
 
 class CompetingExportEvidenceTest(unittest.TestCase):
+    def test_no_incomplete_selection_still_parses_every_original_transfer(self):
+        rows=[dict(answer='INSTALL_ACK',request=dict(trace='selected'))]
+        replay=SimpleNamespace(rows=rows,attempts=[dict(kind='SELECTED',request=dict(trace='selected'))])
+        with patch.object(m.transcript,'transfers',return_value={'committedTransfers':1}) as transfers:
+            contents,part,counts=m.transfer_contents(replay)
+            self.assertIs(rows,transfers.call_args.args[0]);self.assertIsNone(part)
+            self.assertEqual({'committedTransfers':1},counts)
+
+    def test_missing_incomplete_branch_is_not_a_successful_negative(self):
+        reader=SimpleNamespace(partial=None,replay=SimpleNamespace(transactions=[]))
+        cases,omitted=m.negative_cases(reader)
+        self.assertEqual(20,len(cases));self.assertEqual(7,len(omitted))
+        self.assertFalse(any(v.startswith('partial-') for v in cases))
+        self.assertIn('journal-after-history',cases);self.assertIn('journal-after-retirement',omitted)
+        reader.partial={};reader.replay.transactions=[dict(retiredSources=1)]
+        self.assertEqual((m.NEGATIVES,{}),m.negative_cases(reader))
+
+    def test_absent_incomplete_transfer_never_invents_journal_authority(self):
+        with patch.object(m,'authorize_session',side_effect=['current-generation','frozen-source']), \
+                patch.object(m.e,'authorize_record_interval') as partial:
+            result=m.authorize([[{}],[{}]],None,[],[],[])
+            partial.assert_not_called()
+        self.assertEqual(0,result['incompleteTransfers']);self.assertIsNone(result['incompleteFamily'])
+        self.assertEqual(2,sum(result['boundTransfers'].values()))
+
     def test_invalid_original_stops_capability_interpretation(self):
         with patch.object(m.activation,'Replay') as gate,patch.object(m,'generation_windows') as windows:
             gate.return_value.run.side_effect=ValueError('invalid original')
@@ -120,7 +145,8 @@ class CompetingExportEvidenceTest(unittest.TestCase):
     def test_negative_requires_exact_rejection_not_an_unrelated_failure(self):
         for error,reason in ((ValueError('other'),'unrelated competing export negative'),(None,'mutation accepted')):
             with self.subTest(error=error),patch.object(m.activation.publication.preceding.prefix.collection.h,'inventory',return_value={}), \
-                    patch.object(m.Replay,'run',return_value={}),patch.object(m,'negative_claim',side_effect=error):
+                    patch.object(m.Replay,'run',return_value={}),patch.object(m,'negative_claim',side_effect=error), \
+                    patch.object(m,'negative_cases',return_value=(m.NEGATIVES,{})):
                 with self.assertRaisesRegex(ValueError,reason):m.qualify('/original')
 
     def test_unknown_capability_family_cannot_be_dropped(self):

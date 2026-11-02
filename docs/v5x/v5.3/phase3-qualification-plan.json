@@ -279,7 +279,8 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AutomaticCampaignTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeInFlightTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CompetingGrantCaptureTest.java",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AutomaticLifecycleTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AutomaticLifecycleTest.java",
+        "scripts/v53/test_competing_pregrant_evidence.py"
       ],
       "readers": [
         "scripts/v53/competing_node_evidence.py",
@@ -290,7 +291,8 @@
         "scripts/v53/competing_campaign_publication.py",
         "scripts/v53/competing_activation_network.py",
         "scripts/v53/competing_export_evidence.py",
-        "scripts/v53/automatic_lifecycle.py"
+        "scripts/v53/automatic_lifecycle.py",
+        "scripts/v53/competing_pregrant_evidence.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_COMPETING_REPLAY.md",
@@ -302,7 +304,8 @@
         "docs/v5x/v5.3/PHASE_3_COMPETING_PUBLICATION.md",
         "docs/v5x/v5.3/PHASE_3_COMPETING_ACTIVATION_NETWORK.md",
         "docs/v5x/v5.3/PHASE_3_COMPETING_EXPORTS.md",
-        "docs/v5x/v5.3/PHASE_3_AUTOMATIC_LIFECYCLE.md"
+        "docs/v5x/v5.3/PHASE_3_AUTOMATIC_LIFECYCLE.md",
+        "docs/v5x/v5.3/PHASE_3_PREGRANT_LOSS_REPLAY.md"
       ],
       "cohorts": [
         "node-renames"

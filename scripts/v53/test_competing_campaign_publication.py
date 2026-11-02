@@ -111,5 +111,16 @@ class CompetingCampaignPublicationTest(unittest.TestCase):
             with self.subTest(owners=owners),self.assertRaisesRegex(ValueError,'scratch outgoing owners'):
                 m.p.scratch(Path('/original'),history,owners)
 
+    def test_scratch_includes_reserved_owner_even_without_local_grant(self):
+        nodes=('node-1','node-2','node-3');history=SimpleNamespace(initial=dict.fromkeys(nodes),proposer='node-3',voters=['node-1','node-3'])
+        replay=SimpleNamespace(allocations=[dict(node='node-1'),dict(node='node-3')],
+                              by_basis={'only-local':dict(node='node-3',ballot=dict(proposer='node-3'))})
+        diagnostics=[dict(node=n,state='READY' if n=='node-3' else 'STARTING',rounds=1,losses=[],failure='') for n in nodes]
+        producer=dict(status='PARTIAL',producerPassed=True,nodes=3,automaticOwners=3,defaultBounds=True,physicalReplay=False,phase3Complete=False)
+        with patch.object(Path,'read_bytes',return_value=b''),patch.object(m.p.n,'read',side_effect=[producer,diagnostics]), \
+                patch.object(m.p,'scratch') as scratch:
+            m.closed(Path('/original'),replay,history,[dict(node=n,event='NETWORK_SEND') for n in nodes],0)
+            self.assertEqual({'node-1','node-3'},scratch.call_args.args[2])
+
 
 if __name__=='__main__':unittest.main()

@@ -13,6 +13,7 @@ import tempfile
 import uuid
 
 from . import competing_campaign_publication as publication
+from . import competing_pregrant_evidence as pregrant
 
 p=publication.p;net=publication.network;f=publication.f;disk=publication.disk
 need=publication.need;sha=publication.sha
@@ -115,11 +116,11 @@ class Replay:
         rows=[v for v in r.rows if v['request']['trace'] not in r.maintenance_traces]
         phase=net.net.Phase(events,rows,-1,stop,r.identities);self.phase=phase
         self.original=original;self.replay=r
-        allowed=set();discoveries=0;campaigns=0;abandoned=0
-        locals=sorted([v for v in r.by_basis.values() if v['ballot']['proposer']==v['node']],key=lambda v:v['capturedEvent'])
-        for local in locals:
-            node=local['node'];ballot=local['ballot'];campaigns+=1
+        allowed=set();discoveries=0;campaigns=0;abandoned=0;pregrant_losses=[]
+        for reservation in r.allocations:
+            node=reservation['node'];ballot=reservation['ballot'];campaigns+=1
             allocated=phase.at(node,'ALLOCATOR_BEFORE_WRITE')
+            need(allocated==reservation['start'],'competing activation original reservation')
             prior=f.decode(disk.current(r.initial[node])[1]['promise.gsr'],'records','PROMISE')['ballot']
             lower=-1
             for peer in sorted(set(r.identities)-{node}):
@@ -129,6 +130,12 @@ class Replay:
                         and v['request']['recipient']['node']==peer and v['request']['ballot']==prior]
                 need(probes and all(previous<v['sent']<v['received']<v['offered']<v['delivered']<allocated for v in probes),
                      'competing activation discovery before allocation')
+            locals=[v for v in r.by_basis.values() if v['node']==node and v['ballot']==ballot]
+            need(len(locals)<=1,'competing activation unique local grant')
+            if not locals:
+                pregrant_losses.append(pregrant.validate(r,reservation,stop))
+                continue
+            local=locals[0]
             grants=[v for v in r.by_basis.values() if v['ballot']==ballot and v['node']!=node]
             need(len(grants)==1,'competing activation bootstrap first remote majority')
             remote=grants[0];peer=remote['node']
@@ -194,6 +201,7 @@ class Replay:
         return dict(status='PARTIAL',scope='competing-bootstrap-original-activation-network',precondition=precondition,
             campaigns=campaigns,discoveryProbes=discoveries,activation=summary,maintenanceExchanges=covered-summary['exchanges'],
             preinstallationExchanges=covered,abandonedSelections=abandoned,unansweredAttempts=len(allowed),
+            pregrantLosses=pregrant_losses,
             wholeHistoryExchanges=len(r.rows),wholeHistoryAttempts=len(r.attempts),
             originalActivationNetworkQualified=True,fullNetworkQualified=True,
             completeExportLifetimesQualified=False,processDeathQualified=False,finalSourceCohortQualified=False,phase3Complete=False)
