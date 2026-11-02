@@ -28,11 +28,12 @@ class Phase3QualificationPlanTest(unittest.TestCase):
     def test_current_sources_and_complete_planning_inventory(self):
         result = self.check()
         self.assertEqual(12, result['requirements'])
-        self.assertEqual(428, result['plannedHostedHistories'])
+        self.assertEqual(449, result['plannedHostedHistories'])
         self.assertEqual({'profiles':7, 'joining-reply-loss':3, 'remove-process':52,
-                          'node-renames':4, 'joining-process':360, 'learner-histories':2},
+                          'node-renames':4, 'joining-process':360, 'learner-histories':2, 'transfer-histories':21},
                          {k:v['members'] for k,v in result['cohorts'].items()})
         self.assertEqual(120, result['cohorts']['joining-process']['executionGroups'])
+        self.assertEqual(2, result['cohorts']['transfer-histories']['executionGroups'])
         self.assertEqual(3310, result['frozenAcceptance']['scenarios'])
         self.assertEqual(24, result['frozenAcceptance']['negativeFamilies'])
         self.assertEqual([], result['frozenAcceptance']['coveredScenarioRows'])
@@ -85,6 +86,15 @@ class Phase3QualificationPlanTest(unittest.TestCase):
         groups = dict(hosted.SHARDS); first = next(iter(groups)); groups[first] = tuple(reversed(groups[first]))
         with patch.object(hosted,'SHARDS',groups), self.assertRaisesRegex(ValueError,'whole-history partition'):
             p.catalogues()
+
+    def test_transfer_groups_cannot_drop_or_split_original_histories(self):
+        from . import transfer_history_hosted as hosted
+        self.assertEqual([3,18],[len(v) for v in hosted.SHARDS.values()])
+        groups=dict(hosted.SHARDS);groups['tcp-lifetimes']=groups['tcp-lifetimes'][:-1]
+        split=dict(hosted.SHARDS);split['first']=split['tcp-lifetimes'][:1];split['tcp-lifetimes']=split['tcp-lifetimes'][1:]
+        for value in (groups,split):
+            with patch.object(hosted,'SHARDS',value),self.assertRaisesRegex(ValueError,'whole-matrix partition'):
+                p.catalogues()
 
     def test_empty_unknown_duplicate_dependencies_and_orphans_reject(self):
         for action in (lambda v:v['requirements'][0].update(gaps=[]),

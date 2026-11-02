@@ -1,6 +1,10 @@
 # Complete transfer lifetime and process matrix admission
 
-Phase 3 remains **OPEN**. The [local entry](../../../scripts/v53/transfer_history.py)
+Phase 3 remains **OPEN**. The later [hosted adapter](PHASE_3_TRANSFER_HISTORY_HOSTED.md)
+now implements the subsequent wiring described below; its final-source execution
+is still pending. This document retains the local batch's original scope.
+
+The [local entry](../../../scripts/v53/transfer_history.py)
 reuses the existing [TCP lifetime producer/reader](PHASE_3_TRANSFER_FAULTS.md)
 and [process recovery producer/reader](PHASE_3_TRANSFER_PROCESS.md). It adds
 immutable capture and complete-pair admission; it does not add a second transfer

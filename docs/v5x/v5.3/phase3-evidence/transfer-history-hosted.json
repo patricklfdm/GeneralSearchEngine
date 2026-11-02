@@ -1,0 +1,113 @@
+{
+  "baseCommit": "fbf239d0859af4a03fd5f73d23975096fdf9537b",
+  "finalSourceCohortQualified": false,
+  "hostedExecuted": false,
+  "implementationInputs": {
+    ".github/workflows/v53-transfer-histories.yml": "474f0d0e07c99dc50f9a1418c8d45b99acc26ded5ba0762226f7b36a72807519",
+    "scripts/v53/phase3_qualification_plan.py": "28822ad20beee5eb116d65721fdba7950c785fe8c0c4d06f187968ecd235ffa7",
+    "scripts/v53/test_phase3_qualification_plan.py": "8581d43780ef1571cd2c8f9de68018331049ec799dd29b4503b7e66935b08e33",
+    "scripts/v53/test_transfer_history_hosted.py": "194dc43e0554fd6eaa67cb117abcdd6874fd369cce427511dc664a7fdc2f5f72",
+    "scripts/v53/test_transfer_history_workflow.py": "f4e6d1bb169760b8e9d685e90b4e109e3cca7684e7f0dadf239d287f40f7f135",
+    "scripts/v53/transfer_history_hosted.py": "c8016cdbe4d15cb6bf415575c2154aa6ccaac0ec4fa1f978fb9c6cb2cb9f92e9"
+  },
+  "nativeExecuted": false,
+  "next": "Execute hosted cohorts only after authorization and final-source coordination. Continue missing competition/carried/recovery entries, combined resources, precise frozen coverage and phase-wide admission.",
+  "paidCloudExecuted": false,
+  "parallelExecutors": 2,
+  "parallelVerifiers": 2,
+  "phase3Complete": false,
+  "plannedNativeCases": 45,
+  "plannedNativeHistories": 21,
+  "plannedNegatives": 48,
+  "priorNativeDevelopment": {
+    "note": "Previous local matrices qualified against their own recorded source; not this hosted source/run/attempt.",
+    "path": "docs/v5x/v5.3/phase3-evidence/transfer-history-cohort.json",
+    "sha256": "d727298b111e29df263826ca10c7a2a705144e87f0e60560a05cfc4faa77abd2"
+  },
+  "protocolBudgetsChanged": false,
+  "qualificationInventory": {
+    "finalSourceHistoriesAccepted": 0,
+    "openWorkGroups": 5,
+    "plannedWholeHistories": 449,
+    "subsets": 7
+  },
+  "requiredChanged": false,
+  "runtimeJavaChanged": false,
+  "schema": "gse-v53-transfer-hosted-development-v1",
+  "scope": "Hosted orchestration and source-inventory checks only; synthetic originals are not native qualification.",
+  "status": "PARTIAL",
+  "validation": {
+    "contracts": {
+      "path": "target/v53-transfer-hosted/contracts.log",
+      "sha256": "5794225d6444bb89ac144e55c7eed0f8765be4ad351f5409c0a6dc0b4d046f2d",
+      "status": "PASS"
+    },
+    "focused": {
+      "path": "target/v53-transfer-hosted/focused.log",
+      "seconds": 2.615,
+      "sha256": "2e5bd34165f12f2639d7eb15633bb806c52bb1d81a4fc5898bb35a3ca7a12478",
+      "status": "PASS",
+      "tests": 53
+    },
+    "optimized": {
+      "path": "target/v53-transfer-hosted/optimized.log",
+      "seconds": 1.938,
+      "sha256": "b129d39f216d84034f05cbfb71e16859ba301c554025f046ddb8913b6db8dbae",
+      "status": "PASS",
+      "tests": 35
+    },
+    "planInspection": {
+      "path": "target/v53-transfer-hosted/plan-inspection/receipt.json",
+      "sha256": "8d33bc40bf4df853ada8e4ca0bab3785717e597ef83ac15e72364bd7eb26f97b",
+      "status": "PASS"
+    },
+    "python": {
+      "path": "target/v53-transfer-hosted/python-suite.log",
+      "seconds": 105.344,
+      "sha256": "73c5325964a0209010c063a1d2e3aaa4bdd8dc02349a17523f985a37eba1ac52",
+      "status": "PASS",
+      "tests": 2349
+    },
+    "workflowSyntax": {
+      "checked": [
+        {
+          "job": "prepare",
+          "step": "Plan both indivisible matrices"
+        },
+        {
+          "job": "prepare",
+          "step": "Prepare one immutable cohort"
+        },
+        {
+          "job": "execute",
+          "step": "Run one complete native matrix once"
+        },
+        {
+          "job": "verify",
+          "step": "Independently replay downloaded original and exact negatives"
+        },
+        {
+          "job": "aggregate",
+          "step": "Require complete same-attempt qualification"
+        }
+      ],
+      "jobs": [
+        "prepare",
+        "execute",
+        "verify",
+        "aggregate"
+      ],
+      "path": "target/v53-transfer-hosted/workflow-syntax.json",
+      "sha256": "4121f43329af123dab22ddc6a989a0ad91245cb16eb184af747355ce7e9a5499",
+      "shellBlocks": 5,
+      "status": "PASS"
+    }
+  },
+  "workflowAdded": ".github/workflows/v53-transfer-histories.yml",
+  "workflowStages": [
+    "prepare",
+    "execute",
+    "verify",
+    "aggregate"
+  ]
+}

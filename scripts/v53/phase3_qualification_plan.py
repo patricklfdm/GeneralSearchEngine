@@ -39,6 +39,7 @@ COHORTS = {
     'node-renames': ('node_rename_matrix', 'KINDS', 'node_rename_hosted'),
     'joining-process': ('joining_process_matrix', 'KINDS', 'joining_process_hosted'),
     'learner-histories': ('learner_history_cohort', 'KINDS', 'learner_history_hosted'),
+    'transfer-histories': ('transfer_history_hosted', 'HISTORIES', 'transfer_history_hosted'),
 }
 GAPS = ('component-cohorts', 'combined-resources', 'frozen-coverage', 'cohort-admission', 'final-source-execution')
 need, encoded, digest = inventory.need, inventory.encoded, inventory.digest
@@ -70,7 +71,10 @@ def catalogues():
         cases = list(getattr(matrix, field))
         need(cases and all(type(v) is str and v for v in cases) and len(set(cases)) == len(cases),
              'qualification catalogue members: '+name)
-        groups = list(hosted.SHARDS.values()) if name == 'joining-process' else [(case,) for case in cases]
+        if name == 'transfer-histories':
+            need(hosted.SHARDS == {case:tuple(case+'/'+v for v in matrix.m.histories(case)) for case in matrix.m.CASES},
+                 'qualification transfer whole-matrix partition')
+        groups = list(hosted.SHARDS.values()) if name in ('joining-process','transfer-histories') else [(case,) for case in cases]
         need([v for group in groups for v in group] == cases, 'qualification whole-history partition: '+name)
         rows[name] = dict(matrix='scripts/v53/'+matrix_name+'.py', hosted='scripts/v53/'+hosted_name+'.py',
                           workflow=hosted.WORKFLOW, branch=hosted.BRANCH, cases=cases,

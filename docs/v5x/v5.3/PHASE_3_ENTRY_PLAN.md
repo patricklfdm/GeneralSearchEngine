@@ -1,19 +1,26 @@
 # V5.3 Phase 3 entry and closure checklist
 
 [The current qualification audit](PHASE_3_QUALIFICATION_AUDIT.md) reconciles the
-implementation and historical notes into twelve review obligations, six
-implemented hosted subsets (428 planned whole histories) and five open work
+implementation and historical notes into twelve review obligations, seven
+implemented hosted subsets (449 planned whole histories) and five open work
 groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
+
+[Hosted transfer matrices](PHASE_3_TRANSFER_HISTORY_HOSTED.md) now provide one
+immutable seed, two complete-matrix executions, two downloaded original-first
+replays and an exact-attempt aggregate. The added 21 planned ownership histories
+stay in two indivisible execution groups. The workflow has not run; historical
+local transfer evidence does not fill its final-source slots.
 
 [Complete transfer matrix admission](PHASE_3_TRANSFER_HISTORY_COHORT.md) now
 captures the existing TCP lifetime and process-recovery matrices against the same
 immutable source, with exact build/toolchain/reader and unretried JUnit bindings.
 Original-first replay requires all 27 lifetime cases, 18 process histories and
 both complete negative catalogues. This local component entry preserves whole
-histories; hosted/final-source admission and combined resource/lifecycle coverage
-remain open. The six hosted subsets and 428 planned histories are unchanged.
+histories; final-source execution and combined resource/lifecycle coverage
+remain open. The subsequent hosted entry above adds 21 planned histories in two
+complete-matrix groups.
 
 [Original pre-grant-loss replay](PHASE_3_PREGRANT_LOSS_REPLAY.md) now consumes the
 previously rejected zero-retirement history without rerunning its producer. Its

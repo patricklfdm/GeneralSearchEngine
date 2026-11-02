@@ -1,7 +1,7 @@
 # Phase 3 qualification inventory and remaining work
 
 Phase 3 remains **OPEN**. This inventory originated from baseline `867df7c4`;
-the current table also includes the subsequent learner-history cohort. It does
+the current table also includes the subsequent learner and transfer cohorts. It does
 not execute a native history, accept an old receipt as current-source evidence,
 or declare the implementation complete.
 
@@ -22,12 +22,14 @@ the backlog as a new feature.
 | [Node renames](PHASE_3_NODE_RENAME_MATRIX.md) | 4 | 4 | ACCEPT/PROOF rename, halt/SIGKILL, original disks |
 | [Joining initialization](PHASE_3_JOINING_PROCESS_HOSTED.md) | 360 | 120 | Five joining profiles, 36 cuts, two death modes |
 | [Continuous learner histories](PHASE_3_LEARNER_HISTORY_COHORT.md) | 2 | 2 | Six revisions and retained READY/CANCEL, complete cold reopen |
+| [Transfer lifetime/process matrices](PHASE_3_TRANSFER_HISTORY_HOSTED.md) | 21 | 2 | Three continuous owner histories and eighteen two-process recoveries |
 
-These **428 planned native histories** are complementary subsets. This is neither
+These **449 planned native histories** are complementary subsets. This is neither
 a pass count nor a count of covered rows in the frozen S matrix. The inspector
 reads their actual Python catalogues and checks declared counts and ordered-case
-hashes. Joining groups must partition all 360 whole histories exactly. Workflow
-and implementation references must exist as regular repository files. This
+hashes. Joining groups must partition all 360 whole histories exactly; transfer
+groups must preserve their complete three-owner and eighteen-recovery matrices.
+Workflow and implementation references must exist as regular repository files. This
 checks inventory drift, not workflow scheduling behavior.
 
 Existing per-workflow admission binds its own source/build, tools, reader, seed
@@ -45,7 +47,7 @@ prove its semantics.
 | Group | Existing implementation and evidence | Remaining qualification |
 | --- | --- | --- |
 | 3A activation | Durable grant, selected sources, fence and original deadline | Final-source schedules and exact failure coverage |
-| 3B transfer | Bounded native TCP, receiving custody, retries/process readers and [complete transfer matrix admission](PHASE_3_TRANSFER_HISTORY_COHORT.md) | Hosted/final-source transfer admission; combined lifetimes |
+| 3B transfer | Bounded native TCP, receiving custody, retries/process readers and [complete transfer matrix admission](PHASE_3_TRANSFER_HISTORY_COHORT.md) | Final-source transfer execution; combined lifetimes |
 | 3B recovery | Retained ancestry, owned reopening and cross-view adoption | Final-source restart/discovery coverage |
 | 3C learner | Six-revision/cancellation producers, source retention, readers and hosted pair | Complete final-source histories and profile coverage |
 | 3C initialization | Actual joining owner, three-ledger initialization and 360-case entry | Final-source matrix; combined bounds |
@@ -55,7 +57,7 @@ prove its semantics.
 | 3D removal | Departure fencing, retirement and original-disk recovery | Final-source original/negative process matrix |
 | 3E resources | Accounting, bounded transfers, publication refusal and conditional-prefix tests | Simultaneous physical peak and admitted completion |
 | 3E coverage | Frozen finite inventory and this dependency map | Concrete schedule/evidence/rejection mapping |
-| 3E cohort | Six source-bound subset gates | Complete final admission, execution and closure audit |
+| 3E cohort | Seven source-bound subset gates | Complete final admission, execution and closure audit |
 
 `MembershipStorageOperations` still refuses public learner operations and
 `MembershipSearchEngine` keeps reads disabled. Phase 3 private protocol work does
@@ -83,8 +85,10 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    The [transfer matrix entry](PHASE_3_TRANSFER_HISTORY_COHORT.md) binds the existing
    complete TCP lifetime and two-process recovery matrices to one recorded
    source/build/toolchain/reader and independently replays both originals. It is
-   a local component entry, not another hosted subset or final-source slot.
-   Continue with hosted transfer, competing-owner, carried and transition recovery
+   a component entry; its [hosted adapter](PHASE_3_TRANSFER_HISTORY_HOSTED.md) now
+   adds two complete-matrix groups with exact seed/run/attempt binding. Neither
+   local development evidence nor the unexecuted adapter fills final-source slots.
+   Continue with competing-owner, carried and transition recovery
    entries and uncovered learner profiles. Reuse existing producers/readers.
    Historical qualification remains scoped to its source, not a new cohort slot.
    The six-revision history's recorded final-CANCEL deadline failure remains a
