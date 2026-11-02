@@ -55,17 +55,27 @@ def transcript(path):
 
 
 def observations(root, rows, *, cut='AFTER_DATA_RETURN', reconciled=False):
+    return _observations(root,rows,cut=cut,reconciled=reconciled,failed=False)
+
+
+def _observations(root, rows, *, cut, reconciled, failed):
+    need(type(failed) is bool,'node process exact observation mode')
     history = root/'history'; process = root/'process'; events = n.read(history/'events.json'); wire = n.read(history/'wire.json')
     crash = next(i for i, row in enumerate(events) if row['event'] == 'NODE_CRASH')
     parts = (events[:crash], events[crash+1:]); counts = []
     for life, (row, part) in enumerate(zip(rows, parts), 1):
-        need((process/f'life-{life}.stderr').read_bytes() == b'', 'node process child stderr')
+        failure=failed and life==2
+        if not failure:need((process/f'life-{life}.stderr').read_bytes() == b'', 'node process child stderr')
         messages = transcript(process/f'life-{life}.jsonl')
         need(messages[0] == dict(action='started', value=row['started']), 'node process original child start')
-        ending = dict(action='cut', value=dict(name=cut, mode=row['started']['mode'], pid=row['pid'])) if life == 1 else dict(action='closed', value=2)
-        need(messages[-1] == ending, 'node process terminal boundary')
+        if failure:
+            need(messages[-1]['action']=='event' and messages[-1]['value'].get('event')=='ROUND_SLOT_COMPLETE',
+                 'node process failed terminal boundary')
+        else:
+            ending = dict(action='cut', value=dict(name=cut, mode=row['started']['mode'], pid=row['pid'])) if life == 1 else dict(action='closed', value=2)
+            need(messages[-1] == ending, 'node process terminal boundary')
         actual = []; snapshots = []; opened = 0; installation = life-1
-        for message in messages[1:-1]:
+        for message in messages[1:] if failure else messages[1:-1]:
             action, value = message['action'], message['value']
             if action == 'event': actual.append(value)
             elif action == 'response':

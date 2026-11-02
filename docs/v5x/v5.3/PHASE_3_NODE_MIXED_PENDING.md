@@ -69,10 +69,12 @@ Original hashes remain unchanged; the new reader is recorded separately from
 producer source/classes. Production Java, POMs, workflows, formats and all
 time/resource limits are unchanged.
 
-The failed ACCEPT capture's full force/network/process composition remains open,
-including its unselected peer's post-grant maintenance exchanges. Physical replay
-alone supplies no force, ACK, successful client or process-drain claim. Protocol /
-storage latency and the combined expired/ended/closed guard need separate work.
+The later [failed-original diagnostic replay](PHASE_3_NODE_FAILED_REPLAY.md)
+binds this capture's complete network, post-grant maintenance callbacks and
+failed child lifecycle. Its status remains FAIL and native admission remains
+rejected. Physical replay alone supplies no force, ACK, successful client or
+process-drain claim. Protocol / storage latency and the combined
+expired/ended/closed guard need separate work.
 Final-source rename and joining-process cohorts, combined bounds and frozen S/N
 coverage remain required. Rollback restores the old physical-model rejection and
 grant-only projection; it must preserve the failed originals and their status.

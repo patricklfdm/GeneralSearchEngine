@@ -1,0 +1,302 @@
+{
+  "actions": {
+    "maven": false,
+    "nativeExecution": false,
+    "paidCloud": false,
+    "push": false,
+    "runtimeJavaChanged": false,
+    "workflowDispatch": false
+  },
+  "baseHead": "216c9a0508475515a30055c10b5bbb9f55bc85c2",
+  "cliExit": 2,
+  "contract": {
+    "result": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 2141,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "sha256": "75be5af4b99b7fcc5564f5b145f9a3633bac0abffb454d962cfa80efa93783e4"
+  },
+  "evidence": "target/v53-node-mixed-network",
+  "failedDiagnostic": {
+    "admissionReason": "inflight exact lifecycle order",
+    "childMessages": [
+      789,
+      2964
+    ],
+    "clientSuccess": false,
+    "cut": "ACCEPT_RENAMED",
+    "diagnosticReplay": "PASS",
+    "error": {
+      "reason": "original activation endpoint deadline/closed",
+      "rootCauseEstablished": false,
+      "stderrBytes": 5485,
+      "stderrSha256": "972351202e7e9f61f03132252705f3302addab2d5be79f3027a1b85a36b35ec9"
+    },
+    "grantMaintenance": [
+      {
+        "ballot": 4,
+        "callbacks": 82,
+        "node": "node-3",
+        "packetOnlyFallbacks": 1,
+        "sources": 1
+      }
+    ],
+    "mode": "halt",
+    "nativeQualification": false,
+    "negatives": [
+      {
+        "case": "missing-floor-member-force",
+        "reason": "node grant maintenance complete original callbacks",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-source-authority",
+        "reason": "node grant maintenance complete original callbacks",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-journal-force",
+        "reason": "node grant maintenance complete original callbacks",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-retirement-delete",
+        "reason": "node grant maintenance complete original callbacks",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-floor-release",
+        "reason": "node grant maintenance complete original callbacks",
+        "status": "REJECTED"
+      },
+      {
+        "case": "early-source-retirement",
+        "reason": "node grant maintenance complete original callbacks",
+        "status": "REJECTED"
+      },
+      {
+        "case": "duplicate-retirement-delete",
+        "reason": "node grant maintenance complete original callbacks",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-borrowed-probe",
+        "reason": "restart network required original source",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-complete-prefix",
+        "reason": "restart network required original source",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-complete-generation",
+        "reason": "restart network required original source",
+        "status": "REJECTED"
+      },
+      {
+        "case": "invented-success-close",
+        "reason": "inflight exact lifecycle order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "invented-clean-exit",
+        "reason": "failed node exact death without clean drain",
+        "status": "REJECTED"
+      },
+      {
+        "case": "invented-producer-pass",
+        "reason": "failed node exact failed workload scope",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-final-child-event",
+        "reason": "node process failed terminal boundary",
+        "status": "REJECTED"
+      }
+    ],
+    "network": {
+      "background": {
+        "contactOnly": true,
+        "exchanges": 52,
+        "samples": 26,
+        "silentRequests": 0
+      },
+      "exchanges": 761,
+      "fullWireReplay": true,
+      "phases": [
+        {
+          "exchanges": 28,
+          "transfers": 4,
+          "unusedIncompleteTransfers": 0,
+          "voters": [
+            "node-1",
+            "node-2"
+          ]
+        },
+        {
+          "exchanges": 79,
+          "index": 1,
+          "recordingQuorums": 1,
+          "transfers": 16,
+          "unusedIncompleteTransfers": 0
+        },
+        {
+          "exchanges": 22,
+          "transfers": 2,
+          "unusedIncompleteTransfers": 0
+        },
+        {
+          "exchanges": 64,
+          "transfers": 8,
+          "unusedIncompleteTransfers": 0,
+          "voters": [
+            "node-1",
+            "node-2"
+          ]
+        },
+        {
+          "exchanges": 96,
+          "index": 2,
+          "recordingQuorums": 1,
+          "transfers": 19,
+          "unusedIncompleteTransfers": 0
+        },
+        {
+          "exchanges": 106,
+          "index": 3,
+          "recordingQuorums": 1,
+          "transfers": 20,
+          "unusedIncompleteTransfers": 0
+        },
+        {
+          "exchanges": 112,
+          "transfers": 12,
+          "unusedIncompleteTransfers": 0,
+          "voters": [
+            "node-1",
+            "node-2"
+          ]
+        },
+        {
+          "exchanges": 93,
+          "index": 4,
+          "recordingQuorums": 1,
+          "transfers": 18,
+          "unusedIncompleteTransfers": 0
+        },
+        {
+          "exchanges": 109,
+          "index": 5,
+          "recordingQuorums": 1,
+          "transfers": 21,
+          "unusedIncompleteTransfers": 0
+        }
+      ],
+      "requests": 775,
+      "silent": [
+        {
+          "attempts": 3,
+          "index": 1,
+          "kind": "FUTURE_RETENTION_INTENT"
+        },
+        {
+          "attempts": 2,
+          "index": 2,
+          "kind": "FUTURE_RETENTION_INTENT"
+        },
+        {
+          "attempts": 3,
+          "index": 3,
+          "kind": "FUTURE_RETENTION_INTENT"
+        },
+        {
+          "attempts": 3,
+          "index": 4,
+          "kind": "FUTURE_RETENTION_INTENT"
+        },
+        {
+          "attempts": 3,
+          "index": 5,
+          "kind": "FUTURE_RETENTION_INTENT"
+        }
+      ],
+      "silentRequests": 14
+    },
+    "originalUnchanged": true,
+    "phase3Complete": false,
+    "physicalReplay": true,
+    "processAdmission": "REJECTED",
+    "processDrainQualified": false,
+    "scope": "failed-node-post-publication",
+    "status": "FAIL"
+  },
+  "fullNativeQualification": false,
+  "legacyRegression": {
+    "exactPrevious": true,
+    "negativeRejections": 158,
+    "originals": 7,
+    "status": "PASS",
+    "summarySha256": "5a69458c2b7b8877489b80dfd71ce4035aa5570ee0a48cfde2d74cf3f1b6a50f"
+  },
+  "newUnitTests": 14,
+  "olderIncompleteOriginalRejected": true,
+  "original": "target/v53-node-startup-20261102/one-native-capture/workspace/general-search-engine-replication/target/v53-node-process/run-e2abccfb-35cc-4693-9f2c-919db26e7ea3",
+  "originalInventorySha256": "b23f1977729b445f8dd0b6b373e33b1617a46ace059e0e27684b15cfa147a772",
+  "phase3Complete": false,
+  "producer": {
+    "classes.json": "f1532f3dcdef355b3367803dc14fa113540abdcbbcf332057d10fcd2c7cd06cd",
+    "execution.json": "a51ac3396053d55bb850484a498caa351512473b909f9a9497055d9a24f55190",
+    "originals.json": "72e2b4053d1515895b42d47dede735ff0962d28d3318e593ff382465b9631367",
+    "source.json": "e1678988b78f393526f7646a473683e21cf6857697b2ec2255e62b08920cc9cc"
+  },
+  "producerSource": "41a520992086a08a3ac50f6f4058a0d53d610621",
+  "proofRegression": {
+    "exactPrevious": true,
+    "negativeRejections": 34,
+    "originalUnchanged": true,
+    "receiptSha256": "5776af88e20f7abcf8336b1ed0d76063ee5c85a881671eb933dcddf17541ac0b",
+    "status": "PASS"
+  },
+  "protected": {
+    "files": {
+      ".github/workflows/ci.yml": "e6bec4aab5e4a56f5a1c5082fe222938280e93e8180798841e9f6dcf7f95566c",
+      "docs/v5x/v5.3/acceptance-plan.json": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717",
+      "general-search-engine-replication/pom.xml": "89464f59e787a6c304a393c366e4945deaea3ea82653a501f0dca7dbfa071057",
+      "pom.xml": "018c326ad09234c4a84c6469fe3477bf3d2936ef99bddfc6a6c60bbe4ed39f6c",
+      "reactor/pom.xml": "d0d46a2df83eb37a4a2eb1d3546f0b528124480fa30a391071e838eb9f7ab08c"
+    },
+    "javaFiles": 1382,
+    "producerJavaUnchanged": true
+  },
+  "qualificationSha256": "a68757bc9677692cd871659b485b03efeff6ffe855e4ef93c7695d7f909eb2f8",
+  "readerManifestSha256": "619bc274053aac02f9b36ad9d6c26bf1efab01f3a523d40292fe88e54e59f989",
+  "remaining": [
+    "runtime expired/ended/closed guard cause and bounded timing diagnosis",
+    "remaining rename modes and complete final-source cohorts",
+    "joining process composition and combined bounds/frozen S-N audit"
+  ],
+  "schema": "gse-v53-node-failed-replay-v1",
+  "status": "PARTIAL",
+  "tests": {
+    "optimized-final.log": {
+      "seconds": 0.057,
+      "sha256": "57d23fb00b7680d25df2be9595f41578534f28d7cbab53dbf65c481ef45f46d7",
+      "status": "PASS",
+      "tests": 43
+    },
+    "python-final.log": {
+      "seconds": 108.42,
+      "sha256": "6557c852cc8939c24bff4e88e81866dd129cb9c5e387fbed5c6360cb34ab22e2",
+      "status": "PASS",
+      "tests": 2033
+    }
+  },
+  "wholeFailedCaptureQualified": false
+}

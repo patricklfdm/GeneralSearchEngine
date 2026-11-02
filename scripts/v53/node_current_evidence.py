@@ -98,7 +98,14 @@ class Service(p.Service):
                     and prior['ballot']['counter'] < latest['counter']):
                 need(bases[identifier][1]['accepted'] is None, 'current node same-cut retirement accepted tail')
         copies=dict(group,**{node:files});voters=floor_voters(copies,node)
-        return current.maintenance(copies,voters,owners=(node,))[node]
+        after=current.maintenance(copies,voters,owners=(node,))[node]
+        # Network replay consumes independently derived pre/post-grant bytes,
+        # never the installed snapshot as authority for a retired source.
+        if not hasattr(self,'grant_retirements'):self.grant_retirements={}
+        key=(latest['counter'],node)
+        need(key not in self.grant_retirements,'current node duplicate grant retirement')
+        self.grant_retirements[key]=dict(before=copy.deepcopy(copies),after=copy.deepcopy(after),voters=voters)
+        return after
 
     def installation_ancestry(self, files, packet, sources):
         _, old, previous = c.current(files)
@@ -181,9 +188,12 @@ def maintenance_network(phase, before, owner, ballot, lower, upper, *, voters, a
 def validate(root):
     root = Path(root); p.process.inventory(root)
     result = n.read(root/'process/result.json'); raw=root/'history'; point=result.get('cut')
-    physical(raw, point); events,death=p.lifecycle(raw,point,reconciled=True)
+    service=physical(raw, point); events,death=p.lifecycle(raw,point,reconciled=True)
+    from .node_grant_maintenance import Replay
+    grants=Replay(getattr(service,'grant_retirements',{}))
     replay=p.network(raw,events,death,point,reconciled=True,maintenance_replay=maintenance_network,
-        background_replay=network.heartbeats)
+        background_replay=network.heartbeats,grant_maintenance_replay=grants)
+    grants.complete()
     p.process.configuration(root); rows=p.process.children(result,cut=point)
     messages=p.process.observations(root,rows,cut=point,reconciled=True)
     need(n.read(raw/'node-result.json')==dict(status='PARTIAL',producerPassed=True,coldReopens=1,barriers=3,dataCalls=2,

@@ -1,5 +1,9 @@
 # V5.3 — controlled cluster operations
 
+[Failed-client replay](PHASE_3_NODE_FAILED_REPLAY.md) now binds the retained
+ACCEPT/halt original's complete network and failed lifecycle. It preserves FAIL
+and rejected native admission; the runtime guard investigation remains OPEN.
+
 [Mixed pending owners](PHASE_3_NODE_MIXED_PENDING.md) now independently replay
 all saved physical states of the failed diagnostic ACCEPT/halt original. Exact
 floor copies and lagging-peer source retirement are derived per owner; full

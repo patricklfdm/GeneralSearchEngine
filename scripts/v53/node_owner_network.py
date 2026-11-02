@@ -80,7 +80,8 @@ def unreceived_prepare(phase, peer, promise, basis, ballot, lower, upper, sequen
     return q['trace']
 
 
-def activate(root, events, entries, start, stop, identities, number, *, carried=False, reconciled=False, maintenance_replay=None):
+def activate(root, events, entries, start, stop, identities, number, *, carried=False, reconciled=False, maintenance_replay=None,
+             grant_maintenance_replay=None):
     need(type(reconciled) is bool and (not reconciled or number == 3 and not carried), 'node network reconciliation scope')
     maintain = maintenance_replay or a.maintenance
     before = a.group(root,'published-3' if reconciled else 'before-network' if number == 1 else 'before-reopen')
@@ -142,6 +143,7 @@ def activate(root, events, entries, start, stop, identities, number, *, carried=
         'INSTALL_ACK',dict(selection=e.digest(chosen),cut=selected['cut']),ballot,phase.at(peer,'INSTALL_BEFORE_RETURN'),stop,
         sequence=len(prepared)+1,trace=campaign_trace)
     need(delivered < phase.at('node-1','INSTALL_SELECTOR_FORCED'),'node network installed peer before local')
+    if grant_maintenance_replay:grant_maintenance_replay(phase,selected)
     result = phase.finish(); result['voters'] = list(voters); return result
 
 

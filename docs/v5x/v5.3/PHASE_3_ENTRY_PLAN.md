@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Failed-client diagnostic replay](PHASE_3_NODE_FAILED_REPLAY.md) now binds the
+retained ACCEPT/halt original's full network, grant maintenance and failed child
+lifecycle. Its producer remains FAIL, admission remains rejected and the runtime
+guard/latency investigation remains OPEN. This does not qualify a native member.
+
 [Mixed pending owners](PHASE_3_NODE_MIXED_PENDING.md) now independently replay
 all saved physical states of the failed diagnostic ACCEPT/halt original. Exact
 floor copies and lagging-peer source retirement are derived per owner; full

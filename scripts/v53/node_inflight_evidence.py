@@ -161,6 +161,13 @@ def physical(root, point):
 
 
 def lifecycle(root, point, *, reconciled=False):
+    return _lifecycle(root,point,reconciled=reconciled,closed=True)
+
+
+def _lifecycle(root, point, *, reconciled, closed):
+    # The failure diagnostic reader uses the exact missing-close suffix. The
+    # qualification entry point above always requires the successful close.
+    need(type(closed) is bool,'inflight exact terminal mode')
     events = n.read(root/'events.json')
     initial = [dict(node=node,incarnation=1,event=event) for node in ('node-1','node-2','node-3') for event in (*p.wait.REOPEN,'NODE_OPEN')]
     need(events[:len(initial)] == initial, 'inflight original opens')
@@ -170,7 +177,7 @@ def lifecycle(root, point, *, reconciled=False):
     first = ['INSTALLED','SLOT_BEGIN','SLOT_COMPLETE','BEFORE_READY','SLOT_BEGIN']
     second = ['INSTALLED','SLOT_BEGIN','SLOT_COMPLETE','SLOT_BEGIN','SLOT_COMPLETE','BEFORE_READY','SLOT_BEGIN','SLOT_COMPLETE']
     if reconciled: second = second[:-2]+['INSTALLED','SLOT_BEGIN','SLOT_COMPLETE','BEFORE_READY']+second[-2:]
-    expected = ['NODE_OPEN']*3+['ROUND_'+v for v in first]+['NODE_CRASH','NODE_OPEN']+['ROUND_'+v for v in second]+['NODE_CLOSED']
+    expected = ['NODE_OPEN']*3+['ROUND_'+v for v in first]+['NODE_CRASH','NODE_OPEN']+['ROUND_'+v for v in second]+(['NODE_CLOSED'] if closed else [])
     need([v['event'] for _,v in marks] == expected, 'inflight exact lifecycle order')
     death, opened = marks[8][0],marks[9][0]
     # Recovery forces the original pending phase. A retained PROOF must not be
@@ -252,7 +259,8 @@ def interrupted(root, events, entries, start, stop, identities, point, *, mainte
     return phase.finish()
 
 
-def network(root, originals, death, point, *, reconciled=False, maintenance_replay=None, background_replay=None):
+def network(root, originals, death, point, *, reconciled=False, maintenance_replay=None, background_replay=None,
+            grant_maintenance_replay=None):
     a=net.a;events=[{k:v for k,v in row.items() if k!='incarnation'} for row in originals]
     identities={node:n.future.identity(files) for node,files in a.group(root,'before-network').items()}
     entries=a.x.exchanges(root,events,-1,len(events),identities);a.deliveries(events,entries)
@@ -270,7 +278,8 @@ def network(root, originals, death, point, *, reconciled=False, maintenance_repl
     for ordinal,(start,stop) in enumerate(boundaries):
         if ordinal in ((0,3,6) if reconciled else (0,3)):
             result=net.activate(root,events,work_entries,start,stop,identities,{0:1,3:2,6:3}[ordinal],
-                carried=ordinal==3,reconciled=ordinal==6,maintenance_replay=maintenance_replay)
+                carried=ordinal==3,reconciled=ordinal==6,maintenance_replay=maintenance_replay,
+                grant_maintenance_replay=grant_maintenance_replay)
         elif ordinal==2:result=interrupted(root,events,work_entries,start,stop,identities,point,maintenance_replay=maintenance_replay)
         else:
             index=({1:1,4:2,5:3,7:4,8:5} if reconciled else {1:1,4:2,5:3,6:4})[ordinal]
