@@ -85,9 +85,11 @@ and keeps the entire result FAIL. Older originals retain their combined message;
 their missing timing cannot be reconstructed retrospectively.
 
 The [scope diagnostic receipt](phase3-evidence/node-scope-diagnostic.json) records
-targeted endpoint/automatic-owner and diagnostic tests. A fresh, single
-predeclared native capture is needed to determine the observed guard condition;
-adding diagnostics alone does not resolve the earlier failure.
+targeted endpoint/automatic-owner and diagnostic tests. The subsequent
+[single native capture](PHASE_3_OWNER_CHECK_ALLOCATION.md) observed `DEADLINE`
+at the original 180-second limit during maintenance. Its incomplete history is
+rejected by this completed-history diagnostic reader. Earlier combined-guard
+failures still lack that field; the runtime latency investigation remains open.
 
 The [receipt](phase3-evidence/node-failed-replay.json) records the new diagnostic
 result, original inventories, Python tests and historical replays. The previously

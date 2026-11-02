@@ -1,0 +1,147 @@
+{
+  "actions": {
+    "paidCloud": false,
+    "push": false,
+    "workflowDispatch": false
+  },
+  "allocationComparison": {
+    "kind": "isolated-thread-allocation-comparison",
+    "limitations": [
+      "one sequential before/after sample; elapsed time is not a native service or statistical performance claim",
+      "same buffers/files/hash and corruption checks; heap allocation measured by ThreadMXBean",
+      "Targeted test suite was active during allocation probes; wall times are not comparable throughput samples."
+    ],
+    "measurementsPerVariant": 1,
+    "nativePerformanceQualification": false,
+    "rows": [
+      {
+        "afterAllocatedBytes": 12454344,
+        "afterElapsedNanos": 82771086,
+        "beforeAllocatedBytes": 45218344,
+        "beforeElapsedNanos": 54969337,
+        "checks": 500,
+        "fileBytes": 0,
+        "reductionPercent": 72.46
+      },
+      {
+        "afterAllocatedBytes": 12456456,
+        "afterElapsedNanos": 41703276,
+        "beforeAllocatedBytes": 45220456,
+        "beforeElapsedNanos": 31283822,
+        "checks": 500,
+        "fileBytes": 1,
+        "reductionPercent": 72.45
+      },
+      {
+        "afterAllocatedBytes": 12600000,
+        "afterElapsedNanos": 48305330,
+        "beforeAllocatedBytes": 45236000,
+        "beforeElapsedNanos": 34322178,
+        "checks": 500,
+        "fileBytes": 257,
+        "reductionPercent": 72.15
+      },
+      {
+        "afterAllocatedBytes": 16567232,
+        "afterElapsedNanos": 55706691,
+        "beforeAllocatedBytes": 45239568,
+        "beforeElapsedNanos": 38774466,
+        "checks": 500,
+        "fileBytes": 8192,
+        "reductionPercent": 63.38
+      },
+      {
+        "afterAllocatedBytes": 45216536,
+        "afterElapsedNanos": 65577034,
+        "beforeAllocatedBytes": 45216536,
+        "beforeElapsedNanos": 53418786,
+        "checks": 500,
+        "fileBytes": 65536,
+        "reductionPercent": 0.0
+      },
+      {
+        "afterAllocatedBytes": 45120000,
+        "afterElapsedNanos": 79479117,
+        "beforeAllocatedBytes": 45120000,
+        "beforeElapsedNanos": 64113380,
+        "checks": 500,
+        "fileBytes": 131079,
+        "reductionPercent": 0.0
+      }
+    ],
+    "warmupChecksPerSize": 200
+  },
+  "baseHead": "14c6fe4dc07200e7121218923d2f5c288fa563a1",
+  "evidence": "target/v53-owner-check-allocation",
+  "fullNativeQualification": false,
+  "implementation": {
+    "buffer": "max(1,min(65536,expected file size))",
+    "contentCache": false,
+    "file": "MembershipBasisSources.inspect",
+    "fullRehash": true,
+    "unchangedAuthorityAndBudgets": true,
+    "unchangedInodeLengthLinkChecks": true
+  },
+  "javaSourceManifestSha256": "f7b017c2abb4e91b9a24f486b325e0ae6c3df587462b53be5f713647ab3a0bca",
+  "nativeAfter": "NOT_RUN",
+  "nativeBefore": {
+    "execution": {
+      "elapsedSeconds": 255.193,
+      "exit": 1
+    },
+    "jfrMayAffectTiming": true,
+    "jfrSeconds": 160,
+    "jfrSha256": "06e957a5fd05e358e031775795b51d036f79b7142d79998e9c3bc572f41a7cb3",
+    "original": "target/v53-node-scope-diagnostic/one-native-capture/workspace/general-search-engine-replication/target/v53-node-process/run-09b573c9-c760-4c71-a0a8-736f0cf08adb",
+    "originalInventorySha256": "0bbdc5cc8cf7b911251f1f181d8e86522b5db77a1612a0a504cab6ae98df5b36",
+    "originalUnchanged": true,
+    "profileAnalysisSha256": "4d344474ab931c2dd9c8648eb76b14046a2993dbb10e5fb795bbb01fe0b43ea4",
+    "profileCounts": {
+      "jdk.ExecutionSample": 2903,
+      "jdk.FileRead": 9,
+      "jdk.GarbageCollection": 370,
+      "jdk.ObjectAllocationSample": 30157
+    },
+    "sampledAllocationWeightBytes": 63184693408,
+    "scope": {
+      "diagnosticReplay": {
+        "reason": "context selection node owner original history inventory",
+        "status": "REJECTED"
+      },
+      "instrumented": true,
+      "nativeQualification": false,
+      "scopeFailure": {
+        "ballot": {
+          "counter": 5,
+          "incarnation": "00000000-0000-0005-0000-000000000001",
+          "proposer": "node-1"
+        },
+        "clockEvaluated": true,
+        "elapsedNanos": 180001470549,
+        "firstEnd": "NONE",
+        "guard": "DEADLINE",
+        "limitNanos": 180000000000,
+        "startedNanos": 362339473224252
+      },
+      "status": "FAIL"
+    },
+    "source": "14c6fe4dc07200e7121218923d2f5c288fa563a1"
+  },
+  "phase3Complete": false,
+  "runtimeLatencyResolved": false,
+  "schema": "gse-v53-owner-check-allocation-v1",
+  "status": "PARTIAL",
+  "tests": {
+    "initialSandbox": {
+      "environmentErrors": 1,
+      "logSha256": "a0f0ebc2cb2c84f0a675f81560321d47e36807e68e6c32ba054a18c3d69fdad3",
+      "passed": 26,
+      "reason": "real TCP socket prohibited"
+    },
+    "passed": 27,
+    "tcpOutsideSandbox": {
+      "logSha256": "63f1eb1267cfe5e39b4b27866fa3f560ae5be373dce2961bfca970ce75a64725",
+      "passed": 1
+    }
+  }
+}

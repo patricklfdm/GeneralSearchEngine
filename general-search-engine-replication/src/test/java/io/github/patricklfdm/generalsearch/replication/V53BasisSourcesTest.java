@@ -25,6 +25,31 @@ class V53BasisSourcesTest {
     }
     Path folder(Path path,Decoded basis) {return path.resolve("sources").resolve((String)basis.value().get("basisId"));}
 
+    @Test void streamedIntegrityChecksEmptySmallAndMultiChunkFilesEveryTime() throws Exception {
+        for(int length:List.of(0,1,257,65535,65536,65537,131079)) {
+            Path file=temp.resolve("stream-"+length);byte[] bytes=new byte[length];new Random(length).nextBytes(bytes);
+            Files.write(file,bytes);String digest=hash(bytes);
+            var original=MembershipBasisSources.inspect(file,length,digest);
+            assertEquals(original,MembershipBasisSources.inspect(file,length,digest));
+            assertEquals(length,original.bytes());assertEquals(digest,original.digest());
+            // Changes after an earlier successful read must not use cached
+            // content, including a last-byte change beyond the first chunk.
+            if(length>0) {
+                bytes[length-1]^=1;Files.write(file,bytes);
+                assertEquals("retained source file integrity",assertThrows(IllegalArgumentException.class,
+                        ()->MembershipBasisSources.inspect(file,length,digest)).getMessage());
+                bytes[length-1]^=1;Files.write(file,bytes);
+                Files.write(file,Arrays.copyOf(bytes,length-1));
+                assertEquals("retained source file length",assertThrows(IllegalArgumentException.class,
+                        ()->MembershipBasisSources.inspect(file,length,digest)).getMessage());
+                Files.write(file,bytes);
+            }
+            Files.write(file,new byte[]{1},StandardOpenOption.APPEND);
+            assertEquals("retained source file length",assertThrows(IllegalArgumentException.class,
+                    ()->MembershipBasisSources.inspect(file,length,digest)).getMessage());
+        }
+    }
+
     @Test void originalPacketAndImagesSurviveDuplicateProgressAndRestart() throws Exception {
         for(int size:List.of(3,4,5)) {
             Path path=provision(temp.resolve("size"+size),size);var r=resources();Decoded original;

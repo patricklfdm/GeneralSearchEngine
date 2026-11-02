@@ -1,5 +1,10 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Owner-check allocation](PHASE_3_OWNER_CHECK_ALLOCATION.md) reduces measured
+temporary allocation without relaxing integrity or original deadlines. The
+instrumented failed capture remains FAIL; native latency and final-source
+qualification remain OPEN.
+
 [Failed-client replay](PHASE_3_NODE_FAILED_REPLAY.md) now binds the retained
 ACCEPT/halt original's complete network and failed lifecycle. It preserves FAIL
 and rejected native admission; the runtime guard investigation remains OPEN.

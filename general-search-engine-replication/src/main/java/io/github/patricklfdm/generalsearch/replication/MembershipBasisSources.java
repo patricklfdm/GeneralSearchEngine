@@ -142,7 +142,10 @@ final class MembershipBasisSources implements AutoCloseable {
         MessageDigest sha;
         try {sha=MessageDigest.getInstance("SHA-256");}catch(NoSuchAlgorithmException error){throw new AssertionError(error);}
         try(var channel=MembershipFileAccess.open(path,StandardOpenOption.READ,LinkOption.NOFOLLOW_LINKS)) {
-            var buffer=ByteBuffer.allocate(65536);long count=0;
+            // Most repeatedly checked records are much smaller than a chunk.
+            // Keep a positive buffer even for an empty interrupted file so the
+            // EOF/growth probe still reads; never cache bytes or skip rehashing.
+            var buffer=ByteBuffer.allocate((int)Math.max(1L,Math.min(65536L,size)));long count=0;
             while(channel.read(buffer)!=-1) {buffer.flip();count+=buffer.remaining();require(count<=size,"retained source grew");sha.update(buffer);buffer.clear();}
             require(count==size,"retained source file length");
         }

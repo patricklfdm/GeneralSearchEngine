@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Owner-check allocation](PHASE_3_OWNER_CHECK_ALLOCATION.md) records a fresh
+180-second deadline failure and reduces the measured small-file hash-buffer
+allocation hotspot while preserving every integrity check. Native latency and
+final-source qualification remain OPEN.
+
 [Failed-client diagnostic replay](PHASE_3_NODE_FAILED_REPLAY.md) now binds the
 retained ACCEPT/halt original's full network, grant maintenance and failed child
 lifecycle. Its producer remains FAIL, admission remains rejected and the runtime
