@@ -1,0 +1,257 @@
+{
+  "actions": {
+    "localCommit": true,
+    "nativeRerun": false,
+    "paidCloud": false,
+    "pomChanged": false,
+    "push": false,
+    "runtimeJavaChanged": false,
+    "workflowChanged": false
+  },
+  "allMembershipProfilesQualified": false,
+  "archive": {
+    "allMembershipProfilesQualified": false,
+    "archiveBytes": 51472822,
+    "archiveSha256": "54b5c148985443fdf980fbc6094c34e9339889fd075234b402b85417b29322e5",
+    "directories": 3482,
+    "exactNegatives": 28,
+    "files": 25992,
+    "identicalResults": true,
+    "manifest": {
+      "bytes": 4366371,
+      "path": "target/v53-profile-controls-20261102/v3/artifact/manifest.json",
+      "sha256": "3966a00200c631f932272c21139b5a1e56787d0d04ed5c9a30c01f14b2e9828f"
+    },
+    "nativeRerun": false,
+    "path": "target/v53-profile-controls-20261102/v3/artifact/bundle.tar.gz",
+    "phase3Complete": false,
+    "portable": {
+      "legacy": {
+        "elapsedSeconds": 40.48,
+        "exit": 0
+      },
+      "replace": {
+        "elapsedSeconds": 33.215,
+        "exit": 0
+      },
+      "same-view": {
+        "elapsedSeconds": 54.149,
+        "exit": 0
+      }
+    },
+    "pythonSeconds": 98.016,
+    "pythonTests": 1822,
+    "status": "PASS",
+    "unchangedOriginals": true
+  },
+  "baseHead": "5b0c8260",
+  "currentSourceNativeCohortQualified": false,
+  "firstAttempt": {
+    "log": {
+      "bytes": 2566,
+      "path": "target/v53-profile-controls-20261102/legacy.log",
+      "sha256": "9546e80787b7789ebf32f08004c82047e4eddba71abac4550a06ba7541e5f956"
+    },
+    "nativeRerun": false,
+    "readerManifest": {
+      "bytes": 623441,
+      "path": "target/v53-profile-controls-20261102/reader/source.json",
+      "sha256": "1c55e1df0777a155b77d6c8318c953c19b30d3d1ead65c29be1c3eb488fcf6c6"
+    },
+    "reason": "pending old-voter checkpoint read was treated as learner recording demand",
+    "regressionAfter": {
+      "bytes": 98,
+      "path": "target/v53-profile-controls-20261102/focused-corrected.log",
+      "sha256": "35e384476cb3ce8b56de6d9532d4799f95a3e409c09a1683422c3ba3f8472886"
+    },
+    "regressionBefore": {
+      "bytes": 1295,
+      "path": "target/v53-profile-controls-20261102/pending-regression-before.log",
+      "sha256": "186a6c754aeaa0bf38f975842ae5bf2f1d6673167042de85f3ecf722c192c8f9"
+    },
+    "status": "FAIL"
+  },
+  "observedControlExportsQualified": true,
+  "observedLearnerRetentionQualified": true,
+  "originalReplays": {
+    "legacy": {
+      "counts": {
+        "allExportFamiliesQualified": false,
+        "completePhysicalQualified": false,
+        "confirmedHeads": 2,
+        "controls": {
+          "completion": 2,
+          "intent": 2,
+          "preparation": 1,
+          "retention": 2,
+          "root": 1
+        },
+        "forceAndNetworkQualified": false,
+        "learnerSessions": {
+          "published": 2,
+          "recorded": 4
+        },
+        "observedCommittedContents": 686,
+        "observedContentSessions": 361,
+        "observedControlExportsQualified": true,
+        "observedLearnerRetentionQualified": true,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "retentionRounds": 2,
+        "scope": "one-native-ADD-original-control-exports-and-learner-retention",
+        "status": "PASS"
+      },
+      "execution": {
+        "elapsedSeconds": 404.689,
+        "exit": 0
+      },
+      "inputInventory": {
+        "bytes": 573262,
+        "path": "target/v53-profile-controls-20261102/v3/legacy-inputs.json",
+        "sha256": "97c32eafa035d70a610b80bf3fbc2d49e5993e97c72dad590cab1d36e590718d"
+      },
+      "negativeCases": 14,
+      "result": {
+        "bytes": 10515,
+        "path": "target/v53-profile-controls-20261102/v3/legacy.json",
+        "sha256": "d893ab9da21313772e593a24d3ff9f8fef7fafb3ed87cefeb8f73e197144890b"
+      }
+    },
+    "replace": {
+      "counts": {
+        "allExportFamiliesQualified": false,
+        "completePhysicalQualified": false,
+        "confirmedHeads": 2,
+        "controls": {
+          "completion": 2,
+          "intent": 2,
+          "preparation": 1,
+          "retention": 2,
+          "root": 1
+        },
+        "forceAndNetworkQualified": false,
+        "learnerSessions": {
+          "published": 2,
+          "recorded": 4
+        },
+        "observedCommittedContents": 502,
+        "observedContentSessions": 272,
+        "observedControlExportsQualified": true,
+        "observedLearnerRetentionQualified": true,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "retentionRounds": 2,
+        "scope": "one-native-REPLACE-original-control-exports-and-learner-retention",
+        "status": "PASS"
+      },
+      "execution": {
+        "elapsedSeconds": 307.477,
+        "exit": 0
+      },
+      "inputInventory": {
+        "bytes": 558304,
+        "path": "target/v53-profile-controls-20261102/v3/replace-inputs.json",
+        "sha256": "84d9e7f36e165b68d6d26c83b2ea9b8c7eab5c24e69decc214d9e538e6764a3c"
+      },
+      "negativeCases": 14,
+      "result": {
+        "bytes": 10938,
+        "path": "target/v53-profile-controls-20261102/v3/replace.json",
+        "sha256": "fa9d921b9c7316935b0bc3e42aafd5bf51e8ff2394c64c9230190ecb8798ef04"
+      }
+    },
+    "same-view": {
+      "execution": {
+        "elapsedSeconds": 55.352,
+        "exit": 0
+      },
+      "inputInventory": {
+        "bytes": 600356,
+        "path": "target/v53-profile-controls-20261102/v3/same-view-inputs.json",
+        "sha256": "efc38f2303e5129c11d042153170d210a7ad40997206981f5e9b89f5babc8e9b"
+      },
+      "result": {
+        "bytes": 12761,
+        "path": "target/v53-profile-controls-20261102/v3/same-view.json",
+        "sha256": "0aab434047dec01cfc1e9318ba73773a3a460a5cb9e4b3bd18fddc62ca4c7789"
+      }
+    }
+  },
+  "phase3Complete": false,
+  "previousHeadRegression": {
+    "errors": 1,
+    "failures": 0,
+    "log": {
+      "bytes": 1607,
+      "path": "target/v53-profile-controls-20261102/previous-regression.log",
+      "sha256": "bd837111e2fb2144f335b265dcb6ec3c8b4e199a60400031c1dfb6fec73c3416"
+    },
+    "nativeExecution": false,
+    "previousImplementation": {
+      "bytes": 28956,
+      "path": "target/v53-profile-controls-20261102/previous-control.py",
+      "sha256": "c810c2f149c95144828c0fc023ec171f78540bb379045c632412365ea1eefc25"
+    },
+    "status": "REPRODUCED",
+    "tests": 1
+  },
+  "python": {
+    "elapsedSeconds": 98.016,
+    "log": {
+      "bytes": 3911,
+      "path": "target/v53-profile-controls-20261102/v3/python-tests.log",
+      "sha256": "957d9ea2cec0059737d6cddfc44375dd91bae2ae0d15b25be2feaf31b0fdbe9e"
+    },
+    "newTests": 21,
+    "tests": 1822
+  },
+  "reader": {
+    "code": {
+      "scripts/v53/joining_control_evidence.py": "fe3610024732d129b2dfa0ffd6fe02f753400510bb69d7bce316b8a90e5370b2",
+      "scripts/v53/joining_profile_control_evidence.py": "ecfc733c32d7560b8fcf03ca3aeba8b84c665b5a7b9f9aade468aa3434f5d457",
+      "scripts/v53/test_joining_profile_control_evidence.py": "8d2cb15c2cb92c5c9df183b6a51768678f5162a865cd10675c5ac0c7d7dd739f"
+    },
+    "manifest": {
+      "bytes": 623558,
+      "path": "target/v53-profile-controls-20261102/v3/reader/source.json",
+      "sha256": "464b138c004c1babab935442d07e318a284cd9375d5eb197cf6dbee502e4998e"
+    }
+  },
+  "remaining": [
+    "Larger-profile maintenance/ledger composition",
+    "Final-source seven-profile and process/fault cohorts",
+    "Combined bounds and frozen S/N mapping"
+  ],
+  "schema": "gse-v53-profile-controls-entry-v1",
+  "secondAttempt": {
+    "diagnostic": {
+      "bytes": 785,
+      "path": "target/v53-profile-controls-20261102/boundary-audit.json",
+      "sha256": "9cd3c9fffe85fa9ef28bea6d6561e60f60d71f6317705800345b1c3b717f259d"
+    },
+    "log": {
+      "bytes": 2593,
+      "path": "target/v53-profile-controls-20261102/v2/legacy.log",
+      "sha256": "5675bd74cfaf18777747276b38740cb9673673b90672f46e6cf9d1349f02d5a3"
+    },
+    "nativeRerun": false,
+    "readerManifest": {
+      "bytes": 623558,
+      "path": "target/v53-profile-controls-20261102/v2/reader/source.json",
+      "sha256": "8eb94868a90d88b5b9d3661a728054be7c7cc4428afaef32a7b30d3f0d10389c"
+    },
+    "reason": "frozen BASIS source transfers incorrectly required learner generation lifetime",
+    "regressionAfter": {
+      "bytes": 134,
+      "path": "target/v53-profile-controls-20261102/focused-source-boundary.log",
+      "sha256": "659d333e0b4cc1dd66cb56ac5d2f5dd76780f4431901449ddb5ef7f1037db376"
+    },
+    "regressionBefore": {
+      "bytes": 1179,
+      "path": "target/v53-profile-controls-20261102/source-boundary-regression-before.log",
+      "sha256": "4baa2c94123a261f51b1ed9d6880ee25c3973e5d5c7a466ff7eee0f3021ea193"
+    },
+    "status": "FAIL"
+  },
+  "status": "PARTIAL"
+}

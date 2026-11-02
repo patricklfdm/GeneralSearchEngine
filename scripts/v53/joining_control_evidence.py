@@ -101,6 +101,10 @@ def fragment(source):
 
 
 class Replay:
+    expected_confirmations={'node-1','node-2'}
+    expected_controls=dict(root=1,intent=2,preparation=1,retention=2,completion=2)
+    expected_learner_sessions=dict(recorded=4,published=2)
+
     def __init__(self,root,*,kind='ADD',recovery=None):
         self.kind=kind;self.root=Path(root);self.model=n.s.Replay(root,kind=kind)
         for index in range(1,12):self.model.step(index)
@@ -177,29 +181,36 @@ class Replay:
         else:need(len(recovery)==1 and recovery[0]<first['received'],'joining control completion ledger recovery')
         exact(values,alias('joining-completion',cap,q['recipient']),f.canonical(dict(schema='gse-v53-joining-completion/1.3',root=self.model.root,cut=cap['cut'],joining=q['recipient'])))
 
+    def retention_exchange(self,row):
+        q=row['request'];a=row['response'];owner=q['sender']['node'];peer=q['recipient']['node']
+        own=self.current(owner,row['sent'],row['sent']);remote=self.current(peer,row['received'],row['offered'])
+        cap=own['packet']['capsule'];joining=q['payload']['learner'];request=reservation(own,joining)['request']
+        ballot=f.decode(own['members']['promise.gsr'],'records','PROMISE')['ballot']
+        expected=dict(selection=sha(own['members']['selected.gsr']),request=request,learner=joining,endpoint=disk.anchor(cap))
+        need(q['payload']==expected and q['ballot']==ballot and ballot['proposer']==owner and
+             q['view']==n.s.catalog.authority(cap['root'],cap['cut']['view']) and remote['packet']['capsule']['cut']==cap['cut'],
+             'joining control retention original round')
+        files=disk.inventory(self.root/remote['path']);offered=learner.offer(files,request,joining)[learner.FILE];state=learner.decode(offered)
+        need(row['answer']=='LEARNER_RETENTION_ACK' and a['payload']==dict(intent=sha(f.canonical(expected)),revision=state['revision'],ledger=sha(offered)),
+             'joining control exact retention ACK')
+        local_files=disk.inventory(self.root/own['path']);local=learner.offer(local_files,request,joining)[learner.FILE]
+        need(local!=local_files[learner.FILE] and offered!=files[learner.FILE],'joining control original changed retention ledger')
+        n.interval(self.events,peer,row['received'],row['offered'],RETENTION_FORCE+['LEARNER_RETENTION_ACK_BEFORE_RETURN'],
+                   'joining control peer retention force')
+        end=next_event(self.events,owner,own['start'],own['end'],{'PROMISE_FORCED','ACCEPT_VALIDATED'})
+        return dict(node=owner,request=request,learner=joining,end=end,cut=cap['cut'],own=own)
+
+    def local_recording(self,own,before):
+        n.interval(self.events,own['node'],own['start'],before,RETENTION_FORCE+['LEARNER_RETENTION_ACK_BEFORE_RETURN'],
+                   'joining control local retention force')
+
     def quorum(self):
         for row in self.rows:
             if row['kind']!='LEARNER_RETENTION_INTENT':continue
-            q=row['request'];a=row['response'];owner=q['sender']['node'];peer=q['recipient']['node']
-            own=self.current(owner,row['sent'],row['delivered']);remote=self.current(peer,row['received'],row['offered'])
-            cap=own['packet']['capsule'];joining=q['payload']['learner'];request=reservation(own,joining)['request']
-            ballot=f.decode(own['members']['promise.gsr'],'records','PROMISE')['ballot']
-            expected=dict(selection=sha(own['members']['selected.gsr']),request=request,learner=joining,endpoint=disk.anchor(cap))
-            need(q['payload']==expected and q['ballot']==ballot and ballot['proposer']==owner and
-                 q['view']==n.s.catalog.authority(cap['root'],cap['cut']['view']) and remote['packet']['capsule']['cut']==cap['cut'],
-                 'joining control retention original round')
-            files=disk.inventory(self.root/remote['path']);offered=learner.offer(files,request,joining)[learner.FILE];state=learner.decode(offered)
-            need(row['answer']=='LEARNER_RETENTION_ACK' and a['payload']==dict(intent=sha(f.canonical(expected)),revision=state['revision'],ledger=sha(offered)),
-                 'joining control exact retention ACK')
-            local_files=disk.inventory(self.root/own['path']);local=learner.offer(local_files,request,joining)[learner.FILE]
-            need(local!=local_files[learner.FILE] and offered!=files[learner.FILE],'joining control original changed retention ledger')
-            names=RETENTION_FORCE+['LEARNER_RETENTION_ACK_BEFORE_RETURN']
-            n.interval(self.events,owner,own['start'],row['sent'],names,'joining control local retention force')
-            n.interval(self.events,peer,row['received'],row['offered'],names,'joining control peer retention force')
-            n.s.catalog.majority(cap['cut']['view'],sorted({owner,peer}))
-            end=next_event(self.events,owner,own['start'],own['end'],{'PROMISE_FORCED','ACCEPT_VALIDATED'})
-            need(row['delivered']<end,'joining control retention recording fenced')
-            self.recordings.append(dict(node=owner,request=request,learner=joining,start=row['delivered'],end=end,cut=cap['cut']))
+            record=self.retention_exchange(row);self.local_recording(record.pop('own'),row['sent'])
+            n.s.catalog.majority(record['cut']['view'],sorted({record['node'],row['request']['recipient']['node']}))
+            need(row['delivered'] is not None and row['delivered']<record['end'],'joining control retention recording fenced')
+            self.recordings.append(dict(record,start=row['delivered']))
         need(len(self.recordings)==2,'joining control complete retention rounds')
 
     def heads(self):
@@ -207,7 +218,7 @@ class Replay:
             if row['kind']!='LEARNER_HEAD_QUERY':continue
             q=row['request'];a=row['response'];node=q['sender']['node'];own=self.current(node,row['sent'],row['delivered']);cap=own['packet']['capsule']
             operation=reservation(own,q['recipient'],progress=True);request=operation['request']
-            need(operation['phase']=='JOINT' and q['recipient']['node']=='node-4' and self.events[row['received']].get('scope')=='retained-head',
+            need(operation['phase']=='JOINT' and q['recipient']['node']==self.model.joining and self.events[row['received']].get('scope')=='retained-head',
                  'joining control original retained head')
             # This original retained owner is the sealed source, before INTENT.
             index=cap['cut']['index']-1
@@ -215,7 +226,7 @@ class Replay:
             proof=dict(query=encoded(f.encode('wire',row['kind'],q)),ack=encoded(f.encode('wire',row['answer'],a)))
             need(learner.confirmation(proof,self.model.root,request,q['recipient'])==endpoint and row['answer']=='LEARNER_HEAD_ACK',
                  'joining control exact retained head')
-            ready=[at for at,v in enumerate(self.events) if v.get('node')=='node-4' and v.get('scope')=='pending-intent' and v['event']=='LEARNER_JOINING_RETAIN_TRANSFERRED']
+            ready=[at for at,v in enumerate(self.events) if v.get('node')==self.model.joining and v.get('scope')=='pending-intent' and v['event']=='LEARNER_JOINING_RETAIN_TRANSFERRED']
             need(len(ready)==1 and ready[0]<row['received'],'joining control head before retained handoff')
             names=RETENTION_FORCE+['LEARNER_RETENTION_CONFIRMATION_BEFORE_RETURN']
             finishes=[at for at,v in enumerate(self.events) if v.get('node')==node and v['event']==names[-1] and at>row['delivered']]
@@ -225,7 +236,7 @@ class Replay:
             init.transition.require_coverage(dict(files,**{learner.FILE:confirmed}))
             need(node not in self.confirmations,'joining control duplicate confirmed owner')
             self.confirmations[node]=dict(start=end,end=own['end'],request=request,learner=q['recipient'],plan=learner.decode(confirmed)['plan'])
-        need(set(self.confirmations)=={'node-1','node-2'},'joining control complete original head confirmations')
+        need(set(self.confirmations)==self.expected_confirmations,'joining control complete original head confirmations')
 
     def learner_content(self,values,own):
         first=values[0]['offer'];q=first['request'];last=values[-1]['commit']['offered'];cap=own['packet']['capsule']
@@ -252,9 +263,9 @@ class Replay:
                 getattr(self,'root_export' if family=='root' else family)(values,own);controls[family]+=1
                 used.add((q['recipient']['node'],q['sender']['node'],q['trace']))
             elif e.learner_alias(own,q):learners[self.learner_content(values,own)]+=1
-        need(controls==dict(root=1,intent=2,preparation=1,retention=2,completion=2),'joining control complete export families')
+        need(controls==self.expected_controls,'joining control complete export families')
         need(used=={(v['owner'],v['reader'],v['trace']) for v in prior['unqualifiedSessions']},'joining control complete export coverage')
-        need(learners==dict(recorded=4,published=2),'joining control complete learner authorization')
+        need(learners==self.expected_learner_sessions,'joining control complete learner authorization')
         return dict(status='PASS',scope='one-native-'+self.kind+'-original-control-exports-and-learner-retention',controls=dict(controls),learnerSessions=dict(learners),
             retentionRounds=len(self.recordings),confirmedHeads=len(self.confirmations),observedContentSessions=sum(prior['boundSessions'].values())+len(used),
             observedCommittedContents=sum(prior['boundTransfers'].values())+prior['unqualifiedTransfers'],observedControlExportsQualified=True,
@@ -288,8 +299,8 @@ NEGATIVES={
 }
 
 
-def mutate(root,name,*,kind='ADD',recovery=None):
-    root=Path(root);reader=Replay(root,kind=kind,recovery=recovery);events=reader.events
+def mutate(root,name,*,kind='ADD',recovery=None,reader=None):
+    root=Path(root);reader=Replay(root,kind=kind,recovery=recovery) if reader is None else reader;events=reader.events
     wires=n.s.collection.read_json(root,'wire.json',n.s.collection.WIRE_BYTES)
     def replace(row,side,kind,value):
         old=sha(base64.b64decode(row[side]));raw=f.encode('wire',kind,value);row[side]=encoded(raw)
@@ -310,17 +321,18 @@ def mutate(root,name,*,kind='ADD',recovery=None):
         else:value['payload']['revision']+=1
         replace(row,'response',kind,value)
     elif name in ('peer-retention-force','local-retention-force','head-confirmation-force'):
-        node='node-2' if name=='peer-retention-force' else 'node-1'
-        lower=next(v['delivered'] for v in reader.rows if v['kind']=='LEARNER_HEAD_QUERY') if name=='head-confirmation-force' else -1
+        row=next(v for v in reader.rows if v['kind']==('LEARNER_HEAD_QUERY' if name=='head-confirmation-force' else 'LEARNER_RETENTION_INTENT'))
+        node=row['request']['recipient' if name=='peer-retention-force' else 'sender']['node']
+        lower=row['delivered'] if name=='head-confirmation-force' else -1
         event=next(v for i,v in enumerate(events) if i>lower and v.get('node')==node and v['event']=='LEARNER_RETENTION_FORCED')
         event['event']='REMOVED_RETENTION_FORCE'
     elif name=='late-recording':
         row=next(v for v in reader.rows if v['kind']=='LEARNER_RETENTION_INTENT');delivery=events[row['delivered']]
-        first=next(v[0]['offer'] for v in reader.groups if v[0]['offer']['request']['sender']['node']=='node-4' and v[0]['offer']['received']<row['delivered']<v[0]['offer']['offered'])
+        first=next(v[0]['offer'] for v in reader.groups if v[0]['offer']['request']['sender']['node']==reader.model.joining and v[0]['offer']['received']<row['delivered']<v[0]['offer']['offered'])
         offer=events[first['offered']];events.remove(delivery);events.insert(events.index(offer)+1,delivery)
     elif name=='head-before-handoff':
         row=next(v for v in reader.rows if v['kind']=='LEARNER_HEAD_QUERY');response=events[row['offered']]
-        transfer=next(v for v in events if v.get('node')=='node-4' and v['event']=='LEARNER_JOINING_RETAIN_TRANSFERRED')
+        transfer=next(v for v in events if v.get('node')==reader.model.joining and v['event']=='LEARNER_JOINING_RETAIN_TRANSFERRED')
         events.remove(transfer);events.insert(events.index(response)+1,transfer)
     elif name in ('completion-before-initialization','completion-closed-owner'):
         values=group('completion');q=values[0]['offer']['request']
@@ -336,7 +348,7 @@ def mutate(root,name,*,kind='ADD',recovery=None):
             values=[v for v in reader.groups if family(v)=='completion'][-1];trace=values[0]['offer']['request']['trace']
             hashes={v['requestHash'] for v in reader.rows if v['request']['trace']==trace}
             for v in events:
-                if v.get('node')=='node-4' and v.get('request') in hashes and v.get('scope')=='continuation-endpoint':v['scope']='initial-endpoint'
+                if v.get('node')==reader.model.joining and v.get('request') in hashes and v.get('scope')=='continuation-endpoint':v['scope']='initial-endpoint'
     else:
         kind={'root-alias':'root','intent-target':'intent','hint-source':'preparation','fragment-wrapper':'fragment','completion-cut':'completion'}[name]
         values=group(kind);target=values[0];first=target['offer'];q=first['request']

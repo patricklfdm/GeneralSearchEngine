@@ -1,9 +1,14 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Profile control exports](PHASE_3_PROFILE_CONTROLS.md) now aggregate original
+retention ACKs into actual governing majorities and bind head confirmations to
+the INTENT proof voters. Larger-profile maintenance/ledger composition and
+the complete current-source cohort remain OPEN.
+
 [Profile-bound temporal exports](PHASE_3_PROFILE_EXPORTS.md) now use each ADD/REPLACE
 profile's actual joining identity and every original voter. Content authority and
-final-adoption lifetimes are replayed; larger-profile control/maintenance composition
-and the complete native cohort remain OPEN.
+final-adoption lifetimes are replayed; control composition is recorded above.
+Larger-profile maintenance and the complete native cohort remain OPEN.
 
 [CURRENT ownership across complete histories](PHASE_3_CURRENT_OWNERSHIP.md)
 accounts for every original CURRENT callback across startup, joining takeover,
