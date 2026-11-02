@@ -188,7 +188,7 @@ def next_promise(events,node,start,end):
     return min([end]+[at for at,row in enumerate(events) if at>start and row.get('node')==node and row['event']=='PROMISE_FORCED'])
 
 
-def record_windows(root,events,model,windows,sources,*,recovery=None,nodes=('node-1','node-2','node-4')):
+def record_windows(root,events,model,windows,sources,*,recovery=None,nodes=('node-1','node-2','node-4'),selection_records=None):
     result=[]
     def add(node,start,end,raw,*,reference=None,ballot=None,view=None,family='record'):
         if raw:result.append(dict(node=node,start=start,end=end,raw=raw,reference=reference or sha(raw),
@@ -197,7 +197,8 @@ def record_windows(root,events,model,windows,sources,*,recovery=None,nodes=('nod
     # source's retirement boundary is conservative for its journal records too.
     for source in sources:
         add(source['node'],source['start'],source['end'],source['promise'],family='journal')
-    selected={sha(parts['SELECTED']):parts['SELECTED'] for parts in model.phases}
+    selected={sha(raw):raw for raw in (selection_records if selection_records is not None else
+                                      [parts['SELECTED'] for parts in model.phases])}
     if recovery is not None:
         need(sha(recovery) not in selected,'joining export duplicate recovery selection')
         selected[sha(recovery)]=recovery

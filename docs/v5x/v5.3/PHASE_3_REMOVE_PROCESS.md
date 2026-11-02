@@ -2,8 +2,9 @@
 
 Status: one declared SIGKILL member has independent physical/process replay and
 a new v2 capture qualifies attempted transport and durable activation/slot ACKs.
-Complete export/maintenance composition, the process matrix and full Phase 3
-remain OPEN.
+The [additional export layer](PHASE_3_REMOVE_PROCESS_EXPORTS.md) binds temporal
+export authority. Continuous maintenance/retention composition, the process
+matrix and full Phase 3 remain OPEN.
 
 ## Reproduced failure and correction
 
@@ -210,6 +211,11 @@ results and original result, with every input digest unchanged. No native histor
 is rerun for this portability check. The result remains `PARTIAL`: complete
 temporal export authority and continuous maintenance/retention composition must
 still be bound to this process history before its complete network gate closes.
+
+The subsequent [temporal export reader](PHASE_3_REMOVE_PROCESS_EXPORTS.md) now
+adds that export-authority layer using the unchanged v2 history. The original
+network receipt remains scoped as recorded; continuous maintenance/retention
+composition and the complete process matrix remain open.
 
 The reader declares both REMOVE profiles and all 13 cuts in the 52-member
 catalogue. Only the one retained native member above has been replayed here;

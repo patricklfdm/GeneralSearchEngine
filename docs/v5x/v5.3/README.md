@@ -1,9 +1,14 @@
 # V5.3 — controlled cluster operations
 
+[REMOVE exports across process death](PHASE_3_REMOVE_PROCESS_EXPORTS.md) qualify
+all 327 committed transfers in the retained v2 SIGKILL member, with eleven exact
+export negatives. Original owner lifetimes and source-retirement boundaries are
+checked; continuous maintenance/retention and the complete matrix remain OPEN.
+
 [Interrupted REMOVE retirement recovery](PHASE_3_REMOVE_PROCESS.md) now has a v2
 SIGKILL capture with exact cross-process observations and independent attempted
 transport/activation/slot-ACK replay. Fourteen network and 27 physical negatives
-pass for that one declared member. Complete export/maintenance composition, the
+pass for that one declared member. Continuous maintenance/retention composition, the
 52-member process matrix and full Phase 3 remain OPEN.
 
 [Original REMOVE retirement file prefixes](PHASE_3_REMOVE_PREFIXES.md) now compare
