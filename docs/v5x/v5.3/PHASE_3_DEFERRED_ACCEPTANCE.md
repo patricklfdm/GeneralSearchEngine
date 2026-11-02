@@ -1,5 +1,10 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Hosted ordinary profile qualification](PHASE_3_PROFILE_HOSTED.md) now prepares
+one immutable source/build, executes seven whole histories and independently
+replays their downloaded originals in parallel. No hosted campaign has run;
+final-source execution and Phase 3 closure remain OPEN.
+
 [The seven-profile matrix](PHASE_3_PROFILE_MATRIX.md) now binds ordinary
 ADD/REMOVE/REPLACE histories to one source, build, toolchain and reader. It
 requires complete original replay and exact negatives; implementation tests do
@@ -947,7 +952,9 @@ for that declared retirement subset. [Hosted workflow/artifact wiring](PHASE_3_R
 is implemented; complete native execution remains pending. The general hosted requirements below remain
 mandatory for every final Phase 3 cohort.
 
-The eventual workflow must bind every artifact to one exact source and build,
+The [ordinary seven-profile hosted entry](PHASE_3_PROFILE_HOSTED.md) also implements
+complete original execution and independent downloaded replay. Its native cohort
+is pending. Every cohort workflow must bind artifacts to one exact source and build,
 pin Java and retain raw evidence, failed attempts and independently replayable
 inputs. A missing/failed shard blocks aggregate acceptance; an unrelated original
 failure must not count as a successful negative test. Process IDs from different
@@ -958,8 +965,8 @@ Do not split a source acquisition from its installation, an INTENT from its FINA
 or a crash from its restart across runners. Parallelism applies to independently
 bootstrapped histories only. A future aggregate must validate the exact declared
 set rather than merge pass counts. Wiring for other subsets and the complete
-Phase 3 cohort aggregate remain pending; the REMOVE retirement subset has the dedicated entry
-above. This change does not dispatch GitHub Actions, alter Required or touch the
+Phase 3 cohort aggregate remain pending; the REMOVE retirement and ordinary
+profile subsets have the dedicated entries above. This change does not dispatch GitHub Actions, alter Required or touch the
 V5.2 hosted/self-hosted experiment.
 
 Earlier locally completed runs remain source-bound historical results. Long

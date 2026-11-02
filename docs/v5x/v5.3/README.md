@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Hosted ordinary profile qualification](PHASE_3_PROFILE_HOSTED.md) now prepares
+one immutable source/build, executes seven whole histories and independently
+replays their downloaded originals in parallel. No hosted campaign has run;
+final-source execution and Phase 3 closure remain OPEN.
+
 [The seven-profile matrix](PHASE_3_PROFILE_MATRIX.md) now binds ordinary
 ADD/REMOVE/REPLACE histories to one source, build, toolchain and reader. It
 requires complete original replay and exact negatives; implementation tests do

@@ -2,7 +2,8 @@
 
 Status: the seven-member collection/replay interface is implemented. Its synthetic
 provenance tests are not a native cohort. Long whole-history execution is deferred
-to hosted acceptance; no new workflow has been dispatched. Phase 3 remains OPEN.
+to [hosted acceptance](PHASE_3_PROFILE_HOSTED.md), whose orchestration is now
+implemented; no workflow has been dispatched. Phase 3 remains OPEN.
 
 ## Scope and indivisible histories
 

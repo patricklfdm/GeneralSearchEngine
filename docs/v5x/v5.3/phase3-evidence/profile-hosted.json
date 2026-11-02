@@ -1,0 +1,118 @@
+{
+  "actions": {
+    "localCommit": true,
+    "nativeExecution": false,
+    "paidCloud": false,
+    "pomChanged": false,
+    "push": false,
+    "runtimeJavaChanged": false,
+    "workflowDispatch": false
+  },
+  "baseHead": "fd8d06f5",
+  "changedFiles": {
+    ".github/workflows/v53-membership-profiles.yml": "260dbcf968e5d7f6f83ebfa1b82c583f63d4ac13ef750e722f2d3f20ae3e0e7b",
+    "scripts/v53/profile_hosted.py": "29e1a58cce04492b389091e2db85a9784cbe0d716416eee53ed2d4277fc70ad5",
+    "scripts/v53/remove_process_hosted.py": "6e562ef9457909c076919ae06b8c2789d8d9036a02fa2d83bafcc0cf31757894",
+    "scripts/v53/test_profile_hosted.py": "99dcfdc21226be52749d0ae0569ab2bd6098388dfe26ed71036883d3e74829a9",
+    "scripts/v53/test_profile_workflow.py": "2f27ed9a6124809abf2bbdd01becde3641e6d3cc08efb9b68e079c1260863e2b"
+  },
+  "currentSourceNativeCohortQualified": false,
+  "declaredMembershipProfileMatrixQualified": false,
+  "evidence": "target/v53-profile-hosted-20261102",
+  "phase3Complete": false,
+  "profiles": [
+    "3-ADD",
+    "4-ADD",
+    "4-REMOVE",
+    "5-REMOVE",
+    "3-REPLACE",
+    "4-REPLACE",
+    "5-REPLACE"
+  ],
+  "reader": {
+    "files": 597,
+    "manifest": "target/v53-profile-hosted-20261102/reader-manifest.json",
+    "manifestSha256": "9d97220db9b8122d3b243e24c2253a7fea9337b55840bdbe2d865f7d79998478",
+    "sha256": "34d752c3d2aa4e4f9e6bceb809ff7ab2cade52e09583f9b282f021b0755c27a4"
+  },
+  "remaining": [
+    "exact-source seven-profile hosted execution",
+    "remaining process/fault cohorts",
+    "combined bounds",
+    "original observation coverage",
+    "frozen S/N mapping"
+  ],
+  "schema": "gse-v53-phase3-profile-hosted-implementation-v1",
+  "scope": "hosted orchestration implementation and synthetic provenance checks",
+  "status": "PARTIAL",
+  "validation": {
+    "changedLinks": {
+      "checked": 693,
+      "status": "PASS"
+    },
+    "documentationContract": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 2106,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "focusedStatus": "PASS",
+    "focusedTests": 45,
+    "fullSuiteSeconds": 100.13,
+    "fullSuiteStatus": "PASS",
+    "fullSuiteTests": 1954,
+    "logs": {
+      "contract.log": "1384683e2050f517ca7fad17d32718c7ad50790800480a40a2f3f3d062e755d0",
+      "focused-final.log": "8d1c20adb1d8dca4aeb8485fcd2fe7fe970b1aba20e786ed4b072ac9a88a09aa",
+      "optimized-final.log": "bea8d1c63b34b1bfbc566d8ade5603912f9adb31812a9ed77b57981f7a493295",
+      "python-all-final.log": "2c27fce1b67f85d11018ef568a7ca3f9e527695f793f72accb347db159c4974a"
+    },
+    "optimizedStatus": "PASS",
+    "optimizedTests": 23,
+    "preparationEquivalence": {
+      "nativeExecution": false,
+      "scope": "AST equality of extracted original preparation command and checks",
+      "source": "HEAD:scripts/v53/remove_process_hosted.py",
+      "statements": 12,
+      "status": "PASS"
+    },
+    "workflow": {
+      "expandedJobs": 16,
+      "expandedShellSteps": 17,
+      "names": [
+        "v53-profiles-seed-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "v53-profiles-prepare-diagnostics-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "v53-profiles-raw-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-3-add",
+        "v53-profiles-execute-diagnostics-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-3-add",
+        "v53-profiles-raw-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-4-add",
+        "v53-profiles-execute-diagnostics-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-4-add",
+        "v53-profiles-raw-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-4-remove",
+        "v53-profiles-execute-diagnostics-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-4-remove",
+        "v53-profiles-raw-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-5-remove",
+        "v53-profiles-execute-diagnostics-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-5-remove",
+        "v53-profiles-raw-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-3-replace",
+        "v53-profiles-execute-diagnostics-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-3-replace",
+        "v53-profiles-raw-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-4-replace",
+        "v53-profiles-execute-diagnostics-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-4-replace",
+        "v53-profiles-raw-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-5-replace",
+        "v53-profiles-execute-diagnostics-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-5-replace",
+        "v53-profiles-verified-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-3-add",
+        "v53-profiles-verified-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-4-add",
+        "v53-profiles-verified-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-4-remove",
+        "v53-profiles-verified-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-5-remove",
+        "v53-profiles-verified-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-3-replace",
+        "v53-profiles-verified-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-4-replace",
+        "v53-profiles-verified-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-5-replace",
+        "v53-profiles-aggregate-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ],
+      "retentionDays": 90,
+      "status": "PASS",
+      "uniqueArtifactNames": 24,
+      "workflow": ".github/workflows/v53-membership-profiles.yml"
+    }
+  }
+}

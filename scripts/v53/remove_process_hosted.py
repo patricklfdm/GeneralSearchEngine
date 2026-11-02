@@ -25,18 +25,18 @@ MAX_BYTES=1024*1024*1024
 SCHEMA='gse-v53-remove-hosted-v1'
 
 
-def context():
+def context(*,workflow=WORKFLOW,branch=BRANCH):
     env=os.environ
     need(env.get('GITHUB_ACTIONS')=='true' and env.get('GITHUB_REPOSITORY')=='patricklfdm/GeneralSearchEngine','REMOVE hosted repository')
     source=env.get('GITHUB_SHA','');ref=env.get('GITHUB_REF','');event=env.get('GITHUB_EVENT_NAME','')
     need(re.fullmatch('[0-9a-f]{40}',source) and ref.startswith('refs/heads/') and
-         (event=='workflow_dispatch' or event=='push' and ref==BRANCH),'REMOVE hosted event/ref')
-    need(env.get('V53_WORKFLOW_REF')=='patricklfdm/GeneralSearchEngine/'+WORKFLOW+'@'+ref and
+         (event=='workflow_dispatch' or event=='push' and ref==branch),'REMOVE hosted event/ref')
+    need(env.get('V53_WORKFLOW_REF')=='patricklfdm/GeneralSearchEngine/'+workflow+'@'+ref and
          env.get('V53_WORKFLOW_SHA')==source,'REMOVE hosted workflow source')
     run=env.get('GITHUB_RUN_ID','');attempt=env.get('GITHUB_RUN_ATTEMPT','')
     need(all(re.fullmatch('[1-9][0-9]{0,19}',v) for v in (run,attempt)),'REMOVE hosted run/attempt')
     need(subprocess.check_output(['git','rev-parse','HEAD'],cwd=h.ROOT,text=True).strip()==source,'REMOVE hosted checkout')
-    return dict(kind='github',repository=env['GITHUB_REPOSITORY'],source=source,ref=ref,event=event,run=run,attempt=attempt,workflow=WORKFLOW)
+    return dict(kind='github',repository=env['GITHUB_REPOSITORY'],source=source,ref=ref,event=event,run=run,attempt=attempt,workflow=workflow)
 
 
 def artifact_name(ctx,kind,case=None):
@@ -44,19 +44,19 @@ def artifact_name(ctx,kind,case=None):
     return 'v53-remove-'+kind+'-'+ctx['run']+'-'+ctx['attempt']+'-'+ctx['source']+suffix
 
 
-def pack(root,output,ctx,kind,case=None):
+def pack(root,output,ctx,kind,case=None,*,schema=SCHEMA):
     root=Path(root);output=Path(output);output.mkdir(parents=True,exist_ok=False)
     before=h.inventory(root,maximum=MAX_BYTES);archive=output/'bundle.tar.gz'
     with tarfile.open(archive,'x:gz') as stream:stream.add(root,arcname='data')
     need(h.inventory(root,maximum=MAX_BYTES)==before,'REMOVE hosted inputs changed while packing')
-    value=dict(schema=SCHEMA,context=ctx,kind=kind,case=case,inventory=before,archiveSha256=tc.file_hash(archive))
+    value=dict(schema=schema,context=ctx,kind=kind,case=case,inventory=before,archiveSha256=tc.file_hash(archive))
     h.save(output/'manifest.json',value);return value
 
 
-def unpack(bundle,output,ctx,kind,case=None):
+def unpack(bundle,output,ctx,kind,case=None,*,schema=SCHEMA):
     bundle=Path(bundle);output=Path(output);manifest=m.read(bundle/'manifest.json');archive=bundle/'bundle.tar.gz'
     need(set(manifest)=={'schema','context','kind','case','inventory','archiveSha256'} and
-         manifest['schema']==SCHEMA and manifest['context']==ctx and manifest['kind']==kind and manifest['case']==case,
+         manifest['schema']==schema and manifest['context']==ctx and manifest['kind']==kind and manifest['case']==case,
          'REMOVE hosted exact artifact binding')
     need(archive.is_file() and not archive.is_symlink() and archive.stat().st_size<=MAX_BYTES and
          tc.file_hash(archive)==manifest['archiveSha256'],'REMOVE hosted archive digest')
@@ -112,32 +112,42 @@ def seed_inputs(data,ctx):
     return value
 
 
+def prepare_source(data,maven,ctx):
+    """Freeze source, reference classes and offline tools once for a cohort.
+
+    No membership history is executed here. Each collector independently builds
+    its original workspace and must reproduce these exact reference class bytes.
+    """
+    data=Path(data);producer=data/'producer';producer.mkdir();repository=data/'repository';repository.mkdir()
+    if ctx['kind']=='github':
+        need(not subprocess.check_output(['git','status','--porcelain','--untracked-files=normal'],cwd=h.ROOT),'REMOVE hosted dirty source')
+    source=h.source_copy(h.ROOT,producer/'workspace');need(source['head']==ctx['source'],'REMOVE hosted prepared source')
+    h.save(producer/'source.json',source)
+    with repository_env(repository):
+        tools=tc.capture(maven,producer/'workspace');h.save(producer/'toolchain.json',tools)
+        command=[maven,'-B','-ntp','-f','reactor/pom.xml','-pl','../'+h.MODULE,'-am',
+                 '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest=V53BallotAllocatorTest','test']
+        execution=h.execute(command,producer/'workspace',producer/'maven.log',stage='REMOVE-hosted-prepare')
+    need(execution['exit']==0,'REMOVE hosted preparation failed');h.check_source(producer/'workspace',source)
+    reports=list((producer/'workspace'/h.MODULE/'target/surefire-reports').glob('TEST-*.xml'))
+    need(len(reports)==1,'REMOVE hosted preparation exact report');suite=ET.parse(reports[0]).getroot()
+    need(suite.get('name','').endswith('.V53BallotAllocatorTest') and int(suite.get('tests','0'))>0 and
+        all(suite.get(k)=='0' for k in ('failures','errors','skipped')) and not any(
+            row.tag in {'failure','error','skipped','flakyFailure','flakyError','rerunFailure','rerunError'} for row in suite.iter()),
+        'REMOVE hosted preparation unretried test')
+    h.save(producer/'build.json',{name:h.inventory(producer/'workspace'/name) for name in m.BUILDS})
+    return dict(sourceSha256=h.digest((producer/'source.json').read_bytes()),
+                buildSha256=h.digest((producer/'build.json').read_bytes()),
+                toolchainSha256=tc.pin((producer/'toolchain.json').read_bytes()),
+                repositorySha256=dependencies(repository),preparationExecution=execution)
+
+
 def prepare(output,maven,ctx):
     output=Path(output);output.mkdir(parents=True,exist_ok=False);data=output/'data';data.mkdir()
-    producer=data/'producer';producer.mkdir();repository=data/'repository';repository.mkdir()
     receipt=dict(schema=SCHEMA,context=ctx,status='FAIL',phase3Complete=False)
     try:
-        if ctx['kind']=='github':
-            need(not subprocess.check_output(['git','status','--porcelain','--untracked-files=normal'],cwd=h.ROOT),'REMOVE hosted dirty source')
-        source=h.source_copy(h.ROOT,producer/'workspace');need(source['head']==ctx['source'],'REMOVE hosted prepared source')
-        h.save(producer/'source.json',source)
-        with repository_env(repository):
-            tools=tc.capture(maven,producer/'workspace');h.save(producer/'toolchain.json',tools)
-            command=[maven,'-B','-ntp','-f','reactor/pom.xml','-pl','../'+h.MODULE,'-am',
-                     '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest=V53BallotAllocatorTest','test']
-            execution=h.execute(command,producer/'workspace',producer/'maven.log',stage='REMOVE-hosted-prepare')
-        need(execution['exit']==0,'REMOVE hosted preparation failed');h.check_source(producer/'workspace',source)
-        reports=list((producer/'workspace'/h.MODULE/'target/surefire-reports').glob('TEST-*.xml'))
-        need(len(reports)==1,'REMOVE hosted preparation exact report');suite=ET.parse(reports[0]).getroot()
-        need(suite.get('name','').endswith('.V53BallotAllocatorTest') and int(suite.get('tests','0'))>0 and
-            all(suite.get(k)=='0' for k in ('failures','errors','skipped')) and not any(
-                row.tag in {'failure','error','skipped','flakyFailure','flakyError','rerunFailure','rerunError'} for row in suite.iter()),
-            'REMOVE hosted preparation unretried test')
-        h.save(producer/'build.json',{name:h.inventory(producer/'workspace'/name) for name in m.BUILDS})
-        reader=m.reader_manifest()
-        receipt.update(status='PARTIAL',cases=list(m.KINDS),sourceSha256=h.digest((producer/'source.json').read_bytes()),
-            buildSha256=h.digest((producer/'build.json').read_bytes()),toolchainSha256=tc.pin((producer/'toolchain.json').read_bytes()),
-            readerSha256=reader['sha256'],reader=reader,repositorySha256=dependencies(repository),preparationExecution=execution)
+        prepared=prepare_source(data,maven,ctx);reader=m.reader_manifest()
+        receipt.update(status='PARTIAL',cases=list(m.KINDS),readerSha256=reader['sha256'],reader=reader,**prepared)
         h.save(data/'seed.json',receipt);seed_inputs(data,ctx);pack(data,output/'artifact',ctx,'seed')
     except BaseException as error:receipt.update(status='FAIL',failure=dict(type=type(error).__name__,message=str(error)));raise
     finally:h.save(output/'receipt.json',receipt)
