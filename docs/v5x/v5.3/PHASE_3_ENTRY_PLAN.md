@@ -1,10 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
-[Native rename interruption](PHASE_3_NODE_RENAME_PROCESS.md) implements four
-process cuts and fixes repeated-installation and large-trace observation. One
-local history completed; another failed its unchanged startup bound. Independent
-qualification remains blocked on current peer-ledger/reconciliation modeling;
-producer success does not close this gate or Phase 3.
+[Native rename interruption](PHASE_3_NODE_RENAME_PROCESS.md) now independently
+replays the retained PROOF/SIGKILL history through current peer-debt reconciliation,
+three campaigns and five published slots, with all 34 evidence negatives rejected.
+The failed ACCEPT/halt original is preserved and rejected; two combinations and
+the final-source matrix remain open. This does not close Phase 3.
 
 [Hosted joining reply-loss qualification](PHASE_3_JOINING_FAULT_HOSTED.md) now
 connects one prepared source/build to three complete originals and three

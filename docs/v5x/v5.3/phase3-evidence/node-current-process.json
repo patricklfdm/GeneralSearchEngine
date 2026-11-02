@@ -1,0 +1,119 @@
+{
+  "actions": {
+    "maven": false,
+    "nativeExecution": false,
+    "paidCloud": false,
+    "pomChanged": false,
+    "push": false,
+    "runtimeJavaChanged": false,
+    "workflowChanged": false,
+    "workflowDispatch": false
+  },
+  "baseHead": "c9894f56bc836f24c3c615ac84c52349dda2b9fa",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 2128,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "evidence": "target/v53-node-current",
+  "failedOriginal": {
+    "originalUnchanged": true,
+    "producer": "FAIL",
+    "reason": "context selection node owner original history inventory",
+    "status": "REJECTED"
+  },
+  "fullNativeQualification": false,
+  "legacyReplay": {
+    "cases": 7,
+    "currentRuntimeQualified": false,
+    "exactPreviousResults": true,
+    "negativeRejections": 158,
+    "status": "PASS"
+  },
+  "newRegressions": 11,
+  "originalQualification": {
+    "campaigns": 3,
+    "childMessages": [
+      880,
+      2851
+    ],
+    "cut": "PROOF_RENAMED",
+    "fullWireReplay": true,
+    "heartbeats": {
+      "contactOnly": true,
+      "exchanges": 50,
+      "samples": 25,
+      "silentRequests": 0
+    },
+    "interruptedClientSuccess": false,
+    "mode": "kill",
+    "negatives": 34,
+    "originalFirst": true,
+    "physicalReplay": true,
+    "powerLoss": false,
+    "publicRuntime": false,
+    "publishedSlots": 5,
+    "requests": 762,
+    "responses": 733,
+    "status": "PASS"
+  },
+  "phase3Complete": false,
+  "provenance": {
+    "legacyCases": 7,
+    "legacyNegatives": 158,
+    "nativeRerun": false,
+    "originalInventorySha256": "b9120e0e9fe4c669a0d0bf3bc9f76be38dd5df90740d3d7ea8dd7afbe8cbd805",
+    "originalRewritten": false,
+    "producerClassesSha256": "e2718187ee8d40599c27d7a4128b09b3f1ae79bc39aaba64ef41fc134f8578cf",
+    "producerJavaCount": 1380,
+    "producerJavaUnchanged": true,
+    "producerSourceSha256": "710e123991542553ea2e508bb5ebf1339563a93a23e81408b7ccbc14276ba3c6",
+    "protectedFiles": {
+      "files": {
+        ".github/workflows/ci.yml": "e6bec4aab5e4a56f5a1c5082fe222938280e93e8180798841e9f6dcf7f95566c",
+        "docs/v5x/v5.3/acceptance-plan.json": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717",
+        "general-search-engine-replication/pom.xml": "89464f59e787a6c304a393c366e4945deaea3ea82653a501f0dca7dbfa071057",
+        "pom.xml": "018c326ad09234c4a84c6469fe3477bf3d2936ef99bddfc6a6c60bbe4ed39f6c",
+        "reactor/pom.xml": "d0d46a2df83eb37a4a2eb1d3546f0b528124480fa30a391071e838eb9f7ab08c"
+      },
+      "runtimeJavaChanged": false,
+      "status": "PASS"
+    },
+    "qualificationSha256": "09fe2f4debba3ce94ba67e449f61015cdef808cce99ae3910acd2f2783ee63df",
+    "readerManifestSha256": "0a150ac2f9a4074cbca1b291a6d9a97296ccb1078b8795e87008cb5477a97f45"
+  },
+  "remaining": [
+    "diagnose original ACCEPT/halt startup failure",
+    "remaining rename combinations and complete final-source hosted cohorts",
+    "joining process composition",
+    "combined maximum bounds and frozen S/N mapping"
+  ],
+  "schema": "gse-v53-node-current-process-v1",
+  "scope": "one retained PROOF_RENAMED/SIGKILL original with current peer-debt reconciliation",
+  "status": "PARTIAL",
+  "tests": {
+    "focused-final.log": {
+      "seconds": 0.042,
+      "sha256": "d7830fb22b6a505d56bc0ee80b9473e72cd0dc116d9cb8514bbbbf77d2dfca2e",
+      "status": "PASS",
+      "tests": 27
+    },
+    "optimized-final.log": {
+      "seconds": 0.074,
+      "sha256": "bb21925851d84785f161c4a31f3ed97e472c1da317bb9727338475367ab42b6e",
+      "status": "PASS",
+      "tests": 27
+    },
+    "python-final.log": {
+      "seconds": 104.454,
+      "sha256": "0b919fb8f87ec648d6450029faaaece2c276cbdd819412df98e19d7813e52c47",
+      "status": "PASS",
+      "tests": 2012
+    }
+  }
+}

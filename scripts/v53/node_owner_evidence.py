@@ -19,20 +19,30 @@ from . import election_wait_evidence as wait
 n, b, c, e, f, need = p.n, p.b, p.c, p.e, p.f, p.need
 
 
-def inventory(root):
+def inventory(root, *, reconciled=False):
     from .discovered_selection_evidence import inventory as regular
     regular(root)
     names = {'initial', 'original-plan.gsbp', 'original-application.image', 'before-network',
         'calls.json', 'events.json', 'wire.json', 'node-result.json',
         'first-ready', 'before-reopen', 'second-ready', 'after-close'}
-    names |= {f'{label}-{i}' for label in ('applied', 'published') for i in range(1, 5)}
-    names |= {f'installed-{i}' for i in (1, 2)} | {f'selected-{i}.gsr' for i in (1, 2)}
+    names |= {f'{label}-{i}' for label in ('applied', 'published') for i in range(1, 6 if reconciled else 5)}
+    campaigns = (1, 2, 3) if reconciled else (1, 2)
+    names |= {f'installed-{i}' for i in campaigns} | {f'selected-{i}.gsr' for i in campaigns}
     b.selection.layout(root, names, 'node owner original history')
 
 
 class Service(p.Service):
+    def maintenance(self, group, voters, *, after_accept=False):
+        return p.t.maintenance(group, voters)
+
+    def merge_peers(self, before, sources):
+        return n.s.merged(before, sources)
+
+    def installation_ancestry(self, files, packet, sources):
+        return b''
+
     def campaign(self, number, counter):
-        if number == 2: self.group = p.t.maintenance(self.group, self.voters)
+        if number > 1: self.group = self.maintenance(self.group, self.voters)
         chosen = (self.root/f'selected-{number}.gsr').read_bytes()
         observed = f.decode(chosen, 'records', 'SELECTED')
         voters = tuple(row['voter'] for row in observed['sources'])
@@ -79,9 +89,11 @@ class Service(p.Service):
             members = dict(zip(('promise.gsr', 'basis.gsr'), (frozen[node]['promise'], frozen[node]['basis'])),
                 **{'selected.gsr':selected, 'selected-sources.gsr':b''.join(frozen[v]['basis'] for v in voters), 'source.gscp':raw},
                 **{h+'.image':frozen['node-1']['members'][h+'.image'] for h in packet['images']})
+            ancestry = self.installation_ancestry(files, packet, [prepared[v] for v in voters])
+            if ancestry: members['ancestry.gsr'] = ancestry
             selector, generation = c.generation(members, cap, node, 'b' if prefix == 'generations/a/' else 'a', None)
             installed[node] = dict(files, **generation, **{'selector.gsr':selector, 'grants.gsr':files['grants.gsr']+selected,
-                n.s.FILE:n.s.merged(files[n.s.FILE], [self.group[v][n.s.FILE] for v in voters])})
+                n.s.FILE:self.merge_peers(files[n.s.FILE], [self.group[v][n.s.FILE] for v in voters])})
         self.group = installed; self.voters = voters; self.active = list(voters)
         b.match(self.root, f'installed-{number}', self.group)
         self.first = None; self.selection_anchor = c.anchor(cap)
@@ -93,7 +105,7 @@ class Service(p.Service):
         return [(i, 'node-owner-'+str(i)) for i in range(100, 100+self.slot//2)]
 
     def advance(self, kind):
-        self.group = p.t.maintenance(self.group, self.voters)
+        self.group = self.maintenance(self.group, self.voters)
         identity = 100+self.slot//2
         text = (str(identity)+':node-owner-'+str(identity)).encode()
         payload = b'\x01'+struct.pack('>HIII', 1, 1, 4, identity)+struct.pack('>I', len(text))+text if kind == 'DATA' else None

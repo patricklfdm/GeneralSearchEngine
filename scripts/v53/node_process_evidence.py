@@ -54,7 +54,7 @@ def transcript(path):
     return result
 
 
-def observations(root, rows, *, cut='AFTER_DATA_RETURN'):
+def observations(root, rows, *, cut='AFTER_DATA_RETURN', reconciled=False):
     history = root/'history'; process = root/'process'; events = n.read(history/'events.json'); wire = n.read(history/'wire.json')
     crash = next(i for i, row in enumerate(events) if row['event'] == 'NODE_CRASH')
     parts = (events[:crash], events[crash+1:]); counts = []
@@ -64,7 +64,7 @@ def observations(root, rows, *, cut='AFTER_DATA_RETURN'):
         need(messages[0] == dict(action='started', value=row['started']), 'node process original child start')
         ending = dict(action='cut', value=dict(name=cut, mode=row['started']['mode'], pid=row['pid'])) if life == 1 else dict(action='closed', value=2)
         need(messages[-1] == ending, 'node process terminal boundary')
-        actual = []; snapshots = []; opened = 0
+        actual = []; snapshots = []; opened = 0; installation = life-1
         for message in messages[1:-1]:
             action, value = message['action'], message['value']
             if action == 'event': actual.append(value)
@@ -76,9 +76,11 @@ def observations(root, rows, *, cut='AFTER_DATA_RETURN'):
                     request=e.digest(base64.b64decode(value['wire']['request'], validate=True)),
                     response=e.digest(base64.b64decode(value['wire']['response'], validate=True))), 'node process child response identity')
             elif action == 'installed':
-                need(value == dict(number=life, bytes=base64.b64encode((history/f'selected-{life}.gsr').read_bytes()).decode()),
+                installation += 1
+                number = installation if reconciled else life
+                need(value == dict(number=number, bytes=base64.b64encode((history/f'selected-{number}.gsr').read_bytes()).decode()),
                      'node process original installed record')
-                snapshots.append(f'installed-{life}')
+                snapshots.append(f'installed-{number}')
             elif action == 'snapshot': snapshots.append(value)
             elif action == 'opened':
                 need(value == life and actual[-1] == dict(node='node-1', incarnation=life, event='NODE_OPEN'),
@@ -93,6 +95,8 @@ def observations(root, rows, *, cut='AFTER_DATA_RETURN'):
             expected = expected[:-2] if life == 1 else expected[:1]+['applied-2','published-2']+expected[1:]
             if life == 1:
                 need(messages[-2] == dict(action='event',value=dict(node='node-1',incarnation=1,event=cut)), 'node process exact interrupted force')
+        if reconciled and life == 2:
+            expected=expected[:-2]+['installed-3','applied-4','published-4','applied-5','published-5']
         need(snapshots == expected, 'node process exact child snapshots')
         counts.append(len(messages))
     return counts

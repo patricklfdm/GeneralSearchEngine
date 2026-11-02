@@ -3,9 +3,10 @@
 This implements four whole-process fixtures: `ACCEPT_RENAMED` and
 `PROOF_RENAMED`, each with halt and external SIGKILL. It also fixes two stale
 observation assumptions exposed by the new executions. **Complete qualification
-remains OPEN**: one final-source local history passed its JVM assertions, one
-failed its original startup deadline, and the existing physical reader does not
-yet model the current history. Producer success is not independent acceptance.
+remains OPEN**. The retained PROOF/SIGKILL original now passes the explicit
+current physical/network/process reader and all 34 evidence negatives. The
+retained ACCEPT/halt original still fails its startup deadline; two combinations
+remain unexecuted. This is one qualified original, not a final-source matrix.
 
 ## Original process boundary
 
@@ -62,14 +63,36 @@ force. These change both the merged event stream and child transcript consistent
 so the exact-prefix rule must reject the semantics, not merely disagreeing copies.
 The existing wrong-cut-event mutation also tests a premature return.
 
-These reader changes are locally unit-tested; they do **not** qualify the newly
-executed whole histories. A diagnostic reader extension for the third campaign
-rejected the passing PROOF original at `applied-1/node-1/peer-retention.gspr`:
-the historical model inferred revision 2 while the current no-op observation
-correctly retained revision 0. Current confirmation/renewal debt semantics and
-pre-command reconciliation must be composed across the whole history first.
-The diagnostic extension is retained under the evidence directory, outside the
-committed reader. No raw original was rewritten to satisfy the old model.
+The initial legacy projection rejected the current PROOF original because it
+invented two peer-ledger writes at genesis. The follow-up
+[`node_current_evidence`](../../../scripts/v53/node_current_evidence.py) reader
+must be selected explicitly; historical readers keep their default projection.
+It independently derives genesis no-ops, confirmation/renewal debt, source
+retirement, and the retained ancestry needed by a third installation. During
+reaccept, the pending vote still owns its original sources; a later published
+maintenance step may retire them. No recorded ledger counter supplies expected
+bytes.
+
+The same original now matches every snapshot through DATA 5. Whole-wire replay
+accounts for 762 requests and 733 responses, including 25 heartbeat samples / 50
+responses and 29 classified silent requests. Heartbeats bind their request and
+reply cuts to original installation/publication selectors and prove contact only.
+They cannot supply selection, voting, publication or READY. The third campaign
+uses fresh ballot 4, changes the selected peer, publishes BARRIER 4, and precedes
+the final client write. Child installation numbers 2 and 3 remain in lifetime 2.
+
+Current qualification first accepts the unchanged original, then requires the
+22 rename negatives plus 12 current-model mutations to fail with exact reasons.
+These cover the reconciliation barrier/client vote, reused installation number,
+invented genesis ledger force, missing source/selected-retention force, premature source
+removal, lost retained ancestry, altered ledger, and stale/missing heartbeat
+contact. Force and heartbeat mutations update the child and aggregate streams
+consistently. The failed ACCEPT original remains rejected.
+
+The current entry point qualifies this bounded three-campaign history. It does
+not silently guess a model from a receipt, admit a partially pending maintenance
+cohort, or promote an incomplete startup trace. Other complete layouts require
+their own original-backed extension and replay.
 
 ## Validation and remaining work
 
@@ -87,21 +110,29 @@ source/class inventories and local checks. In order, the retained executions are
   The combined Maven invocation therefore **failed**, despite seven unit tests
   and the PROOF case passing. No same-source retry replaced the failed original.
 
-All four retained historical parent-forced histories still replay with their
-exact original results and all eighty negative rejections. They establish reader
-backward compatibility, not execution of the current runtime. The two remaining
+All seven retained historical histories still replay with their exact original
+results and all 158 negative rejections: the four parent-forced cases, two
+completed-DATA process cases and one cold-reopen history. They establish reader
+backward compatibility, not execution of the current runtime. The final Python
+suite passes all 2,012 tests; the 27 focused tests also pass under `python -O`. The two remaining
 rename/mode combinations and the complete final-source matrix are deferred to
 hosted acceptance; no workflow was dispatched in this batch.
 
-Next, compose the current peer-observation and maintenance model into this
-independent process reader; validate the unchanged successful raw history before
-any negative; investigate the failed startup history without attributing it to
-runner scheduling without evidence. Preserve all failures. Complete histories
-must stay on one filesystem/runner; only independent histories may be parallelized.
-The existing 180-second service budget and 210-second process waits are unchanged.
+The [current-model receipt](phase3-evidence/node-current-process.json) records
+this replay separately from the original capture attempts. No native process was
+rerun to repair the reader. The producer source/classes remain pinned to the
+retained capture, while the new reader has its own manifest. This is not evidence
+that the later source has executed the complete matrix.
 
-Rollback removes the new fixture/cut names and reader extension and restores the
-old test-only observer. Public API, production Java, POM, workflow, persisted
-format and frozen workload/resource limits are unchanged. Full joining-process
-composition, final-source cohorts, combined bounds and the S/N closure audit
-remain OPEN.
+Next, investigate the retained ACCEPT startup failure, finish the remaining
+rename combinations and joining process composition, then execute final-source
+hosted cohorts and the combined bounds / frozen S/N audit. Preserve all failed
+originals. A whole history must stay on one filesystem/runner; independent
+histories alone may run in parallel. The existing 180-second service budget and
+210-second process waits are unchanged.
+
+Rollback of this reader batch removes the explicit current model and its opt-in
+hooks, leaving the already committed capture fixes and legacy readers in place.
+Public API, production Java, POM, workflow, persisted format and frozen workload /
+resource limits are unchanged. Full joining-process composition, final-source
+cohorts, combined bounds and the S/N closure audit remain OPEN.

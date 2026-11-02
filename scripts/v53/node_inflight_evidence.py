@@ -41,7 +41,7 @@ class Service(p.Service):
     def interrupt(self, point):
         phase = pending_phase(point)
         self.point = point; self.old_voters = self.voters
-        before = self.group; maintained = p.p.t.maintenance(before, self.voters)
+        before = self.group; maintained = self.maintenance(before, self.voters)
         self.group = dict(before)
         names = ('node-1',) if phase == 'ACCEPT' else self.voters
         for node in names: self.group[node] = maintained[node]
@@ -65,12 +65,12 @@ class Service(p.Service):
         b.match(self.root, 'before-reopen', self.group)
 
     def campaign(self, number, counter):
-        if number == 1: return super().campaign(number, counter)
+        if number != 2: return super().campaign(number, counter)
         chosen = (self.root/'selected-2.gsr').read_bytes(); observed = f.decode(chosen, 'records', 'SELECTED')
         voters = tuple(v['voter'] for v in observed['sources'])
         need(voters in (('node-1', 'node-2'), ('node-1', 'node-3')), 'inflight selected majority')
         own = n.future.identity(self.group['node-1']); ballot = dict(counter=counter, proposer='node-1', incarnation=own['storage'])
-        maintained = p.p.t.maintenance(self.group, self.old_voters)
+        maintained = self.maintenance(self.group, self.old_voters)
         prepared = {}; frozen = {}; ids = set(); tails = {}
         for node, previous in self.group.items():
             actual = c.inventory(self.root/'installed-2'/node)
@@ -125,7 +125,7 @@ class Service(p.Service):
                 **{h+'.image':source['members'][h+'.image'] for h in source['packet']['images']})
             selector, generation = c.generation(members, cap, node, 'b' if prefix == 'generations/a/' else 'a', tail)
             installed[node] = dict(files, **generation, **{'selector.gsr':selector, 'grants.gsr':files['grants.gsr']+selected,
-                n.s.FILE:n.s.merged(files[n.s.FILE], [prepared[v][n.s.FILE] for v in voters])})
+                n.s.FILE:self.merge_peers(files[n.s.FILE], [prepared[v][n.s.FILE] for v in voters])})
         self.group = installed; self.voters = voters; self.active = list(voters); self.first = None; self.selection_anchor = c.anchor(cap)
         b.match(self.root, 'installed-2', self.group)
 
@@ -139,7 +139,7 @@ class Service(p.Service):
         if self.slot == 2 and label == 'slot-2-accepted':
             # The new ballot must first force the old value on the selected
             # owners. Only then does the real driver establish/retire the floor.
-            self.group = p.p.t.maintenance(group, self.voters)
+            self.group = self.maintenance(group, self.voters, after_accept=True)
         return super().snapshot(label, group)
 
     def advance(self, kind):
@@ -160,7 +160,7 @@ def physical(root, point):
     return service
 
 
-def lifecycle(root, point):
+def lifecycle(root, point, *, reconciled=False):
     events = n.read(root/'events.json')
     initial = [dict(node=node,incarnation=1,event=event) for node in ('node-1','node-2','node-3') for event in (*p.wait.REOPEN,'NODE_OPEN')]
     need(events[:len(initial)] == initial, 'inflight original opens')
@@ -169,6 +169,7 @@ def lifecycle(root, point):
     marks = [(i,row) for i,row in enumerate(events) if row['event'].startswith(('NODE_','ROUND_'))]
     first = ['INSTALLED','SLOT_BEGIN','SLOT_COMPLETE','BEFORE_READY','SLOT_BEGIN']
     second = ['INSTALLED','SLOT_BEGIN','SLOT_COMPLETE','SLOT_BEGIN','SLOT_COMPLETE','BEFORE_READY','SLOT_BEGIN','SLOT_COMPLETE']
+    if reconciled: second = second[:-2]+['INSTALLED','SLOT_BEGIN','SLOT_COMPLETE','BEFORE_READY']+second[-2:]
     expected = ['NODE_OPEN']*3+['ROUND_'+v for v in first]+['NODE_CRASH','NODE_OPEN']+['ROUND_'+v for v in second]+['NODE_CLOSED']
     need([v['event'] for _,v in marks] == expected, 'inflight exact lifecycle order')
     death, opened = marks[8][0],marks[9][0]
@@ -182,7 +183,7 @@ def lifecycle(root, point):
              ('incarnation' in row or row['event'] in ('FUTURE_QUORUM_COMPLETE','PUBLICATION_SEND_BOUNDARY')), 'inflight event lifetime required')
         if 'incarnation' in row:
             need(type(row['incarnation']) is int and row['incarnation'] == (2 if at>death and row['node']=='node-1' else 1), 'inflight original event lifetime')
-    selection = None; completion = None; entry = None; begins = []; original = None; begin_at = -1
+    selection = None; completion = None; entry = None; begins = []; original = None; begin_at = -1; campaign = 0
     for at,row in marks[3:]:
         life = 1 if at<=death else 2
         need(row['node']=='node-1' and row['incarnation']==life, 'inflight original leader lifetime')
@@ -191,7 +192,8 @@ def lifecycle(root, point):
         need(set(row)=={'node','incarnation','event','record','bytes'},'inflight round shape')
         raw=base64.b64decode(row['bytes'],validate=True);need(e.digest(raw)==row['record'],'inflight round digest')
         if row['event']=='ROUND_INSTALLED':
-            need(raw==(root/f'selected-{life}.gsr').read_bytes(),'inflight original installed selection')
+            campaign += 1
+            need(raw==(root/f'selected-{campaign}.gsr').read_bytes(),'inflight original installed selection')
             selection=f.decode(raw,'records','SELECTED');selected_raw=raw
         elif row['event']=='ROUND_SLOT_BEGIN':
             entry=f.decode(raw,'records','ENTRY');slot=entry['index'];begins.append((life,slot));begin_at=at
@@ -215,21 +217,22 @@ def lifecycle(root, point):
                      'PUBLICATION_BEFORE_RETURN','PUBLICATION_ACK_BEFORE_RETURN'],'inflight actual publication '+voter)
             completion=raw
         else:
-            need(slot==(1 if life==1 else 3) and entry['kind']=='BARRIER' and entry['origin']==selection['ballot'] and raw==completion,
+            need(slot==(1 if life==1 else 4 if reconciled and campaign==3 else 3) and entry['kind']=='BARRIER' and entry['origin']==selection['ballot'] and raw==completion,
                  'inflight fresh barrier before readiness')
-    need(begins==[(1,1),(1,2),(2,2),(2,3),(2,4)],'inflight exact attempted slots')
+    need(begins==[(1,1),(1,2),(2,2),(2,3),(2,4)]+([(2,5)] if reconciled else []),'inflight exact attempted slots')
     return events,death
 
 
-def interrupted(root, events, entries, start, stop, identities, point):
+def interrupted(root, events, entries, start, stop, identities, point, *, maintenance_replay=None):
     a=net.a;before=a.group(root,'published-1');after=a.group(root,'before-reopen')
+    maintain = maintenance_replay or a.maintenance
     selected=f.decode(c.current(before['node-1'])[1]['selected.gsr'],'records','SELECTED');ballot=selected['ballot']
     voters=tuple(v['voter'] for v in selected['sources']);peer=voters[1]
     phase=a.Phase(events,entries,start,stop,identities)
     pending = pending_phase(point);rename_prefix(events[start+1:stop],point)
     for node in (('node-1',) if pending=='ACCEPT' else voters):
         end = point if node=='node-1' and pending=='ACCEPT' else 'ACCEPT_PARENT_FORCED'
-        a.maintenance(phase,before,node,ballot,start,phase.at(node,end),voters=voters)
+        maintain(phase,before,node,ballot,start,phase.at(node,end),voters=voters)
         phase.ordered(node,['ACCEPT_CANDIDATE_FORCED',end])
     need(not any(v['event'].startswith(('CERTIFICATE_','APPLY_','PUBLICATION_')) for v in events[start+1:stop]),'inflight no premature publication')
     if pending=='ACCEPT':
@@ -249,7 +252,7 @@ def interrupted(root, events, entries, start, stop, identities, point):
     return phase.finish()
 
 
-def network(root, originals, death, point):
+def network(root, originals, death, point, *, reconciled=False, maintenance_replay=None, background_replay=None):
     a=net.a;events=[{k:v for k,v in row.items() if k!='incarnation'} for row in originals]
     identities={node:n.future.identity(files) for node,files in a.group(root,'before-network').items()}
     entries=a.x.exchanges(root,events,-1,len(events),identities);a.deliveries(events,entries)
@@ -258,22 +261,33 @@ def network(root, originals, death, point):
     sent=net.request_attempts(events,entries,identities,selected['root'],selected['view'])
     held=[i for i,row in enumerate(events) if row['event'].startswith('ROUND_')]
     boundaries=[(-1,held[0]),(held[0],held[2]),(held[2],death),(death,held[5]),(held[5],held[7]),(held[7],held[9]),(held[9],held[12])]
+    if reconciled: boundaries=boundaries[:6]+[(held[9],held[11]),(held[11],held[13]),(held[13],held[16])]
     net.request_phases(sent,boundaries,originals)
-    results=[];traces=set();silents=[]
+    background = background_replay(root,events,entries,sent,boundaries) if background_replay else None
+    work_entries = [v for v in entries if v['kind'] != 'HEARTBEAT'] if background else entries
+    ignored = background.pop('_events') if background else set()
+    results=[];traces=background.pop('_traces') if background else set();silents=[]
     for ordinal,(start,stop) in enumerate(boundaries):
-        if ordinal in (0,3):result=net.activate(root,events,entries,start,stop,identities,1 if ordinal==0 else 2,carried=ordinal==3)
-        elif ordinal==2:result=interrupted(root,events,entries,start,stop,identities,point)
+        if ordinal in ((0,3,6) if reconciled else (0,3)):
+            result=net.activate(root,events,work_entries,start,stop,identities,{0:1,3:2,6:3}[ordinal],
+                carried=ordinal==3,reconciled=ordinal==6,maintenance_replay=maintenance_replay)
+        elif ordinal==2:result=interrupted(root,events,work_entries,start,stop,identities,point,maintenance_replay=maintenance_replay)
         else:
-            index={1:1,4:2,5:3,6:4}[ordinal];stage={1:'installed-1',2:'installed-2',3:'published-2',4:'published-3'}[index]
+            index=({1:1,4:2,5:3,7:4,8:5} if reconciled else {1:1,4:2,5:3,6:4})[ordinal]
+            stage={1:'installed-1',2:'installed-2',3:'published-2',4:'installed-3' if reconciled else 'published-3',5:'published-4'}[index]
             voters=tuple(v['voter'] for v in f.decode(c.current(a.group(root,stage)['node-1'])[1]['selected.gsr'],'records','SELECTED')['sources'])
-            result=a.slot(root,events,entries,start,stop,identities,index,before_stage=stage,voters=voters,received_requests=True,carried=ordinal==4)
+            result=a.slot(root,events,work_entries,start,stop,identities,index,before_stage=stage,voters=voters,
+                received_requests=True,carried=ordinal==4,maintenance_replay=maintenance_replay,background_events=ignored)
             silents.append((start,stop,index,result.pop('_rejected'),voters))
         own=result.pop('_traces');need(not traces.intersection(own),'inflight disjoint phase traces');traces.update(own);results.append(result)
-    need(sum(v['exchanges'] for v in results)==len(entries),'inflight complete response coverage')
-    unanswered={digest:rows for digest,rows in sent.items() if not any(v['response'] is not None for v in rows)}
+    need(sum(v['exchanges'] for v in results)==len(work_entries),'inflight complete response coverage')
+    unanswered={digest:rows for digest,rows in sent.items() if not any(v['response'] is not None for v in rows)
+                and not (background and rows[0]['kind']=='HEARTBEAT')}
     silent=net.silent_attempts(root,events,unanswered,silents,identities,traces)
-    return dict(exchanges=len(entries),requests=sum(len(v) for v in sent.values()),phases=results,
+    result=dict(exchanges=len(entries),requests=sum(len(v) for v in sent.values()),phases=results,
         silentRequests=sum(v['attempts'] for v in silent),silent=silent,fullWireReplay=True)
+    if background: result['background']=background
+    return result
 
 
 def validate(root):

@@ -211,7 +211,7 @@ def activate(root, events, entries, start, stop, identities, number):
     return phase.finish()
 
 
-def slot(root, events, entries, start, stop, identities, index, *, before_stage=None, voters=VOTERS, received_requests=False, carried=False):
+def slot(root, events, entries, start, stop, identities, index, *, before_stage=None, voters=VOTERS, received_requests=False, carried=False, maintenance_replay=None, background_events=()):
     # Both callers physically reconstruct these exact snapshots first. A cold
     # reopen may select a different peer whose own future ledger starts lower;
     # its revision is derived from that original frame, never from slot number.
@@ -229,11 +229,14 @@ def slot(root, events, entries, start, stop, identities, index, *, before_stage=
         need(value['request']['ballot'] == ballot and value['request']['sender']['node'] in voters
              and value['request']['recipient']['node'] in voters,'restart network current slot authority')
     for node in voters:
-        maintenance(phase,before,node,ballot,phase.at(node,'ACCEPT_PARENT_FORCED') if carried else start,
-            phase.at(node,'PROOF_PARENT_FORCED') if carried else phase.at(node,'ACCEPT_PARENT_FORCED'),voters=voters)
+        lower = phase.at(node,'ACCEPT_PARENT_FORCED') if carried else start
+        upper = phase.at(node,'PROOF_PARENT_FORCED') if carried else phase.at(node,'ACCEPT_PARENT_FORCED')
+        if maintenance_replay is None: maintenance(phase,before,node,ballot,lower,upper,voters=voters)
+        else: maintenance_replay(phase,before,node,ballot,lower,upper,voters=voters,after_accept=carried)
         phase.ordered(node,['ACCEPT_PARENT_FORCED','PROOF_PARENT_FORCED','CERTIFICATE_PARENT_FORCED','APPLY_ACK_DIRECTORY_FORCED',
             'FUTURE_RETENTION_PARENT_FORCED','PUBLICATION_SELECTOR_FORCED','FUTURE_RETENTION_PROMOTED','PUBLICATION_BEFORE_RETURN'])
-    need(not any(v['node']==unused and not (received_requests and v['event']=='NETWORK_REQUEST') for v in events[start+1:stop]),
+    need(not any(v['node']==unused and at not in background_events and not (received_requests and v['event']=='NETWORK_REQUEST')
+                 for at,v in enumerate(events) if start < at < stop),
          'restart network no unselected slot work')
     def observed(node,kind):return f.canonical(dict(root=selected['root'],voter=node,incarnation=identities[node]['storage'],
         phase=kind,record=e.digest(frames[kind])))
