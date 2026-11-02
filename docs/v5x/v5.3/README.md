@@ -1,9 +1,13 @@
 # V5.3 — controlled cluster operations
 
+[Continuous REMOVE ballot forces](PHASE_3_REMOVE_PROCESS_BALLOT.md) add original
+allocator/promise composition across SIGKILL/reopen, with eighteen exact negatives.
+The full process/profile cohort and frozen acceptance mapping remain OPEN.
+
 [REMOVE retirement across process death](PHASE_3_REMOVE_PROCESS_RETIREMENT.md)
 qualifies all 951 observed retirement callbacks in the retained SIGKILL member,
-with 36 exact negatives and derived recovery reuse. Ballot forces and the
-remaining process/profile matrix remain OPEN.
+with 36 exact negatives and derived recovery reuse. Its ballot extension is
+recorded above; the remaining process/profile matrix remains OPEN.
 
 [Continuous REMOVE process retention](PHASE_3_REMOVE_PROCESS_RETENTION.md)
 derives both revision chains across the original SIGKILL/reopen boundary, with

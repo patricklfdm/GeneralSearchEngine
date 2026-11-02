@@ -3,8 +3,9 @@
 Status: complete observed generation/source retirement callbacks are qualified
 for the retained v2 `4-REMOVE,RETIREMENT_BORROW_PREFIX_WRITTEN,kill` member.
 This extends [continuous retention](PHASE_3_REMOVE_PROCESS_RETENTION.md).
-The other process members, ballot-force composition, complete observation
-coverage and the seven-profile/frozen acceptance mapping remain OPEN.
+The subsequent [ballot-force composition](PHASE_3_REMOVE_PROCESS_BALLOT.md)
+extends this member. The other process members, complete observation coverage
+and the seven-profile/frozen acceptance mapping remain OPEN.
 
 ## Original transaction and recovery
 
@@ -66,6 +67,6 @@ retained separately; it is not a native execution failure or acceptance result.
 `retirementRetentionCompositionQualified=true` is limited to this layer and
 member. `completeObservedCompositionQualified`,
 `originalObservationCoverageComplete`, `transientRetirementBytesQualified` and
-`phase3Complete` remain false. The allocator/promise force audit is the next
-independent obligation. No production Java, workflow or cloud execution changed.
+`phase3Complete` remain false. The subsequent allocator/promise force audit is
+recorded separately. No production Java, workflow or cloud execution changed.
 Rollback removes this reader, its tests and documentation only.

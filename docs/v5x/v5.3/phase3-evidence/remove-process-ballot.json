@@ -1,0 +1,693 @@
+{
+  "archive": {
+    "bytes": 7987266,
+    "files": 5487,
+    "path": "target/v53-remove-process-ballot-20261101/remove-process-ballot.tar.gz",
+    "sha256": "1e1ed0a31ef77cd52ebfdba971051bcbffccf0d4b80aaf4c01a498d0d7c515aa",
+    "verifiedEveryMember": true
+  },
+  "ballotForceCompositionQualified": true,
+  "baseHead": "0b285643d259371bc928d0c9ab0e7ca60ba59a5c",
+  "case": "4-REMOVE,RETIREMENT_BORROW_PREFIX_WRITTEN,kill",
+  "currentReaderMatchesReplay": true,
+  "declaredNativeMembers": 52,
+  "diagnostics": [
+    "The preceding retirement reader deliberately left allocator and promise force composition open. The initial read-only probe is not an acceptance receipt; original and portable qualified results are authoritative."
+  ],
+  "evidenceFiles": {
+    "target/v53-remove-process-ballot-20261101/archive-inputs.json": {
+      "bytes": 820516,
+      "sha256": "3a7fc4a34a16664b2eb9edc1d12cf4bcf8e5f92e684434b0d1a3e1da5774584b"
+    },
+    "target/v53-remove-process-ballot-20261101/focused-initial.log": {
+      "bytes": 109,
+      "sha256": "87f1ae458e6d1d46a428078a154fbbcad6bac4f7263c5eff0ec3464055fbb84c"
+    },
+    "target/v53-remove-process-ballot-20261101/inputs/provenance.json": {
+      "bytes": 334,
+      "sha256": "77c000db367379f371c98a02a8dbce53fbfd35bfb68fc130d727d68c6f738228"
+    },
+    "target/v53-remove-process-ballot-20261101/inputs/raw-inputs.json": {
+      "bytes": 726240,
+      "sha256": "3355222f7591f20f0c451b758497e9309596d20782d268ea9da3996eb5cdddcf"
+    },
+    "target/v53-remove-process-ballot-20261101/inputs/reader-inputs.json": {
+      "bytes": 65534,
+      "sha256": "3e66bcd4b0c1e2cc26be205df7fe776d7285ccbf07a894c69dbd0f844d5bb960"
+    },
+    "target/v53-remove-process-ballot-20261101/original.json": {
+      "bytes": 13151,
+      "sha256": "3faf16c580b6c585e7816b15712ad8787d08901bf79fd190a94cc74ce7411947"
+    },
+    "target/v53-remove-process-ballot-20261101/original.log": {
+      "bytes": 3911,
+      "sha256": "eae4ea505701848314179ae43d4ade4dbbfb23722869a9799fd8d17a70b5703a"
+    },
+    "target/v53-remove-process-ballot-20261101/portable-optimized.json": {
+      "bytes": 13151,
+      "sha256": "3faf16c580b6c585e7816b15712ad8787d08901bf79fd190a94cc74ce7411947"
+    },
+    "target/v53-remove-process-ballot-20261101/portable-optimized.log": {
+      "bytes": 3911,
+      "sha256": "1fad9569304d6a6602ebf487550910cdbd72e666582ea986bb58e04f662871fc"
+    },
+    "target/v53-remove-process-ballot-20261101/portable.json": {
+      "bytes": 470,
+      "sha256": "311a63daa92551c41ef592c9e134ec2e073ffef1bbdc54c01efd236dc23821a4"
+    },
+    "target/v53-remove-process-ballot-20261101/probe.json": {
+      "bytes": 354,
+      "sha256": "a7fe613130a06a3d2cede97c0edfdf7d4d49b2346760193b4c9dc151684efdd2"
+    },
+    "target/v53-remove-process-ballot-20261101/probe.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "target/v53-remove-process-ballot-20261101/probe.py": {
+      "bytes": 4941,
+      "sha256": "3d673a21ea696870b8183fed23688f4d590fec6d58fe701d6529a90209977e54"
+    },
+    "target/v53-remove-process-ballot-20261101/python-final.log": {
+      "bytes": 3784,
+      "sha256": "d05105d0114f5241dfcdbc5ba6614cec690de0fbf68aaf2cac51833fde9e6caa"
+    },
+    "target/v53-remove-process-ballot-20261101/qualification-initial.json": {
+      "bytes": 13151,
+      "sha256": "3faf16c580b6c585e7816b15712ad8787d08901bf79fd190a94cc74ce7411947"
+    },
+    "target/v53-remove-process-ballot-20261101/qualification-initial.log": {
+      "bytes": 3911,
+      "sha256": "a6f94c19079db671dcdfa217081ca7cdfced977a79932cc1b1e782074da2702c"
+    },
+    "target/v53-remove-process-ballot-20261101/receipt.py": {
+      "bytes": 2983,
+      "sha256": "439c64c29a411f8dd158be56388d0157d837f126ba55c020eee0d2e156cb4b3f"
+    },
+    "target/v53-remove-process-ballot-20261101/runtime-source-comparison.json": {
+      "bytes": 203,
+      "sha256": "7c37b7f6357fc98ad8f422d28c31d41755e2f9ebca4d18601aa041cbff422289"
+    },
+    "target/v53-remove-process-ballot-20261101/seal.py": {
+      "bytes": 3776,
+      "sha256": "4afc9be30573362b9a65738fdb74fdcbd17e737d5e43fb82f5e8d78197825ccf"
+    }
+  },
+  "focusedTests": 10,
+  "mutatedFullPrerequisiteReplayed": false,
+  "nativeExecutionsThisBatch": 0,
+  "negativePrecondition": "full original through retirement; mutated continuous retention/retirement; unchanged physical, wire and non-ballot observations",
+  "negativeResults": [
+    {
+      "case": "directory-force-missing",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining ballot exact allocator force order",
+      "retirementReplay": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "duplicate-return",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining ballot exact allocator force order",
+      "retirementReplay": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "extra-local-reservation",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "REMOVE process ballot one reservation per grant",
+      "retirementReplay": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "force-missing",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining ballot exact allocator force order",
+      "retirementReplay": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "foreign-owner",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining ballot allocator event shape",
+      "retirementReplay": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "forged-field",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining ballot allocator event shape",
+      "retirementReplay": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "incomplete-write",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining ballot incomplete allocation",
+      "retirementReplay": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "promise-duplicate",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "REMOVE process ballot promise force order",
+      "retirementReplay": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "promise-extra-field",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "REMOVE process ballot promise force order",
+      "retirementReplay": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "promise-force-before-write",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "REMOVE process ballot promise force order",
+      "retirementReplay": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "promise-unbound",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "REMOVE process ballot unbound promise",
+      "retirementReplay": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "promise-unknown",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "REMOVE process ballot promise force order",
+      "retirementReplay": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "promise-write-missing",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "REMOVE process ballot promise force order",
+      "retirementReplay": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "rename-before-force",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining ballot exact allocator force order",
+      "retirementReplay": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "reservation-after-grant",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "REMOVE process ballot one reservation per grant",
+      "retirementReplay": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "reservation-before-open",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "REMOVE process ballot one reservation per grant",
+      "retirementReplay": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "unbound-reservation",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "REMOVE process ballot unbound allocator",
+      "retirementReplay": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "unknown-allocator-event",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining ballot unsupported allocator event",
+      "retirementReplay": "PASS",
+      "status": "REJECTED"
+    }
+  ],
+  "original": {
+    "allocatorComparisons": 71,
+    "ballotForceCompositionQualified": true,
+    "chain": "78e8c6acf5077601470ac92a226b23a145b0c1e5b2f600d1f533f9e8093aa3b1",
+    "completeObservedCompositionQualified": false,
+    "counters": {
+      "node-1": 6,
+      "node-2": 1,
+      "node-3": 1,
+      "node-4": 1
+    },
+    "forcedPromises": 11,
+    "observed": {
+      "node-1": 6,
+      "node-2": 6,
+      "node-3": 5,
+      "node-4": 2
+    },
+    "originalObservationCoverageComplete": false,
+    "phase3Complete": false,
+    "precondition": {
+      "ballotForceCompositionQualified": false,
+      "borrowedGenerations": 9,
+      "callbacks": 951,
+      "completeObservedCompositionQualified": false,
+      "completeObservedRetirementCallbacksQualified": true,
+      "generationMembers": 123,
+      "generations": 16,
+      "interruptedTransactions": 1,
+      "originalObservationCoverageComplete": false,
+      "peerPrecondition": {
+        "capturedLedgers": 11,
+        "chainSha256": "d0edb190521faebe91c7335265fbfb9131a9736bfebe08b892b3078e4a23a074",
+        "durableWrites": 43,
+        "finalRevisions": {
+          "node-1": 16,
+          "node-2": 16,
+          "node-3": 11,
+          "node-4": 0
+        },
+        "ledgerComparisons": 104,
+        "openReseals": 6,
+        "openRevisions": [
+          {
+            "digest": "ef5cf2fc89e798021ed10f2c7005090b91a6cbef508d940b3657f47e824a8217",
+            "node": "node-1",
+            "path": "before-network",
+            "revision": 0
+          },
+          {
+            "digest": "ca0f70c7de13bca7232d799db7530ddabca683ff5fb397f866d8413ac1584eac",
+            "node": "node-2",
+            "path": "before-network",
+            "revision": 0
+          },
+          {
+            "digest": "289e7cc74be9994a2fa85acab018699411e91218615c1cf0d5f60b3d2949fb3c",
+            "node": "node-3",
+            "path": "before-network",
+            "revision": 0
+          },
+          {
+            "digest": "e0ff12a4ff99bbcac0b89e4b00e911eefb34f66e735187665b3d0dcd504ad9e6",
+            "node": "node-4",
+            "path": "before-network",
+            "revision": 0
+          },
+          {
+            "digest": "ef5cf2fc89e798021ed10f2c7005090b91a6cbef508d940b3657f47e824a8217",
+            "node": "node-1",
+            "path": "kill-opened-0",
+            "revision": 0
+          },
+          {
+            "digest": "8587a61fca910f45ef12fd8840a50205a7da63aeb163a6eb604d336c640c1cd2",
+            "node": "node-1",
+            "path": "resume-opened-0",
+            "revision": 3
+          }
+        ],
+        "status": "PASS",
+        "writesByKind": {
+          "maintenance": 27,
+          "publication": 8,
+          "selected": 8
+        }
+      },
+      "phase3Complete": false,
+      "physicalImagePeak": 7,
+      "precondition": {
+        "completeRetirementCallbacksQualified": false,
+        "future": {
+          "chainSha256": "6cd9c4f14ff17c5a7c150765f9f49fbcde9ce4d4116450b92a438193fb681faf",
+          "durableWrites": 22,
+          "finalRevisions": {
+            "node-1": 8,
+            "node-2": 8,
+            "node-3": 6,
+            "node-4": 0
+          },
+          "ledgerComparisons": 86,
+          "openReseals": 6,
+          "openRevisions": [
+            {
+              "digest": "0273f0f649a61269854eefaadf3de83af6097ac33dadfc26706d06b1164c05ae",
+              "node": "node-1",
+              "path": "before-network",
+              "revision": 0
+            },
+            {
+              "digest": "58ac4496c66d48e2adfd94f2f5ddaaa50a8ce8abbe561e9ba9ca982120dcc68d",
+              "node": "node-2",
+              "path": "before-network",
+              "revision": 0
+            },
+            {
+              "digest": "771ce5145cd88d98917838d9b91e302ad3a6f125eeef43ed45602112d58e5545",
+              "node": "node-3",
+              "path": "before-network",
+              "revision": 0
+            },
+            {
+              "digest": "fd8347dddfd9a01617a6b226a292c1f631745d749e08f42cd60aaa715517c773",
+              "node": "node-4",
+              "path": "before-network",
+              "revision": 0
+            },
+            {
+              "digest": "0273f0f649a61269854eefaadf3de83af6097ac33dadfc26706d06b1164c05ae",
+              "node": "node-1",
+              "path": "kill-opened-0",
+              "revision": 0
+            },
+            {
+              "digest": "0273f0f649a61269854eefaadf3de83af6097ac33dadfc26706d06b1164c05ae",
+              "node": "node-1",
+              "path": "resume-opened-0",
+              "revision": 0
+            }
+          ],
+          "status": "PASS",
+          "writesByKind": {
+            "clear": 8,
+            "record": 14
+          }
+        },
+        "peers": {
+          "capturedLedgers": 11,
+          "chainSha256": "d0edb190521faebe91c7335265fbfb9131a9736bfebe08b892b3078e4a23a074",
+          "durableWrites": 43,
+          "finalRevisions": {
+            "node-1": 16,
+            "node-2": 16,
+            "node-3": 11,
+            "node-4": 0
+          },
+          "ledgerComparisons": 104,
+          "openReseals": 6,
+          "openRevisions": [
+            {
+              "digest": "ef5cf2fc89e798021ed10f2c7005090b91a6cbef508d940b3657f47e824a8217",
+              "node": "node-1",
+              "path": "before-network",
+              "revision": 0
+            },
+            {
+              "digest": "ca0f70c7de13bca7232d799db7530ddabca683ff5fb397f866d8413ac1584eac",
+              "node": "node-2",
+              "path": "before-network",
+              "revision": 0
+            },
+            {
+              "digest": "289e7cc74be9994a2fa85acab018699411e91218615c1cf0d5f60b3d2949fb3c",
+              "node": "node-3",
+              "path": "before-network",
+              "revision": 0
+            },
+            {
+              "digest": "e0ff12a4ff99bbcac0b89e4b00e911eefb34f66e735187665b3d0dcd504ad9e6",
+              "node": "node-4",
+              "path": "before-network",
+              "revision": 0
+            },
+            {
+              "digest": "ef5cf2fc89e798021ed10f2c7005090b91a6cbef508d940b3657f47e824a8217",
+              "node": "node-1",
+              "path": "kill-opened-0",
+              "revision": 0
+            },
+            {
+              "digest": "8587a61fca910f45ef12fd8840a50205a7da63aeb163a6eb604d336c640c1cd2",
+              "node": "node-1",
+              "path": "resume-opened-0",
+              "revision": 3
+            }
+          ],
+          "status": "PASS",
+          "writesByKind": {
+            "maintenance": 27,
+            "publication": 8,
+            "selected": 8
+          }
+        },
+        "phase3Complete": false,
+        "precondition": {
+          "acquiredRemoteCopies": 28,
+          "completeCopies": 47,
+          "completeCopyFloorsQualified": true,
+          "completeRetirementCallbacksQualified": false,
+          "discoveryHints": 28,
+          "floorObservations": 1521,
+          "floorReleases": 16,
+          "interruptedFloors": 1,
+          "networkFloors": 16,
+          "phase3Complete": false,
+          "precondition": {
+            "boundSessions": {
+              "current-generation": 56,
+              "frozen-source": 20,
+              "journal": 14,
+              "native-applied-checkpoint": 6,
+              "native-vote-receipt": 42,
+              "pending-payload": 4,
+              "pending-record": 20,
+              "published-local-checkpoint": 4,
+              "published-record": 1
+            },
+            "boundTransfers": {
+              "current-generation": 176,
+              "frozen-source": 60,
+              "journal": 14,
+              "native-applied-checkpoint": 6,
+              "native-vote-receipt": 42,
+              "pending-payload": 4,
+              "pending-record": 20,
+              "published-local-checkpoint": 4,
+              "published-record": 1
+            },
+            "generationWindows": 24,
+            "maintenanceCompositionQualified": false,
+            "observedExportAuthorityQualified": true,
+            "phase3Complete": false,
+            "precondition": {
+              "completeExportAuthorityQualified": false,
+              "durableActivationAndSlotACKsQualified": true,
+              "maintenanceCompositionQualified": false,
+              "network": {
+                "boundFailedControls": 15,
+                "boundInstallReplies": 7,
+                "boundPhaseResponses": 29,
+                "boundStatusReplies": 28,
+                "committedTransfers": 327,
+                "completeSlotStorageCallbacks": 1120,
+                "exactTransferRetries": 0,
+                "exchanges": 1052,
+                "failedAttempts": 15,
+                "futureTargets": 5,
+                "normalizedEvents": 9248,
+                "originalGrants": 11,
+                "originalObservations": 9243,
+                "ownedSlotTransactions": 8,
+                "proposerInstallations": 4,
+                "rejectedTransferAttempts": 0,
+                "slots": 3,
+                "transferSessions": 167,
+                "transferredBytes": 2224484
+              },
+              "observedAttemptsQualified": true,
+              "phase3Complete": false,
+              "physical": {
+                "activationAcknowledgementsQualified": false,
+                "networkDiagnosticsSha256": "9857ab58813c6ff0632d0aa66d1e1ef355f260fcc4f7bc22c0401d9c4cd5a941",
+                "networkQualified": false,
+                "phase3Complete": false,
+                "physicalHistoryQualified": true,
+                "processDeathQualified": true,
+                "profile": {
+                  "index": 5,
+                  "mode": "kill",
+                  "point": "RETIREMENT_BORROW_PREFIX_WRITTEN",
+                  "profile": "4-REMOVE",
+                  "schema": "gse-v53-remove-retirement-process-v2"
+                },
+                "publicationAcknowledgementsQualified": true,
+                "retirement": {
+                  "authority": "1650faf796b0c75fc2fc62f00973a15455d049284d6c288cce0ed18ddf39482d",
+                  "borrowedImages": true,
+                  "imageMembers": 1,
+                  "members": 9,
+                  "physicalImagesBefore": 7,
+                  "physicalImagesPeak": 7,
+                  "prefixEvents": [
+                    "RETIREMENT_OLD_FILES_FORCED",
+                    "RETIREMENT_RESERVED",
+                    "RETIREMENT_CREATED",
+                    "RETIREMENT_BORROW_PREFIX_WRITTEN"
+                  ],
+                  "recoveryEvents": [
+                    "RETIREMENT_OLD_FILES_FORCED",
+                    "RETIREMENT_RESERVED",
+                    "RETIREMENT_CREATED",
+                    "RETIREMENT_BORROW_PREFIX_WRITTEN",
+                    "RETIREMENT_BORROW_WRITTEN",
+                    "RETIREMENT_BORROW_FORCED",
+                    "RETIREMENT_PROPOSAL_WRITTEN",
+                    "RETIREMENT_PROPOSAL_FORCED",
+                    "RETIREMENT_SOURCE_CREATED",
+                    "RETIREMENT_MANIFEST_WRITTEN",
+                    "RETIREMENT_MANIFEST_FORCED",
+                    "RETIREMENT_MEMBER_WRITTEN",
+                    "RETIREMENT_MEMBER_FORCED",
+                    "RETIREMENT_MEMBER_WRITTEN",
+                    "RETIREMENT_MEMBER_FORCED",
+                    "RETIREMENT_MEMBER_WRITTEN",
+                    "RETIREMENT_MEMBER_FORCED",
+                    "RETIREMENT_MEMBER_WRITTEN",
+                    "RETIREMENT_MEMBER_FORCED",
+                    "RETIREMENT_MEMBER_WRITTEN",
+                    "RETIREMENT_MEMBER_FORCED",
+                    "RETIREMENT_MEMBER_WRITTEN",
+                    "RETIREMENT_MEMBER_FORCED",
+                    "RETIREMENT_MEMBER_WRITTEN",
+                    "RETIREMENT_MEMBER_FORCED",
+                    "RETIREMENT_SOURCE_FORCED",
+                    "RETIREMENT_BORROWED_IMAGES_FORCED",
+                    "RETIREMENT_AUTHORITY_WRITTEN",
+                    "RETIREMENT_AUTHORITY_FORCED",
+                    "RETIREMENT_PARENT_FORCED",
+                    "RETIREMENT_DELETE_VALIDATED",
+                    "RETIREMENT_FILE_DELETED",
+                    "RETIREMENT_FILE_DELETED",
+                    "RETIREMENT_FILE_DELETED",
+                    "RETIREMENT_FILE_DELETED",
+                    "RETIREMENT_FILE_DELETED",
+                    "RETIREMENT_FILE_DELETED",
+                    "RETIREMENT_FILE_DELETED",
+                    "RETIREMENT_FILE_DELETED",
+                    "RETIREMENT_FILE_DELETED",
+                    "RETIREMENT_DIRECTORY_DELETED",
+                    "RETIREMENT_SAVED_FILE_DELETED",
+                    "RETIREMENT_SAVED_FILE_DELETED",
+                    "RETIREMENT_SAVED_FILE_DELETED",
+                    "RETIREMENT_SAVED_FILE_DELETED",
+                    "RETIREMENT_SAVED_FILE_DELETED",
+                    "RETIREMENT_SAVED_FILE_DELETED",
+                    "RETIREMENT_SAVED_FILE_DELETED",
+                    "RETIREMENT_SAVED_FILE_DELETED",
+                    "RETIREMENT_SAVED_DIRECTORY_DELETED",
+                    "RETIREMENT_PROPOSAL_CLEARED",
+                    "RETIREMENT_BORROW_CLEARED",
+                    "RETIREMENT_AUTHORITY_CLEARED",
+                    "RETIREMENT_CLEARED",
+                    "RETIREMENT_BEFORE_RETURN"
+                  ],
+                  "slot": "b"
+                },
+                "scope": "same-proposer-REMOVE-retirement-recovery",
+                "slots": [
+                  {
+                    "index": 5,
+                    "kind": "INTENT"
+                  },
+                  {
+                    "index": 6,
+                    "kind": "FINAL"
+                  },
+                  {
+                    "index": 7,
+                    "kind": "BARRIER"
+                  }
+                ],
+                "status": "PASS",
+                "unqualifiedNetworkDiagnostics": 15
+              },
+              "processDeathQualified": true,
+              "status": "PARTIAL"
+            },
+            "proposerLifetimes": 2,
+            "recordWindows": 112,
+            "sourceWindows": 15,
+            "status": "PARTIAL",
+            "unqualifiedTransfers": 0
+          },
+          "proposerLifetimes": 2,
+          "retainedFloorRecoveryQualified": true,
+          "retainedFloorReuses": 1,
+          "retentionRevisionCompositionQualified": false,
+          "retirementLifetimeObservations": 951,
+          "status": "PARTIAL"
+        },
+        "retentionRevisionCompositionQualified": true,
+        "status": "PARTIAL"
+      },
+      "recoveryCallbacks": 55,
+      "retirementRetentionCompositionQualified": true,
+      "sources": 11,
+      "status": "PARTIAL",
+      "transactionChainSha256": "39c5e4103a07092da69a7c72678c7ddd7def47ac9ca3cdb587634c96a23ca15d",
+      "transientRetirementBytesQualified": false
+    },
+    "promiseComparisons": 71,
+    "reservations": 4,
+    "selfGrants": 4,
+    "status": "PARTIAL"
+  },
+  "originalObservationCoverageComplete": false,
+  "phase3Complete": false,
+  "portable": {
+    "inputsUnchanged": true,
+    "nativeExecutionsThisBatch": 0,
+    "negativeCases": 18,
+    "optimizedPython": true,
+    "originalUnchanged": true,
+    "phase3Complete": false,
+    "profileCases": 1,
+    "results": [
+      {
+        "exit": 0,
+        "name": "original",
+        "negatives": 18,
+        "seconds": 146.254
+      },
+      {
+        "exit": 0,
+        "name": "portable-optimized",
+        "negatives": 18,
+        "seconds": 145.115
+      }
+    ],
+    "sameResult": true,
+    "status": "PASS"
+  },
+  "producer": {
+    "nativeExecutionsThisBatch": 0,
+    "phase3Complete": false,
+    "priorArchive": {
+      "bytes": 24452263,
+      "files": 11792,
+      "path": "target/v53-remove-process-network-20261101/remove-process-network.tar.gz",
+      "sha256": "68fd5acb56102aa5574b6e3e6bddab817d3f87102ee4d4fadc738f3a328a6b86",
+      "verifiedEveryMember": true
+    }
+  },
+  "pythonTests": {
+    "errors": 0,
+    "failures": 0,
+    "seconds": 110.977,
+    "tests": 1694
+  },
+  "qualifiedNativeMembers": 1,
+  "remaining": [
+    "remaining native process members",
+    "complete original observation coverage",
+    "complete seven-profile cohort and frozen acceptance mapping"
+  ],
+  "runtimeJavaChanged": false,
+  "runtimeSourceComparison": {
+    "added": [],
+    "changed": [],
+    "currentHead": "0b285643d259371bc928d0c9ab0e7ca60ba59a5c",
+    "javaAndPomFiles": 1392,
+    "sourceHead": "761340945004897ae29aca0ae4e24080d3e7aec1",
+    "status": "PASS"
+  },
+  "schema": "gse-v53-remove-process-ballot-receipt-v1",
+  "status": "PARTIAL"
+}

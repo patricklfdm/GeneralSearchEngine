@@ -1,10 +1,16 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Continuous REMOVE ballot forces](PHASE_3_REMOVE_PROCESS_BALLOT.md) bind four
+original reservations and eleven forced promises across SIGKILL/reopen, with
+71 allocator and promise comparisons each and eighteen exact negatives. The
+remaining native members, complete observation coverage and frozen acceptance
+mapping remain OPEN.
+
 [REMOVE retirement across process death](PHASE_3_REMOVE_PROCESS_RETIREMENT.md)
 derives 951 original callbacks, including 55 recovery callbacks, without resetting
 the continuous retention state. Thirty-six exact negatives preserve the prior
-reader. Ballot-force composition, remaining process/profile members and complete
-Phase 3 qualification remain OPEN.
+reader. Its ballot-force extension is recorded above; remaining process/profile
+members and complete Phase 3 qualification remain OPEN.
 
 [Continuous REMOVE process retention](PHASE_3_REMOVE_PROCESS_RETENTION.md) now
 binds 43 peer and 22 future writes through all original opens and snapshots in
