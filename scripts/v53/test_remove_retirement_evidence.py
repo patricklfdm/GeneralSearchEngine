@@ -11,7 +11,7 @@ from . import test_joining_retirement_replay as source_fixture
 
 
 class RemoveRetirementEvidenceTest(unittest.TestCase):
-    def generation(self,total=7,*,alter=None):
+    def generation(self,total=7,*,alter=None,recover=None):
         image=b'actual original image';name=r.sha(image)+'.image';node='node-1';root='a'*64
         cap=dict(root=root,cut=dict(index=0),catalog='b'*64,application=r.sha(image));point=r.c.anchor(cap)
         original={'generation.gsr':b'manifest','source.gscp':b'source','promise.gsr':b'promise',name:image}
@@ -30,7 +30,7 @@ class RemoveRetirementEvidenceTest(unittest.TestCase):
         with patch.object(r.c,'current',return_value=('generations/a/',members,dict(capsule=cap))), \
                 patch.object(r.f,'decode',return_value=manifest),patch.object(r.c.p,'decode',return_value=dict(capsule=cap)), \
                 patch.object(r.r.peer.t.confirmation,'endpoints',return_value={0:point}):
-            return r.generation_plan(files,node,copies)
+            return r.generation_plan(files,node,copies,recover=recover)
 
     def test_seven_image_capacity_selects_borrowing_without_a_log_hint(self):
         after,steps,details=self.generation(7)

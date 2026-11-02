@@ -1,8 +1,9 @@
 # V5.3 — controlled cluster operations
 
-[Interrupted REMOVE retirement recovery](PHASE_3_REMOVE_PROCESS.md) fixes the
-automatic entry's pending-retirement recovery gap and adds separately selectable
-native process cases. Whole process/physical qualification remains OPEN.
+[Interrupted REMOVE retirement recovery](PHASE_3_REMOVE_PROCESS.md) now has
+independent bootstrap-to-close replay of the retained SIGKILL member and 27 exact
+evidence negatives. The full 52-member process matrix and complete network/profile
+qualification remain OPEN.
 
 [Original REMOVE retirement file prefixes](PHASE_3_REMOVE_PREFIXES.md) now compare
 all 1,637 captured intermediate inventories in two new complete histories against

@@ -26,7 +26,7 @@ def physical(files):
     return {k:dict(directory=True) if raw is None else images.old.entry(raw) for k,raw in files.items()}
 
 
-def generation_plan(files,node,copies):
+def generation_plan(files,node,copies,*,recover=None):
     current,members,packet=c.current(files)
     old_slots={name.split('/')[1] for name in files if name.startswith('generations/') and not name.startswith(current) and name!=current[:-1]}
     need(len(old_slots)==1,'REMOVE retirement exact inactive generation')
@@ -58,9 +58,9 @@ def generation_plan(files,node,copies):
         binding=f.canonical(dict(schema='gse-v53-retirement-floor-images-v1',retirement=sha(record),
             floor=sha(files['floor-copies/floor.gsr']),root=packet['capsule']['root'],node=node,
             storage=local['identity']['storage'],selector=sha(files['selector.gsr']),images=rows))
-    steps,_=images.transaction(physical(files),original,record,binding,borrow,slot=slot)
+    steps,_=images.transaction(physical(files) if recover is None else recover,original,record,binding,borrow,slot=slot)
     after={k:v for k,v in files.items() if k!=prefix[:-1] and not k.startswith(prefix)}
-    need(steps and steps[-1][1]==physical(after),'REMOVE retirement generation final projection')
+    need((steps[-1][1] if steps else recover)==physical(after),'REMOVE retirement generation final projection')
     return after,steps,dict(slot=slot,borrowedImages=borrow,physicalImagesBefore=count,
         physicalImagesPeak=count+(0 if borrow else saved),members=len(original),imageMembers=saved,authority=sha(record))
 

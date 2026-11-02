@@ -1,7 +1,7 @@
 # Phase 3 — interrupted REMOVE retirement recovery
 
-Status: implementation and targeted recovery checks; the complete process matrix
-and independent physical/history qualification remain OPEN.
+Status: one retained SIGKILL member has independent physical/process replay;
+the complete process matrix and complete network/profile qualification remain OPEN.
 
 ## Reproduced failure and correction
 
@@ -103,10 +103,65 @@ The relocated successful history also returns exactly the same collection under
 This is retained execution evidence; neither the archive nor collection status
 claims the still-pending independent physical/process qualification.
 
-Next work composes the interrupted and recovered states with the original-first
-physical reader, adds evidence mutations, and qualifies the declared process
-matrix on the same source/build. The complete seven-profile cohort and frozen
-acceptance mapping remain required before Phase 3 closes.
+## Independent replay of the retained original
+
+`scripts.v53.remove_process_evidence` now derives the initial bootstrap, four
+preparation slots, original child selection, governing floor, retention state,
+first matching retirement prefix and cold-open recovery. It compares every
+captured owner's complete files, including inactive voters. It then derives the
+three resumed selections and the INTENT, FINAL and new-stable BARRIER through
+the final closed snapshot. Fresh source UUIDs and application images remain
+observations checked by the existing independent models; claimed digests and
+JUnit success are not expected-state authorities.
+
+The interrupted process must stop at the first specified callback, expose no
+readiness, and have its recorded halt/SIGKILL exit and distinct resumed PID.
+The reader checks the interrupted transaction's exact callback prefix and the
+complete cold-open recovery sequence before constructing the new endpoint.
+It reuses the existing original publication-ACK checks for all three resumed
+slots: retention before send, original certificates, local and remote force
+order, exact request/reply bytes, and readiness only after the final BARRIER.
+The seven-image/six-source limits remain unchanged, counting equal image bytes
+in different physical locations separately.
+
+```bash
+python3 -B -m scripts.v53.remove_process_evidence ORIGINAL_PROCESS_ROOT \
+  --qualify --workers 2
+```
+
+The [replay receipt](phase3-evidence/remove-process-replay.json) binds the reader
+and the previously retained successful
+`4-REMOVE,RETIREMENT_BORROW_PREFIX_WRITTEN,kill` history. This batch runs no new
+native JVM history. All 27 mutations must reject for their exact declared reason,
+after the unmodified history passes first. They include altered governing or
+recovered files, repeated process identity, wrong exit/lock, wrong command,
+omitted retirement/recovery/publication forces, premature floor release,
+missing reactivation/ACKs and early readiness. An unrelated parser or original
+failure cannot count as a successful rejection.
+
+The receipt records the full Python suite, the prior eight original publication
+process cases replayed with the shared validator, and equal original/relocated
+results under optimized Python. The archive contains original files, reader
+inputs and producer source/build bindings; it does not replace the prior archive
+containing the complete native producer workspace and its failed diagnostics.
+
+This is scoped same-proposer retirement recovery and publication qualification.
+Complete attempted transport, activation ACKs, export lifetimes and continuous
+maintenance/retention callback composition for this process history remain OPEN.
+In particular, its 15 observed FUTURE_RETENTION_INTENT rejection diagnostics from
+non-selected voters are retained and hashed, not silently discarded or counted
+as successful network qualification. The earlier healthy REMOVE network reader
+does not automatically qualify this restarted process history.
+
+The reader declares both REMOVE profiles and all 13 cuts in the 52-member
+catalogue. Only the one retained native member above has been replayed here;
+unit tests of both borrowing/copying branches and all six source-retirement cuts
+do not substitute for the remaining native members. Complete each member as one
+indivisible bootstrap/death/reopen/continuation history, with separately recorded
+source/build and qualification. The large matrix can run on independent hosted
+workers after integration is ready; do not splice its stages or retry failed
+measurements. The complete seven-profile cohort and frozen acceptance mapping
+remain required before Phase 3 closes.
 
 Rollback removes the automatic-entry recovery calls and the new process mode,
 restoring explicit component recovery. It restores the reproduced automatic

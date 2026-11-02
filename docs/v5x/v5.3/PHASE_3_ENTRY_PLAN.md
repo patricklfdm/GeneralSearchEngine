@@ -1,9 +1,9 @@
 # V5.3 Phase 3 entry and closure checklist
 
-[Interrupted REMOVE retirement recovery](PHASE_3_REMOVE_PROCESS.md) connects
-retaining automatic entries to the existing pending generation-retirement
-transaction after a real proposer restart exposed the gap. Independent process
-replay, the declared process matrix and full Phase 3 qualification remain OPEN.
+[Interrupted REMOVE retirement recovery](PHASE_3_REMOVE_PROCESS.md) now independently
+replays the retained SIGKILL history from bootstrap through cold recovery and the
+final BARRIER, with 27 exact evidence negatives. The declared 52-member process
+matrix, complete process-network composition and full Phase 3 remain OPEN.
 
 [Original REMOVE retirement file prefixes](PHASE_3_REMOVE_PREFIXES.md) now compare
 all 1,637 captured intermediate inventories in two new complete histories against

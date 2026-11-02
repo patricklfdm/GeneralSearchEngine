@@ -159,14 +159,21 @@ def process_outcome(process,profile):
          'transition process distinct original workers')
 
 
-def lifecycle(root,profile):
+def lifecycle(root,profile,*,interrupted_retirement=False):
+    """Publication ACK checks shared with the pre-slot retirement reader.
+
+    That reader separately derives and checks its child's interrupted maintenance
+    and cold-open lifecycle before calling this for all three resumed slots.
+    """
     history=root/'history';process_outcome(d.read(root/'process.json'),profile)
     wire=d.read(history/'wire.json');events=d.read(history/'events.json')
     need(type(wire) is list and type(events) is list and len(wire)<=32768 and len(events)<=32768,
          'transition process bounded network observations')
     remote_ends={};last_ack=None
-    for worker,mode,slots in [('interrupted-worker',profile['mode'],list(range(5,profile['index']+1))),
-                              ('resumed-worker','resume',list(range(profile['index']+1,8)))]:
+    workers=([('resumed-worker','resume',[5,6,7])] if interrupted_retirement else
+             [('interrupted-worker',profile['mode'],list(range(5,profile['index']+1))),
+              ('resumed-worker','resume',list(range(profile['index']+1,8)))])
+    for worker,mode,slots in workers:
         rows=trace(root/worker/'stdout');rounds=[(i,v) for i,(kind,v) in enumerate(rows) if kind=='ROUND']
         expected=['INSTALLED','SLOT_BEGIN','SLOT_COMPLETE']*len(slots)
         if mode=='resume':expected+=['BEFORE_READY']
@@ -185,7 +192,7 @@ def lifecycle(root,profile):
             cut=dict(event=profile['point'],index=profile['index'])
             need(rows[-2:]==[('STORE',cut),('CUT',cut)] and sum(k=='CUT' for k,_ in rows)==1
                  and not any(k in ('READY','CLOSED') for k,_ in rows),'transition process exact interrupted boundary')
-        snapshots=[]
+        snapshots=['resume-opened-0'] if interrupted_retirement else []
         for ordinal,index in enumerate(slots,1):
             at,installed=rounds[(ordinal-1)*3];start,begin=rounds[(ordinal-1)*3+1]
             complete=(mode=='resume' or index!=profile['index'])

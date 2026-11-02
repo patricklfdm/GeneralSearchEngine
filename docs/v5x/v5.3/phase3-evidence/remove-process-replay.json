@@ -1,0 +1,380 @@
+{
+  "archive": {
+    "bytes": 6590366,
+    "files": 5474,
+    "path": "target/v53-remove-process-replay-20261101/remove-process-replay.tar.gz",
+    "sha256": "fc1a02443ce67944f21e65a9de98efae3de15334cfc25815bf21c8d36ca3611a",
+    "verifiedEveryMember": true
+  },
+  "case": "4-REMOVE,RETIREMENT_BORROW_PREFIX_WRITTEN,kill",
+  "declaredNativeMembers": 52,
+  "evidenceFiles": {
+    "target/v53-remove-process-replay-20261101/archive-inputs.json": {
+      "bytes": 818928,
+      "sha256": "3dd3ab809aefbf5688b6125aa10146df84cfef81d1fc44e0e0e90c699a86a9a5"
+    },
+    "target/v53-remove-process-replay-20261101/focused-source.log": {
+      "bytes": 143,
+      "sha256": "c0d4b7e18661a024d9efeb29f6c73a46d271f9dae8e0733af307d3bd0bfa8101"
+    },
+    "target/v53-remove-process-replay-20261101/focused-tests.log": {
+      "bytes": 5047,
+      "sha256": "9bf032aaf5b59233e77c1f5a65d633d96f715f454e9130330b03f16420427702"
+    },
+    "target/v53-remove-process-replay-20261101/legacy-publication-replay.json": {
+      "bytes": 7867,
+      "sha256": "ef452527220940289a59dc4a3decf93cdaebe792fcee82af20d6c67db41c5d7a"
+    },
+    "target/v53-remove-process-replay-20261101/original.json": {
+      "bytes": 5734,
+      "sha256": "6cecbe6fd5d17d55260e8ea86f3666b62a9d8b7b955df35d5b07da3f10ed3360"
+    },
+    "target/v53-remove-process-replay-20261101/original.log": {
+      "bytes": 3758,
+      "sha256": "942ced6fd64c0d9e1b6520c2d84b951c098fcdc270e1799e507e59925f1fa102"
+    },
+    "target/v53-remove-process-replay-20261101/portable-optimized.json": {
+      "bytes": 5734,
+      "sha256": "6cecbe6fd5d17d55260e8ea86f3666b62a9d8b7b955df35d5b07da3f10ed3360"
+    },
+    "target/v53-remove-process-replay-20261101/portable-optimized.log": {
+      "bytes": 3758,
+      "sha256": "942ced6fd64c0d9e1b6520c2d84b951c098fcdc270e1799e507e59925f1fa102"
+    },
+    "target/v53-remove-process-replay-20261101/portable.json": {
+      "bytes": 468,
+      "sha256": "e62dae9a87d48a1082b40f40a87f273fcb1683c5db1811a37b74c39d9f94cfd9"
+    },
+    "target/v53-remove-process-replay-20261101/python-final.log": {
+      "bytes": 3719,
+      "sha256": "fe8c0130f7567d2a7d297e39c37df86c9c14633a5da5cfe3b3b27bea05b14134"
+    },
+    "target/v53-remove-process-replay-20261101/qualification-initial.log": {
+      "bytes": 1067,
+      "sha256": "49950e12ee1731a3de365943fb66b0e9eadca1d2cb53326ec13834aa64bd4dbe"
+    },
+    "target/v53-remove-process-replay-20261101/seal.py": {
+      "bytes": 4259,
+      "sha256": "97a3e844db125f931036ff5929159f2bfc3211fd536f3912f73b5025792f7264"
+    }
+  },
+  "legacyPublicationProcessReplay": {
+    "cases": 8,
+    "nativeExecutions": 0,
+    "seconds": 12.789,
+    "status": "PASS"
+  },
+  "nativeExecutionsThisBatch": 0,
+  "negativeCases": 27,
+  "negativeResults": [
+    {
+      "case": "closed-selector",
+      "reason": "admitted exact after-close: node-1",
+      "status": "REJECTED"
+    },
+    {
+      "case": "completed-selector",
+      "reason": "admitted exact after-resume: node-1",
+      "status": "REJECTED"
+    },
+    {
+      "case": "early-floor-release",
+      "reason": "REMOVE process unreleased governing floor",
+      "status": "REJECTED"
+    },
+    {
+      "case": "extra-file",
+      "reason": "context selection REMOVE process inventory",
+      "status": "REJECTED"
+    },
+    {
+      "case": "false-lock",
+      "reason": "transition process distinct original workers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "interrupted-authority",
+      "reason": "REMOVE process exact interrupted: node-1",
+      "status": "REJECTED"
+    },
+    {
+      "case": "interrupted-peer",
+      "reason": "REMOVE process exact interrupted: node-2",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-cold-force",
+      "reason": "REMOVE process cold-open recovery order",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-floor-force",
+      "reason": "selected retention force order: REMOVE process floor before retirement",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-open-snapshot",
+      "reason": "REMOVE process interrupted snapshots",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-peer-force",
+      "reason": "selected retention force order: transition original peer node-2",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-proposer-force",
+      "reason": "selected retention force order: transition original proposer 7",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-published-snapshot",
+      "reason": "transition process exact observation boundaries",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-reactivation",
+      "reason": "REMOVE process slot before installation",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-remote-ack",
+      "reason": "transition process original remote acknowledgement",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-retirement-force",
+      "reason": "REMOVE process exact interruption force order",
+      "status": "REJECTED"
+    },
+    {
+      "case": "premature-ready",
+      "reason": "REMOVE process exact interrupted boundary",
+      "status": "REJECTED"
+    },
+    {
+      "case": "recovered-floor",
+      "reason": "admitted exact resume-opened-0: node-1",
+      "status": "REJECTED"
+    },
+    {
+      "case": "recovered-peer",
+      "reason": "admitted exact resume-opened-0: node-2",
+      "status": "REJECTED"
+    },
+    {
+      "case": "recovered-selector",
+      "reason": "admitted exact resume-opened-0: node-1",
+      "status": "REJECTED"
+    },
+    {
+      "case": "same-worker",
+      "reason": "transition process distinct original workers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "wrong-command",
+      "reason": "REMOVE process interrupted original command",
+      "status": "REJECTED"
+    },
+    {
+      "case": "wrong-cut",
+      "reason": "REMOVE process exact interrupted boundary",
+      "status": "REJECTED"
+    },
+    {
+      "case": "wrong-exit",
+      "reason": "transition process distinct original workers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "wrong-local-ack",
+      "reason": "transition process original local acknowledgement",
+      "status": "REJECTED"
+    },
+    {
+      "case": "wrong-ready-ack",
+      "reason": "transition process readiness after barrier",
+      "status": "REJECTED"
+    },
+    {
+      "case": "wrong-ready-result",
+      "reason": "transition process exact readiness result",
+      "status": "REJECTED"
+    }
+  ],
+  "open": [
+    "remaining 51 declared native process members",
+    "complete attempted transport and activation acknowledgements",
+    "continuous process export/retention/maintenance force composition",
+    "complete seven-profile cohort and frozen acceptance mapping"
+  ],
+  "originalQualification": {
+    "activationAcknowledgementsQualified": false,
+    "networkDiagnosticsSha256": "3eee2f4b1b73382528e905ea4900e8418bc3c88c60a0b0c50218268b90702fa9",
+    "networkQualified": false,
+    "phase3Complete": false,
+    "physicalHistoryQualified": true,
+    "processDeathQualified": true,
+    "profile": {
+      "index": 5,
+      "mode": "kill",
+      "point": "RETIREMENT_BORROW_PREFIX_WRITTEN",
+      "profile": "4-REMOVE",
+      "schema": "gse-v53-remove-retirement-process-v1"
+    },
+    "publicationAcknowledgementsQualified": true,
+    "retirement": {
+      "authority": "26c8495f0744a546e70054aed26f478395018ed3dc5271829933c7d00d88c61d",
+      "borrowedImages": true,
+      "imageMembers": 1,
+      "members": 9,
+      "physicalImagesBefore": 7,
+      "physicalImagesPeak": 7,
+      "prefixEvents": [
+        "RETIREMENT_OLD_FILES_FORCED",
+        "RETIREMENT_RESERVED",
+        "RETIREMENT_CREATED",
+        "RETIREMENT_BORROW_PREFIX_WRITTEN"
+      ],
+      "recoveryEvents": [
+        "RETIREMENT_OLD_FILES_FORCED",
+        "RETIREMENT_RESERVED",
+        "RETIREMENT_CREATED",
+        "RETIREMENT_BORROW_PREFIX_WRITTEN",
+        "RETIREMENT_BORROW_WRITTEN",
+        "RETIREMENT_BORROW_FORCED",
+        "RETIREMENT_PROPOSAL_WRITTEN",
+        "RETIREMENT_PROPOSAL_FORCED",
+        "RETIREMENT_SOURCE_CREATED",
+        "RETIREMENT_MANIFEST_WRITTEN",
+        "RETIREMENT_MANIFEST_FORCED",
+        "RETIREMENT_MEMBER_WRITTEN",
+        "RETIREMENT_MEMBER_FORCED",
+        "RETIREMENT_MEMBER_WRITTEN",
+        "RETIREMENT_MEMBER_FORCED",
+        "RETIREMENT_MEMBER_WRITTEN",
+        "RETIREMENT_MEMBER_FORCED",
+        "RETIREMENT_MEMBER_WRITTEN",
+        "RETIREMENT_MEMBER_FORCED",
+        "RETIREMENT_MEMBER_WRITTEN",
+        "RETIREMENT_MEMBER_FORCED",
+        "RETIREMENT_MEMBER_WRITTEN",
+        "RETIREMENT_MEMBER_FORCED",
+        "RETIREMENT_MEMBER_WRITTEN",
+        "RETIREMENT_MEMBER_FORCED",
+        "RETIREMENT_SOURCE_FORCED",
+        "RETIREMENT_BORROWED_IMAGES_FORCED",
+        "RETIREMENT_AUTHORITY_WRITTEN",
+        "RETIREMENT_AUTHORITY_FORCED",
+        "RETIREMENT_PARENT_FORCED",
+        "RETIREMENT_DELETE_VALIDATED",
+        "RETIREMENT_FILE_DELETED",
+        "RETIREMENT_FILE_DELETED",
+        "RETIREMENT_FILE_DELETED",
+        "RETIREMENT_FILE_DELETED",
+        "RETIREMENT_FILE_DELETED",
+        "RETIREMENT_FILE_DELETED",
+        "RETIREMENT_FILE_DELETED",
+        "RETIREMENT_FILE_DELETED",
+        "RETIREMENT_FILE_DELETED",
+        "RETIREMENT_DIRECTORY_DELETED",
+        "RETIREMENT_SAVED_FILE_DELETED",
+        "RETIREMENT_SAVED_FILE_DELETED",
+        "RETIREMENT_SAVED_FILE_DELETED",
+        "RETIREMENT_SAVED_FILE_DELETED",
+        "RETIREMENT_SAVED_FILE_DELETED",
+        "RETIREMENT_SAVED_FILE_DELETED",
+        "RETIREMENT_SAVED_FILE_DELETED",
+        "RETIREMENT_SAVED_FILE_DELETED",
+        "RETIREMENT_SAVED_DIRECTORY_DELETED",
+        "RETIREMENT_PROPOSAL_CLEARED",
+        "RETIREMENT_BORROW_CLEARED",
+        "RETIREMENT_AUTHORITY_CLEARED",
+        "RETIREMENT_CLEARED",
+        "RETIREMENT_BEFORE_RETURN"
+      ],
+      "slot": "b"
+    },
+    "scope": "same-proposer-REMOVE-retirement-recovery",
+    "slots": [
+      {
+        "index": 5,
+        "kind": "INTENT"
+      },
+      {
+        "index": 6,
+        "kind": "FINAL"
+      },
+      {
+        "index": 7,
+        "kind": "BARRIER"
+      }
+    ],
+    "status": "PASS",
+    "unqualifiedNetworkDiagnostics": 15
+  },
+  "phase3Complete": false,
+  "portable": {
+    "inputsUnchanged": true,
+    "nativeExecutionsThisBatch": 0,
+    "negativeCases": 27,
+    "optimizedPython": true,
+    "originalUnchanged": true,
+    "phase3Complete": false,
+    "profileCases": 1,
+    "results": [
+      {
+        "exit": 0,
+        "name": "original",
+        "negatives": 27,
+        "seconds": 39.752
+      },
+      {
+        "exit": 0,
+        "name": "portable-optimized",
+        "negatives": 27,
+        "seconds": 39.257
+      }
+    ],
+    "sameResult": true,
+    "status": "PASS"
+  },
+  "preservedReaderDiagnostics": [
+    {
+      "log": "qualification-initial.log",
+      "reason": "empty network-failure assumption rejected original; non-selected voter refusals retained and outside full-network qualification"
+    },
+    {
+      "log": "focused-tests.log",
+      "reason": "already-completed retirement has zero recovery callbacks; final-state validation now accepts only the exact derived completed state"
+    }
+  ],
+  "producerArchive": {
+    "nativeExecutionsThisBatch": 0,
+    "phase3Complete": false,
+    "priorArchive": "target/v53-remove-process-20261102/remove-process-recovery.tar.gz",
+    "priorArchiveSha256": "84e33242bb9fa02124d0d8c2146632c88604d083040b018ebfce05bc079b92b8",
+    "producer": "target/v53-remove-process-20261102/pilot-floor-reuse",
+    "raw": "workspace/general-search-engine-replication/target/v53-remove-retirement-process/run-a2f131c0-7119-4a38-8057-4d41d71dcc13"
+  },
+  "python": {
+    "errors": 0,
+    "failures": 0,
+    "focusedTests": 44,
+    "seconds": 99.796,
+    "tests": 1630
+  },
+  "qualifiedNativeMembers": 1,
+  "rawInputsSha256": "de95c540d38a33419e085a8570de9e2f0d3ed2e7e81ce9803f0f56cbf2dfb617",
+  "readerBaseHead": "aea2888442e76d760011780cb9b8cd57de1179f3",
+  "readerInputsSha256": "1047a53935aa20e1d0b6a202bba9c86c1bbf452dc38ab980eb284f70032f60fe",
+  "schema": "gse-v53-remove-process-replay-receipt-v1",
+  "sourceBuild": {
+    "buildSha256": "360b4a4807aeb28aef17e67391c16afb697c61e4a763cf3eda821f7db78d4345",
+    "producer": "81e59e04861749179667bbb34c0e26cbda9f82d3",
+    "runtimeJavaFilesCheckedUnchanged": 891,
+    "sourceSha256": "ac9b251577d1196dcb271d8b293b3b4217d670b9e1f65140506b9f5dbd8bae35"
+  },
+  "status": "PARTIAL"
+}
