@@ -873,6 +873,12 @@ initialization, continuation and cold reopen on the same runner/history.
 
 ## Hosted campaign requirements
 
+The [REMOVE process matrix entry](PHASE_3_REMOVE_PROCESS_MATRIX.md) now provides
+source/build/toolchain/reader-pinned qualification and exact 52-member aggregation
+for that declared retirement subset. Workflow/artifact wiring and complete
+native execution remain pending. The general hosted requirements below remain
+mandatory for every final Phase 3 cohort.
+
 The eventual workflow must bind every artifact to one exact source and build,
 pin Java and retain raw evidence, failed attempts and independently replayable
 inputs. A missing/failed shard blocks aggregate acceptance; an unrelated original
@@ -883,9 +889,10 @@ and resumed process still belongs to the same original filesystem history.
 Do not split a source acquisition from its installation, an INTENT from its FINAL,
 or a crash from its restart across runners. Parallelism applies to independently
 bootstrapped histories only. A future aggregate must validate the exact declared
-set rather than merge pass counts. Workflow wiring and that source-bound aggregate
-are pending; this change does not dispatch GitHub Actions, alter Required or touch
-the V5.2 hosted/self-hosted experiment.
+set rather than merge pass counts. Workflow wiring and the complete Phase 3 cohort
+aggregate remain pending; the REMOVE retirement subset has the dedicated entry
+above. This change does not dispatch GitHub Actions, alter Required or touch the
+V5.2 hosted/self-hosted experiment.
 
 Earlier locally completed runs remain source-bound historical results. Long
 matrices must be run against the final runtime before phase closure; neither a

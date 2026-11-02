@@ -1,5 +1,9 @@
 # V5.3 — controlled cluster operations
 
+[The exact-source REMOVE process matrix](PHASE_3_REMOVE_PROCESS_MATRIX.md) adds
+pinned member qualification and independent aggregation of all 52 whole histories.
+The complete native matrix and hosted workflow remain OPEN.
+
 [Continuous REMOVE ballot forces](PHASE_3_REMOVE_PROCESS_BALLOT.md) add original
 allocator/promise composition across SIGKILL/reopen, with eighteen exact negatives.
 The full process/profile cohort and frozen acceptance mapping remain OPEN.

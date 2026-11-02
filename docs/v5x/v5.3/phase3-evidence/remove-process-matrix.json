@@ -1,0 +1,775 @@
+{
+  "archive": {
+    "bytes": 34917061,
+    "files": 19526,
+    "path": "target/v53-remove-process-matrix-20261101/remove-process-matrix.tar.gz",
+    "sha256": "e449229a98e32c0438bb34ef28627f5790f536a11e92ac0d863eef0cec5e967c",
+    "verifiedEveryMember": true
+  },
+  "baseHead": "6d5b37fcd4d05755aff4b64e7f93b6a258298b75",
+  "completeNativeMatrixExecuted": false,
+  "currentJavaAndPomMatchProducer": 1392,
+  "declaredNativeMembers": 52,
+  "diagnostics": [
+    "The first synthetic profile fixture used pretty JSON. The production reader correctly refused noncanonical raw evidence; the fixture was corrected without weakening the reader. The failed test log is retained.",
+    "This new five-voter source/journal halt member and the earlier four-voter generation SIGKILL member are representative histories from different source manifests. They do not form a final exact-source 52-member cohort."
+  ],
+  "evidenceFiles": {
+    "target/v53-remove-process-matrix-20261101/archive-inputs.json": {
+      "bytes": 4881427,
+      "sha256": "b69f37b8cc79f0b579364ca391d41a405b526ec3ee4f72e6e73dc96348ef8e04"
+    },
+    "target/v53-remove-process-matrix-20261101/five-source-halt.log": {
+      "bytes": 2984,
+      "sha256": "9c4b43bbdec99148f403da66124ef8e032617baee33681e36c9ce83ae61986c4"
+    },
+    "target/v53-remove-process-matrix-20261101/five-source-halt/build.json": {
+      "bytes": 290034,
+      "sha256": "f58a5c18a43a572e6d8d14d0e854ec4f8fff1cb1f858139d951df9dcc3d49e50"
+    },
+    "target/v53-remove-process-matrix-20261101/five-source-halt/collection.json": {
+      "bytes": 906520,
+      "sha256": "2ad9292e8c443e5158514fae5c036cbef2c4c08bb8af41294b7bd3d28c1be626"
+    },
+    "target/v53-remove-process-matrix-20261101/five-source-halt/execution.json": {
+      "bytes": 45,
+      "sha256": "1171e12c078c73fa9f7473ff7333d74ab53fc8dfaa06c20f766731621c43733a"
+    },
+    "target/v53-remove-process-matrix-20261101/five-source-halt/maven.log": {
+      "bytes": 5366,
+      "sha256": "40dcdf01ad202a11e5f4d36c558c512cf99bbec9aae4ab7656bb843eae47dbda"
+    },
+    "target/v53-remove-process-matrix-20261101/five-source-halt/receipt.json": {
+      "bytes": 1572,
+      "sha256": "1d1025cdf8f871b404aa788123787e012094898b31d4775832b925848b737239"
+    },
+    "target/v53-remove-process-matrix-20261101/five-source-halt/source.json": {
+      "bytes": 618607,
+      "sha256": "b8beebeb61f8b589a8bb5398aef011d2ee64dd98590e69bfee59073ad3cac848"
+    },
+    "target/v53-remove-process-matrix-20261101/five-source-halt/toolchain.json": {
+      "bytes": 370,
+      "sha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+    },
+    "target/v53-remove-process-matrix-20261101/inputs/producer-inventory.json": {
+      "bytes": 4613833,
+      "sha256": "e6a25fc9a3d28e4069b3458a56309552ccb4ce23c5915821b122c1271bd6216f"
+    },
+    "target/v53-remove-process-matrix-20261101/inputs/reader-manifest.json": {
+      "bytes": 65698,
+      "sha256": "1dd0d31cf5e3432d85ae669f520629f7e378bb4cdc49ec8226004a06a9228df8"
+    },
+    "target/v53-remove-process-matrix-20261101/matrix-tests-corrected.log": {
+      "bytes": 112,
+      "sha256": "1cfd4563e20a1b70ee44d07a7ee65bfcf913de9e9e345a7fc186757fd835538b"
+    },
+    "target/v53-remove-process-matrix-20261101/matrix-tests-final.log": {
+      "bytes": 114,
+      "sha256": "c0265c0a8558aaf73c2508ba550eb0cb6641d084ca0795227a9809b9a09222d7"
+    },
+    "target/v53-remove-process-matrix-20261101/matrix-tests-initial.log": {
+      "bytes": 5437,
+      "sha256": "9c500447f3363d5f5ca8d110b5697c9c4e8e19513d2ca6f413502476bcf76ff0"
+    },
+    "target/v53-remove-process-matrix-20261101/member-initial.json": {
+      "bytes": 14682,
+      "sha256": "54307d3d217219546bfa9476f9bca5c6234918a97d14bc6317638ec3317dd497"
+    },
+    "target/v53-remove-process-matrix-20261101/member-initial.log": {
+      "bytes": 3911,
+      "sha256": "dfff4fc9f2288d7af7035369e974995219b5d5c64326c1348066356b46da1450"
+    },
+    "target/v53-remove-process-matrix-20261101/plan-final.json": {
+      "bytes": 69028,
+      "sha256": "f31204674dc286701b4bbdeed665af41fd989a23c9be3ee7f55f89e5d3bf2264"
+    },
+    "target/v53-remove-process-matrix-20261101/portable-member/receipt.json": {
+      "bytes": 22488,
+      "sha256": "09ace29dbb8223f98b27ab017919e11ae54059667a273d0abad9650962d4ebec"
+    },
+    "target/v53-remove-process-matrix-20261101/portable.json": {
+      "bytes": 330,
+      "sha256": "06f21082cc95ff994b06d7607000b63765f4577de59a59178a09ae0df3242c27"
+    },
+    "target/v53-remove-process-matrix-20261101/portable.log": {
+      "bytes": 4083,
+      "sha256": "58eed75da953b6b3912274ed4d085f1656c93a9f9d0085336b237f87e365d5f1"
+    },
+    "target/v53-remove-process-matrix-20261101/python-final.log": {
+      "bytes": 3799,
+      "sha256": "1bcb08e22d14ac857379d975ca5af2505b0a2fdb8a4cb4e5582b8d998f03785d"
+    },
+    "target/v53-remove-process-matrix-20261101/receipt.py": {
+      "bytes": 3926,
+      "sha256": "4af1dd6308ce105179fe55eb5a0d44fe75b2ffdf0fd836af1c5cf9e809cb6283"
+    },
+    "target/v53-remove-process-matrix-20261101/seal.py": {
+      "bytes": 3560,
+      "sha256": "7743dea9cd4c4baeaecdfe0f1c5224ea7bdd2fa2b28070076eb4a82bc66c03f6"
+    }
+  },
+  "focusedTests": 15,
+  "nativeExecutionsThisBatch": 1,
+  "original": {
+    "buildSha256": "f58a5c18a43a572e6d8d14d0e854ec4f8fff1cb1f858139d951df9dcc3d49e50",
+    "case": "5-REMOVE,JOURNAL_ROTATION_RENAMED,halt",
+    "originalPlanSha256": "0806a4bb0c037a5e7c5e36b2faf011574bf28793a42919cdd77b89649ce88dad",
+    "phase3Complete": false,
+    "producerReceiptSha256": "1d1025cdf8f871b404aa788123787e012094898b31d4775832b925848b737239",
+    "qualification": {
+      "mutatedFullPrerequisiteReplayed": false,
+      "negativePrecondition": "full original through retirement; mutated continuous retention/retirement; unchanged physical, wire and non-ballot observations",
+      "negatives": [
+        {
+          "case": "directory-force-missing",
+          "physicalWireAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot exact allocator force order",
+          "retirementReplay": "PASS",
+          "status": "REJECTED"
+        },
+        {
+          "case": "duplicate-return",
+          "physicalWireAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot exact allocator force order",
+          "retirementReplay": "PASS",
+          "status": "REJECTED"
+        },
+        {
+          "case": "extra-local-reservation",
+          "physicalWireAndOtherObservationsUnchanged": true,
+          "reason": "REMOVE process ballot one reservation per grant",
+          "retirementReplay": "PASS",
+          "status": "REJECTED"
+        },
+        {
+          "case": "force-missing",
+          "physicalWireAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot exact allocator force order",
+          "retirementReplay": "PASS",
+          "status": "REJECTED"
+        },
+        {
+          "case": "foreign-owner",
+          "physicalWireAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot allocator event shape",
+          "retirementReplay": "PASS",
+          "status": "REJECTED"
+        },
+        {
+          "case": "forged-field",
+          "physicalWireAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot allocator event shape",
+          "retirementReplay": "PASS",
+          "status": "REJECTED"
+        },
+        {
+          "case": "incomplete-write",
+          "physicalWireAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot incomplete allocation",
+          "retirementReplay": "PASS",
+          "status": "REJECTED"
+        },
+        {
+          "case": "promise-duplicate",
+          "physicalWireAndOtherObservationsUnchanged": true,
+          "reason": "REMOVE process ballot promise force order",
+          "retirementReplay": "PASS",
+          "status": "REJECTED"
+        },
+        {
+          "case": "promise-extra-field",
+          "physicalWireAndOtherObservationsUnchanged": true,
+          "reason": "REMOVE process ballot promise force order",
+          "retirementReplay": "PASS",
+          "status": "REJECTED"
+        },
+        {
+          "case": "promise-force-before-write",
+          "physicalWireAndOtherObservationsUnchanged": true,
+          "reason": "REMOVE process ballot promise force order",
+          "retirementReplay": "PASS",
+          "status": "REJECTED"
+        },
+        {
+          "case": "promise-unbound",
+          "physicalWireAndOtherObservationsUnchanged": true,
+          "reason": "REMOVE process ballot unbound promise",
+          "retirementReplay": "PASS",
+          "status": "REJECTED"
+        },
+        {
+          "case": "promise-unknown",
+          "physicalWireAndOtherObservationsUnchanged": true,
+          "reason": "REMOVE process ballot promise force order",
+          "retirementReplay": "PASS",
+          "status": "REJECTED"
+        },
+        {
+          "case": "promise-write-missing",
+          "physicalWireAndOtherObservationsUnchanged": true,
+          "reason": "REMOVE process ballot promise force order",
+          "retirementReplay": "PASS",
+          "status": "REJECTED"
+        },
+        {
+          "case": "rename-before-force",
+          "physicalWireAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot exact allocator force order",
+          "retirementReplay": "PASS",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reservation-after-grant",
+          "physicalWireAndOtherObservationsUnchanged": true,
+          "reason": "REMOVE process ballot one reservation per grant",
+          "retirementReplay": "PASS",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reservation-before-open",
+          "physicalWireAndOtherObservationsUnchanged": true,
+          "reason": "REMOVE process ballot one reservation per grant",
+          "retirementReplay": "PASS",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unbound-reservation",
+          "physicalWireAndOtherObservationsUnchanged": true,
+          "reason": "REMOVE process ballot unbound allocator",
+          "retirementReplay": "PASS",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unknown-allocator-event",
+          "physicalWireAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot unsupported allocator event",
+          "retirementReplay": "PASS",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "allocatorComparisons": 87,
+        "ballotForceCompositionQualified": true,
+        "chain": "8bb4d0a618f4071610e4d4dcebf081033fa894481ae217e316c7205f825d1146",
+        "completeObservedCompositionQualified": false,
+        "counters": {
+          "node-1": 6,
+          "node-2": 1,
+          "node-3": 1,
+          "node-4": 1,
+          "node-5": 1
+        },
+        "forcedPromises": 12,
+        "observed": {
+          "node-1": 6,
+          "node-2": 6,
+          "node-3": 6,
+          "node-4": 2,
+          "node-5": 2
+        },
+        "originalObservationCoverageComplete": false,
+        "phase3Complete": false,
+        "precondition": {
+          "ballotForceCompositionQualified": false,
+          "borrowedGenerations": 12,
+          "callbacks": 1064,
+          "completeObservedCompositionQualified": false,
+          "completeObservedRetirementCallbacksQualified": true,
+          "generationMembers": 138,
+          "generations": 18,
+          "interruptedTransactions": 1,
+          "originalObservationCoverageComplete": false,
+          "peerPrecondition": {
+            "capturedLedgers": 12,
+            "chainSha256": "51704ae9ab3502796475581d8136031071153d1fcbbc01899cd20a7e2fdcbefc",
+            "durableWrites": 51,
+            "finalRevisions": {
+              "node-1": 17,
+              "node-2": 17,
+              "node-3": 17,
+              "node-4": 0,
+              "node-5": 0
+            },
+            "ledgerComparisons": 124,
+            "openReseals": 7,
+            "openRevisions": [
+              {
+                "digest": "c6610f4f9158e7a96ff63cb072ad497e78982f2a8c6145a1a3ca01135d72d4eb",
+                "node": "node-1",
+                "path": "before-network",
+                "revision": 0
+              },
+              {
+                "digest": "6a2c108bad13f504bfb374c5ca5c57dcc344acac2bda59620f97bcd9eb1d3e82",
+                "node": "node-2",
+                "path": "before-network",
+                "revision": 0
+              },
+              {
+                "digest": "0022a67759299863e1d071050c4274379e20058630d7b1e572d1d6340f05b877",
+                "node": "node-3",
+                "path": "before-network",
+                "revision": 0
+              },
+              {
+                "digest": "ba8e02869b7000c569f9b361a3483cb3886ffd534fa1282365c620b75a206832",
+                "node": "node-4",
+                "path": "before-network",
+                "revision": 0
+              },
+              {
+                "digest": "ccc76792309fd930c756d55c3f3347fd9b2966f002fc909bebf84a9d7345e508",
+                "node": "node-5",
+                "path": "before-network",
+                "revision": 0
+              },
+              {
+                "digest": "c6610f4f9158e7a96ff63cb072ad497e78982f2a8c6145a1a3ca01135d72d4eb",
+                "node": "node-1",
+                "path": "halt-opened-0",
+                "revision": 0
+              },
+              {
+                "digest": "fa3d7cbe0a456695547db578eea2f44ae72e4bb2cc65ac46b097c7fcda323880",
+                "node": "node-1",
+                "path": "resume-opened-0",
+                "revision": 3
+              }
+            ],
+            "status": "PASS",
+            "writesByKind": {
+              "maintenance": 33,
+              "publication": 9,
+              "selected": 9
+            }
+          },
+          "phase3Complete": false,
+          "physicalImagePeak": 7,
+          "precondition": {
+            "completeRetirementCallbacksQualified": false,
+            "future": {
+              "chainSha256": "bf4ebbdcbcee832f21cf9ee5f9226a9d413fe086dfb246d4e80d331c1b897f8f",
+              "durableWrites": 27,
+              "finalRevisions": {
+                "node-1": 9,
+                "node-2": 9,
+                "node-3": 9,
+                "node-4": 0,
+                "node-5": 0
+              },
+              "ledgerComparisons": 105,
+              "openReseals": 7,
+              "openRevisions": [
+                {
+                  "digest": "63f99c05ea6fcaf58a0547d77a801f7615dfbd640b3ec779052947286d86fb63",
+                  "node": "node-1",
+                  "path": "before-network",
+                  "revision": 0
+                },
+                {
+                  "digest": "5383c8ee4ad034d5594adaf3cb95347efaab10452cf0d3e2473b728180967427",
+                  "node": "node-2",
+                  "path": "before-network",
+                  "revision": 0
+                },
+                {
+                  "digest": "3cac231eba34e6093ab846ded5be50d9f26c4cb4fdc50caf97977758bc5851d2",
+                  "node": "node-3",
+                  "path": "before-network",
+                  "revision": 0
+                },
+                {
+                  "digest": "c45f403da446b2a20606079b8e0811a3681a9e333224fee215231c5561c7d300",
+                  "node": "node-4",
+                  "path": "before-network",
+                  "revision": 0
+                },
+                {
+                  "digest": "4cb873d608bb07136d988d1b7be58da5edd49c1f25d7f1989907f54cfdb6a90d",
+                  "node": "node-5",
+                  "path": "before-network",
+                  "revision": 0
+                },
+                {
+                  "digest": "63f99c05ea6fcaf58a0547d77a801f7615dfbd640b3ec779052947286d86fb63",
+                  "node": "node-1",
+                  "path": "halt-opened-0",
+                  "revision": 0
+                },
+                {
+                  "digest": "63f99c05ea6fcaf58a0547d77a801f7615dfbd640b3ec779052947286d86fb63",
+                  "node": "node-1",
+                  "path": "resume-opened-0",
+                  "revision": 0
+                }
+              ],
+              "status": "PASS",
+              "writesByKind": {
+                "clear": 9,
+                "record": 18
+              }
+            },
+            "peers": {
+              "capturedLedgers": 12,
+              "chainSha256": "51704ae9ab3502796475581d8136031071153d1fcbbc01899cd20a7e2fdcbefc",
+              "durableWrites": 51,
+              "finalRevisions": {
+                "node-1": 17,
+                "node-2": 17,
+                "node-3": 17,
+                "node-4": 0,
+                "node-5": 0
+              },
+              "ledgerComparisons": 124,
+              "openReseals": 7,
+              "openRevisions": [
+                {
+                  "digest": "c6610f4f9158e7a96ff63cb072ad497e78982f2a8c6145a1a3ca01135d72d4eb",
+                  "node": "node-1",
+                  "path": "before-network",
+                  "revision": 0
+                },
+                {
+                  "digest": "6a2c108bad13f504bfb374c5ca5c57dcc344acac2bda59620f97bcd9eb1d3e82",
+                  "node": "node-2",
+                  "path": "before-network",
+                  "revision": 0
+                },
+                {
+                  "digest": "0022a67759299863e1d071050c4274379e20058630d7b1e572d1d6340f05b877",
+                  "node": "node-3",
+                  "path": "before-network",
+                  "revision": 0
+                },
+                {
+                  "digest": "ba8e02869b7000c569f9b361a3483cb3886ffd534fa1282365c620b75a206832",
+                  "node": "node-4",
+                  "path": "before-network",
+                  "revision": 0
+                },
+                {
+                  "digest": "ccc76792309fd930c756d55c3f3347fd9b2966f002fc909bebf84a9d7345e508",
+                  "node": "node-5",
+                  "path": "before-network",
+                  "revision": 0
+                },
+                {
+                  "digest": "c6610f4f9158e7a96ff63cb072ad497e78982f2a8c6145a1a3ca01135d72d4eb",
+                  "node": "node-1",
+                  "path": "halt-opened-0",
+                  "revision": 0
+                },
+                {
+                  "digest": "fa3d7cbe0a456695547db578eea2f44ae72e4bb2cc65ac46b097c7fcda323880",
+                  "node": "node-1",
+                  "path": "resume-opened-0",
+                  "revision": 3
+                }
+              ],
+              "status": "PASS",
+              "writesByKind": {
+                "maintenance": 33,
+                "publication": 9,
+                "selected": 9
+              }
+            },
+            "phase3Complete": false,
+            "precondition": {
+              "acquiredRemoteCopies": 36,
+              "completeCopies": 57,
+              "completeCopyFloorsQualified": true,
+              "completeRetirementCallbacksQualified": false,
+              "discoveryHints": 36,
+              "floorObservations": 1826,
+              "floorReleases": 18,
+              "interruptedFloors": 1,
+              "networkFloors": 18,
+              "phase3Complete": false,
+              "precondition": {
+                "boundSessions": {
+                  "current-generation": 72,
+                  "frozen-source": 24,
+                  "journal": 16,
+                  "native-applied-checkpoint": 9,
+                  "native-vote-receipt": 54,
+                  "pending-payload": 4,
+                  "pending-record": 24,
+                  "published-local-checkpoint": 6,
+                  "published-record": 3
+                },
+                "boundTransfers": {
+                  "current-generation": 228,
+                  "frozen-source": 72,
+                  "journal": 16,
+                  "native-applied-checkpoint": 9,
+                  "native-vote-receipt": 54,
+                  "pending-payload": 4,
+                  "pending-record": 24,
+                  "published-local-checkpoint": 6,
+                  "published-record": 3
+                },
+                "generationWindows": 27,
+                "maintenanceCompositionQualified": false,
+                "observedExportAuthorityQualified": true,
+                "phase3Complete": false,
+                "precondition": {
+                  "completeExportAuthorityQualified": false,
+                  "durableActivationAndSlotACKsQualified": true,
+                  "maintenanceCompositionQualified": false,
+                  "network": {
+                    "boundFailedControls": 30,
+                    "boundInstallReplies": 8,
+                    "boundPhaseResponses": 36,
+                    "boundStatusReplies": 36,
+                    "committedTransfers": 416,
+                    "completeSlotStorageCallbacks": 1260,
+                    "exactTransferRetries": 0,
+                    "exchanges": 1336,
+                    "failedAttempts": 30,
+                    "futureTargets": 6,
+                    "normalizedEvents": 11188,
+                    "originalGrants": 12,
+                    "originalObservations": 11182,
+                    "ownedSlotTransactions": 9,
+                    "proposerInstallations": 4,
+                    "rejectedTransferAttempts": 0,
+                    "slots": 3,
+                    "transferSessions": 212,
+                    "transferredBytes": 3122158
+                  },
+                  "observedAttemptsQualified": true,
+                  "phase3Complete": false,
+                  "physical": {
+                    "activationAcknowledgementsQualified": false,
+                    "networkDiagnosticsSha256": "0d9afb3509989dda27ff2d86ff79af865d9a0cece7a6205ce0a673cc458c8dca",
+                    "networkQualified": false,
+                    "phase3Complete": false,
+                    "physicalHistoryQualified": true,
+                    "processDeathQualified": true,
+                    "profile": {
+                      "index": 5,
+                      "mode": "halt",
+                      "point": "JOURNAL_ROTATION_RENAMED",
+                      "profile": "5-REMOVE",
+                      "schema": "gse-v53-remove-retirement-process-v2"
+                    },
+                    "publicationAcknowledgementsQualified": true,
+                    "retirement": {
+                      "authority": "18e753b0480c767fcb7a33c5ee97e9878524a18ab3ef8104d7b5c0a2a8c3e7c1",
+                      "borrowedImages": true,
+                      "imageMembers": 1,
+                      "members": 9,
+                      "physicalImagesBefore": 7,
+                      "physicalImagesPeak": 7,
+                      "prefixEvents": [
+                        "RETIREMENT_OLD_FILES_FORCED",
+                        "RETIREMENT_RESERVED",
+                        "RETIREMENT_CREATED",
+                        "RETIREMENT_BORROW_PREFIX_WRITTEN",
+                        "RETIREMENT_BORROW_WRITTEN",
+                        "RETIREMENT_BORROW_FORCED",
+                        "RETIREMENT_PROPOSAL_WRITTEN",
+                        "RETIREMENT_PROPOSAL_FORCED",
+                        "RETIREMENT_SOURCE_CREATED",
+                        "RETIREMENT_MANIFEST_WRITTEN",
+                        "RETIREMENT_MANIFEST_FORCED",
+                        "RETIREMENT_MEMBER_WRITTEN",
+                        "RETIREMENT_MEMBER_FORCED",
+                        "RETIREMENT_MEMBER_WRITTEN",
+                        "RETIREMENT_MEMBER_FORCED",
+                        "RETIREMENT_MEMBER_WRITTEN",
+                        "RETIREMENT_MEMBER_FORCED",
+                        "RETIREMENT_MEMBER_WRITTEN",
+                        "RETIREMENT_MEMBER_FORCED",
+                        "RETIREMENT_MEMBER_WRITTEN",
+                        "RETIREMENT_MEMBER_FORCED",
+                        "RETIREMENT_MEMBER_WRITTEN",
+                        "RETIREMENT_MEMBER_FORCED",
+                        "RETIREMENT_MEMBER_WRITTEN",
+                        "RETIREMENT_MEMBER_FORCED",
+                        "RETIREMENT_SOURCE_FORCED",
+                        "RETIREMENT_BORROWED_IMAGES_FORCED",
+                        "RETIREMENT_AUTHORITY_WRITTEN",
+                        "RETIREMENT_AUTHORITY_FORCED",
+                        "RETIREMENT_PARENT_FORCED",
+                        "RETIREMENT_DELETE_VALIDATED",
+                        "RETIREMENT_FILE_DELETED",
+                        "RETIREMENT_FILE_DELETED",
+                        "RETIREMENT_FILE_DELETED",
+                        "RETIREMENT_FILE_DELETED",
+                        "RETIREMENT_FILE_DELETED",
+                        "RETIREMENT_FILE_DELETED",
+                        "RETIREMENT_FILE_DELETED",
+                        "RETIREMENT_FILE_DELETED",
+                        "RETIREMENT_FILE_DELETED",
+                        "RETIREMENT_DIRECTORY_DELETED",
+                        "RETIREMENT_SAVED_FILE_DELETED",
+                        "RETIREMENT_SAVED_FILE_DELETED",
+                        "RETIREMENT_SAVED_FILE_DELETED",
+                        "RETIREMENT_SAVED_FILE_DELETED",
+                        "RETIREMENT_SAVED_FILE_DELETED",
+                        "RETIREMENT_SAVED_FILE_DELETED",
+                        "RETIREMENT_SAVED_FILE_DELETED",
+                        "RETIREMENT_SAVED_FILE_DELETED",
+                        "RETIREMENT_SAVED_DIRECTORY_DELETED",
+                        "RETIREMENT_PROPOSAL_CLEARED",
+                        "RETIREMENT_BORROW_CLEARED",
+                        "RETIREMENT_AUTHORITY_CLEARED",
+                        "RETIREMENT_CLEARED",
+                        "RETIREMENT_BEFORE_RETURN",
+                        "SOURCE_RETIREMENT_CREATED",
+                        "SOURCE_RETIREMENT_WRITTEN",
+                        "SOURCE_RETIREMENT_FORCED",
+                        "SOURCE_RETIREMENT_PARENT_FORCED",
+                        "JOURNAL_ROTATION_CREATED",
+                        "JOURNAL_ROTATION_WRITTEN",
+                        "JOURNAL_ROTATION_FORCED",
+                        "JOURNAL_ROTATION_RENAMED"
+                      ],
+                      "recoveryEvents": [
+                        "SOURCE_RETIREMENT_WRITTEN",
+                        "SOURCE_RETIREMENT_FORCED",
+                        "SOURCE_RETIREMENT_PARENT_FORCED",
+                        "SOURCE_RETIREMENT_JOURNAL_PRUNED",
+                        "SOURCE_RETIREMENT_FILE_DELETED",
+                        "SOURCE_RETIREMENT_FILE_DELETED",
+                        "SOURCE_RETIREMENT_DIRECTORY_DELETED",
+                        "SOURCE_RETIREMENT_CLEARED",
+                        "SOURCE_RETIREMENT_BEFORE_RETURN"
+                      ],
+                      "slot": "b"
+                    },
+                    "scope": "same-proposer-REMOVE-retirement-recovery",
+                    "slots": [
+                      {
+                        "index": 5,
+                        "kind": "INTENT"
+                      },
+                      {
+                        "index": 6,
+                        "kind": "FINAL"
+                      },
+                      {
+                        "index": 7,
+                        "kind": "BARRIER"
+                      }
+                    ],
+                    "status": "PASS",
+                    "unqualifiedNetworkDiagnostics": 30
+                  },
+                  "processDeathQualified": true,
+                  "status": "PARTIAL"
+                },
+                "proposerLifetimes": 2,
+                "recordWindows": 125,
+                "sourceWindows": 17,
+                "status": "PARTIAL",
+                "unqualifiedTransfers": 0
+              },
+              "proposerLifetimes": 2,
+              "retainedFloorRecoveryQualified": true,
+              "retainedFloorReuses": 1,
+              "retentionRevisionCompositionQualified": false,
+              "retirementLifetimeObservations": 1064,
+              "status": "PARTIAL"
+            },
+            "retentionRevisionCompositionQualified": true,
+            "status": "PARTIAL"
+          },
+          "recoveryCallbacks": 9,
+          "retirementRetentionCompositionQualified": true,
+          "sources": 12,
+          "status": "PARTIAL",
+          "transactionChainSha256": "6ac226e4691a905bd48fd47e77d952d76ccaadb1bdd0da236ba1e897dc284ff6",
+          "transientRetirementBytesQualified": false
+        },
+        "promiseComparisons": 87,
+        "reservations": 4,
+        "selfGrants": 4,
+        "status": "PARTIAL"
+      }
+    },
+    "readerSha256": "6d75445dbc9fbbc4f240660a37cf3bd63915f206418a7dde3f8403f102ba62a1",
+    "sourceSha256": "b8beebeb61f8b589a8bb5398aef011d2ee64dd98590e69bfee59073ad3cac848",
+    "status": "PASS",
+    "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+  },
+  "originalNativeRerun": false,
+  "phase3Complete": false,
+  "portable": {
+    "completeMatrixExecuted": false,
+    "inputsUnchanged": true,
+    "nativeExecutionsThisBatch": 1,
+    "negativeCases": 18,
+    "optimizedPython": true,
+    "originalUnchanged": true,
+    "phase3Complete": false,
+    "profileCases": 1,
+    "reusedVerifiedOriginalResult": true,
+    "sameResult": true,
+    "seconds": 464.661,
+    "status": "PASS"
+  },
+  "producer": {
+    "baseHead": "6d5b37fcd4d05755aff4b64e7f93b6a258298b75",
+    "buildSha256": "f58a5c18a43a572e6d8d14d0e854ec4f8fff1cb1f858139d951df9dcc3d49e50",
+    "case": "5-REMOVE,JOURNAL_ROTATION_RENAMED,halt",
+    "collectionComplete": true,
+    "collectionSha256": "2ad9292e8c443e5158514fae5c036cbef2c4c08bb8af41294b7bd3d28c1be626",
+    "command": [
+      "/opt/maven/bin/mvn",
+      "-o",
+      "-B",
+      "-ntp",
+      "-f",
+      "reactor/pom.xml",
+      "-pl",
+      "../general-search-engine-replication",
+      "-am",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dtest=V53RemoveRetirementProcessTest#originalRetirementRecoversInFreshProcess",
+      "-Dv53.remove.retirement.process=5-REMOVE,JOURNAL_ROTATION_RENAMED,halt",
+      "test"
+    ],
+    "execution": {
+      "elapsedSeconds": 438.264,
+      "exit": 0
+    },
+    "executionStatus": "PASS",
+    "junit": {
+      "className": "io.github.patricklfdm.generalsearch.replication.V53RemoveRetirementProcessTest",
+      "errors": 0,
+      "failures": 0,
+      "method": "originalRetirementRecoversInFreshProcess",
+      "retries": 0,
+      "skipped": 0,
+      "tests": 1
+    },
+    "phase3Complete": false,
+    "physicalHistoryQualified": false,
+    "processDeathQualified": false,
+    "raw": "workspace/general-search-engine-replication/target/v53-remove-retirement-process/run-5b406754-c3a2-49bc-9d8a-0dd8f6087cf4",
+    "retries": 0,
+    "schema": "gse-v53-remove-process-execution-v1",
+    "sourceSha256": "b8beebeb61f8b589a8bb5398aef011d2ee64dd98590e69bfee59073ad3cac848",
+    "status": "PARTIAL",
+    "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+  },
+  "pythonTests": {
+    "errors": 0,
+    "failures": 0,
+    "seconds": 101.336,
+    "tests": 1709
+  },
+  "qualifiedNativeMembersThisBatch": 1,
+  "remaining": [
+    "complete final-source 52-member REMOVE process matrix",
+    "hosted workflow and artifact wiring",
+    "complete original observation coverage",
+    "all seven membership profiles and frozen acceptance mapping"
+  ],
+  "runtimeJavaChanged": false,
+  "schema": "gse-v53-remove-process-matrix-entry-receipt-v1",
+  "status": "PARTIAL",
+  "syntheticInventoryTestsAreNativeEvidence": false
+}
