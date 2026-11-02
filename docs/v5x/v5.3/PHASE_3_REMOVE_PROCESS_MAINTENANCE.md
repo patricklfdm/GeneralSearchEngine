@@ -57,3 +57,7 @@ another matrix execution. `completeCopyFloorsQualified` and
 complete retirement callbacks are explicitly false. The lifecycle bounds checked
 here do not independently derive every retirement decision or ledger revision.
 Rollback removes this reader and its documentation; runtime data is unchanged.
+
+The subsequent [continuous retention reader](PHASE_3_REMOVE_PROCESS_RETENTION.md)
+now binds peer/future revisions through these original floors and process opens.
+Complete retirement callback composition remains a separate open layer.

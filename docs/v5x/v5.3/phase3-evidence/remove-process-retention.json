@@ -1,0 +1,756 @@
+{
+  "archive": {
+    "bytes": 7977799,
+    "files": 5483,
+    "path": "target/v53-remove-process-retention-20261101/remove-process-retention.tar.gz",
+    "sha256": "9fb733a57a2b9fb806e61b75420df8dcd600c5fa8fcd5e7f3dbed617422cadfa",
+    "verifiedEveryMember": true
+  },
+  "baseHead": "cdfffb2dbf217b2ef7d7f9eff1e02234ce507786",
+  "case": "4-REMOVE,RETIREMENT_BORROW_PREFIX_WRITTEN,kill",
+  "completeRetirementCallbacksQualified": false,
+  "currentReaderMatchesReplay": true,
+  "declaredNativeMembers": 52,
+  "diagnostics": [
+    "The first reader treated every CURRENT revalidation as a cold open. Installation also revalidates CURRENT; bind each actual ledger reseal to its original complete open boundaries.",
+    "The second reader omitted the separately derived revision-zero future ledger from the bootstrap wrapper; initialize from the original bootstrap rather than copying a later snapshot.",
+    "Two initial peer negatives broke child STORE schema or crossed the killed-process lifetime. They remain failures, not qualification. The corrected mutations use original parent-owned callbacks and require exact target-layer rejection.",
+    "The next retirement probe derives 951 callbacks but has no complete negative or portable qualification and does not close that layer."
+  ],
+  "evidenceFiles": {
+    "target/v53-remove-process-retention-20261101/archive-inputs.json": {
+      "bytes": 820022,
+      "sha256": "a4fc08dc4fb567d1040c0a4d38fbb6dc17856d5dd873016a6f9271d5842c09ca"
+    },
+    "target/v53-remove-process-retention-20261101/focused-verified.log": {
+      "bytes": 109,
+      "sha256": "1a902fd4c537c33c9c15041b84a9ad5661cfe31a3f4d21f81c9f7ae7a631eec6"
+    },
+    "target/v53-remove-process-retention-20261101/initial.json": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "target/v53-remove-process-retention-20261101/initial.log": {
+      "bytes": 1476,
+      "sha256": "cb3bd8d738d2344f09f90cf5edd3a259885ec6a8dcdea23c1e474474152ec2d2"
+    },
+    "target/v53-remove-process-retention-20261101/inputs/provenance.json": {
+      "bytes": 334,
+      "sha256": "77c000db367379f371c98a02a8dbce53fbfd35bfb68fc130d727d68c6f738228"
+    },
+    "target/v53-remove-process-retention-20261101/inputs/raw-inputs.json": {
+      "bytes": 726240,
+      "sha256": "3355222f7591f20f0c451b758497e9309596d20782d268ea9da3996eb5cdddcf"
+    },
+    "target/v53-remove-process-retention-20261101/inputs/reader-inputs.json": {
+      "bytes": 65068,
+      "sha256": "c9630d4e7ab1bf8d2ac4b79bf5b05efe20ed12e4927c82ef380a830edb5e6dd2"
+    },
+    "target/v53-remove-process-retention-20261101/inspection.log": {
+      "bytes": 1476,
+      "sha256": "f638e6b364462e451983ca25a2dc1bac3c3739c6f1e66b1e9e155d7149b7d383"
+    },
+    "target/v53-remove-process-retention-20261101/mutations-corrected.json": {
+      "bytes": 322,
+      "sha256": "7cfbebcc339ec08a771e6831dcace264361cc8a8468946c094a288048453c514"
+    },
+    "target/v53-remove-process-retention-20261101/mutations-corrected.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "target/v53-remove-process-retention-20261101/next-retirement-notes.json": {
+      "bytes": 1330,
+      "sha256": "9b63e5c0352ae2ae8965c8f2a09059132ae0ed4ae87368fa0714f194eadb2386"
+    },
+    "target/v53-remove-process-retention-20261101/next-retirement-probe.json": {
+      "bytes": 1814,
+      "sha256": "5facfaa3c98cad330ef1a47e3f233ba24e5f3220ac656844d391abcb32380d2b"
+    },
+    "target/v53-remove-process-retention-20261101/next-retirement-probe.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "target/v53-remove-process-retention-20261101/next-retirement-probe.py": {
+      "bytes": 3530,
+      "sha256": "31458628a8c47e5caf58ac0819b238679665ddf9abe68e32d47857594c3f09c0"
+    },
+    "target/v53-remove-process-retention-20261101/original.json": {
+      "bytes": 14045,
+      "sha256": "a453b4eadef40b598fbafb6f8f212964cf9cadc7036531b88846f397d3cd4bc0"
+    },
+    "target/v53-remove-process-retention-20261101/original.log": {
+      "bytes": 7744,
+      "sha256": "5f98c1444dc7be1b26b3c4555adf28cf93311d971c31a5f2322f91cb1777fe14"
+    },
+    "target/v53-remove-process-retention-20261101/portable-optimized.json": {
+      "bytes": 14045,
+      "sha256": "a453b4eadef40b598fbafb6f8f212964cf9cadc7036531b88846f397d3cd4bc0"
+    },
+    "target/v53-remove-process-retention-20261101/portable-optimized.log": {
+      "bytes": 7744,
+      "sha256": "644405392b9363444456d681f06702cf27e1c691a2ee57faa3300bbae90c5fb3"
+    },
+    "target/v53-remove-process-retention-20261101/portable.json": {
+      "bytes": 470,
+      "sha256": "8876afcfc1456843915530c6e4994cda3c50b0efb06728eac13a22f26835cf3d"
+    },
+    "target/v53-remove-process-retention-20261101/python-final.log": {
+      "bytes": 3762,
+      "sha256": "b902315b92ada1d346e6ff71f55a65dfebcee195128a4e39864eafe1c591c528"
+    },
+    "target/v53-remove-process-retention-20261101/qualification-initial.json": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "target/v53-remove-process-retention-20261101/qualification-initial.log": {
+      "bytes": 8535,
+      "sha256": "5bd5249f643b514bc131929f68efded3e1e9fc692fb9a82d6a7fe8172763080e"
+    },
+    "target/v53-remove-process-retention-20261101/receipt.py": {
+      "bytes": 3625,
+      "sha256": "a9ade5bc821b3b30eadc7abc12dba061d7f24895b581494f1991e11b25e97180"
+    },
+    "target/v53-remove-process-retention-20261101/seal.py": {
+      "bytes": 3796,
+      "sha256": "880b630708a0505cb90fae2809a12a041431d9b0c1a57efa888ec0012c2ba8ba"
+    },
+    "target/v53-remove-process-retention-20261101/second.json": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "target/v53-remove-process-retention-20261101/second.log": {
+      "bytes": 1422,
+      "sha256": "7e08eaf033ee1f6c8067371f5f3d179171fb43979785515187d0f12b6560c256"
+    },
+    "target/v53-remove-process-retention-20261101/third.json": {
+      "bytes": 5470,
+      "sha256": "6f4b3a041bc810072e12253c4c86db3f85e8292771f4a65b9610ebc437e1be69"
+    },
+    "target/v53-remove-process-retention-20261101/third.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "focusedTests": 10,
+  "mutatedPrerequisiteReplayed": false,
+  "nativeExecutionsThisBatch": 0,
+  "negativePrecondition": "full-original-physical-network-export-floor; unchanged files, wire and non-target observations",
+  "negativeResults": [
+    {
+      "case": "ack-before-return",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining future exact completion lifetime: FUTURE_RETENTION_ACK_BEFORE_RETURN",
+      "stage": "future",
+      "status": "REJECTED"
+    },
+    {
+      "case": "clear-after-completion",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining future exact bounded write count",
+      "stage": "future",
+      "status": "REJECTED"
+    },
+    {
+      "case": "clear-before-promotion",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining future exact bounded write count",
+      "stage": "future",
+      "status": "REJECTED"
+    },
+    {
+      "case": "force-missing",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining future exact write force order",
+      "stage": "future",
+      "status": "REJECTED"
+    },
+    {
+      "case": "foreign-owner",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "REMOVE process future original owner",
+      "stage": "future",
+      "status": "REJECTED"
+    },
+    {
+      "case": "forged-scope",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining future event shape",
+      "stage": "future",
+      "status": "REJECTED"
+    },
+    {
+      "case": "incomplete-write",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining future incomplete durable write",
+      "stage": "future",
+      "status": "REJECTED"
+    },
+    {
+      "case": "record-after-publication",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining future exact recording count",
+      "stage": "future",
+      "status": "REJECTED"
+    },
+    {
+      "case": "record-duplicated",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining future exact recording count",
+      "stage": "future",
+      "status": "REJECTED"
+    },
+    {
+      "case": "record-omitted",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining future exact recording count",
+      "stage": "future",
+      "status": "REJECTED"
+    },
+    {
+      "case": "rename-before-force",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining future exact write force order",
+      "stage": "future",
+      "status": "REJECTED"
+    },
+    {
+      "case": "resumed-after-accept",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "REMOVE process retention exact open force order",
+      "stage": "future",
+      "status": "REJECTED"
+    },
+    {
+      "case": "resumed-parent-before-active",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "REMOVE process retention exact open force order",
+      "stage": "future",
+      "status": "REJECTED"
+    },
+    {
+      "case": "resumed-parent-missing",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "REMOVE process retention exact open force order",
+      "stage": "future",
+      "status": "REJECTED"
+    },
+    {
+      "case": "return-before-force",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining future exact completion lifetime: FUTURE_RETENTION_BEFORE_RETURN",
+      "stage": "future",
+      "status": "REJECTED"
+    },
+    {
+      "case": "unbound-reseal",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "REMOVE process retention unbound open reseal",
+      "stage": "future",
+      "status": "REJECTED"
+    },
+    {
+      "case": "unbound-return",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining future unbound completion/reopen",
+      "stage": "future",
+      "status": "REJECTED"
+    },
+    {
+      "case": "unbound-write",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining future unbound durable writes",
+      "stage": "future",
+      "status": "REJECTED"
+    },
+    {
+      "case": "duplicate-write",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining peer publication durable write count",
+      "stage": "peers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "force-missing",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining peer exact write force order",
+      "stage": "peers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "forged-scope",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "REMOVE peer event shape",
+      "stage": "peers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "incomplete-write",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining peer incomplete durable write",
+      "stage": "peers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "maintenance-after-retirement",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining peer maintenance durable write count",
+      "stage": "peers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "maintenance-before-floor",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining peer maintenance durable write count",
+      "stage": "peers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "maintenance-omit-write",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining peer maintenance durable write count",
+      "stage": "peers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "publication-after-promotion",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining peer publication durable write count",
+      "stage": "peers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "publication-before-retirement",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining peer publication durable write count",
+      "stage": "peers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "rename-before-force",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining peer exact write force order",
+      "stage": "peers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "resumed-after-future",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "REMOVE process retention exact open force order",
+      "stage": "peers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "resumed-parent-before-active",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "REMOVE process retention exact open force order",
+      "stage": "peers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "resumed-parent-missing",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "REMOVE process retention exact open force order",
+      "stage": "peers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "selected-before-force",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining peer selected durable write count",
+      "stage": "peers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "selected-before-install",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining peer selected durable write count",
+      "stage": "peers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "selected-without-completion",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining peer selected completion count",
+      "stage": "peers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "unbound-completion",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining peer unbound selected completions",
+      "stage": "peers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "unbound-reseal",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "REMOVE process retention exact open count",
+      "stage": "peers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "unbound-write",
+      "physicalWireAndOtherObservationsUnchanged": true,
+      "reason": "joining peer unbound durable writes",
+      "stage": "peers",
+      "status": "REJECTED"
+    }
+  ],
+  "original": {
+    "completeRetirementCallbacksQualified": false,
+    "future": {
+      "chainSha256": "6cd9c4f14ff17c5a7c150765f9f49fbcde9ce4d4116450b92a438193fb681faf",
+      "durableWrites": 22,
+      "finalRevisions": {
+        "node-1": 8,
+        "node-2": 8,
+        "node-3": 6,
+        "node-4": 0
+      },
+      "ledgerComparisons": 86,
+      "openReseals": 6,
+      "openRevisions": [
+        {
+          "digest": "0273f0f649a61269854eefaadf3de83af6097ac33dadfc26706d06b1164c05ae",
+          "node": "node-1",
+          "path": "before-network",
+          "revision": 0
+        },
+        {
+          "digest": "58ac4496c66d48e2adfd94f2f5ddaaa50a8ce8abbe561e9ba9ca982120dcc68d",
+          "node": "node-2",
+          "path": "before-network",
+          "revision": 0
+        },
+        {
+          "digest": "771ce5145cd88d98917838d9b91e302ad3a6f125eeef43ed45602112d58e5545",
+          "node": "node-3",
+          "path": "before-network",
+          "revision": 0
+        },
+        {
+          "digest": "fd8347dddfd9a01617a6b226a292c1f631745d749e08f42cd60aaa715517c773",
+          "node": "node-4",
+          "path": "before-network",
+          "revision": 0
+        },
+        {
+          "digest": "0273f0f649a61269854eefaadf3de83af6097ac33dadfc26706d06b1164c05ae",
+          "node": "node-1",
+          "path": "kill-opened-0",
+          "revision": 0
+        },
+        {
+          "digest": "0273f0f649a61269854eefaadf3de83af6097ac33dadfc26706d06b1164c05ae",
+          "node": "node-1",
+          "path": "resume-opened-0",
+          "revision": 0
+        }
+      ],
+      "status": "PASS",
+      "writesByKind": {
+        "clear": 8,
+        "record": 14
+      }
+    },
+    "peers": {
+      "capturedLedgers": 11,
+      "chainSha256": "d0edb190521faebe91c7335265fbfb9131a9736bfebe08b892b3078e4a23a074",
+      "durableWrites": 43,
+      "finalRevisions": {
+        "node-1": 16,
+        "node-2": 16,
+        "node-3": 11,
+        "node-4": 0
+      },
+      "ledgerComparisons": 104,
+      "openReseals": 6,
+      "openRevisions": [
+        {
+          "digest": "ef5cf2fc89e798021ed10f2c7005090b91a6cbef508d940b3657f47e824a8217",
+          "node": "node-1",
+          "path": "before-network",
+          "revision": 0
+        },
+        {
+          "digest": "ca0f70c7de13bca7232d799db7530ddabca683ff5fb397f866d8413ac1584eac",
+          "node": "node-2",
+          "path": "before-network",
+          "revision": 0
+        },
+        {
+          "digest": "289e7cc74be9994a2fa85acab018699411e91218615c1cf0d5f60b3d2949fb3c",
+          "node": "node-3",
+          "path": "before-network",
+          "revision": 0
+        },
+        {
+          "digest": "e0ff12a4ff99bbcac0b89e4b00e911eefb34f66e735187665b3d0dcd504ad9e6",
+          "node": "node-4",
+          "path": "before-network",
+          "revision": 0
+        },
+        {
+          "digest": "ef5cf2fc89e798021ed10f2c7005090b91a6cbef508d940b3657f47e824a8217",
+          "node": "node-1",
+          "path": "kill-opened-0",
+          "revision": 0
+        },
+        {
+          "digest": "8587a61fca910f45ef12fd8840a50205a7da63aeb163a6eb604d336c640c1cd2",
+          "node": "node-1",
+          "path": "resume-opened-0",
+          "revision": 3
+        }
+      ],
+      "status": "PASS",
+      "writesByKind": {
+        "maintenance": 27,
+        "publication": 8,
+        "selected": 8
+      }
+    },
+    "phase3Complete": false,
+    "precondition": {
+      "acquiredRemoteCopies": 28,
+      "completeCopies": 47,
+      "completeCopyFloorsQualified": true,
+      "completeRetirementCallbacksQualified": false,
+      "discoveryHints": 28,
+      "floorObservations": 1521,
+      "floorReleases": 16,
+      "interruptedFloors": 1,
+      "networkFloors": 16,
+      "phase3Complete": false,
+      "precondition": {
+        "boundSessions": {
+          "current-generation": 56,
+          "frozen-source": 20,
+          "journal": 14,
+          "native-applied-checkpoint": 6,
+          "native-vote-receipt": 42,
+          "pending-payload": 4,
+          "pending-record": 20,
+          "published-local-checkpoint": 4,
+          "published-record": 1
+        },
+        "boundTransfers": {
+          "current-generation": 176,
+          "frozen-source": 60,
+          "journal": 14,
+          "native-applied-checkpoint": 6,
+          "native-vote-receipt": 42,
+          "pending-payload": 4,
+          "pending-record": 20,
+          "published-local-checkpoint": 4,
+          "published-record": 1
+        },
+        "generationWindows": 24,
+        "maintenanceCompositionQualified": false,
+        "observedExportAuthorityQualified": true,
+        "phase3Complete": false,
+        "precondition": {
+          "completeExportAuthorityQualified": false,
+          "durableActivationAndSlotACKsQualified": true,
+          "maintenanceCompositionQualified": false,
+          "network": {
+            "boundFailedControls": 15,
+            "boundInstallReplies": 7,
+            "boundPhaseResponses": 29,
+            "boundStatusReplies": 28,
+            "committedTransfers": 327,
+            "completeSlotStorageCallbacks": 1120,
+            "exactTransferRetries": 0,
+            "exchanges": 1052,
+            "failedAttempts": 15,
+            "futureTargets": 5,
+            "normalizedEvents": 9248,
+            "originalGrants": 11,
+            "originalObservations": 9243,
+            "ownedSlotTransactions": 8,
+            "proposerInstallations": 4,
+            "rejectedTransferAttempts": 0,
+            "slots": 3,
+            "transferSessions": 167,
+            "transferredBytes": 2224484
+          },
+          "observedAttemptsQualified": true,
+          "phase3Complete": false,
+          "physical": {
+            "activationAcknowledgementsQualified": false,
+            "networkDiagnosticsSha256": "9857ab58813c6ff0632d0aa66d1e1ef355f260fcc4f7bc22c0401d9c4cd5a941",
+            "networkQualified": false,
+            "phase3Complete": false,
+            "physicalHistoryQualified": true,
+            "processDeathQualified": true,
+            "profile": {
+              "index": 5,
+              "mode": "kill",
+              "point": "RETIREMENT_BORROW_PREFIX_WRITTEN",
+              "profile": "4-REMOVE",
+              "schema": "gse-v53-remove-retirement-process-v2"
+            },
+            "publicationAcknowledgementsQualified": true,
+            "retirement": {
+              "authority": "1650faf796b0c75fc2fc62f00973a15455d049284d6c288cce0ed18ddf39482d",
+              "borrowedImages": true,
+              "imageMembers": 1,
+              "members": 9,
+              "physicalImagesBefore": 7,
+              "physicalImagesPeak": 7,
+              "prefixEvents": [
+                "RETIREMENT_OLD_FILES_FORCED",
+                "RETIREMENT_RESERVED",
+                "RETIREMENT_CREATED",
+                "RETIREMENT_BORROW_PREFIX_WRITTEN"
+              ],
+              "recoveryEvents": [
+                "RETIREMENT_OLD_FILES_FORCED",
+                "RETIREMENT_RESERVED",
+                "RETIREMENT_CREATED",
+                "RETIREMENT_BORROW_PREFIX_WRITTEN",
+                "RETIREMENT_BORROW_WRITTEN",
+                "RETIREMENT_BORROW_FORCED",
+                "RETIREMENT_PROPOSAL_WRITTEN",
+                "RETIREMENT_PROPOSAL_FORCED",
+                "RETIREMENT_SOURCE_CREATED",
+                "RETIREMENT_MANIFEST_WRITTEN",
+                "RETIREMENT_MANIFEST_FORCED",
+                "RETIREMENT_MEMBER_WRITTEN",
+                "RETIREMENT_MEMBER_FORCED",
+                "RETIREMENT_MEMBER_WRITTEN",
+                "RETIREMENT_MEMBER_FORCED",
+                "RETIREMENT_MEMBER_WRITTEN",
+                "RETIREMENT_MEMBER_FORCED",
+                "RETIREMENT_MEMBER_WRITTEN",
+                "RETIREMENT_MEMBER_FORCED",
+                "RETIREMENT_MEMBER_WRITTEN",
+                "RETIREMENT_MEMBER_FORCED",
+                "RETIREMENT_MEMBER_WRITTEN",
+                "RETIREMENT_MEMBER_FORCED",
+                "RETIREMENT_MEMBER_WRITTEN",
+                "RETIREMENT_MEMBER_FORCED",
+                "RETIREMENT_SOURCE_FORCED",
+                "RETIREMENT_BORROWED_IMAGES_FORCED",
+                "RETIREMENT_AUTHORITY_WRITTEN",
+                "RETIREMENT_AUTHORITY_FORCED",
+                "RETIREMENT_PARENT_FORCED",
+                "RETIREMENT_DELETE_VALIDATED",
+                "RETIREMENT_FILE_DELETED",
+                "RETIREMENT_FILE_DELETED",
+                "RETIREMENT_FILE_DELETED",
+                "RETIREMENT_FILE_DELETED",
+                "RETIREMENT_FILE_DELETED",
+                "RETIREMENT_FILE_DELETED",
+                "RETIREMENT_FILE_DELETED",
+                "RETIREMENT_FILE_DELETED",
+                "RETIREMENT_FILE_DELETED",
+                "RETIREMENT_DIRECTORY_DELETED",
+                "RETIREMENT_SAVED_FILE_DELETED",
+                "RETIREMENT_SAVED_FILE_DELETED",
+                "RETIREMENT_SAVED_FILE_DELETED",
+                "RETIREMENT_SAVED_FILE_DELETED",
+                "RETIREMENT_SAVED_FILE_DELETED",
+                "RETIREMENT_SAVED_FILE_DELETED",
+                "RETIREMENT_SAVED_FILE_DELETED",
+                "RETIREMENT_SAVED_FILE_DELETED",
+                "RETIREMENT_SAVED_DIRECTORY_DELETED",
+                "RETIREMENT_PROPOSAL_CLEARED",
+                "RETIREMENT_BORROW_CLEARED",
+                "RETIREMENT_AUTHORITY_CLEARED",
+                "RETIREMENT_CLEARED",
+                "RETIREMENT_BEFORE_RETURN"
+              ],
+              "slot": "b"
+            },
+            "scope": "same-proposer-REMOVE-retirement-recovery",
+            "slots": [
+              {
+                "index": 5,
+                "kind": "INTENT"
+              },
+              {
+                "index": 6,
+                "kind": "FINAL"
+              },
+              {
+                "index": 7,
+                "kind": "BARRIER"
+              }
+            ],
+            "status": "PASS",
+            "unqualifiedNetworkDiagnostics": 15
+          },
+          "processDeathQualified": true,
+          "status": "PARTIAL"
+        },
+        "proposerLifetimes": 2,
+        "recordWindows": 112,
+        "sourceWindows": 15,
+        "status": "PARTIAL",
+        "unqualifiedTransfers": 0
+      },
+      "proposerLifetimes": 2,
+      "retainedFloorRecoveryQualified": true,
+      "retainedFloorReuses": 1,
+      "retentionRevisionCompositionQualified": false,
+      "retirementLifetimeObservations": 951,
+      "status": "PARTIAL"
+    },
+    "retentionRevisionCompositionQualified": true,
+    "status": "PARTIAL"
+  },
+  "phase3Complete": false,
+  "portable": {
+    "inputsUnchanged": true,
+    "nativeExecutionsThisBatch": 0,
+    "negativeCases": 37,
+    "optimizedPython": true,
+    "originalUnchanged": true,
+    "phase3Complete": false,
+    "profileCases": 1,
+    "results": [
+      {
+        "exit": 0,
+        "name": "original",
+        "negatives": 37,
+        "seconds": 227.697
+      },
+      {
+        "exit": 0,
+        "name": "portable-optimized",
+        "negatives": 37,
+        "seconds": 224.674
+      }
+    ],
+    "sameResult": true,
+    "status": "PASS"
+  },
+  "producer": {
+    "nativeExecutionsThisBatch": 0,
+    "phase3Complete": false,
+    "priorArchive": {
+      "bytes": 24452263,
+      "files": 11792,
+      "path": "target/v53-remove-process-network-20261101/remove-process-network.tar.gz",
+      "sha256": "68fd5acb56102aa5574b6e3e6bddab817d3f87102ee4d4fadc738f3a328a6b86",
+      "verifiedEveryMember": true
+    }
+  },
+  "pythonTests": {
+    "errors": 0,
+    "failures": 0,
+    "seconds": 111.799,
+    "tests": 1672
+  },
+  "qualifiedNativeMembers": 1,
+  "remaining": [
+    "complete retirement callback composition across original process recovery",
+    "remaining native process members",
+    "complete seven-profile cohort and frozen acceptance mapping"
+  ],
+  "retentionRevisionCompositionQualified": true,
+  "runtimeJavaChanged": false,
+  "schema": "gse-v53-remove-process-retention-receipt-v1",
+  "status": "PARTIAL"
+}

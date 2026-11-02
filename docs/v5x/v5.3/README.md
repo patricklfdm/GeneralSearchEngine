@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Continuous REMOVE process retention](PHASE_3_REMOVE_PROCESS_RETENTION.md)
+derives both revision chains across the original SIGKILL/reopen boundary, with
+37 exact negatives. Complete retirement callback composition and the remaining
+process/profile matrix remain OPEN.
+
 [REMOVE maintenance across process death](PHASE_3_REMOVE_PROCESS_MAINTENANCE.md)
 qualifies 16 network floors, one original retained-floor reuse and 16 releases,
 with fifteen exact negatives. Continuous retention revisions, complete retirement

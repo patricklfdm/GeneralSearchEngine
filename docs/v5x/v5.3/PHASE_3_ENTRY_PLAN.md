@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Continuous REMOVE process retention](PHASE_3_REMOVE_PROCESS_RETENTION.md) now
+binds 43 peer and 22 future writes through all original opens and snapshots in
+the retained v2 SIGKILL history. Complete retirement callback composition, the
+remaining process/profile members and frozen acceptance mapping remain OPEN.
+
 [REMOVE maintenance across process death](PHASE_3_REMOVE_PROCESS_MAINTENANCE.md)
 binds all complete-copy acquisitions, the original retained-floor reuse and every
 release in the same v2 SIGKILL member. Fifteen exact negatives preserve the
