@@ -1,0 +1,532 @@
+{
+  "schema": "gse-v53-phase3-qualification-plan-v1",
+  "status": "PLANNED",
+  "phase3Complete": false,
+  "acceptancePlanSha256": "cdb67a09eb2acc2b2f7d7348204d4a2e4cebc7996aaeacdec6145864f5f846f1",
+  "requirements": [
+    {
+      "id": "3A-activation",
+      "title": "Durable own grant, fixed selected sources, fencing and original deadlines",
+      "families": [
+        "S02",
+        "S07",
+        "S09",
+        "S10"
+      ],
+      "implementation": [
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivation.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSelectedSources.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationDriver.java"
+      ],
+      "tests": [
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationDriverTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCampaignFenceTest.java"
+      ],
+      "readers": [
+        "scripts/v53/activation_evidence.py",
+        "scripts/v53/activation_driver_evidence.py"
+      ],
+      "docs": [
+        "docs/v5x/v5.3/PHASE_3_ACTIVATION.md",
+        "docs/v5x/v5.3/PHASE_3_ACTIVATION_DRIVER.md"
+      ],
+      "cohorts": [
+        "profiles",
+        "node-renames"
+      ],
+      "gaps": [
+        "component-cohorts",
+        "frozen-coverage",
+        "final-source-execution"
+      ]
+    },
+    {
+      "id": "3B-transfer",
+      "title": "Root-bound bounded transfer, source rotation and receiving scratch custody",
+      "families": [
+        "S02",
+        "S04",
+        "S10"
+      ],
+      "implementation": [
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransferService.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceReceive.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipScratch.java"
+      ],
+      "tests": [
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SourceExchangeTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransferFaultsTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransferProcessTest.java"
+      ],
+      "readers": [
+        "scripts/v53/transfer_fault_evidence.py",
+        "scripts/v53/transfer_process_evidence.py",
+        "scripts/v53/scratch_recovery_evidence.py"
+      ],
+      "docs": [
+        "docs/v5x/v5.3/PHASE_3_TRANSFER_FAULTS.md",
+        "docs/v5x/v5.3/PHASE_3_TRANSFER_PROCESS.md",
+        "docs/v5x/v5.3/PHASE_3_SCRATCH_RECOVERY.md"
+      ],
+      "cohorts": [
+        "joining-reply-loss"
+      ],
+      "gaps": [
+        "component-cohorts",
+        "combined-resources",
+        "frozen-coverage",
+        "final-source-execution"
+      ]
+    },
+    {
+      "id": "3B-recovery",
+      "title": "Owned historical authority, cross-view discovery, adoption and restart",
+      "families": [
+        "S02",
+        "S04",
+        "S10"
+      ],
+      "implementation": [
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipDiscovery.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationAncestry.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipNodeOwner.java"
+      ],
+      "tests": [
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53OwnedCrossViewTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53OwnedAdoptionProcessTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53OwnedRecoveryTest.java"
+      ],
+      "readers": [
+        "scripts/v53/owned_cross_view_evidence.py"
+      ],
+      "docs": [
+        "docs/v5x/v5.3/PHASE_3_OWNED_CROSS_VIEW.md",
+        "docs/v5x/v5.3/PHASE_3_OWNED_RECOVERY.md"
+      ],
+      "cohorts": [
+        "profiles",
+        "node-renames"
+      ],
+      "gaps": [
+        "component-cohorts",
+        "frozen-coverage",
+        "final-source-execution"
+      ]
+    },
+    {
+      "id": "3C-learner",
+      "title": "Nonvoting learner revisions, exact image/receipt, slot retirement and cancellation",
+      "families": [
+        "S03",
+        "S05",
+        "S09"
+      ],
+      "implementation": [
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerSlot.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDisposition.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerRetention.java"
+      ],
+      "tests": [
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerAlternationNetworkTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerCancellationQualification.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerResourceOwnerTest.java"
+      ],
+      "readers": [
+        "scripts/v53/learner_cycles_evidence.py"
+      ],
+      "docs": [
+        "docs/v5x/v5.3/PHASE_3_LEARNER_CYCLE_REPLAY.md",
+        "docs/v5x/v5.3/PHASE_3_LEARNER_CANCELLATION_NATIVE.md"
+      ],
+      "cohorts": [
+        "profiles"
+      ],
+      "gaps": [
+        "component-cohorts",
+        "combined-resources",
+        "frozen-coverage",
+        "final-source-execution"
+      ]
+    },
+    {
+      "id": "3C-initialization",
+      "title": "Actual joining owner initialization and process-loss recovery before voting",
+      "families": [
+        "S03",
+        "S09",
+        "S10"
+      ],
+      "implementation": [
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningCompletion.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningEndpoint.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningRetentionExport.java"
+      ],
+      "tests": [
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java"
+      ],
+      "readers": [
+        "scripts/v53/joining_process_authority.py",
+        "scripts/v53/joining_process_matrix.py"
+      ],
+      "docs": [
+        "docs/v5x/v5.3/PHASE_3_JOINING_PROCESS_AUTHORITY.md",
+        "docs/v5x/v5.3/PHASE_3_JOINING_PROCESS_HOSTED.md"
+      ],
+      "cohorts": [
+        "joining-process",
+        "joining-reply-loss"
+      ],
+      "gaps": [
+        "combined-resources",
+        "frozen-coverage",
+        "final-source-execution"
+      ]
+    },
+    {
+      "id": "3C-joint",
+      "title": "All seven profiles through INTENT, separate old/new majorities, FINAL and fresh BARRIER",
+      "families": [
+        "S01",
+        "S03",
+        "S05",
+        "S09"
+      ],
+      "implementation": [
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJointContinuation.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRoundDriver.java"
+      ],
+      "tests": [
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransitionRoundDriverTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContinuousTransitionTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransitionProcessTest.java"
+      ],
+      "readers": [
+        "scripts/v53/profile_matrix.py",
+        "scripts/v53/transition_process_evidence.py"
+      ],
+      "docs": [
+        "docs/v5x/v5.3/PHASE_3_JOINT_COORDINATION.md",
+        "docs/v5x/v5.3/PHASE_3_TRANSITION_PROCESS.md",
+        "docs/v5x/v5.3/PHASE_3_PROFILE_HOSTED.md"
+      ],
+      "cohorts": [
+        "profiles",
+        "remove-process",
+        "joining-process"
+      ],
+      "gaps": [
+        "component-cohorts",
+        "frozen-coverage",
+        "final-source-execution"
+      ]
+    },
+    {
+      "id": "3D-rounds",
+      "title": "Carried entry first, ACCEPT then PROOF, exact publication and steady round reuse",
+      "families": [
+        "S01",
+        "S02",
+        "S07",
+        "S10"
+      ],
+      "implementation": [
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRoundDriver.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSlotDelivery.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPublicationEndpoint.java"
+      ],
+      "tests": [
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CarriedSlotDriverTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CarriedProcessTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RoundCoverageTest.java"
+      ],
+      "readers": [
+        "scripts/v53/carried_process_evidence.py",
+        "scripts/v53/node_rename_matrix.py"
+      ],
+      "docs": [
+        "docs/v5x/v5.3/PHASE_3_CARRIED_SLOTS.md",
+        "docs/v5x/v5.3/PHASE_3_NODE_RENAME_MATRIX.md"
+      ],
+      "cohorts": [
+        "node-renames"
+      ],
+      "gaps": [
+        "component-cohorts",
+        "frozen-coverage",
+        "final-source-execution"
+      ]
+    },
+    {
+      "id": "3D-automatic",
+      "title": "Competing native node owners, service barriers and recovery liveness",
+      "families": [
+        "S02",
+        "S07",
+        "S10"
+      ],
+      "implementation": [
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipAutomaticOwner.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipNodeOwner.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipHeartbeat.java"
+      ],
+      "tests": [
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CompetingNodeQualification.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AutomaticCampaignTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeInFlightTest.java"
+      ],
+      "readers": [
+        "scripts/v53/competing_node_evidence.py",
+        "scripts/v53/competing_node_negatives.py"
+      ],
+      "docs": [
+        "docs/v5x/v5.3/PHASE_3_COMPETING_REPLAY.md",
+        "docs/v5x/v5.3/PHASE_3_ACTIVE_WRITE_HEARTBEAT.md",
+        "docs/v5x/v5.3/PHASE_3_RECOVERY_HEARTBEAT.md"
+      ],
+      "cohorts": [
+        "node-renames"
+      ],
+      "gaps": [
+        "component-cohorts",
+        "frozen-coverage",
+        "final-source-execution"
+      ]
+    },
+    {
+      "id": "3D-removal",
+      "title": "Departure fencing, original authority retirement and same-disk recovery",
+      "families": [
+        "S01",
+        "S04",
+        "S10"
+      ],
+      "implementation": [
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRetirementPlan.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRetirementFiles.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRetirementImages.java"
+      ],
+      "tests": [
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransitionProcessTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeRetirementCrashTest.java"
+      ],
+      "readers": [
+        "scripts/v53/remove_process_matrix.py",
+        "scripts/v53/remove_ballot_evidence.py"
+      ],
+      "docs": [
+        "docs/v5x/v5.3/PHASE_3_REMOVE_PROCESS_MATRIX.md",
+        "docs/v5x/v5.3/PHASE_3_DEPARTING_RESTART.md"
+      ],
+      "cohorts": [
+        "profiles",
+        "remove-process"
+      ],
+      "gaps": [
+        "frozen-coverage",
+        "final-source-execution"
+      ]
+    },
+    {
+      "id": "3E-resources",
+      "title": "Combined real-owner peak resources and admitted completion headroom",
+      "families": [
+        "S09"
+      ],
+      "implementation": [
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPublicationCapacity.java"
+      ],
+      "tests": [
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransferTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationCapacityTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AncestorCapacityTest.java"
+      ],
+      "readers": [
+        "scripts/v53/publication_capacity_evidence.py"
+      ],
+      "docs": [
+        "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
+        "docs/v5x/v5.3/PHASE_3_LEARNER_CYCLE_REPLAY.md"
+      ],
+      "cohorts": [
+        "profiles",
+        "joining-process"
+      ],
+      "gaps": [
+        "combined-resources",
+        "frozen-coverage",
+        "final-source-execution"
+      ]
+    },
+    {
+      "id": "3E-coverage",
+      "title": "Explicit phase-specific requirement mapping; no S/N acceptance inferred from counts",
+      "families": [
+        "S01",
+        "S02",
+        "S03",
+        "S04",
+        "S05",
+        "S07",
+        "S09",
+        "S10"
+      ],
+      "implementation": [
+        "scripts/v53/case_inventory.py",
+        "scripts/v53/phase3_qualification_plan.py"
+      ],
+      "tests": [
+        "scripts/v53/test_case_inventory.py",
+        "scripts/v53/test_phase3_qualification_plan.py"
+      ],
+      "readers": [
+        "scripts/v53/case_inventory.py",
+        "scripts/v53/phase3_qualification_plan.py"
+      ],
+      "docs": [
+        "docs/v5x/v5.3/ACCEPTANCE_REGISTER.md",
+        "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md"
+      ],
+      "cohorts": [
+        "profiles",
+        "joining-reply-loss",
+        "remove-process",
+        "node-renames",
+        "joining-process"
+      ],
+      "gaps": [
+        "frozen-coverage",
+        "final-source-execution"
+      ]
+    },
+    {
+      "id": "3E-cohort",
+      "title": "Independent original-first replay on exact source/build, portable evidence and failed-attempt retention",
+      "families": [
+        "S01",
+        "S02",
+        "S03",
+        "S04",
+        "S05",
+        "S07",
+        "S09",
+        "S10"
+      ],
+      "implementation": [
+        "scripts/v53/profile_matrix.py",
+        "scripts/v53/joining_fault_cohort.py",
+        "scripts/v53/remove_process_matrix.py",
+        "scripts/v53/node_rename_matrix.py",
+        "scripts/v53/joining_process_matrix.py"
+      ],
+      "tests": [
+        "scripts/v53/test_case_inventory.py",
+        "scripts/v53/test_phase3_qualification_plan.py"
+      ],
+      "readers": [
+        "scripts/v53/profile_matrix.py",
+        "scripts/v53/joining_fault_cohort.py",
+        "scripts/v53/remove_process_matrix.py",
+        "scripts/v53/node_rename_matrix.py",
+        "scripts/v53/joining_process_matrix.py"
+      ],
+      "docs": [
+        "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md",
+        "docs/v5x/v5.3/PHASE_3_JOINING_PROCESS_HOSTED.md"
+      ],
+      "cohorts": [
+        "profiles",
+        "joining-reply-loss",
+        "remove-process",
+        "node-renames",
+        "joining-process"
+      ],
+      "gaps": [
+        "cohort-admission",
+        "final-source-execution"
+      ]
+    }
+  ],
+  "cohorts": {
+    "profiles": {
+      "members": 7,
+      "casesSha256": "03d2b1e9ca6157e9941f1b8c148bf04180cc83b9db747d6e66e0274c98088000",
+      "status": "ENTRY_READY_EXECUTION_PENDING"
+    },
+    "joining-reply-loss": {
+      "members": 3,
+      "casesSha256": "5a593d07d7ac110e828b8381c35b6520494750bf14b15a920f6b6d5097e7b56a",
+      "status": "ENTRY_READY_EXECUTION_PENDING"
+    },
+    "remove-process": {
+      "members": 52,
+      "casesSha256": "ab50600a05d7286ea0025dc8a08db8de7294137cb493449b9a7e357c97fe65dc",
+      "status": "ENTRY_READY_EXECUTION_PENDING"
+    },
+    "node-renames": {
+      "members": 4,
+      "casesSha256": "b34bac5e29384fb515261ddfeb47f6acba07a8ba14ff915b7cc689f7c4169b95",
+      "status": "ENTRY_READY_EXECUTION_PENDING"
+    },
+    "joining-process": {
+      "members": 360,
+      "casesSha256": "a18d832f8ce978ef973b535f949f8e836a5acced0fd535980927e6b9eee25e4f",
+      "status": "ENTRY_READY_EXECUTION_PENDING"
+    }
+  },
+  "gaps": [
+    {
+      "id": "component-cohorts",
+      "status": "OPEN",
+      "dependsOn": [],
+      "work": "Inventory and wire final-source capture/admission for remaining native component histories, starting with whole learner revision/cancellation and competing-owner histories, then transfer/carried/transition recovery. Reuse their existing producers/readers; do not rebuild implemented protocol components.",
+      "acceptance": "Exact source/build/toolchain/reader-bound originals and independent original-first replay. Missing observations, unsupported histories or an original deadline failure remain failures. Whole ownership and revision histories stay indivisible."
+    },
+    {
+      "id": "combined-resources",
+      "status": "OPEN",
+      "dependsOn": [],
+      "work": "Exercise physical simultaneous selected/current/inactive sources, learner staging and completion reservations under the frozen shared owner limits. Review actual lifetime overlap before adding a producer; existing accounting and conditional-prefix tests are prerequisites only.",
+      "acceptance": "Retain actual peak owner/lease/byte observations and independent physical replay at/over the bound, including admitted FINAL/recovery completion and stable DATA after membership exhaustion. Arithmetic alone does not qualify this obligation."
+    },
+    {
+      "id": "frozen-coverage",
+      "status": "OPEN",
+      "dependsOn": [
+        "component-cohorts",
+        "combined-resources"
+      ],
+      "work": "Map concrete Phase 3 protocol schedules and exact rejection families to original evidence selectors; identify uncovered axes. Keep the final 3310-row Phase 5 inventory unchanged and explicitly defer public API/read/maintenance acceptance to its owning phase.",
+      "acceptance": "No family closes from substring matches, aggregate pass counts or a related profile. Explicit refusal evidence for inapplicable rows, expected negative reasons and owner-phase boundaries must remain reviewable."
+    },
+    {
+      "id": "cohort-admission",
+      "status": "OPEN",
+      "dependsOn": [
+        "component-cohorts",
+        "combined-resources",
+        "frozen-coverage"
+      ],
+      "work": "Implement final Phase 3 admission across all required subsets after the missing entries and precise coverage are known. Current per-workflow aggregates are scoped subset gates, not a phase-wide aggregate.",
+      "acceptance": "Bind exact source and actual build/toolchain/readers, each workflow/run/attempt and complete declared inventories; reconcile independent seed provenance. Reject missing/failed/mixed originals. No acceptance from this planning report."
+    },
+    {
+      "id": "final-source-execution",
+      "status": "OPEN",
+      "dependsOn": [
+        "component-cohorts",
+        "combined-resources",
+        "frozen-coverage",
+        "cohort-admission"
+      ],
+      "work": "On separately authorized hosted execution, run every declared whole history on the final source, retain all attempts and fix reproducible failures before the closure audit.",
+      "acceptance": "Successful independent original-first physical/history/network/resource replay and exact negatives for the final cohort. Historical successful component runs and synthetic orchestration tests cannot fill these slots."
+    }
+  ],
+  "laterPhases": {
+    "publicOperationsAndReads": 4,
+    "completeFrozenCorrectnessMatrix": 5,
+    "measurementsAndCloud": 6
+  }
+}

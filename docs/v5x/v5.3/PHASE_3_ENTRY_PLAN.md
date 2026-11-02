@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[The current qualification audit](PHASE_3_QUALIFICATION_AUDIT.md) reconciles the
+implementation and historical notes into twelve review obligations, five
+implemented hosted subsets (426 planned whole histories) and five open work
+groups. Its source inspector checks references and catalogue drift, not runtime
+acceptance. Use that map for the remaining queue; chronological entries below
+retain their original-source scope. Phase 3 remains OPEN.
+
 [Hosted joining process qualification](PHASE_3_JOINING_PROCESS_HOSTED.md) now
 wires the 360-case catalogue as 120 groups of three whole histories, with one
 immutable seed, independent downloaded replay and exact-attempt aggregation.

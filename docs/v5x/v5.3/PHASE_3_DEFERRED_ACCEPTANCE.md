@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[The qualification audit](PHASE_3_QUALIFICATION_AUDIT.md) is the consolidated
+current queue. It separates implemented hosted entries, remaining component
+cohorts, combined physical resource qualification, concrete coverage and final
+admission/execution. Historical notes below remain scoped to their original
+source; their former implementation gaps must be reconciled with later work.
+The optional inspector cannot close any runtime requirement.
+
 [Hosted joining process qualification](PHASE_3_JOINING_PROCESS_HOSTED.md) now
 provides source-bound preparation, 120 execution/replay groups and complete
 360-member aggregation. Grouping preserves every indivisible original history.
