@@ -69,9 +69,10 @@ A heartbeat is emitted each minute. Existing output directories are never reused
 The resulting component PASS is not all-profile qualification, process-death
 coverage, combined peak-resource qualification, automatic competition, public
 readiness, complete physical fault coverage or Phase 3 closure. Control submissions
-and authority-transition histories keep their separate required gates. A hosted
-adapter and complete final-source admission remain subsequent work. This local
-entry does not change the seven existing hosted subsets / 449 planned histories.
+and authority-transition histories keep their separate required gates. The
+[hosted adapter](PHASE_3_NATIVE_ROUND_HOSTED.md) is now prepared separately;
+complete final-source admission remains subsequent work. The local development
+receipt retains the seven-subset / 449-history inventory at its original source.
 
 ## Development evidence and source boundary
 

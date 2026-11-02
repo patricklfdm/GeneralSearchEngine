@@ -1,7 +1,7 @@
 # Phase 3 qualification inventory and remaining work
 
 Phase 3 remains **OPEN**. This inventory originated from baseline `867df7c4`;
-the current table also includes the subsequent learner and transfer cohorts. It does
+the current table also includes the subsequent learner, transfer and round cohorts. It does
 not execute a native history, accept an old receipt as current-source evidence,
 or declare the implementation complete.
 
@@ -23,8 +23,9 @@ the backlog as a new feature.
 | [Joining initialization](PHASE_3_JOINING_PROCESS_HOSTED.md) | 360 | 120 | Five joining profiles, 36 cuts, two death modes |
 | [Continuous learner histories](PHASE_3_LEARNER_HISTORY_COHORT.md) | 2 | 2 | Six revisions and retained READY/CANCEL, complete cold reopen |
 | [Transfer lifetime/process matrices](PHASE_3_TRANSFER_HISTORY_HOSTED.md) | 21 | 2 | Three continuous owner histories and eighteen two-process recoveries |
+| [Native carried/stable rounds](PHASE_3_NATIVE_ROUND_HOSTED.md) | 7 | 7 | Four carried BARRIER phases and three guarded round histories |
 
-These **449 planned native histories** are complementary subsets. This is neither
+These **456 planned native histories** are complementary subsets. This is neither
 a pass count nor a count of covered rows in the frozen S matrix. The inspector
 reads their actual Python catalogues and checks declared counts and ordered-case
 hashes. Joining groups must partition all 360 whole histories exactly; transfer
@@ -52,12 +53,12 @@ prove its semantics.
 | 3C learner | Six-revision/cancellation producers, source retention, readers and hosted pair | Complete final-source histories and profile coverage |
 | 3C initialization | Actual joining owner, three-ledger initialization and 360-case entry | Final-source matrix; combined bounds |
 | 3C joint | Private INTENT/FINAL/BARRIER coordination for all seven profiles | Final-source profiles and interrupted transitions |
-| 3D rounds | Carried-first publication, two durable phases, round reuse and [seven-history admission](PHASE_3_NATIVE_ROUND_COHORT.md) | Final-source native round execution, hosted adapter, carried payload axes and process faults |
+| 3D rounds | Carried-first publication, two durable phases, round reuse and [seven-history admission](PHASE_3_NATIVE_ROUND_COHORT.md) | Final-source native round execution, carried payload axes and process faults |
 | 3D automatic | Competing owners, heartbeat, original grants, both campaign networks, maintenance, installation/publication, [observed export authority](PHASE_3_COMPETING_EXPORTS.md), [actual lifecycle collection](PHASE_3_AUTOMATIC_LIFECYCLE.md) and [pre-grant-loss whole replay](PHASE_3_PREGRANT_LOSS_REPLAY.md) | Export expiry/close faults, complete lifecycle/recovery, final-source competition and failure coverage |
 | 3D removal | Departure fencing, retirement and original-disk recovery | Final-source original/negative process matrix |
 | 3E resources | Accounting, bounded transfers, publication refusal and conditional-prefix tests | Simultaneous physical peak and admitted completion |
 | 3E coverage | Frozen finite inventory and this dependency map | Concrete schedule/evidence/rejection mapping |
-| 3E cohort | Seven source-bound subset gates | Complete final admission, execution and closure audit |
+| 3E cohort | Eight source-bound subset gates | Complete final admission, execution and closure audit |
 
 `MembershipStorageOperations` still refuses public learner operations and
 `MembershipSearchEngine` keeps reads disabled. Phase 3 private protocol work does
@@ -90,8 +91,9 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    local development evidence nor the unexecuted adapter fills final-source slots.
    The [native round entry](PHASE_3_NATIVE_ROUND_COHORT.md) now captures the four
    carried BARRIER phases and three guarded rounds, including their complete
-   underlying physical and lifecycle negatives. Hosted wiring and additional
-   carried payload/process axes remain; conditional Phase 2 fixtures cannot
+   underlying physical and lifecycle negatives. Its [hosted adapter](PHASE_3_NATIVE_ROUND_HOSTED.md)
+   now retains seven independent whole histories and exact downloaded replays.
+   Additional carried payload/process axes remain; conditional Phase 2 fixtures cannot
    substitute for native originals. Continue competing-owner and transition
    recovery entries and uncovered learner profiles. Reuse existing producers/readers.
    Historical qualification remains scoped to its source, not a new cohort slot.

@@ -247,13 +247,16 @@
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRoundDriver.java",
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSlotDelivery.java",
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPublicationEndpoint.java",
-        "scripts/v53/round_history.py"
+        "scripts/v53/round_history.py",
+        "scripts/v53/round_history_hosted.py"
       ],
       "tests": [
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CarriedSlotDriverTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CarriedProcessTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RoundCoverageTest.java",
-        "scripts/v53/test_round_history.py"
+        "scripts/v53/test_round_history.py",
+        "scripts/v53/test_round_history_hosted.py",
+        "scripts/v53/test_round_history_workflow.py"
       ],
       "readers": [
         "scripts/v53/carried_process_evidence.py",
@@ -263,10 +266,12 @@
       "docs": [
         "docs/v5x/v5.3/PHASE_3_CARRIED_SLOTS.md",
         "docs/v5x/v5.3/PHASE_3_NODE_RENAME_MATRIX.md",
-        "docs/v5x/v5.3/PHASE_3_NATIVE_ROUND_COHORT.md"
+        "docs/v5x/v5.3/PHASE_3_NATIVE_ROUND_COHORT.md",
+        "docs/v5x/v5.3/PHASE_3_NATIVE_ROUND_HOSTED.md"
       ],
       "cohorts": [
-        "node-renames"
+        "node-renames",
+        "round-histories"
       ],
       "gaps": [
         "component-cohorts",
@@ -458,7 +463,8 @@
         "scripts/v53/joining_process_matrix.py",
         "scripts/v53/transfer_history.py",
         "scripts/v53/transfer_history_hosted.py",
-        "scripts/v53/round_history.py"
+        "scripts/v53/round_history.py",
+        "scripts/v53/round_history_hosted.py"
       ],
       "tests": [
         "scripts/v53/test_case_inventory.py",
@@ -466,7 +472,9 @@
         "scripts/v53/test_transfer_history.py",
         "scripts/v53/test_transfer_history_hosted.py",
         "scripts/v53/test_transfer_history_workflow.py",
-        "scripts/v53/test_round_history.py"
+        "scripts/v53/test_round_history.py",
+        "scripts/v53/test_round_history_hosted.py",
+        "scripts/v53/test_round_history_workflow.py"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -482,7 +490,8 @@
         "docs/v5x/v5.3/PHASE_3_JOINING_PROCESS_HOSTED.md",
         "docs/v5x/v5.3/PHASE_3_TRANSFER_HISTORY_COHORT.md",
         "docs/v5x/v5.3/PHASE_3_TRANSFER_HISTORY_HOSTED.md",
-        "docs/v5x/v5.3/PHASE_3_NATIVE_ROUND_COHORT.md"
+        "docs/v5x/v5.3/PHASE_3_NATIVE_ROUND_COHORT.md",
+        "docs/v5x/v5.3/PHASE_3_NATIVE_ROUND_HOSTED.md"
       ],
       "cohorts": [
         "profiles",
@@ -491,7 +500,8 @@
         "node-renames",
         "joining-process",
         "learner-histories",
-        "transfer-histories"
+        "transfer-histories",
+        "round-histories"
       ],
       "gaps": [
         "cohort-admission",
@@ -534,6 +544,11 @@
       "members": 21,
       "casesSha256": "60120333d032f0282b4eb9b66cd6f1c2415eab60b538bdf93913f81abc54164e",
       "status": "ENTRY_READY_EXECUTION_PENDING"
+    },
+    "round-histories": {
+      "members": 7,
+      "casesSha256": "cf3210e26a96a600da7a33d49db36234db151cdcfbde5359830ecce58309d5b9",
+      "status": "ENTRY_READY_EXECUTION_PENDING"
     }
   },
   "gaps": [
@@ -541,7 +556,7 @@
       "id": "component-cohorts",
       "status": "OPEN",
       "dependsOn": [],
-      "work": "The focused 3-ADD learner pair and complete TCP lifetime/process matrices have source-bound capture, admission and hosted entries. Seven native carried/stable round histories now have a local source-bound entry; its hosted adapter remains pending. Continue actual carried payload/process axes, competing owners, transition recovery and uncovered learner profiles. Phase 2 conditional process fixtures cannot substitute for Phase 3 native originals. Final-source execution remains pending; reuse existing producers/readers.",
+      "work": "The focused 3-ADD learner pair and complete TCP lifetime/process matrices have source-bound capture, admission and hosted entries. Seven native carried/stable round histories now have source-bound local admission and an independent seven-job hosted entry. Continue actual carried payload/process axes, competing owners, transition recovery and uncovered learner profiles. Phase 2 conditional process fixtures cannot substitute for Phase 3 native originals. Final-source execution remains pending; reuse existing producers/readers.",
       "acceptance": "Exact source/build/toolchain/reader-bound originals and independent original-first replay. Missing observations, unsupported histories or an original deadline failure remain failures. Whole ownership and revision histories stay indivisible."
     },
     {

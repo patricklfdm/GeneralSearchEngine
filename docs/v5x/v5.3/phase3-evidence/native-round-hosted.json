@@ -1,0 +1,70 @@
+{
+  "baseCommit": "49f03271a9e8d47217ec7cd3dc3e658b3244c2e5",
+  "branch": "refs/heads/experiment/v53-round-histories",
+  "contractCheck": {
+    "path": "target/v53-round-hosted/contract.json",
+    "sha256": "701bb3a695b5bf628faf6f92ee5cc0288a64fe5e7950c79bc4aca038211b9ec9"
+  },
+  "executionGroups": 7,
+  "existingRequiredChanged": false,
+  "finalSourceCohortQualified": false,
+  "hostedExecuted": false,
+  "inputs": {
+    ".github/workflows/v53-round-histories.yml": "1d909c08bc2bb081c7342160d6f67e7cba48a975dd1d0aac0a66cd3586d575db",
+    "scripts/v53/phase3_qualification_plan.py": "33a800525359e970ef6e9a924140027d8ccfad6eb87608d5f1d0c55a86d5e81e",
+    "scripts/v53/round_history_hosted.py": "aac293642458aded2c577fdf916ffe4b49c23ac1fde4d80617d76fd00cb1e82c",
+    "scripts/v53/test_phase3_qualification_plan.py": "cb459f29bd4c220377bbf5c0fcaafbfc5584879c3985be4df198b5c7b1f61c9d",
+    "scripts/v53/test_round_history_hosted.py": "c94feb3ec7a59d8a5da863eea73677b0db9406313801f689952f016238c992e5",
+    "scripts/v53/test_round_history_workflow.py": "e27716a73af0d10bbb7270fe0153b51427824f01436c16f7697cc2be376fde7c"
+  },
+  "inventory": {
+    "completedFinalSourceHistories": 0,
+    "hostedSubsets": 8,
+    "plannedWholeHistories": 456
+  },
+  "maxParallel": 4,
+  "nativeExecutedThisBatch": false,
+  "nativePrerequisite": "docs/v5x/v5.3/phase3-evidence/native-round-cohort.json",
+  "negativeCases": 287,
+  "next": "Execute the final-source cohort only when authorized. Complete remaining carried payload/process, competition/lifecycle, resource overlap, concrete coverage and phase-wide admission obligations; no historical receipt fills a final-source slot.",
+  "paidCloudExecuted": false,
+  "phase3Complete": false,
+  "planningAudit": {
+    "path": "target/v53-round-hosted/plan-audit/receipt.json",
+    "sha256": "5afa39835eeec822b3f2e10ec131de91fddd185d729eca5ffd43af4f6a4c29c5"
+  },
+  "protocolBudgetsChanged": false,
+  "runtimeJavaChanged": false,
+  "schema": "gse-v53-native-round-hosted-development-v1",
+  "scope": "Prepared opt-in seven whole-history hosted orchestration; synthetic provenance/download/replay/aggregate validation only.",
+  "status": "PARTIAL",
+  "tests": {
+    "focused": {
+      "elapsedSeconds": 1.435,
+      "path": "target/v53-round-hosted/tests.log",
+      "sha256": "89b7e767cb0e77e17e213ee668e3caf59cd9b8f0491e80e828a3c8f727b51be9",
+      "status": "PASS",
+      "tests": 35
+    },
+    "optimized": {
+      "elapsedSeconds": 1.479,
+      "path": "target/v53-round-hosted/tests-optimized.log",
+      "sha256": "330c8819f71f5f14fc67ddb16d243b42c5328849fa63b0ae06f555c7a42ee2f9",
+      "status": "PASS",
+      "tests": 35
+    },
+    "python": {
+      "elapsedSeconds": 112.168,
+      "path": "target/v53-round-hosted/python-suite.log",
+      "sha256": "ec07107c6c3f1c317de0c7d43d90b5c968136c565c4ff9ede2b701625d36e957",
+      "status": "PASS",
+      "tests": 2392
+    }
+  },
+  "wholeOwnershipHistories": 7,
+  "workflow": ".github/workflows/v53-round-histories.yml",
+  "workflowValidation": {
+    "path": "target/v53-round-hosted/workflow-check.json",
+    "sha256": "00e1c2f82755697301a6617d7447bc987a8d6d1dfeff1f497a0e84a651ddfa00"
+  }
+}

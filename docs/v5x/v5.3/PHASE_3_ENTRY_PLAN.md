@@ -1,11 +1,17 @@
 # V5.3 Phase 3 entry and closure checklist
 
 [The current qualification audit](PHASE_3_QUALIFICATION_AUDIT.md) reconciles the
-implementation and historical notes into twelve review obligations, seven
-implemented hosted subsets (449 planned whole histories) and five open work
+implementation and historical notes into twelve review obligations, eight
+implemented hosted subsets (456 planned whole histories) and five open work
 groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
+
+[Hosted native rounds](PHASE_3_NATIVE_ROUND_HOSTED.md) now provide one immutable
+seed, seven whole native executions and seven independent downloaded replays.
+The exact-attempt aggregate requires all original plans and 287 negative results.
+This optional entry has not run; it adds seven planned histories to the inventory,
+not seven accepted final-source executions.
 
 [Native round admission](PHASE_3_NATIVE_ROUND_COHORT.md) now declares all four
 carried phases and three guarded round histories against one recorded source,
