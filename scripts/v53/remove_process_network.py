@@ -118,6 +118,7 @@ def replay(root,profile):
     slots=n.phase.blocks(events,history);result.update(n.phase.phase_replay(events,rows,history,slots))
     result.update(n.statuses(rows,history,slots))
     result.update(n.failed_controls(history.root,events,failed,history,rows,slots))
+    n.shared.initial_current.validate(events,history.old)
     return dict(result,exchanges=len(rows),failedAttempts=len(failed),normalizedEvents=len(events),
                 originalObservations=sum(Counter(v['origin'] for v in map(e.parse,(root/'history/process-trace.jsonl').read_bytes().splitlines())).values()))
 

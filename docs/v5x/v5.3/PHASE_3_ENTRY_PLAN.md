@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Original voter CURRENT opens](PHASE_3_INITIAL_CURRENT.md) bind each old voter's
+complete startup force sequence before retention recovery and protocol activity,
+including voters unused by later selections. The reproduced initial-open gap is
+closed; whole-history and final-source profile/process qualification remain OPEN.
+
 [Original SELECTED journal ownership](PHASE_3_SELECTION_JOURNAL.md) requires
 complete original write/force/return transactions after authority arrives, with
 no reused or unbound journal callbacks. ADD/REPLACE and REMOVE consumers share

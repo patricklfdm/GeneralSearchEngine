@@ -210,6 +210,7 @@ def network(root,profile):
         receivedRequests=len(rows)+sum(v['received'] is not None for v in response_less),
         deliveredResponses=sum(v['delivered'] is not None for v in rows),failedAttempts=len(failed),
         terminalObservations=sum(1+(v['serverFailed'] is not None) for v in failed))
+    shared.initial_current.validate(events,history.old)
     return result
 
 

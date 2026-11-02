@@ -106,3 +106,6 @@ S/N requirement mapping remain required. Phase 3 and complete physical/network/
 process flags remain open. No Java, POM, workflow, timing/resource limit or cloud
 behavior changed. Rollback reverts this reader/tests increment while retaining
 the original audit failure and its precise scope.
+
+The [initial CURRENT follow-up](PHASE_3_INITIAL_CURRENT.md) now closes that
+startup omission for original voters; it keeps the remaining lifecycle scope open.
