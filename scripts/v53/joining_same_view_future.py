@@ -45,9 +45,9 @@ def observations(events, *, joining='node-4'):
 
 
 class Replay:
-    def __init__(self,root):
-        self.root=Path(root);self.base=a.Replay(root);self.events=self.base.events;self.model=self.base.model
-        self.tx,self.write_events=observations(self.events)
+    def __init__(self,root,*,base=None):
+        self.root=Path(root);self.base=a.Replay(root) if base is None else base;self.events=self.base.events;self.model=self.base.model
+        self.tx,self.write_events=observations(self.events,joining=self.model.joining)
         self.state={};self.used=set();self.callbacks=set();self.steps=[];self.comparisons=0;self.reseals=0
 
     def compare(self,node,files,label):
@@ -95,7 +95,8 @@ class Replay:
         originals.update({k:local[k] for k in ('promise.gsr','selected.gsr')})
         originals.update({k.lower()+'.gsr':parts[k] for k in ('ENTRY','ACCEPT','PROOF')})
         cert=f.decode(parts['CERTIFICATE'],'records','CERTIFICATE');voters=[v['voter'] for v in cert['proofs']]
-        targets=[v for v in voters if v!='node-1'];ids=a.n.s.catalog.identities(self.model.states[index]['identities'])
+        proposer=cert['ballot']['proposer'];need(proposer in voters,'joining future original proposer proof')
+        targets=[v for v in voters if v!=proposer];ids=a.n.s.catalog.identities(self.model.states[index]['identities'])
         lower=max(self.base.phases[index,n]['APPLY_BEFORE_RETURN'] for n in voters)
         upper=points['PUBLICATION_VALIDATED']
         all_tx=[v for v in self.tx if v['node']==node and lower<v['start'] and v['end']<upper]
@@ -112,23 +113,29 @@ class Replay:
             # Exact request/reply bytes and the delivered quorum are already
             # checked by the original network reader. Bind the local callback
             # to the very same request's receive/offer or send boundary.
-            rows=[v for v in self.base.rows if v['kind']=='FUTURE_RETENTION_INTENT' and
-                  v['request']['recipient']['node']==(target if node=='node-1' else node) and
-                  v['request']['payload']['certificate']==sha(parts['CERTIFICATE']) and
-                  v['request']['payload']['peer']==ids[target]]
-            need(rows,'joining future original recording exchange')
-            if node=='node-1':need(ack<min(v['sent'] for v in rows),'joining future local ACK before send')
-            else:
-                need(any(v['received']<tx['start']<ack<v['offered'] and
-                         v['response']['payload']['revision']==meta['revision'] and
-                         v['response']['payload']['digest']==sha(self.state[node]['raw']) for v in rows),
-                     'joining future remote ACK after force')
+            self.recording_exchange(node,proposer,ids[target],parts['CERTIFICATE'],tx,ack)
         promoted=self.callback(node,RETURNS[2],points['PUBLICATION_RETIRED'],points['PUBLICATION_BEFORE_RETURN'])
         cleared=self.callback(node,RETURNS[3],promoted,points['PUBLICATION_BEFORE_RETURN'])
         tx=self.transaction(node,promoted,cleared);before=self.state[node]
         meta=dict(before['meta'],revision=before['meta']['revision']+1,previous=sha(before['raw']),parent=None,peers=[])
         self.change(node,meta,{},tx,'clear',index)
         self.compare(node,self.model.owner('published',index,node),'published-'+str(index))
+
+    def recording_exchange(self,node,proposer,target,certificate,tx,ack):
+        rows=[v for v in self.base.rows if v['kind']=='FUTURE_RETENTION_INTENT' and
+              v['request']['sender']['node']==proposer and
+              (node==proposer or v['request']['recipient']['node']==node) and
+              v['request']['payload']['certificate']==sha(certificate) and v['request']['payload']['peer']==target]
+        need(rows,'joining future original recording exchange')
+        # The proposer records once before sending to any remote voter, not
+        # merely before the request addressed to the eventual publish target.
+        if node==proposer:need(ack<min(v['sent'] for v in rows),'joining future local ACK before send')
+        else:
+            state=self.state[node]
+            need(any(v['received']<tx['start']<ack<v['offered'] and
+                     v['response']['payload']['revision']==state['meta']['revision'] and
+                     v['response']['payload']['digest']==sha(state['raw']) for v in rows),
+                 'joining future remote ACK after force')
 
     def reopen(self,node,scope,at):
         rows=[(i,v['event']) for i,v in enumerate(self.events) if v.get('node')==node and v.get('scope')==scope]
@@ -165,7 +172,7 @@ class Replay:
             if own['start']<0:continue
             if self.events[own['start']]['event'] in ('INSTALL_BEFORE_RETURN','ADOPTION_INSTALL_BEFORE_RETURN'):
                 actions.append((own['start'],'compare',(own['node'],disk.inventory(self.root/own['path']),'generation')))
-        for node,scope in a.peer.OWNERS:
+        for node,scope in a.peer.owner_lifetimes(self.model):
             found=[i for i,v in enumerate(self.events) if v.get('node')==node and v.get('scope')==scope and v['event']==RESEAL[-1]]
             need(len(found)==1,'joining future exact reopen count');actions.append((found[0],'reopen',(node,scope,found[0])))
         for _,kind,values in sorted(actions,key=lambda v:v[0]):getattr(self,kind)(*values)
@@ -175,7 +182,7 @@ class Replay:
         for node in self.state:
             label='joining-originals-stable-cold/replica' if node==self.model.joining else 'after-close/'+node
             self.compare(node,disk.inventory(self.root/label),'cold')
-        return dict(status='PASS',scope='one-native-REPLACE-continuous-future-ledger',durableWrites=len(self.steps),
+        return dict(status='PASS',scope='one-native-'+self.model.kind+'-continuous-future-ledger',durableWrites=len(self.steps),
                     writesByKind=dict(Counter(v['kind'] for v in self.steps)),openReseals=self.reseals,ledgerComparisons=self.comparisons,
                     finalRevisions={n:v['meta']['revision'] for n,v in self.state.items()},
                     chainSha256=sha(f.canonical(sorted(self.steps,key=lambda v:v['start']))),futureLedgerCompositionQualified=True,

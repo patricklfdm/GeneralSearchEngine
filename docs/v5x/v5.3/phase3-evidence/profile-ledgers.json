@@ -1,0 +1,344 @@
+{
+  "actions": {
+    "localCommit": true,
+    "nativeRerun": false,
+    "paidCloud": false,
+    "pomChanged": false,
+    "push": false,
+    "runtimeJavaChanged": false,
+    "workflowChanged": false
+  },
+  "allMembershipProfilesQualified": false,
+  "archive": {
+    "allMembershipProfilesQualified": false,
+    "archiveBytes": 40726869,
+    "archiveSha256": "9db765be0a1f60696412ea9dd3c6e119e09dbb822342aa7eeea07403151ab104",
+    "directories": 3197,
+    "exactNegatives": 89,
+    "files": 21463,
+    "identicalResults": true,
+    "manifest": {
+      "bytes": 3508826,
+      "path": "target/v53-profile-ledgers-20261102/v2/artifact/manifest.json",
+      "sha256": "b30bd6e8a57938564e99731fd364e3175cce22872a072dec056ad69e261a2662"
+    },
+    "nativeRerun": false,
+    "notApplicable": 1,
+    "path": "target/v53-profile-ledgers-20261102/v2/artifact/bundle.tar.gz",
+    "phase3Complete": false,
+    "portable": {
+      "legacy": {
+        "elapsedSeconds": 67.226,
+        "exit": 0
+      },
+      "replace": {
+        "elapsedSeconds": 53.399,
+        "exit": 0
+      },
+      "same-view": {
+        "elapsedSeconds": 53.351,
+        "exit": 0
+      }
+    },
+    "pythonSeconds": 100.022,
+    "pythonTests": 1872,
+    "status": "PASS",
+    "unchangedOriginals": true
+  },
+  "ballotCompositionQualified": false,
+  "baseHead": "9b2aeacd3914a0c3bdd4ba4a110049269902582e",
+  "chainCompatibility": {
+    "previousAudit": "/home/klfdm/perception/GeneralSearchEngine/target/v53-profile-peers-20261102/next-ledgers-audit.json",
+    "previousSha256": "eec0072402542da0f373cd0950e86d3317707a67b7622794ab1f4135dcd6bf93",
+    "receipt": {
+      "bytes": 1359,
+      "path": "target/v53-profile-ledgers-20261102/v2/ledger-chain-compatibility.json",
+      "sha256": "5ef3a6faf627555db7eb2ecbf3b590f2f44b8e348fa2c662e2e66e9f15861ab6"
+    },
+    "results": {
+      "legacy-future": {
+        "chainSha256": "20796cd9371da262331eb6fc30f8b9317487535058bd3ab5d2ac48a7dd97f8c8",
+        "durableWrites": 54,
+        "previousScope": "one-native-REPLACE-continuous-future-ledger",
+        "scope": "one-native-ADD-continuous-future-ledger"
+      },
+      "legacy-learner": {
+        "chainSha256": "30617cb7cfc9ae7bbef881c4c6b40076111de46f16f6c14438af076abc2ab408",
+        "durableWrites": 9,
+        "previousScope": "one-native-REPLACE-continuous-learner-ledger",
+        "scope": "one-native-ADD-continuous-learner-ledger"
+      },
+      "replace-future": {
+        "chainSha256": "b948740b04d01193a8f0d2d44b84781da0e689170ac97fff3a6f226cf1f3ce0a",
+        "durableWrites": 44,
+        "previousScope": "one-native-REPLACE-continuous-future-ledger",
+        "scope": "one-native-REPLACE-continuous-future-ledger"
+      },
+      "replace-learner": {
+        "chainSha256": "21ffe664b1c4a5831417c6456f48dffa1fafb303932d02b1088cf1bace85b97d",
+        "durableWrites": 8,
+        "previousScope": "one-native-REPLACE-continuous-learner-ledger",
+        "scope": "one-native-REPLACE-continuous-learner-ledger"
+      }
+    },
+    "status": "PASS"
+  },
+  "currentSourceNativeCohortQualified": false,
+  "firstQualificationAttempt": {
+    "log": {
+      "bytes": 4009,
+      "path": "target/v53-profile-ledgers-20261102/qualification.log",
+      "sha256": "df649e86be6c8962203d6beb8f62c2f199e02d67ff814f16d8c899dc2ed492f1"
+    },
+    "reader": {
+      "bytes": 624926,
+      "path": "target/v53-profile-ledgers-20261102/reader/source.json",
+      "sha256": "219d0a2b333eb6dff343f99604cff9f15f92eba671853d17d515d13166162031"
+    },
+    "reason": "peer context constructor intercepted learner reopen negatives",
+    "status": "FAIL"
+  },
+  "futureLedgerCompositionQualified": true,
+  "learnerLedgerCompositionQualified": true,
+  "negativeScope": {
+    "missingTargetsFail": true,
+    "mutatedPrerequisiteReplayed": false,
+    "onlyApplicabilityException": "learner wrong-write-scope when original derived joining write count is zero",
+    "originalFirst": true,
+    "physicalWireAndOtherEventsUnchanged": true
+  },
+  "originalReplays": {
+    "legacy": {
+      "execution": {
+        "elapsedSeconds": 390.764,
+        "exit": 0
+      },
+      "future": {
+        "chainSha256": "20796cd9371da262331eb6fc30f8b9317487535058bd3ab5d2ac48a7dd97f8c8",
+        "completePhysicalQualified": false,
+        "durableWrites": 54,
+        "finalRevisions": {
+          "node-1": 24,
+          "node-2": 24,
+          "node-3": 0,
+          "node-4": 6
+        },
+        "futureLedgerCompositionQualified": true,
+        "learnerLedgerCompositionQualified": false,
+        "ledgerComparisons": 81,
+        "openReseals": 8,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "scope": "one-native-ADD-continuous-future-ledger",
+        "status": "PASS",
+        "writesByKind": {
+          "clear": 24,
+          "record": 30
+        }
+      },
+      "inputInventory": {
+        "bytes": 573262,
+        "path": "target/v53-profile-ledgers-20261102/v2/legacy-inputs.json",
+        "sha256": "97c32eafa035d70a610b80bf3fbc2d49e5993e97c72dad590cab1d36e590718d"
+      },
+      "learner": {
+        "admissionCustodyEvents": 11,
+        "capturedLedgers": 19,
+        "chainSha256": "30617cb7cfc9ae7bbef881c4c6b40076111de46f16f6c14438af076abc2ab408",
+        "completePhysicalQualified": false,
+        "durableWrites": 9,
+        "finalRevisions": {
+          "node-1": 4,
+          "node-2": 4,
+          "node-3": 0,
+          "node-4": 1
+        },
+        "learnerLedgerCompositionQualified": true,
+        "ledgerComparisons": 101,
+        "openReseals": 8,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "sameViewPhysicalQualified": false,
+        "scope": "one-native-ADD-continuous-learner-ledger",
+        "selectedTransitions": 14,
+        "status": "PASS",
+        "writesByKind": {
+          "confirm": 2,
+          "record": 4,
+          "selected": 3
+        }
+      },
+      "notApplicable": 0,
+      "rejected": 45,
+      "result": {
+        "bytes": 22741,
+        "path": "target/v53-profile-ledgers-20261102/v2/legacy.json",
+        "sha256": "41b3860ca6fb69c164858ac28a12d1e53675469621ba87a55c10e523b95cc32b"
+      }
+    },
+    "replace": {
+      "execution": {
+        "elapsedSeconds": 295.309,
+        "exit": 0
+      },
+      "future": {
+        "chainSha256": "b948740b04d01193a8f0d2d44b84781da0e689170ac97fff3a6f226cf1f3ce0a",
+        "completePhysicalQualified": false,
+        "durableWrites": 44,
+        "finalRevisions": {
+          "node-1": 22,
+          "node-2": 22,
+          "node-3": 0,
+          "node-4": 0
+        },
+        "futureLedgerCompositionQualified": true,
+        "learnerLedgerCompositionQualified": false,
+        "ledgerComparisons": 76,
+        "openReseals": 8,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "scope": "one-native-REPLACE-continuous-future-ledger",
+        "status": "PASS",
+        "writesByKind": {
+          "clear": 22,
+          "record": 22
+        }
+      },
+      "inputInventory": {
+        "bytes": 558304,
+        "path": "target/v53-profile-ledgers-20261102/v2/replace-inputs.json",
+        "sha256": "84d9e7f36e165b68d6d26c83b2ea9b8c7eab5c24e69decc214d9e538e6764a3c"
+      },
+      "learner": {
+        "admissionCustodyEvents": 11,
+        "capturedLedgers": 17,
+        "chainSha256": "21ffe664b1c4a5831417c6456f48dffa1fafb303932d02b1088cf1bace85b97d",
+        "completePhysicalQualified": false,
+        "durableWrites": 8,
+        "finalRevisions": {
+          "node-1": 4,
+          "node-2": 4,
+          "node-3": 0,
+          "node-4": 0
+        },
+        "learnerLedgerCompositionQualified": true,
+        "ledgerComparisons": 94,
+        "openReseals": 8,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "sameViewPhysicalQualified": false,
+        "scope": "one-native-REPLACE-continuous-learner-ledger",
+        "selectedTransitions": 12,
+        "status": "PASS",
+        "writesByKind": {
+          "confirm": 2,
+          "record": 4,
+          "selected": 2
+        }
+      },
+      "notApplicable": 1,
+      "rejected": 44,
+      "result": {
+        "bytes": 23254,
+        "path": "target/v53-profile-ledgers-20261102/v2/replace.json",
+        "sha256": "e69b564eaa325ce14d331d28ae9cce2fa6aca12c4d837a67ec406ad65ea7ce85"
+      }
+    },
+    "same-view": {
+      "execution": {
+        "elapsedSeconds": 54.552,
+        "exit": 0
+      },
+      "inputInventory": {
+        "bytes": 600356,
+        "path": "target/v53-profile-ledgers-20261102/v2/same-view-inputs.json",
+        "sha256": "efc38f2303e5129c11d042153170d210a7ad40997206981f5e9b89f5babc8e9b"
+      },
+      "result": {
+        "bytes": 12761,
+        "path": "target/v53-profile-ledgers-20261102/v2/same-view.json",
+        "sha256": "8e387f772f18fafd15aaadead220a62c1d9f0e2d1403e2d3abe332a7cb90b695"
+      }
+    }
+  },
+  "peerLedgerCompositionQualified": true,
+  "phase3Complete": false,
+  "previousRegression": {
+    "conditionalCases": 3,
+    "driver": {
+      "bytes": 3058,
+      "path": "target/v53-profile-ledgers-20261102/previous-regression.py",
+      "sha256": "82e81ab73b94db84753caa82ce86e26e7b545ede79f4809dac4ea18cdd665d63"
+    },
+    "errors": 1,
+    "failures": 1,
+    "log": {
+      "bytes": 3340,
+      "path": "target/v53-profile-ledgers-20261102/previous-regression.log",
+      "sha256": "2abb2f58c6a8fe08c2f6dd37af6378a05277a569d148668a805d3fd46a27c42a"
+    },
+    "mechanisms": [
+      "one local write scheduled twice for two remote replies",
+      "remote delivery incorrectly extends local force lifetime",
+      "old node-4 mistaken for joiner"
+    ],
+    "previousFuture": {
+      "bytes": 20207,
+      "path": "target/v53-profile-ledgers-20261102/previous-future.py",
+      "sha256": "9f5ea9bc5ae006fa6804386853e976ca1bf9cc9462664c5b4edad1bca7648350"
+    },
+    "previousLearner": {
+      "bytes": 23930,
+      "path": "target/v53-profile-ledgers-20261102/previous-learner.py",
+      "sha256": "967e314d93fddccaf7dbf86c5b7ac148a09f2d9979278884fec17f6f4be8cbcd"
+    },
+    "previousPlannerTests": 2,
+    "scope": "original learner recording-loop excerpt and original future constructor; conditional inputs, no native rerun",
+    "status": "REPRODUCED"
+  },
+  "python": {
+    "focusedLog": {
+      "bytes": 150,
+      "path": "target/v53-profile-ledgers-20261102/v2/focused.log",
+      "sha256": "d963c202034739094349836525bcdfdfa8865555f557e559325781d8900fbc8d"
+    },
+    "log": {
+      "bytes": 3962,
+      "path": "target/v53-profile-ledgers-20261102/v2/python-tests.log",
+      "sha256": "f752c9af6d48900ff02eb1ff151f38dacc7a669df23d72689258fd90a97e1980"
+    },
+    "newTests": 18,
+    "seconds": 100.022,
+    "tests": 1872
+  },
+  "reader": {
+    "code": {
+      "scripts/v53/joining_profile_ledger_evidence.py": "5b37fe1c18ed13c28e95746f4aa38555ff8c45f1c243b262b70c55dc9e1f7baa",
+      "scripts/v53/joining_same_view_future.py": "7970624410cefb0adcf7e69f74ca4f85a2dba021b75a11ea37cc3cc349acd131",
+      "scripts/v53/joining_same_view_learner.py": "21db8eaf375f0b9e055c69679e50015e7a61a8dc4773796311feaf574def19f4",
+      "scripts/v53/test_joining_profile_ledger_evidence.py": "21bec06d88569fa123f273cd5cbf391c28fb57815d3ee271c21087ef734353cf"
+    },
+    "manifest": {
+      "bytes": 625042,
+      "path": "target/v53-profile-ledgers-20261102/v2/reader/source.json",
+      "sha256": "5b97a4123730895d515c8822ae6bb358442be6cc430a7d7130785948c2f2c4e8"
+    }
+  },
+  "remaining": [
+    "Actual-profile ballot composition",
+    "Final-source seven-profile and process/fault cohorts",
+    "Combined bounds and frozen S/N mapping"
+  ],
+  "sameViewCompatibility": {
+    "everyFieldIdentical": true,
+    "previous": "/home/klfdm/perception/GeneralSearchEngine/target/v53-profile-peers-20261102/v2/same-view.json",
+    "receipt": {
+      "bytes": 166,
+      "path": "target/v53-profile-ledgers-20261102/v2/same-view-compatibility.json",
+      "sha256": "96db32f7b1771eabb96ee7de35b8f7dc542ef99634e21582f44c2da5d7a72465"
+    },
+    "status": "PASS"
+  },
+  "schema": "gse-v53-profile-ledgers-entry-v1",
+  "status": "PARTIAL"
+}

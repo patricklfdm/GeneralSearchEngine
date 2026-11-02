@@ -5,6 +5,7 @@ retention callbacks are a distinct admission transaction, not a GSLR revision.
 """
 import argparse
 from collections import Counter
+from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor,as_completed
 import json
 from pathlib import Path
@@ -57,8 +58,8 @@ def observations(events,joining):
 
 
 class Replay:
-    def __init__(self,root):
-        self.root=Path(root);self.base=a.Replay(root);self.model=self.base.model;self.events=self.base.events
+    def __init__(self,root,*,base=None):
+        self.root=Path(root);self.base=a.Replay(root) if base is None else base;self.model=self.base.model;self.events=self.base.events
         self.tx,self.admission=observations(self.events,self.model.joining)
         self.state={};self.steps=[];self.used=set();self.callbacks=set();self.comparisons=0;self.selected=0;self.reseals=0
 
@@ -157,19 +158,39 @@ class Replay:
         else:files=disk.inventory(self.root/'before-network'/node)
         self.compare(node,files[FILE],'reopen');self.callbacks.update(order[:2]);self.reseals+=1
 
+    def recording_actions(self):
+        groups=defaultdict(list);actions=[]
+        for row in self.base.rows:
+            if row['kind']=='LEARNER_RETENTION_INTENT':
+                q=row['request'];groups[q['sender']['node'],q['trace']].append(row)
+        for (node,_),rows in groups.items():
+            rows=sorted(rows,key=lambda v:v['sent']);first=rows[0];q=first['request']
+            context=lambda v:f.canonical({k:v['request'][k] for k in ('sender','view','ballot','payload')})
+            need(all(context(v)==context(first) for v in rows),'joining learner mixed original recording round')
+            peers=[v['request']['recipient']['node'] for v in rows]
+            need(node not in peers and len(peers)==len(set(peers)),'joining learner duplicate original recording voter')
+            # A redundant reply can arrive after selection (or never arrive).
+            # It still has an original remote force, while the one local force
+            # precedes the first send and belongs to this sending generation.
+            own=self.base.current(node,first['sent'],rows[-1]['sent'])
+            finish=self.callback(node,RETURNS[0],own['start'],first['sent'])
+            actions.append((finish,'record',(node,first,own,own['start'],first['sent'])))
+            for row in rows:
+                peer=row['request']['recipient']['node'];remote=self.base.current(peer,row['received'],row['offered'])
+                finish=self.callback(peer,RETURNS[0],row['received'],row['offered'])
+                actions.append((finish,'record',(peer,row,remote,row['received'],row['offered'])))
+        return actions
+
     def run(self):
         for node,files in learner.initialize(self.model.original).items():
             self.state[node]=files[FILE];self.compare(node,disk.inventory(self.root/'before-network'/node)[FILE],'bootstrap')
         actions=[]
         initialized=[i for i,v in enumerate(self.events) if v['event']=='JOINING_RETENTION_BEFORE_RETURN']
         need(len(initialized)==1,'joining learner original initialization count');actions.append((initialized[0],'initialize',(initialized[0],)))
+        actions.extend(self.recording_actions())
         for row in self.base.rows:
             q=row['request'];node=q['sender']['node'];peer=q['recipient']['node']
-            if row['kind']=='LEARNER_RETENTION_INTENT':
-                own=self.base.current(node,row['sent'],row['delivered']);remote=self.base.current(peer,row['received'],row['offered'])
-                for n,source,lower,upper in [(node,own,own['start'],row['sent']),(peer,remote,row['received'],row['offered'])]:
-                    finish=self.callback(n,RETURNS[0],lower,upper);actions.append((finish,'record',(n,row,source,lower,upper)))
-            elif row['kind']=='LEARNER_HEAD_QUERY':
+            if row['kind']=='LEARNER_HEAD_QUERY':
                 own=self.base.current(node,row['sent'],row['delivered']);finish=self.callback(node,RETURNS[1],row['delivered'],own['end'])
                 actions.append((finish,'confirm',(row,finish)))
         for own in self.base.windows:
@@ -181,7 +202,7 @@ class Replay:
             for label,point in [('applied','APPLY_BEFORE_RETURN'),('published','PUBLICATION_BEFORE_RETURN')]:
                 actions.append((points[point],'compare',(node,self.model.owner(label,index,node)[FILE],label+'-'+str(index))))
         actions.extend((v['start'],'capture',(v,)) for v in self.base.sources)
-        for node,scope in a.peer.OWNERS:
+        for node,scope in a.peer.owner_lifetimes(self.model):
             found=[i for i,v in enumerate(self.events) if v.get('node')==node and v.get('scope')==scope and v['event']==RESEAL[-1]]
             need(len(found)==1,'joining learner exact reopen count');actions.append((found[0],'reopen',(node,scope,found[0])))
         for _,kind,args in sorted(actions,key=lambda v:v[0]):getattr(self,kind)(*args)
@@ -190,7 +211,7 @@ class Replay:
         for node in self.state:
             path='joining-originals-stable-cold/replica' if node==self.model.joining else 'after-close/'+node
             self.compare(node,disk.inventory(self.root/path)[FILE],'cold')
-        return dict(status='PASS',scope='one-native-REPLACE-continuous-learner-ledger',durableWrites=len(self.steps),
+        return dict(status='PASS',scope='one-native-'+self.model.kind+'-continuous-learner-ledger',durableWrites=len(self.steps),
                     writesByKind=dict(Counter(v['kind'] for v in self.steps)),openReseals=self.reseals,selectedTransitions=self.selected,
                     ledgerComparisons=self.comparisons,capturedLedgers=len(self.base.sources),admissionCustodyEvents=len(self.admission),
                     finalRevisions={n:learner.decode(raw)['revision'] for n,raw in self.state.items()},
@@ -239,9 +260,9 @@ NEGATIVES={
 }
 
 
-def mutate(root,name):
+def mutate(root,name,*,reader=None):
     need(name in NEGATIVES,'joining learner unknown negative');root=Path(root)
-    reader=Replay(root);reader.run();events=reader.events
+    reader=Replay(root) if reader is None else reader;reader.run();events=reader.events
     def move(values,target,after=False):
         ids={id(v) for v in values};events[:]=[v for v in events if id(v) not in ids]
         at=next(i for i,v in enumerate(events) if v is target)+int(after);events[at:at]=values

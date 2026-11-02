@@ -1,9 +1,16 @@
 # V5.3 — controlled cluster operations
 
+[Profile future and learner ledgers](PHASE_3_PROFILE_LEDGERS.md) now derive
+continuous revisions across actual owner lifetimes. Multi-recipient learner
+rounds consume one local write and each original remote write separately;
+future ACKs precede every matching send. Profile ballot composition and the
+final-source seven-profile/process cohorts remain OPEN.
+
 [Profile continuous peer ledgers](PHASE_3_PROFILE_PEERS.md) now bind every old
 voter and actual joining owner to continuous revisions, original forces, reseals
 and cold bytes, including an explicit adoption comparison. Larger-profile
-learner/future/ballot composition and the final-source cohort remain OPEN.
+ballot composition and the final-source cohort remain OPEN; future/learner
+composition is recorded above.
 
 [Profile maintenance authority](PHASE_3_PROFILE_MAINTENANCE.md) now verifies
 actual old/new majorities, complete original copies and every floor lifecycle.
