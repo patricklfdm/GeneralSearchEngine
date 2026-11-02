@@ -51,7 +51,7 @@ prove its semantics.
 | 3C initialization | Actual joining owner, three-ledger initialization and 360-case entry | Final-source matrix; combined bounds |
 | 3C joint | Private INTENT/FINAL/BARRIER coordination for all seven profiles | Final-source profiles and interrupted transitions |
 | 3D rounds | Carried-first publication, two durable phases and round reuse | Current-source carried/stable/process qualification |
-| 3D automatic | Competing owners, heartbeat, original grants, both campaign networks, maintenance, installation/publication and [observed export authority](PHASE_3_COMPETING_EXPORTS.md) | Export expiry/close faults, complete lifecycle/recovery across campaigns, final-source competition and failure coverage |
+| 3D automatic | Competing owners, heartbeat, original grants, both campaign networks, maintenance, installation/publication, [observed export authority](PHASE_3_COMPETING_EXPORTS.md) and [actual lifecycle collection](PHASE_3_AUTOMATIC_LIFECYCLE.md) | No-retirement/pre-grant-loss integration, export expiry/close faults, complete lifecycle/recovery, final-source competition and failure coverage |
 | 3D removal | Departure fencing, retirement and original-disk recovery | Final-source original/negative process matrix |
 | 3E resources | Accounting, bounded transfers, publication refusal and conditional-prefix tests | Simultaneous physical peak and admitted completion |
 | 3E coverage | Frozen finite inventory and this dependency map | Concrete schedule/evidence/rejection mapping |
@@ -76,8 +76,10 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    [Installation/publication continuation](PHASE_3_COMPETING_PUBLICATION.md) now
    derives the selected generations, both slots, client completion and drained
    scratch from that original. [Activation network](PHASE_3_COMPETING_ACTIVATION_NETWORK.md)
-   now includes both choices and the losing incomplete transfer. Complete temporal
-   exports and lifecycle composition before adding a general competition gate.
+   now includes both choices and the losing incomplete transfer. Observed temporal
+   exports are checked; actual lifecycle collection exposed a new no-retirement,
+   pre-grant-loss schedule whose integrated replay still refuses. Complete that
+   original and lifecycle composition before adding a general competition gate.
    Continue with competing owners, then inventory transfer, carried
    and transition recovery entries and uncovered learner profiles. Reuse existing producers/readers.
    Historical qualification remains scoped to its source, not a new cohort slot.

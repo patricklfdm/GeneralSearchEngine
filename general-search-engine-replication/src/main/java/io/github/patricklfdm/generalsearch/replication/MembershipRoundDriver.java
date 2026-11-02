@@ -223,13 +223,16 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
     /** Transfer serial invocation ownership to one private automatic control
      * loop. The caller must no longer invoke this driver directly. */
     synchronized MembershipAutomaticOwner automaticOwner(AutomaticLeadershipPolicy policy) {
+        return automaticOwner(policy,MembershipAutomaticOwner.Events.NONE);
+    }
+    synchronized MembershipAutomaticOwner automaticOwner(AutomaticLeadershipPolicy policy,MembershipAutomaticOwner.Events lifecycle) {
         return new MembershipAutomaticOwner(automaticSession(policy),()->{
             var fresh=new MembershipRoundDriver<>(owner,endpoint,resources,bounds,transport,
                 scratch.resolveSibling(scratch.getFileName()+"-retry-"+UUID.randomUUID()),clock,budget,maximumCampaigns,
                 configuration,storage,events,slotEvents);
             try{return fresh.automaticSession(policy,true);}
             catch(RuntimeException|Error error){try{fresh.close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;}
-        },Math.min(3,bounds.maxRetryAttempts()),resources,bounds,policy,clock,budget);
+        },Math.min(3,bounds.maxRetryAttempts()),resources,bounds,policy,clock,budget,lifecycle);
     }
     @FunctionalInterface interface CampaignCall<R> { R run()throws IOException; }
     static <R> R campaignCall(CampaignCall<R> call)throws IOException {

@@ -1,0 +1,213 @@
+{
+  "baseCommit": "579fae3ca6f2445dcd1a5291791c107c55a15eeb",
+  "collection": {
+    "actualStateTransitionsQualified": true,
+    "finalSourceCohortQualified": false,
+    "fullLifecycleQualified": false,
+    "lossCauseQualified": false,
+    "observations": 24,
+    "originalDeadlinePreserved": true,
+    "owners": [
+      {
+        "drained": true,
+        "losses": [
+          "HIGHER_BALLOT"
+        ],
+        "node": "node-1",
+        "readyCallbacks": [],
+        "rounds": 2,
+        "started": true
+      },
+      {
+        "drained": true,
+        "losses": [],
+        "node": "node-2",
+        "readyCallbacks": [],
+        "rounds": 1,
+        "started": true
+      },
+      {
+        "drained": true,
+        "losses": [],
+        "node": "node-3",
+        "readyCallbacks": [
+          1211
+        ],
+        "rounds": 1,
+        "started": true
+      }
+    ],
+    "phase3Complete": false,
+    "physicalNetworkQualified": false,
+    "scope": "automatic-owner-observed-lifecycle-collection",
+    "status": "PARTIAL"
+  },
+  "correctedDevelopmentChecks": [
+    {
+      "issue": "Initial new test fixture omitted parent directories; an existing native test also met sandbox loopback denial. Fixture corrected and rerun with local socket permission.",
+      "log": {
+        "path": "target/v53-automatic-lifecycle/focused-maven.log",
+        "sha256": "7a383e71b11fa572039c7df51da74d6ce227f107591624e330fc2502eb2db33b"
+      }
+    },
+    {
+      "issue": "Synthetic test JSON was not canonical; corrected to use the real format encoder.",
+      "log": {
+        "path": "target/v53-automatic-lifecycle/python-focused.log",
+        "sha256": "7b7dfc8b5a3329a96c1dc9c309f634f0f168307bf92526d9c0e18364e80604c4"
+      }
+    }
+  ],
+  "defaultObserver": "NONE",
+  "finalSourceCohortQualified": false,
+  "fullLifecycleQualified": false,
+  "hostedExecuted": false,
+  "implementationInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipAutomaticOwner.java": "f5686ded327c432ece2107649bee600d9541040d83ea41c1144ba33284613b4a",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipNodeOwner.java": "f9096fb9197818880752f977e5a6ec258217d4d0a20da1fb34df32ffc3b610a3",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRoundDriver.java": "3aaf35af190d4e54361be85e781552466c848498ca0b23a99fafa1987ff4bfe1",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AutomaticLifecycleCapture.java": "835e07ef0b496f94d324dc780d1684215290248883d322f0712c20864a1e08be",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AutomaticLifecycleTest.java": "465fd10ad3afd9a6ce76c6fe6326947e5884c879d8842143f8284ed0d1d4677b",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CompetingNodeQualification.java": "f93b90ee630d3e209e16f84fb16e485b92bff3c56df935536028997a5adca7ff",
+    "scripts/v53/automatic_lifecycle.py": "5b8de0c5ed12349d86c99e42ed8c7ccf083f8ee9a00e9982aef218550030de39",
+    "scripts/v53/competing_node_evidence.py": "936128e0d4ccb23929bebdaacd3a2b25e1d445bcd77d6c04ea273c2e5babe2b9",
+    "scripts/v53/test_automatic_lifecycle.py": "dbc79cc468979ce4f80682f274182ec968385548ff5e03f6e78362d2940a6920"
+  },
+  "integratedReplay": {
+    "cause": "The new original loses before creating its own old grant; two captured grants and no preinstall retirement. The existing maintenance reader requires a preceding floor transaction.",
+    "execution": {
+      "path": "target/v53-automatic-lifecycle/integrated-execution.json",
+      "sha256": "7adf88ce78a2c098911892ca529aa802da9be2ba33197edd3ee7f0854d485c42"
+    },
+    "reason": "competing maintenance first installation boundary",
+    "resolution": "Pending original-preserving replay of no-retirement preinstall and the abandoned pre-grant discovery/attempt; no native rerun.",
+    "status": "FAIL",
+    "stderr": {
+      "path": "target/v53-automatic-lifecycle/integrated-replay.stderr",
+      "sha256": "a780954b5909e9827b73d8063929c0ed847bc21abceb53caa570f9a84c060f17"
+    }
+  },
+  "nativeOriginal": {
+    "build": {
+      "path": "target/v53-automatic-lifecycle/native/build.json",
+      "sha256": "eca5c38940c10a5f2dc73acbe941266f9c97c12fb1a1733a1c62cdd99c4773c5"
+    },
+    "collection": {
+      "path": "target/v53-automatic-lifecycle/native/collection.json",
+      "sha256": "fa8c0a890cdf903e8fe15757d2e4a5b4be5c61d6ade2653b073d5ee395988d3d"
+    },
+    "execution": {
+      "elapsedSeconds": 98.334,
+      "exit": 0
+    },
+    "inventory": {
+      "path": "target/v53-automatic-lifecycle/native-inventory.json",
+      "sha256": "cede619fad3dd7291c32441dcff8701bc67370646a48462ce0bea01b4d71d169"
+    },
+    "log": {
+      "path": "target/v53-automatic-lifecycle/native/maven.log",
+      "sha256": "9e82fc2668a45aa4a8b15b624c9a1e70b03693a2b7f952bf5d0d14b02fad7f25"
+    },
+    "raw": "target/v53-automatic-lifecycle/native/workspace/general-search-engine-replication/target/v53-competing-node/run-07db2cf0-31db-4fbc-86b3-b6b89770806c",
+    "request": {
+      "path": "target/v53-automatic-lifecycle/native/request.json",
+      "sha256": "c8d2a8afd7a3ac52bfad307af49cb938c0bf7783d817dfebf1f11b32f0570e09"
+    },
+    "retries": 0,
+    "source": {
+      "path": "target/v53-automatic-lifecycle/native/source.json",
+      "sha256": "b6a204cd41acd98e090ffc03ad03ed32f8aa3e7596496531d589e6fb1a77d0f7"
+    },
+    "sourceNote": "Immutable recorded working bytes at baseline 579fae3c; not an exact-final-source cohort.",
+    "toolchain": {
+      "path": "target/v53-automatic-lifecycle/native/toolchain.json",
+      "sha256": "227bb62ad494cb79680fe9432d9f3cfe07d7c6717cabf245bf4167b1a16a8612"
+    }
+  },
+  "next": "Replay the retained no-retirement/pre-grant-loss history, bind observed typed losses to actual protocol causes, then complete lifecycle/recovery and final-source competition admission.",
+  "paidCloudExecuted": false,
+  "phase3Complete": false,
+  "priorDevelopmentReceipt": {
+    "path": "docs/v5x/v5.3/phase3-evidence/competing-exports.json",
+    "sha256": "530716f44d780f114183ea12ae62e26cd763ce3274b157b9c1c1c6455dd6fc04"
+  },
+  "protocolBudgetsChanged": false,
+  "runtimeJavaChanged": true,
+  "schema": "gse-v53-automatic-lifecycle-development-v1",
+  "scope": "actual automatic-owner lifecycle collection and original event linkage; integrated no-retirement history still refuses",
+  "status": "PARTIAL",
+  "validation": {
+    "contracts": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 2238,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "path": "target/v53-automatic-lifecycle/contracts.log",
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "sha256": "a02aa5cc3d30113d034e1a83f7d2673fae59ff7e2c135e205eb19c0330ff72b7",
+      "status": "PASS"
+    },
+    "finalJavaRegression": {
+      "note": "Repeat of the seven lifecycle tests after the node observation accessor correction; not seven additional unique tests.",
+      "path": "target/v53-automatic-lifecycle/final-lifecycle-regression.log",
+      "sha256": "f2a7d816c347eec7a1d1583d39a381a1f15fddce20f477fb495cf7fe73b2bf4d",
+      "status": "PASS",
+      "tests": 7
+    },
+    "java": {
+      "path": "target/v53-automatic-lifecycle/focused-maven-corrected.log",
+      "sha256": "cca7717431fdfb3befb7bfbdb4d908a750b9ece96e7065097a21dad6e8f02688",
+      "status": "PASS",
+      "tests": 31
+    },
+    "legacyExports": {
+      "negatives": 26,
+      "path": "target/v53-automatic-lifecycle/legacy-exports.json",
+      "pythonOptimized": true,
+      "sha256": "b37690329d29a4b2f28b471c797ca7a228ff2bef0be2b17b855041ea6b67ffce",
+      "status": "PASS"
+    },
+    "nativeNegatives": {
+      "negatives": 12,
+      "path": "target/v53-automatic-lifecycle/qualification.json",
+      "sha256": "1a279a2d930577c6abe1ec6707fdda56d8f98c68acb7e372a60c4edc7042505b",
+      "status": "PASS"
+    },
+    "nodeService": {
+      "path": "target/v53-automatic-lifecycle/node-service-regression.log",
+      "sha256": "b139b39205e99e830e0c0f1878e0201a190fee45db18b980e8313f435f25e678",
+      "status": "PASS",
+      "tests": 10
+    },
+    "optimized": {
+      "path": "target/v53-automatic-lifecycle/optimized-tests.log",
+      "seconds": 0.053,
+      "sha256": "833b320a0631c9dd7a7366e8c128e1ee42a631ebb2d95b70fd77e0680f0a68d5",
+      "status": "PASS",
+      "tests": 35
+    },
+    "planInspection": {
+      "execution": "source-inventory-only",
+      "path": "target/v53-automatic-lifecycle/plan-inspection-final/receipt.json",
+      "sha256": "12913b788d8f259eed6d6d9cf5f3a1cf9a8111ff9d8d83170c954fdc4ea3b0de",
+      "status": "PASS"
+    },
+    "portableQualification": {
+      "negatives": 12,
+      "path": "target/v53-automatic-lifecycle/portable-qualification.json",
+      "pythonOptimized": true,
+      "sha256": "1a279a2d930577c6abe1ec6707fdda56d8f98c68acb7e372a60c4edc7042505b",
+      "status": "PASS"
+    },
+    "python": {
+      "path": "target/v53-automatic-lifecycle/python-suite.log",
+      "seconds": 104.295,
+      "sha256": "41d5ff15795fba2d845fae3f17998eb9d04beabf604cf0aaca6672f08794e59a",
+      "status": "PASS",
+      "tests": 2293
+    }
+  },
+  "workflowChanged": false
+}

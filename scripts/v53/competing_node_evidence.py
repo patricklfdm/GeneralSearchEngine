@@ -113,9 +113,13 @@ def inventory(root):
     extras = {'grant-captures', 'grant-capture-events.json'}
     present = extras & {v.name for v in root.iterdir()}
     need(not present or present == extras, 'competing complete grant capture attachments')
+    lifecycle={'automatic-lifecycle.json'} & {v.name for v in root.iterdir()}
     b.selection.layout(root, {'initial','original-plan.gsbp','original-application.image','before-network',
         'after-close','calls.json','events.json','wire.json','failure.txt','close-failure.txt','result.json',
-        'diagnostics.json','observations.json','drain-scratch','drains.json'} | present, 'competing original history')
+        'diagnostics.json','observations.json','drain-scratch','drains.json'} | present | lifecycle, 'competing original history')
+    if lifecycle:
+        from . import automatic_lifecycle
+        automatic_lifecycle.validate(root)
 
 
 def record(row, family, kind):

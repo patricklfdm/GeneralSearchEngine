@@ -31,6 +31,7 @@ class V53CompetingNodeQualification {
         f.snapshot("before-network");
         var events=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
         var captures=new V53CompetingGrantCapture(raw,events);
+        var lifecycle=new V53AutomaticLifecycleCapture(raw,events);
         var wire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
         var nodes=new ArrayList<MembershipNodeOwner<Integer,Doc>>();var calls=new ArrayList<MembershipAutomaticOwner.Call>();
         var observations=new ArrayList<Map<String,Object>>();var bounds=ReplicationBounds.defaults();
@@ -51,7 +52,8 @@ class V53CompetingNodeQualification {
                             observe(events,Map.of("node",name,"event","WIRE_RESPONSE","request",request.digest(),"response",response.digest()));
                         }
                     },(event,record)->observe(events,Map.of("node",name,"event","ROUND_"+event,"record",record.digest(),"bytes",Base64.getEncoder().encodeToString(record.bytes()))),
-                    (event,record,voters)->observe(events,Map.of("node",name,"event","SLOT_"+event,"record",record.digest(),"bytes",Base64.getEncoder().encodeToString(record.bytes()),"voters",voters.stream().sorted().toList())));
+                    (event,record,voters)->observe(events,Map.of("node",name,"event","SLOT_"+event,"record",record.digest(),"bytes",Base64.getEncoder().encodeToString(record.bytes()),"voters",voters.stream().sorted().toList())),
+                    observation->lifecycle.at(name,observation));
                 var node=new MembershipNodeOwner<>(config,builder().configuration(),scratch.resolve("incoming"),scratch.resolve("outgoing"),System::nanoTime,V53NodeOwnerNetworkTest.BUDGET,hooks);
                 nodes.add(node);node.open();assertThrows(IllegalArgumentException.class,node::readiness);
                 observe(events,Map.of("node",name,"event","NODE_OPEN"));
@@ -116,7 +118,8 @@ class V53CompetingNodeQualification {
             var drains=new ArrayList<Map<String,Object>>();
             for(int i=nodes.size()-1;i>=0;i--) {
                 var node=nodes.get(i);Throwable error=null;
-                try{node.close();assertEquals(0,node.usage().leases());}
+                try{node.close();assertEquals(0,node.usage().leases());
+                    if(node.observationFailure().isPresent())throw node.observationFailure().orElseThrow();}
                 catch(IOException|RuntimeException|AssertionError failure){
                     error=failure;var drain=failure instanceof IOException io?io:new IOException("node resource drain failed",failure);
                     if(closing==null)closing=drain;else closing.addSuppressed(drain);
@@ -135,6 +138,7 @@ class V53CompetingNodeQualification {
             }
             Files.write(raw.resolve("drains.json"),canonical(drains,1024*1024));
             captures.save();
+            lifecycle.save();
             Files.write(raw.resolve("events.json"),canonical(events,16*1024*1024));Files.write(raw.resolve("wire.json"),canonical(wire,32*1024*1024));
             Files.write(raw.resolve("observations.json"),canonical(observations,65536));Files.write(raw.resolve("diagnostics.json"),canonical(diagnostics,65536));
             Files.writeString(raw.resolve("failure.txt"),failed==null?"":stack(failed));Files.writeString(raw.resolve("close-failure.txt"),closing==null?"":stack(closing));

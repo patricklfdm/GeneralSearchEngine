@@ -7,6 +7,13 @@ groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
 
+[Actual automatic lifecycle](PHASE_3_AUTOMATIC_LIFECYCLE.md) now records start,
+typed loss, old-session drain, fresh-session opening and final drain directly.
+A new native history passes collection and twelve attachment negatives, but
+whole-history integration refuses its previously uncovered no-retirement
+preinstall branch. That original is retained for the next continuation; no
+rerun or final diagnostic substitutes for its missing integration.
+
 [Competing observed exports](PHASE_3_COMPETING_EXPORTS.md) now bind all 68
 committed transfers and the incomplete losing SELECTED to nine derived current
 generation windows, four frozen sources and original record capabilities.

@@ -16,9 +16,13 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 final class MembershipNodeOwner<K,T> implements AutoCloseable {
     enum State { NEW, OPENING, OPEN, FAILED, CLOSING, CLOSED }
     record Hooks(MembershipBallotAllocator.Cut storage,MembershipTransport.Events network,
+                 MembershipRoundDriver.Events round,MembershipSlotDriver.Events slot,MembershipAutomaticOwner.Events automatic) {
+        Hooks(MembershipBallotAllocator.Cut storage,MembershipTransport.Events network,
                  MembershipRoundDriver.Events round,MembershipSlotDriver.Events slot) {
+            this(storage,network,round,slot,MembershipAutomaticOwner.Events.NONE);
+        }
         static final Hooks NONE=new Hooks(event->{},MembershipTransport.Events.NONE,MembershipRoundDriver.Events.NONE,MembershipSlotDriver.Events.NONE);
-        Hooks {Objects.requireNonNull(storage);Objects.requireNonNull(network);Objects.requireNonNull(round);Objects.requireNonNull(slot);}
+        Hooks {Objects.requireNonNull(storage);Objects.requireNonNull(network);Objects.requireNonNull(round);Objects.requireNonNull(slot);Objects.requireNonNull(automatic);}
     }
     private final MembershipReplicaConfig<K,T> config;
     private final SearchEngineConfiguration<K,T> application;
@@ -35,6 +39,7 @@ final class MembershipNodeOwner<K,T> implements AutoCloseable {
     private volatile MembershipTransport transport;
     private volatile MembershipRoundDriver<K,T> unownedRound;
     private volatile MembershipAutomaticOwner automatic;
+    private volatile IOException observationFailure;
 
     MembershipNodeOwner(MembershipReplicaConfig<K,T> config,SearchEngineConfiguration<K,T> application,
             Path incoming,Path outgoing,LongSupplier clock,long budget,Hooks hooks) {
@@ -48,6 +53,10 @@ final class MembershipNodeOwner<K,T> implements AutoCloseable {
     MembershipResources.Usage usage(){return resources.usage();}
     synchronized Optional<MembershipAutomaticOwner.State> serviceState(){return automatic==null?Optional.empty():Optional.of(automatic.state());}
     synchronized Optional<Throwable> failure(){return automatic==null?Optional.empty():automatic.failure();}
+    synchronized Optional<IOException> observationFailure() {
+        var current=automatic;
+        return current==null?Optional.ofNullable(observationFailure):current.observationFailure();
+    }
     record Recovery(int rounds,List<MembershipCampaignLost.Reason> losses) {}
     synchronized Optional<Recovery> recovery() {
         if(automatic==null)return Optional.empty();
@@ -74,7 +83,7 @@ final class MembershipNodeOwner<K,T> implements AutoCloseable {
             },hooks.network());opening();
             unownedRound=new MembershipRoundDriver<>(journal,endpoint,resources,config.bounds(),transport,outgoing,clock,budget,
                     Math.min(3,config.bounds().maxRetryAttempts()),application,config.materialization(),hooks.round(),hooks.slot());opening();
-            automatic=unownedRound.automaticOwner(config.leadershipPolicy());unownedRound=null;
+            automatic=unownedRound.automaticOwner(config.leadershipPolicy(),hooks.automatic());unownedRound=null;
             synchronized(this){opening();state=State.OPEN;}
         }catch(IOException|RuntimeException|Error error){synchronized(this){if(state==State.OPENING)state=State.FAILED;}throw error;}
         finally{synchronized(this){opener=null;notifyAll();}}
@@ -105,7 +114,8 @@ final class MembershipNodeOwner<K,T> implements AutoCloseable {
             }
             IOException failure=null;
             if(automatic!=null)try {
-                automatic.close();if(!automatic.drained())throw new IOException("automatic callback has not drained");automatic=null;
+                automatic.close();if(!automatic.drained())throw new IOException("automatic callback has not drained");
+                observationFailure=automatic.observationFailure().orElse(null);automatic=null;
             }catch(IOException|RuntimeException error){failure=failed(failure,"automatic",error);}
             if(unownedRound!=null)try{unownedRound.close();unownedRound=null;}
             catch(IOException|RuntimeException error){failure=failed(failure,"unowned round",error);}
