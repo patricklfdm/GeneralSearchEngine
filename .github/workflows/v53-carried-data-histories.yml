@@ -1,0 +1,206 @@
+# Isolated qualification only. No existing Required, cloud or release authority.
+name: V5.3 native carried DATA histories (no GCP)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [experiment/v53-carried-data-histories]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v53-carried-data-histories-${{ github.run_id }}-${{ github.run_attempt }}
+  cancel-in-progress: false
+
+env:
+  PYTHONUNBUFFERED: '1'
+  PYTHONDONTWRITEBYTECODE: '1'
+  LANG: C.UTF-8
+  LC_ALL: C.UTF-8
+  TZ: UTC
+  V53_WORKFLOW_REF: ${{ github.workflow_ref }}
+  V53_WORKFLOW_SHA: ${{ github.workflow_sha }}
+
+jobs:
+  prepare:
+    name: Freeze source, classes, tools and offline dependencies
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - name: Check out exact source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up pinned tools
+        uses: ./.github/actions/v53-process-setup
+      - name: Plan four whole histories
+        id: plan
+        run: |
+          plan=$(python -B -m scripts.v53.carried_data_history_hosted plan)
+          echo "matrix=$plan" >> "$GITHUB_OUTPUT"
+      - name: Prepare one immutable cohort
+        run: python -B -m scripts.v53.carried_data_history_hosted prepare --output target/v53-carried-data-histories-hosted/prepare
+      - name: Retain seed
+        if: ${{ success() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v53-carried-data-histories-seed-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: target/v53-carried-data-histories-hosted/prepare/artifact
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 0
+      - name: Retain preparation diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v53-carried-data-histories-prepare-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: |
+            target/v53-carried-data-histories-hosted/prepare/receipt.json
+            target/v53-carried-data-histories-hosted/prepare/data/producer/maven.log
+            target/v53-carried-data-histories-hosted/prepare/data/producer/workspace/**/target/surefire-reports/**
+          if-no-files-found: warn
+          retention-days: 90
+          compression-level: 0
+
+  execute:
+    name: Carried DATA original (${{ matrix.id }})
+    needs: prepare
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    env:
+      CARRIED_DATA_CASE: ${{ matrix.case }}
+    steps:
+      - name: Check out exact source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up pinned tools
+        uses: ./.github/actions/v53-process-setup
+      - name: Download seed from this exact attempt
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: v53-carried-data-histories-seed-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: target/v53-carried-data-histories-hosted/download-seed
+      - name: Run one complete native history once
+        run: >-
+          python -B -m scripts.v53.carried_data_history_hosted execute
+          --seed target/v53-carried-data-histories-hosted/download-seed --case "$CARRIED_DATA_CASE"
+          --output target/v53-carried-data-histories-hosted/execute
+      - name: Retain complete original including failed execution
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v53-carried-data-histories-raw-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-${{ matrix.id }}
+          path: target/v53-carried-data-histories-hosted/execute/artifact
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 0
+      - name: Retain execution diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v53-carried-data-histories-execute-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-${{ matrix.id }}
+          path: |
+            target/v53-carried-data-histories-hosted/execute/receipt.json
+            target/v53-carried-data-histories-hosted/execute/data/producer/receipt.json
+            target/v53-carried-data-histories-hosted/execute/data/producer/maven.log
+          if-no-files-found: warn
+          retention-days: 90
+          compression-level: 0
+
+  verify:
+    name: Carried DATA downloaded replay (${{ matrix.id }})
+    needs: [prepare, execute]
+    if: ${{ always() && !cancelled() && needs.prepare.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    env:
+      CARRIED_DATA_CASE: ${{ matrix.case }}
+    steps:
+      - name: Check out exact source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up pinned tools
+        uses: ./.github/actions/v53-process-setup
+      - name: Download seed from this exact attempt
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: v53-carried-data-histories-seed-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: target/v53-carried-data-histories-hosted/download-seed
+      - name: Download raw from this exact attempt
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: v53-carried-data-histories-raw-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-${{ matrix.id }}
+          path: target/v53-carried-data-histories-hosted/download-raw
+      - name: Independently replay downloaded original and exact negatives
+        run: >-
+          python -B -m scripts.v53.carried_data_history_hosted verify
+          --seed target/v53-carried-data-histories-hosted/download-seed --inputs target/v53-carried-data-histories-hosted/download-raw
+          --case "$CARRIED_DATA_CASE" --output target/v53-carried-data-histories-hosted/verify
+      - name: Retain independent replay receipt
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v53-carried-data-histories-verified-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-${{ matrix.id }}
+          path: target/v53-carried-data-histories-hosted/verify/receipt.json
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 0
+
+  aggregate:
+    name: Carried DATA complete exact-attempt cohort
+    needs: [prepare, execute, verify]
+    if: ${{ always() && !cancelled() && needs.prepare.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    env:
+      EXECUTE_RESULT: ${{ needs.execute.result }}
+      VERIFY_RESULT: ${{ needs.verify.result }}
+    steps:
+      - name: Check out exact source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up pinned tools
+        uses: ./.github/actions/v53-process-setup
+      - name: Download seed from this exact attempt
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: v53-carried-data-histories-seed-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: target/v53-carried-data-histories-hosted/download-seed
+      - name: Download all independent verifier receipts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          pattern: v53-carried-data-histories-verified-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-*
+          path: target/v53-carried-data-histories-hosted/verifiers
+          merge-multiple: false
+      - name: Require complete same-attempt qualification
+        run: >-
+          python -B -m scripts.v53.carried_data_history_hosted aggregate
+          --seed target/v53-carried-data-histories-hosted/download-seed --inputs target/v53-carried-data-histories-hosted/verifiers
+          --output target/v53-carried-data-histories-hosted/aggregate
+      - name: Retain aggregate receipt
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v53-carried-data-histories-aggregate-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: target/v53-carried-data-histories-hosted/aggregate/receipt.json
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 0

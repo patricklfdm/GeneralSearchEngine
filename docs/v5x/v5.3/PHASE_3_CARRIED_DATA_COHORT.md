@@ -96,7 +96,8 @@ python3 -B -m scripts.v53.carried_data_history aggregate "$OUT/aggregate" \
 The [development receipt](phase3-evidence/carried-data-cohort.json) records
 actual execution, independent and relocated replay, hashes and test results.
 It does not fill a future final-source slot. No new hosted adapter is included
-in this batch; the existing eight-subset / 456-history hosted inventory remains
-unchanged. Runtime Java, formats, budgets, Required and V5.2 experiments are
+in that original batch; its development receipt retains the eight-subset /
+456-history inventory. The later [hosted adapter](PHASE_3_CARRIED_DATA_HOSTED.md)
+adds four planned histories to the current inventory. Runtime Java, formats, budgets, Required and V5.2 experiments are
 unchanged. Rollback removes the DATA producer and optional admission entry and
 restores the former BARRIER-only carried reader; preserve historical evidence.

@@ -24,8 +24,9 @@ the backlog as a new feature.
 | [Continuous learner histories](PHASE_3_LEARNER_HISTORY_COHORT.md) | 2 | 2 | Six revisions and retained READY/CANCEL, complete cold reopen |
 | [Transfer lifetime/process matrices](PHASE_3_TRANSFER_HISTORY_HOSTED.md) | 21 | 2 | Three continuous owner histories and eighteen two-process recoveries |
 | [Native carried/stable rounds](PHASE_3_NATIVE_ROUND_HOSTED.md) | 7 | 7 | Four carried BARRIER phases and three guarded round histories |
+| [Native carried DATA](PHASE_3_CARRIED_DATA_HOSTED.md) | 4 | 4 | Four old DATA phases, carried completion and the next fresh BARRIER |
 
-These **456 planned native histories** are complementary subsets. This is neither
+These **460 planned native histories** are complementary subsets. This is neither
 a pass count nor a count of covered rows in the frozen S matrix. The inspector
 reads their actual Python catalogues and checks declared counts and ordered-case
 hashes. Joining groups must partition all 360 whole histories exactly; transfer
@@ -58,7 +59,7 @@ prove its semantics.
 | 3D removal | Departure fencing, retirement and original-disk recovery | Final-source original/negative process matrix |
 | 3E resources | Accounting, bounded transfers, publication refusal and conditional-prefix tests | Simultaneous physical peak and admitted completion |
 | 3E coverage | Frozen finite inventory and this dependency map | Concrete schedule/evidence/rejection mapping |
-| 3E cohort | Eight source-bound subset gates | Complete final admission, execution and closure audit |
+| 3E cohort | Nine source-bound subset gates | Complete final admission, execution and closure audit |
 
 `MembershipStorageOperations` still refuses public learner operations and
 `MembershipSearchEngine` keeps reads disabled. Phase 3 private protocol work does
@@ -95,7 +96,8 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    now retains seven independent whole histories and exact downloaded replays.
    The [carried DATA entry](PHASE_3_CARRIED_DATA_COHORT.md) adds four original
    phases, unchanged payload completion and the next BARRIER with 129 negatives.
-   Its local admission has no hosted adapter yet. The existing node-rename matrix
+   Its [hosted adapter](PHASE_3_CARRIED_DATA_HOSTED.md) now prepares four native
+   executions and four downloaded replays. The existing node-rename matrix
    already covers DATA ACCEPT/PROOF process cuts and is not redeveloped here.
    Other carried payload/process axes remain; conditional Phase 2 fixtures cannot
    substitute for native originals. Continue competing-owner and transition

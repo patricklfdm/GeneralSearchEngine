@@ -1,8 +1,8 @@
 # V5.3 Phase 3 entry and closure checklist
 
 [The current qualification audit](PHASE_3_QUALIFICATION_AUDIT.md) reconciles the
-implementation and historical notes into twelve review obligations, eight
-implemented hosted subsets (456 planned whole histories) and five open work
+implementation and historical notes into twelve review obligations, nine
+implemented hosted subsets (460 planned whole histories) and five open work
 groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
@@ -11,7 +11,8 @@ retain their original-source scope. Phase 3 remains OPEN.
 four old vote/application phases, immutable payload completion and the next
 fresh BARRIER. Exact typed images retain application sequence and last DATA
 index 1 through cut 2. Its four histories bound to one source require 129 original-first
-negative checks. This local entry does not add hosted members; carried control,
+negative checks. Its [hosted adapter](PHASE_3_CARRIED_DATA_HOSTED.md) now prepares four executions
+and four independent downloaded replays; carried control,
 INTENT/FINAL readers and remaining native process coverage stay open.
 
 [Hosted native rounds](PHASE_3_NATIVE_ROUND_HOSTED.md) now provide one immutable
