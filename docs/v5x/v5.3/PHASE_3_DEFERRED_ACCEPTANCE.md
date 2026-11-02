@@ -1,5 +1,10 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[The joining process matrix](PHASE_3_JOINING_PROCESS_MATRIX.md) adds the exact
+360-case cohort and original-first 150-negative member gate. Synthetic metadata
+and orchestration tests do not qualify native members. Hosted wiring and the
+complete final-source execution catalogue remain deferred.
+
 [Joining process authority](PHASE_3_JOINING_PROCESS_AUTHORITY.md) adds export,
 control, maintenance, continuous-ledger and ballot replay plus a declared
 130-case negative driver. The local development subset is not the complete

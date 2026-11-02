@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[The joining process matrix](PHASE_3_JOINING_PROCESS_MATRIX.md) now requires all
+360 whole ADD/REPLACE initialization histories with exact source/build/toolchain/
+reader bindings, independent physical/authority replay and all 150 negative
+slots per history. This is an implemented admission entry; hosted wiring,
+final-source native execution and Phase 3 closure remain OPEN.
+
 [Joining process authority](PHASE_3_JOINING_PROCESS_AUTHORITY.md) now composes
 temporal exports, control/maintenance permissions, all three continuous retention
 ledgers and the ballot chain with the original process history. Development

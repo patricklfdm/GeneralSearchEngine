@@ -8,6 +8,11 @@ must pass the preceding physical, child-lifecycle and durable-ACK readers first.
 The development result remains `PARTIAL`; final-source whole-process admission,
 the complete negative catalogue and Phase 3 closure are still **OPEN**.
 
+The subsequent [process matrix](PHASE_3_JOINING_PROCESS_MATRIX.md) now binds
+these readers to all 360 exact-source producer histories, requiring the complete
+authority, physical and transaction negative catalogues. Hosted execution and
+final-source native acceptance remain pending.
+
 ## Original lifetimes and recovery boundaries
 
 The temporary observation view includes the five actual child control messages

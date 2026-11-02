@@ -1,0 +1,95 @@
+{
+  "baseHead": "f88a0c720f5d2d10eda15eb3fd763cda4043f07b",
+  "catalogue": {
+    "path": "target/v53-joining-process-matrix/plan.json",
+    "sha256": "b66ea097fd07958023f6ac80d7cf41d3001e88a1307eda04b72f2c6f10474f22",
+    "status": "PASS"
+  },
+  "cuts": 36,
+  "deathModes": 2,
+  "declaredCases": 360,
+  "executedNativeMembers": 0,
+  "finalSourceCohort": false,
+  "fullMemberNegativeQualification": "NOT_RUN",
+  "historicalOriginalRejection": {
+    "originalPreserved": true,
+    "phase3Complete": false,
+    "producer": "target/v53-joining-process/native-seed-prefix-halt-corrected",
+    "readerSha256": "b2313ac5c5afaf155f3f3445eaca73eb2dfe0a7fafd6f01c7c18e2fb1a9a3a83",
+    "reason": "joining process matrix reader belongs to producer source",
+    "sourceSha256": "6ed68cd14ea55c7879ed2a18dd2e6f476857280cbf1de97add60cae022f4fab7",
+    "status": "REJECTED"
+  },
+  "hostedExecution": "NOT_RUN",
+  "implementationFiles": {
+    "scripts/v53/joining_process_matrix.py": "c719d8d819138b854aec04d82b42fc438266fd766600010181bed33708ab81a2",
+    "scripts/v53/test_joining_process_matrix.py": "891245f067b43fe203ef229fe13f4dc27b023871d123ac73b548ba32a5d961a3"
+  },
+  "logs": {
+    "target/v53-joining-process-matrix/doc-contract.json": "bfc76e8ea7b73578c97f1cafa4d86865805c96011521f9b00573acfe0ee99dca",
+    "target/v53-joining-process-matrix/focused-1.log": "f30bc7f9775aeb81ee759566086b24a9800c60c9c58cc490477c8576804566f4",
+    "target/v53-joining-process-matrix/focused-current.log": "c0f3f2b1e04cc5186b713922785bf807c9bb6efec5721f3711b37a61d63caa2d",
+    "target/v53-joining-process-matrix/focused-final.log": "f61023f92c4e67407301a9dc41adfbf7a26fbfc6a35ff850d0ea5daa67962d62",
+    "target/v53-joining-process-matrix/historical-rejection-current.json": "35760126df230957bfa030d1bab20284ccea129cee426f720630bda357a3c3b0",
+    "target/v53-joining-process-matrix/historical-rejection.json": "90773dc731aed0d4cf55d4dc482c424b6f7ce20e0b4957d596eb13bcfcdf08cd",
+    "target/v53-joining-process-matrix/optimized-current.log": "874caf9aba803e2a927de050ed4a72873e0fed290f8f0e9a9a235c934b0a1a95",
+    "target/v53-joining-process-matrix/optimized-final.log": "a0acabd652eb7461389928d3d99a020b7dc24c344bc82aa5421c2fd40f4b3ef0",
+    "target/v53-joining-process-matrix/plan.json": "b66ea097fd07958023f6ac80d7cf41d3001e88a1307eda04b72f2c6f10474f22",
+    "target/v53-joining-process-matrix/python-suite-final.log": "da70dc769bf3909c7dc2776b25871b5b1c91ab4f8a6e187cca233e26ed18fbb5",
+    "target/v53-joining-process-matrix/validation-inputs.json": "e3b9de28bf40a3dce7f6f57c0c3441c17235661aadcba54c110a280b1f525093"
+  },
+  "negativeSlotsPerMember": {
+    "authority": 130,
+    "physical": 11,
+    "total": 150,
+    "transaction": 9
+  },
+  "paidCloudExecution": "NOT_RUN",
+  "phase3Complete": false,
+  "producerInventorySha256": "87b9551f55337d12b71667c02440584d2d0e5e75f9c6510731a2a9de840430e8",
+  "producerReceiptSha256": "b1d2cbc4340132dfc3e4c3388895ec35a2745db3a3c26968050fa80189f5eef5",
+  "profiles": 5,
+  "readerSha256": "b2313ac5c5afaf155f3f3445eaca73eb2dfe0a7fafd6f01c7c18e2fb1a9a3a83",
+  "remaining": [
+    "hosted immutable seed and whole-case distribution",
+    "independent downloaded replay and exact-attempt aggregation",
+    "complete final-source 360-member execution",
+    "combined resource and frozen-requirement closure audit"
+  ],
+  "schema": "gse-v53-joining-process-matrix-development-v1",
+  "status": "PARTIAL",
+  "syntheticTestsOnly": true,
+  "validation": {
+    "documentationContract": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 2181,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "focused": {
+      "log": "target/v53-joining-process-matrix/focused-current.log",
+      "seconds": 0.737,
+      "sha256": "c0f3f2b1e04cc5186b713922785bf807c9bb6efec5721f3711b37a61d63caa2d",
+      "status": "PASS",
+      "tests": 66
+    },
+    "optimized": {
+      "log": "target/v53-joining-process-matrix/optimized-current.log",
+      "seconds": 0.295,
+      "sha256": "874caf9aba803e2a927de050ed4a72873e0fed290f8f0e9a9a235c934b0a1a95",
+      "status": "PASS",
+      "tests": 21
+    },
+    "pythonSuite": {
+      "log": "target/v53-joining-process-matrix/python-suite-final.log",
+      "seconds": 102.376,
+      "sha256": "da70dc769bf3909c7dc2776b25871b5b1c91ab4f8a6e187cca233e26ed18fbb5",
+      "status": "PASS",
+      "tests": 2134
+    }
+  }
+}
