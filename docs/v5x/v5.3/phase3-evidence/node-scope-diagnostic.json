@@ -1,0 +1,118 @@
+{
+  "actions": {
+    "paidCloud": false,
+    "push": false,
+    "runtimeJavaChanged": true,
+    "workflowDispatch": false
+  },
+  "baseHead": "55ac23f850daa8f551f3c862197cf536154509e7",
+  "behavior": {
+    "clockShortCircuitPreserved": true,
+    "durableFormatChanged": false,
+    "exceptionSuperclass": "IllegalArgumentException",
+    "firstCloseReasonImmutable": true,
+    "guardOrder": [
+      "endpoint closed",
+      "scope ended",
+      "negative elapsed",
+      "elapsed at or above original limit"
+    ],
+    "originalMessagePreserved": true,
+    "publicApiChanged": false,
+    "retryEligibilityUnchanged": true,
+    "scopeMetadataAuthority": false,
+    "serviceElapsedIsInterval": true,
+    "transportClassification": "PROTOCOL"
+  },
+  "evidence": "target/v53-node-scope-diagnostic",
+  "fullNativeQualification": false,
+  "javaCommandSha256": "9b056ea0d0e2999902d007a507e99c6993a3cf2cd939d5a36989992fef5e88e3",
+  "javaExecution": {
+    "elapsedSeconds": 139.852,
+    "exit": 0
+  },
+  "javaLogSha256": "b723731a32c0c7d5068473ecacf780f8781031834dfa7f0f6655cd9537545dcd",
+  "javaSourceManifestSha256": "f211f728507f31134d9b511c93a062d24640989ac5239e8cde740bead513fc1b",
+  "javaSuites": [
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53ActivationEndpointTest",
+      "seconds": 132.273,
+      "sha256": "4c34accb2a4bf75d9820c736f712432203450f7e1db3cee1f6bb52be2613e264",
+      "skipped": 0,
+      "tests": 16
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53NodeProcessDiagnosticsTest",
+      "seconds": 0.048,
+      "sha256": "7b4160090869d61aeed441a4d087ebc9a6922c8caf0ae4485df6f7058dfb7eb3",
+      "skipped": 0,
+      "tests": 13
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53NodeProcessObservationTest",
+      "seconds": 0.007,
+      "sha256": "0507cf241244776959bf03c71894b8f856ee38ba9774a5f63e1972869569d629",
+      "skipped": 0,
+      "tests": 1
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53EvidenceArrayTest",
+      "seconds": 0.155,
+      "sha256": "9a19912ae21f17830b09dfdce4dc175759bc799be1273c3411c8ced456b9aedc",
+      "skipped": 0,
+      "tests": 6
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53AutomaticOwnerTest",
+      "seconds": 5.841,
+      "sha256": "eab0639ca5cc6783169ad9d4ab1954e64bf5a0e4e6eae85e80edb6ded6558dc8",
+      "skipped": 0,
+      "tests": 14
+    }
+  ],
+  "javaTests": 50,
+  "nativeReproduction": "NOT_RUN",
+  "originalFailedReplay": {
+    "exactPrevious": true,
+    "receiptSha256": "2a38c9662c693856e87792c7b871cdf508a5ee4c65fcc0e6073ca89f4adb3fff",
+    "status": "FAIL"
+  },
+  "phase3Complete": false,
+  "runtimeFailureResolved": false,
+  "sandboxAttempt": {
+    "logSha256": "e421ab8245ce09674158e46b957edc4c9ca0acab9d988b24feddb652479966f5",
+    "reason": "real TCP ServerSocket: Operation not permitted",
+    "status": "ENVIRONMENT_REJECTED"
+  },
+  "schema": "gse-v53-node-scope-diagnostic-v1",
+  "status": "PARTIAL",
+  "tests": {
+    "python-optimized.log": {
+      "seconds": 0.067,
+      "sha256": "e34cb81dfa505f02e20612a29902b7daf36055e23bb44367e91ca8f29624c7e8",
+      "status": "PASS",
+      "tests": 45
+    },
+    "python.log": {
+      "seconds": 108.835,
+      "sha256": "12b7a74b8d78045d2529f13504712391c63563eb74b78dc8c351b29b7a723059",
+      "status": "PASS",
+      "tests": 2035
+    }
+  },
+  "unchangedLimits": {
+    "callWaitSeconds": 180,
+    "parentWaitSeconds": 210,
+    "serviceSeconds": 180
+  }
+}

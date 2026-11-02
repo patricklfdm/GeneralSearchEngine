@@ -16,6 +16,35 @@ from .node_grant_maintenance import Replay
 
 p,n,f,e,need=current.p,current.n,current.f,current.e,current.need
 REASON='original activation endpoint deadline/closed'
+INACTIVE='io.github.patricklfdm.generalsearch.replication.MembershipActivationEndpoint$InactiveScope'
+
+
+def scope_failure(text,root):
+    records=[e.parse(line.split('=',1)[1].encode('utf-8')) for line in text.splitlines() if line.startswith('v53NodeProcessDiagnostic=')]
+    need(len(records)==1,'failed node original diagnostic record')
+    record=records[0]
+    need(record.get('schema')=='gse-v53-node-process-diagnostic-v1' and record.get('authority') is False
+         and record.get('role')=='worker' and record.get('phase')=='client-await' and type(record.get('life')) is int and record['life']==2
+         and type(record.get('serviceBudgetNanos')) is int and record['serviceBudgetNanos']==180_000_000_000,'failed node original diagnostic scope')
+    causes=[v for v in record.get('failure',[]) if v.get('type')==INACTIVE]
+    need(len(causes)==1 and set(causes[0])=={'type','message','scopeFailure'} and causes[0]['message']==REASON,
+         'failed node captured scope cause')
+    value=causes[0]['scopeFailure'];fields={'guard','firstEnd','ballot','startedNanos','limitNanos','clockEvaluated'}
+    need(type(value) is dict and type(value.get('clockEvaluated')) is bool
+         and set(value)==fields|({'elapsedNanos'} if value['clockEvaluated'] else set())
+         and type(value['startedNanos']) is int and type(value['limitNanos']) is int and value['limitNanos']==180_000_000_000
+         and value['firstEnd'] in ('NONE','REPLACED','ABANDONED','EXPIRED','CONTROL_TIMEOUT','HIGHER_BALLOT','ENDPOINT_CLOSED'),
+         'failed node exact captured guard fields')
+    selected=f.decode((root/'history/selected-3.gsr').read_bytes(),'records','SELECTED')
+    need(f.canonical(value['ballot'])==f.canonical(selected['ballot']),'failed node guard original ballot')
+    if value['guard'] in ('DEADLINE','CLOCK_BACKWARDS'):
+        need(value['clockEvaluated'] and type(value['elapsedNanos']) is int and
+             (value['elapsedNanos']>=value['limitNanos'] if value['guard']=='DEADLINE' else value['elapsedNanos']<0),
+             'failed node guard rejecting clock value')
+    else:
+        need(value['guard'] in ('ENDPOINT_CLOSED','SCOPE_ENDED') and not value['clockEvaluated'] and
+             (value['guard']!='SCOPE_ENDED' or value['firstEnd']!='NONE'),'failed node guard rejecting closed state')
+    return value
 
 
 def failure(root):
@@ -34,10 +63,13 @@ def failure(root):
     raw=(root/'process/life-2.stderr').read_bytes()
     need(0<len(raw)<=64*1024,'failed node bounded original stderr')
     text=raw.decode('utf-8')
-    need('Caused by: java.lang.IllegalArgumentException: '+REASON+'\n' in text
+    typed='Caused by: '+INACTIVE+': '+REASON+'\n' in text
+    need(('Caused by: java.lang.IllegalArgumentException: '+REASON+'\n' in text or typed)
          and 'MembershipActivationEndpoint$Scope.check(' in text and 'MembershipRoundDriver.publish(' in text,
          'failed node original post-publication exception')
-    return result,rows,dict(reason=REASON,stderrSha256=e.digest(raw),stderrBytes=len(raw),rootCauseEstablished=False)
+    error=dict(reason=REASON,stderrSha256=e.digest(raw),stderrBytes=len(raw),rootCauseEstablished=False)
+    if typed:error['scopeFailure']=scope_failure(text,root)
+    return result,rows,error
 
 
 def inspect(root):

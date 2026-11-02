@@ -80,6 +80,7 @@ public final class V53NodeProcessWorker {
         },original.slot());
         var node=new MembershipNodeOwner<>(config,builder().configuration(),scratch.resolve("incoming"),scratch.resolve("outgoing"),System::nanoTime,V53NodeOwnerNetworkTest.BUDGET,instrumented);
         Throwable primary=null;String phase="open";long phaseBegan=System.nanoTime();
+        long startBefore=0,startAfter=0,stopped=0;boolean startReturned=false;
         // A real halt/kill bypasses this finally and every owner close method.
         try {
             node.open();if(node.serviceState().orElseThrow()!=MembershipAutomaticOwner.State.NEW)throw new AssertionError("restored READY");
@@ -87,7 +88,8 @@ public final class V53NodeProcessWorker {
             sink.accept("event",Map.of("node","node-1","incarnation",life,"event","NODE_OPEN"));
             phase="parent-open-ack";phaseBegan=System.nanoTime();
             sink.accept("opened",life); // Parent starts unchanged follower owners before acknowledging life 1.
-            phase="startup-await";phaseBegan=System.nanoTime();node.start().await(180,TimeUnit.SECONDS);
+            phase="startup-await";phaseBegan=System.nanoTime();startBefore=System.nanoTime();var starting=node.start();
+            startAfter=System.nanoTime();startReturned=true;starting.await(180,TimeUnit.SECONDS);
             phase="ready-snapshot";phaseBegan=System.nanoTime();sink.accept("snapshot",life==1?"first-ready":"second-ready");
             phase="encode-client";phaseBegan=System.nanoTime();
             int id=99+life;byte[] payload;
@@ -101,11 +103,12 @@ public final class V53NodeProcessWorker {
                 phase="crash-cut";phaseBegan=System.nanoTime();
                 crash(sink,point,mode);
             }
-        }catch(Exception|Error error){primary=error;throw error;}
+        }catch(Exception|Error error){stopped=System.nanoTime();primary=error;throw error;}
         finally {
             final Throwable failure=primary;final String stoppedAt=phase;final long since=phaseBegan;
+            final var interval=V53NodeProcessDiagnostics.serviceInterval(startReturned,startBefore,startAfter,stopped);
             V53NodeProcessDiagnostics.finish(primary,()->V53NodeProcessDiagnostics.report(System.err,"worker",stoppedAt,life,since,
-                failure,sink.meter,()->V53NodeProcessDiagnostics.node(node)),node::close);
+                failure,sink.meter,()->{var value=V53NodeProcessDiagnostics.node(node);value.put("serviceInterval",interval);return value;}),node::close);
         }
         if(node.usage().leases()!=0)throw new AssertionError("node drain leak");
         sink.accept("event",Map.of("node","node-1","incarnation",life,"event","NODE_CLOSED"));sink.accept("closed",life);

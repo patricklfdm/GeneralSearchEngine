@@ -165,7 +165,51 @@ class V53ActivationEndpointTest {
                 l.base.clock.set(BUDGET-1);int before=l.base.leaderResources.usage().leases();endpoint.serve(l.base.campaign);
                 assertEquals(before+1,l.base.leaderResources.usage().leases());l.base.clock.set(BUDGET);
                 V53MembershipTransportTest.waitFor(()->endpoint.usage().scopeEnded() && l.base.leaderResources.usage().leases()==before);
-                assertThrows(Exception.class,()->endpoint.serve(l.base.campaign));assertEquals(before,l.base.leaderResources.usage().leases());
+                var failure=assertThrows(MembershipActivationEndpoint.InactiveScope.class,()->endpoint.serve(l.base.campaign));
+                assertEquals(MembershipActivationEndpoint.ScopeGuard.SCOPE_ENDED,failure.guard);
+                assertEquals(MembershipActivationEndpoint.ScopeEnd.EXPIRED,failure.firstEnd);assertNull(failure.elapsedNanos);
+                endpoint.abandon(l.base.campaign.ballot());
+                var again=assertThrows(MembershipActivationEndpoint.InactiveScope.class,()->endpoint.serve(l.base.campaign));
+                assertEquals(MembershipActivationEndpoint.ScopeEnd.EXPIRED,again.firstEnd);
+                assertEquals(before,l.base.leaderResources.usage().leases());
+            }
+        }
+    }
+    @Test void diagnosticGuardRetainsTheClockReadThatActuallyRejectedWork()throws Exception {
+        try(var l=new Local()) {
+            var now=new AtomicLong();
+            // Isolate direct guard rejection from the separately tested expiry
+            // scheduler; no wall-clock race decides which path this test covers.
+            java.util.function.LongSupplier clock=()->Thread.currentThread().getName().startsWith("gse-membership-expiry-")?0:now.get();
+            try(var endpoint=new MembershipActivationEndpoint(l.base.leader,l.base.leaderResources,V53TransferServiceTest.bound(2),
+                    (p,r,k,d)->CompletableFuture.failedFuture(new IOException("unused")),verifier(),List.of(),List.of(),
+                    temp.resolve("guard-clock"),clock,BUDGET)) {
+                endpoint.serve(l.base.campaign);
+                for(long value:new long[]{BUDGET,-1}) {
+                    now.set(value);
+                    var failure=assertThrows(MembershipActivationEndpoint.InactiveScope.class,()->endpoint.serve(l.base.campaign));
+                    assertEquals(value<0?MembershipActivationEndpoint.ScopeGuard.CLOCK_BACKWARDS:MembershipActivationEndpoint.ScopeGuard.DEADLINE,failure.guard);
+                    assertEquals(MembershipActivationEndpoint.ScopeEnd.NONE,failure.firstEnd);
+                    assertEquals(value,failure.elapsedNanos);assertEquals(0,failure.startedNanos);assertEquals(BUDGET,failure.limitNanos);
+                    assertEquals(l.base.campaign.ballot(),failure.ballot);
+                    assertEquals("original activation endpoint deadline/closed",failure.getMessage());
+                }
+                now.set(0);endpoint.serve(l.base.campaign); // Diagnostic failure did not close or renew the original scope.
+            }
+        }
+    }
+    @Test void abandonedScopeShortCircuitsClockAndRetainsOriginalReason()throws Exception {
+        try(var l=new Local()) {
+            var calls=new AtomicInteger();
+            java.util.function.LongSupplier clock=()->{if(!Thread.currentThread().getName().startsWith("gse-membership-expiry-"))calls.incrementAndGet();return 0;};
+            try(var endpoint=new MembershipActivationEndpoint(l.base.leader,l.base.leaderResources,V53TransferServiceTest.bound(2),
+                    (p,r,k,d)->CompletableFuture.failedFuture(new IOException("unused")),verifier(),List.of(),List.of(),
+                    temp.resolve("guard-ended"),clock,BUDGET)) {
+                endpoint.serve(l.base.campaign);endpoint.abandon(l.base.campaign.ballot());int before=calls.get();
+                var failure=assertThrows(MembershipActivationEndpoint.InactiveScope.class,()->endpoint.serve(l.base.campaign));
+                assertEquals(before,calls.get());assertEquals(MembershipActivationEndpoint.ScopeGuard.SCOPE_ENDED,failure.guard);
+                assertEquals(MembershipActivationEndpoint.ScopeEnd.ABANDONED,failure.firstEnd);assertNull(failure.elapsedNanos);
+                assertThrows(UnsupportedOperationException.class,()->failure.ballot.put("counter",999L));
             }
         }
     }

@@ -7,6 +7,35 @@ from . import node_failed_evidence as m
 
 
 class NodeFailedEvidenceTest(unittest.TestCase):
+    def scope_record(self):
+        ballot=dict(counter=4)
+        value=dict(guard='DEADLINE',firstEnd='NONE',ballot=ballot,startedNanos=100,limitNanos=180_000_000_000,
+            elapsedNanos=180_000_000_001,clockEvaluated=True)
+        return dict(schema='gse-v53-node-process-diagnostic-v1',authority=False,role='worker',phase='client-await',life=2,
+            serviceBudgetNanos=180_000_000_000,failure=[dict(type=m.INACTIVE,message=m.REASON,scopeFailure=value)]),ballot
+
+    def check_scope(self,record,ballot):
+        with patch.object(Path,'read_bytes',return_value=b'selected'),patch.object(m.f,'decode',return_value=dict(ballot=ballot)):
+            return m.scope_failure('v53NodeProcessDiagnostic='+m.f.canonical(record).decode(),Path('unused'))
+
+    def test_scope_snapshot_requires_the_actual_rejecting_condition(self):
+        record,ballot=self.scope_record();value=record['failure'][0]['scopeFailure']
+        self.assertEqual(value,self.check_scope(record,ballot))
+        for guard,elapsed in [('CLOCK_BACKWARDS',-1),('DEADLINE',180_000_000_000)]:
+            value.update(guard=guard,elapsedNanos=elapsed);self.check_scope(record,ballot)
+        value.update(guard='SCOPE_ENDED',firstEnd='EXPIRED',clockEvaluated=False);value.pop('elapsedNanos')
+        self.check_scope(record,ballot)
+        value['firstEnd']='NONE'
+        with self.assertRaisesRegex(ValueError,'rejecting closed state'):self.check_scope(record,ballot)
+
+    def test_scope_snapshot_cannot_change_original_ballot_or_invent_deadline(self):
+        record,ballot=self.scope_record();value=record['failure'][0]['scopeFailure'];value['elapsedNanos']=179_999_999_999
+        with self.assertRaisesRegex(ValueError,'rejecting clock value'):self.check_scope(record,ballot)
+        value['elapsedNanos']=180_000_000_000;value['ballot']=dict(counter=5)
+        with self.assertRaisesRegex(ValueError,'original ballot'):self.check_scope(record,ballot)
+        value['ballot']=ballot;record['authority']=True
+        with self.assertRaisesRegex(ValueError,'diagnostic scope'):self.check_scope(record,ballot)
+
     def fixture(self,root):
         (root/'process').mkdir()
         rows=[dict(life=life,pid=100+life,started=dict(life=life,pid=100+life,mode='halt'),exit=73 if life==1 else 1) for life in (1,2)]

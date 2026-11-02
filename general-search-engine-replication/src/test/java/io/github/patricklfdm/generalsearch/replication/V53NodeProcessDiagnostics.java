@@ -23,11 +23,24 @@ final class V53NodeProcessDiagnostics {
         var seen=Collections.newSetFromMap(new IdentityHashMap<Throwable,Boolean>());
         var rows=new ArrayList<Map<String,Object>>();
         while(failure!=null && rows.size()<MAX_CAUSES && seen.add(failure)) {
-            rows.add(Map.of("type",clipped(failure.getClass().getName(),256),"message",clipped(failure.getMessage(),384)));
+            var row=new TreeMap<String,Object>();row.put("type",clipped(failure.getClass().getName(),256));row.put("message",clipped(failure.getMessage(),384));
+            if(failure instanceof MembershipActivationEndpoint.InactiveScope inactive) {
+                var scope=new TreeMap<String,Object>();scope.put("guard",inactive.guard.name());scope.put("firstEnd",inactive.firstEnd.name());
+                scope.put("ballot",inactive.ballot);scope.put("startedNanos",inactive.startedNanos);scope.put("limitNanos",inactive.limitNanos);
+                scope.put("clockEvaluated",inactive.elapsedNanos!=null);
+                if(inactive.elapsedNanos!=null)scope.put("elapsedNanos",inactive.elapsedNanos);
+                row.put("scopeFailure",scope);
+            }
+            rows.add(row);
             failure=failure.getCause();
         }
         if(failure!=null)rows.add(Map.of("truncated",true));
         return rows;
+    }
+    static Map<String,Object> serviceInterval(boolean started,long before,long after,long stopped) {
+        if(!started)return Map.of("startReturned",false);
+        return Map.of("startReturned",true,"elapsedLowerBoundNanos",stopped-after,
+                "elapsedUpperBoundNanos",stopped-before,"startCallNanos",after-before);
     }
     /** Preserve the operation failure if either diagnostics or drain fails. */
     static void finish(Throwable primary,Checked diagnostics,Checked close)throws Exception {

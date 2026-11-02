@@ -18,6 +18,23 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
  * The caller closes this endpoint and its transport before closing the journal. */
 final class MembershipActivationEndpoint implements MembershipTransport.Handler,AutoCloseable {
     record Usage(int waiters,int pendingExchanges,boolean controlRunning,boolean scopeEnded,boolean closed) {}
+    enum ScopeEnd { NONE, REPLACED, ABANDONED, EXPIRED, CONTROL_TIMEOUT, HIGHER_BALLOT, ENDPOINT_CLOSED }
+    enum ScopeGuard { ENDPOINT_CLOSED, SCOPE_ENDED, CLOCK_BACKWARDS, DEADLINE }
+    /** Failure-time diagnostics, never retry or protocol authority. Keep the
+     * existing exception category/message and the exact short-circuit checks.
+     * elapsedNanos is absent when the original guard did not read the clock. */
+    static final class InactiveScope extends IllegalArgumentException {
+        final ScopeGuard guard;
+        final ScopeEnd firstEnd;
+        final Map<String,Object> ballot;
+        final long startedNanos,limitNanos;
+        final Long elapsedNanos;
+        InactiveScope(ScopeGuard guard,ScopeEnd firstEnd,Map<String,Object> ballot,long started,long limit,Long elapsed) {
+            super("original activation endpoint deadline/closed");
+            this.guard=guard;this.firstEnd=firstEnd;this.ballot=Map.copyOf(ballot);
+            startedNanos=started;limitNanos=limit;elapsedNanos=elapsed;
+        }
+    }
     /** Volatile arrival-time hint only. It cannot prove the remote READY claim
      * or authorize a grant, service, a read lease, or a source selection. */
     record HeartbeatContact(String root,String view,Map<String,Object> ballot,MembershipIdentity proposer,long receivedNanos) {
@@ -131,12 +148,13 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         expiry=Executors.newSingleThreadScheduledExecutor(Thread.ofPlatform().daemon().name("gse-membership-expiry-"+owner.activationIdentity().nodeId().value()).factory());
         expiry.scheduleWithFixedDelay(this::expire,100,100,TimeUnit.MILLISECONDS);
     }
-    private final class Scope implements AutoCloseable {
+    private final class Scope {
         final MembershipCapsule capsule;
         final Map<String,Object> ballot;
         final long started,limit;
         final Set<CompletableFuture<Decoded>> pending=ConcurrentHashMap.newKeySet();
         volatile boolean ended;
+        volatile ScopeEnd firstEnd=ScopeEnd.NONE;
         volatile MembershipCampaignLost revoked;
         volatile ActivationProgress progress;
         private MembershipTransferService service;
@@ -150,23 +168,33 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             this.capsule=capsule;this.ballot=Map.copyOf(ballot);this.started=started;this.limit=limit;
         }
         boolean expired(){long elapsed=clock.getAsLong()-started;return elapsed<0 || elapsed>=limit;}
+        void live() {
+            if(closed)throw inactive(ScopeGuard.ENDPOINT_CLOSED,null);
+            if(ended)throw inactive(ScopeGuard.SCOPE_ENDED,null);
+            long elapsed=clock.getAsLong()-started;
+            if(elapsed<0)throw inactive(ScopeGuard.CLOCK_BACKWARDS,elapsed);
+            if(elapsed>=limit)throw inactive(ScopeGuard.DEADLINE,elapsed);
+        }
+        InactiveScope inactive(ScopeGuard guard,Long elapsed) {
+            return new InactiveScope(guard,firstEnd,ballot,started,limit,elapsed);
+        }
         void check()throws IOException {
             if(revoked!=null)throw revoked;
-            require(!closed && !ended && !expired(),"original activation endpoint deadline/closed");
+            live();
             scratchOwner.check();
             owner.checkActivationBallot(capsule.context.authority(),ballot);
-            require(!closed && !ended && !expired(),"original activation endpoint deadline/closed");
+            live();
         }
         void completed(MembershipIdentity sender,Decoded request,Decoded response)throws IOException {
             if(!request.kind().equals("PUBLISH") || !response.kind().equals("PUBLISH_ACK")){check();return;}
             // A forced INTENT/FINAL changes the current view. Only the exact
             // completed publication may finish under its original authority;
             // ordinary controls still use check() and cannot revive that view.
-            require(!closed && !ended && !expired(),"original activation endpoint deadline/closed");scratchOwner.check();
+            live();scratchOwner.check();
             require(nativeHistory && request.value().get("ballot").equals(ballot)
                     && request.value().get("view").equals(capsule.context.authority()),"completed activation publication original authority");
             require(Arrays.equals(response.bytes(),owner.acknowledgePublished(sender,request).bytes()),"completed activation publication exact acknowledgement");
-            require(!closed && !ended && !expired(),"original activation endpoint deadline/closed");
+            live();
         }
         // Called only by the single control worker after full validation and
         // successful durable work. A duplicate with a new trace cannot create
@@ -204,7 +232,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             check();
         }
         Decoded transfer(MembershipIdentity sender,Decoded request)throws IOException {
-            require(!closed && !ended && !expired(),"original activation endpoint deadline/closed");scratchOwner.check();
+            live();scratchOwner.check();
             MembershipTransferService active;synchronized(this){active=service;}
             if(!owner.activationContext().authority().equals(capsule.context.authority())
                     && (active==null || !active.contains(sender,request))) {
@@ -213,7 +241,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                 MembershipSlotEndpoint published;synchronized(slotRegistry){published=slot;}
                 require(published!=null,"completed checkpoint slot unavailable");
                 var reply=published.completedCheckpoint(sender,request);
-                require(!closed && !ended && !expired(),"original activation endpoint deadline/closed");return reply;
+                live();return reply;
             }
             check();require(active!=null,"activation endpoint grant not available");return active.handle(sender,request);
         }
@@ -267,9 +295,9 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             }
             finally{synchronized(slotRegistry){slotCalls--;slotRegistry.notifyAll();}}
         }
-        @Override public void close() {
+        void close(ScopeEnd reason) {
             MembershipTransferService old;MembershipSlotEndpoint oldSlot;MembershipGenerationMaintenance cleanup;
-            synchronized(this){ended=true;old=service;service=null;cleanup=maintenance;}
+            synchronized(this){if(!ended)firstEnd=reason;ended=true;old=service;service=null;cleanup=maintenance;}
             synchronized(slotRegistry){oldSlot=slot;slot=null;}
             for(var future:pending) {
                 if(revoked!=null)future.completeExceptionally(new MembershipCampaignLost.Cancelled(revoked));
@@ -307,7 +335,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             if(old!=null) {
                 try{owner.checkCampaignWait(old.capsule.context.authority(),old.ballot);}
                 catch(MembershipCampaignLost lost){old.revoked=lost;}
-                old.close();
+                old.close(ScopeEnd.REPLACED);
             }
             // The higher promise was already observed before admission. Keep
             // the old physical owner reachable if drain fails; it grants no
@@ -330,7 +358,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     }
     /** Revoke only the outgoing owner's failed round, never an intervening peer scope. */
     void abandon(Map<String,Object> ballot) {
-        var active=scope;if(active!=null && active.ballot.equals(ballot))active.close();releaseEndedControl();
+        var active=scope;if(active!=null && active.ballot.equals(ballot))active.close(ScopeEnd.ABANDONED);releaseEndedControl();
     }
     /** Durable selection alone cannot revive an abandoned/expired serving scope. */
     void checkInstalled()throws IOException {
@@ -351,7 +379,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     private void releaseEndedControl() {
         synchronized(registry){if(control!=null && control.finished && control.active.ended){control.close();control=null;}}
     }
-    private void expire(){var active=scope;if(active!=null && active.expired())active.close();var prefix=prefixService;if(prefix!=null)prefix.poll();
+    private void expire(){var active=scope;if(active!=null && active.expired())active.close(ScopeEnd.EXPIRED);var prefix=prefixService;if(prefix!=null)prefix.poll();
         var preparation=joiningPreparation;if(preparation!=null && !preparation.poll())revokeJoiningPreparation(preparation);releaseEndedControl();}
     void publishJoiningPreparation(MembershipJoiningPreparation publication)throws IOException {
         Objects.requireNonNull(publication).belongsTo(owner,resources);
@@ -442,7 +470,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                 if(error instanceof MembershipSourcePull.Rejected rejected)try {
                     var higher=object(object(rejected.response.value().get("payload")).get("promised"));
                     active.capsule.context.ballot(higher,true);
-                    if(compareBallot(higher,active.ballot)>0){owner.observeCurrent(higher);active.close();}
+                    if(compareBallot(higher,active.ballot)>0){owner.observeCurrent(higher);active.close(ScopeEnd.HIGHER_BALLOT);}
                 }catch(RuntimeException fencing){error.addSuppressed(fencing);}
                 synchronized(registry){finished=true;result.completeExceptionally(error);}
             }
@@ -526,7 +554,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             long left=active.limit-(clock.getAsLong()-active.started);require(left>0,"original activation endpoint deadline");
             var response=task.result.get(left,TimeUnit.NANOSECONDS);active.completed(sender,request,response);return response;
         }catch(InterruptedException error){Thread.currentThread().interrupt();throw new IOException("activation endpoint interrupted",error);}
-        catch(TimeoutException error){active.close();throw new IOException("activation endpoint deadline",error);}
+        catch(TimeoutException error){active.close(ScopeEnd.CONTROL_TIMEOUT);throw new IOException("activation endpoint deadline",error);}
         catch(ExecutionException error){if(error.getCause() instanceof IOException io)throw io;if(error.getCause() instanceof RuntimeException r)throw r;throw new IOException("activation endpoint control failed",error.getCause());}
         finally {synchronized(registry){waiters--;}}
     }
@@ -537,7 +565,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         expiry.shutdownNow();IOException failure=null;
         try{synchronized(prefixRegistry){if(prefixService!=null)prefixService.close();}}
         catch(RuntimeException error){failure=new IOException("activation prefix close failed",error);}
-        try{var active=scope;if(active!=null)active.close();}
+        try{var active=scope;if(active!=null)active.close(ScopeEnd.ENDPOINT_CLOSED);}
         catch(RuntimeException error){var closing=new IOException("activation scope close failed",error);if(failure==null)failure=closing;else failure.addSuppressed(closing);}
         // Scope closure cancels its exchanges and guards every next operation.
         // Let the control worker release its exact receiving inodes without an

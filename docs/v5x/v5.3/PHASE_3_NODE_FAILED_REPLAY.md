@@ -62,12 +62,40 @@ close/clean exit/producer success and a missing final child event.
 
 ## Validation and remaining work
 
+### Failure-time scope diagnostics
+
+The private endpoint now preserves the actual short-circuit guard in an
+`InactiveScope` exception: endpoint closed, scope ended, clock moved backwards,
+or deadline reached. It remains an `IllegalArgumentException` with the original
+message. Transport classification and automatic retry eligibility are unchanged.
+The deadline checks still use their original clock reads and 180-second native
+service limit; a closed scope does not evaluate a new clock sample.
+
+Each scope retains its first close reason (replacement, abandonment, expiry,
+control timeout, higher ballot or endpoint close). Repeated cleanup cannot
+rewrite it. The exception captures that reason at rejection, before subsequent
+automatic cleanup can change the sampled endpoint state. These fields have no
+authority to reopen a scope, reset a deadline, authorize a retry or revive READY.
+
+The existing bounded stderr diagnostic includes these captured fields. Its
+worker also brackets the actual `start()` call, allowing a lower/upper bound for
+service elapsed time at the failure. The Python diagnostic reader binds the
+reported ballot to original SELECTED, validates the stated rejecting condition
+and keeps the entire result FAIL. Older originals retain their combined message;
+their missing timing cannot be reconstructed retrospectively.
+
+The [scope diagnostic receipt](phase3-evidence/node-scope-diagnostic.json) records
+targeted endpoint/automatic-owner and diagnostic tests. A fresh, single
+predeclared native capture is needed to determine the observed guard condition;
+adding diagnostics alone does not resolve the earlier failure.
+
 The [receipt](phase3-evidence/node-failed-replay.json) records the new diagnostic
 result, original inventories, Python tests and historical replays. The previously
 qualified PROOF/SIGKILL history and seven legacy histories retain their exact
-results and negative vectors. No new JVM experiment, Maven build, cloud run or
-workflow dispatch is part of this batch. Production Java, POMs, workflow and
-frozen timing/resource bounds are unchanged.
+results and negative vectors. That initial replay batch ran no new JVM experiment,
+Maven build, cloud run or workflow dispatch and changed no production Java.
+The later diagnostic work above changes the private endpoint's failure details;
+POMs, workflows and frozen timing/resource bounds remain unchanged.
 
 The original exception occurs in the endpoint's combined expired/ended/closed
 guard after the last `ROUND_SLOT_COMPLETE`. Consistent storage and network

@@ -10,6 +10,22 @@ import static org.junit.jupiter.api.Assertions.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
 
 class V53NodeProcessDiagnosticsTest {
+    @Test void reportsCapturedScopeFailureWithoutReevaluatingClockOrInventingElapsedTime() {
+        var ended=new MembershipActivationEndpoint.InactiveScope(MembershipActivationEndpoint.ScopeGuard.SCOPE_ENDED,
+            MembershipActivationEndpoint.ScopeEnd.CONTROL_TIMEOUT,Map.of("counter",4L),100,180,null);
+        var row=object(V53NodeProcessDiagnostics.causes(ended).getFirst().get("scopeFailure"));
+        assertEquals("SCOPE_ENDED",row.get("guard"));assertEquals("CONTROL_TIMEOUT",row.get("firstEnd"));
+        assertEquals(false,row.get("clockEvaluated"));assertFalse(row.containsKey("elapsedNanos"));
+        var deadline=new MembershipActivationEndpoint.InactiveScope(MembershipActivationEndpoint.ScopeGuard.DEADLINE,
+            MembershipActivationEndpoint.ScopeEnd.NONE,Map.of("counter",4L),100,180,181L);
+        row=object(V53NodeProcessDiagnostics.causes(deadline).getFirst().get("scopeFailure"));
+        assertEquals(true,row.get("clockEvaluated"));assertEquals(181L,row.get("elapsedNanos"));assertEquals(180L,row.get("limitNanos"));
+    }
+    @Test void serviceStartIntervalDoesNotPretendToKnowTheInnerClockSample() {
+        assertEquals(Map.of("startReturned",false),V53NodeProcessDiagnostics.serviceInterval(false,0,0,0));
+        assertEquals(Map.of("startReturned",true,"elapsedLowerBoundNanos",80L,"elapsedUpperBoundNanos",90L,"startCallNanos",10L),
+            V53NodeProcessDiagnostics.serviceInterval(true,10,20,100));
+    }
     @Test void measuresQueueAndWorkSeparatelyAndRetainsActiveAck() {
         var clock=new AtomicLong(100);var meter=new V53NodeProcessDiagnostics.Meter(clock::get);
         var span=meter.begin("snapshot");clock.set(110);span.acquired();span.phase("ack");clock.set(135);
