@@ -23,11 +23,12 @@ def trace(path):
     rows=[]
     for line in path.read_text().splitlines():
         kind,separator,value=line.partition(' ')
-        need(separator and kind in {'STORE','ROUND','SLOT','CUT','OPEN','SNAPSHOT','READY','CLOSED',
+        need(separator and kind in {'STORE','ROUND','SLOT','CUT','OPEN','SNAPSHOT','READY','CLOSED','FAILURE',
              'BEFORE_REQUEST_WRITE','AFTER_REQUEST_READ','AFTER_RESPONSE_READ','BEFORE_RESPONSE_WRITE'},
              'transition process trace kind')
         fields={'STORE':{'event','index'},'CUT':{'event','index'},'ROUND':{'event','record'},
-                'SLOT':{'event','record','voters'},'AFTER_RESPONSE_READ':{'request','response'},'BEFORE_RESPONSE_WRITE':{'request','response'}}
+                'SLOT':{'event','record','voters'},'FAILURE':{'direction','request','kind','reason'},
+                'AFTER_RESPONSE_READ':{'request','response'},'BEFORE_RESPONSE_WRITE':{'request','response'}}
         if kind in fields:
             value=e.parse(value.encode('ascii'))
             need(type(value) is dict and set(value)==fields[kind],'transition process trace fields')

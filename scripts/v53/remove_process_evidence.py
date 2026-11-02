@@ -28,7 +28,7 @@ def profile_at(root):
          all(type(profile[k]) is str for k in ('schema','profile','point','mode')) and
          type(profile['index']) is int,'REMOVE process profile')
     case=','.join(profile[k] for k in ('profile','point','mode'))
-    need(profile==run.selected(case),'REMOVE process profile')
+    need(profile==run.selected(case,schema=profile['schema']),'REMOVE process profile')
     return profile
 
 
@@ -44,6 +44,7 @@ def layout(root,profile):
     expected|={f'{name}-{n}.{ext}' for n in range(1,5) for name,ext in (('entry','gsr'),('payload','bin'))}
     expected|={'resume-installed-'+str(n) for n in range(1,4)}
     expected|={f'resume-{name}-{n}' for name in ('applied','published') for n in range(5,8)}
+    if profile['schema']==run.SCHEMAS[-1]:expected.add('process-trace.jsonl')
     b.selection.layout(root/'history',expected,'REMOVE process history')
 
 

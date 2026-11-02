@@ -1,7 +1,9 @@
 # Phase 3 — interrupted REMOVE retirement recovery
 
-Status: one retained SIGKILL member has independent physical/process replay;
-the complete process matrix and complete network/profile qualification remain OPEN.
+Status: one declared SIGKILL member has independent physical/process replay and
+a new v2 capture qualifies attempted transport and durable activation/slot ACKs.
+Complete export/maintenance composition, the process matrix and full Phase 3
+remain OPEN.
 
 ## Reproduced failure and correction
 
@@ -145,13 +147,69 @@ results under optimized Python. The archive contains original files, reader
 inputs and producer source/build bindings; it does not replace the prior archive
 containing the complete native producer workspace and its failed diagnostics.
 
-This is scoped same-proposer retirement recovery and publication qualification.
-Complete attempted transport, activation ACKs, export lifetimes and continuous
-maintenance/retention callback composition for this process history remain OPEN.
+The v1 receipt is scoped same-proposer retirement recovery and publication
+qualification. Complete attempted transport, activation ACKs, export lifetimes
+and continuous maintenance/retention callback composition for that process
+history remain OPEN.
 In particular, its 15 observed FUTURE_RETENTION_INTENT rejection diagnostics from
 non-selected voters are retained and hashed, not silently discarded or counted
 as successful network qualification. The earlier healthy REMOVE network reader
 does not automatically qualify this restarted process history.
+
+## Original cross-process observations (v2)
+
+The v1 producer did not record child failure terminals or a shared observation
+order between the parent endpoints and the two child JVMs. Their separate logs
+cannot establish that order afterwards. The v1 archive and its narrower results
+remain unchanged; a reader must not manufacture missing observations or upgrade
+that history to v2.
+
+The v2 test producer appends each observation to one bounded 64 MiB file under
+an OS file lock, with a JVM monitor for concurrent local writers. It records
+parent events and interrupted/resumed child callbacks, including failed inbound
+and outbound attempts. Each child also emits the unchanged local stdout record.
+The recorder neither forces runtime data nor retries protocol work, grants
+authority or changes timeout/resource limits. This is process-death observation
+evidence, not a power-loss durability claim. Truncated or missing observations
+fail qualification. Existing publication-only process cases leave it disabled.
+
+`scripts.v53.remove_process_network` first runs the complete physical/process
+reader. It then requires the shared trace to project exactly to each original
+parent/child stream and requires the resumed owner to follow the interrupted
+owner. Only this original order is normalized for the existing attempted-wire
+reader. Every request, receive, response and failure terminal is consumed once;
+total sends remain bounded at three per original request. Rejections retain their
+exact diagnostics and cannot become ACKs. The reader checks transferred bytes,
+original grant/selection/installation forces, the three resumed slot transactions,
+status cut windows and the original future-retention quorum lifetime.
+
+```bash
+python3 -B -m scripts.v53.remove_process_network ORIGINAL_V2_PROCESS_ROOT \
+  --qualify --workers 2
+```
+
+The [network receipt](phase3-evidence/remove-process-network.json) records one new
+complete execution of the same declared `4-REMOVE` SIGKILL member on the changed
+test producer. Its 338.3-second execution and three recorder tests pass without
+retries. Runtime Java and persistent formats are unchanged. This increases
+capture coverage of one member; it does not add a second completed matrix member.
+
+Independent replay binds 9,243 original observations, 1,052 completed exchanges,
+15 failed control attempts, 327 committed transfers, eleven durable grants and
+four proposer installations. The three resumed slots have 1,120 checked storage
+callbacks. All fourteen network mutations reject for their declared reasons,
+with the physical precondition passing separately for every mutation. All 27
+physical/process mutations also reject on this new v2 history. The older v1
+history still passes its existing physical reader. All 1,641 V5.3 Python tests
+pass, including 58 focused process/network/collection checks.
+
+The archive retains the complete producer source, compiled classes, JUnit
+reports, original history and frozen reader. Extraction into another directory
+and replay with optimized Python must reproduce the exact fourteen negative
+results and original result, with every input digest unchanged. No native history
+is rerun for this portability check. The result remains `PARTIAL`: complete
+temporal export authority and continuous maintenance/retention composition must
+still be bound to this process history before its complete network gate closes.
 
 The reader declares both REMOVE profiles and all 13 cuts in the 52-member
 catalogue. Only the one retained native member above has been replayed here;

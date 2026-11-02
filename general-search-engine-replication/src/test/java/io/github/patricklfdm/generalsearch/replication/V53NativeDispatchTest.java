@@ -23,7 +23,21 @@ class V53NativeDispatchTest {
         final List<MembershipActivationEndpoint> endpoints=new ArrayList<>();
         final List<MembershipTransport> transports=new ArrayList<>();
         final List<AtomicReference<MembershipTransport>> links=new ArrayList<>();
-        final List<Map<String,Object>> wire=Collections.synchronizedList(new ArrayList<>()),events=Collections.synchronizedList(new ArrayList<>());
+        private V53ProcessTrace processTrace;
+        final List<Map<String,Object>> wire=Collections.synchronizedList(new ArrayList<>()),events=Collections.synchronizedList(new ArrayList<>() {
+            @Override public boolean add(Map<String,Object> event) {
+                if(processTrace!=null)processTrace.add(event);
+                return super.add(event);
+            }
+        });
+        void recordProcesses(Path path)throws IOException {
+            synchronized(events) {
+                if(processTrace!=null)throw new IllegalStateException("process trace already bound");
+                var recorder=new V53ProcessTrace(path,"parent",true);
+                for(var event:events)recorder.add(event);
+                processTrace=recorder;
+            }
+        }
         final List<Map<String,Object>> failures=Collections.synchronizedList(new ArrayList<>());
         final boolean diagnose=Boolean.getBoolean("v53.transport.diagnostics");
         final List<Map<String,Object>> diagnostics=Collections.synchronizedList(new ArrayList<>());

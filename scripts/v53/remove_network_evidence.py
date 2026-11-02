@@ -107,7 +107,7 @@ def activations(events,rows,history):
     need(used=={v['offered'] for v in rows if v['kind'] in ('PREPARE','SELECTED')},'REMOVE network unbound activation')
     need(sum(v['event']=='GRANT_BEFORE_RETURN' for v in events)==grants and
          sum(v['event']=='SELECTED_FORCED' for v in events)==grants,'REMOVE network unexplained grant/selection')
-    return dict(originalGrants=grants,boundInstallReplies=installations,proposerInstallations=3)
+    return dict(originalGrants=grants,boundInstallReplies=installations,proposerInstallations=len(history.phases))
 
 
 def statuses(rows,history,physical):

@@ -1,0 +1,510 @@
+{
+  "archive": {
+    "bytes": 24452263,
+    "files": 11792,
+    "path": "target/v53-remove-process-network-20261101/remove-process-network.tar.gz",
+    "sha256": "68fd5acb56102aa5574b6e3e6bddab817d3f87102ee4d4fadc738f3a328a6b86",
+    "verifiedEveryMember": true
+  },
+  "case": "4-REMOVE,RETIREMENT_BORROW_PREFIX_WRITTEN,kill",
+  "completeExportAuthorityQualified": false,
+  "currentJavaMatchesProducer": true,
+  "currentReaderMatchesReplay": true,
+  "declaredNativeMembers": 52,
+  "evidenceFiles": {
+    "target/v53-remove-process-network-20261101/archive-inputs.json": {
+      "bytes": 1943822,
+      "sha256": "6ea7745ff198de0ec8814b907b7fda4cfadd63ce35f5b166801752c52d35f5b6"
+    },
+    "target/v53-remove-process-network-20261101/focused-updated.log": {
+      "bytes": 157,
+      "sha256": "376e49318ea00f95aff1d717a3679ef44678f5561a15e915fd22bb126b35aed2"
+    },
+    "target/v53-remove-process-network-20261101/inputs/reader-inputs.json": {
+      "bytes": 64363,
+      "sha256": "d6b57bfb4cc6f906bbca08f06fa5ae7766dfe39a4ea3e91e9e96f0083843d775"
+    },
+    "target/v53-remove-process-network-20261101/legacy-v1.json": {
+      "bytes": 2674,
+      "sha256": "9e3534dafbb0ecd072e6369c5bd64687f426e07f6e596d4d4a0d4d2060a4d562"
+    },
+    "target/v53-remove-process-network-20261101/legacy-v1.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "target/v53-remove-process-network-20261101/network-initial.json": {
+      "bytes": 5461,
+      "sha256": "78663b1004636cbd5b66091c1d25cbad6f19844c43648eb1fdd5e210887a0c49"
+    },
+    "target/v53-remove-process-network-20261101/network-initial.log": {
+      "bytes": 2394,
+      "sha256": "c03d84fc0d93b10f90eeb432416f505c1d4b3f7a5579e888ce83f2440a752954"
+    },
+    "target/v53-remove-process-network-20261101/physical.json": {
+      "bytes": 5734,
+      "sha256": "ec912d8d84cc93d1f0629e8817cc1554013412ad8e0f779a280c2a66c32b42c7"
+    },
+    "target/v53-remove-process-network-20261101/physical.log": {
+      "bytes": 3758,
+      "sha256": "942ced6fd64c0d9e1b6520c2d84b951c098fcdc270e1799e507e59925f1fa102"
+    },
+    "target/v53-remove-process-network-20261101/portable-optimized.json": {
+      "bytes": 5461,
+      "sha256": "78663b1004636cbd5b66091c1d25cbad6f19844c43648eb1fdd5e210887a0c49"
+    },
+    "target/v53-remove-process-network-20261101/portable-optimized.log": {
+      "bytes": 2394,
+      "sha256": "856c99fff02f1688b882b2942aee45fe70bdc11f8cf8dd8a3826b9236f6f1a84"
+    },
+    "target/v53-remove-process-network-20261101/portable.json": {
+      "bytes": 288,
+      "sha256": "9e1bc337e72328088a8082c0627f00f2636a38567852b8c2b22a82a61df9b34a"
+    },
+    "target/v53-remove-process-network-20261101/producer/build.json": {
+      "bytes": 290034,
+      "sha256": "f58a5c18a43a572e6d8d14d0e854ec4f8fff1cb1f858139d951df9dcc3d49e50"
+    },
+    "target/v53-remove-process-network-20261101/producer/collection.json": {
+      "bytes": 738458,
+      "sha256": "5a6b902a2b09679c545e156e222372dccf5259567d15b259046f1fed110b89ac"
+    },
+    "target/v53-remove-process-network-20261101/producer/maven.log": {
+      "bytes": 5588,
+      "sha256": "cc726c47376afafa0fdc7266bcd1860c2393ef38cbd7f6b47354b09a3758d661"
+    },
+    "target/v53-remove-process-network-20261101/producer/receipt.json": {
+      "bytes": 1402,
+      "sha256": "6dcb3b9554060c0b4d8a0f596655410627e2f98716ae7e3dde720d06b2126318"
+    },
+    "target/v53-remove-process-network-20261101/producer/source.json": {
+      "bytes": 615889,
+      "sha256": "51ade0132324fd92667571ed4a1250b99243bd5277fd27a20ce1344ba63314a6"
+    },
+    "target/v53-remove-process-network-20261101/producer/toolchain.json": {
+      "bytes": 370,
+      "sha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+    },
+    "target/v53-remove-process-network-20261101/python-final.log": {
+      "bytes": 3731,
+      "sha256": "80b4f16f939f5258aabb05d881d220f40a12232dd1f7aedea1cf9b23033598fe"
+    },
+    "target/v53-remove-process-network-20261101/seal.py": {
+      "bytes": 6164,
+      "sha256": "b4ef28fc38c8cf69d341a2e5957922632367f61cfdb32a63170217771e516f39"
+    }
+  },
+  "focusedPythonTests": 58,
+  "javaTests": [
+    {
+      "className": "io.github.patricklfdm.generalsearch.replication.V53ProcessTraceTest",
+      "errors": 0,
+      "failures": 0,
+      "retries": 0,
+      "seconds": 0.157,
+      "skips": 0,
+      "tests": 3
+    },
+    {
+      "className": "io.github.patricklfdm.generalsearch.replication.V53RemoveRetirementProcessTest",
+      "errors": 0,
+      "failures": 0,
+      "retries": 0,
+      "seconds": 338.304,
+      "skips": 0,
+      "tests": 1
+    }
+  ],
+  "legacyV1PhysicalReplay": "PASS",
+  "maintenanceCompositionQualified": false,
+  "nativeExecutionsForReplay": 0,
+  "nativeExecutionsThisBatch": 1,
+  "negativeResults": [
+    {
+      "case": "child-projection",
+      "physicalPrecondition": "PASS",
+      "reason": "REMOVE process exact child event projection: resume",
+      "status": "REJECTED"
+    },
+    {
+      "case": "failed-control-sequence",
+      "physicalPrecondition": "PASS",
+      "reason": "REMOVE network unbound failed control",
+      "status": "REJECTED"
+    },
+    {
+      "case": "failed-control-trace",
+      "physicalPrecondition": "PASS",
+      "reason": "REMOVE network failed control quorum lifetime",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-caller-terminal",
+      "physicalPrecondition": "PASS",
+      "reason": "joining failure missing caller terminal",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-diagnostic",
+      "physicalPrecondition": "PASS",
+      "reason": "REMOVE network complete failure diagnostics",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-grant-force",
+      "physicalPrecondition": "PASS",
+      "reason": "REMOVE network durable grant order",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-proposer-install-force",
+      "physicalPrecondition": "PASS",
+      "reason": "joining network proposer complete installation order",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-receiver-terminal",
+      "physicalPrecondition": "PASS",
+      "reason": "joining failure missing receiver terminal",
+      "status": "REJECTED"
+    },
+    {
+      "case": "parent-projection",
+      "physicalPrecondition": "PASS",
+      "reason": "REMOVE process exact parent event projection",
+      "status": "REJECTED"
+    },
+    {
+      "case": "receive-before-send",
+      "physicalPrecondition": "PASS",
+      "reason": "joining network receive without send",
+      "status": "REJECTED"
+    },
+    {
+      "case": "transfer-content",
+      "physicalPrecondition": "PASS",
+      "reason": "joining network complete transfer commit",
+      "status": "REJECTED"
+    },
+    {
+      "case": "truncated-trace",
+      "physicalPrecondition": "PASS",
+      "reason": "REMOVE process incomplete shared trace",
+      "status": "REJECTED"
+    },
+    {
+      "case": "wrong-prepare-authority",
+      "physicalPrecondition": "PASS",
+      "reason": "REMOVE network prepare authority",
+      "status": "REJECTED"
+    },
+    {
+      "case": "wrong-status-cut",
+      "physicalPrecondition": "PASS",
+      "reason": "REMOVE network original status window",
+      "status": "REJECTED"
+    }
+  ],
+  "original": {
+    "completeExportAuthorityQualified": false,
+    "durableActivationAndSlotACKsQualified": true,
+    "maintenanceCompositionQualified": false,
+    "network": {
+      "boundFailedControls": 15,
+      "boundInstallReplies": 7,
+      "boundPhaseResponses": 29,
+      "boundStatusReplies": 28,
+      "committedTransfers": 327,
+      "completeSlotStorageCallbacks": 1120,
+      "exactTransferRetries": 0,
+      "exchanges": 1052,
+      "failedAttempts": 15,
+      "futureTargets": 5,
+      "normalizedEvents": 9248,
+      "originalGrants": 11,
+      "originalObservations": 9243,
+      "ownedSlotTransactions": 8,
+      "proposerInstallations": 4,
+      "rejectedTransferAttempts": 0,
+      "slots": 3,
+      "transferSessions": 167,
+      "transferredBytes": 2224484
+    },
+    "observedAttemptsQualified": true,
+    "phase3Complete": false,
+    "physical": {
+      "activationAcknowledgementsQualified": false,
+      "networkDiagnosticsSha256": "9857ab58813c6ff0632d0aa66d1e1ef355f260fcc4f7bc22c0401d9c4cd5a941",
+      "networkQualified": false,
+      "phase3Complete": false,
+      "physicalHistoryQualified": true,
+      "processDeathQualified": true,
+      "profile": {
+        "index": 5,
+        "mode": "kill",
+        "point": "RETIREMENT_BORROW_PREFIX_WRITTEN",
+        "profile": "4-REMOVE",
+        "schema": "gse-v53-remove-retirement-process-v2"
+      },
+      "publicationAcknowledgementsQualified": true,
+      "retirement": {
+        "authority": "1650faf796b0c75fc2fc62f00973a15455d049284d6c288cce0ed18ddf39482d",
+        "borrowedImages": true,
+        "imageMembers": 1,
+        "members": 9,
+        "physicalImagesBefore": 7,
+        "physicalImagesPeak": 7,
+        "prefixEvents": [
+          "RETIREMENT_OLD_FILES_FORCED",
+          "RETIREMENT_RESERVED",
+          "RETIREMENT_CREATED",
+          "RETIREMENT_BORROW_PREFIX_WRITTEN"
+        ],
+        "recoveryEvents": [
+          "RETIREMENT_OLD_FILES_FORCED",
+          "RETIREMENT_RESERVED",
+          "RETIREMENT_CREATED",
+          "RETIREMENT_BORROW_PREFIX_WRITTEN",
+          "RETIREMENT_BORROW_WRITTEN",
+          "RETIREMENT_BORROW_FORCED",
+          "RETIREMENT_PROPOSAL_WRITTEN",
+          "RETIREMENT_PROPOSAL_FORCED",
+          "RETIREMENT_SOURCE_CREATED",
+          "RETIREMENT_MANIFEST_WRITTEN",
+          "RETIREMENT_MANIFEST_FORCED",
+          "RETIREMENT_MEMBER_WRITTEN",
+          "RETIREMENT_MEMBER_FORCED",
+          "RETIREMENT_MEMBER_WRITTEN",
+          "RETIREMENT_MEMBER_FORCED",
+          "RETIREMENT_MEMBER_WRITTEN",
+          "RETIREMENT_MEMBER_FORCED",
+          "RETIREMENT_MEMBER_WRITTEN",
+          "RETIREMENT_MEMBER_FORCED",
+          "RETIREMENT_MEMBER_WRITTEN",
+          "RETIREMENT_MEMBER_FORCED",
+          "RETIREMENT_MEMBER_WRITTEN",
+          "RETIREMENT_MEMBER_FORCED",
+          "RETIREMENT_MEMBER_WRITTEN",
+          "RETIREMENT_MEMBER_FORCED",
+          "RETIREMENT_SOURCE_FORCED",
+          "RETIREMENT_BORROWED_IMAGES_FORCED",
+          "RETIREMENT_AUTHORITY_WRITTEN",
+          "RETIREMENT_AUTHORITY_FORCED",
+          "RETIREMENT_PARENT_FORCED",
+          "RETIREMENT_DELETE_VALIDATED",
+          "RETIREMENT_FILE_DELETED",
+          "RETIREMENT_FILE_DELETED",
+          "RETIREMENT_FILE_DELETED",
+          "RETIREMENT_FILE_DELETED",
+          "RETIREMENT_FILE_DELETED",
+          "RETIREMENT_FILE_DELETED",
+          "RETIREMENT_FILE_DELETED",
+          "RETIREMENT_FILE_DELETED",
+          "RETIREMENT_FILE_DELETED",
+          "RETIREMENT_DIRECTORY_DELETED",
+          "RETIREMENT_SAVED_FILE_DELETED",
+          "RETIREMENT_SAVED_FILE_DELETED",
+          "RETIREMENT_SAVED_FILE_DELETED",
+          "RETIREMENT_SAVED_FILE_DELETED",
+          "RETIREMENT_SAVED_FILE_DELETED",
+          "RETIREMENT_SAVED_FILE_DELETED",
+          "RETIREMENT_SAVED_FILE_DELETED",
+          "RETIREMENT_SAVED_FILE_DELETED",
+          "RETIREMENT_SAVED_DIRECTORY_DELETED",
+          "RETIREMENT_PROPOSAL_CLEARED",
+          "RETIREMENT_BORROW_CLEARED",
+          "RETIREMENT_AUTHORITY_CLEARED",
+          "RETIREMENT_CLEARED",
+          "RETIREMENT_BEFORE_RETURN"
+        ],
+        "slot": "b"
+      },
+      "scope": "same-proposer-REMOVE-retirement-recovery",
+      "slots": [
+        {
+          "index": 5,
+          "kind": "INTENT"
+        },
+        {
+          "index": 6,
+          "kind": "FINAL"
+        },
+        {
+          "index": 7,
+          "kind": "BARRIER"
+        }
+      ],
+      "status": "PASS",
+      "unqualifiedNetworkDiagnostics": 15
+    },
+    "processDeathQualified": true,
+    "status": "PARTIAL"
+  },
+  "phase3Complete": false,
+  "physicalNegativeResults": [
+    {
+      "case": "closed-selector",
+      "reason": "admitted exact after-close: node-1",
+      "status": "REJECTED"
+    },
+    {
+      "case": "completed-selector",
+      "reason": "admitted exact after-resume: node-1",
+      "status": "REJECTED"
+    },
+    {
+      "case": "early-floor-release",
+      "reason": "REMOVE process unreleased governing floor",
+      "status": "REJECTED"
+    },
+    {
+      "case": "extra-file",
+      "reason": "context selection REMOVE process inventory",
+      "status": "REJECTED"
+    },
+    {
+      "case": "false-lock",
+      "reason": "transition process distinct original workers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "interrupted-authority",
+      "reason": "REMOVE process exact interrupted: node-1",
+      "status": "REJECTED"
+    },
+    {
+      "case": "interrupted-peer",
+      "reason": "REMOVE process exact interrupted: node-2",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-cold-force",
+      "reason": "REMOVE process cold-open recovery order",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-floor-force",
+      "reason": "selected retention force order: REMOVE process floor before retirement",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-open-snapshot",
+      "reason": "REMOVE process interrupted snapshots",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-peer-force",
+      "reason": "selected retention force order: transition original peer node-2",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-proposer-force",
+      "reason": "selected retention force order: transition original proposer 7",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-published-snapshot",
+      "reason": "transition process exact observation boundaries",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-reactivation",
+      "reason": "REMOVE process slot before installation",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-remote-ack",
+      "reason": "transition process original remote acknowledgement",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-retirement-force",
+      "reason": "REMOVE process exact interruption force order",
+      "status": "REJECTED"
+    },
+    {
+      "case": "premature-ready",
+      "reason": "REMOVE process exact interrupted boundary",
+      "status": "REJECTED"
+    },
+    {
+      "case": "recovered-floor",
+      "reason": "admitted exact resume-opened-0: node-1",
+      "status": "REJECTED"
+    },
+    {
+      "case": "recovered-peer",
+      "reason": "admitted exact resume-opened-0: node-2",
+      "status": "REJECTED"
+    },
+    {
+      "case": "recovered-selector",
+      "reason": "admitted exact resume-opened-0: node-1",
+      "status": "REJECTED"
+    },
+    {
+      "case": "same-worker",
+      "reason": "transition process distinct original workers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "wrong-command",
+      "reason": "REMOVE process interrupted original command",
+      "status": "REJECTED"
+    },
+    {
+      "case": "wrong-cut",
+      "reason": "REMOVE process exact interrupted boundary",
+      "status": "REJECTED"
+    },
+    {
+      "case": "wrong-exit",
+      "reason": "transition process distinct original workers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "wrong-local-ack",
+      "reason": "transition process original local acknowledgement",
+      "status": "REJECTED"
+    },
+    {
+      "case": "wrong-ready-ack",
+      "reason": "transition process readiness after barrier",
+      "status": "REJECTED"
+    },
+    {
+      "case": "wrong-ready-result",
+      "reason": "transition process exact readiness result",
+      "status": "REJECTED"
+    }
+  ],
+  "portable": {
+    "inputsUnchanged": true,
+    "nativeExecutionsForReplay": 0,
+    "nativeExecutionsThisBatch": 1,
+    "negativeCases": 14,
+    "optimizedPython": true,
+    "originalUnchanged": true,
+    "phase3Complete": false,
+    "profileCases": 1,
+    "sameResult": true,
+    "seconds": 69.174,
+    "status": "PASS"
+  },
+  "producerBaseHead": "761340945004897ae29aca0ae4e24080d3e7aec1",
+  "pythonTests": {
+    "errors": 0,
+    "failures": 0,
+    "seconds": 109.425,
+    "tests": 1641
+  },
+  "qualifiedNativeMembers": 1,
+  "remaining": [
+    "original temporal export authority across interrupted/recovered owners",
+    "continuous maintenance and retention event composition",
+    "remaining declared process members",
+    "complete seven-profile cohort and frozen acceptance mapping"
+  ],
+  "runtimeJavaChanged": false,
+  "schema": "gse-v53-remove-process-network-receipt-v1",
+  "status": "PARTIAL"
+}

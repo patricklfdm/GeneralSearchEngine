@@ -10,10 +10,12 @@ import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*
 
 /** Actual proposer runtime in a fresh JVM; no external original-vote verifier. */
 public final class V53TransitionProcessWorker {
+    private static V53ProcessTrace processTrace;
     static void snapshot(String stage)throws java.io.IOException {
         line("SNAPSHOT",stage);require(System.in.read()=='c',"missing parent snapshot acknowledgement");
     }
     static synchronized void line(String kind, Object value) {
+        if(processTrace!=null)processTrace.add(Map.of("kind",kind,"value",value));
         System.out.println(kind+" "+(value instanceof String text?text:new String(canonical(value,16*1024*1024),java.nio.charset.StandardCharsets.UTF_8)));
         System.out.flush();
     }
@@ -22,11 +24,12 @@ public final class V53TransitionProcessWorker {
         catch(Exception|Error failure){try{owner.close();}catch(Exception close){failure.addSuppressed(close);}throw failure;}
     }
     public static void main(String[] args)throws Exception {
-        require(args.length==7 || args.length==8 && args[7].equals("retirement"),"transition worker arguments");
-        boolean retirement=args.length==8;
+        require(args.length==7 || args.length==9 && args[7].equals("retirement"),"transition worker arguments");
+        boolean retirement=args.length==9;
         Path path=Path.of(args[0]),application=Path.of(args[1]),raw=Path.of(args[2]),scratch=Path.of(args[6]);
         String mode=args[3],point=args[5];long wanted=Long.parseLong(args[4]);
         require(Set.of("halt","kill","resume").contains(mode),"transition worker mode");
+        if(retirement)processTrace=new V53ProcessTrace(Path.of(args[8]),mode,false);
         Files.createDirectory(scratch);
         var root=decode(Files.readAllBytes(path.resolve("root.gsr")),"records","ROOT");
         var identity=MembershipContext.identity(object(decode(Files.readAllBytes(path.resolve("node.gsr")),"records","NODE").value().get("identity")));
@@ -44,9 +47,14 @@ public final class V53TransitionProcessWorker {
             }
         }),mode,retirement);var endpoint=new MembershipActivationEndpoint(owner,resources,bounds,(peer,request,kind,deadline)->link.get().exchange(peer,request,kind,deadline),
                 List.of(),List.of(),scratch.resolve("incoming"),System::nanoTime,budget,builder().configuration(),storage(application,2));
-            var transport=new MembershipTransport(owner.activationCapsule(),identity,bounds,resources,endpoint,(event,request,response)->{
+            var transport=new MembershipTransport(owner.activationCapsule(),identity,bounds,resources,endpoint,new MembershipTransport.Events() {
+              @Override public void at(String event,Decoded request,Decoded response) {
                 if(event.equals("BEFORE_REQUEST_WRITE") || event.equals("AFTER_REQUEST_READ"))line(event,Base64.getEncoder().encodeToString(request.bytes()));
                 if(event.equals("AFTER_RESPONSE_READ") || event.equals("BEFORE_RESPONSE_WRITE"))line(event,Map.of("request",Base64.getEncoder().encodeToString(request.bytes()),"response",Base64.getEncoder().encodeToString(response.bytes())));
+              }
+              @Override public void failed(boolean outbound,Decoded request,MembershipTransport.Reason reason) {
+                  if(retirement)line("FAILURE",Map.of("direction",outbound?"OUTBOUND":"INBOUND","request",request.digest(),"kind",request.kind(),"reason",reason.name()));
+              }
             });var round=new MembershipRoundDriver<>(owner,endpoint,resources,bounds,transport,scratch.resolve("round"),System::nanoTime,budget,2,
                 builder().configuration(),storage(application,2),(event,record)->{
                     if(event.equals("SLOT_BEGIN"))index.set(number(record.value().get("index")));

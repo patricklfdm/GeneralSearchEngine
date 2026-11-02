@@ -74,6 +74,7 @@ class RemoveProcessRunTest(unittest.TestCase):
         for mode,worker in (('kill','interrupted-worker'),('resume','resumed-worker')):
             (raw/worker).mkdir();(raw/'history'/f'{mode}-opened-0').mkdir(parents=True)
             (raw/worker/'stderr').write_text('')
+        (raw/'history/process-trace.jsonl').write_text('collection only; not network qualification\n')
         (raw/'interrupted-worker/stdout').write_text('SNAPSHOT kill-opened-0\nCUT '+json.dumps(dict(index=5,event=profile['point']),sort_keys=True,separators=(',',':'))+'\n')
         (raw/'resumed-worker/stdout').write_text('SNAPSHOT resume-opened-0\nREADY resume\nCLOSED resume\n')
         r.h.save(raw/'resumed-worker/ready.json',dict(state='READY',cut=dict(index=7,view=dict(operation=None)),operation=dict(phase='COMPLETED'),publicReady=False))
@@ -98,6 +99,12 @@ class RemoveProcessRunTest(unittest.TestCase):
     def test_missing_cold_open_observation_refuses(self):
         raw=self.collection();(raw/'history/resume-opened-0').rmdir()
         with self.assertRaisesRegex(ValueError,'opened inventory'):r.collect(raw,self.case)
+
+    def test_new_capture_cannot_omit_shared_order_and_old_history_is_not_upgraded(self):
+        raw=self.collection();(raw/'history/process-trace.jsonl').unlink()
+        with self.assertRaisesRegex(ValueError,'shared trace missing'):r.collect(raw,self.case)
+        r.h.save(raw/'profile.json',r.selected(self.case,schema=r.SCHEMAS[0]))
+        result=r.collect(raw,self.case);self.assertFalse(result['physicalHistoryQualified']);self.assertFalse(result['processDeathQualified'])
 
     def test_missing_cut_or_continuation_terminal_refuses(self):
         raw=self.collection();p=raw/'interrupted-worker/stdout';original=p.read_bytes();p.write_text('SNAPSHOT kill-opened-0\n')

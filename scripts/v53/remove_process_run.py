@@ -22,10 +22,14 @@ CASES=tuple(','.join((profile,point,mode)) for profile in ('4-REMOVE','5-REMOVE'
             for point in POINTS for mode in ('halt','kill'))
 
 
-def selected(case):
+SCHEMAS=('gse-v53-remove-retirement-process-v1','gse-v53-remove-retirement-process-v2')
+
+
+def selected(case,*,schema=SCHEMAS[-1]):
     h.need(type(case) is str and case in CASES,'REMOVE process exact case')
+    h.need(schema in SCHEMAS,'REMOVE process schema')
     profile,point,mode=case.split(',')
-    return dict(schema='gse-v53-remove-retirement-process-v1',profile=profile,index=5,point=point,mode=mode)
+    return dict(schema=schema,profile=profile,index=5,point=point,mode=mode)
 
 
 def junit(reports):
@@ -40,9 +44,12 @@ def junit(reports):
 
 
 def collect(raw,case):
-    expected=selected(case);original=h.inventory(raw)
+    selected(case);original=h.inventory(raw)
     read=lambda name:json.loads((raw/name).read_bytes())
+    expected=selected(case,schema=read('profile.json').get('schema'))
     h.need(read('profile.json')==expected,'REMOVE process original profile')
+    if expected['schema']==SCHEMAS[-1]:
+        h.need((raw/'history/process-trace.jsonl').is_file(),'REMOVE process shared trace missing')
     process.process_outcome(read('process.json'),{k:expected[k] for k in ('index','point','mode')})
     interrupted=process.trace(raw/'interrupted-worker/stdout');resumed=process.trace(raw/'resumed-worker/stdout')
     h.need([v for k,v in interrupted if k=='CUT']==[dict(index=5,event=expected['point'])] and

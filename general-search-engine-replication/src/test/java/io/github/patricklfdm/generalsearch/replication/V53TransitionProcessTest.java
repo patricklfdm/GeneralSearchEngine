@@ -35,16 +35,17 @@ class V53TransitionProcessTest {
         System.out.println("v53TransitionProcessEvidence="+raw.toAbsolutePath());
         Path history=null;
         var profile=new TreeMap<String,Object>();profile.put("index",index);profile.put("point",point);profile.put("mode",mode);
-        if(retirement){profile.put("schema","gse-v53-remove-retirement-process-v1");profile.put("profile",size+"-REMOVE");}
+        if(retirement){profile.put("schema","gse-v53-remove-retirement-process-v2");profile.put("profile",size+"-REMOVE");}
         Files.write(raw.resolve("profile.json"),canonical(profile,4096));
         try(var network=helper.network("SEALED",size)) {
             network.observeRequests=retirement;
             var target=network.f.request.targets().getFirst();history=network.f.raw;
+            if(retirement)network.recordProcesses(history.resolve("process-trace.jsonl"));
             Files.writeString(raw.resolve("native-history.txt"),history.toAbsolutePath()+"\n");
             network.endpoints.getFirst().close();network.transports.getFirst().close();network.owners.getFirst().close();
             network.f.snapshot("before-child");
             Path attempt=Files.createDirectory(raw.resolve("interrupted-worker"));
-            var child=process(target,attempt,mode,index,point,temp.resolve("child-"+UUID.randomUUID()),retirement);
+            var child=process(target,attempt,mode,index,point,temp.resolve("child-"+UUID.randomUUID()),retirement,history.resolve("process-trace.jsonl"));
             try {
                 await(child,attempt,"CUT ",network);
                 assertFalse(Files.exists(attempt.resolve("ready.json")),"interrupted transition admitted service");
@@ -59,7 +60,7 @@ class V53TransitionProcessTest {
                 assertTrue(child.waitFor(15,TimeUnit.SECONDS));assertEquals(mode.equals("halt")?23:137,child.exitValue(),Files.readString(attempt.resolve("stderr")));
                 network.f.snapshot("interrupted");
                 Path recovered=Files.createDirectory(raw.resolve("resumed-worker"));
-                var resumed=process(target,recovered,"resume",index,"none",temp.resolve("child-"+UUID.randomUUID()),retirement);
+                var resumed=process(target,recovered,"resume",index,"none",temp.resolve("child-"+UUID.randomUUID()),retirement,history.resolve("process-trace.jsonl"));
                 try {
                     await(resumed,recovered,"READY resume",network);
                     resumed.getOutputStream().write('s');resumed.getOutputStream().flush();
@@ -101,13 +102,13 @@ class V53TransitionProcessTest {
         assertTrue(text.contains(marker),Files.readString(err)+"\n"+text.substring(Math.max(0,text.length()-6000)));
     }
     static Process process(MembershipBootstrapTarget<?,?> target,Path evidence,String mode,long index,String point,Path scratch)throws Exception {
-        return process(target,evidence,mode,index,point,scratch,false);
+        return process(target,evidence,mode,index,point,scratch,false,null);
     }
-    static Process process(MembershipBootstrapTarget<?,?> target,Path evidence,String mode,long index,String point,Path scratch,boolean retirement)throws Exception {
+    static Process process(MembershipBootstrapTarget<?,?> target,Path evidence,String mode,long index,String point,Path scratch,boolean retirement,Path trace)throws Exception {
         var command=new ArrayList<>(List.of(Path.of(System.getProperty("java.home"),"bin/java").toString(),"-XX:-UsePerfData","-cp",System.getProperty("java.class.path"),
                 V53TransitionProcessWorker.class.getName(),target.replicaDirectory().toString(),target.materialization().directory().toString(),
                 evidence.toAbsolutePath().toString(),mode,Long.toString(index),point,scratch.toString()));
-        if(retirement)command.add("retirement");
+        if(retirement){command.add("retirement");command.add(trace.toAbsolutePath().toString());}
         return new ProcessBuilder(command)
                 .redirectOutput(evidence.resolve("stdout").toFile()).redirectError(evidence.resolve("stderr").toFile()).start();
     }

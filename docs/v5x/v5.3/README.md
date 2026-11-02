@@ -1,9 +1,10 @@
 # V5.3 — controlled cluster operations
 
-[Interrupted REMOVE retirement recovery](PHASE_3_REMOVE_PROCESS.md) now has
-independent bootstrap-to-close replay of the retained SIGKILL member and 27 exact
-evidence negatives. The full 52-member process matrix and complete network/profile
-qualification remain OPEN.
+[Interrupted REMOVE retirement recovery](PHASE_3_REMOVE_PROCESS.md) now has a v2
+SIGKILL capture with exact cross-process observations and independent attempted
+transport/activation/slot-ACK replay. Fourteen network and 27 physical negatives
+pass for that one declared member. Complete export/maintenance composition, the
+52-member process matrix and full Phase 3 remain OPEN.
 
 [Original REMOVE retirement file prefixes](PHASE_3_REMOVE_PREFIXES.md) now compare
 all 1,637 captured intermediate inventories in two new complete histories against
