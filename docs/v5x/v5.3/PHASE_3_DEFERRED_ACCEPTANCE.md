@@ -1,5 +1,10 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Complete grant capture writes](PHASE_3_GRANT_WRITE_CHAIN.md) close a reproduced
+omitted-BASIS-prefix reader gap. Each original grant now requires its complete
+write/force/delete sequence and no unbound capture callbacks. Full observation,
+profile/process and frozen-mapping qualification remain OPEN.
+
 [Proposer installation forces](PHASE_3_PROPOSER_INSTALLATION.md) close the
 second reproduced callback gap: ordinary local installation now requires every
 selected peer ACK and its complete force sequence before the first slot. Full

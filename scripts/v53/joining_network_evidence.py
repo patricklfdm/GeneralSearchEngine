@@ -24,9 +24,34 @@ def interval(events, node, lower, upper, names, reason, scope=None):
     need([row['event'] for row in rows] == names and all(row.get('scope') == scope for row in rows), reason)
 
 
+def capture_callback(point):
+    return point.startswith(('CAPTURE_INTENT_', 'SOURCE_PACKET_', 'SOURCE_IMAGE_', 'BASIS_')) or point in (
+        'SOURCE_BEFORE_CREATE', 'SOURCE_CREATED', 'SOURCE_FILES_DIRECTORY_FORCED', 'SOURCE_DIRECTORY_FORCED')
+
+
+def grant_capture_order(events, node, scope, lower, upper, packet):
+    # The ordinary capture writer first persists PROMISE and its exact recovery
+    # intent, then the packet/images, then BASIS, then deletion of that intent.
+    # Original packet bytes have already been checked by captures.collect.
+    promise = ['PROMISE_BEFORE_WRITE', 'PROMISE_WRITTEN', 'PROMISE_FORCED']
+    names = promise + ['CAPTURE_INTENT_'+v for v in (
+        'CREATED', 'PREFIX_WRITTEN', 'WRITTEN', 'FORCED', 'PARENT_FORCED')]
+    names += ['SOURCE_BEFORE_CREATE', 'SOURCE_CREATED']
+    names += ['SOURCE_PACKET_'+v for v in ('CREATED', 'PREFIX_WRITTEN', 'WRITTEN', 'FORCED')]
+    names += ['SOURCE_IMAGE_'+v for v in ('CREATED', 'PREFIX_WRITTEN', 'WRITTEN', 'FORCED')]*len(packet['images'])
+    names += ['SOURCE_FILES_DIRECTORY_FORCED', 'SOURCE_DIRECTORY_FORCED', 'BASIS_BEFORE_WRITE',
+              'BASIS_PREFIX_WRITTEN', 'BASIS_WRITTEN', 'BASIS_FORCED', 'CAPTURE_INTENT_DELETED', 'CAPTURE_INTENT_CLEARED']
+    actual = [(at, row) for at, row in enumerate(events) if lower < at < upper and row.get('node') == node and
+              (capture_callback(row['event']) or row['event'] in promise)]
+    need([row['event'] for _, row in actual] == names and all(
+        row == dict(node=node, event=row['event'], **({'scope': scope} if scope else {})) for _, row in actual),
+        'joining network durable grant order')
+    return {at for at, row in actual if capture_callback(row['event'])}
+
+
 def grants(root, events, rows):
     """The physical reader already compared all captured grants to derivation."""
-    captures = p.captures.collect(root, events); by_key = {}; by_basis = {}; used = set()
+    captures = p.captures.collect(root, events); by_key = {}; by_basis = {}; used = set(); callbacks = set()
     for capture in captures:
         node = capture['node']; files = disk.inventory(Path(root)/capture['capture']/'replica')
         journal = disk.journal(files['grants.gsr'], capture['root'], node)
@@ -36,14 +61,14 @@ def grants(root, events, rows):
                   row.get('scope') == scope and row.get('event') == 'CURRENT_BEFORE_CAPTURE']
         need(starts, 'joining network grant start absent'); start = starts[-1]
         packet = disk.p.decode(files['sources/'+capture['basisId']+'/source.gscp'])
-        names = ['PROMISE_FORCED','CAPTURE_INTENT_FORCED','CAPTURE_INTENT_PARENT_FORCED','SOURCE_PACKET_FORCED']
-        names += ['SOURCE_IMAGE_FORCED']*len(packet['images'])
-        names += ['SOURCE_FILES_DIRECTORY_FORCED','SOURCE_DIRECTORY_FORCED','BASIS_FORCED','CAPTURE_INTENT_CLEARED']
-        interval(events,node,start,capture['returnEvent'],names,'joining network durable grant order',scope)
+        bound = grant_capture_order(events, node, scope, start, capture['returnEvent'], packet)
+        need(not callbacks.intersection(bound), 'joining network reused grant capture callback'); callbacks.update(bound)
         key = node, f.canonical(capture['ballot'])
         need(key not in by_key and capture['basisSha256'] not in by_basis,'joining network duplicate grant')
         value = dict(capture, start=start, promise=sha(promise), basis=sha(basis), view=journal[-1][2]['view'])
         by_key[key] = value; by_basis[value['basis']] = value
+    need(callbacks == {at for at, row in enumerate(events) if capture_callback(row['event'])},
+         'joining network unbound grant capture callback')
     for row in rows:
         if row['kind'] != 'PREPARE': continue
         q, a = row['request'], row['response']; key = q['sender']['node'], f.canonical(q['ballot'])
@@ -217,6 +242,24 @@ def validate(root):
         completePhysicalQualified=False,forceAndNetworkQualified=False,processDeathQualified=False,phase3Complete=False)
 
 
+GRANT_WRITES = {
+    'grant-missing-'+point.lower().replace('_','-'):point for point in (
+        'PROMISE_BEFORE_WRITE','PROMISE_WRITTEN','CAPTURE_INTENT_CREATED','CAPTURE_INTENT_PREFIX_WRITTEN',
+        'CAPTURE_INTENT_WRITTEN','SOURCE_BEFORE_CREATE','SOURCE_CREATED','SOURCE_PACKET_CREATED',
+        'SOURCE_PACKET_PREFIX_WRITTEN','SOURCE_PACKET_WRITTEN','SOURCE_IMAGE_CREATED',
+        'SOURCE_IMAGE_PREFIX_WRITTEN','SOURCE_IMAGE_WRITTEN','BASIS_BEFORE_WRITE','BASIS_PREFIX_WRITTEN',
+        'BASIS_WRITTEN','CAPTURE_INTENT_DELETED')}
+GRANT_NEGATIVES = {
+    **{name:'joining network durable grant order' for name in GRANT_WRITES},
+    'grant-duplicate-prefix':'joining network durable grant order',
+    'grant-reordered-prefix':'joining network durable grant order',
+    'grant-foreign-write-scope':'joining network durable grant order',
+    'grant-prefix-before-capture':'joining network durable grant order',
+    'grant-unbound-write':'joining network unbound grant capture callback',
+    'grant-unknown-capture-callback':'joining network unbound grant capture callback',
+}
+
+
 NEGATIVES = {
     'missing-send':'joining network receive without send',
     'missing-request':'joining network response without request',
@@ -240,6 +283,7 @@ NEGATIVES = {
     'wrong-commit':'joining network complete transfer commit',
     'transfer-sequence-gap':'joining network transfer sequence',
     'transfer-before-delivery':'joining network transfer next before delivery',
+    **GRANT_NEGATIVES,
 }
 
 
@@ -259,7 +303,19 @@ def mutate(root, name):
                 if side=='response' and event['event']=='NETWORK_RECEIVED':event['kind']=kind
     def first(kind,answer=None):
         return next(row for row in wires if wire(row['request'])[0]==kind and (answer is None or wire(row['response'])[0]==answer))
-    if name=='missing-send':events.pop(at('NETWORK_SEND'))
+    if name in GRANT_NEGATIVES:
+        if name in GRANT_WRITES:events.pop(at(GRANT_WRITES[name],'node-1'))
+        elif name=='grant-duplicate-prefix':
+            index=at('BASIS_PREFIX_WRITTEN','node-1');events.insert(index,dict(events[index]))
+        elif name=='grant-reordered-prefix':
+            index=at('BASIS_PREFIX_WRITTEN','node-1');other=at('BASIS_WRITTEN','node-1')
+            events[index],events[other]=events[other],events[index]
+        elif name=='grant-foreign-write-scope':events[at('SOURCE_PACKET_PREFIX_WRITTEN','node-1')]['scope']='foreign-owner'
+        elif name=='grant-prefix-before-capture':
+            row=events.pop(at('SOURCE_PACKET_PREFIX_WRITTEN','node-1'));events.insert(at('CURRENT_BEFORE_CAPTURE','node-1'),row)
+        elif name=='grant-unbound-write':events.append(dict(node='node-1',event='BASIS_WRITTEN'))
+        else:events.append(dict(node='node-1',event='CAPTURE_INTENT_UNKNOWN'))
+    elif name=='missing-send':events.pop(at('NETWORK_SEND'))
     elif name=='missing-request':events.pop(at('NETWORK_REQUEST'))
     elif name=='late-request':
         row=events.pop(at('NETWORK_REQUEST'))

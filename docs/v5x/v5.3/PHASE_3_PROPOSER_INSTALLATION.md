@@ -67,3 +67,7 @@ ballot reader. It does not establish exhaustive callback coverage or replace
 current-source profile, whole-history fault/process and frozen acceptance gates.
 Full physical/network/process and Phase 3 completion flags remain false. No Java,
 POM, workflow, resource/timing or paid-cloud behavior changes.
+
+The later [grant-write audit](PHASE_3_GRANT_WRITE_CHAIN.md) reproduces and closes
+a separate omitted-prefix gap in the shared grant reader. It does not change the
+source-bound qualification or remaining limits recorded here.

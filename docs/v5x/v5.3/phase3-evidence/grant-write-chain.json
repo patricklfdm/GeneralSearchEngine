@@ -1,0 +1,144 @@
+{
+  "actions": {
+    "localCommit": true,
+    "paidCloud": false,
+    "pomChanged": false,
+    "push": false,
+    "runtimeJavaChanged": false,
+    "workflowChanged": false
+  },
+  "allMembershipProfilesQualified": false,
+  "archive": {
+    "archiveBytes": 16909470,
+    "archiveDirectories": 1208,
+    "archiveFiles": 8791,
+    "archiveSha256": "15e0ae70509c3f8f5c079e0bfcbe884223c5c998a2f876a321892c97cfcd5de5",
+    "manifest": {
+      "bytes": 1349371,
+      "path": "target/v53-grant-write-chain-20261102/artifact/manifest.json",
+      "sha256": "dfdebdfd69434e487765ec078402d77b08790cf5625000e81d904f7559d1a010"
+    },
+    "nativeRerun": false,
+    "networkNegatives": 100,
+    "path": "target/v53-grant-write-chain-20261102/artifact/bundle.tar.gz",
+    "phase3Complete": false,
+    "portableExecution": {
+      "elapsedSeconds": 53.611,
+      "exit": 0
+    },
+    "portableResultIdentical": true,
+    "pythonTests": 1745,
+    "readerManifestSha256": "7ba5290c70d87fc42831e96aa6baded7cf046412cb8ef22f510487fda7f70be2",
+    "scope": "shared-grant-reader-original-and-exact-network-negatives",
+    "status": "PASS",
+    "unchangedInputs": true
+  },
+  "baseHead": "6081e473",
+  "completePhysicalQualified": false,
+  "forceAndNetworkQualified": false,
+  "historicalADD": {
+    "currentSourceCohortQualified": false,
+    "execution": {
+      "elapsedSeconds": 24.708,
+      "exit": 0
+    },
+    "result": {
+      "bytes": 892,
+      "path": "target/v53-grant-write-chain-20261102/reader/legacy.json",
+      "sha256": "2d8f659166fa9724305dc6a8a3591b919588ba63168df76899f8ca1c30907b0b"
+    }
+  },
+  "observed": {
+    "captureSpecificCallbacks": 437,
+    "grants": 19,
+    "promiseWriteCallbacks": 57
+  },
+  "original": {
+    "buildSha256": "72a2992c984d1874256ab5d0c2379358c5e852080eb3cacc112124c438473bbc",
+    "nativeRerun": false,
+    "path": "target/v53-joining-same-view-20261031/native-covering-floor/workspace/general-search-engine-replication/target/v53-native-dispatch/run-82318ea9-59d7-4c20-9188-a008f4e63b63",
+    "producerHead": "d0729dd1e66005ac987823bee26242bf2b0894af",
+    "sourceSha256": "ab1b13b0d54ab5505dab93be8d48b003945c96216916d8b1bee847ffacea32e8",
+    "unchanged": true
+  },
+  "originalGrantCaptureSequenceQualified": true,
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "profile": "3-REPLACE",
+  "python": {
+    "elapsedSeconds": 99.998,
+    "log": {
+      "bytes": 3834,
+      "path": "target/v53-grant-write-chain-20261102/all-python-tests.log",
+      "sha256": "2b7f3fa9729335845a5b65d39b9ab391a99c0ce3910a9c77a3edfdc111057895"
+    },
+    "newTests": 9,
+    "priorIncorrectlyAcceptedNegativeSubcases": 26,
+    "tests": 1745
+  },
+  "qualification": {
+    "allExpectedReasons": true,
+    "fullChain": {
+      "bytes": 12761,
+      "path": "target/v53-grant-write-chain-20261102/reader/full-chain.json",
+      "sha256": "0aab434047dec01cfc1e9318ba73773a3a460a5cb9e4b3bd18fddc62ca4c7789"
+    },
+    "fullChainExecution": {
+      "elapsedSeconds": 52.765,
+      "exit": 0
+    },
+    "network": {
+      "bytes": 16970,
+      "path": "target/v53-grant-write-chain-20261102/reader/network-negatives.json",
+      "sha256": "caa1f8bb3a70125480d7d4a338b37112f57cce8b409e16527a577b63f11fd1c9"
+    },
+    "networkExecution": {
+      "elapsedSeconds": 490.591,
+      "exit": 0
+    },
+    "newNegatives": 23,
+    "originalFirst": true,
+    "totalNegatives": 100
+  },
+  "reader": {
+    "code": {
+      "joining_network_evidence.py": "04987dbbb778d057230838e8b29da9bf4b5c83c4124cbdc3f43d229d33a64d73",
+      "test_joining_grant_write_chain.py": "b4dcd1711bf46b3ed6f6b312443b1926dfd0a7964e2cca3bc52560998726868d"
+    },
+    "manifest": {
+      "bytes": 620270,
+      "path": "target/v53-grant-write-chain-20261102/reader/source.json",
+      "sha256": "7ba5290c70d87fc42831e96aa6baded7cf046412cb8ef22f510487fda7f70be2"
+    }
+  },
+  "remaining": [
+    "Other callback families and complete original observation coverage",
+    "Final-source all-profile and process/fault cohorts",
+    "Frozen Phase 3 S/N requirement mapping"
+  ],
+  "reproducedOmission": {
+    "audit": {
+      "acceptedByPriorReader": true,
+      "elapsedSeconds": 53.521,
+      "nativeRerun": false,
+      "original": "target/v53-joining-same-view-20261031/native-covering-floor/workspace/general-search-engine-replication/target/v53-native-dispatch/run-82318ea9-59d7-4c20-9188-a008f4e63b63",
+      "priorReaderHead": "6081e473",
+      "removed": {
+        "event": "BASIS_PREFIX_WRITTEN",
+        "node": "node-1"
+      }
+    },
+    "originalResult": {
+      "bytes": 12761,
+      "path": "target/v53-grant-write-chain-20261102/prior-reader-result.json",
+      "sha256": "3dd17d27916589b441b5bb2b576346276719351e8ba3dcc859d2a738cad06c59"
+    },
+    "regressionsBefore": {
+      "bytes": 18191,
+      "path": "target/v53-grant-write-chain-20261102/regressions-before.log",
+      "sha256": "561c6ae38420aa7bbcfb4d95b55a9f72a6fe99b257d1a33612b070c18077b41c"
+    }
+  },
+  "schema": "gse-v53-grant-write-chain-entry-v1",
+  "status": "PARTIAL"
+}
