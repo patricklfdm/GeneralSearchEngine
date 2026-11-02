@@ -93,6 +93,40 @@ retry. The 180-second service budget, 180-second call wait, 210-second parent
 waits, request retry policy and all protocol/resource limits remain unchanged.
 Root-cause resolution and final-source execution remain OPEN.
 
+### One subsequent diagnostic capture
+
+After the diagnostics commit `41a52099`, one predeclared ACCEPT/halt execution
+ran in an immutable source copy with the same limits and no automatic retry.
+Its [separate receipt](phase3-evidence/node-startup-capture.json) is **FAIL**:
+Maven took 256.667 seconds and its one native JUnit case failed. The earlier
+failed original and this new original both retain their complete file hashes.
+
+This execution recorded `second-ready`, reconciliation BARRIER 4 and a
+`SLOT_COMPLETE` carrying the DATA 5 PUBLISH_ACK. The client call nevertheless
+failed: its post-publication `MembershipRoundDriver.current()` check reached
+`MembershipActivationEndpoint.Scope.check()` and threw
+`original activation endpoint deadline/closed`. Diagnostics sampled service
+`FAILED`, one automatic-owner round and no typed automatic recovery losses.
+The client's observed wait phase took 85.202 seconds; this is not the entire
+original service lifetime. The guard combines expired/ended/closed, so this
+record alone does not distinguish those conditions or recover the earlier
+startup timeout's cause. No mutation retry is justified by a recorded local
+publication boundary.
+
+Cumulative completed child write/ACK work was 0.867496 seconds and pipe-monitor
+queue time was 0.006621 seconds. Parent observation snapshot handling was also
+small. These overlapping counters do not account for the long protocol/storage
+work and are not deducted from the service budget. They provide no support for
+attributing this execution's duration to pipe ACK observation overhead.
+
+The current independent reader refuses this original at
+`current node partial pending maintenance`: it has not yet modeled the mixed
+pending cohort in this ACCEPT capture. This is a reader coverage gap, not an
+accepted physical history. Even after a future original-backed reader extension,
+the failed client/producer must remain failed. Next work must isolate expensive
+protocol/storage work and model the retained pending cohort separately; neither
+deadline relaxation nor retry-to-green is part of this capture.
+
 ## Independent reader implementation and limits
 
 The in-flight reader now recognizes only the two exact new cuts in addition to

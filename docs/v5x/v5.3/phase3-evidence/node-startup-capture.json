@@ -1,0 +1,187 @@
+{
+  "actions": {
+    "nativeExecutions": 1,
+    "paidCloud": false,
+    "push": false,
+    "workflowDispatch": false
+  },
+  "automaticRetry": false,
+  "childProcessesRemaining": 0,
+  "classesSha256": "f1532f3dcdef355b3367803dc14fa113540abdcbbcf332057d10fcd2c7cd06cd",
+  "command": [
+    "/opt/maven/bin/mvn",
+    "-o",
+    "-B",
+    "-ntp",
+    "-f",
+    "reactor/pom.xml",
+    "-pl",
+    "../general-search-engine-replication",
+    "-am",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "-Dtest=V53NodeRenameProcessTest#haltAfterAcceptRename",
+    "test"
+  ],
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 2130,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "evidence": "target/v53-node-startup-20261102/one-native-capture",
+  "execution": {
+    "elapsedSeconds": 256.667,
+    "exit": 1
+  },
+  "fullNativeQualification": false,
+  "junit": [
+    {
+      "cases": [
+        {
+          "classname": "io.github.patricklfdm.generalsearch.replication.V53NodeRenameProcessTest",
+          "name": "haltAfterAcceptRename",
+          "time": "241.09"
+        }
+      ],
+      "errors": 0,
+      "failures": 1,
+      "name": "io.github.patricklfdm.generalsearch.replication.V53NodeRenameProcessTest",
+      "seconds": "241.11",
+      "sha256": "944b7273a05c019250f44e462ca1eb3d61aa72669a46ec03d6731dfa82dba4f6",
+      "skipped": 0,
+      "tests": 1
+    }
+  ],
+  "limits": {
+    "callWaitSeconds": 180,
+    "parentWaitSeconds": 210,
+    "serviceSeconds": 180
+  },
+  "newOriginalUnchanged": true,
+  "observations": {
+    "cumulativeWorkerQueueSeconds": 0.006620808,
+    "cumulativeWorkerWriteAckSeconds": 0.867495683,
+    "durationsMayOverlap": true,
+    "elapsedCauseNotDistinguished": "scope expired, ended or closed share the recorded guard",
+    "originalServiceElapsedMeasured": false,
+    "parentPhase": "exit-check",
+    "parentState": {
+      "status": "SAMPLED",
+      "value": {
+        "followers": [
+          {
+            "atomicSnapshot": false,
+            "failure": [],
+            "losses": [],
+            "nodeState": "OPEN",
+            "rounds": 0,
+            "serviceState": "NEW"
+          },
+          {
+            "atomicSnapshot": false,
+            "failure": [],
+            "losses": [],
+            "nodeState": "OPEN",
+            "rounds": 0,
+            "serviceState": "NEW"
+          }
+        ],
+        "observations": {
+          "active": [],
+          "completed": {
+            "event": {
+              "completed": 6813,
+              "failed": 0,
+              "maxQueueNanos": 64570,
+              "maxWorkNanos": 51272,
+              "queueNanos": 5731217,
+              "workNanos": 9788319
+            },
+            "installed": {
+              "completed": 3,
+              "failed": 0,
+              "maxQueueNanos": 183,
+              "maxWorkNanos": 25189114,
+              "queueNanos": 462,
+              "workNanos": 65778493
+            },
+            "response": {
+              "completed": 761,
+              "failed": 0,
+              "maxQueueNanos": 67203,
+              "maxWorkNanos": 40684,
+              "queueNanos": 572565,
+              "workNanos": 1957514
+            },
+            "snapshot": {
+              "completed": 12,
+              "failed": 0,
+              "maxQueueNanos": 475,
+              "maxWorkNanos": 24597052,
+              "queueNanos": 2687,
+              "workNanos": 252259475
+            }
+          },
+          "durationsMayOverlap": true,
+          "omittedActiveSamples": 0
+        }
+      }
+    },
+    "recordedLastEvent": "ROUND_SLOT_COMPLETE",
+    "recordedLastPublishedIndex": 5,
+    "workerFailure": [
+      {
+        "message": "java.lang.IllegalArgumentException: original activation endpoint deadline/closed",
+        "type": "java.util.concurrent.ExecutionException"
+      },
+      {
+        "message": "original activation endpoint deadline/closed",
+        "type": "java.lang.IllegalArgumentException"
+      }
+    ],
+    "workerPhase": "client-await",
+    "workerPhaseSeconds": 85.201526078,
+    "workerState": {
+      "status": "SAMPLED",
+      "value": {
+        "atomicSnapshot": false,
+        "failure": [
+          {
+            "message": "original activation endpoint deadline/closed",
+            "type": "java.lang.IllegalArgumentException"
+          }
+        ],
+        "losses": [],
+        "nodeState": "OPEN",
+        "rounds": 1,
+        "serviceState": "FAILED"
+      }
+    }
+  },
+  "originalInventorySha256": "72e2b4053d1515895b42d47dede735ff0962d28d3318e593ff382465b9631367",
+  "phase3Complete": false,
+  "previousOriginalUnchanged": true,
+  "reader": {
+    "reason": "current node partial pending maintenance",
+    "rootCauseResolved": false,
+    "seconds": 0.253,
+    "status": "REJECTED"
+  },
+  "remaining": [
+    "isolate the expensive protocol/storage work without extending the original deadline",
+    "independent original-backed partial-pending maintenance reader",
+    "remaining rename modes and complete final-source matrix",
+    "joining process composition and combined bounds/S-N audit"
+  ],
+  "rootCauseResolved": false,
+  "runtimeJavaChanged": false,
+  "schema": "gse-v53-node-startup-capture-v1",
+  "scope": "one predeclared diagnostic ACCEPT_RENAMED/halt history",
+  "source": "41a520992086a08a3ac50f6f4058a0d53d610621",
+  "sourceSha256": "e1678988b78f393526f7646a473683e21cf6857697b2ec2255e62b08920cc9cc",
+  "status": "FAIL"
+}
