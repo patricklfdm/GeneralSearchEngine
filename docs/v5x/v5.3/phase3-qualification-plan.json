@@ -52,22 +52,26 @@
       "implementation": [
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransferService.java",
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceReceive.java",
-        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipScratch.java"
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipScratch.java",
+        "scripts/v53/transfer_history.py"
       ],
       "tests": [
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SourceExchangeTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransferFaultsTest.java",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransferProcessTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransferProcessTest.java",
+        "scripts/v53/test_transfer_history.py"
       ],
       "readers": [
         "scripts/v53/transfer_fault_evidence.py",
         "scripts/v53/transfer_process_evidence.py",
-        "scripts/v53/scratch_recovery_evidence.py"
+        "scripts/v53/scratch_recovery_evidence.py",
+        "scripts/v53/transfer_history.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_TRANSFER_FAULTS.md",
         "docs/v5x/v5.3/PHASE_3_TRANSFER_PROCESS.md",
-        "docs/v5x/v5.3/PHASE_3_SCRATCH_RECOVERY.md"
+        "docs/v5x/v5.3/PHASE_3_SCRATCH_RECOVERY.md",
+        "docs/v5x/v5.3/PHASE_3_TRANSFER_HISTORY_COHORT.md"
       ],
       "cohorts": [
         "joining-reply-loss"
@@ -442,22 +446,26 @@
         "scripts/v53/joining_fault_cohort.py",
         "scripts/v53/remove_process_matrix.py",
         "scripts/v53/node_rename_matrix.py",
-        "scripts/v53/joining_process_matrix.py"
+        "scripts/v53/joining_process_matrix.py",
+        "scripts/v53/transfer_history.py"
       ],
       "tests": [
         "scripts/v53/test_case_inventory.py",
-        "scripts/v53/test_phase3_qualification_plan.py"
+        "scripts/v53/test_phase3_qualification_plan.py",
+        "scripts/v53/test_transfer_history.py"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
         "scripts/v53/joining_fault_cohort.py",
         "scripts/v53/remove_process_matrix.py",
         "scripts/v53/node_rename_matrix.py",
-        "scripts/v53/joining_process_matrix.py"
+        "scripts/v53/joining_process_matrix.py",
+        "scripts/v53/transfer_history.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md",
-        "docs/v5x/v5.3/PHASE_3_JOINING_PROCESS_HOSTED.md"
+        "docs/v5x/v5.3/PHASE_3_JOINING_PROCESS_HOSTED.md",
+        "docs/v5x/v5.3/PHASE_3_TRANSFER_HISTORY_COHORT.md"
       ],
       "cohorts": [
         "profiles",
@@ -510,7 +518,7 @@
       "id": "component-cohorts",
       "status": "OPEN",
       "dependsOn": [],
-      "work": "The focused 3-ADD learner pair now has source-bound capture, admission and hosted replay. Continue final-source entries for competing owners and transfer/carried/transition recovery, then uncovered learner profiles. Reuse existing producers/readers; do not rebuild implemented protocol components.",
+      "work": "The focused 3-ADD learner pair has source-bound capture, admission and hosted replay. Complete TCP lifetime/process matrix capture and admission now exist locally; its hosted/final-source adapter remains pending. Continue competing owners and carried/transition recovery, then uncovered learner profiles. Reuse existing producers/readers; do not rebuild implemented protocol components.",
       "acceptance": "Exact source/build/toolchain/reader-bound originals and independent original-first replay. Missing observations, unsupported histories or an original deadline failure remain failures. Whole ownership and revision histories stay indivisible."
     },
     {

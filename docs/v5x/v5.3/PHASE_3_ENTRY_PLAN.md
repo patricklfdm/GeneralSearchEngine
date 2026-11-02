@@ -7,6 +7,14 @@ groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
 
+[Complete transfer matrix admission](PHASE_3_TRANSFER_HISTORY_COHORT.md) now
+captures the existing TCP lifetime and process-recovery matrices against the same
+immutable source, with exact build/toolchain/reader and unretried JUnit bindings.
+Original-first replay requires all 27 lifetime cases, 18 process histories and
+both complete negative catalogues. This local component entry preserves whole
+histories; hosted/final-source admission and combined resource/lifecycle coverage
+remain open. The six hosted subsets and 428 planned histories are unchanged.
+
 [Original pre-grant-loss replay](PHASE_3_PREGRANT_LOSS_REPLAY.md) now consumes the
 previously rejected zero-retirement history without rerunning its producer. Its
 240 attempts, 225 responses and 61 complete transfers are replayed; the actual

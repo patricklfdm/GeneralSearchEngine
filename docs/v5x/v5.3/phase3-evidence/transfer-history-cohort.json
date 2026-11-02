@@ -1,0 +1,172 @@
+{
+  "baseCommit": "f332b327831439589d6191be352efc66691b1a06",
+  "finalSourceCohortQualified": false,
+  "hostedExecuted": false,
+  "implementationInputs": {
+    "scripts/v53/test_transfer_history.py": "1a78447f9f807f7f0c642ac027245cc4fe43e3645a64b02a0c41d0d46c8e4db7",
+    "scripts/v53/transfer_history.py": "b2520fa144ff04703c2c1677282162eda2fe0d758ec667feac86b1b36dbf5f44"
+  },
+  "nativeExecuted": true,
+  "nativeRerun": false,
+  "next": "Add a hosted seed/run/attempt adapter preserving both whole matrices, then compose final-source transfer, competing-owner and other Phase 3 subsets. Existing six hosted subsets/428 planned histories and all five open work groups remain unchanged.",
+  "originalPreserved": true,
+  "originalReplay": {
+    "execution": {
+      "elapsedSeconds": 27.303,
+      "status": "PASS"
+    },
+    "path": "target/v53-transfer-history/original-aggregate/receipt.json",
+    "sha256": "4bcf3c2fc5c20d7028ebf7bf80fd7f7613e60f3017ff1cb30c53fd3ee4813eee"
+  },
+  "paidCloudExecuted": false,
+  "phase3Complete": false,
+  "pins": {
+    "buildSha256": "2db7a44440e15ae42d1a9ca8d745be460be94375a8562498bdb5234068a890a4",
+    "readerSha256": "dcaa39105e3d57c7e44de312953b03ab23c98069d4a7d54c0365c1634831c49d",
+    "sourceSha256": "926b82921788b99fa1afd77015cf3f4b21f7717a1ed04c98489d7cde0fead195",
+    "toolchainSha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+  },
+  "portableArchive": {
+    "path": "target/v53-transfer-history/portable-artifact/bundle.tar.gz",
+    "sha256": "398a1c9d651e878543987783625705f2107f11ab8af30e41a36589603181329d"
+  },
+  "portableManifest": {
+    "path": "target/v53-transfer-history/portable-artifact/manifest.json",
+    "sha256": "72f84d05fa3c10fb689b64eb2c3fdadf771818c83717ec2179cdff5891b1c1ba"
+  },
+  "portableReplay": {
+    "execution": {
+      "elapsedSeconds": 27.738,
+      "exit": 0
+    },
+    "path": "target/v53-transfer-history/portable-aggregate/receipt.json",
+    "pythonOptimized": true,
+    "sha256": "4bcf3c2fc5c20d7028ebf7bf80fd7f7613e60f3017ff1cb30c53fd3ee4813eee"
+  },
+  "producers": {
+    "process-recovery": {
+      "build": {
+        "path": "target/v53-transfer-history/process-recovery/build.json",
+        "sha256": "2db7a44440e15ae42d1a9ca8d745be460be94375a8562498bdb5234068a890a4"
+      },
+      "collection": {
+        "path": "target/v53-transfer-history/process-recovery/collection.json",
+        "sha256": "58dca79ca9f7d701cfaab6bd009ab2d7435adc8448f29cc608c973c4a9b2d762"
+      },
+      "collectionExecution": {
+        "elapsedSeconds": 0.765,
+        "exit": 0
+      },
+      "execution": {
+        "elapsedSeconds": 111.851,
+        "exit": 0
+      },
+      "mavenLog": {
+        "path": "target/v53-transfer-history/process-recovery/maven.log",
+        "sha256": "2d5604612ee9f384fff683342ef2c7149f012093014e58f7ffc8df2e3f6ed611"
+      },
+      "raw": "target/v53-transfer-history/process-recovery/workspace/general-search-engine-replication/target/v53-transfer-process/run-112f616e-a766-46c6-aaa0-136f593fdedb",
+      "receipt": {
+        "path": "target/v53-transfer-history/process-recovery/receipt.json",
+        "sha256": "1c34bdf9d823574ce790aeba35450a7c47da3c2cc4d45f3b716e93a1c7e9aa7e"
+      },
+      "retries": 0,
+      "source": {
+        "path": "target/v53-transfer-history/process-recovery/source.json",
+        "sha256": "926b82921788b99fa1afd77015cf3f4b21f7717a1ed04c98489d7cde0fead195"
+      },
+      "sourceNote": "Recorded working bytes at base f332b327, including the new transfer entry/tests before the documentation update; not final-commit execution.",
+      "toolchain": {
+        "path": "target/v53-transfer-history/process-recovery/toolchain.json",
+        "sha256": "db9878a6657d7323533f153d0626a253eb351605c7e69bb0e55f1022aa1fd801"
+      }
+    },
+    "tcp-lifetimes": {
+      "build": {
+        "path": "target/v53-transfer-history/tcp-lifetimes/build.json",
+        "sha256": "2db7a44440e15ae42d1a9ca8d745be460be94375a8562498bdb5234068a890a4"
+      },
+      "collection": {
+        "path": "target/v53-transfer-history/tcp-lifetimes/collection.json",
+        "sha256": "9b7473f015a0db2def8f7b18eb5d7a5a3595c90982990d2176f7ecc70ffa268c"
+      },
+      "collectionExecution": {
+        "elapsedSeconds": 0.364,
+        "exit": 0
+      },
+      "execution": {
+        "elapsedSeconds": 29.666,
+        "exit": 0
+      },
+      "mavenLog": {
+        "path": "target/v53-transfer-history/tcp-lifetimes/maven.log",
+        "sha256": "801bec2dfb6209fe56578a1f3f37947b9d972615ff321f33fbf5aceefe698d77"
+      },
+      "raw": "target/v53-transfer-history/tcp-lifetimes/workspace/general-search-engine-replication/target/v53-transfer-faults/run-6b70cb68-f497-422a-9283-dda367f06fe9",
+      "receipt": {
+        "path": "target/v53-transfer-history/tcp-lifetimes/receipt.json",
+        "sha256": "9f62807577dd54ca1a37f67bd51be0003f8ef6c3bfcb73bb31747f31836f2f0d"
+      },
+      "retries": 0,
+      "source": {
+        "path": "target/v53-transfer-history/tcp-lifetimes/source.json",
+        "sha256": "926b82921788b99fa1afd77015cf3f4b21f7717a1ed04c98489d7cde0fead195"
+      },
+      "sourceNote": "Recorded working bytes at base f332b327, including the new transfer entry/tests before the documentation update; not final-commit execution.",
+      "toolchain": {
+        "path": "target/v53-transfer-history/tcp-lifetimes/toolchain.json",
+        "sha256": "d6f0facf6690a3ec1375347d4f943c57175d4e7efd7def3ea58036cb440b7ad0"
+      }
+    }
+  },
+  "protocolBudgetsChanged": false,
+  "result": {
+    "allMembershipProfilesQualified": false,
+    "autonomousCompetitionQualified": false,
+    "combinedPeakResourcesQualified": false,
+    "completePhysicalQualified": false,
+    "declaredTransferMatricesQualified": true,
+    "nativeCases": 45,
+    "negativeCases": 48,
+    "phase3Complete": false,
+    "powerLossQualified": false,
+    "status": "PASS",
+    "wholeOwnershipHistories": 21
+  },
+  "runtimeJavaChanged": false,
+  "schema": "gse-v53-transfer-history-development-v1",
+  "scope": "Complete local bootstrap transfer lifetime/process matrices; not final-source Phase 3 admission.",
+  "status": "PARTIAL",
+  "validation": {
+    "contracts": {
+      "path": "target/v53-transfer-history/contracts-final.log",
+      "sha256": "4be622dbd97fdd73713e8f3ce6876fe83d303b182563e2f9a02902f74d613536",
+      "status": "PASS"
+    },
+    "focused": {
+      "path": "target/v53-transfer-history/tests-confirmed.log",
+      "sha256": "a26c7006988da7289120c8f5edc841e1b8851e971862d880dbd41b236f2eb1da",
+      "status": "PASS",
+      "tests": 18
+    },
+    "optimized": {
+      "path": "target/v53-transfer-history/tests-optimized.log",
+      "sha256": "f943faabb72109289802903d1c670283916b00f62c1a51e5536a54fc004513e1",
+      "status": "PASS",
+      "tests": 18
+    },
+    "planInspection": {
+      "path": "target/v53-transfer-history/plan-inspection-final/receipt.json",
+      "sha256": "e5670940e5ea0d0186e1f0541b1b741c76091ce5df1bc07c36b7f880577f18aa",
+      "status": "PASS"
+    },
+    "python": {
+      "path": "target/v53-transfer-history/python-suite.log",
+      "seconds": 106.332,
+      "sha256": "24ed5dab343f033b134650f43ca70326f82a7a2ca222568e794cbb39032a5e47",
+      "status": "PASS",
+      "tests": 2330
+    }
+  },
+  "workflowChanged": false
+}

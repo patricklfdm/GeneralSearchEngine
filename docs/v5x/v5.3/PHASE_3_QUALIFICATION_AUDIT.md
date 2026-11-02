@@ -45,7 +45,7 @@ prove its semantics.
 | Group | Existing implementation and evidence | Remaining qualification |
 | --- | --- | --- |
 | 3A activation | Durable grant, selected sources, fence and original deadline | Final-source schedules and exact failure coverage |
-| 3B transfer | Bounded native TCP, receiving custody, retries and process readers | Current-source component cohorts; combined lifetimes |
+| 3B transfer | Bounded native TCP, receiving custody, retries/process readers and [complete transfer matrix admission](PHASE_3_TRANSFER_HISTORY_COHORT.md) | Hosted/final-source transfer admission; combined lifetimes |
 | 3B recovery | Retained ancestry, owned reopening and cross-view adoption | Final-source restart/discovery coverage |
 | 3C learner | Six-revision/cancellation producers, source retention, readers and hosted pair | Complete final-source histories and profile coverage |
 | 3C initialization | Actual joining owner, three-ledger initialization and 360-case entry | Final-source matrix; combined bounds |
@@ -77,11 +77,15 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    derives the selected generations, both slots, client completion and drained
    scratch from that original. [Activation network](PHASE_3_COMPETING_ACTIVATION_NETWORK.md)
    now includes both choices and the losing incomplete transfer. Observed temporal
-   exports are checked; actual lifecycle collection exposed a new no-retirement,
-   pre-grant-loss schedule whose integrated replay still refuses. Complete that
-   original and lifecycle composition before adding a general competition gate.
-   Continue with competing owners, then inventory transfer, carried
-   and transition recovery entries and uncovered learner profiles. Reuse existing producers/readers.
+   exports are checked; [pre-grant-loss replay](PHASE_3_PREGRANT_LOSS_REPLAY.md) now
+   accepts that unchanged zero-retirement original with exact applicable negatives.
+   General lifecycle/fault coverage and competition admission remain open.
+   The [transfer matrix entry](PHASE_3_TRANSFER_HISTORY_COHORT.md) binds the existing
+   complete TCP lifetime and two-process recovery matrices to one recorded
+   source/build/toolchain/reader and independently replays both originals. It is
+   a local component entry, not another hosted subset or final-source slot.
+   Continue with hosted transfer, competing-owner, carried and transition recovery
+   entries and uncovered learner profiles. Reuse existing producers/readers.
    Historical qualification remains scoped to its source, not a new cohort slot.
    The six-revision history's recorded final-CANCEL deadline failure remains a
    failure; retrying, extending budgets or reconstructing observations cannot
