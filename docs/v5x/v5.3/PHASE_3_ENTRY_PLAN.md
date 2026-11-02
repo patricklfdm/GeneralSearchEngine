@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Hosted joining reply-loss qualification](PHASE_3_JOINING_FAULT_HOSTED.md) now
+connects one prepared source/build to three complete originals and three
+independent downloaded verifiers. Exact fault and ballot negative vectors,
+workflow/run/attempt bindings and failed originals remain required. No campaign
+has run; final-source execution and Phase 3 closure remain OPEN.
+
 [Joining reply-loss composition](PHASE_3_JOINING_FAULT_COMPOSITION.md) now extends
 three retained `3-ADD` fault histories through continuous future/learner and
 ballot validation. Its new cohort requires the actual reader in every producer

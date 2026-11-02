@@ -1,0 +1,148 @@
+{
+  "actions": {
+    "localCommit": true,
+    "nativeExecution": false,
+    "paidCloud": false,
+    "pomChanged": false,
+    "push": false,
+    "requiredChanged": false,
+    "runtimeJavaChanged": false,
+    "workflowDispatch": false
+  },
+  "baseHead": "809c7b761bcfb48da126c47e4e40a1bf6b51b3f9",
+  "cases": [
+    "SOURCE_OFFER",
+    "CHUNK",
+    "TRANSFER_COMMIT"
+  ],
+  "changedFiles": {
+    ".github/workflows/v53-joining-source-faults.yml": "dc513aee2017327a53b4ec389ae1c84905ed5268359e18d88317d2c2fb83a7af",
+    "scripts/v53/joining_fault_hosted.py": "f285f13dfc044973d35733fccf1eae3e1c9557ab191bae098e194a1f18a33134",
+    "scripts/v53/test_joining_fault_hosted.py": "66bf7eda1a5126d66d938bd1dd661a9a565ad7d9135ef5c27dacfc17d111402b",
+    "scripts/v53/test_joining_fault_workflow.py": "bc61a628bc0c56a940b86fe97538c0ec99f2a80635c4b9d17f4b2a9e72ad839c"
+  },
+  "currentSourceNativeCohortQualified": false,
+  "evidence": "target/v53-joining-fault-hosted-20261102",
+  "joiningSourceFaultCompositionQualified": false,
+  "phase3Complete": false,
+  "reader": {
+    "files": 602,
+    "sha256": "92c8e5bc233f786472ca92678b110ffd493d18f7d5eb6ef756e88718da438e4f",
+    "snapshot": "target/v53-joining-fault-hosted-20261102/reader",
+    "sourceManifestSha256": "8d80371b38d90220fc08a68ec51fbe2424b6d5c2442f2647bd57d54dee243812"
+  },
+  "remaining": [
+    "exact-source hosted profile/process/fault executions",
+    "remaining protocol closure implementations",
+    "combined resource bounds",
+    "complete original observation coverage",
+    "frozen S/N dependency mapping"
+  ],
+  "schema": "gse-v53-phase3-joining-fault-hosted-implementation-v1",
+  "scope": "hosted orchestration and synthetic provenance checks; no native campaign",
+  "status": "PARTIAL",
+  "validation": {
+    "changedLinks": {
+      "checked": 696,
+      "status": "PASS"
+    },
+    "contractLogSha256": "6df6d0a926299dbc5d64a5be62a857d25101ade6089bda046de001b2b8b34f53",
+    "documentationContract": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 2120,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "priorQualificationShape": {
+      "cases": [
+        {
+          "case": "SOURCE_OFFER",
+          "qualification": "target/v53-joining-fault-composition-20261102/source_offer-qualification.json",
+          "sha256": "2db20893ddca3a60129eac522c7457172f62ce60a5af8ed75472fd831e73bc51",
+          "status": "PASS"
+        },
+        {
+          "case": "CHUNK",
+          "qualification": "target/v53-joining-fault-composition-20261102/chunk-qualification.json",
+          "sha256": "a1e5dbd4507f6447719612a22864a0e40b7a413c8c089ad80dac75dc3d60e558",
+          "status": "PASS"
+        },
+        {
+          "case": "TRANSFER_COMMIT",
+          "qualification": "target/v53-joining-fault-composition-20261102/transfer_commit-qualification.json",
+          "sha256": "e46a452a87297ee597abc01dba7cdc1ade80b34a27bba77c78c85bd734f21e86",
+          "status": "PASS"
+        }
+      ],
+      "scope": "existing qualified result contract only; no physical replay or source promotion",
+      "status": "PASS"
+    },
+    "protectedSource": {
+      "files": [
+        "scripts/v53/profile_hosted.py",
+        "scripts/v53/remove_process_hosted.py",
+        "scripts/v53/joining_fault_cohort.py",
+        "scripts/v53/joining_fault_evidence.py",
+        "scripts/v53/joining_history_run.py",
+        ".github/workflows/ci.yml",
+        ".github/workflows/v53-membership-profiles.yml",
+        ".github/workflows/v53-remove-process.yml",
+        "docs/v5x/v5.3/acceptance-plan.json"
+      ],
+      "status": "PASS"
+    },
+    "tests": {
+      "focused-1.log": {
+        "seconds": 0.75,
+        "sha256": "ba0439c961ebfd923f06b1afa1a9e2622d9af5cc5adc9fd81b1b93a3dd3161ea",
+        "status": "PASS",
+        "tests": 21
+      },
+      "optimized.log": {
+        "seconds": 0.716,
+        "sha256": "6f23fc7bd7ce010ce8194864cebb1c43df22fb916b7531ed6d2533144f33721f",
+        "status": "PASS",
+        "tests": 21
+      },
+      "python-all.log": {
+        "seconds": 99.88,
+        "sha256": "4dd2bad51b9c4d97f93887eddbc40bf96e82e59d355ce36944e2f1b61efa3b96",
+        "status": "PASS",
+        "tests": 1991
+      },
+      "shared-regression.log": {
+        "seconds": 2.329,
+        "sha256": "e8ae222a40ed23854bb64992e79982dffc9b8a56e43491228e67e5f0c973690a",
+        "status": "PASS",
+        "tests": 61
+      }
+    },
+    "whitespace": "PASS",
+    "workflow": {
+      "artifactNames": [
+        "v53-joining-faults-seed-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "v53-joining-faults-prepare-diagnostics-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "v53-joining-faults-raw-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-source_offer",
+        "v53-joining-faults-execute-diagnostics-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-source_offer",
+        "v53-joining-faults-raw-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-chunk",
+        "v53-joining-faults-execute-diagnostics-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-chunk",
+        "v53-joining-faults-raw-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-transfer_commit",
+        "v53-joining-faults-execute-diagnostics-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-transfer_commit",
+        "v53-joining-faults-verified-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-source_offer",
+        "v53-joining-faults-verified-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-chunk",
+        "v53-joining-faults-verified-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-transfer_commit",
+        "v53-joining-faults-aggregate-13-2-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ],
+      "expandedJobs": 8,
+      "expandedShellSteps": 9,
+      "retentionDays": 90,
+      "status": "PASS",
+      "uniqueArtifactNames": 12,
+      "workflow": ".github/workflows/v53-joining-source-faults.yml"
+    }
+  }
+}

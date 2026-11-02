@@ -110,8 +110,9 @@ the final-source cohort because they do not contain the new reader. The
 1,417 checked Java, POM, workflow and frozen inputs are unchanged.
 
 The result is limited to the three initial reply losses on complete `3-ADD`
-histories. The hosted final-source fault cohort, remaining process/fault
-histories, all-seven-profile execution, combined resource bounds, complete
-original-observation coverage and frozen S/N dependency mapping remain OPEN.
-No runtime Java, POM, workflow, frozen workload, Required check, paid-cloud
-execution or release behavior changes in this batch.
+histories. The [hosted fault entry](PHASE_3_JOINING_FAULT_HOSTED.md) was implemented
+in the following batch; its final-source execution remains pending. Remaining
+process/fault histories, all-seven-profile execution, combined resource bounds,
+complete original-observation coverage and frozen S/N dependency mapping remain
+OPEN. The original composition batch changed no runtime Java, POM, workflow,
+frozen workload, Required check, paid-cloud execution or release behavior.

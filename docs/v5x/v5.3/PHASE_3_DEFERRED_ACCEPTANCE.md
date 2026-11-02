@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Hosted joining reply-loss qualification](PHASE_3_JOINING_FAULT_HOSTED.md) now
+connects one prepared source/build to three complete originals and three
+independent downloaded verifiers. Exact fault and ballot negative vectors,
+workflow/run/attempt bindings and failed originals remain required. No campaign
+has run; final-source execution and Phase 3 closure remain OPEN.
+
 [Joining reply-loss composition](PHASE_3_JOINING_FAULT_COMPOSITION.md) now extends
 three retained `3-ADD` fault histories through continuous future/learner and
 ballot validation. Its new cohort requires the actual reader in every producer
@@ -972,7 +978,10 @@ or a crash from its restart across runners. Parallelism applies to independently
 bootstrapped histories only. A future aggregate must validate the exact declared
 set rather than merge pass counts. Wiring for other subsets and the complete
 Phase 3 cohort aggregate remain pending; the REMOVE retirement and ordinary
-profile subsets have the dedicated entries above. This change does not dispatch GitHub Actions, alter Required or touch the
+profile subsets have the dedicated entries above. The
+[three-reply joining fault entry](PHASE_3_JOINING_FAULT_HOSTED.md) now also has
+whole original workers and independent downloaded verifiers; its native cohort
+remains pending. This change does not dispatch GitHub Actions, alter Required or touch the
 V5.2 hosted/self-hosted experiment.
 
 Earlier locally completed runs remain source-bound historical results. Long
