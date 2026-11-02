@@ -5,6 +5,7 @@ import unittest
 from unittest.mock import patch
 
 from . import joining_same_view_network as gate
+from .test_joining_proposer_installations import INSTALLATION
 
 n=gate.network
 
@@ -21,13 +22,11 @@ def fixture():
     bases={v['basisDigest']:dict(node=v['voter'],basisId=v['basisId'],ballot=selected['ballot'],capturedEvent=0) for v in selected['sources']}
     events=[]
     def add(event,node=None,scope=None):
-        at=len(events);events.append(dict(event=event,node=node,scope=scope));return at
+        at=len(events);events.append(dict(event=event,node=node,**({'scope':scope} if scope else {})));return at
     add('CAPTURED');promise=add('PROMISE_DELIVERED')
     add('SELECTED_FORCED','node-4','continuation-owner');add('SELECTED_BEFORE_RETURN','node-4','continuation-owner')
     sent=add('SEND');received=add('REQUEST')
-    forces=['INSTALL_RESERVED','INSTALL_MANIFEST_FORCED','INSTALL_IMAGE_FORCED','INSTALL_MEMBER_FORCED',
-            'INSTALL_GENERATION_FORCED','INSTALL_SELECTOR_FORCED','INSTALL_SELECTOR_RENAMED','INSTALL_PARENT_FORCED',
-            'CURRENT_FILES_FORCED','CURRENT_GENERATION_FORCED','CURRENT_SELECTOR_FORCED','CURRENT_DIRECTORY_FORCED','INSTALL_BEFORE_RETURN']
+    forces=INSTALLATION
     for event in ['SELECTED_FORCED','SELECTED_BEFORE_RETURN',*forces]:add(event,'node-1')
     offered=add('REPLY');delivered=add('ACK_DELIVERED')
     for event in forces:add(event,'node-4','continuation-owner')
@@ -93,12 +92,14 @@ class JoiningSameViewNetworkTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'^joining network recovery local installation order$'):self.check(data)
 
     def test_missing_delivery_cannot_be_counted_as_local_recovery(self):
-        data=fixture();data[1][-1]['delivered']=None
-        with self.assertRaisesRegex(ValueError,'^joining network recovery delivered ACKs$'):self.check(data)
+        for value in (None,True,'5'):
+            data=fixture();data[1][-1]['delivered']=value
+            with self.subTest(value=value),self.assertRaisesRegex(ValueError,'^joining network recovery delivered ACKs$'):self.check(data)
 
     def test_missing_selection_return_or_cold_boundary_is_rejected(self):
         for event,reason in [('SELECTED_BEFORE_RETURN','local selection return'),('CURRENT_VALIDATED','cold boundary')]:
-            data=fixture();next(v for v in data[0] if v.get('node')=='node-4' and v['event']==event)['event']='OMITTED'
+            data=fixture();next(v for v in data[0] if v.get('node')=='node-4' and v['event']==event and
+                (event!='CURRENT_VALIDATED' or v.get('scope')=='stable-cold-owner'))['event']='OMITTED'
             with self.subTest(event=event),self.assertRaisesRegex(ValueError,'^joining network recovery '+reason+'$'):self.check(data)
 
     def test_foreign_owner_selection_is_not_ignored(self):

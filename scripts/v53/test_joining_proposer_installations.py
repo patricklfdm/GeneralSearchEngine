@@ -2,11 +2,21 @@
 import unittest
 from . import joining_network_evidence as n
 
+# Explicit native sequence for the fixture's one image and one metadata member.
+# Do not derive these observations from the implementation under test.
+INSTALLATION = ['INSTALL_RESERVED', 'INSTALL_DIRECTORY_CREATED', 'INSTALL_MANIFEST_WRITTEN',
+    'INSTALL_MANIFEST_FORCED', 'INSTALL_IMAGE_WRITTEN', 'INSTALL_IMAGE_FORCED',
+    'INSTALL_MEMBER_WRITTEN', 'INSTALL_MEMBER_FORCED', 'INSTALL_GENERATION_FORCED',
+    'INSTALL_SELECTOR_WRITTEN', 'INSTALL_SELECTOR_FORCED', 'INSTALL_SELECTOR_RENAMED',
+    'INSTALL_PARENT_FORCED', 'CURRENT_VALIDATED', 'CURRENT_FILES_FORCED',
+    'CURRENT_GENERATION_FORCED', 'CURRENT_SELECTOR_FORCED', 'CURRENT_DIRECTORY_FORCED',
+    'INSTALL_BEFORE_RETURN']
+
 
 def fixture():
     members={'application.image':b'image','selected.gsr':b'selection'}
     names=['SELECTED_FORCED','SELECTED_BEFORE_RETURN','SEND_A','SEND_B','ACK_A','ACK_B',
-           *n.install_forces(members),'ACCEPT_VALIDATED']
+           *INSTALLATION,'ACCEPT_VALIDATED']
     events=[dict(node='node-1',event=p) for p in names]
     replies=[dict(sent=2,delivered=4),dict(sent=3,delivered=5)]
     return events,replies,members

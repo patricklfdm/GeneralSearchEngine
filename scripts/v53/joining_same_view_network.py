@@ -32,6 +32,7 @@ PROPOSER_NEGATIVES = {
     'proposer-wrong-scope':'joining network proposer complete installation order',
 }
 NEGATIVES = {
+    **network.install.RECOVERY_NEGATIVES,
     'recovery-early-selection':'joining network selection before delivered promises',
     'recovery-missing-grant-force':'joining network durable grant order',
     'recovery-missing-remote-image-force':'joining network durable installation order',
@@ -72,6 +73,9 @@ def move_before(events,index,before):
 
 def mutate(root,name):
     root=Path(root)
+    if name in network.install.RECOVERY_NEGATIVES:
+        events=collection.read_json(root,'events.json',collection.EVENT_BYTES)
+        network.install.mutate(events,name);(root/'events.json').write_bytes(f.canonical(events));return
     if name in slots.NEGATIVES:
         events=collection.read_json(root,'events.json',collection.EVENT_BYTES)
         slots.mutate(events,name);(root/'events.json').write_bytes(f.canonical(events));return

@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Complete selected installation writes](PHASE_3_SELECTED_INSTALL_WRITES.md)
+close a reproduced omitted-manifest-write reader gap across ordinary proposer,
+remote voter and final recovery installation. Creation, every member write,
+selector write and CURRENT validation are now required within their original
+causal intervals. Whole-history and profile/process qualification remain OPEN.
+
 [Complete grant capture writes](PHASE_3_GRANT_WRITE_CHAIN.md) close a reproduced
 omitted-BASIS-prefix reader gap. Each original grant now requires its complete
 write/force/delete sequence and no unbound capture callbacks. Full observation,

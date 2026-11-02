@@ -71,3 +71,8 @@ POM, workflow, resource/timing or paid-cloud behavior changes.
 The later [grant-write audit](PHASE_3_GRANT_WRITE_CHAIN.md) reproduces and closes
 a separate omitted-prefix gap in the shared grant reader. It does not change the
 source-bound qualification or remaining limits recorded here.
+
+The subsequent [selected installation write audit](PHASE_3_SELECTED_INSTALL_WRITES.md)
+extends these force checks to complete creation/write/validation sequences for
+all three selected installation roles. Its receipt preserves the distinction
+between this historical force qualification and the later writer coverage.

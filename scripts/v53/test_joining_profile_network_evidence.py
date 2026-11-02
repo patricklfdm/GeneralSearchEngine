@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 from . import joining_profile_network_evidence as e
 from .test_joining_attempts import failed_trace
+from .test_joining_proposer_installations import INSTALLATION
 
 
 class JoiningProfileNetworkEvidenceTest(unittest.TestCase):
@@ -26,10 +27,7 @@ class JoiningProfileNetworkEvidenceTest(unittest.TestCase):
               for v in selected['sources'] if v['voter']!='node-1']
         for node in names[1:]:
             sent=len(events);events.append(dict(event='SEND'));received=len(events);events.append(dict(event='READ'))
-            sequence=['SELECTED_FORCED','SELECTED_BEFORE_RETURN','INSTALL_RESERVED','INSTALL_MANIFEST_FORCED',
-                'INSTALL_IMAGE_FORCED','INSTALL_MEMBER_FORCED','INSTALL_GENERATION_FORCED','INSTALL_SELECTOR_FORCED',
-                'INSTALL_SELECTOR_RENAMED','INSTALL_PARENT_FORCED','CURRENT_FILES_FORCED','CURRENT_GENERATION_FORCED',
-                'CURRENT_SELECTOR_FORCED','CURRENT_DIRECTORY_FORCED','INSTALL_BEFORE_RETURN']
+            sequence=['SELECTED_FORCED','SELECTED_BEFORE_RETURN',*INSTALLATION]
             for event in sequence:
                 row=dict(node=node,event=event)
                 if node==joining:row['scope']='wrong-owner' if change_scope else 'continuation-owner'
@@ -39,7 +37,7 @@ class JoiningProfileNetworkEvidenceTest(unittest.TestCase):
             rows.append(dict(kind='SELECTED',answer='INSTALL_ACK',sent=sent,received=received,offered=offered,delivered=delivered,
                 request=dict(sender=dict(node='node-1'),recipient=dict(node=node),ballot=selected['ballot'],view=selected['view'],payload=dict(selection=digest)),
                 response=dict(payload=dict(selection=digest,cut=selected['cut']))))
-        events.extend(dict(node='node-1',event=p) for p in [*n.install_forces(members),'ACCEPT_VALIDATED'])
+        events.extend(dict(node='node-1',event=p) for p in [*INSTALLATION,'ACCEPT_VALIDATED'])
         with patch.object(n.disk,'inventory',side_effect=lambda p:p) as inventory, \
              patch.object(n.disk,'current',return_value=('',members,{})):
             result=n.installations('/original',events,rows,replay,bases)

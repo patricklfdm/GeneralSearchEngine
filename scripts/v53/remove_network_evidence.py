@@ -54,7 +54,7 @@ class History:
 
 
 def activations(events,rows,history):
-    used=set();grants=installations=0;prior=-1
+    used=set();grants=installations=0;prior=-1;capture_callbacks=set()
     for ordinal,parts in enumerate(history.phases,1):
         raw=parts['SELECTED'];selected=f.decode(raw,'records','SELECTED');digest=sha(raw)
         voters=[v['voter'] for v in selected['sources']];proposer=selected['ballot']['proposer']
@@ -72,10 +72,12 @@ def activations(events,rows,history):
             need(len(starts)==len(returns)==len(selections)==1 and starts[0]<returns[0]<selections[0],
                  'REMOVE network complete original grants')
             packet=c.p.decode(files['sources/'+basis['basisId']+'/source.gscp'])
-            names=['PROMISE_FORCED','CAPTURE_INTENT_FORCED','CAPTURE_INTENT_PARENT_FORCED','SOURCE_PACKET_FORCED']
-            names+=['SOURCE_IMAGE_FORCED']*len(packet['images'])
-            names+=['SOURCE_FILES_DIRECTORY_FORCED','SOURCE_DIRECTORY_FORCED','BASIS_FORCED','CAPTURE_INTENT_CLEARED']
-            shared.interval(events,node,starts[0],returns[0],names,'REMOVE network durable grant order')
+            try:
+                bound=shared.grant_capture_order(events,node,None,starts[0],returns[0],packet)
+            except ValueError as error:
+                raise ValueError('REMOVE network durable grant order') from error
+            need(not capture_callbacks.intersection(bound),'REMOVE network reused grant capture callback')
+            capture_callbacks.update(bound)
             positions[node]=(starts[0],returns[0],selections[0]);grant_returns[node]=returns[0];grants+=1
         prepare=[];propagation=[]
         for row in rows:
@@ -96,8 +98,8 @@ def activations(events,rows,history):
                      a['payload']==dict(selection=digest,cut=selected['cut']),'REMOVE network installation authority')
                 need(positions[proposer][2]<row['sent']<row['received']<positions[node][2]<row['offered']<row['delivered']<end,
                      'REMOVE network selected propagation order')
-                names=['SELECTED_FORCED','SELECTED_BEFORE_RETURN',*shared.install_forces(own)]
-                shared.interval(events,node,row['received'],row['offered'],names,'REMOVE network durable installation order')
+                shared.install.interval(events,node,None,row['received'],row['offered'],own,
+                    ['SELECTED_FORCED','SELECTED_BEFORE_RETURN'],'REMOVE network durable installation order')
                 propagation.append(row);installations+=1
             used.add(row['offered'])
         need(sorted(prepare)==sorted(v for v in voters if v!=proposer) and
@@ -107,6 +109,8 @@ def activations(events,rows,history):
     need(used=={v['offered'] for v in rows if v['kind'] in ('PREPARE','SELECTED')},'REMOVE network unbound activation')
     need(sum(v['event']=='GRANT_BEFORE_RETURN' for v in events)==grants and
          sum(v['event']=='SELECTED_FORCED' for v in events)==grants,'REMOVE network unexplained grant/selection')
+    need(capture_callbacks=={i for i,v in enumerate(events) if shared.capture_callback(v['event'])},
+         'REMOVE network unbound grant capture callback')
     return dict(originalGrants=grants,boundInstallReplies=installations,proposerInstallations=len(history.phases))
 
 
@@ -211,6 +215,9 @@ def validate(root,profile):
 
 
 NEGATIVES={k:v for k,v in shared.NEGATIVES.items() if k not in ('wrong-server-lifetime','wrong-client-lifetime')}
+NEGATIVES.update({k:v.replace('joining network','REMOVE network') for k,v in shared.GRANT_NEGATIVES.items()})
+NEGATIVES.update({k:v.replace('joining network','REMOVE network') for k,v in shared.install.NEGATIVES.items()
+                  if k.startswith('install-remote-')})
 NEGATIVES.update({
     'missing-grant-force':'REMOVE network durable grant order',
     'early-promise':'REMOVE network grant before delivered promise',

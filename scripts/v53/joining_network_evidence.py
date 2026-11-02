@@ -13,6 +13,7 @@ import tempfile
 
 from . import joining_retirement_replay as physical
 from . import joining_phase_evidence as phase
+from . import joining_install_storage as install
 from .joining_transcript import causal, transfers, SENDS, READS
 
 p, s, f, disk, need, sha = physical.p, physical.s, physical.f, physical.disk, physical.need, physical.sha
@@ -89,25 +90,18 @@ def grants(root, events, rows):
     return dict(forcedGrants=len(captures), boundPromiseReplies=len(used)), by_basis
 
 
-def install_forces(members):
-    names = ['INSTALL_RESERVED','INSTALL_MANIFEST_FORCED']
-    names += ['INSTALL_IMAGE_FORCED' if name.endswith('.image') else 'INSTALL_MEMBER_FORCED' for name in sorted(members)]
-    return names + ['INSTALL_GENERATION_FORCED','INSTALL_SELECTOR_FORCED','INSTALL_SELECTOR_RENAMED','INSTALL_PARENT_FORCED',
-                   'CURRENT_FILES_FORCED','CURRENT_GENERATION_FORCED','CURRENT_SELECTOR_FORCED','CURRENT_DIRECTORY_FORCED','INSTALL_BEFORE_RETURN']
-
-
 def proposer_forces(events,node,scope,selected_at,upper,replies,members):
     """Local installation follows every selected peer's original delivered ACK."""
     need(replies and all(type(v.get('delivered')) is int for v in replies),
          'joining network proposer delivered ACKs')
     interval(events,node,selected_at,min(v['sent'] for v in replies),
              ['SELECTED_BEFORE_RETURN'],'joining network proposer selection return',scope)
-    names=install_forces(members)
+    names=install.sequence(members)
     points=[at for at,v in enumerate(events) if selected_at<at<upper and v.get('node')==node and v['event'] in names]
     need(points and min(points)>max(v['delivered'] for v in replies),
          'joining network proposer installation after ACKs')
-    interval(events,node,selected_at,upper,['SELECTED_BEFORE_RETURN',*names],
-             'joining network proposer complete installation order',scope)
+    install.interval(events,node,scope,selected_at,upper,members,['SELECTED_BEFORE_RETURN'],
+                     'joining network proposer complete installation order')
 
 
 def installations(root, events, rows, replay, bases, *, recovery=None):
@@ -163,11 +157,11 @@ def installations(root, events, rows, replay, bases, *, recovery=None):
             need(cut in labels,'joining network known installation snapshot')
             directory = Path(root)/(f'joining-installed-{cut}/replica' if node == replay.joining else labels[cut]+'/'+node)
         # Every snapshot is first compared against independent derivation by
-        # physical.validate. Its member count now determines required forces.
+        # physical.validate. Its exact members determine all required writes.
         _,members,packet = disk.current(disk.inventory(directory))
         need(sha(members['selected.gsr']) == digest,'joining network installed selection bytes')
-        names = ['SELECTED_FORCED','SELECTED_BEFORE_RETURN',*install_forces(members)]
-        interval(events,node,row['received'],row['offered'],names,'joining network durable installation order',scope)
+        install.interval(events,node,scope,row['received'],row['offered'],members,
+                         ['SELECTED_FORCED','SELECTED_BEFORE_RETURN'],'joining network durable installation order')
         count += 1
     need(used == {(node,h) for (node,h) in forced if node != selections[h]['ballot']['proposer']},
          'joining network missing selected propagation')
@@ -189,7 +183,7 @@ def installations(root, events, rows, replay, bases, *, recovery=None):
     if recovery_digest is not None:
         node = replay.joining; scope = 'continuation-owner'
         replies = [v for v in rows if v['kind']=='SELECTED' and v['request']['payload']==dict(selection=recovery_digest)]
-        need(replies and all(v['delivered'] is not None for v in replies),'joining network recovery delivered ACKs')
+        need(replies and all(type(v.get('delivered')) is int for v in replies),'joining network recovery delivered ACKs')
         interval(events,node,forced[node,recovery_digest],min(v['sent'] for v in replies),
                  ['SELECTED_BEFORE_RETURN'],'joining network recovery local selection return',scope)
         cold = [at for at,v in enumerate(events) if v.get('node')==node and v.get('scope')=='stable-cold-owner' and
@@ -197,13 +191,13 @@ def installations(root, events, rows, replay, bases, *, recovery=None):
         need(len(cold)==1,'joining network recovery cold boundary')
         members = disk.current(disk.inventory(Path(root)/'joining-after-final-recovery'/'replica'))[1]
         need(sha(members['selected.gsr'])==recovery_digest,'joining network recovery local selection bytes')
-        names = install_forces(members)
+        names = install.sequence(members)
         local_events = [at for at,v in enumerate(events) if forced[node,recovery_digest] < at < cold[0] and
                         v.get('node')==node and v['event'] in names]
         need(local_events and min(local_events)>max(v['delivered'] for v in replies),
              'joining network recovery local installation order')
-        interval(events,node,forced[node,recovery_digest],cold[0],names,
-                 'joining network recovery local installation order',scope)
+        install.interval(events,node,scope,forced[node,recovery_digest],cold[0],members,[],
+                         'joining network recovery local installation order')
         result.update(recoveryInstallReplies=len(replies),recoveryLocalInstallations=1)
     return result
 
@@ -284,6 +278,7 @@ NEGATIVES = {
     'transfer-sequence-gap':'joining network transfer sequence',
     'transfer-before-delivery':'joining network transfer next before delivery',
     **GRANT_NEGATIVES,
+    **install.NEGATIVES,
 }
 
 
@@ -303,7 +298,8 @@ def mutate(root, name):
                 if side=='response' and event['event']=='NETWORK_RECEIVED':event['kind']=kind
     def first(kind,answer=None):
         return next(row for row in wires if wire(row['request'])[0]==kind and (answer is None or wire(row['response'])[0]==answer))
-    if name in GRANT_NEGATIVES:
+    if name in install.NEGATIVES:install.mutate(events,name)
+    elif name in GRANT_NEGATIVES:
         if name in GRANT_WRITES:events.pop(at(GRANT_WRITES[name],'node-1'))
         elif name=='grant-duplicate-prefix':
             index=at('BASIS_PREFIX_WRITTEN','node-1');events.insert(index,dict(events[index]))

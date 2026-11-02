@@ -1,0 +1,232 @@
+{
+  "actions": {
+    "localCommit": true,
+    "paidCloud": false,
+    "pomChanged": false,
+    "push": false,
+    "runtimeJavaChanged": false,
+    "workflowChanged": false
+  },
+  "allMembershipProfilesQualified": false,
+  "archive": {
+    "archiveBytes": 42678189,
+    "archiveDirectories": 4598,
+    "archiveFiles": 27676,
+    "archiveSha256": "367d9210980e0bc55b6e7360dc158311bc7f15963715e3eb27791de4187b466d",
+    "manifest": {
+      "bytes": 4594235,
+      "path": "target/v53-selected-install-writes-20261102/artifact/manifest.json",
+      "sha256": "9f7003dfc0776053b392394d2aadb272186d5c00757a758993192414e6dba991"
+    },
+    "nativeRerun": false,
+    "networkNegatives": 136,
+    "path": "target/v53-selected-install-writes-20261102/artifact/bundle.tar.gz",
+    "phase3Complete": false,
+    "portableExecution": {
+      "elapsedSeconds": 54.708,
+      "exit": 0
+    },
+    "portableRemove": {
+      "process": {
+        "elapsedSeconds": 40.932,
+        "exit": 0
+      },
+      "remove-4": {
+        "elapsedSeconds": 5.724,
+        "exit": 0
+      },
+      "remove-5": {
+        "elapsedSeconds": 8.127,
+        "exit": 0
+      }
+    },
+    "portableResultIdentical": true,
+    "pythonTests": 1755,
+    "readerManifestSha256": "3f3b4b4785579d08d8f13d9f9c2f9d1d9d8189b24bf4b11e9851712c409cd101",
+    "removeNetworkNegatives": 214,
+    "scope": "shared-install-reader-original-and-exact-network-negatives",
+    "status": "PASS",
+    "unchangedInputs": true
+  },
+  "baseHead": "bdfc8db3",
+  "completePhysicalQualified": false,
+  "forceAndNetworkQualified": false,
+  "historicalADD": {
+    "currentSourceCohortQualified": false,
+    "execution": {
+      "elapsedSeconds": 24.054,
+      "exit": 0
+    },
+    "result": {
+      "bytes": 892,
+      "path": "target/v53-selected-install-writes-20261102/reader/legacy.json",
+      "sha256": "2d8f659166fa9724305dc6a8a3591b919588ba63168df76899f8ca1c30907b0b"
+    }
+  },
+  "observed": {
+    "installAndCurrentCallbacks": 396,
+    "selectedInstallations": 14,
+    "writes": 121
+  },
+  "observedIntervals": {
+    "bytes": 2079,
+    "path": "target/v53-selected-install-writes-20261102/observed-inventory.json",
+    "sha256": "cf85895555efd0300e2c617ec25f2fb1227ec07bc947b835f44ddcb0a084edf4"
+  },
+  "original": {
+    "buildSha256": "72a2992c984d1874256ab5d0c2379358c5e852080eb3cacc112124c438473bbc",
+    "nativeRerun": false,
+    "path": "target/v53-joining-same-view-20261031/native-covering-floor/workspace/general-search-engine-replication/target/v53-native-dispatch/run-82318ea9-59d7-4c20-9188-a008f4e63b63",
+    "producerHead": "d0729dd1e66005ac987823bee26242bf2b0894af",
+    "sourceSha256": "ab1b13b0d54ab5505dab93be8d48b003945c96216916d8b1bee847ffacea32e8",
+    "unchanged": true
+  },
+  "originalSelectedInstallSequenceQualified": true,
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "profile": "3-REPLACE",
+  "python": {
+    "elapsedSeconds": 107.06,
+    "log": {
+      "bytes": 3845,
+      "path": "target/v53-selected-install-writes-20261102/all-python-tests-final.log",
+      "sha256": "c55b08eadf43e3d9c3770b7841ce415c92649d079046ebebd0fe21e1a6f29940"
+    },
+    "newTests": 10,
+    "priorIncorrectlyAcceptedNegativeSubcases": 36,
+    "tests": 1755
+  },
+  "qualification": {
+    "allExpectedReasons": true,
+    "fullChain": {
+      "bytes": 12761,
+      "path": "target/v53-selected-install-writes-20261102/reader/full-chain.json",
+      "sha256": "0aab434047dec01cfc1e9318ba73773a3a460a5cb9e4b3bd18fddc62ca4c7789"
+    },
+    "fullChainExecution": {
+      "elapsedSeconds": 54.103,
+      "exit": 0
+    },
+    "network": {
+      "bytes": 22919,
+      "path": "target/v53-selected-install-writes-20261102/reader/network-negatives.json",
+      "sha256": "e014c675476be9aec2c8283d957640ccece8139be755d2f5f24cda577741602c"
+    },
+    "networkExecution": {
+      "elapsedSeconds": 696.979,
+      "exit": 0
+    },
+    "newNegatives": 36,
+    "originalFirst": true,
+    "totalNegatives": 136
+  },
+  "reader": {
+    "code": {
+      "joining_install_storage.py": "a310d93c2e8126ba1a9baaa245a115a55fa6af61b2d0273d8fa3ffa3626d30c3",
+      "joining_network_evidence.py": "8ce3ed51c1a185a1eaaaef4c4448f3ea0fef407e44d3058236b5c4b223f42d31",
+      "joining_same_view_network.py": "826bea7c15b484b9e8dc5e4fcc68b12eac346cd326e9c7828b8c0c03f70fc965",
+      "test_joining_install_write_chain.py": "e2f370d757e4d8ef73c8b6070a2fce62e1a1d469b515c0acdf3ae1330bb150c3",
+      "test_joining_profile_network_evidence.py": "75fca52f2db3c683692a11c51f8f6cd42f0c2fa20f334602385e8dea28ac71ed",
+      "test_joining_proposer_installations.py": "1fb2dc531892a5e51e07dab61cffcfd8c46dc6bb5a9d0a1a254d7b73fe59b0d3",
+      "test_joining_same_view_network.py": "9a03e0de1c127a854831170e675e91cbc40f4798e01da1d1b24643bb67e81f83"
+    },
+    "manifest": {
+      "bytes": 620753,
+      "path": "target/v53-selected-install-writes-20261102/reader/source.json",
+      "sha256": "3f3b4b4785579d08d8f13d9f9c2f9d1d9d8189b24bf4b11e9851712c409cd101"
+    }
+  },
+  "remaining": [
+    "Complete SELECTED journal and orphan callback coverage",
+    "Final-source all-profile and process/fault cohorts",
+    "Frozen Phase 3 S/N requirement mapping"
+  ],
+  "removeCompatibility": {
+    "code": {
+      "bytes": 21806,
+      "path": "scripts/v53/remove_network_evidence.py",
+      "sha256": "15150c78f90dccd48c973048eb252a16514822f38a0106315bbb24e2456df075"
+    },
+    "nativeRerun": false,
+    "processExecution": {
+      "elapsedSeconds": 47.297,
+      "exit": 0
+    },
+    "qualification": {
+      "nativeRerun": false,
+      "results": [
+        {
+          "execution": {
+            "elapsedSeconds": 275.727,
+            "exit": 0
+          },
+          "negatives": 107,
+          "profile": "4-REMOVE",
+          "status": "PASS"
+        },
+        {
+          "execution": {
+            "elapsedSeconds": 368.83,
+            "exit": 0
+          },
+          "negatives": 107,
+          "profile": "5-REMOVE",
+          "status": "PASS"
+        }
+      ],
+      "status": "PASS"
+    },
+    "reader": {
+      "bytes": 620997,
+      "path": "target/v53-selected-install-writes-20261102/remove-reader-final/source.json",
+      "sha256": "6d85e0eb5d587556cb54c78cd5bbe12e374ee8501943e20fccf9f3945b858d5f"
+    },
+    "results": {
+      "process": {
+        "bytes": 14085,
+        "path": "target/v53-selected-install-writes-20261102/remove-reader-final/process.json",
+        "sha256": "9929a60d86bdbb790deddea2fc1b7f43799ceb00bc1f1e4bf0a43f4cca6538c7"
+      },
+      "remove-4": {
+        "bytes": 17373,
+        "path": "target/v53-selected-install-writes-20261102/remove-reader-final/remove-4.json",
+        "sha256": "bd9520becd2bb5377e42042e60dc8cdb3d050940b10e0f065ec3a041eec2ad48"
+      },
+      "remove-5": {
+        "bytes": 17377,
+        "path": "target/v53-selected-install-writes-20261102/remove-reader-final/remove-5.json",
+        "sha256": "03dbbe99b79bef03b4c11222233ab8791bc079f754856f21ab5581477762f286"
+      }
+    },
+    "test": {
+      "bytes": 4865,
+      "path": "scripts/v53/test_remove_activation_writes.py",
+      "sha256": "b14ba6f08b20b5e0272eb7d0022be00daa1921590bcf572b9fc65f23663d9266"
+    }
+  },
+  "reproducedOmission": {
+    "audit": {
+      "acceptedByPriorReader": true,
+      "elapsedSeconds": 54.939,
+      "nativeRerun": false,
+      "original": "/home/klfdm/perception/GeneralSearchEngine/target/v53-joining-same-view-20261031/native-covering-floor/workspace/general-search-engine-replication/target/v53-native-dispatch/run-82318ea9-59d7-4c20-9188-a008f4e63b63",
+      "priorReaderHead": "bdfc8db3",
+      "removed": {
+        "event": "INSTALL_MANIFEST_WRITTEN",
+        "node": "node-1"
+      }
+    },
+    "originalResult": {
+      "bytes": 12761,
+      "path": "target/v53-selected-install-writes-20261102/prior-reader-result.json",
+      "sha256": "3dd17d27916589b441b5bb2b576346276719351e8ba3dcc859d2a738cad06c59"
+    },
+    "regressionsBefore": {
+      "bytes": 31416,
+      "path": "target/v53-selected-install-writes-20261102/regressions-before-corrected-fixture.log",
+      "sha256": "1fc0bec6204f8e4183c5b02123c9bb5df674650d9393bfff280c1d01aca6be41"
+    }
+  },
+  "schema": "gse-v53-selected-install-writes-entry-v1",
+  "status": "PARTIAL"
+}
