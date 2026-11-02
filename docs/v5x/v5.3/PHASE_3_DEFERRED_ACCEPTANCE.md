@@ -1,5 +1,10 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[The seven-profile matrix](PHASE_3_PROFILE_MATRIX.md) now binds ordinary
+ADD/REMOVE/REPLACE histories to one source, build, toolchain and reader. It
+requires complete original replay and exact negatives; implementation tests do
+not qualify a native cohort. Hosted execution and Phase 3 closure remain OPEN.
+
 [Ordinary REMOVE ballot continuity](PHASE_3_REMOVE_BALLOTS.md) now composes the
 four/five-voter captured retirement histories with original reservation and
 promise forces. Together with the ADD/REPLACE profile reader, this prepares the

@@ -1,0 +1,146 @@
+{
+  "actions": {
+    "localCommit": true,
+    "nativeRerun": false,
+    "paidCloud": false,
+    "pomChanged": false,
+    "push": false,
+    "runtimeJavaChanged": false,
+    "workflowDispatch": false
+  },
+  "baseHead": "0bd8ec73",
+  "changedPython": {
+    "scripts/v53/joining_profile_run.py": "7f3053ee656ab32f090863dcbabbcd9eef513043578b2be1b233b66a38bc14df",
+    "scripts/v53/profile_matrix.py": "6bb5607cfab4645c51d127554e5fb58ff00684bb468985d3adbccf791ebbd062",
+    "scripts/v53/remove_profile_run.py": "988fc9d5af7cbbfe1c855ef46808e857ed24b1138685cd2ac04a9afad879d868",
+    "scripts/v53/test_profile_matrix.py": "4ad17fc7184af7a961431e7b65995d473d1470333bec8d65728377ec8adfca51"
+  },
+  "currentSourceNativeCohortQualified": false,
+  "declaredMembershipProfileMatrixQualified": false,
+  "evidence": "target/v53-profile-matrix-20261102",
+  "phase3Complete": false,
+  "profiles": [
+    "3-ADD",
+    "4-ADD",
+    "4-REMOVE",
+    "5-REMOVE",
+    "3-REPLACE",
+    "4-REPLACE",
+    "5-REPLACE"
+  ],
+  "reader": {
+    "files": 594,
+    "manifestPath": "target/v53-profile-matrix-20261102/plan-final.json",
+    "manifestSha256": "2337010b12227454cc2fa092fe5df3cdb152ca4f0092e6154aa7898b3d93dcc7",
+    "sha256": "aed2a0cdfa5bf15fd0813b79a15b16721f66ef918bd3e17043810bed3b81e793"
+  },
+  "remaining": [
+    "final-source hosted seven-profile cohort",
+    "process/fault cohorts",
+    "combined resource bounds",
+    "complete original observation coverage",
+    "frozen S/N mapping"
+  ],
+  "retainedAudit": {
+    "historicalProducers": [
+      {
+        "path": "target/v53-joining-profile-network-20261031/native-corrected-3-replace",
+        "profile": "3-REPLACE",
+        "reason": "profile matrix readers belong to producer source: 3-REPLACE",
+        "receiptSha256": "68aefae33ddf67cc4fbd390bc094420626a380dad6acc28e00170c5bb385672a",
+        "status": "REJECTED"
+      },
+      {
+        "path": "target/v53-remove-prefixes-20261101/native-4",
+        "profile": "4-REMOVE",
+        "reason": "profile matrix successful whole member: 4-REMOVE",
+        "receiptSha256": "227bd289d9282ef69fc472ea961ebb23023200e742337c48348b6b1f28001fa1",
+        "status": "REJECTED"
+      },
+      {
+        "path": "target/v53-remove-prefixes-20261101/native-5",
+        "profile": "5-REMOVE",
+        "reason": "profile matrix successful whole member: 5-REMOVE",
+        "receiptSha256": "b43d5bbba5403df269b171d81c46741263aa620036fa7fc6619a726ebb05b5ae",
+        "status": "REJECTED"
+      }
+    ],
+    "nativeRerun": false,
+    "phase3Complete": false,
+    "resultContracts": [
+      {
+        "nativeRerun": false,
+        "path": "target/v53-profile-ballots-20261102/v3/replace.json",
+        "profile": "3-REPLACE",
+        "scope": "existing-result-contract-only",
+        "sha256": "d7fc3a24bbde12e631b9f47cb73d1136015ab003526a6b1656eacdd09fb290d4",
+        "status": "PASS"
+      },
+      {
+        "nativeRerun": false,
+        "path": "target/v53-profile-ballots-20261102/v3/legacy.json",
+        "profile": "3-ADD",
+        "scope": "existing-result-contract-only",
+        "sha256": "32cf467d78417deb9894f7cd020a63df932f017a7ff25562ad679ad3a2c1efbf",
+        "status": "PASS"
+      },
+      {
+        "nativeRerun": false,
+        "path": "target/v53-remove-ballots-20261102/4.json",
+        "profile": "4-REMOVE",
+        "scope": "existing-result-contract-only",
+        "sha256": "3ca9924d8fce13e89357dc55f5be245e95ae5ca628a570e53a282a62e26183e2",
+        "status": "PASS"
+      },
+      {
+        "nativeRerun": false,
+        "path": "target/v53-remove-ballots-20261102/5.json",
+        "profile": "5-REMOVE",
+        "scope": "existing-result-contract-only",
+        "sha256": "86209696d47b8314b9311ace491b27739eee1cdb583015bcb53e9ec4feeb4286",
+        "status": "PASS"
+      }
+    ],
+    "status": "PASS"
+  },
+  "retainedFailures": [
+    "focused-1.log: synthetic capture metadata was not canonical",
+    "focused-2.log: synthetic events JSON was not canonical",
+    "contract.log: new receipt link checked before receipt creation"
+  ],
+  "schema": "gse-v53-phase3-profile-matrix-implementation-v1",
+  "scope": "ordinary profile matrix implementation and synthetic provenance guards",
+  "status": "PARTIAL",
+  "validation": {
+    "changedLinks": {
+      "checked": 683,
+      "status": "PASS"
+    },
+    "documentationContract": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 2096,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "focusedStatus": "PASS",
+    "focusedTests": 40,
+    "fullSuiteFinal": "PASS",
+    "fullSuiteSeconds": 98.81,
+    "fullSuiteTests": 1931,
+    "logs": {
+      "contract-final.log": "7da31fd64365a9221c028be35b468943b7f5d68a61bd9dfa38d008bf415b9216",
+      "focused-final.log": "60d10f382c403f088d28cea975b4cc91b8ccd0e4fa31365d27a7860c4e756ed3",
+      "optimized-final.log": "55edd44c0979ad20d3c8efab9211b4f91f70da7a5a7b1f0e9074a5b8c685005a",
+      "python-all-final.log": "ca5696766bd417f36c4ab78e5f1742ab0c98b3861b8fa8ce1ef7c27c5e455c17",
+      "retained-audit.log": "1682fc95b94ea5888b08e938fc0d26110aabd8b7ae24362ba7cf31a82a3bf716"
+    },
+    "optimizedGuardStatus": "PASS",
+    "optimizedGuardTests": 23,
+    "priorFullSuiteStatus": "PASS",
+    "priorFullSuiteTests": 1930
+  }
+}

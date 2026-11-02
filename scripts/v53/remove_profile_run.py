@@ -27,8 +27,9 @@ def junit(reports):
     return dict(className=CLASS,method=METHOD,tests=1,failures=0,errors=0,skipped=0)
 
 
-def run(output,maven,profile,*,source_from=None,retirement_captures=False):
+def run(output,maven,profile,*,source_from=None,retirement_captures=False,portable_toolchain=False):
     h.need(profile in reader.PROFILES,'REMOVE exact profile')
+    h.need(type(portable_toolchain) is bool,'REMOVE portable toolchain option')
     h.need(type(retirement_captures) is bool,'REMOVE capture option')
     output=Path(output).absolute()
     h.need(source_from is None or not output.resolve().is_relative_to(Path(source_from).resolve()),'REMOVE source separation')
@@ -41,9 +42,14 @@ def run(output,maven,profile,*,source_from=None,retirement_captures=False):
         work=output/'workspace'
         source=h.source_copy(h.ROOT,work) if source_from is None else h.recorded_source(source_from,work)
         h.save(output/'source.json',source);receipt.update(baseHead=source['head'],sourceSha256=h.digest((output/'source.json').read_bytes()))
-        toolchain=subprocess.run([maven,'-version'],cwd=work,text=True,capture_output=True,timeout=30)
-        h.save(output/'toolchain.json',dict(exit=toolchain.returncode,stdout=toolchain.stdout,stderr=toolchain.stderr))
-        h.need(toolchain.returncode==0,'REMOVE toolchain unavailable');receipt['toolchainSha256']=h.digest((output/'toolchain.json').read_bytes())
+        if portable_toolchain:
+            from . import process_toolchain
+            h.save(output/'toolchain.json',process_toolchain.capture(maven,work))
+        else:
+            toolchain=subprocess.run([maven,'-version'],cwd=work,text=True,capture_output=True,timeout=30)
+            h.save(output/'toolchain.json',dict(exit=toolchain.returncode,stdout=toolchain.stdout,stderr=toolchain.stderr))
+            h.need(toolchain.returncode==0,'REMOVE toolchain unavailable')
+        receipt['toolchainSha256']=h.digest((output/'toolchain.json').read_bytes())
         command=[maven,'-o','-B','-ntp','-f','reactor/pom.xml','-pl','../'+h.MODULE,'-am',
                  '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+CLASS.rsplit('.',1)[-1]+'#'+METHOD,
                  '-Dv53.remove.profile='+profile,'test']
@@ -92,5 +98,5 @@ def run(output,maven,profile,*,source_from=None,retirement_captures=False):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('output');p.add_argument('--profile',required=True,choices=reader.PROFILES)
-    p.add_argument('--maven',default='mvn');p.add_argument('--source-from');p.add_argument('--retirement-captures',action='store_true');a=p.parse_args()
-    run(a.output,a.maven,a.profile,source_from=a.source_from,retirement_captures=a.retirement_captures)
+    p.add_argument('--maven',default='mvn');p.add_argument('--source-from');p.add_argument('--retirement-captures',action='store_true');p.add_argument('--portable-toolchain',action='store_true');a=p.parse_args()
+    run(a.output,a.maven,a.profile,source_from=a.source_from,retirement_captures=a.retirement_captures,portable_toolchain=a.portable_toolchain)

@@ -30,8 +30,9 @@ def junit(reports,method=METHOD):
     return dict(className=h.CLASS,method=method,tests=1,failures=0,errors=0,skipped=0)
 
 
-def run(output,maven,profile,*,source_from=None,complete=False,same_view=False):
+def run(output,maven,profile,*,source_from=None,complete=False,same_view=False,portable_toolchain=False):
     e.topology(profile);output=Path(output).absolute()
+    h.need(type(portable_toolchain) is bool,'joining prefix portable toolchain option')
     h.need(not same_view or (complete and profile=='3-REPLACE'),'same-view execution requires complete 3-REPLACE')
     method=COMPLETE_METHOD if complete else METHOD
     reader=complete_reader if complete else e
@@ -49,9 +50,13 @@ def run(output,maven,profile,*,source_from=None,complete=False,same_view=False):
     try:
         work=output/'workspace';source=h.source_copy(h.ROOT,work) if source_from is None else h.recorded_source(source_from,work)
         h.save(output/'source.json',source);receipt.update(baseHead=source['head'],sourceSha256=h.digest((output/'source.json').read_bytes()))
-        toolchain=subprocess.run([maven,'-version'],cwd=work,text=True,capture_output=True,timeout=30)
-        h.save(output/'toolchain.json',dict(exit=toolchain.returncode,stdout=toolchain.stdout,stderr=toolchain.stderr))
-        h.need(toolchain.returncode==0,'joining prefix toolchain unavailable')
+        if portable_toolchain:
+            from . import process_toolchain
+            h.save(output/'toolchain.json',process_toolchain.capture(maven,work))
+        else:
+            toolchain=subprocess.run([maven,'-version'],cwd=work,text=True,capture_output=True,timeout=30)
+            h.save(output/'toolchain.json',dict(exit=toolchain.returncode,stdout=toolchain.stdout,stderr=toolchain.stderr))
+            h.need(toolchain.returncode==0,'joining prefix toolchain unavailable')
         receipt['toolchainSha256']=h.digest((output/'toolchain.json').read_bytes())
         command=[maven,'-o','-B','-ntp','-f','reactor/pom.xml','-pl','../'+h.MODULE,'-am',
                  '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+h.CLASS.rsplit('.',1)[-1]+'#'+method,'-Dv53.joining.profile='+profile,'test']
@@ -64,6 +69,7 @@ def run(output,maven,profile,*,source_from=None,complete=False,same_view=False):
         h.save(output/'build.json',build);receipt['buildSha256']=h.digest((output/'build.json').read_bytes())
         roots=sorted((work/h.MODULE/'target/v53-native-dispatch').glob('run-*'))
         h.need(len(roots)==1,'joining prefix exact original history');receipt['raw']=roots[0].relative_to(output).as_posix()
+        original=h.inventory(roots[0]);h.save(output/'inventory.json',original)
         # Replay uses its frozen reader, never the possibly edited working tree.
         replay=h.execute([sys.executable,'-B','-m',reader.__name__,str(roots[0]),'--profile',profile,'--qualify'],
                          work,output/'replay.json',stage=stage+'-replay')
@@ -76,7 +82,7 @@ def run(output,maven,profile,*,source_from=None,complete=False,same_view=False):
         if same_view:
             h.need(result['original'].get('sameViewSemanticQualified') is True and
                    result['original'].get('sameViewPhysicalQualified') is False,'joining same-view replay scope')
-        h.check_source(work,source)
+        h.check_source(work,source);h.need(h.inventory(roots[0])==original,'joining prefix original changed')
         receipt.update(status='PARTIAL',semanticChainQualified=True,semanticFinalAndColdQualified=complete,negativeCases=len(result['negatives']),
                        replaySha256=h.digest((output/'replay.json').read_bytes()))
         if same_view:receipt['sameViewSemanticQualified']=True
@@ -91,5 +97,5 @@ def run(output,maven,profile,*,source_from=None,complete=False,same_view=False):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('output');p.add_argument('--profile',required=True,choices=e.PROFILES)
     p.add_argument('--maven',default='mvn');p.add_argument('--source-from');p.add_argument('--complete',action='store_true')
-    p.add_argument('--same-view',action='store_true');a=p.parse_args()
-    run(a.output,a.maven,a.profile,source_from=a.source_from,complete=a.complete,same_view=a.same_view)
+    p.add_argument('--same-view',action='store_true');p.add_argument('--portable-toolchain',action='store_true');a=p.parse_args()
+    run(a.output,a.maven,a.profile,source_from=a.source_from,complete=a.complete,same_view=a.same_view,portable_toolchain=a.portable_toolchain)
