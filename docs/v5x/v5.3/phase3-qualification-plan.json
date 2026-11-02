@@ -283,13 +283,15 @@
       "readers": [
         "scripts/v53/competing_node_evidence.py",
         "scripts/v53/competing_node_negatives.py",
-        "scripts/v53/competing_grant_captures.py"
+        "scripts/v53/competing_grant_captures.py",
+        "scripts/v53/competing_campaign_prefix.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_COMPETING_REPLAY.md",
         "docs/v5x/v5.3/PHASE_3_ACTIVE_WRITE_HEARTBEAT.md",
         "docs/v5x/v5.3/PHASE_3_RECOVERY_HEARTBEAT.md",
-        "docs/v5x/v5.3/PHASE_3_COMPETING_GRANT_CAPTURE.md"
+        "docs/v5x/v5.3/PHASE_3_COMPETING_GRANT_CAPTURE.md",
+        "docs/v5x/v5.3/PHASE_3_COMPETING_CAMPAIGN_PREFIX.md"
       ],
       "cohorts": [
         "node-renames"

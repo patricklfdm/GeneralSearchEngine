@@ -51,7 +51,7 @@ prove its semantics.
 | 3C initialization | Actual joining owner, three-ledger initialization and 360-case entry | Final-source matrix; combined bounds |
 | 3C joint | Private INTENT/FINAL/BARRIER coordination for all seven profiles | Final-source profiles and interrupted transitions |
 | 3D rounds | Carried-first publication, two durable phases and round reuse | Current-source carried/stable/process qualification |
-| 3D automatic | Competing owners, heartbeat, single-campaign replay and original grant capture | Arbitrary competing campaign replay, final-source complete competition and failure coverage |
+| 3D automatic | Competing owners, heartbeat, single-campaign replay, original grant capture and competing-prefix derivation | Maintenance/install/publication across competing campaigns, final-source complete competition and failure coverage |
 | 3D removal | Departure fencing, retirement and original-disk recovery | Final-source original/negative process matrix |
 | 3E resources | Accounting, bounded transfers, publication refusal and conditional-prefix tests | Simultaneous physical peak and admitted completion |
 | 3E coverage | Frozen finite inventory and this dependency map | Concrete schedule/evidence/rejection mapping |
@@ -70,8 +70,10 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
 
 1. **Complete component cohort entries.** The focused 3-ADD learner pair now has
    its entry. [Competing grant capture](PHASE_3_COMPETING_GRANT_CAPTURE.md) now
-   retains losing/superseded grants; complete their intervening physical and
-   causal history before adding a general competition gate. Continue with competing owners, then inventory transfer, carried
+   retains losing/superseded grants. The [new native prefix](PHASE_3_COMPETING_CAMPAIGN_PREFIX.md)
+   derives four grants and both choices; continue its original maintenance,
+   installation and publication before adding a general competition gate.
+   Continue with competing owners, then inventory transfer, carried
    and transition recovery entries and uncovered learner profiles. Reuse existing producers/readers.
    Historical qualification remains scoped to its source, not a new cohort slot.
    The six-revision history's recorded final-CANCEL deadline failure remains a

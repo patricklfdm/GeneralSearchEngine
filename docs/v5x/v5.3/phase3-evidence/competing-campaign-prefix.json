@@ -1,0 +1,158 @@
+{
+  "baseCommit": "e1af48133dd0f31afa352c0de44f369a4965a4a1",
+  "discoveredGaps": [
+    {
+      "original": {
+        "path": "target/v53-competing-campaign-replay/captures-initial.json",
+        "sha256": "664e4ac9e14c7f03ab08eeefa5c2e33f0a26305e5f9171df7361dddf900ce693"
+      },
+      "reason": "old vocabulary lacked original retirement/rotation callbacks; add parsing without extending old single-campaign semantics"
+    },
+    {
+      "original": {
+        "path": "target/v53-competing-campaign-replay/qualification-first-error.json",
+        "sha256": "32dc143e81af53551ca665a57d1af94e3ee30d6f989edbab70254986bb5b6541"
+      },
+      "reason": "unused losing SELECTED send was not bound; all outgoing PREPARE/SELECTED proposals now checked"
+    }
+  ],
+  "finalSourceCohortQualified": false,
+  "hostedExecuted": false,
+  "implementationInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CompetingNodeQualification.java": "707927081a07c0bbd86dff8e5547f8f4f3753c9955ac810cd57e8e41679d9e15",
+    "scripts/v53/competing_campaign_prefix.py": "8f34fe51bf2636ab9dc159fcdf5f51d3dde1d672193f7c65894ef833af3d5daf",
+    "scripts/v53/competing_grant_captures.py": "c86d1fcbfb995923edbfafadf7606f6c9fd47ea9f6452c5cac83262ee50cef40",
+    "scripts/v53/competing_node_evidence.py": "34df91d17401eab43433351de3b19424c42d72d444a3092c2c49234671a0db23",
+    "scripts/v53/joining_same_view_ballot.py": "d02ac57c4309d2c5c828661fd3062599a44b0e79a75da4837f83055d554f2916",
+    "scripts/v53/selection_journal_evidence.py": "232a7da2a2224131bcde5ffa06a002bfb4089af3946d93a8ccba4bdd36f4110b",
+    "scripts/v53/test_competing_campaign_prefix.py": "fc9f093c412f7d8ca566efcb6129c0e86174946a302270e32f4b79dd80c96347"
+  },
+  "native": {
+    "build": {
+      "path": "target/v53-competing-campaign-replay/original-e1af4813/build.json",
+      "sha256": "3a2c1b11847f7528cb482b5f6453e7f490e1d8375bfca804c8568f85c94fb223"
+    },
+    "execution": {
+      "elapsedSeconds": 104.791,
+      "exit": 0,
+      "path": "target/v53-competing-campaign-replay/original-e1af4813/execution.json",
+      "sha256": "e435e240e1762dc430b05b7a824a7c9cada0e4829ff11472b032821fea771f23"
+    },
+    "inventory": {
+      "path": "target/v53-competing-campaign-replay/native-inventory.json",
+      "sha256": "bbbfaadaeb80af760a2b3a9ca9fc9a4b9353cbfd668863873bcf6403bd7ea88f"
+    },
+    "log": {
+      "path": "target/v53-competing-campaign-replay/original-e1af4813/maven.log",
+      "sha256": "8b828890befb22f00c1879bce65d6c31f9d3b904f9bdfc828b7403ad8087509d"
+    },
+    "producerStatus": "PARTIAL",
+    "raw": "target/v53-competing-campaign-replay/original-e1af4813/workspace/general-search-engine-replication/target/v53-competing-node/run-102ee903-d1e2-4343-834f-dbe8d1fb724c",
+    "request": {
+      "path": "target/v53-competing-campaign-replay/original-e1af4813/request.json",
+      "sha256": "55543a9b700745df016c0f24bbd2badf2d8e5e2aceba24c74af41b367a32ddf8"
+    },
+    "retries": 0,
+    "source": {
+      "path": "target/v53-competing-campaign-replay/original-e1af4813/source.json",
+      "sha256": "c57d33c0898790596a4bf9da15ccac3939284460ce0c2863912e46a633eca53f"
+    },
+    "toolchain": {
+      "path": "target/v53-competing-campaign-replay/original-e1af4813/toolchain.json",
+      "sha256": "0f3a531ebcff52e9f921162b7ca70b7a1826f64519f32650b1874cbee59f5c0e"
+    }
+  },
+  "next": "Continue this unchanged original through governing floor, source retirement, installations, publication and complete network/export replay before final-source admission.",
+  "paidCloudExecuted": false,
+  "phase3Complete": false,
+  "protocolBudgetsChanged": false,
+  "replay": {
+    "allCampaignsQualified": false,
+    "capturedGrants": 4,
+    "competingBallots": 2,
+    "distinctSelections": 2,
+    "fullNetworkQualified": false,
+    "installationQualified": false,
+    "phase3Complete": false,
+    "physicalPrefix": {
+      "capturedComparisons": 4,
+      "nextBoundary": "FLOOR_RESERVED",
+      "reservations": 2,
+      "stateSha256": "dfed14bc11fc74abee4cbfb914d8324c5868cab34d03ac593c58683d65364de7",
+      "throughEvent": 309
+    },
+    "precondition": {
+      "admittedOwners": true,
+      "allCampaignsQualified": false,
+      "bytes": 97583,
+      "captures": 4,
+      "completeGrantWrites": true,
+      "fullNetworkQualified": false,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "publicationQualified": false,
+      "scope": "competing-original-grant-collection",
+      "status": "PARTIAL"
+    },
+    "publicationQualified": false,
+    "retirementQualified": false,
+    "scope": "competing-bootstrap-campaign-prefix",
+    "selectionWrites": {
+      "callbacks": 12,
+      "selections": 3
+    },
+    "status": "PARTIAL"
+  },
+  "runtimeJavaChanged": false,
+  "schema": "gse-v53-competing-campaign-prefix-development-v1",
+  "scope": "bootstrap competing grants and original choices before maintenance/install; not complete campaign replay",
+  "status": "PARTIAL",
+  "validation": {
+    "collection": {
+      "negatives": 23,
+      "path": "target/v53-competing-campaign-replay/collection-qualification.json",
+      "sha256": "76448980025cd95c6736cb06d6777cd9d4dbaa034a9d7da4849bcd4e1d323c9d",
+      "status": "PASS"
+    },
+    "contracts": {
+      "path": "target/v53-competing-campaign-replay/contracts.log",
+      "sha256": "50a352447bfd8bcce91d0de49e81c2e597c7ed0b86e3a503bc0488173324e79e",
+      "status": "PASS"
+    },
+    "localLinks": {
+      "links": 262,
+      "status": "PASS"
+    },
+    "optimized": {
+      "path": "target/v53-competing-campaign-replay/optimized-tests.log",
+      "sha256": "f7cad42c9caa888ebe3a9fe7c3f939312e0534094dc69ac155105168e1c76122",
+      "status": "PASS",
+      "tests": 41
+    },
+    "planInspection": {
+      "path": "target/v53-competing-campaign-replay/plan-inspection/receipt.json",
+      "sha256": "e814f7c4f7fa716f05010186e1a5504510058413308f6858c9319f06f2493df9",
+      "status": "PASS"
+    },
+    "prefix": {
+      "negatives": 13,
+      "path": "target/v53-competing-campaign-replay/prefix-qualification-final.json",
+      "sha256": "f7d3da313a8761af5e231284bd1827efabf8a955e4db96156a0e34f40d95bd53",
+      "status": "PASS"
+    },
+    "python": {
+      "path": "target/v53-competing-campaign-replay/python-suite.log",
+      "sha256": "ad3e35faff6599ba9579641875eb2ec6abdedd06c48026e4c2bf7b468614033e",
+      "status": "PASS",
+      "tests": 2230
+    },
+    "relocated": {
+      "negatives": 13,
+      "originalUnchanged": true,
+      "path": "target/v53-competing-campaign-replay/relocated-prefix.json",
+      "sha256": "f7d3da313a8761af5e231284bd1827efabf8a955e4db96156a0e34f40d95bd53",
+      "status": "PASS"
+    }
+  },
+  "workflowChanged": false
+}

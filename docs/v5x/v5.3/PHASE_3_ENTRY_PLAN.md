@@ -7,6 +7,12 @@ groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
 
+[The competing campaign prefix](PHASE_3_COMPETING_CAMPAIGN_PREFIX.md) now derives
+four original grants and both competing choices from one new three-owner run,
+including the superseded selection. Thirteen exact mutations reject. Governing
+maintenance, installation, full network/publication replay and final-source
+admission remain OPEN; this prefix does not close the competing-owner obligation.
+
 [Competing grant collection](PHASE_3_COMPETING_GRANT_CAPTURE.md) now retains
 every completed grant before its source can retire, bound to the original
 monotonic trace. The real-writer and 23-negative checks qualify collection only;
