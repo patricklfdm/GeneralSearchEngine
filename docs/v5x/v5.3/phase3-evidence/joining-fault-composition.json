@@ -1,0 +1,207 @@
+{
+  "actions": {
+    "localCommit": true,
+    "measurementRetries": 0,
+    "nativeExecution": false,
+    "paidCloud": false,
+    "pomChanged": false,
+    "push": false,
+    "runtimeJavaChanged": false,
+    "workflowChanged": false,
+    "workflowDispatch": false
+  },
+  "allMembershipProfilesQualified": false,
+  "baseHead": "c7516d7038908691ba2045501834053317f236c8",
+  "currentSourceNativeCohortQualified": false,
+  "evidence": "target/v53-joining-fault-composition-20261102",
+  "originalObservationCoverageComplete": false,
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "reader": {
+    "files": 599,
+    "manifest": "target/v53-joining-fault-composition-20261102/reader-manifest.json",
+    "sha256": "c86eb42858fadad30f1881bd811a5aaa4f6636d8d08390b81c019c94ef717930",
+    "snapshot": "target/v53-joining-fault-composition-20261102/qualified-reader",
+    "sourceManifestSha256": "3c52af9c6ca6678d933cb5bf1b9d750caf7142ad91546316ed952328fbf96d1b"
+  },
+  "remaining": [
+    "hosted final-source three-reply cohort",
+    "exact-source seven-profile cohort",
+    "remaining process/fault cohorts",
+    "combined resource bounds",
+    "complete original observation coverage",
+    "frozen S/N protocol dependency mapping"
+  ],
+  "schema": "gse-v53-phase3-joining-fault-composition-v1",
+  "scope": "implementation and current-reader diagnostic replay of three historical 3-ADD reply losses",
+  "status": "PARTIAL",
+  "validation": {
+    "changedLinks": {
+      "checked": 688,
+      "status": "PASS"
+    },
+    "diagnosticOriginals": {
+      "ballotNegativeCases": 63,
+      "ballotRejected": 57,
+      "cases": [
+        {
+          "ballotCases": 21,
+          "ballotRejected": 19,
+          "case": "SOURCE_OFFER",
+          "elapsedSeconds": 479.324,
+          "exit": 0,
+          "faultNegatives": 14,
+          "inputInventory": "target/v53-joining-fault-composition-20261102/source_offer-input.json",
+          "inputInventorySha256": "7f1150fa5f5ae8009066c322c67f8670ab52db4f45f578e68c8a5ae09c8ddcc7",
+          "notApplicable": 2,
+          "originalPreserved": true,
+          "originalSourceSha256": "2415c6ab384332c59f6ca74cf7850e148eed5ffd7d220aca29aabeb2670ec10c",
+          "producer": "/home/klfdm/perception/GeneralSearchEngine/target/v53-joining-source-loss/original-offer",
+          "producerReceiptSha256": "1c7986ac8cf7197f536cb1226c160d4e36b846174531c9c93fd8b6d5b0649058",
+          "qualification": "target/v53-joining-fault-composition-20261102/source_offer-qualification.json",
+          "qualificationSha256": "2db20893ddca3a60129eac522c7457172f62ce60a5af8ed75472fd831e73bc51",
+          "raw": "/home/klfdm/perception/GeneralSearchEngine/target/v53-joining-source-loss/original-offer/workspace/general-search-engine-replication/target/v53-native-dispatch/run-e9811c6e-d68a-493f-ab03-86a7f7ebaf24"
+        },
+        {
+          "ballotCases": 21,
+          "ballotRejected": 19,
+          "case": "CHUNK",
+          "elapsedSeconds": 496.944,
+          "exit": 0,
+          "faultNegatives": 14,
+          "inputInventory": "target/v53-joining-fault-composition-20261102/chunk-input.json",
+          "inputInventorySha256": "634016ab3e535af57f22c82043026d64694e98b48580fec341d11b385e60c7fe",
+          "notApplicable": 2,
+          "originalPreserved": true,
+          "originalSourceSha256": "2415c6ab384332c59f6ca74cf7850e148eed5ffd7d220aca29aabeb2670ec10c",
+          "producer": "/home/klfdm/perception/GeneralSearchEngine/target/v53-joining-fault-matrix/chunk",
+          "producerReceiptSha256": "ba2412663c8018706e360a02a9d45e7486ddf758e50922dc5a5232195d815772",
+          "qualification": "target/v53-joining-fault-composition-20261102/chunk-qualification.json",
+          "qualificationSha256": "a1e5dbd4507f6447719612a22864a0e40b7a413c8c089ad80dac75dc3d60e558",
+          "raw": "/home/klfdm/perception/GeneralSearchEngine/target/v53-joining-fault-matrix/chunk/workspace/general-search-engine-replication/target/v53-native-dispatch/run-bbc1e7cd-eb83-4dc7-8c33-7f0e6f96364d"
+        },
+        {
+          "ballotCases": 21,
+          "ballotRejected": 19,
+          "case": "TRANSFER_COMMIT",
+          "elapsedSeconds": 488.18,
+          "exit": 0,
+          "faultNegatives": 14,
+          "inputInventory": "target/v53-joining-fault-composition-20261102/transfer_commit-input.json",
+          "inputInventorySha256": "0232e642cbdb1d51370c27e9681218ae7e8a28b6857c1a7a0ae23e3f81aaf853",
+          "notApplicable": 2,
+          "originalPreserved": true,
+          "originalSourceSha256": "2415c6ab384332c59f6ca74cf7850e148eed5ffd7d220aca29aabeb2670ec10c",
+          "producer": "/home/klfdm/perception/GeneralSearchEngine/target/v53-joining-fault-matrix/commit",
+          "producerReceiptSha256": "a9b404b71bc6f444ec003889120c7d2dfab84b6e348e4138574c3b53c601b1ec",
+          "qualification": "target/v53-joining-fault-composition-20261102/transfer_commit-qualification.json",
+          "qualificationSha256": "e46a452a87297ee597abc01dba7cdc1ade80b34a27bba77c78c85bd734f21e86",
+          "raw": "/home/klfdm/perception/GeneralSearchEngine/target/v53-joining-fault-matrix/commit/workspace/general-search-engine-replication/target/v53-native-dispatch/run-6985b82a-3103-4652-ae8f-06d46c2e8e4f"
+        }
+      ],
+      "faultNegativeCases": 42,
+      "notApplicable": 6,
+      "status": "PASS"
+    },
+    "documentationContract": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 2112,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "historicalProvenance": {
+      "cases": [
+        {
+          "buildSha256": "dfd5d7f6e556c2904c2f5608ecea5dd53dfa52312c3a5fbc597dc58ba051332a",
+          "case": "SOURCE_OFFER",
+          "producerReceiptSha256": "1c7986ac8cf7197f536cb1226c160d4e36b846174531c9c93fd8b6d5b0649058",
+          "readerSha256": "c86eb42858fadad30f1881bd811a5aaa4f6636d8d08390b81c019c94ef717930",
+          "reason": "joining cohort readers belong to producer source",
+          "sourceSha256": "2415c6ab384332c59f6ca74cf7850e148eed5ffd7d220aca29aabeb2670ec10c",
+          "status": "REJECTED",
+          "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+        },
+        {
+          "buildSha256": "dfd5d7f6e556c2904c2f5608ecea5dd53dfa52312c3a5fbc597dc58ba051332a",
+          "case": "CHUNK",
+          "producerReceiptSha256": "ba2412663c8018706e360a02a9d45e7486ddf758e50922dc5a5232195d815772",
+          "readerSha256": "c86eb42858fadad30f1881bd811a5aaa4f6636d8d08390b81c019c94ef717930",
+          "reason": "joining cohort readers belong to producer source",
+          "sourceSha256": "2415c6ab384332c59f6ca74cf7850e148eed5ffd7d220aca29aabeb2670ec10c",
+          "status": "REJECTED",
+          "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+        },
+        {
+          "buildSha256": "dfd5d7f6e556c2904c2f5608ecea5dd53dfa52312c3a5fbc597dc58ba051332a",
+          "case": "TRANSFER_COMMIT",
+          "producerReceiptSha256": "a9b404b71bc6f444ec003889120c7d2dfab84b6e348e4138574c3b53c601b1ec",
+          "readerSha256": "c86eb42858fadad30f1881bd811a5aaa4f6636d8d08390b81c019c94ef717930",
+          "reason": "joining cohort readers belong to producer source",
+          "sourceSha256": "2415c6ab384332c59f6ca74cf7850e148eed5ffd7d220aca29aabeb2670ec10c",
+          "status": "REJECTED",
+          "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+        }
+      ],
+      "currentSourceNativeCohortQualified": false,
+      "status": "PASS"
+    },
+    "legacyCompatibility": {
+      "scope": "AST/constant compatibility review, not native execution",
+      "status": "PASS",
+      "unchangedFaultNegativeCases": 14,
+      "unchangedFunctions": [
+        "inputs",
+        "trace",
+        "mutate"
+      ]
+    },
+    "protectedSource": {
+      "files": {
+        "scripts/v53/joining_fault_cohort.py": "c20df319ad65d5a8127ba972b9a30735a60dd22c7169ab97ad672dd20776af74",
+        "scripts/v53/joining_fault_evidence.py": "005f454005f16c8bf9937b53622af2b6a409999492454718d9eee198dac7f43c",
+        "scripts/v53/joining_history_run.py": "9b9e5bd13c75401fe449a5c853b946debae664d45984ed60d138f2b9d9d397d7",
+        "scripts/v53/test_joining_fault_composition.py": "d3c226397d1f735a3867adf1fa9c82be12d576fbc86d026bac01fac6ff59d1b5"
+      },
+      "protectedFiles": 1417,
+      "status": "PASS"
+    },
+    "retainedHashes": {
+      "contract.log": "f686e75287c16b612653ff4c30442ebf3053cc169a6f5d9422e11bd5e0184237",
+      "historical-provenance.json": "396a605dc5dd826fb52c0cc9c4c54461da0cfe329485e757770e8a13a4b0bd50",
+      "legacy-compatibility.json": "c987a92290289c9d8bd2f1555afc5ee6c578f8721f99034c5267e5e17cecd4ce",
+      "qualification-summary.json": "357f35e6f0839245fcda898bcaec98f4f88c8d262bca38af00e0c8204ddece0c",
+      "source-check.json": "cd521e9b41b68cce00bdb7f2b580f87d203e410671296be0556403ebefb3a3f6"
+    },
+    "tests": {
+      "focused-1.log": {
+        "reason": "new invalid-selector fixture indexed UNKNOWN before calling the validator; corrected test invocation",
+        "retained": true,
+        "sha256": "8c6c31cf3b447841943cfad1bc2eb9e2fc9197d64ed104485df888e074a0a9e0",
+        "status": "FAIL"
+      },
+      "focused-2.log": {
+        "seconds": 2.975,
+        "sha256": "d25f7661c0168a14c31d2b8eeda8271abb73566aaba2771969b4810ddd664fa7",
+        "status": "PASS",
+        "tests": 60
+      },
+      "optimized.log": {
+        "seconds": 0.507,
+        "sha256": "d134272f345b5d7daa1ac22e8578de4be5c5f92cb93cc53f09f6000d00fd9e75",
+        "status": "PASS",
+        "tests": 16
+      },
+      "python-all.log": {
+        "seconds": 102.645,
+        "sha256": "0b73191eeb02639ec8716a529d7fa37cc6c892184d163867a4683cb339559988",
+        "status": "PASS",
+        "tests": 1970
+      }
+    },
+    "whitespace": "PASS"
+  }
+}

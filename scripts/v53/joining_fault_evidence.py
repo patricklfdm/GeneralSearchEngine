@@ -13,6 +13,7 @@ import sys
 
 from . import joining_peer_evidence as peer
 from . import joining_source_loss as loss
+from . import joining_profile_ballot_evidence as ballots
 
 n=peer.n;need=n.need
 
@@ -35,12 +36,15 @@ def trace(events,wires,identities,root):
                 lossEvent=lost['offered'],retryEvent=retry['offered'])
 
 
-def validate(root):
+def validate(root,*,full_chain=False):
+    need(type(full_chain) is bool,'joining fault explicit composition mode')
     root=Path(root);before=n.s.collection.inventory(root)
-    physical=peer.validate(root);result=trace(*inputs(root))
+    physical=ballots.validate(root,'3-ADD') if full_chain else peer.validate(root)
+    result=trace(*inputs(root))
     need(n.s.collection.inventory(root)==before,'joining fault original changed')
-    return dict(status='PASS',scope='complete-3-ADD-initial-learner-reply-loss',**result,
-                peerLedgerPrecondition=physical,joiningSourceFaultQualified=True,
+    precondition=dict(ballotPrecondition=physical,fullImplementedCompositionQualified=True) if full_chain else dict(peerLedgerPrecondition=physical)
+    return dict(status='PASS',scope='complete-3-ADD-initial-learner-reply-loss',**result,**precondition,
+                joiningSourceFaultQualified=True,
                 allMembershipProfilesQualified=False,completePhysicalQualified=False,
                 forceAndNetworkQualified=False,processDeathQualified=False,phase3Complete=False)
 
@@ -92,8 +96,10 @@ def mutate(events,wires,identities,root,name):
     else:raise ValueError('unknown joining fault negative: '+name)
 
 
-def qualify(root,progress=None):
-    root=Path(root);original=validate(root);before=n.s.collection.inventory(root)
+def qualify(root,progress=None,*,full_chain=False):
+    need(type(full_chain) is bool,'joining fault explicit composition mode')
+    root=Path(root);original=validate(root,full_chain=True) if full_chain else validate(root)
+    before=n.s.collection.inventory(root)
     original_inputs=inputs(root);outcomes=[]
     if progress:progress(dict(stage='original',status='PASS'))
     for name,reason in NEGATIVES.items():
@@ -104,10 +110,20 @@ def qualify(root,progress=None):
         row=dict(case=name,status='REJECTED',reason=reason);outcomes.append(row)
         if progress:progress(row)
     need(n.s.collection.inventory(root)==before,'joining fault negative changed original')
-    return dict(original=original,negatives=outcomes,originalPreserved=True)
+    result=dict(original=original,negatives=outcomes,originalPreserved=True)
+    if full_chain:
+        # The complete fault original passed before either negative family.
+        # Revalidate the ballot chain inside its own qualification; never reuse
+        # a summary in place of that reader's original-first precondition.
+        checked=ballots.qualify(root,'3-ADD',workers=1,progress=progress)
+        need(checked['original']==original['ballotPrecondition'],'joining fault composition changed original result')
+        need(n.s.collection.inventory(root)==before,'joining fault composed negatives changed original')
+        result['ballotQualification']=checked
+    return result
 
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('root');parser.add_argument('--qualify',action='store_true');args=parser.parse_args()
-    result=qualify(args.root,lambda row:print(json.dumps(row),file=sys.stderr,flush=True)) if args.qualify else validate(args.root)
+    parser=argparse.ArgumentParser();parser.add_argument('root');parser.add_argument('--qualify',action='store_true')
+    parser.add_argument('--full-chain',action='store_true');args=parser.parse_args()
+    result=qualify(args.root,lambda row:print(json.dumps(row),file=sys.stderr,flush=True),full_chain=args.full_chain) if args.qualify else validate(args.root,full_chain=args.full_chain)
     print(json.dumps(result,sort_keys=True))

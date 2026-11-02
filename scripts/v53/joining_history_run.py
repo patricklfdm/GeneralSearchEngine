@@ -236,8 +236,9 @@ def execute(command, work, log, *, stage='whole-joining'):
             raise
 
 
-def run(output, maven, *, fault=None, source_from=None):
+def run(output, maven, *, fault=None, source_from=None, portable_toolchain=False):
     need(fault in (None,'SOURCE_OFFER','CHUNK','TRANSFER_COMMIT'),'whole joining source fault selector')
+    need(type(portable_toolchain) is bool,'whole joining portable toolchain option')
     output = Path(output).absolute()
     need(source_from is None or not output.resolve().is_relative_to(Path(source_from).resolve()),'recorded source execution separation')
     output.mkdir(parents=True, exist_ok=False)
@@ -249,9 +250,13 @@ def run(output, maven, *, fault=None, source_from=None):
         save(output / 'source.json', source)
         if source_from is not None:receipt['sourceOrigin']='recorded-producer'
         receipt.update(sourceSha256=digest((output / 'source.json').read_bytes()), baseHead=source['head'])
-        toolchain = subprocess.run([maven, '-version'], cwd=work, text=True, capture_output=True, timeout=30)
-        save(output / 'toolchain.json', dict(exit=toolchain.returncode, stdout=toolchain.stdout, stderr=toolchain.stderr))
-        need(toolchain.returncode == 0, 'whole joining Maven toolchain unavailable')
+        if portable_toolchain:
+            from . import process_toolchain
+            save(output/'toolchain.json',process_toolchain.capture(maven,work))
+        else:
+            toolchain = subprocess.run([maven, '-version'], cwd=work, text=True, capture_output=True, timeout=30)
+            save(output / 'toolchain.json', dict(exit=toolchain.returncode, stdout=toolchain.stdout, stderr=toolchain.stderr))
+            need(toolchain.returncode == 0, 'whole joining Maven toolchain unavailable')
         receipt['toolchainSha256'] = digest((output / 'toolchain.json').read_bytes())
         command = [maven, '-o', '-B', '-ntp', '-f', 'reactor/pom.xml', '-pl', '../' + MODULE, '-am',
                    '-Dsurefire.failIfNoSpecifiedTests=false', '-Dtest=' + TEST, 'test']
@@ -296,12 +301,13 @@ if __name__ == '__main__':
     parser.add_argument('--collect', help='Only check an existing original history; does not run Java')
     parser.add_argument('--fault',choices=('SOURCE_OFFER','CHUNK','TRANSFER_COMMIT'),help='One declared lost initial learner reply in the complete history')
     parser.add_argument('--source-from',help='Reuse only the exact immutable source of an earlier producer; create a fresh history')
+    parser.add_argument('--portable-toolchain',action='store_true')
     args = parser.parse_args()
     if args.collect:
-        need(args.fault is None and args.source_from is None,'collection cannot select a new fault/source')
+        need(args.fault is None and args.source_from is None and not args.portable_toolchain,'collection cannot select a new fault/source')
         destination = Path(args.output)
         need(not destination.exists(), 'collection output already exists')
         value = collection(Path(args.collect))
         with destination.open('x') as stream: stream.write(json.dumps(value, sort_keys=True, indent=2) + '\n')
         print(json.dumps({k: v for k, v in value.items() if k not in ('inventory', 'ledger')}, sort_keys=True))
-    else: run(args.output, args.maven, fault=args.fault,source_from=args.source_from)
+    else: run(args.output, args.maven, fault=args.fault,source_from=args.source_from,portable_toolchain=args.portable_toolchain)

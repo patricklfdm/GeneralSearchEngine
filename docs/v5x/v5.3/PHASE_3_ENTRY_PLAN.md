@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joining reply-loss composition](PHASE_3_JOINING_FAULT_COMPOSITION.md) now extends
+three retained `3-ADD` fault histories through continuous future/learner and
+ballot validation. Its new cohort requires the actual reader in every producer
+source; historical diagnostic replay cannot qualify final-source execution.
+Final-source fault/profile cohorts and Phase 3 closure remain OPEN.
+
 [Hosted ordinary profile qualification](PHASE_3_PROFILE_HOSTED.md) now prepares
 one immutable source/build, executes seven whole histories and independently
 replays their downloaded originals in parallel. No hosted campaign has run;
