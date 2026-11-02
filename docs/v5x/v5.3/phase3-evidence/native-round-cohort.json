@@ -1,0 +1,428 @@
+{
+  "baseCommit": "0b5ac955244b7b0a6d6fa25bfcdf0675e4e65961",
+  "correctedDevelopmentReplay": {
+    "elapsedSeconds": 94.13649838394485,
+    "nativeHistories": 7,
+    "negativeCases": 287,
+    "path": "target/v53-round-history/corrected-replay-003/receipt.json",
+    "sha256": "3ff317b331aa7724ddcda146bb63edcef995c565acf02fcf4388073b38707bb3",
+    "status": "PASS"
+  },
+  "correctedOriginalReplayQualified": true,
+  "correctedReaderSha256": "44cea51d52ad7fdbb7cbd8764b3dbc69f176f2385790ee3aa163b72cb2a4b56f",
+  "correctedSourceCohortQualified": false,
+  "failureCause": "READY maintenance in MembershipRoundDriver.submit precedes allocating the next entry/SLOT_BEGIN; the old reader assigned this second floor to the first slot. The corrected stable reader binds its maintenance window to the original first publication ACK, preserving one floor/publication, original-copy and post-admission business-force/control checks.",
+  "finalSourceCohortQualified": false,
+  "hostedExecuted": false,
+  "implementationInputs": {
+    "scripts/v53/native_dispatch_evidence.py": "807758402cacbf09723b28d9670d307627f1a64cd590b1b3a6f1e40ef42e3902",
+    "scripts/v53/round_driver_evidence.py": "f8fb9d6018ebc2e241f0c0dacf1491154e561bde34e23ada88d4af1d912cee8d",
+    "scripts/v53/round_history.py": "0c5127d2bef7a0c6616e2f0d90228a33af04a18b62de7e6660e1053e2fbcf708",
+    "scripts/v53/test_native_dispatch_evidence.py": "1c2e2acb38713cd8bb092ca71099fb8935ebf2748f8b2e2996eb129453c98d36",
+    "scripts/v53/test_round_history.py": "df4d724d2745aba49bcabe9718c547c157c39469251e100bd380ab97aeae15e8"
+  },
+  "nativeExecuted": true,
+  "nativeHistories": 7,
+  "nativeRerun": false,
+  "next": "Hosted round adapter and final-source admission; carried DATA/control/INTENT/FINAL payload and native process axes, complete competition/lifecycle, combined resources and concrete frozen coverage. Seven hosted subsets / 449 planned histories remain unchanged.",
+  "originalAggregate": {
+    "failedCases": [
+      "round-stable",
+      "round-discovered"
+    ],
+    "path": "target/v53-round-history/aggregate/receipt.json",
+    "sha256": "1b718a79adb2533dc8b4350407066a8cbce2a9e501a767e1f7c9628314e7ba48",
+    "status": "FAIL"
+  },
+  "originalPins": {
+    "buildSha256": "2db7a44440e15ae42d1a9ca8d745be460be94375a8562498bdb5234068a890a4",
+    "readerSha256": "d3c61186b80f9cae98e41f49614c6c1a89f6dd342911e6004e61679f2c0098ce",
+    "sourceSha256": "a7363caaebd77e6944071ad361706493a813d700a77ce3bc39f00e7d4af86492",
+    "toolchainSha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+  },
+  "originalPreserved": true,
+  "paidCloudExecuted": false,
+  "phase3Complete": false,
+  "portableCorrectedReplayQualified": true,
+  "portableExecutions": {
+    "members": 7,
+    "path": "target/v53-round-history/portable-corrected-executions.json",
+    "pythonOptimized": true,
+    "sha256": "011f18f89d06df0e1799907853a152497b6baaad85f172a9c3695fe71f42b4eb"
+  },
+  "producers": {
+    "round-carried": {
+      "build": {
+        "path": "target/v53-round-history/inputs/round-carried/build.json",
+        "sha256": "2db7a44440e15ae42d1a9ca8d745be460be94375a8562498bdb5234068a890a4"
+      },
+      "collection": {
+        "path": "target/v53-round-history/inputs/round-carried/collection.json",
+        "sha256": "d0f3a932eeffbe223c51f16a2119a2cb5678182f3c2dcb596cf713d63d3a1de9"
+      },
+      "correctedReplay": {
+        "negatives": 51,
+        "path": "target/v53-round-history/corrected-replay-003/round-carried.json",
+        "sha256": "a069cba1adbea83900ff116b4350a2c3fb4f77eb34748410fc0b765e85b70374"
+      },
+      "execution": {
+        "elapsedSeconds": 84.856,
+        "exit": 0
+      },
+      "mavenLog": {
+        "path": "target/v53-round-history/inputs/round-carried/maven.log",
+        "sha256": "d259b1440cddaa6ad603ffbc4c02f46e7c41d54c143ead447b6abfabafb22c99"
+      },
+      "nativeRetries": 0,
+      "portableArchive": {
+        "path": "target/v53-round-history/portable-artifacts/round-carried/bundle.tar.gz",
+        "sha256": "27e871615f56f3e817845f4f4e96e47f637504523811b4e864ae39ea03dffdb8"
+      },
+      "portableOriginalSourceAdmission": {
+        "path": "target/v53-round-history/portable-corrected/round-carried/original-source-provenance.json",
+        "sha256": "cabaea137de97fa4a5b5c9a4cf72fdaf4e1b7b8c195c020e7dc98d7e0055292a"
+      },
+      "portableReplay": {
+        "path": "target/v53-round-history/portable-corrected/round-carried/receipt.json",
+        "sha256": "31a5876bfd7d3067d1e81031248da75121a1494e2a90a0dd5703586a792fc688"
+      },
+      "raw": "target/v53-round-history/inputs/round-carried/workspace/general-search-engine-replication/target/v53-native-dispatch/run-47f11bcf-ab8f-4a46-a040-97dea4e2195a",
+      "receipt": {
+        "path": "target/v53-round-history/inputs/round-carried/receipt.json",
+        "sha256": "c73dca14c1ac0a18418840af9857cf5cd43dc5f4edbc06b081ff14bf8aecc75a"
+      },
+      "source": {
+        "path": "target/v53-round-history/inputs/round-carried/source.json",
+        "sha256": "a7363caaebd77e6944071ad361706493a813d700a77ce3bc39f00e7d4af86492"
+      },
+      "toolchain": {
+        "path": "target/v53-round-history/inputs/round-carried/toolchain.json",
+        "sha256": "cd7c1bbef0c53b008e202f1d332bf07e61860651e22d41ea38073c24e7ea5126"
+      }
+    },
+    "round-discovered": {
+      "build": {
+        "path": "target/v53-round-history/inputs/round-discovered/build.json",
+        "sha256": "2db7a44440e15ae42d1a9ca8d745be460be94375a8562498bdb5234068a890a4"
+      },
+      "collection": {
+        "path": "target/v53-round-history/inputs/round-discovered/collection.json",
+        "sha256": "9d60329409c80fd42184e70d3aba25a3c9f40619e31879eb7810868033a08d8e"
+      },
+      "correctedReplay": {
+        "negatives": 68,
+        "path": "target/v53-round-history/corrected-replay-003/round-discovered.json",
+        "sha256": "3501a71ac43dec4dc058a6a058f177e05ce52b7fec61cc234cc53233bf4f6d3c"
+      },
+      "execution": {
+        "elapsedSeconds": 73.085,
+        "exit": 0
+      },
+      "mavenLog": {
+        "path": "target/v53-round-history/inputs/round-discovered/maven.log",
+        "sha256": "3324a3073d8e461a275d371f256cf5c9c9f64eb3cb9d10c8ae6bf987bd27c533"
+      },
+      "nativeRetries": 0,
+      "portableArchive": {
+        "path": "target/v53-round-history/portable-artifacts/round-discovered/bundle.tar.gz",
+        "sha256": "a04825787b8c60ea36da6ad7ff591b4e12efe4ac605527b73e7b95cad957083b"
+      },
+      "portableOriginalSourceAdmission": {
+        "path": "target/v53-round-history/portable-corrected/round-discovered/original-source-provenance.json",
+        "sha256": "d7b45a78d70ec4f8c5ae96d2c7591de123c8f8aa6c58a132e119932d4c7aaf17"
+      },
+      "portableReplay": {
+        "path": "target/v53-round-history/portable-corrected/round-discovered/receipt.json",
+        "sha256": "be4dc0f9036254402c4c7051eda1f4bc23ddc4d9bca201a3e0881f8cbd69334d"
+      },
+      "raw": "target/v53-round-history/inputs/round-discovered/workspace/general-search-engine-replication/target/v53-native-dispatch/run-32bf8d21-2b5f-4a1a-b20c-5880bdbb184b",
+      "receipt": {
+        "path": "target/v53-round-history/inputs/round-discovered/receipt.json",
+        "sha256": "c578c99d92fa94eba71d93ef80ed3d1277ca85a106750d74afb00ec307bcbbb3"
+      },
+      "source": {
+        "path": "target/v53-round-history/inputs/round-discovered/source.json",
+        "sha256": "a7363caaebd77e6944071ad361706493a813d700a77ce3bc39f00e7d4af86492"
+      },
+      "toolchain": {
+        "path": "target/v53-round-history/inputs/round-discovered/toolchain.json",
+        "sha256": "d9996d9322068d0bd6459b7008b84ec00aa2e85fc3f135975c1835587ce507ec"
+      }
+    },
+    "round-stable": {
+      "build": {
+        "path": "target/v53-round-history/inputs/round-stable/build.json",
+        "sha256": "2db7a44440e15ae42d1a9ca8d745be460be94375a8562498bdb5234068a890a4"
+      },
+      "collection": {
+        "path": "target/v53-round-history/inputs/round-stable/collection.json",
+        "sha256": "16757fb0214b6eb77541f3565b9124dcc6e32ef41618c1c06d20dfd3d5633171"
+      },
+      "correctedReplay": {
+        "negatives": 64,
+        "path": "target/v53-round-history/corrected-replay-003/round-stable.json",
+        "sha256": "4a2cd58304341bae4feb847071876020dee31daf069c95566e9c23025269a9dc"
+      },
+      "execution": {
+        "elapsedSeconds": 80.801,
+        "exit": 0
+      },
+      "mavenLog": {
+        "path": "target/v53-round-history/inputs/round-stable/maven.log",
+        "sha256": "9133e09ad199436de45ae129fbb84dcca9506f26790aa6a8716a59cf3fda6787"
+      },
+      "nativeRetries": 0,
+      "portableArchive": {
+        "path": "target/v53-round-history/portable-artifacts/round-stable/bundle.tar.gz",
+        "sha256": "0f552d50de7fbdefd8688503dbd16d046fbcf7a0478be9ed5455ccedad2619b9"
+      },
+      "portableOriginalSourceAdmission": {
+        "path": "target/v53-round-history/portable-corrected/round-stable/original-source-provenance.json",
+        "sha256": "4767e988867e34e34c146430635c814857165c0ea85891a96430f77860bf6424"
+      },
+      "portableReplay": {
+        "path": "target/v53-round-history/portable-corrected/round-stable/receipt.json",
+        "sha256": "cf6b0e4b4f44abaf8cfe894695c6c8ffc2cfdad923ead17ec522a20c467736be"
+      },
+      "raw": "target/v53-round-history/inputs/round-stable/workspace/general-search-engine-replication/target/v53-native-dispatch/run-66328059-d47d-4984-a0e1-6c05c4edb2a6",
+      "receipt": {
+        "path": "target/v53-round-history/inputs/round-stable/receipt.json",
+        "sha256": "010229abf0cd92deba10d18e88b181da7dc084586d1e20bf99261035d6e515c6"
+      },
+      "source": {
+        "path": "target/v53-round-history/inputs/round-stable/source.json",
+        "sha256": "a7363caaebd77e6944071ad361706493a813d700a77ce3bc39f00e7d4af86492"
+      },
+      "toolchain": {
+        "path": "target/v53-round-history/inputs/round-stable/toolchain.json",
+        "sha256": "fbfff3c377f275e618ff9329247b70e3c0f0b2f86d89f6fe812da26007efdc0d"
+      }
+    },
+    "slot-accept": {
+      "build": {
+        "path": "target/v53-round-history/inputs/slot-accept/build.json",
+        "sha256": "2db7a44440e15ae42d1a9ca8d745be460be94375a8562498bdb5234068a890a4"
+      },
+      "collection": {
+        "path": "target/v53-round-history/inputs/slot-accept/collection.json",
+        "sha256": "8b2ac62158ec9f1ce63cdff6f794e6421f79779b3ec6f0098c103dcaa528c0b9"
+      },
+      "correctedReplay": {
+        "negatives": 26,
+        "path": "target/v53-round-history/corrected-replay-003/slot-accept.json",
+        "sha256": "3e2d85253c4b2357f476c3e48e204aeded62fc8942dd597dda41a9194ef3df9b"
+      },
+      "execution": {
+        "elapsedSeconds": 88.313,
+        "exit": 0
+      },
+      "mavenLog": {
+        "path": "target/v53-round-history/inputs/slot-accept/maven.log",
+        "sha256": "3f351eb3bb519440c95dd0e78b65eab67e14215f71bdf8246d9d7c08e0f86de0"
+      },
+      "nativeRetries": 0,
+      "portableArchive": {
+        "path": "target/v53-round-history/portable-artifacts/slot-accept/bundle.tar.gz",
+        "sha256": "7b952ecfc19ed3d72eda1a7af4938b9fe823009912ef9a4a7f446f867bbb0ffb"
+      },
+      "portableOriginalSourceAdmission": {
+        "path": "target/v53-round-history/portable-corrected/slot-accept/original-source-provenance.json",
+        "sha256": "e320a293e3b0546c5902833b047d273d6aaca36f58ab733caea11508d3138c00"
+      },
+      "portableReplay": {
+        "path": "target/v53-round-history/portable-corrected/slot-accept/receipt.json",
+        "sha256": "9c02ed93bc49bd762859db151edd31748690a7706b9451d90d24a1913a0f8095"
+      },
+      "raw": "target/v53-round-history/inputs/slot-accept/workspace/general-search-engine-replication/target/v53-native-dispatch/run-cf107c79-7a40-44eb-95d3-dd8efe2e7bc5",
+      "receipt": {
+        "path": "target/v53-round-history/inputs/slot-accept/receipt.json",
+        "sha256": "02f574b31bb1eae3cbe227c87fa9876f19cc364882a2e04f2809be1f51cd7ee8"
+      },
+      "source": {
+        "path": "target/v53-round-history/inputs/slot-accept/source.json",
+        "sha256": "a7363caaebd77e6944071ad361706493a813d700a77ce3bc39f00e7d4af86492"
+      },
+      "toolchain": {
+        "path": "target/v53-round-history/inputs/slot-accept/toolchain.json",
+        "sha256": "fc707062922da85d7b5e8350cabdc03e569879f899cb364d8eddbb319055ac26"
+      }
+    },
+    "slot-applied": {
+      "build": {
+        "path": "target/v53-round-history/inputs/slot-applied/build.json",
+        "sha256": "2db7a44440e15ae42d1a9ca8d745be460be94375a8562498bdb5234068a890a4"
+      },
+      "collection": {
+        "path": "target/v53-round-history/inputs/slot-applied/collection.json",
+        "sha256": "615036c0ccbccb09d2371b344a146aae61419251d25bf45b319ca17a17dc03d1"
+      },
+      "correctedReplay": {
+        "negatives": 26,
+        "path": "target/v53-round-history/corrected-replay-003/slot-applied.json",
+        "sha256": "a685e555642f16f401ac0f847fbf3d80dd3e50395f23fc36db66840c23c965d2"
+      },
+      "execution": {
+        "elapsedSeconds": 83.303,
+        "exit": 0
+      },
+      "mavenLog": {
+        "path": "target/v53-round-history/inputs/slot-applied/maven.log",
+        "sha256": "5ddee26eddc93d29b70767afc9760bcc515ed7415cc0525d740d78c54e3ad25e"
+      },
+      "nativeRetries": 0,
+      "portableArchive": {
+        "path": "target/v53-round-history/portable-artifacts/slot-applied/bundle.tar.gz",
+        "sha256": "d19a1c7340ed092926cb4dabe4f83723c6abbe7f8b0bd431376f5dfc4ce7c41e"
+      },
+      "portableOriginalSourceAdmission": {
+        "path": "target/v53-round-history/portable-corrected/slot-applied/original-source-provenance.json",
+        "sha256": "6197ed099568698231b1382446f6377725def5d4b1bff2cb75b3c9aad8b17a65"
+      },
+      "portableReplay": {
+        "path": "target/v53-round-history/portable-corrected/slot-applied/receipt.json",
+        "sha256": "0d10c95005008de8353a8d10339d72747e67fea9efcef7180433dc4a16b7e220"
+      },
+      "raw": "target/v53-round-history/inputs/slot-applied/workspace/general-search-engine-replication/target/v53-native-dispatch/run-3a8c550c-a4f4-4d09-bbb8-7ce89ae1f7fd",
+      "receipt": {
+        "path": "target/v53-round-history/inputs/slot-applied/receipt.json",
+        "sha256": "90c83e2923482e01a2db7b53b7b7a16881f8e538ce3e66c4ece258ea2dc0b371"
+      },
+      "source": {
+        "path": "target/v53-round-history/inputs/slot-applied/source.json",
+        "sha256": "a7363caaebd77e6944071ad361706493a813d700a77ce3bc39f00e7d4af86492"
+      },
+      "toolchain": {
+        "path": "target/v53-round-history/inputs/slot-applied/toolchain.json",
+        "sha256": "7368654216e29c798cca327a299ecd0b4fc8d1be545061c6f6946fb29f154690"
+      }
+    },
+    "slot-certificate": {
+      "build": {
+        "path": "target/v53-round-history/inputs/slot-certificate/build.json",
+        "sha256": "2db7a44440e15ae42d1a9ca8d745be460be94375a8562498bdb5234068a890a4"
+      },
+      "collection": {
+        "path": "target/v53-round-history/inputs/slot-certificate/collection.json",
+        "sha256": "8f567a06ffae3abb695b6d763a2eb343263e73564607789c8b207f0dfaca6c9d"
+      },
+      "correctedReplay": {
+        "negatives": 26,
+        "path": "target/v53-round-history/corrected-replay-003/slot-certificate.json",
+        "sha256": "810097ed165b0cfc2064cd720f76edfe17a114fd103f7ae48a7004b945c74c41"
+      },
+      "execution": {
+        "elapsedSeconds": 95.378,
+        "exit": 0
+      },
+      "mavenLog": {
+        "path": "target/v53-round-history/inputs/slot-certificate/maven.log",
+        "sha256": "de363641951a05fd13e9c78dd2e3d15ff84545e6f1e108b9e5f103544db14055"
+      },
+      "nativeRetries": 0,
+      "portableArchive": {
+        "path": "target/v53-round-history/portable-artifacts/slot-certificate/bundle.tar.gz",
+        "sha256": "7fd64dc2ee93d37aac15c52ccc97777c51cbdabb21d846f46b6c3a0237ba1bec"
+      },
+      "portableOriginalSourceAdmission": {
+        "path": "target/v53-round-history/portable-corrected/slot-certificate/original-source-provenance.json",
+        "sha256": "039526d88f76a799e7e5731c7cf9fdcf009fdb9bee65af66f9bbee6398cd6eac"
+      },
+      "portableReplay": {
+        "path": "target/v53-round-history/portable-corrected/slot-certificate/receipt.json",
+        "sha256": "40c3ae69105494cd3410a3410f52985b1e197cbdcbf619a86691197067a70c37"
+      },
+      "raw": "target/v53-round-history/inputs/slot-certificate/workspace/general-search-engine-replication/target/v53-native-dispatch/run-f255fb41-2442-434c-bf64-237e5d0edeee",
+      "receipt": {
+        "path": "target/v53-round-history/inputs/slot-certificate/receipt.json",
+        "sha256": "742fb37e1d80f7d918f44fb6d911f29c2c969817c0ff8589ad6749e8ddcbc94c"
+      },
+      "source": {
+        "path": "target/v53-round-history/inputs/slot-certificate/source.json",
+        "sha256": "a7363caaebd77e6944071ad361706493a813d700a77ce3bc39f00e7d4af86492"
+      },
+      "toolchain": {
+        "path": "target/v53-round-history/inputs/slot-certificate/toolchain.json",
+        "sha256": "2e7ecb7561ce8c44f6db5fcec7866b517bee96ee1254533a845b7eff291077ca"
+      }
+    },
+    "slot-proof": {
+      "build": {
+        "path": "target/v53-round-history/inputs/slot-proof/build.json",
+        "sha256": "2db7a44440e15ae42d1a9ca8d745be460be94375a8562498bdb5234068a890a4"
+      },
+      "collection": {
+        "path": "target/v53-round-history/inputs/slot-proof/collection.json",
+        "sha256": "5e808ce3ef48d7a482d4a0b357fb6921033bc4dc72fa0636fe32cadc7034c6ff"
+      },
+      "correctedReplay": {
+        "negatives": 26,
+        "path": "target/v53-round-history/corrected-replay-003/slot-proof.json",
+        "sha256": "d06562b571c0abc115c41c4601b02e45bdf0ff59c0f3bd707f49b2970e1d4d09"
+      },
+      "execution": {
+        "elapsedSeconds": 88.514,
+        "exit": 0
+      },
+      "mavenLog": {
+        "path": "target/v53-round-history/inputs/slot-proof/maven.log",
+        "sha256": "8dd0818601ba03d05f51d0ffdf438b21cf59b20953e96595d8d9f90cdb770395"
+      },
+      "nativeRetries": 0,
+      "portableArchive": {
+        "path": "target/v53-round-history/portable-artifacts/slot-proof/bundle.tar.gz",
+        "sha256": "133672b7547ad32fb95bddcbcafd55d14cfb8346c1d157f26704435c966963a1"
+      },
+      "portableOriginalSourceAdmission": {
+        "path": "target/v53-round-history/portable-corrected/slot-proof/original-source-provenance.json",
+        "sha256": "922078da4ec6ad696e866f8a04a31520404d7345d4c4b7d1bbe2a4fc5d379448"
+      },
+      "portableReplay": {
+        "path": "target/v53-round-history/portable-corrected/slot-proof/receipt.json",
+        "sha256": "ef2d12fec7e85f1d1f0496b02f4b82efe701767a453b59f9ddbb2953c407b60f"
+      },
+      "raw": "target/v53-round-history/inputs/slot-proof/workspace/general-search-engine-replication/target/v53-native-dispatch/run-1e78d500-13d4-49ed-968e-61961614a000",
+      "receipt": {
+        "path": "target/v53-round-history/inputs/slot-proof/receipt.json",
+        "sha256": "52167246d42aac875075adbaeaa9e1bc131c7c1729b4d10dc337ba3cf4ecfe93"
+      },
+      "source": {
+        "path": "target/v53-round-history/inputs/slot-proof/source.json",
+        "sha256": "a7363caaebd77e6944071ad361706493a813d700a77ce3bc39f00e7d4af86492"
+      },
+      "toolchain": {
+        "path": "target/v53-round-history/inputs/slot-proof/toolchain.json",
+        "sha256": "f8a401417337653e6b76d2aac7ea28e58d4a962d7cee6bcc1121803c8a041a02"
+      }
+    }
+  },
+  "protocolBudgetsChanged": false,
+  "runtimeJavaChanged": false,
+  "schema": "gse-v53-native-round-cohort-development-v1",
+  "scope": "Seven existing native public-bootstrap carried BARRIER and stable rounds; corrected-reader development and portable replay, not final-source admission.",
+  "sourceNote": "Original captures at base 0b5ac955 include the first version of the new round entry/tests. The later reader correction was replayed against those unchanged files. The failed original-source aggregate remains FAIL; original source/build/tool receipts were independently checked again by their frozen reader after relocation. No native capture was rerun.",
+  "status": "PARTIAL",
+  "validation": {
+    "focused": {
+      "elapsedSeconds": 0.86,
+      "path": "target/v53-round-history/focused-final-v2.log",
+      "sha256": "615f1294e6d4e2d8288a1c1ad920a0e2a7920bae53fedad19f25ede444f5fb8a",
+      "status": "PASS",
+      "tests": 38
+    },
+    "optimized": {
+      "elapsedSeconds": 0.87,
+      "path": "target/v53-round-history/focused-optimized-final-v2.log",
+      "sha256": "34d03deeaa30c5c1cf7dcf22af992602221cd60f647db06a2931338452f13ecb",
+      "status": "PASS",
+      "tests": 38
+    },
+    "python": {
+      "elapsedSeconds": 108.739,
+      "path": "target/v53-round-history/python-suite-final.log",
+      "sha256": "9cb002e2b6a4041ec53c51577d46d58579535db43a40b133177a4b3374238dc4",
+      "status": "PASS",
+      "tests": 2374
+    }
+  },
+  "workflowChanged": false
+}

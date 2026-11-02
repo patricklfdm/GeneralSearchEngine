@@ -214,7 +214,34 @@ def discovery_controls(root, entries, events, selection, identities):
         previous = delivered[0]
 
 
-def network(root, states, rounds, selection, identities, *, carried_first=False, discovery=False, confirmed_retention=False):
+def round_maintenance_boundary(events, begin):
+    """The serialized owner may maintain READY copies before allocating slot 2.
+
+    Use its completed first publication boundary, never a guessed floor count.
+    The caller binds the completion to the independently replayed original ACK.
+    """
+    completed = [i for i, ev in enumerate(events) if ev['event'] == 'ROUND_SLOT_COMPLETE']
+    need(len(completed) == 2 and begin[0] < completed[0] < begin[1] < completed[1],
+         'native dispatch serialized round boundaries')
+    return completed[0]
+
+
+def round_publication_boundary(events, begin, first, selection, identity):
+    at = round_maintenance_boundary(events, begin); row = events[at]
+    need(set(row) == {'node','event','record','bytes'} and row['node'] == 'node-1', 'round local event owner')
+    raw = base64.b64decode(row['bytes'], validate=True)
+    need(e.digest(raw) == row['record'], 'round event digest')
+    ack = f.decode(raw, 'wire', 'PUBLISH_ACK')
+    directory, _, _ = c.current(first['published']['node-1'])
+    expected = dict(certificate=e.digest(first['originals'][3]), selection=e.digest(f.encode('records','SELECTED',selection)),
+                    published=first['upper'], generation=e.digest(first['published']['node-1'][directory+'generation.gsr']))
+    need(ack['root']==selection['root'] and ack['view']==selection['view'] and ack['ballot']==selection['ballot']
+         and ack['sender']==ack['recipient']==identity and ack['sequence']==1 and ack['payload']==expected,
+         'round original publication acknowledgement')
+    return at
+
+
+def network(root, states, rounds, selection, identities, *, carried_first=False, discovery=False, confirmed_retention=False, precommand_maintenance=False):
     events = read(root/'events.json'); rows = read(root/'wire.json'); content = {}; refs = defaultdict(set)
     need(type(events) is list and len(events) < 32768 and type(rows) is list and 0 < len(rows) < 32768, 'native dispatch bounded traces')
     def add(node, raw, kind='RECORD', reference=None):
@@ -307,9 +334,17 @@ def network(root, states, rounds, selection, identities, *, carried_first=False,
     begin = [i for i, ev in enumerate(events) if ev['event'] == 'SLOT_BEGIN']
     need(len(begin) == 2 and [events[i].get('index') for i in begin] == [1,2], 'native dispatch slot boundaries')
     need(all(v[4] > begin[0] for entries in controls.values() for v in entries), 'native dispatch control before first slot')
-    for round, start, stop, before in zip(rounds, begin, begin[1:]+[len(events)], (states[0], states[3])):
+    windows = list(begin)
+    if precommand_maintenance:
+        need(not carried_first, 'native dispatch stable precommand maintenance only')
+        windows[1] = round_publication_boundary(events, begin, rounds[0], selection, identities['node-1'])
+    for round, start, stop, before in zip(rounds, windows, windows[1:]+[len(events)], (states[0], states[3])):
         index = round['index']; entry, accept, proof, certificate, _ = round['originals']
         part = events[start:stop]
+        mutation_forces = {'ACCEPT_PARENT_FORCED','PROOF_PARENT_FORCED','CERTIFICATE_PARENT_FORCED',
+                           'APPLY_ACK_DIRECTORY_FORCED','FUTURE_RETENTION_PARENT_FORCED','PUBLICATION_SELECTOR_FORCED'}
+        need(not any(ev['event'] in mutation_forces for ev in events[start:begin[index-1]]),
+             'native dispatch mutation before slot admission')
         for node in VOTERS:
             own = [(i+start, ev) for i, ev in enumerate(part) if ev['node'] == node]
             names = [ev['event'] for _, ev in own]
@@ -343,6 +378,7 @@ def network(root, states, rounds, selection, identities, *, carried_first=False,
         for kind, raw in [('ACCEPT',accept),('PROOF',proof),('APPLY',certificate),('FUTURE_RETENTION_INTENT',certificate),('PUBLISH',certificate)]:
             selected_rows = [v for v in controls[kind] if start < v[4] < stop]
             need(1 <= len(selected_rows) <= 3, 'native dispatch bounded complete slot controls')
+            need(all(v[4] > begin[index-1] for v in selected_rows), 'native dispatch controls after slot admission')
             first_request = selected_rows[0][1]
             for _, req, ans, reply, at in selected_rows:
                 need(req == first_request and req['sender'] == identities['node-1'] and req['recipient'] == identities['node-2'], 'native dispatch identical control retries')
@@ -389,7 +425,7 @@ def unselected_rejections(failures):
     need(type(failures) is list and len(failures) <= 6 and all(set(row) == {'node','kind','request','failure'} and row['node'] == 'node-3' and row['kind'] == 'FUTURE_RETENTION_INTENT' and row['failure'] == 'java.lang.IllegalArgumentException: higher ballot observed; fresh campaign required' for row in failures), 'native dispatch bounded unselected rejection')
 
 
-def validate(root, *, discovery=False, rejection_check=None, confirmed_retention=False):
+def validate(root, *, discovery=False, rejection_check=None, confirmed_retention=False, precommand_maintenance=False):
     root = Path(root)
     b.selection.layout(root, {'initial','original-plan.gsbp','original-application.image','before-network','installed',
         'applied-1','published-1','applied-2','published-2','after-close','calls.json','events.json','wire.json','failures.json','result.json','selected.gsr'}, 'native dispatch case inventory')
@@ -400,7 +436,7 @@ def validate(root, *, discovery=False, rejection_check=None, confirmed_retention
         s.ordered(row['events'], ['RETENTION_PARENT_FORCED','FUTURE_RETENTION_PARENT_FORCED'], 'native dispatch initialization')
     failures = read(root/'failures.json')
     (unselected_rejections if rejection_check is None else rejection_check)(failures)
-    transfers = network(root, states, rounds, selected, identities, discovery=discovery, confirmed_retention=confirmed_retention)
+    transfers = network(root, states, rounds, selected, identities, discovery=discovery, confirmed_retention=confirmed_retention, precommand_maintenance=precommand_maintenance)
     need(read(root/'result.json') == dict(status='PASS', slots=2, network=True, autonomous=False), 'native dispatch scope')
     result = dict(status='PASS', slots=2, selected=2, transfers=transfers, autonomous=False, phase3Complete=False)
     if discovery: result['discoveryPeers']=2
@@ -500,22 +536,69 @@ def mutate(root, name):
     path.write_text(json.dumps(events))
 
 
-def qualify(root, *, discovery=False, confirmed_retention=False):
+def qualify(root, *, discovery=False, confirmed_retention=False, precommand_maintenance=False):
     options = {}
     if discovery: options['discovery'] = True
     if confirmed_retention: options['confirmed_retention'] = True
+    if precommand_maintenance: options['precommand_maintenance'] = True
     original = validate(root, **options); results = []
     cases = dict(NEGATIVES, **DISCOVERY_NEGATIVES) if discovery else NEGATIVES
     if confirmed_retention: cases = dict(cases, **OBSERVATION_NEGATIVES)
+    if precommand_maintenance: cases = dict(cases, **PRECOMMAND_NEGATIVES)
     for name, reason in cases.items():
         with tempfile.TemporaryDirectory(prefix='v53-native-dispatch-negative-') as temp:
             dest = Path(temp)/'raw'; shutil.copytree(root, dest)
-            (mutate_observation if name in OBSERVATION_NEGATIVES else mutate_discovery if name in DISCOVERY_NEGATIVES else mutate)(dest, name)
+            if name in PRECOMMAND_NEGATIVES: mutate_precommand(dest, name)
+            elif name in OBSERVATION_NEGATIVES: mutate_observation(dest, name, precommand_maintenance=precommand_maintenance)
+            else: (mutate_discovery if name in DISCOVERY_NEGATIVES else mutate)(dest, name)
             try: validate(dest, **options)
             except ValueError as error: need(str(error) == reason, 'native dispatch unrelated negative '+name+': '+str(error))
             else: raise ValueError('native dispatch accepted negative '+name)
             results.append(dict(case=name, status='REJECTED', reason=reason))
     return dict(original=original, negatives=results)
+
+
+PRECOMMAND_NEGATIVES = {
+    'precommand-missing-completion': 'native dispatch serialized round boundaries',
+    'precommand-extra-completion': 'native dispatch serialized round boundaries',
+    'precommand-forged-completion': 'round original publication acknowledgement',
+    'precommand-missing-floor': 'selected retention force order: native dispatch slot 2 node-1',
+    'precommand-extra-floor': 'native dispatch one floor/publication per slot',
+    'precommand-premature-floor': 'native dispatch complete copies before floor',
+    'precommand-late-completion': 'native dispatch one floor/publication per slot',
+    'precommand-early-mutation': 'native dispatch mutation before slot admission',
+    'precommand-early-control': 'native dispatch controls after slot admission',
+}
+
+
+def mutate_precommand(root, name):
+    path=root/'events.json';events=read(path)
+    begins=[i for i,v in enumerate(events) if v['event']=='SLOT_BEGIN']
+    at=round_maintenance_boundary(events,begins)
+    floor=next(i for i in range(at+1,len(events)) if events[i]['node']=='node-1' and events[i]['event']=='FLOOR_PARENT_FORCED')
+    if name=='precommand-missing-completion':events.pop(at)
+    elif name=='precommand-extra-completion':events.insert(at,dict(events[at]))
+    elif name=='precommand-forged-completion':
+        row=events[at];value=f.decode(base64.b64decode(row['bytes']),'wire','PUBLISH_ACK')
+        value['payload']['certificate']='0'*64;raw=f.encode('wire','PUBLISH_ACK',value)
+        row.update(record=e.digest(raw),bytes=base64.b64encode(raw).decode())
+    elif name=='precommand-missing-floor':events.pop(floor)
+    elif name=='precommand-extra-floor':events.insert(floor,dict(events[floor]))
+    elif name=='precommand-premature-floor':events.insert(at+1,events.pop(floor))
+    elif name=='precommand-late-completion':
+        # Preserve the valid original ACK bytes but move the claimed completion
+        # past the next floor force; the extra first-slot floor rejects.
+        row=events.pop(at);events.insert(floor,row)
+    elif name=='precommand-early-mutation':
+        pos=next(i for i in range(begins[1]+1,len(events)) if events[i]['node']=='node-1' and events[i]['event']=='ACCEPT_PARENT_FORCED')
+        events.insert(begins[1],events.pop(pos))
+    elif name=='precommand-early-control':
+        rows=read(root/'wire.json')
+        answers={e.digest(base64.b64decode(row['response'])) for row in rows if transfer.t.wire(row['request'])[0]=='ACCEPT'}
+        pos=next(i for i in range(begins[1]+1,len(events)) if events[i]['event']=='WIRE_RESPONSE' and events[i]['response'] in answers)
+        events.insert(begins[1],events.pop(pos))
+    else:raise ValueError('unknown precommand mutation')
+    path.write_text(json.dumps(events))
 
 
 OBSERVATION_NEGATIVES = {
@@ -532,7 +615,7 @@ OBSERVATION_NEGATIVES = {
 }
 
 
-def mutate_observation(root, name):
+def mutate_observation(root, name, *, precommand_maintenance=False):
     if name == 'genesis-invented-revision':
         path=root/'applied-1/node-1'/s.FILE; raw=path.read_bytes(); value=s.r.decode(raw)
         value.update(revision=value['revision']+1,previous=e.digest(raw));path.write_bytes(s.r.frame(value));return
@@ -550,6 +633,7 @@ def mutate_observation(root, name):
         else:raise ValueError('unknown observation mutation')
         path.write_bytes(s.r.frame(value));return
     path=root/'events.json';events=read(path);begins=[i for i,v in enumerate(events) if v['event']=='SLOT_BEGIN']
+    if precommand_maintenance: begins[1]=round_maintenance_boundary(events,begins)
     first=begins[0] if name=='genesis-invented-force' else begins[1]
     floor=next(i for i in range(first,len(events)) if events[i]['node']=='node-1' and events[i]['event']=='FLOOR_BEFORE_RETURN')
     if name=='genesis-invented-force':events.insert(floor+1,dict(node='node-1',event='RETENTION_PARENT_FORCED'))

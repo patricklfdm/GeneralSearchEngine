@@ -1,3 +1,8 @@
+import base64
+import copy
+import json
+from pathlib import Path
+import tempfile
 import unittest
 from unittest.mock import patch
 from . import native_dispatch_evidence as evidence
@@ -80,6 +85,53 @@ class NativeDispatchEvidenceTest(unittest.TestCase):
         for other in (dict(cap, root='root-b'), dict(cap, cut=dict(index=2, entry='entry-b'))):
             self.assertNotEqual(packet, evidence.current_reference(other, 'retained-current-packet'))
         self.assertNotEqual(packet, evidence.current_reference(cap, 'retained-current-generation-metadata'))
+
+
+    def test_precommand_window_starts_only_after_prior_completed_publication(self):
+        events=[{'event':n} for n in ('SLOT_BEGIN','PUBLICATION_BEFORE_RETURN','ROUND_SLOT_COMPLETE',
+                'FLOOR_PARENT_FORCED','SLOT_BEGIN','ROUND_SLOT_COMPLETE')]
+        self.assertEqual(2,evidence.round_maintenance_boundary(events,[0,4]))
+        for names in (['SLOT_BEGIN','SLOT_BEGIN'],['ROUND_SLOT_COMPLETE','SLOT_BEGIN','SLOT_BEGIN','ROUND_SLOT_COMPLETE'],
+                      ['SLOT_BEGIN','ROUND_SLOT_COMPLETE','ROUND_SLOT_COMPLETE','SLOT_BEGIN','ROUND_SLOT_COMPLETE'],
+                      ['SLOT_BEGIN','SLOT_BEGIN','ROUND_SLOT_COMPLETE','ROUND_SLOT_COMPLETE']):
+            with self.subTest(names=names),self.assertRaisesRegex(ValueError,'serialized round boundaries'):
+                evidence.round_maintenance_boundary([{'event':n} for n in names],[i for i,n in enumerate(names) if n=='SLOT_BEGIN'])
+
+    def test_precommand_completion_must_bind_original_physical_publication(self):
+        raw=b'original local acknowledgement';selection=dict(root='root',view='view',ballot={'counter':1})
+        identity={'node':'node-1'};first=dict(originals=[b'entry',b'accept',b'proof',b'certificate'],upper={'index':1},
+            published={'node-1':{'g/generation.gsr':b'generation'}})
+        ack=dict(selection,sender=identity,recipient=identity,sequence=1,payload=dict(certificate=evidence.e.digest(b'certificate'),
+            selection=evidence.e.digest(b'selected'),published=first['upper'],generation=evidence.e.digest(b'generation')))
+        row=dict(node='node-1',event='ROUND_SLOT_COMPLETE',record=evidence.e.digest(raw),bytes=base64.b64encode(raw).decode())
+        events=[{'event':'SLOT_BEGIN'},row,{'event':'FLOOR_PARENT_FORCED'},{'event':'SLOT_BEGIN'},{'event':'ROUND_SLOT_COMPLETE'}]
+        def boundary(value):
+            with patch.object(evidence.c,'current',return_value=('g/',{},{})),patch.object(evidence.f,'encode',return_value=b'selected'),patch.object(evidence.f,'decode',return_value=value):
+                return evidence.round_publication_boundary(events,[0,3],first,selection,identity)
+        self.assertEqual(1,boundary(ack))
+        for key,value in [('root','other'),('view','other'),('ballot',{'counter':2}),('sender',{'node':'node-2'}),('recipient',{'node':'node-2'}),('sequence',2)]:
+            with self.subTest(key=key),self.assertRaisesRegex(ValueError,'original publication acknowledgement'):boundary(dict(ack,**{key:value}))
+        for key in ack['payload']:
+            changed=copy.deepcopy(ack);changed['payload'][key]='forged'
+            with self.subTest(key=key),self.assertRaisesRegex(ValueError,'original publication acknowledgement'):boundary(changed)
+        events[1]['record']='0'*64
+        with self.assertRaisesRegex(ValueError,'round event digest'):boundary(ack)
+
+    def test_observation_mutation_targets_precommand_floor_without_moving_original(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);names=['SLOT_BEGIN','ROUND_SLOT_COMPLETE','FLOOR_PARENT_FORCED','FLOOR_BEFORE_RETURN',
+                *evidence.s.r.POINTS,'SLOT_BEGIN','ROUND_SLOT_COMPLETE']
+            rows=[dict(node='node-1',event=n) for n in names];(root/'events.json').write_text(json.dumps(rows))
+            evidence.mutate_observation(root,'observation-missing-force',precommand_maintenance=True)
+            after=evidence.read(root/'events.json')
+            self.assertEqual([row for row in rows if row['event']!='RETENTION_FORCED'],after)
+            self.assertLess(next(i for i,v in enumerate(after) if v['event']=='FLOOR_PARENT_FORCED'),
+                            [i for i,v in enumerate(after) if v['event']=='SLOT_BEGIN'][1])
+
+    def test_precommand_original_failure_still_precedes_all_negative_mutations(self):
+        with patch.object(evidence,'validate',side_effect=ValueError('broken original')) as validate,patch.object(evidence.tempfile,'TemporaryDirectory') as copy:
+            with self.assertRaisesRegex(ValueError,'broken original'):evidence.qualify('/original',precommand_maintenance=True,confirmed_retention=True)
+        validate.assert_called_once_with('/original',precommand_maintenance=True,confirmed_retention=True);copy.assert_not_called()
 
 
 if __name__ == '__main__':

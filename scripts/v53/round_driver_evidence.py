@@ -85,7 +85,7 @@ def validate(root, *, discovery=False, rejection_check=None, confirmed_retention
     need(not discovery or result['mode']=='stable', 'round discovery stable qualification only')
     with tempfile.TemporaryDirectory(prefix='v53-round-original-') as temp:
         path=Path(temp)/'raw';shutil.copytree(root,path);(path/'round-result.json').unlink()
-        if result['mode']=='stable':original=d.validate(path,discovery=discovery,rejection_check=rejection_check,confirmed_retention=confirmed_retention)
+        if result['mode']=='stable':original=d.validate(path,discovery=discovery,rejection_check=rejection_check,confirmed_retention=confirmed_retention,precommand_maintenance=True)
         else:
             need(rejection_check is None, 'round carried rejection policy unchanged')
             original=carried.validate(path,confirmed_retention=confirmed_retention)
@@ -122,7 +122,7 @@ def qualify(root, *, discovery=False, confirmed_retention=False):
                 value=f.decode(base64.b64decode(row['bytes']),family,kind);mutation(value);raw=f.encode(family,kind,value)
                 row['record']=e.digest(raw);row['bytes']=base64.b64encode(raw).decode()
             if name in carried.retirement.NEGATIVES:carried.retirement.mutate(path,name);rows=d.read(path/'events.json')
-            elif name in d.OBSERVATION_NEGATIVES:d.mutate_observation(path,name);rows=d.read(path/'events.json')
+            elif name in d.OBSERVATION_NEGATIVES:d.mutate_observation(path,name,precommand_maintenance=original['mode']=='stable');rows=d.read(path/'events.json')
             elif name=='missing-ready': rows.remove(event('BEFORE_READY'))
             elif name=='early-ready':
                 row=event('BEFORE_READY');rows.remove(row);rows.insert(next(i for i,v in enumerate(rows) if v['event']=='ROUND_SLOT_COMPLETE'),row)

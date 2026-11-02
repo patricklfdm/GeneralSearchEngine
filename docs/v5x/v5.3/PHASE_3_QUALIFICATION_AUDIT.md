@@ -52,7 +52,7 @@ prove its semantics.
 | 3C learner | Six-revision/cancellation producers, source retention, readers and hosted pair | Complete final-source histories and profile coverage |
 | 3C initialization | Actual joining owner, three-ledger initialization and 360-case entry | Final-source matrix; combined bounds |
 | 3C joint | Private INTENT/FINAL/BARRIER coordination for all seven profiles | Final-source profiles and interrupted transitions |
-| 3D rounds | Carried-first publication, two durable phases and round reuse | Current-source carried/stable/process qualification |
+| 3D rounds | Carried-first publication, two durable phases, round reuse and [seven-history admission](PHASE_3_NATIVE_ROUND_COHORT.md) | Final-source native round execution, hosted adapter, carried payload axes and process faults |
 | 3D automatic | Competing owners, heartbeat, original grants, both campaign networks, maintenance, installation/publication, [observed export authority](PHASE_3_COMPETING_EXPORTS.md), [actual lifecycle collection](PHASE_3_AUTOMATIC_LIFECYCLE.md) and [pre-grant-loss whole replay](PHASE_3_PREGRANT_LOSS_REPLAY.md) | Export expiry/close faults, complete lifecycle/recovery, final-source competition and failure coverage |
 | 3D removal | Departure fencing, retirement and original-disk recovery | Final-source original/negative process matrix |
 | 3E resources | Accounting, bounded transfers, publication refusal and conditional-prefix tests | Simultaneous physical peak and admitted completion |
@@ -88,8 +88,12 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    a component entry; its [hosted adapter](PHASE_3_TRANSFER_HISTORY_HOSTED.md) now
    adds two complete-matrix groups with exact seed/run/attempt binding. Neither
    local development evidence nor the unexecuted adapter fills final-source slots.
-   Continue with competing-owner, carried and transition recovery
-   entries and uncovered learner profiles. Reuse existing producers/readers.
+   The [native round entry](PHASE_3_NATIVE_ROUND_COHORT.md) now captures the four
+   carried BARRIER phases and three guarded rounds, including their complete
+   underlying physical and lifecycle negatives. Hosted wiring and additional
+   carried payload/process axes remain; conditional Phase 2 fixtures cannot
+   substitute for native originals. Continue competing-owner and transition
+   recovery entries and uncovered learner profiles. Reuse existing producers/readers.
    Historical qualification remains scoped to its source, not a new cohort slot.
    The six-revision history's recorded final-CANCEL deadline failure remains a
    failure; retrying, extending budgets or reconstructing observations cannot

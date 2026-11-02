@@ -7,6 +7,13 @@ groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
 
+[Native round admission](PHASE_3_NATIVE_ROUND_COHORT.md) now declares all four
+carried phases and three guarded round histories against one recorded source,
+build, toolchain and reader. Its complete physical/lifecycle vectors require 287
+exact negative checks. Native process faults, full lifecycle coverage and
+final-source admission remain separate; Phase 2 conditional process fixtures do
+not fill this native scope.
+
 [Hosted transfer matrices](PHASE_3_TRANSFER_HISTORY_HOSTED.md) now provide one
 immutable seed, two complete-matrix executions, two downloaded original-first
 replays and an exact-attempt aggregate. The added 21 planned ownership histories
