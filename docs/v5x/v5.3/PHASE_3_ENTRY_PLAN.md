@@ -7,6 +7,12 @@ groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
 
+[Competing activation network](PHASE_3_COMPETING_ACTIVATION_NETWORK.md) now
+composes both original campaigns, including the losing selection's incomplete
+transfer, with installation/publication. All 250 original answered exchanges and
+269 requests are accounted for; fourteen exact negatives reject. Whole-history
+export/lifecycle, failure coverage and final-source cohort admission remain OPEN.
+
 [Competing installation and publication](PHASE_3_COMPETING_PUBLICATION.md) now
 continues the same original through two installed owners, BARRIER/DATA and all
 three final inventories, including the losing history. It replays publication

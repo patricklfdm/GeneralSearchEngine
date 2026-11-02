@@ -286,7 +286,8 @@
         "scripts/v53/competing_grant_captures.py",
         "scripts/v53/competing_campaign_prefix.py",
         "scripts/v53/competing_campaign_maintenance.py",
-        "scripts/v53/competing_campaign_publication.py"
+        "scripts/v53/competing_campaign_publication.py",
+        "scripts/v53/competing_activation_network.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_COMPETING_REPLAY.md",
@@ -295,7 +296,8 @@
         "docs/v5x/v5.3/PHASE_3_COMPETING_GRANT_CAPTURE.md",
         "docs/v5x/v5.3/PHASE_3_COMPETING_CAMPAIGN_PREFIX.md",
         "docs/v5x/v5.3/PHASE_3_COMPETING_MAINTENANCE.md",
-        "docs/v5x/v5.3/PHASE_3_COMPETING_PUBLICATION.md"
+        "docs/v5x/v5.3/PHASE_3_COMPETING_PUBLICATION.md",
+        "docs/v5x/v5.3/PHASE_3_COMPETING_ACTIVATION_NETWORK.md"
       ],
       "cohorts": [
         "node-renames"
