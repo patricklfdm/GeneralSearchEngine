@@ -1,0 +1,388 @@
+{
+  "actions": {
+    "localCommit": true,
+    "nativeRerun": false,
+    "paidCloud": false,
+    "pomChanged": false,
+    "push": false,
+    "runtimeJavaChanged": false,
+    "workflowChanged": false
+  },
+  "allMembershipProfilesQualified": false,
+  "allObservationFamiliesQualified": false,
+  "archive": {
+    "archiveBytes": 41670046,
+    "archiveSha256": "27d79b93fd4f4ff0c61db3bd5dfc74121c136dd910cf3058e9b7413d9adaecda",
+    "correctedDiagnostics": 4,
+    "directories": 5161,
+    "files": 27297,
+    "identicalResults": true,
+    "manifest": {
+      "bytes": 4282594,
+      "path": "target/v53-current-ownership-20261102/artifact/manifest.json",
+      "sha256": "db9c6d455e2a8f50b660bb5d7687dc639045930b86a096bb78b60221208c6d7a"
+    },
+    "nativeRerun": false,
+    "negatives": 30,
+    "path": "target/v53-current-ownership-20261102/artifact/bundle.tar.gz",
+    "phase3Complete": false,
+    "portable": {
+      "legacy": {
+        "elapsedSeconds": 23.303,
+        "exit": 0
+      },
+      "process": {
+        "elapsedSeconds": 41.184,
+        "exit": 0
+      },
+      "remove-4": {
+        "elapsedSeconds": 5.673,
+        "exit": 0
+      },
+      "remove-5": {
+        "elapsedSeconds": 7.675,
+        "exit": 0
+      },
+      "replace": {
+        "elapsedSeconds": 53.812,
+        "exit": 0
+      }
+    },
+    "pythonTests": 1786,
+    "status": "PASS",
+    "unchangedOriginals": true
+  },
+  "baseHead": "c50120eb",
+  "correctedOmissions": {
+    "results": [
+      {
+        "case": "missing-initial-joining-force",
+        "execution": {
+          "elapsedSeconds": 25.509,
+          "exit": 1
+        },
+        "reason": "current lifecycle complete original interval",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unknown-after-history",
+        "execution": {
+          "elapsedSeconds": 25.507,
+          "exit": 1
+        },
+        "reason": "current lifecycle unbound callback",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-complete-open",
+        "execution": {
+          "elapsedSeconds": 25.068,
+          "exit": 1
+        },
+        "reason": "current lifecycle unbound callback",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-extra-field",
+        "execution": {
+          "elapsedSeconds": 25.666,
+          "exit": 1
+        },
+        "reason": "current lifecycle complete original interval",
+        "status": "REJECTED"
+      }
+    ],
+    "status": "PASS"
+  },
+  "currentSourceNativeCohortQualified": false,
+  "diagnosticSetupFailure": {
+    "log": {
+      "bytes": 1169,
+      "path": "target/v53-current-ownership-20261102/audit.log",
+      "sha256": "ab745ecb01528dafa235e3a9eb539ae14e500d46a5ae239dca93ee3c035c6601"
+    },
+    "readerExecuted": false,
+    "reason": "collector referenced absent h.canonical before invoking the reader",
+    "script": {
+      "bytes": 2276,
+      "path": "target/v53-current-ownership-20261102/audit-v1.py",
+      "sha256": "edaed4724ac0900f3038aeb392edb714d84acd2ab9860aa9f06201aa3b361919"
+    }
+  },
+  "exactRejections": 30,
+  "newNegatives": 12,
+  "observed": {
+    "legacy": {
+      "callbacks": 250,
+      "captures": 20,
+      "counts": {
+        "CURRENT_BEFORE_CAPTURE": 20,
+        "CURRENT_DIRECTORY_FORCED": 46,
+        "CURRENT_FILES_FORCED": 46,
+        "CURRENT_GENERATION_FORCED": 46,
+        "CURRENT_SELECTOR_FORCED": 46,
+        "CURRENT_VALIDATED": 46
+      },
+      "opens": 46
+    },
+    "process": {
+      "callbacks": 136,
+      "captures": 11,
+      "counts": {
+        "CURRENT_BEFORE_CAPTURE": 11,
+        "CURRENT_DIRECTORY_FORCED": 25,
+        "CURRENT_FILES_FORCED": 25,
+        "CURRENT_GENERATION_FORCED": 25,
+        "CURRENT_SELECTOR_FORCED": 25,
+        "CURRENT_VALIDATED": 25
+      },
+      "opens": 25
+    },
+    "remove-4": {
+      "callbacks": 108,
+      "captures": 8,
+      "counts": {
+        "CURRENT_BEFORE_CAPTURE": 8,
+        "CURRENT_DIRECTORY_FORCED": 20,
+        "CURRENT_FILES_FORCED": 20,
+        "CURRENT_GENERATION_FORCED": 20,
+        "CURRENT_SELECTOR_FORCED": 20,
+        "CURRENT_VALIDATED": 20
+      },
+      "opens": 20
+    },
+    "remove-5": {
+      "callbacks": 124,
+      "captures": 9,
+      "counts": {
+        "CURRENT_BEFORE_CAPTURE": 9,
+        "CURRENT_DIRECTORY_FORCED": 23,
+        "CURRENT_FILES_FORCED": 23,
+        "CURRENT_GENERATION_FORCED": 23,
+        "CURRENT_SELECTOR_FORCED": 23,
+        "CURRENT_VALIDATED": 23
+      },
+      "opens": 23
+    },
+    "replace": {
+      "callbacks": 245,
+      "captures": 20,
+      "counts": {
+        "CURRENT_BEFORE_CAPTURE": 20,
+        "CURRENT_DIRECTORY_FORCED": 45,
+        "CURRENT_FILES_FORCED": 45,
+        "CURRENT_GENERATION_FORCED": 45,
+        "CURRENT_SELECTOR_FORCED": 45,
+        "CURRENT_VALIDATED": 45
+      },
+      "opens": 45
+    }
+  },
+  "originalCurrentFamilyOwned": true,
+  "originalFirst": true,
+  "originalReplays": {
+    "legacy": {
+      "execution": {
+        "elapsedSeconds": 23.011,
+        "exit": 0
+      },
+      "inputInventory": {
+        "bytes": 573262,
+        "path": "target/v53-current-ownership-20261102/reader/legacy-inputs.json",
+        "sha256": "97c32eafa035d70a610b80bf3fbc2d49e5993e97c72dad590cab1d36e590718d"
+      },
+      "result": {
+        "bytes": 892,
+        "path": "target/v53-current-ownership-20261102/reader/legacy.json",
+        "sha256": "2d8f659166fa9724305dc6a8a3591b919588ba63168df76899f8ca1c30907b0b"
+      }
+    },
+    "process": {
+      "execution": {
+        "elapsedSeconds": 42.182,
+        "exit": 0
+      },
+      "inputInventory": {
+        "bytes": 738357,
+        "path": "target/v53-current-ownership-20261102/reader/process-inputs.json",
+        "sha256": "b4f2100387b6829b91bab28a7469f5290cb09a9975b63b9047e61f923e82fc6d"
+      },
+      "negativeCases": 6,
+      "negativeEvidence": {
+        "bytes": 856,
+        "path": "target/v53-current-ownership-20261102/reader/process-negatives.json",
+        "sha256": "712967d3be868319fe1f51cec0256458b7d364339731448f4a38a0b37a87113f"
+      },
+      "negativeExecution": {
+        "elapsedSeconds": 31.516,
+        "exit": 0
+      },
+      "result": {
+        "bytes": 14085,
+        "path": "target/v53-current-ownership-20261102/reader/process.json",
+        "sha256": "9929a60d86bdbb790deddea2fc1b7f43799ceb00bc1f1e4bf0a43f4cca6538c7"
+      }
+    },
+    "remove-4": {
+      "execution": {
+        "elapsedSeconds": 5.725,
+        "exit": 0
+      },
+      "inputInventory": {
+        "bytes": 579724,
+        "path": "target/v53-current-ownership-20261102/reader/remove-4-inputs.json",
+        "sha256": "891810a17c00a8566bf745c16abbfea42bf8a109e4a5cd5e3adebee7583ffeec"
+      },
+      "negativeCases": 6,
+      "negativeEvidence": {
+        "bytes": 856,
+        "path": "target/v53-current-ownership-20261102/reader/remove-4-negatives.json",
+        "sha256": "712967d3be868319fe1f51cec0256458b7d364339731448f4a38a0b37a87113f"
+      },
+      "negativeExecution": {
+        "elapsedSeconds": 19.251,
+        "exit": 0
+      },
+      "result": {
+        "bytes": 1441,
+        "path": "target/v53-current-ownership-20261102/reader/remove-4.json",
+        "sha256": "2fe6667951f23270e5ca2ca3caa7549f6fff3b47614e2c3e97635b2a5f6bc381"
+      }
+    },
+    "remove-5": {
+      "execution": {
+        "elapsedSeconds": 7.577,
+        "exit": 0
+      },
+      "inputInventory": {
+        "bytes": 717029,
+        "path": "target/v53-current-ownership-20261102/reader/remove-5-inputs.json",
+        "sha256": "889540dabf164dbce5f9ae8649b123ce1c898053f21710f18df4c0b211591709"
+      },
+      "negativeCases": 6,
+      "negativeEvidence": {
+        "bytes": 856,
+        "path": "target/v53-current-ownership-20261102/reader/remove-5-negatives.json",
+        "sha256": "712967d3be868319fe1f51cec0256458b7d364339731448f4a38a0b37a87113f"
+      },
+      "negativeExecution": {
+        "elapsedSeconds": 26.513,
+        "exit": 0
+      },
+      "result": {
+        "bytes": 1445,
+        "path": "target/v53-current-ownership-20261102/reader/remove-5.json",
+        "sha256": "84b40111b6a8adb92c0c49dcea584ae51695ec5a3d517e0d46960182092f2cc5"
+      }
+    },
+    "replace": {
+      "execution": {
+        "elapsedSeconds": 55.414,
+        "exit": 0
+      },
+      "inputInventory": {
+        "bytes": 600356,
+        "path": "target/v53-current-ownership-20261102/reader/replace-inputs.json",
+        "sha256": "efc38f2303e5129c11d042153170d210a7ad40997206981f5e9b89f5babc8e9b"
+      },
+      "negativeCases": 12,
+      "negativeEvidence": {
+        "bytes": 1782,
+        "path": "target/v53-current-ownership-20261102/reader/replace-negatives.json",
+        "sha256": "bbd4d9529617a6be0e2fe090b0811e014e97ce66c1bfe0578c956d19a834f9b3"
+      },
+      "negativeExecution": {
+        "elapsedSeconds": 64.671,
+        "exit": 0
+      },
+      "result": {
+        "bytes": 12761,
+        "path": "target/v53-current-ownership-20261102/reader/replace.json",
+        "sha256": "0aab434047dec01cfc1e9318ba73773a3a460a5cb9e4b3bd18fddc62ca4c7789"
+      }
+    }
+  },
+  "phase3Complete": false,
+  "python": {
+    "elapsedSeconds": 98.902,
+    "log": {
+      "bytes": 3875,
+      "path": "target/v53-current-ownership-20261102/python-tests.log",
+      "sha256": "abc36b26294ad6a83868738836a26437517f943ae8aaf69a8a60ac1d761bb3f5"
+    },
+    "newTests": 11,
+    "tests": 1786
+  },
+  "reader": {
+    "code": {
+      "scripts/v53/current_lifecycle_evidence.py": "d41996755d6bed86c09018d4a91d52a6214f4e47f1a1162f3975cd438111f4e4",
+      "scripts/v53/joining_network_evidence.py": "d526fc4ce9c03b180729c1513584f961af62a7accc4e52bd94404662d6ee6872",
+      "scripts/v53/remove_network_evidence.py": "0fbffda128c93fae104dd86bcc93e987d939a43593230a0fba739a9789767fc5",
+      "scripts/v53/remove_process_network.py": "12ead44b30d7de7a98282d5fb9aefdabfaf18ffe78733014afbe6bf420ef55f4",
+      "scripts/v53/test_current_lifecycle_evidence.py": "bf7cf9a34d60c3116294c7c960331b1b881a2dc804ee7fce75d0f0f0da065e52",
+      "scripts/v53/test_remove_process_network.py": "cb978a8c497b93a289744c21baab35ecd48af4d7b4fdf43e512e8f1a099a1b99"
+    },
+    "manifest": {
+      "bytes": 622453,
+      "path": "target/v53-current-ownership-20261102/reader/source.json",
+      "sha256": "78c93494c751ba8bb146b114baa7887f2b275ee43c00282f6ce35fd86375971d"
+    }
+  },
+  "remaining": [
+    "Other whole-history callback families and original interrupted CURRENT opens",
+    "Final-source profile/process/fault cohorts",
+    "Combined bounds and frozen S/N mapping"
+  ],
+  "reproducedOmissions": {
+    "nativeRerun": false,
+    "original": "/home/klfdm/perception/GeneralSearchEngine/target/v53-joining-same-view-20261031/native-covering-floor/workspace/general-search-engine-replication/target/v53-native-dispatch/run-82318ea9-59d7-4c20-9188-a008f4e63b63",
+    "readerManifest": "f4a529c3018d15f0c6055bbf84281024e6891071c3280eea0ec2f5c42743cd95",
+    "results": [
+      {
+        "case": "missing-initial-joining-force",
+        "execution": {
+          "elapsedSeconds": 54.046,
+          "exit": 0
+        },
+        "incorrectlyAccepted": true,
+        "removed": {
+          "event": "CURRENT_FILES_FORCED",
+          "node": "node-4",
+          "scope": "initial-owner"
+        }
+      },
+      {
+        "case": "unknown-after-history",
+        "execution": {
+          "elapsedSeconds": 55.355,
+          "exit": 0
+        },
+        "incorrectlyAccepted": true,
+        "removed": null
+      },
+      {
+        "case": "extra-complete-open",
+        "execution": {
+          "elapsedSeconds": 54.797,
+          "exit": 0
+        },
+        "incorrectlyAccepted": true,
+        "removed": null
+      },
+      {
+        "case": "cold-extra-field",
+        "execution": {
+          "elapsedSeconds": 56.552,
+          "exit": 0
+        },
+        "incorrectlyAccepted": true,
+        "removed": null
+      }
+    ],
+    "status": "DIAGNOSTIC",
+    "unchangedOriginal": true
+  },
+  "schema": "gse-v53-current-ownership-entry-v1",
+  "status": "PARTIAL",
+  "unchangedPhysicalInputs": true
+}

@@ -114,11 +114,13 @@ def replay(root,profile):
     need(all(v['kind'] in {'PREPARE','SELECTED','STATUS_PROBE','CHUNK','TRANSFER_COMMIT','ACCEPT','PROOF','APPLY','PUBLISH','FUTURE_RETENTION_INTENT'}
              for v in rows),'REMOVE process network unknown exchange')
     result=n.transcript.transfers(rows)
-    result.update(n.activations(events,rows,history.activations(root,profile)))
+    activation=history.activations(root,profile)
+    result.update(n.activations(events,rows,activation))
     slots=n.phase.blocks(events,history);result.update(n.phase.phase_replay(events,rows,history,slots))
     result.update(n.statuses(rows,history,slots))
     result.update(n.failed_controls(history.root,events,failed,history,rows,slots))
     n.shared.initial_current.validate(events,history.old)
+    n.shared.current_lifecycle.remove(events,activation.phases,history.old,process=True)
     return dict(result,exchanges=len(rows),failedAttempts=len(failed),normalizedEvents=len(events),
                 originalObservations=sum(Counter(v['origin'] for v in map(e.parse,(root/'history/process-trace.jsonl').read_bytes().splitlines())).values()))
 
@@ -132,6 +134,7 @@ def validate(root):
 
 
 NEGATIVES={
+    **n.shared.current_lifecycle.NEGATIVES,
     'parent-projection':'REMOVE process exact parent event projection',
     'child-projection':'REMOVE process exact child event projection: resume',
     'truncated-trace':'REMOVE process incomplete shared trace',
@@ -167,6 +170,9 @@ def replace_strings(value,mapping):
 
 def mutate(root,name):
     root=Path(root);path=root/'history/process-trace.jsonl';rows=[e.parse(v) for v in path.read_bytes().splitlines()]
+    if name in n.shared.current_lifecycle.NEGATIVES:
+        added=[];n.shared.current_lifecycle.mutate(added,name)
+        rows.extend(dict(origin='parent',value=row) for row in added);rewrite(root,rows);return
     if name=='truncated-trace':path.write_bytes(path.read_bytes()[:-1]);return
     def remove(predicate):rows.pop(next(i for i,v in enumerate(rows) if predicate(v)))
     if name=='parent-projection':remove(lambda v:v['origin']=='parent');rewrite(root,rows,projections=False);return

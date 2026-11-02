@@ -78,6 +78,18 @@ class RemoveProcessNetworkTest(unittest.TestCase):
                 r.qualify('/original',workers=workers)
             validate.assert_not_called()
 
+    def test_current_mutations_preserve_both_child_streams_and_exact_parent_projection(self):
+        for name in r.n.shared.current_lifecycle.NEGATIVES:
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as temp:
+                root=Path(temp);profile,_=self.fixture(root)
+                original={worker:(root/worker/'stdout').read_bytes() for worker in ('interrupted-worker','resumed-worker')}
+                before,_=r.observations(root,profile)
+                with patch.object(r.p,'profile_at',return_value=profile):r.mutate(root,name)
+                events,_=r.observations(root,profile)
+                self.assertEqual(before,events[:len(before)])
+                self.assertTrue(all(v['event'].startswith('CURRENT_') for v in events[len(before):]))
+                self.assertEqual(original,{worker:(root/worker/'stdout').read_bytes() for worker in original})
+
     def test_mutation_cannot_change_physical_files_or_count_an_unrelated_failure(self):
         before=dict(files={'history/owner/selector.gsr':'a'},directories=[])
         for after,physical_error,network_error,reason in (

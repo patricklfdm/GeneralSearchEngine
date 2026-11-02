@@ -1,5 +1,10 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[CURRENT ownership across complete histories](PHASE_3_CURRENT_OWNERSHIP.md)
+accounts for every original CURRENT callback across startup, joining takeover,
+installation, publication, adoption, capture and cold/process reopen. Four retained
+reader omissions are corrected; final-source full qualification remains OPEN.
+
 [Original voter CURRENT opens](PHASE_3_INITIAL_CURRENT.md) bind each old voter's
 complete startup force sequence before retention recovery and protocol activity,
 including voters unused by later selections. The reproduced initial-open gap is

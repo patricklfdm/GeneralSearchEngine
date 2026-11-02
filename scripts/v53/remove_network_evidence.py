@@ -211,6 +211,7 @@ def network(root,profile):
         deliveredResponses=sum(v['delivered'] is not None for v in rows),failedAttempts=len(failed),
         terminalObservations=sum(1+(v['serverFailed'] is not None) for v in failed))
     shared.initial_current.validate(events,history.old)
+    shared.current_lifecycle.remove(events,history.phases,history.old)
     return result
 
 
@@ -223,7 +224,8 @@ def validate(root,profile):
         maintenanceCompositionQualified=False,processDeathQualified=False,phase3Complete=False)
 
 
-NEGATIVES={k:v for k,v in shared.NEGATIVES.items() if k not in ('wrong-server-lifetime','wrong-client-lifetime')}
+NEGATIVES={k:v for k,v in shared.NEGATIVES.items() if k not in ('wrong-server-lifetime','wrong-client-lifetime') and
+           k not in shared.current_lifecycle.JOINING_NEGATIVES}
 NEGATIVES.update({k:v.replace('joining network','REMOVE network') for k,v in shared.GRANT_NEGATIVES.items()})
 NEGATIVES.update({k:v.replace('joining network','REMOVE network') for k,v in shared.install.NEGATIVES.items()
                   if k.startswith('install-remote-')})

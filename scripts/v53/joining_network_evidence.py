@@ -16,6 +16,7 @@ from . import joining_phase_evidence as phase
 from . import joining_install_storage as install
 from . import selection_journal_evidence as selection_journal
 from . import initial_current_evidence as initial_current
+from . import current_lifecycle_evidence as current_lifecycle
 from .joining_transcript import causal, transfers, SENDS, READS
 
 p, s, f, disk, need, sha = physical.p, physical.s, physical.f, physical.disk, physical.need, physical.sha
@@ -242,6 +243,7 @@ def network(root, *, size=3, kind='ADD', recovery=None):
     policy=phase.loss.declaration(events)
     if policy:result.update(sourceFault=policy['kind'],lostReplies=1,recoveredLostReplies=1)
     initial_current.validate(events,replay.old)
+    current_lifecycle.joining(events,replay,bases,recovery)
     return result
 
 
@@ -300,6 +302,8 @@ NEGATIVES = {
     **install.NEGATIVES,
     **selection_journal.NEGATIVES,
     **initial_current.NEGATIVES,
+    **current_lifecycle.NEGATIVES,
+    **current_lifecycle.JOINING_NEGATIVES,
 }
 
 
@@ -319,7 +323,8 @@ def mutate(root, name):
                 if side=='response' and event['event']=='NETWORK_RECEIVED':event['kind']=kind
     def first(kind,answer=None):
         return next(row for row in wires if wire(row['request'])[0]==kind and (answer is None or wire(row['response'])[0]==answer))
-    if name in initial_current.NEGATIVES:initial_current.mutate(events,name)
+    if name in {**current_lifecycle.NEGATIVES,**current_lifecycle.JOINING_NEGATIVES}:current_lifecycle.mutate(events,name)
+    elif name in initial_current.NEGATIVES:initial_current.mutate(events,name)
     elif name in selection_journal.NEGATIVES:selection_journal.mutate(events,name)
     elif name in install.NEGATIVES:install.mutate(events,name)
     elif name in GRANT_NEGATIVES:

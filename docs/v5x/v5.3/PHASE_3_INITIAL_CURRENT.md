@@ -73,3 +73,6 @@ The change is limited to Python evidence checks, tests and documentation. It doe
 not change Java, persisted formats, POMs, workflows, resource limits or cloud
 execution. Rollback reverts this increment while preserving its original audit
 and exact affected scope.
+
+The [whole-history CURRENT ownership follow-up](PHASE_3_CURRENT_OWNERSHIP.md)
+now accounts for the other original intervals and rejects unbound callbacks.
