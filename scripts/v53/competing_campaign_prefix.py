@@ -243,6 +243,9 @@ class Replay:
             else:
                 need(files == self.original[row['basisSha256']], 'competing prefix exact captured files: '+node)
                 comparisons += 1
+        # Continuations consume the derived state, never a copied/final snapshot.
+        self.group = group
+        self.stop = stop
         return dict(capturedComparisons=comparisons,reservations=len(tx),throughEvent=stop-1,
                     nextBoundary=self.events[stop]['event'],stateSha256=sha(f.canonical({n:{k:None if v is None else sha(v) for k,v in files.items()} for n,files in group.items()})))
 

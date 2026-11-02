@@ -16,6 +16,7 @@ import tempfile
 from . import remove_retention_evidence as retention
 from . import joining_retirement_replay as sources
 from . import retirement_images_evidence as images
+from . import grant_evidence as grants
 
 r=retention;e=r.e;n=r.n;c=r.c;f=r.f;need=r.need;sha=r.sha
 APPLICATION_LIMIT=7
@@ -73,7 +74,7 @@ def source_plans(files,node,available):
         if not name.startswith('sources/') or not name.endswith('/source.gscp'):continue
         identifier=name.split('/')[1];promise,value=promises[identifier]
         if promise==members['promise.gsr'] or value['ballot']==latest:continue
-        need(value['ballot']['counter']<latest['counter'],'REMOVE retirement old source ballot')
+        need(grants.order(value['ballot'])<grants.order(latest),'REMOVE retirement old source ballot')
         authority,compact=sources.decision(files,node,identifier,coverage=available)
         steps=sources.observed.release.transaction(physical(files),authority,compact,identifier)
         prefix='sources/'+identifier

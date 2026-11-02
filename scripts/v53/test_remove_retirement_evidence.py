@@ -11,6 +11,37 @@ from . import test_joining_retirement_replay as source_fixture
 
 
 class RemoveRetirementEvidenceTest(unittest.TestCase):
+    def source_ballots(self, *, proposer=None, incarnation=None, counter=None):
+        files,identifier,current,coverage,old_basis,_=source_fixture.JoiningRetirementReplayTest().decision_inputs()
+        old=r.f.decode(old_basis,'records','BASIS')['ballot']
+        rows=r.c.journal(files['grants.gsr'],current[2]['capsule']['root'],'node-1')
+        fresh=dict(old,**({'proposer':proposer} if proposer else {}),
+                   **({'incarnation':incarnation} if incarnation else {}),
+                   **({'counter':counter} if counter is not None else {}))
+        replacement=[r.f.encode('records',kind,dict(value,ballot=fresh)) for kind,_,value in rows[-2:]]
+        files['grants.gsr']=b''.join(raw for _,raw,_ in rows[:-2])+b''.join(replacement)
+        current=(current[0],dict(current[1],**{'promise.gsr':replacement[0],'basis.gsr':replacement[1]}),current[2])
+        with patch.object(r.c,'current',return_value=current):
+            after,decisions=r.source_plans(files,'node-1',coverage)
+        return files,after,decisions,identifier,replacement
+
+    def test_same_counter_higher_proposer_can_retire_the_superseded_source(self):
+        before,after,decisions,identifier,kept=self.source_ballots(proposer='node-3')
+        self.assertEqual([identifier],[v['identifier'] for v in decisions])
+        self.assertNotIn('sources/'+identifier,after);self.assertIn('sources/'+identifier,before)
+        self.assertEqual(b''.join(kept),after['grants.gsr'])
+        self.assertEqual(r.physical(after),decisions[0]['steps'][-1][1])
+
+    def test_same_counter_and_proposer_compare_incarnation_too(self):
+        _,after,decisions,identifier,kept=self.source_ballots(incarnation='ffffffff-ffff-ffff-ffff-ffffffffffff')
+        self.assertEqual(1,len(decisions));self.assertNotIn('sources/'+identifier,after)
+        self.assertEqual(b''.join(kept),after['grants.gsr'])
+
+    def test_equal_or_older_ballot_never_supplies_retirement_authority(self):
+        for changed in ({},{'counter':1}):
+            with self.subTest(changed=changed),self.assertRaisesRegex(ValueError,'non-increasing grant promise'):
+                self.source_ballots(**changed)
+
     def generation(self,total=7,*,alter=None,recover=None):
         image=b'actual original image';name=r.sha(image)+'.image';node='node-1';root='a'*64
         cap=dict(root=root,cut=dict(index=0),catalog='b'*64,application=r.sha(image));point=r.c.anchor(cap)

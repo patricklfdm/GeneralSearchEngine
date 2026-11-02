@@ -1,0 +1,188 @@
+{
+  "baseCommit": "d0a1be87b1d1a5a94f1932287842f8c0874e7e1c",
+  "finalSourceCohortQualified": false,
+  "hostedExecuted": false,
+  "implementationInputs": {
+    "scripts/v53/automatic_restart_network.py": "5af8a9f56e9a8d4d492ec95a83f6871a9fa9b6ec0b18ccae38fb35207e7b6cec",
+    "scripts/v53/competing_campaign_maintenance.py": "fa996ec92394a5ee8a6f748f7c78e2fc550fbc1c2b80a612a054816069b6254a",
+    "scripts/v53/competing_campaign_prefix.py": "dcdced5150de92e8e332bf0a2187965b5d035c489600b5d0b0cd6caf28fb5cbc",
+    "scripts/v53/floor_evidence.py": "e4be2a05f3097e3e8b0ec9e630c553f9aadc87843f2f2be4b9ac7601bfe6eab2",
+    "scripts/v53/floor_release_evidence.py": "f76aa04130017601b1de7c2975071504814f868a2ab001fd0ea093de2c89f41f",
+    "scripts/v53/joining_retirement_replay.py": "d6da09a49ef0c2349a8bf345e78bd9c726165d74f5801d947d55b4ea41babd03",
+    "scripts/v53/node_grant_maintenance.py": "559f638881561ef2830be02a80a8119fa6601094d7ef2920c8755a16e99026a3",
+    "scripts/v53/remove_retirement_evidence.py": "063e43975f45c9de150aa86554ec0bbef4c01c87553085130ae1e47286ae11a4",
+    "scripts/v53/source_release_evidence.py": "ec16ca40b86183d9b66ea714949f4bbf99e320bfbd390b7a88daebab1d102a75",
+    "scripts/v53/test_competing_campaign_maintenance.py": "584d832e3d474e6223d6adfbfd69e7dbced1fe11ca1527a85baf41a53df2044d",
+    "scripts/v53/test_remove_retirement_evidence.py": "a7857c87f2a960539a27f98664f82b07b3ff6b01afa63918f0b07653cabbe1a4"
+  },
+  "newNativeExecution": false,
+  "next": "Derive installations and publication from this continued state, then complete remaining original network/export/lifecycle checks before final-source general competition admission.",
+  "originalSource": {
+    "build": {
+      "path": "target/v53-competing-campaign-replay/original-e1af4813/build.json",
+      "sha256": "3a2c1b11847f7528cb482b5f6453e7f490e1d8375bfca804c8568f85c94fb223"
+    },
+    "execution": {
+      "elapsedSeconds": 104.791,
+      "exit": 0,
+      "path": "target/v53-competing-campaign-replay/original-e1af4813/execution.json",
+      "sha256": "e435e240e1762dc430b05b7a824a7c9cada0e4829ff11472b032821fea771f23"
+    },
+    "inventory": {
+      "path": "target/v53-competing-campaign-replay/native-inventory.json",
+      "sha256": "bbbfaadaeb80af760a2b3a9ca9fc9a4b9353cbfd668863873bcf6403bd7ea88f"
+    },
+    "log": {
+      "path": "target/v53-competing-campaign-replay/original-e1af4813/maven.log",
+      "sha256": "8b828890befb22f00c1879bce65d6c31f9d3b904f9bdfc828b7403ad8087509d"
+    },
+    "producerStatus": "PARTIAL",
+    "raw": "target/v53-competing-campaign-replay/original-e1af4813/workspace/general-search-engine-replication/target/v53-competing-node/run-102ee903-d1e2-4343-834f-dbe8d1fb724c",
+    "request": {
+      "path": "target/v53-competing-campaign-replay/original-e1af4813/request.json",
+      "sha256": "55543a9b700745df016c0f24bbd2badf2d8e5e2aceba24c74af41b367a32ddf8"
+    },
+    "retries": 0,
+    "source": {
+      "path": "target/v53-competing-campaign-replay/original-e1af4813/source.json",
+      "sha256": "c57d33c0898790596a4bf9da15ccac3939284460ce0c2863912e46a633eca53f"
+    },
+    "toolchain": {
+      "path": "target/v53-competing-campaign-replay/original-e1af4813/toolchain.json",
+      "sha256": "0f3a531ebcff52e9f921162b7ca70b7a1826f64519f32650b1874cbee59f5c0e"
+    }
+  },
+  "paidCloudExecuted": false,
+  "phase3Complete": false,
+  "priorDevelopmentReceipt": {
+    "path": "docs/v5x/v5.3/phase3-evidence/competing-campaign-prefix.json",
+    "sha256": "a4222eec483561af681cd64fb9408a6dada4f4ba9d2e6b94f7051b82efc47a50"
+  },
+  "protocolBudgetsChanged": false,
+  "replay": {
+    "allCampaignsQualified": false,
+    "finalGrantSourceProjection": true,
+    "fullNetworkQualified": false,
+    "installationQualified": false,
+    "nextBoundary": "INSTALL_RESERVED",
+    "phase3Complete": false,
+    "precondition": {
+      "allCampaignsQualified": false,
+      "capturedGrants": 4,
+      "competingBallots": 2,
+      "distinctSelections": 2,
+      "fullNetworkQualified": false,
+      "installationQualified": false,
+      "phase3Complete": false,
+      "physicalPrefix": {
+        "capturedComparisons": 4,
+        "nextBoundary": "FLOOR_RESERVED",
+        "reservations": 2,
+        "stateSha256": "dfed14bc11fc74abee4cbfb914d8324c5868cab34d03ac593c58683d65364de7",
+        "throughEvent": 309
+      },
+      "precondition": {
+        "admittedOwners": true,
+        "allCampaignsQualified": false,
+        "bytes": 97583,
+        "captures": 4,
+        "completeGrantWrites": true,
+        "fullNetworkQualified": false,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "publicationQualified": false,
+        "scope": "competing-original-grant-collection",
+        "status": "PARTIAL"
+      },
+      "publicationQualified": false,
+      "retirementQualified": false,
+      "scope": "competing-bootstrap-campaign-prefix",
+      "selectionWrites": {
+        "callbacks": 12,
+        "selections": 3
+      },
+      "status": "PARTIAL"
+    },
+    "publicationQualified": false,
+    "scope": "competing-bootstrap-preinstall-maintenance",
+    "stateSha256": "d5aceeea4c1696b43a42626f1916fc270aeacf7e75321a9343c31e8f832dc43a",
+    "status": "PARTIAL",
+    "throughEvent": 470,
+    "transactions": [
+      {
+        "decisions": [
+          {
+            "authority": "b2c6ee556f859be7e06b59e0dba4d819a741489dce86497ee8190a961d48d517",
+            "identifier": "ca9f74ee-62f6-41c3-aa86-1fc69aa51a7d",
+            "journal": "b34182242f9ff3c0aabd003a10b3955f971c8a6585d1d179dabf05aaf1da04c6"
+          }
+        ],
+        "end": 374,
+        "forceCallbacks": 67,
+        "network": {
+          "exchanges": 10,
+          "transfers": 2,
+          "unusedIncompleteTransfers": 0
+        },
+        "node": "node-1",
+        "retiredSources": 1,
+        "start": 310,
+        "voters": [
+          "node-1",
+          "node-2"
+        ]
+      }
+    ],
+    "transientRetirementBytesQualified": false
+  },
+  "runtimeJavaChanged": false,
+  "schema": "gse-v53-competing-maintenance-development-v1",
+  "scope": "original bootstrap preinstall floor/source retirement callbacks, deliveries and final grant/source projection",
+  "status": "PARTIAL",
+  "validation": {
+    "contracts": {
+      "path": "target/v53-competing-maintenance/contracts.log",
+      "sha256": "98395d39fd758b155c4df6ebfbace946309639098aa2ca729a9a341993b8345d",
+      "status": "PASS"
+    },
+    "localLinks": {
+      "links": 263,
+      "status": "PASS"
+    },
+    "optimized": {
+      "path": "target/v53-competing-maintenance/optimized-final-tests.log",
+      "sha256": "d874586e2b8243296977a44b37657b08ad03f7d5258aa16027f601b81277d200",
+      "status": "PASS",
+      "tests": 43
+    },
+    "originalCounterOnlyRegressions": {
+      "path": "target/v53-competing-maintenance/original-reader-regressions.json",
+      "sha256": "a4fc818e1d4c00cab293b1726ab2a884c87de958a7b76b198c03d370f0270b03",
+      "status": "PASS"
+    },
+    "planInspection": {
+      "path": "target/v53-competing-maintenance/plan-inspection/receipt.json",
+      "sha256": "38c054c70e5a90cf495b2e9e28e00dcc44bc4c27d55a994d5782db61dc772552",
+      "status": "PASS"
+    },
+    "python": {
+      "path": "target/v53-competing-maintenance/python-suite.log",
+      "sha256": "2376275d2dccd702a2f0eb41b66c7e5396c341450dcf554c4238c2a54c1b32b3",
+      "status": "PASS",
+      "tests": 2240
+    },
+    "qualification": {
+      "negatives": 14,
+      "path": "target/v53-competing-maintenance/qualification-final.json",
+      "sha256": "69b0d260ed5786eef51b3a4dc268a0aba1c9a74ff0e1f98693e1849d447c3684",
+      "status": "PASS"
+    },
+    "relocated": {
+      "originalUnchanged": true,
+      "path": "target/v53-competing-maintenance/relocated-original.json",
+      "sha256": "16a02f9a50f09482b27a9a2f3a9ef8eebdf6ca3f71f4a378537823eecee83fb9",
+      "status": "PASS"
+    }
+  },
+  "workflowChanged": false
+}
