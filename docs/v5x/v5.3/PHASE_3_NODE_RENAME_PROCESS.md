@@ -41,6 +41,58 @@ each row. The producer counts actual BARRIER starts rather than claiming two
 when the original history contains three. Neither correction changes runtime
 Java, protocol limits or retries an interrupted client operation.
 
+## Retained startup failure and bounded diagnostics
+
+The unchanged ACCEPT/halt original contains more detail than an undifferentiated
+startup timeout. In life 2, ballot 3 publishes the carried DATA 2 and begins
+BARRIER 3. Its three identical ACCEPT sends to node 2 have no intervening
+node-2 ACCEPT force before the next campaign; node 2 is performing floor/source
+maintenance during that interval. Ballot 4 then carries BARRIER 3 and starts
+fresh BARRIER 4. The final recorded boundary is node 1's
+`PUBLICATION_BEFORE_RETURN`, after its publication selector and future-retention
+updates. There is no final `SLOT_COMPLETE`, `BEFORE_READY` or `second-ready`.
+The worker exits 1 with `TimeoutException` from the unchanged 180-second startup
+wait. Reaching a local publication boundary does not establish successful READY.
+
+All 26 recorded heartbeat samples have a delivered peer response. The 630 wire
+responses contain no REJECT, but failed transport exchanges have no response
+row: this does **not** exclude a request deadline or another transport failure.
+The original has neither monotonic observation durations nor a service failure /
+typed recovery snapshot. Its event order cannot identify the duration of remote
+maintenance or prove that instrumentation, scheduling or runtime code caused
+the timeout. [The diagnostic receipt](phase3-evidence/node-startup-diagnostics.json)
+keeps these observations separate from an unresolved root cause.
+
+The test-only parent and worker now keep bounded observation counters. The
+worker separates time waiting for the pipe monitor from write/ACK work, including
+the currently blocked action. The parent measures action dispatch and actual
+observation handling, including physical snapshots. These are overlapping
+durations, not quantities to subtract from the original service deadline.
+
+On an ordinary failure, reporting runs before close. It records the current
+phase, exception causes, available node/service state and typed recovery losses,
+and a limited platform-thread stack sample. Virtual I/O worker stacks are not
+included. State sampling is non-atomic and gets at most 250 ms; an unavailable
+sample stays explicitly unavailable and cannot prevent close. Reports have a
+64 KiB limit, fixed action labels, at most 16 active observations, four cause
+records and eight platform-thread stacks of at most twelve frames each.
+Diagnostic and close failures are suppressed onto the original failure rather
+than replacing it. A close-only failure still fails the producer.
+
+Worker diagnostics go to the already retained `life-N.stderr`; parent diagnostics
+go to the Maven/Surefire error log. Neither is a new observation action, ACK,
+wire record, acceptance receipt or protocol authority. Successful child stderr
+must still be empty. Halt and SIGKILL still bypass worker cleanup and reporting.
+The failed original is unchanged; these diagnostics cannot retrospectively
+recover its missing timestamps or promote it to PASS.
+
+Eleven focused diagnostic regressions plus the existing seven observation/array
+tests pass. The focused process/current-reader Python checks also pass normally
+and under optimization. This batch has no new native history or same-source
+retry. The 180-second service budget, 180-second call wait, 210-second parent
+waits, request retry policy and all protocol/resource limits remain unchanged.
+Root-cause resolution and final-source execution remain OPEN.
+
 ## Independent reader implementation and limits
 
 The in-flight reader now recognizes only the two exact new cuts in addition to

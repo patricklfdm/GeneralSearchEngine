@@ -5,6 +5,8 @@ replays the retained PROOF/SIGKILL history through current peer-debt reconciliat
 three campaigns and five published slots, with all 34 evidence negatives rejected.
 The failed ACCEPT/halt original is preserved and rejected; two combinations and
 the final-source matrix remain open. This does not close Phase 3.
+Bounded failure diagnostics now retain service recovery and observation timings;
+the original startup timeout remains unresolved, with all time limits unchanged.
 
 [Hosted joining reply-loss qualification](PHASE_3_JOINING_FAULT_HOSTED.md) now
 connects one prepared source/build to three complete originals and three

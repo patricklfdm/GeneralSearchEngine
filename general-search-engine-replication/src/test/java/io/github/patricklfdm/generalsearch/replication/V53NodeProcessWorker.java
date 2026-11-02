@@ -36,10 +36,18 @@ public final class V53NodeProcessWorker {
             });
     }
     static final class Pipe implements Sink {
-        final BufferedReader input=new BufferedReader(new InputStreamReader(System.in,StandardCharsets.UTF_8));
-        @Override public synchronized void accept(String action,Object value)throws IOException {
-            System.out.println(new String(canonical(Map.of("action",action,"value",value),8*1024*1024),StandardCharsets.UTF_8));System.out.flush();
-            if(!"ACK".equals(input.readLine()))throw new IOException("parent observation acknowledgement absent");
+        final BufferedReader input;final PrintStream output;final V53NodeProcessDiagnostics.Meter meter;
+        Pipe(){this(new BufferedReader(new InputStreamReader(System.in,StandardCharsets.UTF_8)),System.out,new V53NodeProcessDiagnostics.Meter());}
+        Pipe(BufferedReader input,PrintStream output,V53NodeProcessDiagnostics.Meter meter){this.input=input;this.output=output;this.meter=meter;}
+        @Override public void accept(String action,Object value)throws IOException {
+            try(var observation=meter.begin(action)) {synchronized(this){
+                observation.acquired();observation.phase("write");
+                output.println(new String(canonical(Map.of("action",action,"value",value),8*1024*1024),StandardCharsets.UTF_8));output.flush();
+                if(output.checkError())throw new IOException("parent observation write failed");
+                observation.phase("ack");
+                if(!"ACK".equals(input.readLine()))throw new IOException("parent observation acknowledgement absent");
+                observation.success();
+            }}
         }
     }
     static void crash(Pipe sink,String point,String mode)throws IOException {
@@ -71,23 +79,34 @@ public final class V53NodeProcessWorker {
             original.round().at(event,record);
         },original.slot());
         var node=new MembershipNodeOwner<>(config,builder().configuration(),scratch.resolve("incoming"),scratch.resolve("outgoing"),System::nanoTime,V53NodeOwnerNetworkTest.BUDGET,instrumented);
+        Throwable primary=null;String phase="open";long phaseBegan=System.nanoTime();
         // A real halt/kill bypasses this finally and every owner close method.
         try {
             node.open();if(node.serviceState().orElseThrow()!=MembershipAutomaticOwner.State.NEW)throw new AssertionError("restored READY");
             try{node.readiness();throw new AssertionError("readiness without fresh barrier");}catch(IllegalArgumentException expected){}
             sink.accept("event",Map.of("node","node-1","incarnation",life,"event","NODE_OPEN"));
+            phase="parent-open-ack";phaseBegan=System.nanoTime();
             sink.accept("opened",life); // Parent starts unchanged follower owners before acknowledging life 1.
-            node.start().await(180,TimeUnit.SECONDS);sink.accept("snapshot",life==1?"first-ready":"second-ready");
+            phase="startup-await";phaseBegan=System.nanoTime();node.start().await(180,TimeUnit.SECONDS);
+            phase="ready-snapshot";phaseBegan=System.nanoTime();sink.accept("snapshot",life==1?"first-ready":"second-ready");
+            phase="encode-client";phaseBegan=System.nanoTime();
             int id=99+life;byte[] payload;
             try(var encoder=new ReplicaApplication<>(builder().configuration(),config.materialization(),bounds)) {
                 payload=MembershipApplicationReplay.data("ADD",encoder.documents("ADD",List.of(new Doc(id,"node-owner-"+id))));
             }
+            phase="client-await";phaseBegan=System.nanoTime();
             if(!node.submit("DATA",payload).await(180,TimeUnit.SECONDS).kind().equals("PUBLISH_ACK"))throw new AssertionError("missing DATA publication");
             if(life==1) {
                 if(!point.equals("AFTER_DATA_RETURN"))throw new AssertionError("declared write boundary not reached");
+                phase="crash-cut";phaseBegan=System.nanoTime();
                 crash(sink,point,mode);
             }
-        }finally{node.close();}
+        }catch(Exception|Error error){primary=error;throw error;}
+        finally {
+            final Throwable failure=primary;final String stoppedAt=phase;final long since=phaseBegan;
+            V53NodeProcessDiagnostics.finish(primary,()->V53NodeProcessDiagnostics.report(System.err,"worker",stoppedAt,life,since,
+                failure,sink.meter,()->V53NodeProcessDiagnostics.node(node)),node::close);
+        }
         if(node.usage().leases()!=0)throw new AssertionError("node drain leak");
         sink.accept("event",Map.of("node","node-1","incarnation",life,"event","NODE_CLOSED"));sink.accept("closed",life);
     }

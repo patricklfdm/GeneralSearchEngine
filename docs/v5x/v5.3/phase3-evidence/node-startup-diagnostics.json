@@ -1,0 +1,119 @@
+{
+  "actions": {
+    "maven": true,
+    "nativeExecution": false,
+    "paidCloud": false,
+    "pomChanged": false,
+    "push": false,
+    "runtimeJavaChanged": false,
+    "workflowChanged": false,
+    "workflowDispatch": false
+  },
+  "baseHead": "ed4a2937204bc8188ed6b8251dffb672f53f8137",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 2129,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "evidence": "target/v53-node-startup-20261102/diagnostics",
+  "fullNativeQualification": false,
+  "implementation": {
+    "activeSamples": 16,
+    "atomicState": false,
+    "authority": false,
+    "causes": 4,
+    "failureOnly": true,
+    "framesPerThread": 12,
+    "platformThreads": 8,
+    "preservesPrimaryAndCleanupFailures": true,
+    "reportBytes": 65536,
+    "stateSampleMillis": 250,
+    "stderr": "existing life-N.stderr and parent Maven/Surefire logs",
+    "virtualThreadStacks": false
+  },
+  "javaSuites": [
+    {
+      "class": "V53NodeProcessDiagnosticsTest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "11",
+      "time": "0.064"
+    },
+    {
+      "class": "V53NodeProcessObservationTest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "1",
+      "time": "0.061"
+    },
+    {
+      "class": "V53EvidenceArrayTest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "6",
+      "time": "0.256"
+    }
+  ],
+  "original": {
+    "childExit": 1,
+    "eventRows": 6277,
+    "heartbeatSamples": 26,
+    "heartbeatSamplesWithDeliveredPeer": 26,
+    "inventorySha256": "4a42828b98e07da01354439948de0270141b8310311f2f49ee4ec45b4d795afc",
+    "path": "target/v53-node-rename-20261102/bounded-capture/workspace/general-search-engine-replication/target/v53-node-process/run-c6a01ef7-70ee-4e83-b8ea-da6bc90dd91b",
+    "readerRejection": "context selection node owner original history inventory",
+    "sameAcceptRequest": "40ac0f12f4ba7e4a95fb0808ca4c5dd3c73360b5fd5b595366a5adb79caff910",
+    "sameAcceptSendIndices": [
+      3360,
+      3501,
+      3577
+    ],
+    "status": "FAIL",
+    "terminalEvent": "PUBLICATION_BEFORE_RETURN",
+    "terminalEventIndex": 6276,
+    "unchanged": true,
+    "wireResponses": 630
+  },
+  "originalDurationsAvailable": false,
+  "phase3Complete": false,
+  "remaining": [
+    "diagnostic native capture and root-cause resolution",
+    "remaining rename combinations and final-source matrix",
+    "joining process composition",
+    "combined bounds and frozen S/N closure"
+  ],
+  "rootCauseResolved": false,
+  "schema": "gse-v53-node-startup-diagnostics-v1",
+  "scopeSha256": "0abcef6a148df288737dda3efe9e49ade9533613aeed8deff436421c61f8db33",
+  "status": "PARTIAL",
+  "tests": {
+    "maven-validated.log": {
+      "sha256": "3980c05a5869abdefc55edd69772d9895f739b6617fa64658cde2d2833c014c3",
+      "status": "PASS",
+      "tests": 18
+    },
+    "python-optimized.log": {
+      "sha256": "4c8f7f437cc532b9a1beb60c89bcefcf58508c0a6877be2c8ac5bbe08f202fb1",
+      "status": "PASS",
+      "tests": 24
+    },
+    "python.log": {
+      "sha256": "1e28f14c758093a5335898e16c9e81ec74f76e49b47b70c161dc53088f0d2a3b",
+      "status": "PASS",
+      "tests": 24
+    }
+  },
+  "unchangedLimits": {
+    "callWaitSeconds": 180,
+    "parentWaitSeconds": 210,
+    "serviceSeconds": 180
+  }
+}

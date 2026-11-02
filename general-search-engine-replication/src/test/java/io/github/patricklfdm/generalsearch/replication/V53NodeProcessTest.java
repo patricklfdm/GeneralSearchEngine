@@ -27,10 +27,12 @@ class V53NodeProcessTest {
         f.snapshot("before-network");
         var events=Collections.synchronizedList(new ArrayList<Map<String,Object>>());var wire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
         var followers=new ArrayList<MembershipNodeOwner<Integer,Doc>>();var records=new ArrayList<Map<String,Object>>();var children=new ArrayList<Process>();
+        var observations=new V53NodeProcessDiagnostics.Meter();var dispatch=new V53NodeProcessDiagnostics.Meter();
         Path scratch=Files.createDirectory(temp.resolve("leader-scratch")),spec=processes.resolve("spec.json");
         Files.write(spec,canonical(Map.of("nodes",f.request.targets().stream().map(t->Map.of("replica",t.replicaDirectory().toString(),"application",t.materialization().directory().toString())).toList(),"scratch",scratch.toString()),65536));
         V53NodeProcessWorker.Sink sink=(action,value)->{
-            try {
+            try(var timing=observations.begin(action)) {
+                timing.acquired();
                 switch(action) {
                     case "event" -> events.add(object(value));
                     case "response" -> {var row=object(value);synchronized(events){wire.add(object(row.get("wire")));events.add(object(row.get("event")));}}
@@ -38,12 +40,15 @@ class V53NodeProcessTest {
                     case "installed" -> {var row=object(value);int number=Math.toIntExact(number(row.get("number")));Files.write(raw.resolve("selected-"+number+".gsr"),Base64.getDecoder().decode((String)row.get("bytes")));f.snapshot("installed-"+number);}
                     default -> throw new IOException("unknown observation action: "+action);
                 }
+                timing.success();
             }catch(Exception error){throw new IOException(error);}
         };
         boolean success=false;
         try(var readers=Executors.newCachedThreadPool()) {
+            Throwable primary=null;String phase="spawn";int currentLife=0;long phaseBegan=System.nanoTime();
             try {
                 for(int life:List.of(1,2)) {
+                    currentLife=life;phase="spawn";phaseBegan=System.nanoTime();
                     var opened=new CountDownLatch(1);var proceed=new CountDownLatch(1);var cut=new CountDownLatch(1);
                     Path stdout=processes.resolve("life-"+life+".jsonl"),stderr=processes.resolve("life-"+life+".stderr");
                     Process child=new ProcessBuilder(Path.of(System.getProperty("java.home"),"bin/java").toString(),"-cp",System.getProperty("java.class.path"),
@@ -54,23 +59,28 @@ class V53NodeProcessTest {
                             String line;while((line=input.readLine())!=null) {
                                 retained.write(line);retained.newLine();retained.flush();var message=object(parse(line.getBytes(StandardCharsets.UTF_8),8*1024*1024));
                                 String action=(String)message.get("action");Object value=message.get("value");
-                                switch(action) {
-                                    case "started" -> {assertEquals(child.pid(),number(object(value).get("pid")));row.put("started",value);}
-                                    case "opened" -> {assertEquals(life,number(value));opened.countDown();assertTrue(proceed.await(30,TimeUnit.SECONDS));}
-                                    case "cut" -> {
-                                        assertEquals(1,life);assertEquals(Map.of("name",point,"mode",mode,"pid",child.pid()),value);
-                                        var locked=assertThrows(ReplicationException.class,()->{try(var ignored=MembershipOwnership.own(f.request.targets().getFirst().replicaDirectory().resolve("replica.lock"),false)){fail("live leader lock released");}});
-                                        assertEquals("membership file already owned",locked.getMessage());
-                                        row.put("lockHeldBeforeDeath",true);
+                                try(var timing=dispatch.begin(action)) {
+                                    timing.acquired();
+                                    switch(action) {
+                                        case "started" -> {assertEquals(child.pid(),number(object(value).get("pid")));row.put("started",value);}
+                                        case "opened" -> {assertEquals(life,number(value));opened.countDown();assertTrue(proceed.await(30,TimeUnit.SECONDS));}
+                                        case "cut" -> {
+                                            assertEquals(1,life);assertEquals(Map.of("name",point,"mode",mode,"pid",child.pid()),value);
+                                            var locked=assertThrows(ReplicationException.class,()->{try(var ignored=MembershipOwnership.own(f.request.targets().getFirst().replicaDirectory().resolve("replica.lock"),false)){fail("live leader lock released");}});
+                                            assertEquals("membership file already owned",locked.getMessage());
+                                            row.put("lockHeldBeforeDeath",true);
+                                        }
+                                        case "closed" -> {assertEquals(2,life);assertEquals(2,number(value));row.put("drained",true);}
+                                        default -> sink.accept(action,value);
                                     }
-                                    case "closed" -> {assertEquals(2,life);assertEquals(2,number(value));row.put("drained",true);}
-                                    default -> sink.accept(action,value);
+                                    output.write("ACK\n");output.flush();if(action.equals("cut"))cut.countDown();
+                                    timing.success();
                                 }
-                                output.write("ACK\n");output.flush();if(action.equals("cut"))cut.countDown();
                             }
                         }
                         return null;
                     });
+                    phase="open-wait";phaseBegan=System.nanoTime();
                     assertTrue(opened.await(30,TimeUnit.SECONDS),"child open: "+stderr);
                     if(life==1)for(int index:List.of(1,2)) {
                         var target=f.request.targets().get(index);var bounds=ReplicationBounds.defaults();Path area=Files.createDirectory(temp.resolve("follower-"+index));
@@ -81,10 +91,13 @@ class V53NodeProcessTest {
                     }
                     proceed.countDown();
                     if(life==1) {
+                        phase="cut-wait";phaseBegan=System.nanoTime();
                         assertTrue(cut.await(210,TimeUnit.SECONDS),"child cut: "+stderr);
                         if(mode.equals("kill"))child.destroyForcibly();
                     }
-                    assertTrue(child.waitFor(210,TimeUnit.SECONDS),"child finish: "+stderr);reader.get(10,TimeUnit.SECONDS);
+                    phase="finish-wait";phaseBegan=System.nanoTime();assertTrue(child.waitFor(210,TimeUnit.SECONDS),"child finish: "+stderr);
+                    phase="reader-drain";phaseBegan=System.nanoTime();reader.get(10,TimeUnit.SECONDS);
+                    phase="exit-check";phaseBegan=System.nanoTime();
                     int expected=life==2?0:mode.equals("halt")?73:137;row.put("exit",child.exitValue());assertEquals(expected,child.exitValue(),Files.readString(stderr));
                     if(life==1) {
                         events.add(Map.of("node","node-1","incarnation",1,"event","NODE_CRASH"));f.snapshot("before-reopen");
@@ -92,17 +105,22 @@ class V53NodeProcessTest {
                     }
                 }
                 success=true;
-            }finally {
-                for(var child:children)if(child.isAlive()){child.destroyForcibly();assertTrue(child.waitFor(10,TimeUnit.SECONDS));}
-                IOException closing=null;for(var node:followers.reversed())try{node.close();assertEquals(0,node.usage().leases());}catch(IOException error){if(closing==null)closing=error;else closing.addSuppressed(error);}
-                Files.write(raw.resolve("events.json"),V53EvidenceArray.encode(events,16*1024*1024));Files.write(raw.resolve("wire.json"),V53EvidenceArray.encode(wire,32*1024*1024));f.snapshot("after-close");V53NativeApplicationTest.save(f);
-                long barriers=events.stream().filter(v->v.get("event").equals("ROUND_SLOT_BEGIN"))
-                        .map(v->decode(Base64.getDecoder().decode((String)v.get("bytes")),"records","ENTRY"))
-                        .filter(v->v.value().get("kind").equals("BARRIER")).count();
-                Files.write(raw.resolve("node-result.json"),canonical(Map.of("status","PARTIAL","producerPassed",success && closing==null,"coldReopens",1,"barriers",barriers,"dataCalls",2,
-                        "physicalReplay",false,"processRestart",true,"phase3Complete",false,"serviceBudgetNanos",V53NodeOwnerNetworkTest.BUDGET),4096));
-                Files.write(processes.resolve("result.json"),canonical(Map.of("mode",mode,"cut",point,"children",records,"status",success && closing==null?"PARTIAL":"FAIL","powerLoss",false,"phase3Complete",false),65536));
-                if(closing!=null)throw closing;
+            }catch(Exception|Error error){primary=error;throw error;}
+            finally {
+                final Throwable failure=primary;final String stoppedAt=phase;final int life=currentLife;final long since=phaseBegan;final boolean passed=success;
+                V53NodeProcessDiagnostics.finish(primary,()->V53NodeProcessDiagnostics.report(System.err,"parent",stoppedAt,life,since,failure,dispatch,
+                    ()->Map.of("followers",followers.stream().map(V53NodeProcessDiagnostics::node).toList(),"observations",observations.snapshot())),()->{
+                    for(var child:children)if(child.isAlive()){child.destroyForcibly();assertTrue(child.waitFor(10,TimeUnit.SECONDS));}
+                    IOException closing=null;for(var node:followers.reversed())try{node.close();assertEquals(0,node.usage().leases());}catch(IOException error){if(closing==null)closing=error;else closing.addSuppressed(error);}
+                    Files.write(raw.resolve("events.json"),V53EvidenceArray.encode(events,16*1024*1024));Files.write(raw.resolve("wire.json"),V53EvidenceArray.encode(wire,32*1024*1024));f.snapshot("after-close");V53NativeApplicationTest.save(f);
+                    long barriers=events.stream().filter(v->v.get("event").equals("ROUND_SLOT_BEGIN"))
+                            .map(v->decode(Base64.getDecoder().decode((String)v.get("bytes")),"records","ENTRY"))
+                            .filter(v->v.value().get("kind").equals("BARRIER")).count();
+                    Files.write(raw.resolve("node-result.json"),canonical(Map.of("status","PARTIAL","producerPassed",passed && closing==null,"coldReopens",1,"barriers",barriers,"dataCalls",2,
+                            "physicalReplay",false,"processRestart",true,"phase3Complete",false,"serviceBudgetNanos",V53NodeOwnerNetworkTest.BUDGET),4096));
+                    Files.write(processes.resolve("result.json"),canonical(Map.of("mode",mode,"cut",point,"children",records,"status",passed && closing==null?"PARTIAL":"FAIL","powerLoss",false,"phase3Complete",false),65536));
+                    if(closing!=null)throw closing;
+                });
             }
         }
     }
