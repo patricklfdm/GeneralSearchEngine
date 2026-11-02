@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[REMOVE retirement across process death](PHASE_3_REMOVE_PROCESS_RETIREMENT.md)
+qualifies all 951 observed retirement callbacks in the retained SIGKILL member,
+with 36 exact negatives and derived recovery reuse. Ballot forces and the
+remaining process/profile matrix remain OPEN.
+
 [Continuous REMOVE process retention](PHASE_3_REMOVE_PROCESS_RETENTION.md)
 derives both revision chains across the original SIGKILL/reopen boundary, with
 37 exact negatives. Complete retirement callback composition and the remaining

@@ -1,9 +1,9 @@
 # Phase 3 — continuous REMOVE retention across process death
 
 Status: continuous peer and future revision chains are qualified for the retained
-v2 `4-REMOVE,RETIREMENT_BORROW_PREFIX_WRITTEN,kill` member. Complete retirement
-callback composition, the remaining process/profile matrix and Phase 3 remain
-OPEN. This extends [maintenance-floor recovery](PHASE_3_REMOVE_PROCESS_MAINTENANCE.md)
+v2 `4-REMOVE,RETIREMENT_BORROW_PREFIX_WRITTEN,kill` member. The subsequent
+[retirement composition](PHASE_3_REMOVE_PROCESS_RETIREMENT.md) qualifies its
+observed callbacks. The remaining process/profile matrix and Phase 3 remain OPEN. This extends [maintenance-floor recovery](PHASE_3_REMOVE_PROCESS_MAINTENANCE.md)
 without changing production Java or rerunning the original native history.
 
 ## One continuous state

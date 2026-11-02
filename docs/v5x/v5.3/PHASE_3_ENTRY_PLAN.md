@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[REMOVE retirement across process death](PHASE_3_REMOVE_PROCESS_RETIREMENT.md)
+derives 951 original callbacks, including 55 recovery callbacks, without resetting
+the continuous retention state. Thirty-six exact negatives preserve the prior
+reader. Ballot-force composition, remaining process/profile members and complete
+Phase 3 qualification remain OPEN.
+
 [Continuous REMOVE process retention](PHASE_3_REMOVE_PROCESS_RETENTION.md) now
 binds 43 peer and 22 future writes through all original opens and snapshots in
 the retained v2 SIGKILL history. Complete retirement callback composition, the
