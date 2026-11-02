@@ -1,5 +1,10 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Hosted joining process qualification](PHASE_3_JOINING_PROCESS_HOSTED.md) now
+provides source-bound preparation, 120 execution/replay groups and complete
+360-member aggregation. Grouping preserves every indivisible original history.
+Hosted execution, final-source qualification and Phase 3 closure remain deferred.
+
 [The joining process matrix](PHASE_3_JOINING_PROCESS_MATRIX.md) adds the exact
 360-case cohort and original-first 150-negative member gate. Synthetic metadata
 and orchestration tests do not qualify native members. Hosted wiring and the

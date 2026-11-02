@@ -7,6 +7,10 @@ cohort entry: [`joining_process_matrix.py`](../../../scripts/v53/joining_process
 It requires all 360 declared whole histories. This implements admission and
 replay orchestration; **final-source native execution and Phase 3 remain OPEN**.
 
+The subsequent [hosted entry](PHASE_3_JOINING_PROCESS_HOSTED.md) now provides
+immutable preparation, grouped whole-history execution and independent downloaded
+replay. Its implementation does not claim a completed hosted campaign.
+
 ## Exact set and indivisible execution
 
 The catalogue is the Cartesian product of five ADD/REPLACE profiles, 36 original
@@ -93,11 +97,11 @@ Both commands emit a heartbeat every minute, including original-first validation
 before any negative completes.
 
 This standalone aggregate rereads raw producers and is not a lightweight
-receipt-only hosted aggregator. The next batch must prepare one immutable seed,
-distribute whole cases, independently verify downloaded artifacts and bind the
-complete aggregate to exact source/run/attempt evidence. Hosted grouping must
-preserve every case and whole history. This batch adds no workflow or dispatch
-and changes no Required job, release authority, workload parameter or time limit.
+receipt-only hosted aggregator. The subsequent hosted entry prepares one immutable
+seed, distributes whole cases, independently verifies downloaded artifacts and
+binds the complete aggregate to exact source/run/attempt evidence. Grouping
+preserves every case and whole history. The matrix implementation changes no
+Required job, release authority, workload parameter or time limit.
 
 ## Development evidence and remaining acceptance
 

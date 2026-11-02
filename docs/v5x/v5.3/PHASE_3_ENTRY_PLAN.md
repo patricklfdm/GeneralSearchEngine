@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Hosted joining process qualification](PHASE_3_JOINING_PROCESS_HOSTED.md) now
+wires the 360-case catalogue as 120 groups of three whole histories, with one
+immutable seed, independent downloaded replay and exact-attempt aggregation.
+The optional workflow has not run; final-source execution and Phase 3 remain OPEN.
+
 [The joining process matrix](PHASE_3_JOINING_PROCESS_MATRIX.md) now requires all
 360 whole ADD/REPLACE initialization histories with exact source/build/toolchain/
 reader bindings, independent physical/authority replay and all 150 negative

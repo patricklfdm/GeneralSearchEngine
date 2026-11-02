@@ -1,0 +1,108 @@
+{
+  "baseHead": "aa9401713b9d9cb28b7290ea53c98825d0f18de9",
+  "declaredHistories": 360,
+  "finalSourceCohort": false,
+  "groups": 120,
+  "historiesPerGroup": 3,
+  "hostedExecution": "NOT_RUN",
+  "implementationFiles": {
+    ".github/workflows/v53-joining-process.yml": "21cc05c7a8d776cefa6e6782f569c90de683cdbc2b5d16e1b6f6c0e9d3820e4c",
+    "scripts/v53/joining_process_hosted.py": "169d1887bf5ab02d99993cac38580285cd831f3eb806306671d9952b5eb52bc6",
+    "scripts/v53/test_joining_process_hosted.py": "47d95a00729820d9898fff26d142e3914ef3ff3fbeb3f046e5e3567e1191d871",
+    "scripts/v53/test_joining_process_workflow.py": "7627fa499409e68d12805d4687a773b7336f9a03e36c103bda8c2e58d456453b"
+  },
+  "logs": {
+    "target/v53-joining-process-hosted/ci-contract-tests.log": "aae4157932896ca6e71733a513ba781c554a8749ca2111cd6cb446f56f634218",
+    "target/v53-joining-process-hosted/doc-contract.json": "bcd89cc3b0f4248805ff0262e78cec056266c5ca835ce125789126c646889cc8",
+    "target/v53-joining-process-hosted/focused-1.log": "44837c32c5813b1e06c078be67a6d45e0295593f7104ff5eaf4bea52e8be4dcf",
+    "target/v53-joining-process-hosted/focused-final.log": "3fe5ab019f7438911bb2bc3257b4f488a9533c79716e9286477b23752fd446de",
+    "target/v53-joining-process-hosted/focused-guard.log": "af7fa797080f873f40d9395dfe69c9abeffcb5b02b7fc46189f599787ee37f89",
+    "target/v53-joining-process-hosted/group-plan.json": "f9f8bb142d63c5e6ce7c972a97e5808335e20b9ca555da33db4b6080cf6f8e2b",
+    "target/v53-joining-process-hosted/optimized-final.log": "f0be47dbacade93df68c7beddb80bf6ba949f53e014924cd44504515975937a8",
+    "target/v53-joining-process-hosted/optimized-guard.log": "4c4ce3d5ba91a62de7898bfd5f499d74ff89d777145fbbf8042dc1830b32c9d4",
+    "target/v53-joining-process-hosted/portable-smoke.json": "882637380a86e0f724da50cb0f8f4db618f8b670acd4a91dfeaa98d83d2857c7",
+    "target/v53-joining-process-hosted/portable-smoke.log": "881ae8932bd8c8832490febc8e2730a16b3654212967d019b368ef84e8967dfc",
+    "target/v53-joining-process-hosted/python-suite-final.log": "aea400e042cc8f2c0d7306a93808f0a3fbc98a83ee062389ee4961b90de6e8f9",
+    "target/v53-joining-process-hosted/python-suite-guard.log": "cc973e97210971c5b2d5ae335ad58b2714bc68323a2f9b4511c4c59c01afc4af",
+    "target/v53-joining-process-hosted/validation-inputs.json": "2d2d7f7f98a85b00ed47a9463cb9a96261ce85c9806571de9eb4c3990c3bc3f9",
+    "target/v53-joining-process-hosted/workflow-1.log": "d094b1bd2c8318c96097f80c50da282add5b2972970a77046de8db6c8935f6ca",
+    "target/v53-joining-process-hosted/workflow-validation.json": "bba2112cb689e3150bbe23861cb1b47e87752cb34d3822f00881d424f4541a88"
+  },
+  "maxParallelGroups": 8,
+  "nativeExecution": "NOT_RUN",
+  "paidCloudExecution": "NOT_RUN",
+  "phase3Complete": false,
+  "platformReference": "https://docs.github.com/en/actions/reference/limits",
+  "portableDiagnostic": {
+    "archiveSha256": "e1fead7d46f4b0d7ae9e5e31848c42a831368d954a13713588c3c880c40cbca6",
+    "case": "3-ADD,JOINING_RETENTION_SEED_PREFIX_WRITTEN,halt",
+    "finalSourceAdmission": "REJECTED",
+    "originalPreserved": true,
+    "path": "target/v53-joining-process-hosted/portable-smoke.json",
+    "producerSourceSha256": "6ed68cd14ea55c7879ed2a18dd2e6f476857280cbf1de97add60cae022f4fab7",
+    "readerSha256": "bd45a1fd5b65543edcc78de04a7a375fc28dea5327eb22cb65173155d120e4cb",
+    "reason": "joining process matrix reader belongs to producer source",
+    "sameResult": true,
+    "scopeNote": "Historical archive round trip and full authority diagnostic preceded the final stricter artifact-directory guard; final focused and full Python tests include that guard. No native history was rerun or admitted as final-source evidence.",
+    "sha256": "882637380a86e0f724da50cb0f8f4db618f8b670acd4a91dfeaa98d83d2857c7"
+  },
+  "readerSha256": "101de4cfc10a9aa90159862a6061bf09ca3ee6d37da465e9fe622db688b29291",
+  "remaining": [
+    "complete final-source joining process campaign and all applicable negatives",
+    "other required final-source cohorts",
+    "combined resource qualification",
+    "frozen requirement-to-evidence closure audit"
+  ],
+  "schema": "gse-v53-joining-process-hosted-development-v1",
+  "status": "PARTIAL",
+  "syntheticAggregateNegativeSlots": 54000,
+  "validation": {
+    "ciContracts": {
+      "log": "target/v53-joining-process-hosted/ci-contract-tests.log",
+      "seconds": 75.209,
+      "sha256": "aae4157932896ca6e71733a513ba781c554a8749ca2111cd6cb446f56f634218",
+      "status": "PASS",
+      "tests": 74
+    },
+    "documentationContract": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 2188,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "focused": {
+      "log": "target/v53-joining-process-hosted/focused-guard.log",
+      "seconds": 3.523,
+      "sha256": "af7fa797080f873f40d9395dfe69c9abeffcb5b02b7fc46189f599787ee37f89",
+      "status": "PASS",
+      "tests": 59
+    },
+    "optimized": {
+      "log": "target/v53-joining-process-hosted/optimized-guard.log",
+      "seconds": 2.389,
+      "sha256": "4c4ce3d5ba91a62de7898bfd5f499d74ff89d777145fbbf8042dc1830b32c9d4",
+      "status": "PASS",
+      "tests": 20
+    },
+    "pythonSuite": {
+      "log": "target/v53-joining-process-hosted/python-suite-guard.log",
+      "seconds": 104.207,
+      "sha256": "cc973e97210971c5b2d5ae335ad58b2714bc68323a2f9b4511c4c59c01afc4af",
+      "status": "PASS",
+      "tests": 2154
+    },
+    "workflow": {
+      "actionlint": "UNAVAILABLE",
+      "expandedJobs": 242,
+      "shellBlocks": 5,
+      "status": "PASS",
+      "uniqueArtifactNames": 483,
+      "yaml": true
+    }
+  },
+  "workflow": ".github/workflows/v53-joining-process.yml"
+}
