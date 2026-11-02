@@ -1,5 +1,9 @@
 # Independent replay of three native automatic owners
 
+New producers retain [original competing grant copies](PHASE_3_COMPETING_GRANT_CAPTURE.md)
+in addition to this historical layout. Their collection check does not widen
+this reader's single-campaign scope or replace arbitrary campaign replay.
+
 The subsequently identified direct receiving-scratch gap is addressed in
 [incoming maintenance recovery](PHASE_3_SCRATCH_RECOVERY.md#direct-incoming-maintenance-recovery).
 That component/process result does not extend this history's runtime source or

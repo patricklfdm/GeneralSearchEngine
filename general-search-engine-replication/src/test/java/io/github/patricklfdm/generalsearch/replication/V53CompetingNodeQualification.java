@@ -30,6 +30,7 @@ class V53CompetingNodeQualification {
         for(var target:f.request.targets())try(var journal=f.open(target,"initialize-retention")){journal.initializePeerRetention();journal.initializeFutureRetention();}
         f.snapshot("before-network");
         var events=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
+        var captures=new V53CompetingGrantCapture(raw,events);
         var wire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
         var nodes=new ArrayList<MembershipNodeOwner<Integer,Doc>>();var calls=new ArrayList<MembershipAutomaticOwner.Call>();
         var observations=new ArrayList<Map<String,Object>>();var bounds=ReplicationBounds.defaults();
@@ -40,7 +41,7 @@ class V53CompetingNodeQualification {
                 Path scratch=Files.createDirectory(temp.resolve("scratch-"+i));
                 var config=new MembershipReplicaConfig<>(f.result.root(),target.identity(),f.request.targets().stream().map(MembershipBootstrapTarget::identity)
                     .filter(v->!v.equals(target.identity())).toList(),target.replicaDirectory(),target.materialization(),bounds,policy);
-                var hooks=new MembershipNodeOwner.Hooks(event->observe(events,Map.of("node",name,"event",event)),
+                var hooks=new MembershipNodeOwner.Hooks(event->captures.at(name,target.replicaDirectory(),event),
                     (event,request,response)->{
                         if(event.equals("BEFORE_REQUEST_WRITE"))observe(events,Map.of("node",name,"event","NETWORK_SEND","request",request.digest(),"kind",request.kind(),"bytes",Base64.getEncoder().encodeToString(request.bytes())));
                         if(event.equals("AFTER_REQUEST_READ"))observe(events,Map.of("node",name,"event","NETWORK_REQUEST","request",request.digest(),"kind",request.kind()));
@@ -133,6 +134,7 @@ class V53CompetingNodeQualification {
                         "leases",node.usage().leases(),"files",files));
             }
             Files.write(raw.resolve("drains.json"),canonical(drains,1024*1024));
+            captures.save();
             Files.write(raw.resolve("events.json"),canonical(events,16*1024*1024));Files.write(raw.resolve("wire.json"),canonical(wire,32*1024*1024));
             Files.write(raw.resolve("observations.json"),canonical(observations,65536));Files.write(raw.resolve("diagnostics.json"),canonical(diagnostics,65536));
             Files.writeString(raw.resolve("failure.txt"),failed==null?"":stack(failed));Files.writeString(raw.resolve("close-failure.txt"),closing==null?"":stack(closing));

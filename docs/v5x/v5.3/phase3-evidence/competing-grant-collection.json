@@ -1,0 +1,84 @@
+{
+  "schema": "gse-v53-competing-grant-collection-development-v1",
+  "status": "PARTIAL",
+  "baseCommit": "4d4fc9bfc3f74dcccbcb4fabbee0460c82d4ce27",
+  "scope": "original native writer grant copies and timeline collection; not automatic competition qualification",
+  "implementationInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CompetingGrantCapture.java": "22bcd1826772416860f92152fca0534bea5496889591f9e93259ee1b2fe31680",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CompetingGrantCaptureTest.java": "778468abbb7e84b219d4e622d9ace7bd8a0e7858f1a141d0ff26b986bc2be9cc",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CompetingNodeQualification.java": "707927081a07c0bbd86dff8e5547f8f4f3753c9955ac810cd57e8e41679d9e15",
+    "scripts/v53/competing_grant_captures.py": "c86d1fcbfb995923edbfafadf7606f6c9fd47ea9f6452c5cac83262ee50cef40",
+    "scripts/v53/competing_node_evidence.py": "1d4fdc6b133c550abef3707c57eb1945bec0d1938a1835696de2efcaf3527ae7",
+    "scripts/v53/joining_grant_captures.py": "4d8b8442d0cf33bd2b2160cf2c6436980ee5329aecc51562057e5a3f215f90a3",
+    "scripts/v53/test_competing_grant_captures.py": "e80c619e75a342d2788e4bb6b08552df649158be50e14ded3e137062bbd7a7a8"
+  },
+  "runtimeJavaChanged": false,
+  "workflowChanged": false,
+  "protocolBudgetsChanged": false,
+  "automaticCompetitionExecuted": false,
+  "hostedExecuted": false,
+  "paidCloudExecuted": false,
+  "allCampaignsQualified": false,
+  "finalSourceCohortQualified": false,
+  "phase3Complete": false,
+  "nativeWriter": {
+    "raw": "general-search-engine-replication/target/v53-competing-grant-capture/run-76f9ca78-593f-4b80-9c05-b176969d42e7",
+    "captures": 2,
+    "copiedBytes": 52109,
+    "inventory": {
+      "path": "target/v53-competing-grant-collection/native-writer-inventory.json",
+      "sha256": "e70e3363a56489ed02156bcbd6b506d364daecce7f4e2b0eba9b251b6f1e7d35"
+    },
+    "qualification": {
+      "path": "target/v53-competing-grant-collection/native-writer-qualification.json",
+      "sha256": "a0c28e044f909de342c2a210405c49c416682573cf3a8b4ded028ac094f56200"
+    }
+  },
+  "validation": {
+    "java": {
+      "path": "target/v53-competing-grant-collection/java-tests-corrected.log",
+      "sha256": "c7520c7344f6bf229c195881d4903b2b247997a3b07cb057220b13270130f896",
+      "tests": 4,
+      "status": "PASS"
+    },
+    "initialCompilation": {
+      "path": "target/v53-competing-grant-collection/java-tests.log",
+      "sha256": "6b8076fecc0380ffdfe4579a325ff20fcc3ed4d99db041e4ea55ee5d30cdaa44",
+      "status": "FAIL",
+      "reason": "test-only array helper symbol corrected to List<?> cast"
+    },
+    "python": {
+      "path": "target/v53-competing-grant-collection/python-suite.log",
+      "sha256": "e55e73eb5083771f678203fc66826416df69b03f4b0eb4612d51e3084522e36c",
+      "tests": 2217,
+      "status": "PASS"
+    },
+    "optimized": {
+      "path": "target/v53-competing-grant-collection/optimized-tests.log",
+      "sha256": "e1015088b92cd498fd6fabc42493fde045af4968ff1e8947310cf67067a18845",
+      "tests": 57,
+      "status": "PASS"
+    },
+    "portable": {
+      "path": "target/v53-competing-grant-collection/portable/qualification.json",
+      "sha256": "3c325ae32ae948deb6e3e7c6c910db4bf54a2c0e4d0fab8b05f612522ed232d5",
+      "copyNegatives": 12,
+      "timelineNegatives": 11,
+      "originalUnchanged": true,
+      "status": "PASS"
+    },
+    "ledgerProfiles": {
+      "path": "target/v53-competing-grant-collection/ledger-profile-checks.json",
+      "sha256": "5373212b38e8a0c023f1b3834ad93009096419bb4b71e4a1b46e224f6348acb9",
+      "rejections": 2,
+      "status": "PASS"
+    },
+    "historicalCompatibility": {
+      "path": "target/v53-competing-grant-collection/historical-single-campaign.json",
+      "sha256": "ca57f6dc3ee3738d69a3231188b870470ad4edb8c3ff6cae06bc2a698623e9ce",
+      "status": "PASS",
+      "finalSourceQualified": false
+    }
+  },
+  "next": "Derive every observed campaign and original source lifetime before general competing-owner cohort admission; six existing hosted subsets and five audit gaps stay unchanged."
+}

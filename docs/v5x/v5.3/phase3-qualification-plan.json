@@ -277,16 +277,19 @@
       "tests": [
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CompetingNodeQualification.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AutomaticCampaignTest.java",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeInFlightTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeInFlightTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CompetingGrantCaptureTest.java"
       ],
       "readers": [
         "scripts/v53/competing_node_evidence.py",
-        "scripts/v53/competing_node_negatives.py"
+        "scripts/v53/competing_node_negatives.py",
+        "scripts/v53/competing_grant_captures.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_COMPETING_REPLAY.md",
         "docs/v5x/v5.3/PHASE_3_ACTIVE_WRITE_HEARTBEAT.md",
-        "docs/v5x/v5.3/PHASE_3_RECOVERY_HEARTBEAT.md"
+        "docs/v5x/v5.3/PHASE_3_RECOVERY_HEARTBEAT.md",
+        "docs/v5x/v5.3/PHASE_3_COMPETING_GRANT_CAPTURE.md"
       ],
       "cohorts": [
         "node-renames"

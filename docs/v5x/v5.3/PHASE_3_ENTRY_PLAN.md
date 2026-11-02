@@ -7,6 +7,11 @@ groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
 
+[Competing grant collection](PHASE_3_COMPETING_GRANT_CAPTURE.md) now retains
+every completed grant before its source can retire, bound to the original
+monotonic trace. The real-writer and 23-negative checks qualify collection only;
+arbitrary competing campaign replay and its final-source cohort remain OPEN.
+
 [The whole learner-history pair](PHASE_3_LEARNER_HISTORY_COHORT.md) adds immutable
 capture, exact-source replay and an opt-in hosted entry for six PREPARE revisions
 and retained READY/CANCEL recovery. Twelve and thirty-one exact negatives remain

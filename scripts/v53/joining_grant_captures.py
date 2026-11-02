@@ -47,7 +47,7 @@ def inventory(root):
     return files, identities, total
 
 
-def read(path, event):
+def read(path, event, *, learner_retention=True):
     need(path.is_dir() and not path.is_symlink() and {p.name for p in path.iterdir()} == {'capture.json', 'replica'},
          'grant capture layout')
     raw, value = json_file(path/'capture.json')
@@ -85,7 +85,16 @@ def read(path, event):
     need(current['capsule']['root'] == root and current['capsule']['cut'] == basis['cut'], 'grant capture current cut')
     catalog = f.decode(packet['objects'][packet['capsule']['catalog']], 'records', 'CATALOG', root)
     need(identity in catalog['identities'], 'grant capture catalog owner')
-    for name, magic, maximum in ((retention.LEDGERS[0], 0x47535250, 65536), (retention.LEDGERS[2], 0x47534c46, 32768)):
+    ledgers = [(retention.LEDGERS[0], 0x47535250, 65536)]
+    if learner_retention:
+        ledgers.append((retention.LEDGERS[2], 0x47534c46, 32768))
+    else:
+        # Stable competing owners have no learner ledger. This is an exact
+        # absence profile, not an optional-ledger fallback for joining histories.
+        need(retention.LEDGERS[2] not in files and not any(
+            raw[:4] == bytes.fromhex('47534c46') for raw in packet['objects'].values()),
+            'grant capture unexpected learner retention')
+    for name, magic, maximum in ledgers:
         wrapper, state = retention.source(packet, basis, magic, maximum)
         captured_promise, ledger = retention.parts(wrapper[48:], [8192, maximum])
         need(captured_promise == promise and ledger == files.get(name) and state['root'] == root
@@ -95,7 +104,7 @@ def read(path, event):
                 bytes=total, files=len(files), cut=basis['cut']['index'])
 
 
-def collect(raw, events):
+def collect(raw, events, *, learner_retention=True):
     root = Path(raw)/DIRECTORY
     need(root.is_dir() and not root.is_symlink(), 'grant capture collection missing')
     pending, rows, names, identities, sources, total = {}, [], [], {}, {}, 0
@@ -110,7 +119,7 @@ def collect(raw, events):
         need(key in pending and len(rows) < MAXIMUM_CAPTURES, 'grant capture orphan/capacity')
         name = f'capture-{len(rows)+1:04d}'
         need(event.get('capture') == DIRECTORY+'/'+name, 'grant capture ordered unique path')
-        row = read(root/name, event); total += row['bytes']
+        row = read(root/name, event, learner_retention=learner_retention); total += row['bytes']
         need(total <= MAXIMUM_BYTES, 'grant capture aggregate capacity')
         owner = row['node']; identity = row['identity']
         need(not rows or row['root'] == rows[0]['root'], 'grant capture mixed roots')
@@ -149,8 +158,9 @@ def require_intermediate(raw, rows, *, voters=('node-1', 'node-2')):
     return counter
 
 
-def validate(raw, events, *, whole_history=False):
-    rows = collect(raw, events)
+def validate(raw, events, *, whole_history=False, learner_retention=True):
+    need(learner_retention or not whole_history, 'grant capture joining requires learner retention')
+    rows = collect(raw, events, learner_retention=learner_retention)
     result = dict(status='PARTIAL', scope='original-grant-copy-collection', captures=len(rows),
                   bytes=sum(v['bytes'] for v in rows), nativeHistoryQualified=False,
                   intermediatePreparationPhysicalQualified=False, forceAndNetworkQualified=False, phase3Complete=False)
@@ -209,15 +219,15 @@ def mutate(raw, events, name):
             encoded = f.canonical(metadata); (path/'capture.json').write_bytes(encoded); first['sha256'] = sha(encoded)
 
 
-def qualify(raw, events):
+def qualify(raw, events, *, learner_retention=True):
     import copy
-    original = validate(raw, events)  # Invalid originals never count as successful rejections.
+    original = validate(raw, events, learner_retention=learner_retention)  # Invalid originals never count as successful rejections.
     outcomes = []
     for name, reason in NEGATIVES.items():
         with tempfile.TemporaryDirectory(prefix='v53-grant-negative-') as temp:
             target = Path(temp)/'raw'; target.mkdir(); shutil.copytree(Path(raw)/DIRECTORY, target/DIRECTORY)
             changed = copy.deepcopy(events); mutate(target, changed, name)
-            try: validate(target, changed)
+            try: validate(target, changed, learner_retention=learner_retention)
             except ValueError as error:
                 need(str(error) == reason, 'unrelated grant capture negative: '+name+': '+str(error))
             else: raise ValueError('grant capture mutation accepted: '+name)

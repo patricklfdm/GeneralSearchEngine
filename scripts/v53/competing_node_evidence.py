@@ -104,9 +104,12 @@ SOURCE_PACKET_PREFIX_WRITTEN SOURCE_PACKET_WRITTEN
 
 def inventory(root):
     exchange.inventory(root)
+    extras = {'grant-captures', 'grant-capture-events.json'}
+    present = extras & {v.name for v in root.iterdir()}
+    need(not present or present == extras, 'competing complete grant capture attachments')
     b.selection.layout(root, {'initial','original-plan.gsbp','original-application.image','before-network',
         'after-close','calls.json','events.json','wire.json','failure.txt','close-failure.txt','result.json',
-        'diagnostics.json','observations.json','drain-scratch','drains.json'}, 'competing original history')
+        'diagnostics.json','observations.json','drain-scratch','drains.json'} | present, 'competing original history')
 
 
 def record(row, family, kind):
@@ -268,9 +271,13 @@ def validate(root):
     from . import competing_node_network as network
     root=Path(root);inventory(root);events=trace(root);history=physical(root,events);held=lifecycle(root,history,events)
     checked=network.validate(root,history,events,held);cleanup(root,history)
-    return dict(status='PASS',scope='single-campaign-three-native-owners',physicalReplay=True,fullWireReplay=True,
+    result = dict(status='PASS',scope='single-campaign-three-native-owners',physicalReplay=True,fullWireReplay=True,
         proposer=history.proposer,selected=list(history.voters),slots=2,clientMutations=1,network=checked,
         originalFirst=True,scratchTransfersDrained=True,processDeath=False,publicRuntime=False,phase3Complete=False)
+    if (root/'grant-capture-events.json').exists():
+        from . import competing_grant_captures as captures
+        result['grantCollection'] = captures.validate(root)
+    return result
 
 
 def qualify(root):
