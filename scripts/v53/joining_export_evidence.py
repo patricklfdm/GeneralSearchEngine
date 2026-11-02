@@ -258,8 +258,18 @@ def current_records(own):
 
 def authorize_record(values,windows,records):
     need(len(values)==1,'joining export singleton record session')
-    value=values[0];first,last=value['offer'],value['commit'];q=first['request'];node=q['recipient']['node']
-    own=current(windows,node,first['received'],last['offered']);cap=own['packet']['capsule']
+    value=values[0]
+    return authorize_record_interval(value,windows,records,value['commit']['offered'])
+
+
+def authorize_record_interval(value,windows,records,through):
+    """Authorize bytes through an actual response; this does not prove COMMIT.
+
+    Callers must first validate the original transport. An incomplete transfer
+    can use its last DATA response without manufacturing a commit response.
+    """
+    values=[value];first=value['offer'];q=first['request'];node=q['recipient']['node']
+    own=current(windows,node,first['received'],through);cap=own['packet']['capsule']
     identities=n.s.catalog.identities(f.decode(own['packet']['objects'][cap['catalog']],'records','CATALOG')['identities'])
     voters=set(cap['cut']['view']['old'])|set(cap['cut']['view']['new']);proposer=q['ballot']['proposer']
     need(q['sender']==identities.get(q['sender']['node']) and q['recipient']==own['identity'] and proposer in voters and
@@ -267,7 +277,7 @@ def authorize_record(values,windows,records):
          'joining export record original context')
     reference=q['payload']['digest'];available=current_records(own)
     candidates=[v for v in records if v['node']==node and v['reference']==reference and
-                v['start']<first['received']<=last['offered']<v['end']]
+                v['start']<first['received']<=through<v['end']]
     if q['view']!=n.s.catalog.authority(cap['root'],cap['cut']['view']):
         # Completed native publication may serve only its own retained local
         # checkpoint through the original request view, until a fresh promise.

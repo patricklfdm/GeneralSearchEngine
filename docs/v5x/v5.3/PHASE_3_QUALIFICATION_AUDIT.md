@@ -51,7 +51,7 @@ prove its semantics.
 | 3C initialization | Actual joining owner, three-ledger initialization and 360-case entry | Final-source matrix; combined bounds |
 | 3C joint | Private INTENT/FINAL/BARRIER coordination for all seven profiles | Final-source profiles and interrupted transitions |
 | 3D rounds | Carried-first publication, two durable phases and round reuse | Current-source carried/stable/process qualification |
-| 3D automatic | Competing owners, heartbeat, single-campaign replay, original grants, both campaign networks, maintenance and installation/publication continuation | Whole-history export/lifecycle replay across campaigns, final-source competition and failure coverage |
+| 3D automatic | Competing owners, heartbeat, original grants, both campaign networks, maintenance, installation/publication and [observed export authority](PHASE_3_COMPETING_EXPORTS.md) | Export expiry/close faults, complete lifecycle/recovery across campaigns, final-source competition and failure coverage |
 | 3D removal | Departure fencing, retirement and original-disk recovery | Final-source original/negative process matrix |
 | 3E resources | Accounting, bounded transfers, publication refusal and conditional-prefix tests | Simultaneous physical peak and admitted completion |
 | 3E coverage | Frozen finite inventory and this dependency map | Concrete schedule/evidence/rejection mapping |

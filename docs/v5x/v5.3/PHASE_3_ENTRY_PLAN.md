@@ -7,6 +7,12 @@ groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
 
+[Competing observed exports](PHASE_3_COMPETING_EXPORTS.md) now bind all 68
+committed transfers and the incomplete losing SELECTED to nine derived current
+generation windows, four frozen sources and original record capabilities.
+Twenty-six scoped capability-reader negatives reject. Export expiry/close under
+faults, complete lifecycle/recovery and final-source admission remain OPEN.
+
 [Competing activation network](PHASE_3_COMPETING_ACTIVATION_NETWORK.md) now
 composes both original campaigns, including the losing selection's incomplete
 transfer, with installation/publication. All 250 original answered exchanges and
