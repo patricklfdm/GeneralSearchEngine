@@ -1,0 +1,214 @@
+{
+  "baseHead": "d6463910e7339da2667657d80540bdd476236d56",
+  "failedOriginal": {
+    "producer": "target/v53-joining-process/native-seed-prefix-halt",
+    "producerStatus": "FAIL",
+    "reason": "joining process producer scope",
+    "status": "REJECTED"
+  },
+  "finalSourceCohort": false,
+  "hostedExecution": "NOT_RUN",
+  "implementationFiles": {
+    "scripts/v53/joining_initialization_evidence.py": "e00f120a90768f61d6d512aa13fb5d3ae8db112722813992d0268953d0c6682d",
+    "scripts/v53/joining_process_composition.py": "4517f300a9be96368aeeae9cad580f5728c870829bf4897d921892a2729c7175",
+    "scripts/v53/test_joining_process_composition.py": "c10b59cd91d54b220a06e83b1d9ccd8a013140599ef3975f9b7d917c18f2e26d"
+  },
+  "logs": {
+    "target/v53-joining-process-composition/composition-tests-1.log": "11443ad767262a05365d4306a8c2ee28989e8ac1c77c3c9aae8438f820c1c9a1",
+    "target/v53-joining-process-composition/doc-contract.json": "959e074696921a89a05eb2dd0d60c4c27de519216bb72d457b557bde018e162e",
+    "target/v53-joining-process-composition/durable-replay.log": "893c73c01741db5dff8735178077bc4098e093f286f8024896542cb2885501bc",
+    "target/v53-joining-process-composition/failed-original-rejection.json": "e7d9a64b480a12ab9ecdb03087d3c2f6498ca1fd079286da4c239030cbaa95d7",
+    "target/v53-joining-process-composition/optimized-tests.log": "7e24dc3c1a345e51213e1a29312b1bfae2e17323008dd35bd81e3f1f06dc27f6",
+    "target/v53-joining-process-composition/original-reader.log": "7bfe30a6dac65836c7317ddfc7e2af3fe06cbfc4af8cdecdc2aa2c48c6cf10a8",
+    "target/v53-joining-process-composition/physical-replay-1.log": "eb274c3f2297110a04f2ba871945693db35a6334f88c408a38daec2bd1dab5fa",
+    "target/v53-joining-process-composition/physical-replay-2.log": "06cfa889fe3eba6505f8f3809ced912592fe626e82009117fe6a577b168e3cd4",
+    "target/v53-joining-process-composition/portable-replay.json": "893c73c01741db5dff8735178077bc4098e093f286f8024896542cb2885501bc",
+    "target/v53-joining-process-composition/portable-replay.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-joining-process-composition/python-suite.log": "9ceed92c7fa91a36e8bc49fb92602a65b9971b77f41756252d6c87338b61babe",
+    "target/v53-joining-process-composition/qualification.json": "dbfd653a43789afd8b285ff681e14f2858fb04566eb4e2bba6aa026ec789d0b7",
+    "target/v53-joining-process-composition/qualification.log": "fb656b86729c32a75b91733225fd995035dd1f708886f0302436430dbb29b953",
+    "target/v53-joining-process-composition/shared-reader-tests.log": "b2b3b416662802bd1f32842bf177b118cb2a182a0ea324d879df3634ccdea013"
+  },
+  "nativeWorkloadRerun": false,
+  "negativeResults": [
+    {
+      "case": "foreign-child-owner",
+      "reason": "joining process foreign child observation",
+      "status": "REJECTED"
+    },
+    {
+      "case": "overlapping-children",
+      "reason": "joining process overlapping child lifetimes",
+      "status": "REJECTED"
+    },
+    {
+      "case": "observer-before-close",
+      "reason": "joining process cross-process owner order",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-child-current-force",
+      "reason": "joining process exact child owner callbacks",
+      "status": "REJECTED"
+    },
+    {
+      "case": "premature-ready",
+      "reason": "joining process readiness before owner completion",
+      "status": "REJECTED"
+    },
+    {
+      "case": "unexplained-original-file",
+      "reason": "joining process original pre-initialization custody",
+      "status": "REJECTED"
+    },
+    {
+      "case": "changed-old-preparation",
+      "reason": "joining process changed old-majority preparation",
+      "status": "REJECTED"
+    },
+    {
+      "case": "changed-process-spec",
+      "reason": "joining process specification original authority",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-child-response",
+      "reason": "joining unmatched original response",
+      "status": "REJECTED"
+    },
+    {
+      "case": "cold-extra-allocation",
+      "reason": "joining continuation exact family: joining-originals-stable-cold: replica",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-cold-force",
+      "reason": "joining continuation original cold reseal order",
+      "status": "REJECTED"
+    }
+  ],
+  "originalInventorySha256": "87b9551f55337d12b71667c02440584d2d0e5e75f9c6510731a2a9de840430e8",
+  "originalPreserved": true,
+  "pending": [
+    "complete export/control authority",
+    "continuous peer/future/learner ledgers and ballot composition",
+    "final-source whole-process cohort",
+    "Phase 3 closure"
+  ],
+  "phase3Complete": false,
+  "physicalAndTransportReplay": {
+    "case": "3-ADD,JOINING_RETENTION_SEED_PREFIX_WRITTEN,halt",
+    "childLifecycle": {
+      "interruptedCallbacks": 10,
+      "recoveredCallbacks": 50
+    },
+    "completeNetworkAuthorityQualified": false,
+    "continuation": {
+      "capturedGrantComparisons": 19,
+      "completePhysicalQualified": false,
+      "finalCut": 11,
+      "forceAndNetworkQualified": false,
+      "ownerSnapshotComparisons": 28,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "profile": "3-ADD",
+      "recovery": null,
+      "scope": "profile-selected-continuation",
+      "sourceRetirementLocalOrderSegments": 16,
+      "status": "PARTIAL"
+    },
+    "continuousLedgersQualified": false,
+    "durableACKsVerified": true,
+    "durableNetwork": {
+      "currentLifecycle": {
+        "bindings": 69,
+        "callbacks": 265,
+        "chainSha256": "ad405da07347c4717d7eb877ea623c902fe380b9723d0da828307966891c3c5f"
+      },
+      "grants": {
+        "boundPromiseReplies": 10,
+        "forcedGrants": 19
+      },
+      "installations": {
+        "boundInstallReplies": 8,
+        "forcedSelections": 14,
+        "proposerLocalInstallations": 6
+      },
+      "slots": {
+        "boundPhaseResponses": 69,
+        "completeSlotStorageCallbacks": 3680,
+        "futureTargets": 13,
+        "ownedSlotTransactions": 24,
+        "slots": 11
+      }
+    },
+    "eventCount": 21642,
+    "failedAttempts": 0,
+    "observedTransportVerified": true,
+    "originalPhysicalHistoryVerified": true,
+    "phase3Complete": false,
+    "processDeathQualified": false,
+    "projectionSha256": "34cff4a269f40c845e9595ac9df1b42a6eac83f7f62f8296e4c859add2f06cc4",
+    "scope": "original-joining-process-physical-and-transport-composition",
+    "status": "PARTIAL",
+    "transaction": {
+      "case": "3-ADD,JOINING_RETENTION_SEED_PREFIX_WRITTEN,halt",
+      "firstCallbacks": 2,
+      "forcePrefixVerified": true,
+      "nativeHistoryQualified": false,
+      "networkQualified": false,
+      "oldSources": 2,
+      "originalInodesPreserved": true,
+      "originalTransactionVerified": true,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "recoveryCallbacks": 34,
+      "scope": "original-joining-initialization-transaction",
+      "seedSha256": "d3e651a98088a430ca1b37f7f96c2af51fccf4065da9f4e0d6aeb66dfa2e274d",
+      "status": "PARTIAL"
+    },
+    "transfers": {
+      "committedTransfers": 689,
+      "exactTransferRetries": 2,
+      "rejectedTransferAttempts": 1,
+      "transferSessions": 365,
+      "transferredBytes": 3957884
+    },
+    "wireCount": 2216
+  },
+  "portableReplay": {
+    "path": "target/v53-joining-process/unpacked/data",
+    "resultSha256": "893c73c01741db5dff8735178077bc4098e093f286f8024896542cb2885501bc",
+    "sameResult": true,
+    "status": "PASS"
+  },
+  "producer": "target/v53-joining-process/native-seed-prefix-halt-corrected",
+  "producerBuildSha256": "c1af9128b548aae4d796e204478c6c207681d6529c9e4a0f78d07a13457391cc",
+  "producerReceiptSha256": "b1d2cbc4340132dfc3e4c3388895ec35a2745db3a3c26968050fa80189f5eef5",
+  "producerSourceSha256": "6ed68cd14ea55c7879ed2a18dd2e6f476857280cbf1de97add60cae022f4fab7",
+  "schema": "gse-v53-joining-process-composition-development-v1",
+  "scopeNote": "Same retained development history; producer predates final read-only discovery-scan adjustment and current reader. Not final-source qualification.",
+  "status": "PARTIAL",
+  "validation": {
+    "documentationContract": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 2167,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "optimizedFocused": {
+      "seconds": 0.635,
+      "status": "PASS",
+      "tests": 51
+    },
+    "pythonSuite": {
+      "seconds": 105.582,
+      "status": "PASS",
+      "tests": 2098
+    }
+  }
+}

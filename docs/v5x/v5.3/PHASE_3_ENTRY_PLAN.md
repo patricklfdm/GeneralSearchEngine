@@ -1,9 +1,15 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joining process composition](PHASE_3_JOINING_PROCESS_COMPOSITION.md) now replays
+the retained original across bootstrap, initialization death/reopen, FINAL,
+BARRIER and cold owner files, with complete observed transport and durable ACK
+ordering. Export/control authority, continuous ledgers and final-source process
+qualification remain OPEN; the development result stays PARTIAL.
+
 [Joining initialization process capture](PHASE_3_JOINING_INITIALIZATION_PROCESS.md)
 now keeps the old majority alive while a fresh joining JVM dies and reopens its
 original roots before FINAL/BARRIER continuation. Independent transaction-prefix
-replay is available; full native/network composition and the 360-case final-source
+replay is available; remaining network-authority composition and the 360-case final-source
 catalogue remain OPEN. Development collection is PARTIAL, not Phase 3 closure.
 
 [The node rename matrix](PHASE_3_NODE_RENAME_MATRIX.md) now binds all four

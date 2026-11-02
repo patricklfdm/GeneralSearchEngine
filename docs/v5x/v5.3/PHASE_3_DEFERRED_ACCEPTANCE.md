@@ -1,9 +1,14 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining process composition](PHASE_3_JOINING_PROCESS_COMPOSITION.md) checks the
+same original's full physical continuation, child lifetimes, transport and durable
+ACKs. Complete export/control and continuous-ledger authority, final-source
+process execution and Phase 3 closure remain deferred.
+
 [Joining initialization process capture](PHASE_3_JOINING_INITIALIZATION_PROCESS.md)
 declares 36 initial write cuts, two death modes and five ADD/REPLACE profiles.
 Whole histories retain original custody across child death and native continuation.
-Transaction-prefix replay alone is PARTIAL; full process/network composition and
+Transaction-prefix replay alone is PARTIAL; remaining process/network authority and
 the final-source execution catalogue remain deferred, with no Phase 3 closure.
 
 [Late unused PREPARE replay](PHASE_3_NODE_LATE_PREPARE.md) adds an explicitly

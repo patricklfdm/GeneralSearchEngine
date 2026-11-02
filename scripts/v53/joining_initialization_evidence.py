@@ -124,12 +124,28 @@ def local_order(events, *, joining='node-4'):
     writes.append('JOINING_RETENTION_BEFORE_RETURN')
     need([v for _, v in rows['initial-owner'] if v.startswith('JOINING_RETENTION_')] == writes,
          'joining initialization original transaction force order')
-    recovery = ['CURRENT_VALIDATED', 'CURRENT_FILES_FORCED', 'CURRENT_GENERATION_FORCED', 'CURRENT_SELECTOR_FORCED', 'CURRENT_DIRECTORY_FORCED',
+    retained_order(events, joining=joining)
+
+
+def recovery_order():
+    return ['CURRENT_VALIDATED', 'CURRENT_FILES_FORCED', 'CURRENT_GENERATION_FORCED', 'CURRENT_SELECTOR_FORCED', 'CURRENT_DIRECTORY_FORCED',
         'JOINING_RETENTION_SEED_RECOVERY_FORCED', 'JOINING_RETENTION_SEED_RECOVERY_PARENT_FORCED',
         'JOINING_RETENTION_DONE_RECOVERY_FORCED', 'JOINING_RETENTION_DONE_RECOVERY_PARENT_FORCED',
         'LEARNER_RETENTION_RECOVERY_ACTIVE_FORCED', 'LEARNER_RETENTION_RECOVERY_PARENT_FORCED',
         'RETENTION_RECOVERY_ACTIVE_FORCED', 'RETENTION_RECOVERY_PARENT_FORCED',
         'FUTURE_RETENTION_RECOVERY_FORCED', 'FUTURE_RETENTION_RECOVERY_PARENT_FORCED', 'ACCEPT_ACTIVE_FORCED', 'ACCEPT_ACTIVE_PARENT_FORCED']
+
+
+def retained_order(events, *, joining):
+    """The unchanged two native grant/reopen scopes, after initialization."""
+    scopes = ('retaining-owner', 'repeated-basis-owner')
+    need(all(row.get('node') == joining for row in events if row.get('scope') in scopes),
+         'joining initialization original lifecycle owner')
+    rows = {scope: [(i, row['event']) for i, row in enumerate(events)
+                   if row.get('scope') == scope and row['event'] != 'GRANT_CAPTURED'] for scope in scopes}
+    need(all(rows.values()) and rows[scopes[0]][-1][0] < rows[scopes[1]][0][0],
+         'joining initialization original lifecycle order')
+    recovery = recovery_order()
     allocator = ['ALLOCATOR_'+step for step in ('BEFORE_WRITE', 'CREATED', 'WRITTEN', 'FORCED', 'RENAMED', 'DIRECTORY_FORCED', 'BEFORE_RETURN')]
     grant = ['CURRENT_BEFORE_CAPTURE', 'PROMISE_BEFORE_WRITE', 'PROMISE_WRITTEN', 'PROMISE_FORCED',
         'CAPTURE_INTENT_CREATED', 'CAPTURE_INTENT_PREFIX_WRITTEN', 'CAPTURE_INTENT_WRITTEN', 'CAPTURE_INTENT_FORCED', 'CAPTURE_INTENT_PARENT_FORCED',
@@ -206,11 +222,14 @@ class Initialization:
             need(disk.inventory(self.root/'before-joint-continuation'/node) == files,
                  'joining initialization exact old prepared inventory: '+node)
 
-    def initialize(self):
-        prefix, members, current = disk.current(self.joined)
+    def initial_current(self, prefix, members):
         for name, raw in [('generation.gsr', self.joined[prefix+'generation.gsr']),
                           ('capsule.gscp', members['source.gscp']), ('ancestry.gsr', members['ancestry.gsr'])]:
             need((self.root/('joining-early-'+name)).read_bytes() == raw, 'joining initialization exact early joining copy')
+
+    def initialize(self):
+        prefix, members, current = disk.current(self.joined)
+        self.initial_current(prefix, members)
         ancestry = [disk.current(self.group[n])[1].get('ancestry.gsr', b'') for n in self.voters]
         seed, initial = retention.derive(current, self.owner.joining, self.originals, confirmed_peers=True, source_ancestry=ancestry)
         need((self.root/'joining-retention-seed.json').read_bytes() == seed, 'joining initialization exact derived seed')
@@ -240,11 +259,14 @@ class Initialization:
                       for name, identity in self.handoff.ids[family].items()}
             need(actual == files, 'joining initialization exact native family: '+family)
 
+    def check_order(self, events):
+        local_order(events, joining=self.replay.joining)
+
     def run(self):
         self.confirmations(); self.old_preparation(); self.initialize(); self.grant_and_reopen()
         # An aggregate trace is bounded by the collection contract, not the
         # much smaller parser budget for one protocol message.
-        local_order(s.collection.read_json(self.root, 'events.json', s.collection.EVENT_BYTES), joining=self.replay.joining)
+        self.check_order(s.collection.read_json(self.root, 'events.json', s.collection.EVENT_BYTES))
         return dict(status='PASS', scope='native-'+self.replay.kind+'-original-joining-initialization', oldOwnerSnapshots=self.owner.history.comparisons+len(self.group),
             nativeFamilies=len(self.handoff.expected), comparedNativeFiles=sum(raw is not None for files in self.handoff.expected.values() for raw in files.values()),
             originalHeadExchanges=len(self.voters), preparedOldSources=len(self.originals), initializedLedgers=3,

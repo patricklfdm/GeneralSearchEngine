@@ -7,6 +7,11 @@ continues through native FINAL, the new-view BARRIER and stable cold reopen.
 Collection and transaction replay remain `PARTIAL`. Complete native/network
 composition, the final-source cohort and Phase 3 are still **OPEN**.
 
+The subsequent [process composition reader](PHASE_3_JOINING_PROCESS_COMPOSITION.md)
+now binds this transaction to the original full physical history, observed
+transport and durable ACKs. Complete export/control authority and continuous
+ledgers remain pending; see its separate development receipt.
+
 ## Original execution
 
 `V53JoiningIntentExportTest#joiningRetentionResumesAfterNativeProcessDeathThenCompletesFinal`
