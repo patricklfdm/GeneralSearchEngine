@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Original SELECTED journal ownership](PHASE_3_SELECTION_JOURNAL.md) requires
+complete original write/force/return transactions after authority arrives, with
+no reused or unbound journal callbacks. ADD/REPLACE and REMOVE consumers share
+the rule. Full profile/process and frozen-mapping qualification remain OPEN.
+
 [Complete selected installation writes](PHASE_3_SELECTED_INSTALL_WRITES.md)
 close a reproduced omitted-manifest-write reader gap across ordinary proposer,
 remote voter and final recovery installation. Creation, every member write,

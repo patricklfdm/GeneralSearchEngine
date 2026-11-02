@@ -108,3 +108,8 @@ whole-history checks. Phase 3 and full physical/network/process flags remain ope
 No runtime Java, POM, protocol bound, workflow or paid-cloud change. Rollback
 reverts this reader/tests increment while preserving the original audit evidence
 and recording the known omission.
+
+The subsequent [SELECTED journal audit](PHASE_3_SELECTION_JOURNAL.md) adds complete
+append ownership and authority timing before these installations, including the
+REMOVE consumers. Its receipt separately qualifies the corrected reader against
+the retained original histories.

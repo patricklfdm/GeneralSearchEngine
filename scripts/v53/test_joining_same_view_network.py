@@ -24,10 +24,11 @@ def fixture():
     def add(event,node=None,scope=None):
         at=len(events);events.append(dict(event=event,node=node,**({'scope':scope} if scope else {})));return at
     add('CAPTURED');promise=add('PROMISE_DELIVERED')
-    add('SELECTED_FORCED','node-4','continuation-owner');add('SELECTED_BEFORE_RETURN','node-4','continuation-owner')
+    for point in ('SELECTED_BEFORE_WRITE','SELECTED_WRITTEN','SELECTED_FORCED','SELECTED_BEFORE_RETURN'):
+        add(point,'node-4','continuation-owner')
     sent=add('SEND');received=add('REQUEST')
     forces=INSTALLATION
-    for event in ['SELECTED_FORCED','SELECTED_BEFORE_RETURN',*forces]:add(event,'node-1')
+    for event in ['SELECTED_BEFORE_WRITE','SELECTED_WRITTEN','SELECTED_FORCED','SELECTED_BEFORE_RETURN',*forces]:add(event,'node-1')
     offered=add('REPLY');delivered=add('ACK_DELIVERED')
     for event in forces:add(event,'node-4','continuation-owner')
     add('CURRENT_VALIDATED','node-4','stable-cold-owner')

@@ -14,6 +14,7 @@ import tempfile
 from . import joining_retirement_replay as physical
 from . import joining_phase_evidence as phase
 from . import joining_install_storage as install
+from . import selection_journal_evidence as selection_journal
 from .joining_transcript import causal, transfers, SENDS, READS
 
 p, s, f, disk, need, sha = physical.p, physical.s, physical.f, physical.disk, physical.need, physical.sha
@@ -199,6 +200,22 @@ def installations(root, events, rows, replay, bases, *, recovery=None):
         install.interval(events,node,scope,forced[node,recovery_digest],cold[0],members,[],
                          'joining network recovery local installation order')
         result.update(recoveryInstallReplies=len(replies),recoveryLocalInstallations=1)
+    journal_bounds=[]
+    for (node,digest),at in forced.items():
+        selected=selections[digest]
+        scope='continuation-owner' if node==replay.joining else None
+        replies=[v for v in rows if v['kind']=='SELECTED' and v['request']['payload']==dict(selection=digest)]
+        if node==selected['ballot']['proposer']:
+            grants=[bases[v['basisDigest']] for v in selected['sources']]
+            promises=[v['delivered'] for v in rows if v['kind']=='PREPARE' and
+                      v['request']['sender']['node']==node and
+                      v['response']['payload']['basis'] in {s['basisDigest'] for s in selected['sources']}]
+            lower=max([v['capturedEvent'] for v in grants]+promises);upper=min(v['sent'] for v in replies)
+        else:
+            reply=next(v for v in replies if v['request']['recipient']['node']==node)
+            lower,upper=reply['received'],reply['offered']
+        journal_bounds.append(dict(node=node,scope=scope,selection=digest,forced=at,lower=lower,upper=upper))
+    selection_journal.validate(events,journal_bounds)
     return result
 
 
@@ -279,6 +296,7 @@ NEGATIVES = {
     'transfer-before-delivery':'joining network transfer next before delivery',
     **GRANT_NEGATIVES,
     **install.NEGATIVES,
+    **selection_journal.NEGATIVES,
 }
 
 
@@ -298,7 +316,8 @@ def mutate(root, name):
                 if side=='response' and event['event']=='NETWORK_RECEIVED':event['kind']=kind
     def first(kind,answer=None):
         return next(row for row in wires if wire(row['request'])[0]==kind and (answer is None or wire(row['response'])[0]==answer))
-    if name in install.NEGATIVES:install.mutate(events,name)
+    if name in selection_journal.NEGATIVES:selection_journal.mutate(events,name)
+    elif name in install.NEGATIVES:install.mutate(events,name)
     elif name in GRANT_NEGATIVES:
         if name in GRANT_WRITES:events.pop(at(GRANT_WRITES[name],'node-1'))
         elif name=='grant-duplicate-prefix':

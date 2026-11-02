@@ -21,13 +21,14 @@ class JoiningProfileNetworkEvidenceTest(unittest.TestCase):
         replay=SimpleNamespace(joining=joining,phases=[{'SELECTED':raw}])
         bases={v['basisDigest']:dict(node=v['voter'],basisId=v['basisId'],ballot=selected['ballot'],capturedEvent=0) for v in selected['sources']}
         members={'selected.gsr':raw,'original.image':b'conditional'}
-        events=[dict(event='CAPTURED'),dict(node='node-1',event='SELECTED_FORCED'),dict(node='node-1',event='SELECTED_BEFORE_RETURN')]
+        events=[dict(event='CAPTURED'),*[dict(node='node-1',event=point) for point in
+            ('SELECTED_BEFORE_WRITE','SELECTED_WRITTEN','SELECTED_FORCED','SELECTED_BEFORE_RETURN')]]
         rows=[dict(kind='PREPARE',request=dict(sender=dict(node='node-1')),
                    response=dict(payload=dict(basis=v['basisDigest'])),delivered=0)
               for v in selected['sources'] if v['voter']!='node-1']
         for node in names[1:]:
             sent=len(events);events.append(dict(event='SEND'));received=len(events);events.append(dict(event='READ'))
-            sequence=['SELECTED_FORCED','SELECTED_BEFORE_RETURN',*INSTALLATION]
+            sequence=['SELECTED_BEFORE_WRITE','SELECTED_WRITTEN','SELECTED_FORCED','SELECTED_BEFORE_RETURN',*INSTALLATION]
             for event in sequence:
                 row=dict(node=node,event=event)
                 if node==joining:row['scope']='wrong-owner' if change_scope else 'continuation-owner'

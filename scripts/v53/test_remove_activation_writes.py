@@ -21,7 +21,7 @@ def fixture():
     def grant(node):
         for v in capture():add(v['event'],node)
     def select(node):
-        for point in ('SELECTED_FORCED','SELECTED_BEFORE_RETURN'):add(point,node)
+        for point in ('SELECTED_BEFORE_WRITE','SELECTED_WRITTEN','SELECTED_FORCED','SELECTED_BEFORE_RETURN'):add(point,node)
     def install(node):
         names=['INSTALL_RESERVED','INSTALL_DIRECTORY_CREATED','INSTALL_MANIFEST_WRITTEN','INSTALL_MANIFEST_FORCED',
             'INSTALL_MEMBER_WRITTEN','INSTALL_MEMBER_FORCED','INSTALL_IMAGE_WRITTEN','INSTALL_IMAGE_FORCED',

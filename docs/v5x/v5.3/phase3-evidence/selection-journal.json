@@ -1,0 +1,316 @@
+{
+  "actions": {
+    "localCommit": true,
+    "paidCloud": false,
+    "pomChanged": false,
+    "push": false,
+    "runtimeJavaChanged": false,
+    "workflowChanged": false
+  },
+  "allMembershipProfilesQualified": false,
+  "archive": {
+    "archiveBytes": 43336362,
+    "archiveDirectories": 4599,
+    "archiveFiles": 27716,
+    "archiveSha256": "f2c8bea1adc85ab2892a88e1479593dff481077838375bb869c1dc375cf260ac",
+    "manifest": {
+      "bytes": 4476113,
+      "path": "target/v53-selection-write-chain-20261102/artifact/manifest.json",
+      "sha256": "e53d27769aedaee9fa89c82f99feab544554de99c04f626ac43d9b073b271d52"
+    },
+    "nativeRerun": false,
+    "networkNegatives": 159,
+    "path": "target/v53-selection-write-chain-20261102/artifact/bundle.tar.gz",
+    "phase3Complete": false,
+    "portableExecutions": {
+      "process": {
+        "elapsedSeconds": 41.721,
+        "exit": 0
+      },
+      "remove-4": {
+        "elapsedSeconds": 5.722,
+        "exit": 0
+      },
+      "remove-5": {
+        "elapsedSeconds": 7.574,
+        "exit": 0
+      },
+      "replace": {
+        "elapsedSeconds": 55.09,
+        "exit": 0
+      }
+    },
+    "portableResultsIdentical": true,
+    "pythonTests": 1767,
+    "readerManifestSha256": "b4dfff4e3fbdb4e3d40c4c9203510eaff7cf0d55f0197142fcc205138e511f84",
+    "removeNetworkNegatives": 246,
+    "scope": "original-selection-journal-and-authority-intervals",
+    "status": "PASS",
+    "unchangedInputs": true
+  },
+  "baseHead": "73d7606a",
+  "completePhysicalQualified": false,
+  "development": {
+    "driverFinding": {
+      "case": "selection-recovery-writes-before-authority",
+      "cause": "Raw joining AFTER_RESPONSE_READ records responseKind separately from request kind; normalized voters use NETWORK_RECEIVED kind",
+      "nativeRerun": false,
+      "observedDuring": "constructor audit against retained original",
+      "originalError": "ValueError: max() arg is an empty sequence",
+      "preservedReader": "reader/source.json",
+      "status": "CORRECTED"
+    },
+    "initialNetworkLog": {
+      "bytes": 15187,
+      "path": "target/v53-selection-write-chain-20261102/reader/network-negatives.log",
+      "sha256": "859b355a4bebf452849b694067a2d95bda76f8b714ae1e534d8352d361e7c3e6"
+    },
+    "initialQualificationLog": {
+      "bytes": 2434,
+      "path": "target/v53-selection-write-chain-20261102/qualification.log",
+      "sha256": "5af4dd0a8a76f2fae2bd059e65a16005b1137265e8990adf5f82e8f663252f05"
+    },
+    "initialReader": {
+      "bytes": 621491,
+      "path": "target/v53-selection-write-chain-20261102/reader/source.json",
+      "sha256": "54e9dba256b1770d36552e241636888b5694872ee18ab7993f2ccd8e96138cfb"
+    }
+  },
+  "forceAndNetworkQualified": false,
+  "historicalADD": {
+    "currentSourceCohortQualified": false,
+    "execution": {
+      "elapsedSeconds": 26.561,
+      "exit": 0
+    },
+    "result": {
+      "bytes": 892,
+      "path": "target/v53-selection-write-chain-20261102/reader-final/legacy.json",
+      "sha256": "2d8f659166fa9724305dc6a8a3591b919588ba63168df76899f8ca1c30907b0b"
+    }
+  },
+  "nextAudit": {
+    "eventIndex": 1,
+    "execution": {
+      "elapsedSeconds": 57.214,
+      "exit": 0
+    },
+    "mutatedOriginalPassed": true,
+    "nativeRerun": false,
+    "original": "/home/klfdm/perception/GeneralSearchEngine/target/v53-joining-same-view-20261031/native-covering-floor/workspace/general-search-engine-replication/target/v53-native-dispatch/run-82318ea9-59d7-4c20-9188-a008f4e63b63",
+    "phase3Complete": false,
+    "readerManifestSha256": "b4dfff4e3fbdb4e3d40c4c9203510eaff7cf0d55f0197142fcc205138e511f84",
+    "removed": {
+      "event": "CURRENT_FILES_FORCED",
+      "node": "node-1"
+    },
+    "scope": "next-task-only",
+    "status": "DIAGNOSTIC"
+  },
+  "observed": {
+    "process": {
+      "callbacks": {
+        "SELECTED_BEFORE_RETURN": 11,
+        "SELECTED_BEFORE_WRITE": 11,
+        "SELECTED_FORCED": 11,
+        "SELECTED_RETENTION_COMPLETED": 8,
+        "SELECTED_WRITTEN": 11
+      },
+      "journalRecords": 11,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-remove-process-network-20261101/inputs/raw"
+    },
+    "remove-4": {
+      "callbacks": {
+        "SELECTED_BEFORE_RETURN": 8,
+        "SELECTED_BEFORE_WRITE": 8,
+        "SELECTED_FORCED": 8,
+        "SELECTED_RETENTION_COMPLETED": 5,
+        "SELECTED_WRITTEN": 8
+      },
+      "journalRecords": 8,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-remove-network-20261101/native-4/workspace/general-search-engine-replication/target/v53-native-dispatch/run-73bddafa-6061-48c0-9efe-9b344ba1acca"
+    },
+    "remove-5": {
+      "callbacks": {
+        "SELECTED_BEFORE_RETURN": 9,
+        "SELECTED_BEFORE_WRITE": 9,
+        "SELECTED_FORCED": 9,
+        "SELECTED_RETENTION_COMPLETED": 6,
+        "SELECTED_WRITTEN": 9
+      },
+      "journalRecords": 9,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-remove-network-20261101/native-5/workspace/general-search-engine-replication/target/v53-native-dispatch/run-8c906efa-4237-4c91-9d0a-241a85809199"
+    },
+    "replace": {
+      "callbacks": {
+        "SELECTED_BEFORE_RETURN": 14,
+        "SELECTED_BEFORE_WRITE": 14,
+        "SELECTED_FORCED": 14,
+        "SELECTED_LEARNER_RETENTION_COMPLETED": 3,
+        "SELECTED_RETENTION_COMPLETED": 12,
+        "SELECTED_WRITTEN": 14
+      },
+      "journalRecords": 14,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-joining-same-view-20261031/native-covering-floor/workspace/general-search-engine-replication/target/v53-native-dispatch/run-82318ea9-59d7-4c20-9188-a008f4e63b63"
+    }
+  },
+  "original": {
+    "buildSha256": "72a2992c984d1874256ab5d0c2379358c5e852080eb3cacc112124c438473bbc",
+    "nativeRerun": false,
+    "path": "target/v53-joining-same-view-20261031/native-covering-floor/workspace/general-search-engine-replication/target/v53-native-dispatch/run-82318ea9-59d7-4c20-9188-a008f4e63b63",
+    "producerHead": "d0729dd1e66005ac987823bee26242bf2b0894af",
+    "sourceSha256": "ab1b13b0d54ab5505dab93be8d48b003945c96216916d8b1bee847ffacea32e8",
+    "unchanged": true
+  },
+  "originalSelectionAppendFamilyQualified": true,
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "python": {
+    "elapsedSeconds": 122.383,
+    "log": {
+      "bytes": 3857,
+      "path": "target/v53-selection-write-chain-20261102/all-python-tests-final.log",
+      "sha256": "52f17143a2807d4d475d89c4f3e740911dc30a5fc9f93ecbfc756a41c3ab7157"
+    },
+    "newTests": 12,
+    "priorIncorrectlyAcceptedNegativeSubcases": 45,
+    "tests": 1767
+  },
+  "qualification": {
+    "allExpectedReasons": true,
+    "fullChain": {
+      "bytes": 12761,
+      "path": "target/v53-selection-write-chain-20261102/reader-final/full-chain.json",
+      "sha256": "0aab434047dec01cfc1e9318ba73773a3a460a5cb9e4b3bd18fddc62ca4c7789"
+    },
+    "fullChainExecution": {
+      "elapsedSeconds": 65.124,
+      "exit": 0
+    },
+    "network": {
+      "bytes": 26408,
+      "path": "target/v53-selection-write-chain-20261102/reader-final/network-negatives.json",
+      "sha256": "ec4fee4c58b3fef9d06a3fc1d682a6c141c55c7d8f7cd0e868a621ddf8bfbc24"
+    },
+    "networkExecution": {
+      "elapsedSeconds": 798.497,
+      "exit": 0
+    },
+    "newNegatives": 23,
+    "originalFirst": true,
+    "totalNegatives": 159
+  },
+  "reader": {
+    "code": {
+      "scripts/v53/joining_network_evidence.py": "541cb17ed0084d03c2047e778ba1c099bbeca69e34974dcfa9b7760b45a1b2e7",
+      "scripts/v53/joining_same_view_network.py": "0ea8f4054d4663a7a74d8a88ebb96b3248a565ad6ba190152117146ca55ea2d3",
+      "scripts/v53/remove_network_evidence.py": "4b1e1ae51b1e1e83b800b52f446d89478ea1564ce5058e740be581cae2e21118",
+      "scripts/v53/selection_journal_evidence.py": "232a7da2a2224131bcde5ffa06a002bfb4089af3946d93a8ccba4bdd36f4110b",
+      "scripts/v53/test_joining_profile_network_evidence.py": "01a4d2e9b897db55fcadf892351db9be0b1deca6a82a3410b12da684fff0ae4a",
+      "scripts/v53/test_joining_same_view_network.py": "ce38769c1ba58ab5bdb8b9ca5f5354740c9906323556a70590152c17b35a0327",
+      "scripts/v53/test_remove_activation_writes.py": "a30b3a873d84ca2744b3185bcc736c821bd8fba2bffecfaf014b83bbac857f4d",
+      "scripts/v53/test_selection_journal_binding.py": "62097159fdc614b32556f39e09cb93e021aaeb7b5522cc34a373b98db3a90ea5",
+      "scripts/v53/test_selection_journal_evidence.py": "a3a27facb9d9d1374c4d2e20229e4cefb8fb96b01f93196f39944a3ea723ba64"
+    },
+    "manifest": {
+      "bytes": 621609,
+      "path": "target/v53-selection-write-chain-20261102/reader-final/source.json",
+      "sha256": "b4dfff4e3fbdb4e3d40c4c9203510eaff7cf0d55f0197142fcc205138e511f84"
+    }
+  },
+  "remaining": [
+    "Initial CURRENT open force coverage and other whole-history callback families and interrupted append recovery",
+    "Final-source all-profile and process/fault cohorts",
+    "Combined bounds and frozen Phase 3 S/N mapping"
+  ],
+  "removeQualification": {
+    "evidence": {
+      "process": {
+        "bytes": 14085,
+        "path": "target/v53-selection-write-chain-20261102/reader-final/process.json",
+        "sha256": "9929a60d86bdbb790deddea2fc1b7f43799ceb00bc1f1e4bf0a43f4cca6538c7"
+      },
+      "remove-4": {
+        "bytes": 19788,
+        "path": "target/v53-selection-write-chain-20261102/reader-final/remove-4.json",
+        "sha256": "344883c5ae64d5f28a4b32b080dfc1089fbd8f0c1c29b791d58ae47778a67de5"
+      },
+      "remove-5": {
+        "bytes": 19792,
+        "path": "target/v53-selection-write-chain-20261102/reader-final/remove-5.json",
+        "sha256": "83db6bb3296b5692eb977c7bed4143c0268fa7f080d58093376d6312f0a06f17"
+      }
+    },
+    "inputs": {
+      "process": {
+        "bytes": 738357,
+        "path": "target/v53-selection-write-chain-20261102/reader-final/process-inputs.json",
+        "sha256": "b4f2100387b6829b91bab28a7469f5290cb09a9975b63b9047e61f923e82fc6d"
+      },
+      "remove-4": {
+        "bytes": 579724,
+        "path": "target/v53-selection-write-chain-20261102/reader-final/remove-4-inputs.json",
+        "sha256": "891810a17c00a8566bf745c16abbfea42bf8a109e4a5cd5e3adebee7583ffeec"
+      },
+      "remove-5": {
+        "bytes": 717029,
+        "path": "target/v53-selection-write-chain-20261102/reader-final/remove-5-inputs.json",
+        "sha256": "889540dabf164dbce5f9ae8649b123ce1c898053f21710f18df4c0b211591709"
+      }
+    },
+    "nativeRerun": false,
+    "processExecution": {
+      "elapsedSeconds": 49.408,
+      "exit": 0
+    },
+    "results": {
+      "nativeRerun": false,
+      "results": [
+        {
+          "execution": {
+            "elapsedSeconds": 333.025,
+            "exit": 0
+          },
+          "negatives": 123,
+          "profile": "4-REMOVE",
+          "status": "PASS"
+        },
+        {
+          "execution": {
+            "elapsedSeconds": 427.629,
+            "exit": 0
+          },
+          "negatives": 123,
+          "profile": "5-REMOVE",
+          "status": "PASS"
+        }
+      ],
+      "status": "PASS"
+    }
+  },
+  "reproducedOmission": {
+    "audit": {
+      "acceptedByPriorReader": true,
+      "elapsedSeconds": 52.999,
+      "nativeRerun": false,
+      "original": "/home/klfdm/perception/GeneralSearchEngine/target/v53-joining-same-view-20261031/native-covering-floor/workspace/general-search-engine-replication/target/v53-native-dispatch/run-82318ea9-59d7-4c20-9188-a008f4e63b63",
+      "priorReaderHead": "73d7606a",
+      "removed": {
+        "event": "SELECTED_WRITTEN",
+        "node": "node-1"
+      }
+    },
+    "originalResult": {
+      "bytes": 12761,
+      "path": "target/v53-selection-write-chain-20261102/prior-reader-result.json",
+      "sha256": "3dd17d27916589b441b5bb2b576346276719351e8ba3dcc859d2a738cad06c59"
+    },
+    "regressionsBefore": {
+      "bytes": 31192,
+      "path": "target/v53-selection-write-chain-20261102/regressions-before.log",
+      "sha256": "ebf0f8541a841404e3d9b2dd551ac9329b234e759f0d31a4492bd31bfd7bd68d"
+    }
+  },
+  "schema": "gse-v53-selection-journal-entry-v1",
+  "status": "PARTIAL"
+}

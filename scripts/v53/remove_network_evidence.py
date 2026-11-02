@@ -54,7 +54,7 @@ class History:
 
 
 def activations(events,rows,history):
-    used=set();grants=installations=0;prior=-1;capture_callbacks=set()
+    used=set();grants=installations=0;prior=-1;capture_callbacks=set();journal_bounds=[]
     for ordinal,parts in enumerate(history.phases,1):
         raw=parts['SELECTED'];selected=f.decode(raw,'records','SELECTED');digest=sha(raw)
         voters=[v['voter'] for v in selected['sources']];proposer=selected['ballot']['proposer']
@@ -79,7 +79,7 @@ def activations(events,rows,history):
             need(not capture_callbacks.intersection(bound),'REMOVE network reused grant capture callback')
             capture_callbacks.update(bound)
             positions[node]=(starts[0],returns[0],selections[0]);grant_returns[node]=returns[0];grants+=1
-        prepare=[];propagation=[]
+        prepare=[];propagation=[];promises=[]
         for row in rows:
             if row['kind'] not in ('PREPARE','SELECTED') or row['request']['ballot']!=selected['ballot']:continue
             q,a=row['request'],row['response'];node=q['recipient']['node'];own=members.get(node)
@@ -92,7 +92,7 @@ def activations(events,rows,history):
                 start,returned,forced=positions[node]
                 need(grant_returns[proposer]<row['sent']<row['received']<start<returned<row['offered']<row['delivered']<positions[proposer][2],
                      'REMOVE network grant before delivered promise')
-                prepare.append(node)
+                prepare.append(node);promises.append(row['delivered'])
             else:
                 need(row['answer']=='INSTALL_ACK' and q['payload']==dict(selection=digest) and
                      a['payload']==dict(selection=digest,cut=selected['cut']),'REMOVE network installation authority')
@@ -105,12 +105,20 @@ def activations(events,rows,history):
         need(sorted(prepare)==sorted(v for v in voters if v!=proposer) and
              sorted(v['request']['recipient']['node'] for v in propagation)==sorted(prepare),'REMOVE network complete peer activation')
         shared.proposer_forces(events,proposer,None,positions[proposer][2],end,propagation,members[proposer])
+        for node in voters:
+            if node==proposer:
+                lower=max([*grant_returns.values(),*promises]);upper=min(v['sent'] for v in propagation)
+            else:
+                reply=next(v for v in propagation if v['request']['recipient']['node']==node)
+                lower,upper=reply['received'],reply['offered']
+            journal_bounds.append(dict(node=node,scope=None,selection=digest,forced=positions[node][2],lower=lower,upper=upper))
         prior=end
     need(used=={v['offered'] for v in rows if v['kind'] in ('PREPARE','SELECTED')},'REMOVE network unbound activation')
     need(sum(v['event']=='GRANT_BEFORE_RETURN' for v in events)==grants and
          sum(v['event']=='SELECTED_FORCED' for v in events)==grants,'REMOVE network unexplained grant/selection')
     need(capture_callbacks=={i for i,v in enumerate(events) if shared.capture_callback(v['event'])},
          'REMOVE network unbound grant capture callback')
+    shared.selection_journal.validate(events,journal_bounds)
     return dict(originalGrants=grants,boundInstallReplies=installations,proposerInstallations=len(history.phases))
 
 
