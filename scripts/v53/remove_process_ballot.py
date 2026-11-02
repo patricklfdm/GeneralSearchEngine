@@ -14,10 +14,14 @@ from . import remove_process_retirement as prior
 from . import joining_same_view_ballot as b
 p,c,f,need,sha=prior.p,prior.c,prior.f,prior.need,prior.sha
 class Replay:
+    label='REMOVE process ballot'
     def __init__(self,root,profile):
-        self.root=Path(root)/'history';self.profile=profile;self.base=prior.r.m.e.Replay(root,profile)
-        self.events=self.base.events;self.history=self.base.history;self.tx=b.allocations(self.events,self.history.old,None)
-        original=p.a.prelude(self.root,'INTENT',size=len(self.history.old)).group
+        base=prior.r.m.e.Replay(root,profile);history_root=Path(root)/'history'
+        original=p.a.prelude(history_root,'INTENT',size=len(base.history.old)).group
+        self.initialize(history_root,profile,base,original)
+    def initialize(self,root,profile,base,original):
+        self.root=Path(root);self.profile=profile;self.base=base
+        self.events=base.events;self.history=base.history;self.tx=b.allocations(self.events,self.history.old,None)
         self.state=b.State(c.current(original['node-1'])[2]['capsule']['root']);self.used=set();self.promise_points=set();self.self_grants=0;self.promise_comparisons=0
         for node,files in original.items():
             counter=f.decode(files['allocator.gsr'],'records','ALLOCATOR')['counter'];self.state.seed(node,counter,self.promised(files,node))
@@ -25,40 +29,42 @@ class Replay:
     def promised(self,files,node):return max([0,*[v['ballot']['counter'] for _,_,v in c.journal(files['grants.gsr'],self.state.root,node)]])
     def original(self,node,path,label):
         files=c.inventory(self.root/path);self.state.compare(node,files['allocator.gsr'],label)
-        need(self.state.observed[node]==self.promised(files,node),'REMOVE process ballot continuous promise: '+label+': '+node);self.promise_comparisons+=1
+        need(self.state.observed[node]==self.promised(files,node),self.label+' continuous promise: '+label+': '+node);self.promise_comparisons+=1
     def snapshot(self,path):
         for node in self.history.old:self.original(node,path+'/'+node,path)
     def promise(self,node,lower,upper,ballot,actions):
         rows=[(i,v) for i,v in enumerate(self.events) if lower<i<upper and v['node']==node and v['event'].startswith('PROMISE_')]
-        need([v['event'] for _,v in rows]==b.PROMISE and all(set(v)=={'node','event'} for _,v in rows),'REMOVE process ballot promise force order')
-        need(not self.promise_points.intersection(i for i,_ in rows),'REMOVE process ballot reused promise');self.promise_points.update(i for i,_ in rows)
+        need([v['event'] for _,v in rows]==b.PROMISE and all(set(v)=={'node','event'} for _,v in rows),self.label+' promise force order')
+        need(not self.promise_points.intersection(i for i,_ in rows),self.label+' reused promise');self.promise_points.update(i for i,_ in rows)
         actions.append((rows[-1][0],'promise',(node,ballot['counter'])))
     def grant(self,node,ballot):
         ids=prior.n.n.shared.s.catalog.identities(self.history.states[-1]['identities'])
-        need(ballot==dict(counter=self.state.counters[node],proposer=node,incarnation=ids[node]['storage']),'REMOVE process ballot reserved ballot')
+        need(ballot==dict(counter=self.state.counters[node],proposer=node,incarnation=ids[node]['storage']),self.label+' reserved ballot')
+    def activation_phases(self):return self.history.activations(self.root.parent,self.profile).phases
+    def snapshot_actions(self):return prior.r.snapshot_actions(self.base,'snapshot')
     def run(self):
-        actions=[];activation=self.history.activations(self.root.parent,self.profile);lower=-1
-        for parts in activation.phases:
+        actions=[];lower=-1
+        for parts in self.activation_phases():
             raw=parts['SELECTED'];selected=f.decode(raw,'records','SELECTED');ballot=selected['ballot']
             ends=[i for i,v in enumerate(self.events) if v['event']=='ROUND_INSTALLED' and v['record']==sha(raw)]
-            need(len(ends)==1,'REMOVE process ballot exact installed boundary');end=ends[0]
+            need(len(ends)==1,self.label+' exact installed boundary');end=ends[0]
             for source in selected['sources']:
                 node=source['voter'];starts=[i for i,v in enumerate(self.events) if lower<i<end and v['node']==node and v['event']=='CURRENT_BEFORE_CAPTURE']
                 returns=[i for i,v in enumerate(self.events) if lower<i<end and v['node']==node and v['event']=='GRANT_BEFORE_RETURN']
-                need(len(starts)==len(returns)==1 and starts[0]<returns[0],'REMOVE process ballot grant boundaries');start=starts[0];returned=returns[0]
+                need(len(starts)==len(returns)==1 and starts[0]<returns[0],self.label+' grant boundaries');start=starts[0];returned=returns[0]
                 captures=[v for v in self.base.sources if v['node']==node and sha(v['basis'])==source['basisDigest']]
-                need(len(captures)==1 and captures[0]['start']==returned and captures[0]['value']['ballot']==ballot,'REMOVE process ballot original grant')
+                need(len(captures)==1 and captures[0]['start']==returned and captures[0]['value']['ballot']==ballot,self.label+' original grant')
                 self.promise(node,start,returned,ballot,actions)
                 if node==ballot['proposer']:
                     current=max(i for i,v in enumerate(self.events[:start]) if v['node']==node and v['event']=='CURRENT_DIRECTORY_FORCED')
                     candidates=[v for v in self.tx if v['node']==node and max(lower,current)<v['start']<v['end']<start]
-                    need(len(candidates)==1 and candidates[0]['start'] not in self.used,'REMOVE process ballot one reservation per grant')
+                    need(len(candidates)==1 and candidates[0]['start'] not in self.used,self.label+' one reservation per grant')
                     self.used.add(candidates[0]['start']);self.self_grants+=1;actions.append((start,'grant',(node,ballot)))
             lower=end
-        need(self.used=={v['start'] for v in self.tx},'REMOVE process ballot unbound allocator')
-        need(self.promise_points=={i for i,v in enumerate(self.events) if v['event'].startswith('PROMISE_')},'REMOVE process ballot unbound promise')
+        need(self.used=={v['start'] for v in self.tx},self.label+' unbound allocator')
+        need(self.promise_points=={i for i,v in enumerate(self.events) if v['event'].startswith('PROMISE_')},self.label+' unbound promise')
         actions.extend((v['end'],'reserve',(v,)) for v in self.tx)
-        actions+=prior.r.snapshot_actions(self.base,'snapshot')
+        actions+=self.snapshot_actions()
         for own in self.base.windows:
             if own['start']>=0 and self.events[own['start']]['event']=='INSTALL_BEFORE_RETURN':actions.append((own['start'],'original',(own['node'],own['path'],'installed')))
         for _,kind,values in sorted(actions,key=lambda v:v[0]):getattr(self.state if kind in ('reserve','promise') else self,kind)(*values)

@@ -1,5 +1,10 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Ordinary REMOVE ballot continuity](PHASE_3_REMOVE_BALLOTS.md) now composes the
+four/five-voter captured retirement histories with original reservation and
+promise forces. Together with the ADD/REPLACE profile reader, this prepares the
+final-source seven-profile gate; the complete cohort and Phase 3 remain OPEN.
+
 [Profile ballot composition](PHASE_3_PROFILE_BALLOTS.md) now binds allocator and
 promise forces to actual owners and original membership certificates. Adoption
 preserves a stronger local promise; ADD may have no adoption. The final-source

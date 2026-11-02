@@ -1,0 +1,276 @@
+{
+  "actions": {
+    "localCommit": true,
+    "nativeRerun": false,
+    "paidCloud": false,
+    "pomChanged": false,
+    "push": false,
+    "runtimeJavaChanged": false,
+    "workflowChanged": false
+  },
+  "allMembershipProfilesQualified": false,
+  "archive": {
+    "allMembershipProfilesQualified": false,
+    "archiveBytes": 26972414,
+    "archiveSha256": "6d2739ba7a602b880b2b54a011ab71422dbdb946093868a2cee747e4f630b277",
+    "directories": 3398,
+    "exactNegatives": 36,
+    "files": 20972,
+    "identicalResults": true,
+    "manifest": {
+      "bytes": 3149122,
+      "path": "target/v53-remove-ballots-20261102/artifact/manifest.json",
+      "sha256": "5f7db2c403d0a12c2904ae9af4e5682e2a849142fa274e2649831123d1f6b563"
+    },
+    "nativeRerun": false,
+    "path": "target/v53-remove-ballots-20261102/artifact/bundle.tar.gz",
+    "phase3Complete": false,
+    "portable": {
+      "4": {
+        "elapsedSeconds": 25.862,
+        "exit": 0
+      },
+      "5": {
+        "elapsedSeconds": 33.123,
+        "exit": 0
+      },
+      "process": {
+        "elapsedSeconds": 41.685,
+        "exit": 0
+      }
+    },
+    "pythonSeconds": 104.476,
+    "pythonTests": 1908,
+    "status": "PASS",
+    "unchangedOriginals": true
+  },
+  "baseHead": "bb64c5659f8708b005df2852f5b431851da7444e",
+  "currentSourceNativeCohortQualified": false,
+  "initialFocusedTest": {
+    "log": {
+      "bytes": 731,
+      "path": "target/v53-remove-ballots-20261102/focused.log",
+      "sha256": "1b584bb9b770da7c4af45461415229955f6b22b53d16a004169c7fcd21a39ca2"
+    },
+    "reason": "test module missing json import",
+    "status": "FAIL"
+  },
+  "initialProbe": {
+    "driver": {
+      "bytes": 1001,
+      "path": "target/v53-remove-ballots-20261102/probe.py",
+      "sha256": "2759ab7ecabbbece87d5e984f2ef4efd29ed82ae2c52ea0e0d5c33ee6693289e"
+    },
+    "log": {
+      "bytes": 3325,
+      "path": "target/v53-remove-ballots-20261102/probe.log",
+      "sha256": "9ec837de2326a44989d6b92aa88193857701a7053e9a8b2f3e288f6e2edf5b8d"
+    },
+    "reason": "bootstrap alone omits the derived prelude allocator; corrected to replay original preparation through SEAL",
+    "result": {
+      "bytes": 293,
+      "path": "target/v53-remove-ballots-20261102/probe.json",
+      "sha256": "ab820b423f2cfd60a4c913c1a32649b28d5b748755844d1e473161ead2ff88f3"
+    },
+    "status": "FAIL"
+  },
+  "negativeScope": {
+    "capturedRetirementRequired": true,
+    "missingTargetsFail": true,
+    "mutatedFullPrerequisiteReplayed": false,
+    "mutatedRetentionRetirementReplayed": true,
+    "originalFirst": true,
+    "originalSidecarsUnchanged": true,
+    "physicalWireAndOtherObservationsUnchanged": true
+  },
+  "ordinaryRemoveBallotCompositionQualified": true,
+  "originalReplays": {
+    "4": {
+      "ballot": {
+        "allMembershipProfilesQualified": false,
+        "allocatorComparisons": 32,
+        "ballotForceCompositionQualified": true,
+        "chain": "6b65ae301370b85774e4b6b9bbac95f043c8c3ae17dca95a8720f900e8645a3f",
+        "completeObservedCompositionQualified": false,
+        "counters": {
+          "node-1": 5,
+          "node-2": 1,
+          "node-3": 1,
+          "node-4": 1
+        },
+        "currentSourceNativeCohortQualified": false,
+        "forcedPromises": 8,
+        "observed": {
+          "node-1": 5,
+          "node-2": 5,
+          "node-3": 4,
+          "node-4": 2
+        },
+        "originalObservationCoverageComplete": false,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "profile": "4-REMOVE",
+        "promiseComparisons": 32,
+        "reservations": 3,
+        "scope": "ordinary-REMOVE-continuous-ballot",
+        "selfGrants": 3,
+        "status": "PARTIAL"
+      },
+      "capturedPrefixes": 761,
+      "execution": {
+        "elapsedSeconds": 85.159,
+        "exit": 0
+      },
+      "inputs": {
+        "bytes": 680770,
+        "path": "target/v53-remove-ballots-20261102/4-inputs.json",
+        "sha256": "9713aa192899385c4cae053521190572241f60a84bb35dd2f03985c48bc457be"
+      },
+      "negatives": 18,
+      "result": {
+        "bytes": 12359,
+        "path": "target/v53-remove-ballots-20261102/4.json",
+        "sha256": "3ca9924d8fce13e89357dc55f5be245e95ae5ca628a570e53a282a62e26183e2"
+      }
+    },
+    "5": {
+      "ballot": {
+        "allMembershipProfilesQualified": false,
+        "allocatorComparisons": 37,
+        "ballotForceCompositionQualified": true,
+        "chain": "2a590e770dd49d0d9a246514cc1c3debc0bbaa2be7bc54d23017dbab4a4cce2d",
+        "completeObservedCompositionQualified": false,
+        "counters": {
+          "node-1": 5,
+          "node-2": 1,
+          "node-3": 1,
+          "node-4": 1,
+          "node-5": 1
+        },
+        "currentSourceNativeCohortQualified": false,
+        "forcedPromises": 9,
+        "observed": {
+          "node-1": 5,
+          "node-2": 5,
+          "node-3": 5,
+          "node-4": 2,
+          "node-5": 2
+        },
+        "originalObservationCoverageComplete": false,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "profile": "5-REMOVE",
+        "promiseComparisons": 37,
+        "reservations": 3,
+        "scope": "ordinary-REMOVE-continuous-ballot",
+        "selfGrants": 3,
+        "status": "PARTIAL"
+      },
+      "capturedPrefixes": 876,
+      "execution": {
+        "elapsedSeconds": 112.562,
+        "exit": 0
+      },
+      "inputs": {
+        "bytes": 832601,
+        "path": "target/v53-remove-ballots-20261102/5-inputs.json",
+        "sha256": "666748e663b8e0385fbc3fee388f7f87fa54166b12c26e55ee68f5071c6f217e"
+      },
+      "negatives": 18,
+      "result": {
+        "bytes": 12503,
+        "path": "target/v53-remove-ballots-20261102/5.json",
+        "sha256": "86209696d47b8314b9311ace491b27739eee1cdb583015bcb53e9ec4feeb4286"
+      }
+    },
+    "process": {
+      "ballot": {
+        "allocatorComparisons": 71,
+        "ballotForceCompositionQualified": true,
+        "chain": "78e8c6acf5077601470ac92a226b23a145b0c1e5b2f600d1f533f9e8093aa3b1",
+        "completeObservedCompositionQualified": false,
+        "counters": {
+          "node-1": 6,
+          "node-2": 1,
+          "node-3": 1,
+          "node-4": 1
+        },
+        "forcedPromises": 11,
+        "observed": {
+          "node-1": 6,
+          "node-2": 6,
+          "node-3": 5,
+          "node-4": 2
+        },
+        "originalObservationCoverageComplete": false,
+        "phase3Complete": false,
+        "promiseComparisons": 71,
+        "reservations": 4,
+        "selfGrants": 4,
+        "status": "PARTIAL"
+      },
+      "execution": {
+        "elapsedSeconds": 43.294,
+        "exit": 0
+      },
+      "inputs": {
+        "bytes": 738356,
+        "path": "target/v53-remove-ballots-20261102/process-inputs.json",
+        "sha256": "e4d0f8e2d60a582642804cc41c477352d6152d1cce7270692a0dbf0c683a9b12"
+      },
+      "result": {
+        "bytes": 14085,
+        "path": "target/v53-remove-ballots-20261102/process.json",
+        "sha256": "9929a60d86bdbb790deddea2fc1b7f43799ceb00bc1f1e4bf0a43f4cca6538c7"
+      }
+    }
+  },
+  "phase3Complete": false,
+  "processCompatibility": {
+    "everyFieldIdentical": true,
+    "previous": "/home/klfdm/perception/GeneralSearchEngine/target/v53-remove-process-ballot-20261101/original.json",
+    "previousNegativesRerun": false,
+    "previousSha256": "3faf16c580b6c585e7816b15712ad8787d08901bf79fd190a94cc74ce7411947",
+    "receipt": {
+      "bytes": 293,
+      "path": "target/v53-remove-ballots-20261102/process-compatibility.json",
+      "sha256": "852bf3f908c713a5a30cfa62a0bcd92e54383c475ac9400c784d37d21628f2a5"
+    },
+    "status": "PASS"
+  },
+  "processDeathMatrixQualified": false,
+  "python": {
+    "focusedLog": {
+      "bytes": 124,
+      "path": "target/v53-remove-ballots-20261102/focused-corrected.log",
+      "sha256": "c58e987f5d00fe42d4fda4f949ad0670eabc806c71c922cf34456f8398b0a22a"
+    },
+    "log": {
+      "bytes": 3998,
+      "path": "target/v53-remove-ballots-20261102/python-tests.log",
+      "sha256": "190d535eb082eb0086d20d2c40942633a13c968f9b280f0d1bf5dfff8180579a"
+    },
+    "newTests": 15,
+    "seconds": 104.476,
+    "tests": 1908
+  },
+  "reader": {
+    "code": {
+      "scripts/v53/remove_ballot_evidence.py": "923fa4fa05f5c3ce6d59550b0a1daa6053b8a6d93ab5691656b3c2bad202eb11",
+      "scripts/v53/remove_process_ballot.py": "b83e68005623f95652086e23e4c326f34095c98a7ff35eb5af7100d5f228d57a",
+      "scripts/v53/test_remove_ballot_evidence.py": "31e515c18bc6d6cc561b936d613371b2a212c62a4cef436647c3657fd32b06f0"
+    },
+    "manifest": {
+      "bytes": 625890,
+      "path": "target/v53-remove-ballots-20261102/reader/source.json",
+      "sha256": "fcb772e1b7660059d0b0f6820dbd801155cf297da82bd86870fbba7425fa84ac"
+    }
+  },
+  "remaining": [
+    "Final-source seven-profile and complete process/fault cohorts",
+    "Combined bounds and frozen S/N mapping",
+    "Complete original observation coverage"
+  ],
+  "schema": "gse-v53-remove-ballots-entry-v1",
+  "status": "PARTIAL"
+}
