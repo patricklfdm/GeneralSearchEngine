@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[The node rename matrix](PHASE_3_NODE_RENAME_MATRIX.md) now binds all four
+halt/SIGKILL combinations to one source/build/toolchain/reader, with whole-history
+capture and independent downloaded replay. Its opt-in hosted workflow is ready
+for later execution; final-source native qualification and Phase 3 remain OPEN.
+
 [Late unused PREPARE replay](PHASE_3_NODE_LATE_PREPARE.md) records one successful
 post-allocation ACCEPT/halt native history and its original-backed undelivered
 reply classification. Two rename combinations now have independently checked

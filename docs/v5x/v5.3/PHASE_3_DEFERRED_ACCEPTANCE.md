@@ -1001,6 +1001,12 @@ failure must not count as a successful negative test. Process IDs from different
 runners may coincide and must be scoped by execution identity. Each interrupted
 and resumed process still belongs to the same original filesystem history.
 
+The [four-case node rename entry](PHASE_3_NODE_RENAME_MATRIX.md) implements the
+same source/build/toolchain/reader and exact-attempt requirements for ACCEPT and
+PROOF rename halt/SIGKILL histories. Each worker keeps the crash and successor
+on the original disks. Its final-source native cohort remains pending; the two
+historical successes on different sources cannot fill its four slots.
+
 Do not split a source acquisition from its installation, an INTENT from its FINAL,
 or a crash from its restart across runners. Parallelism applies to independently
 bootstrapped histories only. A future aggregate must validate the exact declared
