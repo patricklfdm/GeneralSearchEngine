@@ -134,11 +134,11 @@ class V53NativeDispatchTest {
                             if(event.equals("BEFORE_REQUEST_WRITE"))beforeSend.get().accept(request);
                             if(observeRequests)V53JoiningTrace.requestObservation(events,owner.activationIdentity().nodeId().value(),event,request);
                             if(event.equals("BEFORE_REQUEST_WRITE") && request.kind().equals("PUBLISH"))events.add(Map.of("node",owner.activationIdentity().nodeId().value(),"event","PUBLICATION_SEND_BOUNDARY","request",request.digest()));
-                            if(event.equals("AFTER_RESPONSE_READ"))events.add(Map.of("node",owner.activationIdentity().nodeId().value(),"event","NETWORK_RECEIVED","kind",response.kind(),"response",response.digest()));
+                            if(event.equals("AFTER_RESPONSE_READ"))events.add(V53JoiningTrace.connected(Map.of("node",owner.activationIdentity().nodeId().value(),"event","NETWORK_RECEIVED","kind",response.kind(),"response",response.digest())));
                             if(event.equals("BEFORE_RESPONSE_WRITE")) {
                                 String expected=drop.get();boolean lost=expected.equals(response.kind()) && drop.compareAndSet(expected,"");
-                                var row=new TreeMap<String,Object>(V53SelectedPullTest.wire(request,response));row.put("withheld",lost);wire.add(row);
-                                events.add(Map.of("node",owner.activationIdentity().nodeId().value(),"event","WIRE_RESPONSE","request",request.digest(),"response",response.digest()));
+                                var row=new TreeMap<String,Object>(V53SelectedPullTest.wire(request,response));row.put("withheld",lost);wire.add(V53JoiningTrace.connected(row));
+                                events.add(V53JoiningTrace.connected(Map.of("node",owner.activationIdentity().nodeId().value(),"event","WIRE_RESPONSE","request",request.digest(),"response",response.digest())));
                                 if(lost)throw new IOException("lost native dispatch reply");
                             }
                         });

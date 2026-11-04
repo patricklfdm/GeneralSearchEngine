@@ -1,0 +1,327 @@
+{
+  "baseHead": "456202a1335eaeff964cfef7a1edbacb9d02c059",
+  "completeMembershipHistory": false,
+  "completeNativeNetworkQualified": false,
+  "dedicatedQualification": {
+    "negatives": [
+      {
+        "case": "wrong-local-socket",
+        "reason": "connection invocation changed",
+        "status": "REJECTED"
+      },
+      {
+        "case": "crossed-reply",
+        "reason": "connection delivered response binding",
+        "status": "REJECTED"
+      },
+      {
+        "case": "late-terminal-on-retry",
+        "reason": "connection incomplete invocation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-caller-terminal",
+        "reason": "connection incomplete invocation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-server-terminal",
+        "reason": "connection missing receiver terminal",
+        "status": "REJECTED"
+      },
+      {
+        "case": "duplicate-terminal",
+        "reason": "connection duplicate boundary",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-original-response",
+        "reason": "connection missing original response",
+        "status": "REJECTED"
+      },
+      {
+        "case": "claims-membership",
+        "reason": "connection receipt scope",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "cases": [
+        {
+          "attempts": 2,
+          "callerFailures": 1,
+          "case": "late-handler",
+          "deliveredReplies": 1,
+          "serverFailures": 1,
+          "storageUnchanged": true
+        },
+        {
+          "attempts": 2,
+          "callerFailures": 1,
+          "case": "late-response",
+          "deliveredReplies": 1,
+          "serverFailures": 1,
+          "storageUnchanged": true
+        }
+      ],
+      "completeMembershipHistory": false,
+      "execution": "loopback-tcp-component",
+      "phase3Complete": false,
+      "schema": "gse-v53-transport-connections-v1",
+      "status": "PASS"
+    }
+  },
+  "javaTests": [
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53JoiningTraceTest",
+      "seconds": 0.027,
+      "skipped": 0,
+      "tests": 6
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53TransportConnectionTest",
+      "seconds": 15.349,
+      "skipped": 0,
+      "tests": 2
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53TransportAttemptTest",
+      "seconds": 30.28,
+      "skipped": 0,
+      "tests": 4
+    }
+  ],
+  "joiningConnectionCaptureIntegrated": true,
+  "joiningQualification": {
+    "negatives": [
+      {
+        "case": "wrong-local-socket",
+        "reason": "connection invocation changed",
+        "status": "REJECTED"
+      },
+      {
+        "case": "crossed-reply",
+        "reason": "connection delivered response binding",
+        "status": "REJECTED"
+      },
+      {
+        "case": "late-terminal-on-retry",
+        "reason": "connection incomplete invocation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-caller-terminal",
+        "reason": "connection incomplete invocation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-server-terminal",
+        "reason": "connection missing receiver terminal",
+        "status": "REJECTED"
+      },
+      {
+        "case": "duplicate-terminal",
+        "reason": "connection duplicate boundary",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-original-response",
+        "reason": "connection missing original response",
+        "status": "REJECTED"
+      },
+      {
+        "case": "claims-membership",
+        "reason": "connection receipt scope",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "cases": [
+        {
+          "attempts": 2,
+          "callerFailures": 1,
+          "case": "late-handler",
+          "deliveredReplies": 1,
+          "serverFailures": 1,
+          "storageUnchanged": true
+        },
+        {
+          "attempts": 2,
+          "callerFailures": 1,
+          "case": "late-response",
+          "deliveredReplies": 1,
+          "serverFailures": 1,
+          "storageUnchanged": true
+        }
+      ],
+      "completeMembershipHistory": false,
+      "execution": "loopback-tcp-component",
+      "phase3Complete": false,
+      "schema": "gse-v53-transport-connections-v1",
+      "status": "PASS"
+    }
+  },
+  "legacyRegression": {
+    "cases": 6,
+    "negatives": 13,
+    "report": {
+      "path": "target/v53-joining-connections/legacy-replay-01.json",
+      "sha256": "766a8d9f0b79c26eff7f8ad428eef963c464cf6d1f5b03a31861b85ce869a77e"
+    },
+    "status": "PASS"
+  },
+  "phase3Complete": false,
+  "pythonTests": {
+    "errors": 0,
+    "executions": 854,
+    "failures": 0,
+    "newTests": 8
+  },
+  "raw": {
+    "dedicated": "general-search-engine-replication/target/v53-transport-connections/run-7fbc2186-b254-40ab-95e9-097d5c84d3d2",
+    "joining": "general-search-engine-replication/target/v53-joining-connections/run-2beda5d2-ba5b-4415-9482-2a63ce523a76",
+    "legacy": "general-search-engine-replication/target/v53-transport-attempts/run-70fe3c89-f6f3-4f66-bbb8-bb22320f2387"
+  },
+  "remaining": [
+    "fresh required-four connection-bound native history",
+    "complete physical/phase/network/export/control/resource replay",
+    "process-child flag propagation and final-source hosted admission"
+  ],
+  "reports": [
+    {
+      "path": "target/v53-joining-connections/TEST-io.github.patricklfdm.generalsearch.replication.V53JoiningTraceTest.xml",
+      "sha256": "97b2aab5f10e933ce8458f15f9f801716a309a4c3baf34ec085ab66b6060131f"
+    },
+    {
+      "path": "target/v53-joining-connections/TEST-io.github.patricklfdm.generalsearch.replication.V53TransportAttemptTest.xml",
+      "sha256": "84a22a4c477ac6f7bc1a0fbf38cfc5d8eb62f3eb877b933314eb0c64ea19633f"
+    },
+    {
+      "path": "target/v53-joining-connections/TEST-io.github.patricklfdm.generalsearch.replication.V53TransportConnectionTest.xml",
+      "sha256": "e1294bcd22d6bda24d82423e62d11ca0497f009ff9907362876ed3d436a57c44"
+    },
+    {
+      "path": "target/v53-joining-connections/classes-at-validation.json",
+      "sha256": "1df9973160e5f654976da32978ab2f1ee378c3956508bf6c6b6526f6f1ef0b07"
+    },
+    {
+      "path": "target/v53-joining-connections/component-replay-01.json",
+      "sha256": "2648fa65568a130ef45fd374884ec25e2f5e3ede3a4c1cd5873f1743ea85f835"
+    },
+    {
+      "path": "target/v53-joining-connections/component-replay-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-joining-connections/dedicated-raw-inventory.json",
+      "sha256": "dc346b42dccd06a4ea7c0b912c43eec3b699ac756d4bcc6b6dc9547bbc5d54c1"
+    },
+    {
+      "path": "target/v53-joining-connections/joining-raw-inventory.json",
+      "sha256": "35fd0ca9f55131c33c9f312f0136b0d3d956763a6586eb37a79da31a33ffff5d"
+    },
+    {
+      "path": "target/v53-joining-connections/joining-replay-01.json",
+      "sha256": "2648fa65568a130ef45fd374884ec25e2f5e3ede3a4c1cd5873f1743ea85f835"
+    },
+    {
+      "path": "target/v53-joining-connections/joining-replay-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-joining-connections/legacy-raw-inventory.json",
+      "sha256": "596d1325001d15a85c43e211f791bfff1add712b82026c22409dd2cfb951ff2a"
+    },
+    {
+      "path": "target/v53-joining-connections/legacy-replay-01.json",
+      "sha256": "766a8d9f0b79c26eff7f8ad428eef963c464cf6d1f5b03a31861b85ce869a77e"
+    },
+    {
+      "path": "target/v53-joining-connections/legacy-replay-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-joining-connections/maven-01.log",
+      "sha256": "fa2b2a1162023355d219ff7dd481cc15466bf3b0d0990945ca26502564a1bde4"
+    },
+    {
+      "path": "target/v53-joining-connections/python-01.log",
+      "sha256": "52c9aace96598e369f16cdb9bb4438499e81ebf423ff91a150e251e9dceb47e1"
+    },
+    {
+      "path": "target/v53-joining-connections/python-02.log",
+      "sha256": "a6c2c35d7da879a1124e18043c351e28e08cd70304aab5b73da2ae8e8be825c7"
+    },
+    {
+      "path": "target/v53-joining-connections/python-03.log",
+      "sha256": "3eaf38c506b2132f03e4f7414a6c39fabd2c21c4abde92596505f8c47b4edd55"
+    },
+    {
+      "path": "target/v53-joining-connections/source-at-validation.json",
+      "sha256": "306e44c20b088321b66d535613ccdf22e92eb5c7ae249980985af027e44c4ea6"
+    }
+  ],
+  "schema": "gse-v53-joining-connections-integration-v1",
+  "sourceBinding": "post-validation source/class snapshot; development working tree, not final-source cohort admission",
+  "sources": [
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningTrace.java",
+      "sha256": "1f4af9cfbbb4963de56d06a7793aa39c54d2f8585cb0b7ee7f2adee2fab14799"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningTraceTest.java",
+      "sha256": "95d1366be065985651514b39bf1354b258b0e7893d2a373456833b3500cd83d2"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java",
+      "sha256": "3cd6f1f7faa9bc090991ee8ec1a0c30750a9c733fa8922c8cfc122de2fa64361"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransportConnectionTest.java",
+      "sha256": "b8c3f124ffd635ad46519b336811300726f8b3690a41638b3e57c9a7d654490e"
+    },
+    {
+      "path": "scripts/v53/connection_transcript.py",
+      "sha256": "b19a0b74cc57dab338bcfd6af034e9e472abc3fda88bff0a4285cbb7705d529b"
+    },
+    {
+      "path": "scripts/v53/joining_network_evidence.py",
+      "sha256": "5b124c55ed9739073084823a67bd551c596a2ada2556b6705cbbc5518a704dba"
+    },
+    {
+      "path": "scripts/v53/joining_phase_evidence.py",
+      "sha256": "e3ad070ae4ff40825eb97c45f9e130b830de39f7ac82e5cab8e44cba82f1c244"
+    },
+    {
+      "path": "scripts/v53/joining_transcript.py",
+      "sha256": "18deea88b6bb9837757aae36d2c1781ea49beb157483d0ff13ed0e359131b93a"
+    },
+    {
+      "path": "scripts/v53/transport_connection_evidence.py",
+      "sha256": "fa04227e240405d8402f1918a213d0d52694a27d242c4a62459ddb8ddf286b3b"
+    },
+    {
+      "path": "scripts/v53/joining_connections.py",
+      "sha256": "6117aa7fc7b6f3e3b2528bbaa5b249de72b2ca94f60ba2f1d8ec46b35b5bd058"
+    },
+    {
+      "path": "scripts/v53/test_joining_connections.py",
+      "sha256": "c41b5551855d56cee75d7475b5dc34ea474598a8a348ae4f9663e00e94141f26"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransport.java",
+      "sha256": "a1c01061a7fe7afc69930908741d119db50b630ddea38e8dc8585d3d94799971"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ConnectionTrace.java",
+      "sha256": "b0df2137d77c237a42c06310d2aa2aa13ea2be92e0ae8a14efca66b6a4e2d528"
+    }
+  ],
+  "status": "PASS"
+}

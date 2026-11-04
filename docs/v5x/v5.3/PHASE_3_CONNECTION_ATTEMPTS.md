@@ -91,6 +91,10 @@ thirteen existing negatives. Initial Python fixture errors are retained; the
 fixture was corrected to use its actual scoped recipient, not node 2's port.
 No test threshold or production timeout was changed to make those fixtures pass.
 
+The [joining collector/reader follow-up](PHASE_3_JOINING_CONNECTIONS.md) now
+passes these component schedules through both actual collector vocabularies.
+The fresh required-four whole-history qualification below is still pending.
+
 ## Remaining integration
 
 1. Thread connection metadata through the old-owner and joining-owner collectors,

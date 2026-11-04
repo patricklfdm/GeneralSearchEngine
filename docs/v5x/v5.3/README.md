@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Joining connection integration](PHASE_3_JOINING_CONNECTIONS.md) now threads
+original socket metadata through old-owner and scoped joining collectors and the
+shared phase/network readers. Actual overlapping retries through these collectors
+pass independent replay and eight exact negatives. The fresh complete required-four
+history, remaining lifetime/resource composition and final-source admission remain
+pending; the original ambiguous trace keeps its prior scope.
+
 [Connection-scoped transport observations](PHASE_3_CONNECTION_ATTEMPTS.md) now
 preserve the actual socket pair and local invocation identity across late failure
 callbacks. Two real overlapping identical-request histories and eight independent

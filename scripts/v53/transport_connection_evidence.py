@@ -10,14 +10,14 @@ n=t.native;need,f,sha=n.need,n.f,n.sha
 CASES=('late-handler','late-response')
 
 
-def case(root,name):
+def case(root,name,reader=None):
     need({p.name for p in root.iterdir()}=={'original-plan.gsbp','original-application.image','initial','after','wire.json','events.json'},
          'connection case inventory')
     before=n.b.original(root,3,False);n.b.match(root,'after',before)
     cap=n.b.c.current(before['node-1'])[2]['capsule']
     identities={node:f.decode(files['node.gsr'],'records','NODE')['identity'] for node,files in before.items()}
     events=n.transport.load(root/'events.json');wires=n.transport.load(root/'wire.json')
-    result=t.replay(events,wires,identities,cap['root'])
+    result=(reader or t.replay)(events,wires,identities,cap['root'])
     need(result['attempts']==result['receivedAttempts']==2 and len(result['failed'])==1,'connection original attempt count')
     failure=result['failed'][0];rows=result['rows'];success=[v for v in rows if v['delivered'] is not None]
     need(len(success)==1 and len(rows)==(2 if name=='late-response' else 1),'connection original response count')
@@ -38,9 +38,9 @@ def case(root,name):
     return dict(case=name,attempts=2,callerFailures=1,serverFailures=1,deliveredReplies=1,storageUnchanged=True)
 
 
-def validate(directory):
+def validate(directory,*,reader=None):
     root=Path(directory);need(root.is_dir() and not root.is_symlink() and {v.name for v in root.iterdir()}=={'receipt.json',*CASES},'connection complete cases')
-    before=n.collection.inventory(root);results=[case(root/name,name) for name in CASES]
+    before=n.collection.inventory(root);results=[case(root/name,name,reader) for name in CASES]
     expected=dict(schema='gse-v53-transport-connections-v1',status='PASS',cases=results,execution='loopback-tcp-component',completeMembershipHistory=False,phase3Complete=False)
     need(n.transport.load(root/'receipt.json')==expected,'connection receipt scope')
     need(n.collection.inventory(root)==before,'connection original changed');return expected
@@ -65,7 +65,7 @@ def mutate(root,name):
     if name=='missing-original-response':
         p=root/'late-response/wire.json';value=n.transport.load(p);value.pop(0);p.write_bytes(f.canonical(value));return
     failed=next(i for i,v in enumerate(events) if v['event']==t.FAIL and v['direction']=='INBOUND')
-    good=next(v for v in events if v['event']==t.DELIVER)
+    good=next(v for v in events if v['event'] in (t.DELIVER,'NETWORK_RECEIVED'))
     if name=='wrong-local-socket':events[failed]['connection']['local']['port']+=1
     elif name=='crossed-reply':good['response']='a'*64
     elif name=='late-terminal-on-retry':
@@ -76,12 +76,12 @@ def mutate(root,name):
     path.write_bytes(f.canonical(events))
 
 
-def qualify(directory):
-    root=Path(directory);before=n.collection.inventory(root);original=validate(root);results=[]
+def qualify(directory,*,reader=None):
+    root=Path(directory);before=n.collection.inventory(root);original=validate(root,reader=reader);results=[]
     for name,reason in NEGATIVES.items():
         with tempfile.TemporaryDirectory(prefix='v53-connection-negative-') as temp:
             changed=Path(temp)/'raw';shutil.copytree(root,changed);mutate(changed,name)
-            try:validate(changed)
+            try:validate(changed,reader=reader)
             except ValueError as error:need(str(error)==reason,'connection unrelated negative: '+name+': '+str(error))
             else:raise ValueError('connection mutation accepted: '+name)
         results.append(dict(case=name,status='REJECTED',reason=reason))

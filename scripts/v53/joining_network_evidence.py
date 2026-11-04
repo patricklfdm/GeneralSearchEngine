@@ -240,7 +240,7 @@ def network(root, *, size=3, kind='ADD', recovery=None, old_owner_lifetimes=None
     result.update(phase.phase_replay(events,rows,replay,phases,old_owner_lifetimes=old_owner_lifetimes))
     result.update(wireExchanges=len(rows),sentRequests=len(rows),receivedRequests=len(rows),deliveredResponses=sum(v['delivered'] is not None for v in rows))
     if failed:
-        response_less=[v for v in failed if not v['withheldResponse']]
+        response_less=[v for v in failed if not v.get('responseOffered',v.get('withheldResponse',False))]
         result.update(sentRequests=len(rows)+len(response_less),
                       receivedRequests=len(rows)+sum(v['received'] is not None for v in response_less),
                       failedAttempts=len(failed),responseLessFailures=len(response_less),

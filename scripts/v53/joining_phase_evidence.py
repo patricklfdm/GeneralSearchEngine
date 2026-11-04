@@ -25,6 +25,8 @@ f, need, sha, disk = semantic.f, semantic.need, semantic.sha, semantic.disk
 
 def exchanges(events, wires, identities, root):
     """One original response per observed delivery, including scoped new owners."""
+    from . import joining_connections
+    if joining_connections.present(events,wires):return joining_connections.replay(events,wires,identities,root)['rows']
     positions = defaultdict(deque)
     need(type(events) is list and len(events) <= semantic.collection.HISTORY_ROWS and type(wires) is list and len(wires) <= semantic.collection.HISTORY_ROWS,
          'joining bounded wire observations')

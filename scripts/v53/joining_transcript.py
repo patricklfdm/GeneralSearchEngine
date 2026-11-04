@@ -19,6 +19,11 @@ def causal(events, wires, identities, root, *, transfer_only=False, failed=None)
     Publication may explicitly request only transfer causality; this leaves
     control-attempt qualification to the separate complete-network gate.
     """
+    from . import joining_connections
+    if joining_connections.present(events,wires):
+        result=joining_connections.replay(events,wires,identities,root)
+        if failed is not None and not transfer_only:failed.extend(result['failed'])
+        return [v for v in result['rows'] if not transfer_only or v['kind'] in ('CHUNK','TRANSFER_COMMIT')]
     rows = phase.exchanges(events, wires, identities, root)
     failures = {} if transfer_only else joining_attempts.failures(events,rows,identities,root)
     completions = defaultdict(list)

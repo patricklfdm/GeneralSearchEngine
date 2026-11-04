@@ -40,11 +40,15 @@ def literal(identity):
     return str(address),identity['port']
 
 
-def replay(events,wires,identities,root):
+def replay(events,wires,identities,root,*,positions=None,allow_withheld=False):
     need(type(events) is list and type(wires) is list and len(events)<=native.collection.HISTORY_ROWS and
          len(wires)<=native.collection.HISTORY_ROWS,'connection bounded observations')
-    owners={};outbound=[];inbound=[]
-    for at,row in enumerate(events):
+    need(type(allow_withheld) is bool,'connection withheld policy')
+    if positions is None:positions=list(range(len(events)))
+    need(type(positions) is list and len(positions)==len(events) and all(type(v) is int and v>=0 for v in positions) and
+         positions==sorted(set(positions)),'connection original event positions')
+    by_at=dict(zip(positions,events));owners={};outbound=[];inbound=[]
+    for at,row in zip(positions,events):
         need(type(row) is dict and row.get('event') in EVENTS,'connection event kind')
         event=row['event'];extra={'bytes'} if event==SEND else {'response','responseKind'} if event in (OFFER,DELIVER) else {'direction','reason'} if event==FAIL else set()
         need(set(row)=={'node','scope','event','request','kind','connection'}|extra and
@@ -82,7 +86,7 @@ def replay(events,wires,identities,root):
         prior_sockets[route]=end
     answers={}
     for row in wires:
-        need(type(row) is dict and set(row)=={'connection','request','response','withheld'} and row['withheld'] is False,
+        need(type(row) is dict and set(row)=={'connection','request','response','withheld'} and type(row['withheld']) is bool and (not row['withheld'] or allow_withheld),
              'connection original response shape')
         identifier,local,remote=connection(row['connection']);item=owners.get(identifier)
         need(item is not None and not item['outbound'] and item['local']==local and item['remote']==remote and OFFER in item['steps'],
@@ -90,17 +94,18 @@ def replay(events,wires,identities,root):
         need(identifier not in answers,'connection duplicate original response')
         kind,q=wire(row['request']);answer,a=wire(row['response'])
         qh,ah=[sha(base64.b64decode(row[k],validate=True)) for k in ('request','response')]
-        event=events[item['steps'][OFFER]]
+        event=by_at[item['steps'][OFFER]]
         need(qh==item['requestHash'] and kind==item['kind'] and ah==event['response'] and answer==event['responseKind'],
              'connection original response binding')
         need({k:v for k,v in a.items() if k!='payload'}==dict({k:v for k,v in q.items() if k!='payload'},sender=q['recipient'],recipient=q['sender']),
              'connection response correlation')
         answers[identifier]=dict(kind=kind,answer=answer,request=q,response=a,requestHash=qh,responseHash=ah,
                                   offered=item['steps'][OFFER],delivered=None)
+        if row['withheld']:answers[identifier]['withheld']=True
     need(set(answers)=={v['id'] for v in inbound if OFFER in v['steps']},'connection missing original response')
     results=[];failures=[]
     for sent in outbound:
-        steps=sent['steps'];event=events[steps[SEND]];kind,q=wire(event['bytes'])
+        steps=sent['steps'];event=by_at[steps[SEND]];kind,q=wire(event['bytes'])
         need(sha(base64.b64decode(event['bytes'],validate=True))==sent['requestHash'] and kind==sent['kind'],
              'connection original request bytes')
         sender,receiver=q['sender']['node'],q['recipient']['node']
@@ -116,12 +121,13 @@ def replay(events,wires,identities,root):
             failures.append(dict(sent=steps[SEND],received=received['steps'][READ] if received else None,
                 clientFailed=steps[FAIL],serverFailed=received['steps'][FAIL] if received else None,
                 requestHash=sent['requestHash'],clientConnection=sent['id'],serverConnection=received['id'] if received else None,
-                clientReason=events[steps[FAIL]]['reason'],serverReason=events[received['steps'][FAIL]]['reason'] if received else None,
-                responseOffered=response is not None))
+                clientReason=by_at[steps[FAIL]]['reason'],serverReason=by_at[received['steps'][FAIL]]['reason'] if received else None,
+                responseOffered=response is not None,kind=kind,sender=sender,recipient=receiver,
+                finished=max(steps[FAIL],received['steps'][FAIL] if received else steps[FAIL])))
         else:
             need(received is not None and FAIL not in received['steps'] and response is not None,'connection missing caller terminal')
-            delivery=events[steps[DELIVER]]
-            need(delivery['response']==response['responseHash'] and delivery['responseKind']==response['answer'] and
+            delivery=by_at[steps[DELIVER]]
+            need(not response.get('withheld',False) and delivery['response']==response['responseHash'] and delivery['responseKind']==response['answer'] and
                  steps[SEND]<received['steps'][READ]<response['offered']<steps[DELIVER],'connection delivered response binding')
             response['delivered']=steps[DELIVER]
         if response:

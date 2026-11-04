@@ -76,7 +76,8 @@
         "scripts/v53/test_transfer_reply_lifetime.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransportConnectionTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ConnectionTrace.java",
-        "scripts/v53/test_connection_transcript.py"
+        "scripts/v53/test_connection_transcript.py",
+        "scripts/v53/test_joining_connections.py"
       ],
       "readers": [
         "scripts/v53/transfer_fault_evidence.py",
@@ -86,7 +87,8 @@
         "scripts/v53/transfer_reply_lifetime.py",
         "scripts/v53/transfer_reply_resources.py",
         "scripts/v53/connection_transcript.py",
-        "scripts/v53/transport_connection_evidence.py"
+        "scripts/v53/transport_connection_evidence.py",
+        "scripts/v53/joining_connections.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_TRANSFER_FAULTS.md",
@@ -97,7 +99,9 @@
         "docs/v5x/v5.3/PHASE_3_TRANSFER_REPLY_LIFETIME.md",
         "docs/v5x/v5.3/PHASE_3_TRANSFER_RESOURCE_LIFETIME.md",
         "docs/v5x/v5.3/PHASE_3_CONNECTION_ATTEMPTS.md",
-        "docs/v5x/v5.3/phase3-evidence/connection-attempts.json"
+        "docs/v5x/v5.3/phase3-evidence/connection-attempts.json",
+        "docs/v5x/v5.3/PHASE_3_JOINING_CONNECTIONS.md",
+        "docs/v5x/v5.3/phase3-evidence/joining-connections.json"
       ],
       "cohorts": [
         "joining-reply-loss",
@@ -257,7 +261,8 @@
         "scripts/v53/test_required_four_physical.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransportConnectionTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ConnectionTrace.java",
-        "scripts/v53/test_connection_transcript.py"
+        "scripts/v53/test_connection_transcript.py",
+        "scripts/v53/test_joining_connections.py"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -275,7 +280,8 @@
         "scripts/v53/pinned_floor_process_evidence.py",
         "scripts/v53/required_four_physical.py",
         "scripts/v53/connection_transcript.py",
-        "scripts/v53/transport_connection_evidence.py"
+        "scripts/v53/transport_connection_evidence.py",
+        "scripts/v53/joining_connections.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_JOINT_COORDINATION.md",
@@ -297,7 +303,9 @@
         "docs/v5x/v5.3/PHASE_3_REQUIRED_FOUR_PHYSICAL.md",
         "docs/v5x/v5.3/phase3-evidence/required-four-physical.json",
         "docs/v5x/v5.3/PHASE_3_CONNECTION_ATTEMPTS.md",
-        "docs/v5x/v5.3/phase3-evidence/connection-attempts.json"
+        "docs/v5x/v5.3/phase3-evidence/connection-attempts.json",
+        "docs/v5x/v5.3/PHASE_3_JOINING_CONNECTIONS.md",
+        "docs/v5x/v5.3/phase3-evidence/joining-connections.json"
       ],
       "cohorts": [
         "profiles",

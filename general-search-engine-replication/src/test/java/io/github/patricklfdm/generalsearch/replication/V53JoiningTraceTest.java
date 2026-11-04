@@ -77,4 +77,46 @@ class V53JoiningTraceTest {
         trace.cut("retaining-owner").at("BASIS_FORCED");trace.cut("stable-cold-owner").at("BASIS_FORCED");
         assertEquals(List.of("retaining-owner","stable-cold-owner"),events.subList(2,4).stream().map(v->v.get("scope")).toList());
     }
+    private static MembershipTransport.Connection connection(int port) {
+        return new MembershipTransport.Connection(UUID.randomUUID(),new java.net.InetSocketAddress("127.0.0.1",port),new java.net.InetSocketAddress("127.0.0.1",9002));
+    }
+    @Test void connectionContextIsRestoredAfterNestedOrThrowingOldCallbacks()throws Exception {
+        var events=new ArrayList<Map<String,Object>>();var request=V53MembershipWireTest.sample("PREPARE");
+        var outer=connection(57001);var inner=connection(57002);
+        var nested=V53JoiningTrace.withFailures("node-1",null,events,()->true,()->true,(event,q,a)->{
+            assertEquals(V53ConnectionTrace.identity(inner),V53JoiningTrace.connected(Map.of()).get("connection"));
+            throw new java.io.IOException("inner observation failed");
+        });
+        var observer=V53JoiningTrace.withFailures("node-1",null,events,()->true,()->true,(event,q,a)->{
+            assertEquals(V53ConnectionTrace.identity(outer),V53JoiningTrace.connected(Map.of()).get("connection"));
+            assertThrows(java.io.IOException.class,()->nested.at(event,q,a,inner));
+            assertEquals(V53ConnectionTrace.identity(outer),V53JoiningTrace.connected(Map.of()).get("connection"));
+            V53JoiningTrace.requestObservation(events,"node-1",event,q);
+        });
+        observer.at("BEFORE_REQUEST_WRITE",request,null,outer);
+        observer.failed(true,request,MembershipTransport.Reason.DEADLINE,outer);
+        assertTrue(V53JoiningTrace.connected(Map.of()).isEmpty());assertEquals(2,events.size());
+        assertTrue(events.stream().allMatch(v->v.get("connection").equals(V53ConnectionTrace.identity(outer))));
+        var disabled=V53JoiningTrace.withFailures("node-1",null,events,()->true,()->false,(event,q,a)->V53JoiningTrace.requestObservation(events,"node-1",event,q));
+        disabled.at("BEFORE_REQUEST_WRITE",request,null,outer);assertFalse(events.getLast().containsKey("connection"));
+    }
+    @Test void joiningDiagnosticDecoratorForwardsTheSameConnectionOnBothCallbacks()throws Exception {
+        var events=new ArrayList<Map<String,Object>>();var wire=new ArrayList<Map<String,Object>>();var id=connection(57001);
+        var request=V53MembershipWireTest.sample("PREPARE");var calls=new ArrayList<String>();
+        var observer=new MembershipTransport.Events() {
+            @Override public void at(String event,Decoded q,Decoded a){fail("connection dropped");}
+            @Override public void at(String event,Decoded q,Decoded a,MembershipTransport.Connection connection) {
+                assertSame(id,connection);calls.add(event);
+                assertEquals(V53ConnectionTrace.identity(id),events.getLast().get("connection"));
+            }
+            @Override public void failed(boolean out,Decoded q,MembershipTransport.Reason reason,MembershipTransport.Connection connection) {
+                assertSame(id,connection);calls.add("failed");
+                assertEquals(V53ConnectionTrace.identity(id),events.getLast().get("connection"));
+            }
+        };
+        var trace=new V53JoiningTrace("node-4",events,wire,true).transport("continuation-endpoint",observer);
+        trace.at("BEFORE_REQUEST_WRITE",request,null,id);trace.failed(true,request,MembershipTransport.Reason.IO,id);
+        assertEquals(List.of("BEFORE_REQUEST_WRITE","failed"),calls);assertTrue(V53JoiningTrace.connected(Map.of()).isEmpty());
+    }
+
 }
