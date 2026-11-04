@@ -7,6 +7,12 @@ groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
 
+[Native transfer reply revocation](PHASE_3_TRANSFER_REPLY_LIFETIME.md) now checks
+48 PROMISE-export TCP cases and 30 exact negatives at the final handler boundary.
+The original bytes, deadline, revoked response and resource drain are bound to
+each original; all-kind export coverage, competition admission and final-source
+execution remain open. No additional hosted history is counted.
+
 [Observed higher-ballot restart](PHASE_3_RESTART_LIFECYCLE.md) now binds actual
 loss, session drain/replacement, both READY callbacks and final DATA completion
 to one original two-campaign history. Current physical/network replay and 73

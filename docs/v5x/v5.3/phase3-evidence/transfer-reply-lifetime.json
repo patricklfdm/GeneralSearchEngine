@@ -1,0 +1,125 @@
+{
+  "allExportKindsQualified": false,
+  "baseCommit": "1d58cce11848fcd15591f70ad15ec8502cc80fb9",
+  "buildSha256": "14a25f48290037632d02b0ee8de378389bf7a824f6ba1394ccc7c961c0b65aa6",
+  "checks": {
+    "current-production-test.json": {
+      "path": "target/v53-transfer-reply-lifetime-batch/current-production-test.json",
+      "sha256": "30780d768020dbf3de2b4128a86cd58b6806f113c046dd9786bd77fa0f84088b"
+    },
+    "input/build.json": {
+      "path": "target/v53-transfer-reply-lifetime-batch/input/build.json",
+      "sha256": "14a25f48290037632d02b0ee8de378389bf7a824f6ba1394ccc7c961c0b65aa6"
+    },
+    "input/command.json": {
+      "path": "target/v53-transfer-reply-lifetime-batch/input/command.json",
+      "sha256": "422e797ec7537d3f8a84b550179207f3fb032d60adabd482e204e6172138e965"
+    },
+    "input/execution.json": {
+      "path": "target/v53-transfer-reply-lifetime-batch/input/execution.json",
+      "sha256": "2dea94664ad93a232487b55bfce1768cb00919cd90e148a30d67d1bd79f938fe"
+    },
+    "input/raw-inventory.json": {
+      "path": "target/v53-transfer-reply-lifetime-batch/input/raw-inventory.json",
+      "sha256": "2fcfd4f3ac16ac3c3c07198e53bd14ac1f9057352a4212743b6f26c21dc80751"
+    },
+    "input/source.json": {
+      "path": "target/v53-transfer-reply-lifetime-batch/input/source.json",
+      "sha256": "be158c31482a751d92971779e7b01bd8ca24c1d69b2669cd76d1a716b38ae7b8"
+    },
+    "input/toolchain.json": {
+      "path": "target/v53-transfer-reply-lifetime-batch/input/toolchain.json",
+      "sha256": "8940d240213193a5a6f9712eda2495220ecc1b915ec92043c88249c6c71c3886"
+    },
+    "missing-final-guard/execution.json": {
+      "path": "target/v53-transfer-reply-lifetime-batch/missing-final-guard/execution.json",
+      "sha256": "51440f99cfad3c26f0560c087d8a0944b45eceb8c990034acc9f7eaee18c4aa3"
+    },
+    "missing-final-guard/maven.log": {
+      "path": "target/v53-transfer-reply-lifetime-batch/missing-final-guard/maven.log",
+      "sha256": "5b2694b4d111f59b4c5aa63c245915b8b40e2dcdd75415bf2638c997b6e5d1e6"
+    },
+    "missing-final-guard/mutation.json": {
+      "path": "target/v53-transfer-reply-lifetime-batch/missing-final-guard/mutation.json",
+      "sha256": "5b2ef31e10751760479a8f1ea7d57e1a026b3c6d02905cf94b6897d692551628"
+    },
+    "native-junit": {
+      "path": "target/v53-transfer-reply-lifetime-batch/input/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53TransferReplyLifetimeTest.xml",
+      "sha256": "a5517b3b4751682ee29a814e17b7ff234f385526766c3a85f1824c3013360478"
+    },
+    "native-log": {
+      "path": "target/v53-transfer-reply-lifetime-batch/input/maven.log",
+      "sha256": "64823383bb5bdfdf8597b846f9a4df9604abf32b2bb9ca4f13a341ae09ce3e6c"
+    },
+    "portable-qualification.json": {
+      "path": "target/v53-transfer-reply-lifetime-batch/portable-qualification.json",
+      "sha256": "f3af45fd561e212f226a2800ac775974639e34a4885748cc04e7f248fe753fc5"
+    },
+    "python-focused-01.log": {
+      "path": "target/v53-transfer-reply-lifetime-batch/python-focused-01.log",
+      "sha256": "29f8a46c2379658529ff59ecf9c0c4df922e5261c5fe87ee54b9bfed7f239769"
+    },
+    "python-focused-optimized.log": {
+      "path": "target/v53-transfer-reply-lifetime-batch/python-focused-optimized.log",
+      "sha256": "7777cf84fe0d6de59774c124d6e0c1d24bacebaf0f79cb8ec51e32fc3a50c7c5"
+    },
+    "python-suite.log": {
+      "path": "target/v53-transfer-reply-lifetime-batch/python-suite.log",
+      "sha256": "d7ab52cf20b2cd3016f9bc18025581c99a9e571d37c464b4d312ea994a8e521e"
+    },
+    "replay-01/elapsed.json": {
+      "path": "target/v53-transfer-reply-lifetime-batch/replay-01/elapsed.json",
+      "sha256": "4f795f0613ea26d935348dfc5a1947574e2434cd41bd8a7a1ad5fb54b1c839d2"
+    },
+    "replay-01/qualification.json": {
+      "path": "target/v53-transfer-reply-lifetime-batch/replay-01/qualification.json",
+      "sha256": "c736f0a88fbb984c89214408965202a05bc91328523c061ec1e15d6f3a63d8f2"
+    },
+    "replay-01/reader.json": {
+      "path": "target/v53-transfer-reply-lifetime-batch/replay-01/reader.json",
+      "sha256": "c34e4683b9f92dcbcd885f72ba3a3c8daf30e63ae0587fd93aafca27fcec3c9a"
+    }
+  },
+  "clockInjection": "explicit-offset",
+  "currentProductionAndNativeTestMatchRecordedSource": true,
+  "deliberateMutation": {
+    "elapsedSeconds": 22.018,
+    "executions": 1,
+    "removed": "final post-materialization live check",
+    "result": "REJECTED"
+  },
+  "evidenceNegatives": 30,
+  "finalSourceCohortQualified": false,
+  "focusedPythonTests": 34,
+  "higherBallotInjection": "local-native-owner-observation",
+  "nativeCases": 48,
+  "nativeExecution": {
+    "elapsedSeconds": 278.86,
+    "exit": 0
+  },
+  "nativeExecutions": 1,
+  "nativeRetries": 0,
+  "observations": {
+    "attempts": 216,
+    "delivered": 72,
+    "materialized": 120,
+    "refused": 144
+  },
+  "optimizedFocusedPythonTests": 34,
+  "original": "/home/klfdm/perception/GeneralSearchEngine/target/v53-transfer-reply-lifetime-batch/input/workspace/general-search-engine-replication/target/v53-transfer-reply-lifetime/run-6d506fef-9674-4e77-aead-7c0274aa2a33",
+  "originalBytes": 14691078,
+  "originalInventorySha256": "2fcfd4f3ac16ac3c3c07198e53bd14ac1f9057352a4212743b6f26c21dc80751",
+  "originalPreserved": true,
+  "phase3Complete": false,
+  "portableOptimizedReplayMatches": true,
+  "postHandlerSocketRevocationQualified": false,
+  "publicRuntimeQualified": false,
+  "pythonTests": 2559,
+  "readerSha256": "875dee12d1ad540316c7646b018a87cfdafd4dbea21a54a5f80dd6ade5dfa4f1",
+  "readerSourceSeparateFromNativeBuild": true,
+  "remoteElectionQualified": false,
+  "schema": "gse-v53-transfer-reply-lifetime-development-v1",
+  "scope": "native-PROMISE-export-pre-return-revocation",
+  "sourceSha256": "be158c31482a751d92971779e7b01bd8ca24c1d69b2669cd76d1a716b38ae7b8",
+  "status": "PASS"
+}

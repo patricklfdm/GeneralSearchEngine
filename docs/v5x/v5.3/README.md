@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Native transfer reply revocation](PHASE_3_TRANSFER_REPLY_LIFETIME.md) adds
+48 original TCP cases at sizes 3/4/5: expiry, close and actual owner fencing after
+reply materialization, plus exact and new-trace refusal. Independent replay keeps
+this PROMISE-export component separate from all-kind lifecycle and final-source
+qualification; Phase 3 remains OPEN.
+
 [Observed automatic restart](PHASE_3_RESTART_LIFECYCLE.md) now binds one actual
 higher-ballot loss, old-session drain, new session and fresh READY to the same
 original physical/network history. Its optional test capture preserves the

@@ -56,7 +56,7 @@ prove its semantics.
 | 3C initialization | Actual joining owner, three-ledger initialization and 360-case entry | Final-source matrix; combined bounds |
 | 3C joint | Private INTENT/FINAL/BARRIER coordination for all seven profiles; [carried INTENT/FINAL physical replay](PHASE_3_CARRIED_TRANSITIONS.md) for four-voter REMOVE | Final-source profiles and carried pair execution, other profiles and interrupted transitions |
 | 3D rounds | Carried-first publication, two durable phases, round reuse, [seven-history admission](PHASE_3_NATIVE_ROUND_COHORT.md) and [carried INTENT/FINAL physical/lifecycle replay](PHASE_3_CARRIED_TRANSITIONS.md) | Final-source native round execution; carried DATA has a [four-history local entry](PHASE_3_CARRIED_DATA_COHORT.md); the [carried transition pair](PHASE_3_CARRIED_TRANSITION_COHORT.md) has six-layer admission; final-source execution, other payload axes and process faults remain |
-| 3D automatic | Competing owners, heartbeat, original grants, both campaign networks, maintenance, installation/publication, [observed export authority](PHASE_3_COMPETING_EXPORTS.md), [actual lifecycle collection](PHASE_3_AUTOMATIC_LIFECYCLE.md) and [pre-grant-loss whole replay](PHASE_3_PREGRANT_LOSS_REPLAY.md) | Export expiry/close faults, complete lifecycle/recovery, final-source competition and failure coverage |
+| 3D automatic | Competing owners, heartbeat, original grants, both campaign networks, maintenance, installation/publication, [observed export authority](PHASE_3_COMPETING_EXPORTS.md), [actual lifecycle collection](PHASE_3_AUTOMATIC_LIFECYCLE.md) and [pre-grant-loss whole replay](PHASE_3_PREGRANT_LOSS_REPLAY.md) | All-kind export lifecycle beyond the [PROMISE reply-boundary component](PHASE_3_TRANSFER_REPLY_LIFETIME.md), complete recovery, final-source competition and failure coverage |
 | 3D removal | Departure fencing, retirement and original-disk recovery | Final-source original/negative process matrix |
 | 3E resources | Accounting, bounded transfers, publication refusal and conditional-prefix tests | Simultaneous physical peak and admitted completion |
 | 3E coverage | Frozen finite inventory and this dependency map | Concrete schedule/evidence/rejection mapping |
@@ -89,6 +89,10 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    complete current physical/network replay and unchanged deadline. It adds no
    hosted subset or final-source qualification. General lifecycle/fault coverage
    and competition admission remain open.
+   [Native transfer reply revocation](PHASE_3_TRANSFER_REPLY_LIFETIME.md) now adds
+   48 original TCP cases for PROMISE exports at offer/data/commit/cached-retry
+   boundaries. Its 30 negatives preserve exact clocks, bytes and resource drain;
+   this component does not qualify other export kinds or add a hosted cohort.
    The [transfer matrix entry](PHASE_3_TRANSFER_HISTORY_COHORT.md) binds the existing
    complete TCP lifetime and two-process recovery matrices to one recorded
    source/build/toolchain/reader and independently replays both originals. It is
