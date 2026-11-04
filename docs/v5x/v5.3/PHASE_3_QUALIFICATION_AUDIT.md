@@ -148,7 +148,11 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    The six-revision history's recorded final-CANCEL deadline failure remains a
    failure; retrying, extending budgets or reconstructing observations cannot
    turn that original into a pass.
-2. **Qualify combined resources.** Review actual lifetime overlap, then exercise
+2. **Qualify combined resources.** The [partial-generation reservation correction](PHASE_3_GENERATION_RESERVATION.md)
+   fixes a reproduced loss of accounting on failed install expansion. It retains
+   original handles and rolls back unsuccessful grouped growth; full native
+   overlap and the floor/retirement refusal paths remain separate work.
+   Review actual lifetime overlap, then exercise
    selected/current/inactive sources, learner staging and reserved completion on
    real owners. `V53ResourceTransferTest` reserves the accounting envelope;
    `V53PublicationCapacityTest` checks conditional-prefix refusal and stable DATA.

@@ -82,6 +82,33 @@ final class MembershipResources {
         return List.copyOf(rows);
     }
     record StorageReservation(Unit unit,String owner,long bytes) {}
+    /** Extend one inactive generation without releasing its original handles.
+     * Other receivers see either the original charges or the complete reservation.
+     * A failed extent/count admission leaves every original charge unchanged. */
+    synchronized List<Lease> extendGeneration(Map<Lease,Long> growth,List<StorageReservation> additions) {
+        require(growth.size()+additions.size()<=8,"generation reservation group bound");
+        var originals=new LinkedHashMap<Lease,Long>();
+        for(var row:growth.entrySet()) {
+            var lease=Objects.requireNonNull(row.getKey());long total=row.getValue();
+            require(!lease.released && leases.get(lease.key)==lease
+                    && (lease.key.unit==Unit.GENERATION || lease.key.unit==Unit.APPLICATION),"generation reservation original owner");
+            require(total>0 && total<=lease.key.unit.bytes,"generation reservation extent");
+            originals.put(lease,lease.bytes);
+        }
+        for(var row:additions)require(row.unit==Unit.GENERATION || row.unit==Unit.APPLICATION,"generation reservation category");
+        long originalMetadata=metadata,originalStaging=staging;
+        var acquired=new ArrayList<Lease>(additions.size());
+        try {
+            for(var row:growth.entrySet())row.getKey().reserveStorage(Math.max(row.getKey().bytes,row.getValue()));
+            for(var row:additions)acquired.add(reserve(row.unit,row.owner,row.bytes));
+            return List.copyOf(acquired);
+        }catch(RuntimeException | Error error) {
+            acquired.forEach(Lease::close);
+            originals.forEach((lease,bytes)->lease.bytes=bytes);
+            metadata=originalMetadata;staging=originalStaging;
+            throw error;
+        }
+    }
     /** Preflight a complete quiescent group replacement without changing charges.
      * The commit repeats the exact-handle/extent check under this monitor. */
     synchronized StorageReplacement prepareCompleteReplacement(Set<Lease> expected,List<StorageReservation> requested) {
@@ -180,16 +207,17 @@ final class MembershipResources {
          * This neither shares a reservation nor changes the physical copy count. */
         void reserveStorage(long total) {
             synchronized(MembershipResources.this) {
-                require(!released && leases.get(key)==this && (key.unit==Unit.SOURCE || key.unit==Unit.LEARNER || key.unit==Unit.APPLICATION),"storage reservation owner");
+                require(!released && leases.get(key)==this && (key.unit==Unit.GENERATION || key.unit==Unit.SOURCE || key.unit==Unit.LEARNER || key.unit==Unit.APPLICATION),"storage reservation owner");
                 require(total>=bytes && total<=key.unit.bytes,"storage reservation extent");
                 long additional=total-bytes;
                 if(key.unit.metadata) {
                     require(additional<=metadataLimit-metadata,"metadata capacity");
                     require(HEADROOM-protectedUsed<=metadataLimit-metadata-additional,"completion headroom");
                 }
-                require(additional<=stagingLimit-staging,"shared staging capacity");
+                if(key.unit.staging)require(additional<=stagingLimit-staging,"shared staging capacity");
                 if(key.unit.metadata)metadata+=additional;
-                staging+=additional;bytes=total;
+                if(key.unit.staging)staging+=additional;
+                bytes=total;
             }
         }
         /** One admission owner expands its existing protected metadata slot;

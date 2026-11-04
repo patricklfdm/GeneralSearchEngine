@@ -467,7 +467,8 @@
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFloorFiles.java",
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java",
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java",
-        "scripts/v53/process_joint_hosted.py"
+        "scripts/v53/process_joint_hosted.py",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationFiles.java"
       ],
       "tests": [
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransferTest.java",
@@ -505,7 +506,8 @@
         "scripts/v53/test_process_joint_scratch.py",
         "scripts/v53/test_process_joint_cohort.py",
         "scripts/v53/test_process_joint_hosted.py",
-        "scripts/v53/test_process_joint_workflow.py"
+        "scripts/v53/test_process_joint_workflow.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationReservationTest.java"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -541,7 +543,8 @@
         "docs/v5x/v5.3/PHASE_3_NATIVE_PARTIAL_JOINT_FLOOR.md",
         "docs/v5x/v5.3/PHASE_3_NATIVE_PROCESS_JOINT_FLOOR.md",
         "docs/v5x/v5.3/PHASE_3_PROCESS_JOINT_COHORT.md",
-        "docs/v5x/v5.3/PHASE_3_PROCESS_JOINT_HOSTED.md"
+        "docs/v5x/v5.3/PHASE_3_PROCESS_JOINT_HOSTED.md",
+        "docs/v5x/v5.3/PHASE_3_GENERATION_RESERVATION.md"
       ],
       "cohorts": [
         "profiles",

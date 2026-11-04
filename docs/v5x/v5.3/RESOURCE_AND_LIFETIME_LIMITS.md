@@ -82,6 +82,11 @@ verified backup to a new root; old tokens/operation IDs do not cross that bounda
 
 ## Tests and acceptance boundaries
 
+[Partial-generation resume](PHASE_3_GENERATION_RESERVATION.md) keeps every original
+file charged if capacity expansion fails. New reservation groups either complete
+under the shared monitor or restore all original extents; existing completion
+image reservations cannot shrink. The failed writer still requires close/reopen.
+
 The [combined receive histories](PHASE_3_COMBINED_RECEIVE_RESOURCES.md) now measure
 real current/PROMISE and receiving copies sharing one resource owner. Nine
 independent native cases cover seven simultaneous application files, a shared

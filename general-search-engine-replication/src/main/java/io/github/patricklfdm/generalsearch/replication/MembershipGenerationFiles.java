@@ -16,6 +16,7 @@ final class MembershipGenerationFiles implements AutoCloseable {
     private final String slot;
     private final MembershipResources resources;
     private final List<MembershipResources.Lease> leases=new ArrayList<>();
+    private final Map<String,MembershipResources.Lease> parts=new HashMap<>();
     private final Map<String,FileIdentity> files=new TreeMap<>();
     private Object pathKey;
     private FileIdentity pending;
@@ -32,10 +33,6 @@ final class MembershipGenerationFiles implements AutoCloseable {
     boolean reservePublicationImage() {
         if(completionImage==null)return false;
         completionImage.reserveApplicationMaximum();return true;
-    }
-    private void reserveImage(String owner,long bytes) {
-        var lease=resources.reserve(MembershipResources.Unit.APPLICATION,owner,bytes);leases.add(lease);
-        if(completionImage==null)completionImage=lease;
     }
     boolean pending(){return pending!=null;}
     String slot(){return slot;}
@@ -77,15 +74,25 @@ final class MembershipGenerationFiles implements AutoCloseable {
         if(pending!=null)require(pending.equals(inspect(parent.resolve(PENDING),pending.bytes(),pending.digest())),"pending selector inode changed");
     }
     private void reserve(MembershipGenerationPlan plan) {
-        close();if(!exists && plan==null)return;
-        try {
-            long metadata=plan==null?files.entrySet().stream().filter(e->!e.getKey().endsWith(".image")).mapToLong(e->e.getValue().bytes()).sum():plan.metadata;
-            leases.add(resources.reserve(MembershipResources.Unit.GENERATION,slot,Math.max(1,metadata)));
-            if(plan==null) {
-                for(var file:files.entrySet())if(file.getKey().endsWith(".image"))reserveImage("generation-"+slot+":"+file.getKey(),Math.max(1,file.getValue().bytes()));
-            }else for(var file:plan.files.entrySet())if(file.getKey().endsWith(".image"))reserveImage("generation-"+slot+":"+file.getKey(),file.getValue().length);
-            reservedPlan=plan==null?null:plan.manifest.digest();
-        }catch(RuntimeException | Error error){close();throw error;}
+        if(!exists && plan==null)return;
+        long metadata=plan==null?files.entrySet().stream().filter(e->!e.getKey().endsWith(".image")).mapToLong(e->e.getValue().bytes()).sum():plan.metadata;
+        var required=new LinkedHashMap<String,MembershipResources.StorageReservation>();
+        required.put("metadata",new MembershipResources.StorageReservation(MembershipResources.Unit.GENERATION,slot,Math.max(1,metadata)));
+        var images=new TreeMap<String,Long>();
+        if(plan==null) {
+            for(var file:files.entrySet())if(file.getKey().endsWith(".image"))images.put(file.getKey(),Math.max(1,file.getValue().bytes()));
+        }else for(var file:plan.files.entrySet())if(file.getKey().endsWith(".image"))images.put(file.getKey(),(long)file.getValue().length);
+        images.forEach((name,bytes)->required.put(name,new MembershipResources.StorageReservation(
+                MembershipResources.Unit.APPLICATION,"generation-"+slot+":"+name,bytes)));
+        require(required.keySet().containsAll(parts.keySet()),"generation reservation cannot drop original parts");
+        var growth=new LinkedHashMap<MembershipResources.Lease,Long>();var additions=new ArrayList<MembershipResources.StorageReservation>();
+        var names=new ArrayList<String>();
+        required.forEach((name,row)->{var lease=parts.get(name);
+            if(lease==null){names.add(name);additions.add(row);}else growth.put(lease,row.bytes());});
+        var acquired=resources.extendGeneration(growth,additions);
+        for(int n=0;n<names.size();n++){var lease=acquired.get(n);parts.put(names.get(n),lease);leases.add(lease);}
+        if(completionImage==null && !images.isEmpty())completionImage=parts.get(images.firstKey());
+        reservedPlan=plan==null?null:plan.manifest.digest();
     }
     void checkPlan(MembershipGenerationPlan plan) throws IOException {
         require(plan.manifest.value().get("generation").equals(slot),"installation slot");check();
@@ -201,5 +208,5 @@ final class MembershipGenerationFiles implements AutoCloseable {
         }
         AdmissionPaths.exact(file,bytes);capture();
     }
-    @Override public void close(){leases.forEach(MembershipResources.Lease::close);leases.clear();reservedPlan=null;completionImage=null;}
+    @Override public void close(){leases.forEach(MembershipResources.Lease::close);leases.clear();parts.clear();reservedPlan=null;completionImage=null;}
 }

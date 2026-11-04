@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Partial generation reservation](PHASE_3_GENERATION_RESERVATION.md) now preserves
+original file charges when installation expansion is refused. Two deterministic
+disk regressions and grouped reservation tests cover the correction; combined
+native resource qualification and final-source execution remain open.
+
+
 [Hosted joint-floor process qualification](PHASE_3_PROCESS_JOINT_HOSTED.md) now
 prepares one immutable seed, 32 whole-history executions and 32 independent
 downloaded replays, with exact source/run/attempt binding and all 1,544 negatives.

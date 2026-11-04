@@ -1,0 +1,188 @@
+{
+  "baseHead": "a9f255294406d6ab871a6b976805b95c9a65cec0",
+  "baselineProduction": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationFiles.java": "4942ea4929e9c17ff628704df23f08b54951562415c9a4cea0b71b7d8eee949c",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java": "e1764d2fbe78ee40c4fdf764388d088dde6331aa302548bbc387776f31325d17"
+  },
+  "competingPressure": "accounting reservations, not physical receiving copies",
+  "finalSourceQualified": false,
+  "finalizer": {
+    "path": "target/v53-generation-reservation/finalize.py",
+    "sha256": "d1ec06ebdb973e6c305879ad0ab804f02fa2aef17560a6d4a5a288072f8ac354"
+  },
+  "isolatedBaselineProbe": {
+    "expectedFailures": 2,
+    "log": {
+      "path": "target/v53-generation-reservation/baseline-01/probe.log",
+      "sha256": "612485aaf48e1df112dd7a6dac84b6ecc96bcd5b46ef5bf0e4096db8a62b2a23"
+    },
+    "receipt": {
+      "path": "target/v53-generation-reservation/baseline-01/receipt.json",
+      "sha256": "e69545218394283a1afcbb3be27370b02f397c78adb7ed5bafa9bc5a3fe1ed08"
+    },
+    "script": {
+      "path": "target/v53-generation-reservation/baseline_probe.py",
+      "sha256": "e3ba790e26e1149ce6e058d8e068373cd46c7d7dd841b3df6be85874054622e1"
+    }
+  },
+  "nativeDistributedMaximumQualified": false,
+  "originalRegression": {
+    "failure": "partial manifest charge disappears after denied installation expansion",
+    "log": {
+      "path": "target/v53-generation-reservation/red.log",
+      "sha256": "10ed19316a0ac17bcf542fd91738c46d4a7d485b5380febccdb35f9c62afc619"
+    },
+    "status": "EXPECTED_FAILURE",
+    "tests": 1
+  },
+  "phase3Complete": false,
+  "schema": "gse-v53-generation-reservation-development-v1",
+  "scope": "conditional disk resume and process-local grouped reservation regression",
+  "sourceRecordedAfterExecution": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationFiles.java": "6cacca50b241c2d051928c0246b318580c04b7d276b6e7feeae19c47fee492df",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java": "868f338dd2c20c475253c13a06d81e1cb0a6dbf7f87e49de6f57875dee41dd5b",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AdoptionInstallTest.java": "3a9ded573b5b643a36a1a943a3cf1b3bc27b16deee0b8fdda9b5f1043abeaa5d",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextInstallationTest.java": "e2e7909f0142dce67b3c7e0c47d045741de088d0b729d23a6c00e16a974ae48b",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationInstallTest.java": "ce9adf8c27d0d4fced25b9fd094b1531b843c2dc0695e062e315da1f178ed042",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationReservationTest.java": "c41757f78383dc9f714f7160c8c52864f15469c3a9c22fce414533811cc8d40c",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JournalPublicationTest.java": "4f2744ac2ef4074b2294969edc7a7d2199f3b463d97aeac6d71d1a0e3b73e412",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerResourceOwnerTest.java": "0f69a1fced99883bcbea8910c295e3e594e6d9d59090a991b0ef4a05df2c99d9",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationLifetimeTest.java": "fe9ce7ef5474de5609d7de86051aa1bbaa6cbe554a31225fba950c94611d48fd",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublishedGenerationTest.java": "8a87b913cf378407f7d0496428e39dec621384e1f169d3e0f77ee5cd7388efa8",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransferTest.java": "77d509f4979567810f9180ddab104525ceabad10b4d2cd943c187778d342427d"
+  },
+  "status": "PARTIAL",
+  "validation": {
+    "baselineAncestryFailure": {
+      "path": "target/v53-generation-reservation/baseline-01/publication-probe.log",
+      "sha256": "4ff230a55afcf24d1e7c1735a7070aba9be82dbe273835a695b1f0163d4ab65b"
+    },
+    "combinedOriginalRunAndTargetedCorrection": true,
+    "correctedMethod": {
+      "failures": 0,
+      "log": {
+        "path": "target/v53-generation-reservation/green-03.log",
+        "sha256": "54413fabc6084999e3723f106648f77a2fc4a3ac74294f4f5f2510b17678dadd"
+      },
+      "name": "supplementalAncestryIsBoundedAuthenticatedAndCannotChangeTheSelectedDecision",
+      "report": {
+        "path": "target/v53-generation-reservation/reports/corrected-ancestry.xml",
+        "sha256": "98a782d4514e95e1486c4330259cf405e6f2f4bc45d99e20f1bf7acf1db58a88"
+      },
+      "tests": 1
+    },
+    "diagnosticNote": "SIGQUIT requested for the Surefire parent; its native stream dump caused the retained diagnostic channel warning. No test process was cancelled.",
+    "diagnosticThreadDump": {
+      "path": "target/v53-generation-reservation/diagnostic-thread-dump.txt",
+      "sha256": "61eacfff82b8e63ebb9d42441ebe55e820a3859e5490a6baf18bb2b556b4ecc6"
+    },
+    "distinctCasesSatisfied": 63,
+    "errors": 0,
+    "initialFocusedLog": {
+      "path": "target/v53-generation-reservation/green-01.log",
+      "sha256": "3bf8354c72797e67880a2a9a3e0758875a244d0c72e4fdbd511db5bc6752ea63"
+    },
+    "log": {
+      "path": "target/v53-generation-reservation/green-02.log",
+      "sha256": "f45226bcbf08488d21f0c51cc8650b02994d6b8bdbf925f98188cf0fa6c9ab6b"
+    },
+    "originalRunFailures": 1,
+    "skipped": 0,
+    "suites": [
+      {
+        "failures": 0,
+        "name": "V53GenerationReservationTest",
+        "report": {
+          "path": "target/v53-generation-reservation/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationReservationTest.xml",
+          "sha256": "d1c8446c07a28be2f8abbce42dbb456a5a03c175073e09153540270e15128e6b"
+        },
+        "seconds": 0.815,
+        "tests": 5
+      },
+      {
+        "failures": 0,
+        "name": "V53GenerationInstallTest",
+        "report": {
+          "path": "target/v53-generation-reservation/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationInstallTest.xml",
+          "sha256": "d0028b9454219bed7feed60b31dcc3fae90cea17f6c99667550ec44c7ba8d151"
+        },
+        "seconds": 16.963,
+        "tests": 11
+      },
+      {
+        "failures": 0,
+        "name": "V53ResourceTransferTest",
+        "report": {
+          "path": "target/v53-generation-reservation/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest.xml",
+          "sha256": "7c78313bfab8afc7e744457b075231be6bf1ab988a44693008cdb5de02b9ec7e"
+        },
+        "seconds": 0.022,
+        "tests": 8
+      },
+      {
+        "failures": 0,
+        "name": "V53AdoptionInstallTest",
+        "report": {
+          "path": "target/v53-generation-reservation/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53AdoptionInstallTest.xml",
+          "sha256": "85c4fb1be8d3d2af86f859a18b5c03248f383c0f4b93d6fe7bcd867439917039"
+        },
+        "seconds": 16.721,
+        "tests": 11
+      },
+      {
+        "failures": 0,
+        "name": "V53JournalPublicationTest",
+        "report": {
+          "path": "target/v53-generation-reservation/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53JournalPublicationTest.xml",
+          "sha256": "7c3f3dc01f22a64684f75fff2a47178318736fcf63a4fea4f4935b647a14f1b4"
+        },
+        "seconds": 546.627,
+        "tests": 8
+      },
+      {
+        "failures": 0,
+        "name": "V53PublishedGenerationTest",
+        "report": {
+          "path": "target/v53-generation-reservation/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PublishedGenerationTest.xml",
+          "sha256": "18180feff7fcc22e729272e31a274d958d7970551d531def3f765ed98ab45ecd"
+        },
+        "seconds": 36.951,
+        "tests": 8
+      },
+      {
+        "failures": 1,
+        "name": "V53PublicationLifetimeTest",
+        "report": {
+          "path": "target/v53-generation-reservation/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PublicationLifetimeTest.xml",
+          "sha256": "bad89c41107e72f843277a1d380365fcb0372fb760517ae17e2f87c391946a0d"
+        },
+        "seconds": 311.371,
+        "tests": 4
+      },
+      {
+        "failures": 0,
+        "name": "V53ContextInstallationTest",
+        "report": {
+          "path": "target/v53-generation-reservation/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ContextInstallationTest.xml",
+          "sha256": "dfec80b49407972161637df8b120bf8b319042995774f38e7c872ae674d2c089"
+        },
+        "seconds": 252.223,
+        "tests": 6
+      },
+      {
+        "failures": 0,
+        "name": "V53LearnerResourceOwnerTest",
+        "report": {
+          "path": "target/v53-generation-reservation/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53LearnerResourceOwnerTest.xml",
+          "sha256": "0813759e385f555acd54b746a14d2fe74a0450447f3af511df1b25b35d58a6a1"
+        },
+        "seconds": 5.473,
+        "tests": 2
+      }
+    ],
+    "toolchain": {
+      "path": "target/v53-generation-reservation/toolchain.txt",
+      "sha256": "76491158c17a80a30a3e9a573bf6d349cb0568dc8ddcb348f7c4d5e34b1b87cd"
+    }
+  }
+}

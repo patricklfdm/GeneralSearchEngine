@@ -120,10 +120,18 @@ class V53PublicationLifetimeTest {
     }
     @Test void supplementalAncestryIsBoundedAuthenticatedAndCannotChangeTheSelectedDecision()throws Exception {
         var f=new Fixture(temp);f.cycle(1);var setup=f.prepare(2);var bridge=f.bridges.getFirst();Path node=f.node(1);
+        var decision=new MembershipSelection.Campaign(setup.sources().getFirst()).select(setup.sources(),List.of());
+        var fields=bridge.statement.value();var ancestor=new MembershipCapsule.Anchor(object(fields.get("start")),
+                (String)fields.get("catalogBefore"),(String)fields.get("applicationBefore"));
+        bridge.verify(setup.parent(),ancestor);
         var before=V53ReplayFilesTest.files(node);var events=new ArrayList<String>();
         try(var store=f.open(1,events::add)) {
             events.clear();assertThrows(IllegalArgumentException.class,()->store.selectCurrent(setup.sources(),f.bridges));
-            assertThrows(IllegalArgumentException.class,()->store.installCurrent(setup.sources(),List.of(),setup.images()));
+            // Omitted caller ancestry can inherit the exact authenticated local
+            // bytes. Without those bytes, the required older parent still refuses.
+            assertEquals("missing retained installation ancestry",assertThrows(IllegalArgumentException.class,
+                    ()->MembershipGenerationPlan.installation(decision,List.of(),List.of(),List.of(ancestor),
+                            setup.parent(),new byte[0])).getMessage());
             assertThrows(IllegalArgumentException.class,()->store.installCurrent(setup.sources(),List.of(),List.of(bridge,bridge),setup.images()));
             assertThrows(IllegalArgumentException.class,()->store.installCurrent(setup.sources(),List.of(),Collections.nCopies(7,bridge),setup.images()));
             var unowned=new MembershipSelection.Bridge(bridge.statement,bridge.acknowledgements,Set.of());
@@ -140,7 +148,12 @@ class V53PublicationLifetimeTest {
             assertEquals(before,V53ReplayFilesTest.files(node));
         }
         // A local volatile observation is not a durable grant. The exact original install resumes after reopen.
-        try(var store=f.open(1)){store.installCurrent(setup.sources(),List.of(),f.bridges,setup.images());}
+        try(var store=f.open(1)) {
+            var installed=store.installCurrent(setup.sources(),List.of(),setup.images());
+            assertEquals(decision.selected().digest(),installed.value().get("selection"));
+            assertArrayEquals(MembershipGenerationPlan.ancestry(f.bridges),
+                    store.floorCopyCurrent().fileBytes("ancestry.gsr"));
+        }
         assertEquals(0,f.resources.usage().leases());
     }
     @Test void supplementalAncestrySurvivesInterruptedInstallButDifferentRepresentationCannotReplaceIt()throws Exception {
