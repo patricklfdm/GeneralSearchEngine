@@ -7,6 +7,13 @@ groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
 
+[Carried transition ledger/retirement qualification](PHASE_3_CARRIED_TRANSITION_RETENTION.md)
+now composes continuous peer/future revisions and all observed retirement callbacks
+with the same originals, including 154 exact negatives. FINAL preserves its
+derived preparation revision; first-slot reaccept retains old sources until the
+actual later published floor. Transient-byte/process capture and dedicated
+source-bound admission remain open; no native history was rerun.
+
 [Carried transition export/floor qualification](PHASE_3_CARRIED_TRANSITION_EXPORTS.md)
 now authorizes every observed export and all 20 complete-copy floor lifetimes
 across the same two originals, with 44 exact negatives. Old pending sources keep

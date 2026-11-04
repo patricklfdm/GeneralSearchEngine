@@ -41,7 +41,14 @@ def governing(files,copies,node):
     return files
 
 
-def decision(files,node,identifier,*,coverage=None):
+def published_tail(source,tail,files,node,cap):
+    accept=f.decode(source['objects'][tail],'records','ACCEPT')
+    floor=f.decode(files['floor-copies/floor.gsr'],'records','FLOOR')
+    need(accept['root']==floor['root']==cap['root'] and floor['node']==node and floor['cut']==cap['cut'] and
+         accept['index']<=floor['cut']['index'], 'joining retirement uncovered source tail')
+
+
+def decision(files,node,identifier,*,coverage=None,allow_published_tail=False):
     """Exact old grant plus a new decision, derived before any deletion."""
     _,current,packet=disk.current(files);cap=packet['capsule']
     rows=disk.journal(files['grants.gsr'],cap['root'],node)
@@ -60,7 +67,10 @@ def decision(files,node,identifier,*,coverage=None):
     point=disk.anchor(source['capsule'])
     need(available.get(point['cut']['index'])==point and source['capsule']['root']==cap['root'],
          'joining retirement governing source coverage')
-    need(group[1][2]['accepted'] is None, 'joining retirement joining fixture unresolved tail')
+    tail=group[1][2]['accepted']
+    if tail is not None and allow_published_tail:
+        published_tail(source,tail,files,node,cap)
+    else:need(tail is None, 'joining retirement joining fixture unresolved tail')
     expected_names={prefix+'source.gscp',*[prefix+h+'.image' for h in source['images']]}
     need({n for n in files if n.startswith(prefix)}==expected_names,'joining retirement complete original source files')
     for digest,size in source['images'].items():

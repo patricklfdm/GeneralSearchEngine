@@ -1,0 +1,353 @@
+{
+  "baseCommit": "42b2a100e9b195b94e7eacd2b4f34d69ffbb6348",
+  "completeObservedRetirementCallbacksQualified": true,
+  "futureWrites": 35,
+  "hostedSubsetAdded": false,
+  "ledgerNegatives": 82,
+  "members": [
+    {
+      "kind": "INTENT",
+      "originalNativeExecution": {
+        "elapsedSeconds": 320.112,
+        "exit": 0
+      },
+      "originalNativeRetries": 0,
+      "originalReceipt": {
+        "bytes": 597767,
+        "path": "target/v53-carried-transition-network/inputs/intent/receipt.json",
+        "sha256": "dbaf924f490e1b1f823403c429ad11795f4d44aaee19616f52129fec8f9d9e61"
+      },
+      "portable": {
+        "bytes": 778,
+        "path": "target/v53-carried-transition-retirement/portable-results/intent-receipt.json",
+        "result": {
+          "archiveSha256": "8fa789b2239f7ebaa02891295cc5a98673198ffb9c31ab1e81ef887afb1bcdef",
+          "elapsedSeconds": 376.1009952059999,
+          "kind": "INTENT",
+          "negatives": 77,
+          "pins": {
+            "buildSha256": "a4a51f206c96aa3073f875243d5c74e9d18b946e6db765b542c27ab2bb58a252",
+            "readerSha256": "f2abac4530da22b43312c4ffb20775fe2ee58277780398e87304e505fd3e345d",
+            "sourceSha256": "f0fcef2dad154e7f1e43ff491b9dfd5fdfa7b268e359cd11a54b11fae2a24d61",
+            "toolchainSha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+          },
+          "pythonOptimized": true,
+          "stages": [
+            {
+              "negatives": 41,
+              "stage": "retention",
+              "status": "PASS"
+            },
+            {
+              "negatives": 36,
+              "stage": "retirement",
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        "sha256": "57700a0830cf7c883dde6fa19f364652f624f30b719630c99d708febfd59e635"
+      },
+      "raw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-bf2a3e0a-2e0f-4f58-a314-55544dce1614",
+      "rawBytes": 19070805,
+      "rawFiles": 4331,
+      "stages": {
+        "retention": {
+          "negatives": 41,
+          "qualification": {
+            "bytes": 10669,
+            "path": "target/v53-carried-transition-retention/intent-qualification.json",
+            "sha256": "0b951ee87dc7ecdad3d296212374d3a92653499d89643329108bcf66ed281886"
+          },
+          "result": {
+            "completeRetirementTransactions": false,
+            "future": {
+              "chainSha256": "8e8c43b1ac1675bf7d3b60f6eb68baa309aa2c60cfc67495c6b04147110b4c9a",
+              "durableWrites": 22,
+              "finalRevisions": {
+                "node-1": 8,
+                "node-2": 8,
+                "node-3": 6,
+                "node-4": 0
+              },
+              "ledgerComparisons": 36,
+              "openReseals": 4,
+              "status": "PASS",
+              "writesByKind": {
+                "clear": 8,
+                "record": 14
+              }
+            },
+            "kind": "INTENT",
+            "peers": {
+              "capturedLedgers": 8,
+              "chainSha256": "ac88cff95ce4015e00cf4b25ee128b341f11bf7d040a1d237663f219f2102a34",
+              "durableWrites": 40,
+              "finalRevisions": {
+                "node-1": 15,
+                "node-2": 15,
+                "node-3": 10,
+                "node-4": 0
+              },
+              "ledgerComparisons": 44,
+              "openReseals": 4,
+              "status": "PASS",
+              "writesByKind": {
+                "maintenance": 27,
+                "publication": 8,
+                "selected": 5
+              }
+            },
+            "phase3Complete": false,
+            "processDeathQualified": false,
+            "publicReady": false,
+            "retentionRevisionCompositionQualified": true,
+            "status": "PARTIAL"
+          }
+        },
+        "retirement": {
+          "negatives": 36,
+          "qualification": {
+            "bytes": 11419,
+            "path": "target/v53-carried-transition-retirement/intent-qualification.json",
+            "sha256": "a2ae5c0d918f813d5ccf07832acc0bbdec92a71183c3b54c2b7ae2899e192e56"
+          },
+          "result": {
+            "borrowedGenerations": 9,
+            "callbacks": 779,
+            "completeObservedRetirementCallbacksQualified": true,
+            "generationMembers": 105,
+            "generations": 13,
+            "kind": "INTENT",
+            "phase3Complete": false,
+            "physicalImagePeak": 7,
+            "processDeathQualified": false,
+            "profile": "INTENT",
+            "publicReady": false,
+            "sources": 8,
+            "status": "PARTIAL",
+            "transactionChainSha256": "44a0cbe35f3d3391409797b8eee5f45b1570d91a7e2d7e870f734611e8c567ab",
+            "transientRetirementBytesQualified": false
+          }
+        }
+      }
+    },
+    {
+      "kind": "FINAL",
+      "originalNativeExecution": {
+        "elapsedSeconds": 304.174,
+        "exit": 0
+      },
+      "originalNativeRetries": 0,
+      "originalReceipt": {
+        "bytes": 701208,
+        "path": "target/v53-carried-transition-network/inputs/final/receipt.json",
+        "sha256": "38054b844794a685b047a82adc0842d066881c98b3cc38350adc85d5cf70e341"
+      },
+      "portable": {
+        "bytes": 777,
+        "path": "target/v53-carried-transition-retirement/portable-results/final-receipt.json",
+        "result": {
+          "archiveSha256": "82ad5be2f6fe30c9274c3e548ec2aa997e516a82d8462d75451511b2e72b3f6a",
+          "elapsedSeconds": 255.1294705800001,
+          "kind": "FINAL",
+          "negatives": 77,
+          "pins": {
+            "buildSha256": "a4a51f206c96aa3073f875243d5c74e9d18b946e6db765b542c27ab2bb58a252",
+            "readerSha256": "f2abac4530da22b43312c4ffb20775fe2ee58277780398e87304e505fd3e345d",
+            "sourceSha256": "f0fcef2dad154e7f1e43ff491b9dfd5fdfa7b268e359cd11a54b11fae2a24d61",
+            "toolchainSha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+          },
+          "pythonOptimized": true,
+          "stages": [
+            {
+              "negatives": 41,
+              "stage": "retention",
+              "status": "PASS"
+            },
+            {
+              "negatives": 36,
+              "stage": "retirement",
+              "status": "PASS"
+            }
+          ],
+          "status": "PASS"
+        },
+        "sha256": "372afa879d665da5c8f344a5f2c025c91ffc09f68974d2b90643383f02c76e76"
+      },
+      "raw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-f77c0f87-4f69-4b4d-9d5f-6970c7910860",
+      "rawBytes": 19724378,
+      "rawFiles": 5029,
+      "stages": {
+        "retention": {
+          "negatives": 41,
+          "qualification": {
+            "bytes": 10647,
+            "path": "target/v53-carried-transition-retention/final-qualification.json",
+            "sha256": "4df22164b52ac5f1387e15244d23eaa13a66aef48e0db03e769f3e126b95c3f0"
+          },
+          "result": {
+            "completeRetirementTransactions": false,
+            "future": {
+              "chainSha256": "891bb571c86b8b36dd07c5dce95c69fb701aad95fa6ac1b7d4be1e506cf7eaf0",
+              "durableWrites": 13,
+              "finalRevisions": {
+                "node-1": 5,
+                "node-2": 5,
+                "node-3": 3,
+                "node-4": 0
+              },
+              "ledgerComparisons": 27,
+              "openReseals": 4,
+              "status": "PASS",
+              "writesByKind": {
+                "clear": 5,
+                "record": 8
+              }
+            },
+            "kind": "FINAL",
+            "peers": {
+              "capturedLedgers": 5,
+              "chainSha256": "45becc1dc3b4deb6f9957939df0a9a36b38b60105f22a3b1e0e24cae009b4ff1",
+              "durableWrites": 22,
+              "finalRevisions": {
+                "node-1": 10,
+                "node-2": 10,
+                "node-3": 5,
+                "node-4": 1
+              },
+              "ledgerComparisons": 32,
+              "openReseals": 4,
+              "status": "PASS",
+              "writesByKind": {
+                "maintenance": 15,
+                "publication": 5,
+                "selected": 2
+              }
+            },
+            "phase3Complete": false,
+            "processDeathQualified": false,
+            "publicReady": false,
+            "retentionRevisionCompositionQualified": true,
+            "status": "PARTIAL"
+          }
+        },
+        "retirement": {
+          "negatives": 36,
+          "qualification": {
+            "bytes": 11392,
+            "path": "target/v53-carried-transition-retirement/final-qualification.json",
+            "sha256": "b6f3f269b6a6385da5fcf8915799e08c117f7af384a79685676c318f25818367"
+          },
+          "result": {
+            "borrowedGenerations": 3,
+            "callbacks": 397,
+            "completeObservedRetirementCallbacksQualified": true,
+            "generationMembers": 53,
+            "generations": 7,
+            "kind": "FINAL",
+            "phase3Complete": false,
+            "physicalImagePeak": 7,
+            "processDeathQualified": false,
+            "profile": "FINAL",
+            "publicReady": false,
+            "sources": 4,
+            "status": "PARTIAL",
+            "transactionChainSha256": "3d7bc27205d8ae76f9e0eee82b13927f96d494208db4ab81ce0c28e43dbe9861",
+            "transientRetirementBytesQualified": false
+          }
+        }
+      }
+    }
+  ],
+  "nativeExecutionsThisBatch": 0,
+  "nativeRetriesThisBatch": 0,
+  "negativeChecks": 154,
+  "originalNativeHistories": 2,
+  "peerWrites": 62,
+  "phase3Complete": false,
+  "physicalImagePeak": 7,
+  "pins": {
+    "buildSha256": "a4a51f206c96aa3073f875243d5c74e9d18b946e6db765b542c27ab2bb58a252",
+    "readerSha256": "f2abac4530da22b43312c4ffb20775fe2ee58277780398e87304e505fd3e345d",
+    "sourceSha256": "f0fcef2dad154e7f1e43ff491b9dfd5fdfa7b268e359cd11a54b11fae2a24d61",
+    "toolchainSha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+  },
+  "processDeathQualified": false,
+  "publicReady": false,
+  "readerManifest": {
+    "bytes": 79556,
+    "path": "target/v53-carried-transition-retirement/reader.json",
+    "sha256": "54dc974cdf08c457bd7d792b72924f6e75ec59f1604440f594ba615f656fadd1"
+  },
+  "retentionRevisionCompositionQualified": true,
+  "retiredGenerations": 20,
+  "retiredSources": 12,
+  "retirementCallbacks": 1176,
+  "retirementNegatives": 72,
+  "runtimeChanged": false,
+  "schema": "gse-v53-carried-transition-retention-development-v1",
+  "scope": "four-voter REMOVE carried INTENT/FINAL continuous peer/future ledger revisions and complete observed retirement callbacks",
+  "sourceNote": "Immutable request-observed originals and producer receipts from carried-transition-network. This current-reader development replay does not fill final-source cohort admission.",
+  "status": "PARTIAL",
+  "transientRetirementBytesQualified": false,
+  "validation": {
+    "documentContract": {
+      "bytes": 167,
+      "path": "target/v53-carried-transition-retirement/document-contract.json",
+      "sha256": "cb8a70cd65e2f5ff6cd77be6aee007d0ea1489f010430c06d35b52b82c2a3f77",
+      "status": "PASS"
+    },
+    "documentTests": {
+      "bytes": 250,
+      "elapsedSeconds": 0.263,
+      "path": "target/v53-carried-transition-retirement/document-tests.log",
+      "sha256": "8396716132d4ce36be70617f12a41c6a6b14078b728ba886275d7521d5c5d4a3",
+      "status": "PASS",
+      "tests": 18
+    },
+    "focused": {
+      "bytes": 174,
+      "elapsedSeconds": 0.359,
+      "path": "target/v53-carried-transition-retirement/focused.log",
+      "sha256": "1a23e9d23f20c07ca74d762ffea0f27db282c6ebfa14709ef86d6d4b7272e15d",
+      "status": "PASS",
+      "tests": 75
+    },
+    "noncarriedRetirement": {
+      "bytes": 3841,
+      "path": "target/v53-carried-transition-retirement/noncarried-regression.json",
+      "sha256": "7efa1225669a33d710f4b51f1c4eb768c39d9f3d84cd7013bbb7bbad8be4d985",
+      "status": "PASS"
+    },
+    "optimized": {
+      "bytes": 174,
+      "elapsedSeconds": 0.403,
+      "path": "target/v53-carried-transition-retirement/focused-optimized.log",
+      "sha256": "24af7571aba157b95a7b27a603ded8d52cdbd90da13f594a9a57990ad5879cbb",
+      "status": "PASS",
+      "tests": 75
+    },
+    "processRetirement": {
+      "bytes": 9008,
+      "path": "target/v53-carried-transition-retirement/process-regression.json",
+      "sha256": "4ea721057028c3d70608720f4070ed563568e6b356bee6f622fa5a9bedc46c83",
+      "status": "PASS"
+    },
+    "python": {
+      "bytes": 4702,
+      "elapsedSeconds": 133.643,
+      "path": "target/v53-carried-transition-retirement/python-suite.log",
+      "sha256": "6d6f50b53cafcbd64978b31b33dab1d2af547b75ad636f705500fb80c24aabe0",
+      "status": "PASS",
+      "tests": 2479
+    },
+    "sourceInventory": {
+      "bytes": 55101,
+      "path": "target/v53-carried-transition-retirement/inventory/receipt.json",
+      "sha256": "0762d6f19d53b464342f28826205487e577f0399b76a1d1974ba9e519b151a59",
+      "status": "PASS"
+    }
+  },
+  "workflowChanged": false
+}

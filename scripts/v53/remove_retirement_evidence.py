@@ -66,7 +66,7 @@ def generation_plan(files,node,copies,*,recover=None):
         physicalImagesPeak=count+(0 if borrow else saved),members=len(original),imageMembers=saved,authority=sha(record))
 
 
-def source_plans(files,node,available):
+def source_plans(files,node,available,*,allow_published_tail=False):
     _,members,packet=c.current(files);journal=c.journal(files['grants.gsr'],packet['capsule']['root'],node)
     promises={v['basisId']:(raw,v) for kind,raw,v in journal if kind=='PROMISE' and v['basisId'] is not None}
     latest=next(v['ballot'] for kind,_,v in reversed(journal) if kind=='PROMISE');decisions=[]
@@ -75,7 +75,7 @@ def source_plans(files,node,available):
         identifier=name.split('/')[1];promise,value=promises[identifier]
         if promise==members['promise.gsr'] or value['ballot']==latest:continue
         need(grants.order(value['ballot'])<grants.order(latest),'REMOVE retirement old source ballot')
-        authority,compact=sources.decision(files,node,identifier,coverage=available)
+        authority,compact=sources.decision(files,node,identifier,coverage=available,allow_published_tail=allow_published_tail)
         steps=sources.observed.release.transaction(physical(files),authority,compact,identifier)
         prefix='sources/'+identifier
         after={k:v for k,v in files.items() if k!=prefix and not k.startswith(prefix+'/')};after['grants.gsr']=compact
@@ -95,6 +95,11 @@ class Replay(r.PeerReplay):
     def transaction(self,node,kind,actual,expected):
         """Optional original-prefix comparison; callback-only replay stays scoped."""
 
+    def plans(self,files,node,copies,available,row):
+        after,steps,details=generation_plan(files,node,copies)
+        after,decisions=source_plans(after,node,available)
+        return after,steps,details,decisions
+
     def run(self):
         peer_result=super().run();bound=set();counts=Counter();peak=0
         for row in self.floor_inputs:
@@ -106,7 +111,7 @@ class Replay(r.PeerReplay):
             for peer in plan['peers']:
                 for point in peer['possible']+peer.get('renewals',[]):
                     need(available.get(point['cut']['index'])==point,'REMOVE retirement retained endpoint coverage')
-            after,steps,details=generation_plan(files,node,row['copies']);after,decisions=source_plans(after,node,available)
+            after,steps,details,decisions=self.plans(files,node,row['copies'],available,row)
             expected=[point for point,_ in steps]+[point for decision in decisions for point,_ in decision['steps']]
             lower=next(i for i,v in enumerate(self.events) if i>start and v.get('node')==node and v['event']=='FLOOR_BEFORE_RETURN')
             upper=next(i for i,v in enumerate(self.events) if i>lower and v.get('node')==node and v['event']=='FLOOR_RELEASE_AUTHORITY_CREATED')

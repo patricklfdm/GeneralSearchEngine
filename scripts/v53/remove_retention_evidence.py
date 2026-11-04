@@ -45,8 +45,9 @@ def peer_event_shapes(events,nodes):
 class PeerReplay(peer.Replay,e.Replay):
     expected_write_counts=None
 
-    def __init__(self,root,profile):
-        e.Replay.__init__(self,root,profile)
+    def __init__(self,root,profile,*,base=None):
+        if base is None:e.Replay.__init__(self,root,profile)
+        else:self.__dict__.update(base.__dict__)
         self.phases=n.phase.blocks(self.events,self.history)
         self.floor_inputs=[];self.state={};self.steps=[];self.used=set();self.files_cache={};self.comparisons=0
         self.tx=peer.transactions(self.events);self.completions=set();self.reseals=peer_reseals(self.events,self.history.old)
@@ -113,11 +114,13 @@ class PeerReplay(peer.Replay,e.Replay):
     def reseal(self,value):
         _,node=value;self.compare(node,c.inventory(self.root/'before-network'/node)[peer.FILE],'open-reseal')
 
+    def initial_states(self):
+        return peer.t.selected.initialize(n.d.b.original(self.root,len(self.history.old),False))
+
     def run(self):
         self.statuses();self.floors()
         before={node:c.inventory(self.root/'before-network'/node) for node in self.history.old}
-        original=n.d.b.original(self.root,len(self.history.old),False)
-        for node,files in peer.t.selected.initialize(original).items():
+        for node,files in self.initial_states().items():
             self.state[node]=files[peer.FILE];self.compare(node,before[node][peer.FILE],'before-network')
         actions=[]
         for row in self.floor_inputs:
@@ -141,8 +144,8 @@ class PeerReplay(peer.Replay,e.Replay):
 
 
 class FutureReplay(future.Replay):
-    def __init__(self,root,profile):
-        self.root=Path(root);self.base=e.Replay(root,profile);self.events=self.base.events;self.model=self.base.history
+    def __init__(self,root,profile,*,base=None):
+        self.root=Path(root);self.base=e.Replay(root,profile) if base is None else base;self.events=self.base.events;self.model=self.base.history
         self.base.phases=n.phase.blocks(self.events,self.model)
         self.tx,self.write_events=future.observations(self.events,joining=None)
         self.state={};self.used=set();self.callbacks=set();self.steps=[];self.comparisons=0;self.reseals=0
