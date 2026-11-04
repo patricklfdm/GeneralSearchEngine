@@ -25,10 +25,14 @@ final class MembershipGenerationFiles implements AutoCloseable {
     private MembershipResources.Lease completionImage;
 
     MembershipGenerationFiles(Path parent,String active,MembershipResources resources) throws IOException {
+        this(parent,active,resources,null);
+    }
+    MembershipGenerationFiles(Path parent,String active,MembershipResources resources,MembershipResources.GenerationReload reload)throws IOException {
         this.parent=parent;this.resources=resources;slot=active.equals("a")?"b":"a";
         directory=parent.resolve(MembershipCurrentGeneration.DIRECTORY);path=directory.resolve(slot);
-        try{capture();reserve(null);}catch(IOException | RuntimeException | Error error){close();throw error;}
+        try{capture();reserve(null,null,reload);}catch(IOException | RuntimeException | Error error){close();throw error;}
     }
+    List<MembershipResources.Lease> reservations(){return List.copyOf(leases);}
     boolean exists(){return exists;}
     boolean reservePublicationImage() {
         if(completionImage==null)return false;
@@ -77,6 +81,9 @@ final class MembershipGenerationFiles implements AutoCloseable {
         reserve(plan,null);
     }
     private void reserve(MembershipGenerationPlan plan,MembershipResources.Lease publication) {
+        reserve(plan,publication,null);
+    }
+    private void reserve(MembershipGenerationPlan plan,MembershipResources.Lease publication,MembershipResources.GenerationReload reload) {
         if(!exists && plan==null)return;
         long metadata=plan==null?files.entrySet().stream().filter(e->!e.getKey().endsWith(".image")).mapToLong(e->e.getValue().bytes()).sum():plan.metadata;
         var required=new LinkedHashMap<String,MembershipResources.StorageReservation>();
@@ -98,7 +105,8 @@ final class MembershipGenerationFiles implements AutoCloseable {
                     .orElseThrow(()->new IllegalArgumentException("generation completion requires a new image"));
             image=required.get(name);
         }
-        var acquired=publication==null?resources.extendGeneration(growth,additions):resources.extendGeneration(growth,additions,publication,image);
+        var acquired=reload!=null?additions.stream().map(row->reload.claim(row.unit(),row.owner(),row.bytes())).toList():
+                publication==null?resources.extendGeneration(growth,additions):resources.extendGeneration(growth,additions,publication,image);
         for(int n=0;n<names.size();n++){var lease=acquired.get(n);parts.put(names.get(n),lease);leases.add(lease);}
         if(completionImage==null && !images.isEmpty())completionImage=parts.get(images.firstKey());
         reservedPlan=plan==null?null:plan.manifest.digest();

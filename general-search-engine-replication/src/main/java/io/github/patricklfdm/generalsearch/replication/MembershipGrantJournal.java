@@ -456,7 +456,20 @@ final class MembershipGrantJournal implements AutoCloseable {
         }catch(IOException | RuntimeException | Error error){try{if(journal==null)owner.close();else journal.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
     }
     private void reloadGenerations() throws IOException {
-        if(current!=null)current.close();if(inactive!=null)inactive.close();
+        if(current!=null) {
+            require(inactive!=null,"generation reload inactive owner");
+            var original=new HashSet<>(current.reservations());original.addAll(inactive.reservations());
+            try(var reload=resources.prepareGenerationReload(original)) {
+                var selected=MembershipCurrentGeneration.reload(new HistoryRead(this),resources,cut,ownedHistory,capsuleVerifier,reload);
+                try {
+                    var other=new MembershipGenerationFiles(directory,selected.generation,resources,reload);
+                    try {
+                        reload.commit();current.close();inactive.close();current=selected;inactive=other;
+                    }catch(RuntimeException | Error error){other.close();throw error;}
+                }catch(IOException | RuntimeException | Error error){selected.close();throw error;}
+            }
+            return;
+        }
         if(joinedOwner!=null && joinedOwner.storage()!=null && !joinedGenerationClaimed) {
             current=MembershipCurrentGeneration.readJoined(new HistoryRead(this),resources,cut,joinedOwner.storage());joinedGenerationClaimed=true;
         }else current=ownedHistory?MembershipCurrentGeneration.readOwned(new HistoryRead(this),resources,cut):

@@ -56,9 +56,20 @@ final class MembershipCurrentGeneration implements AutoCloseable {
             MembershipBallotAllocator.Cut cut,MembershipResources.StorageBatch incomingStorage)throws IOException {
         owner.check();return new MembershipCurrentGeneration(owner.directory(),owner.root(),owner.identity(),resources,owner.promises(),owner.bases(),owner.selections(),null,cut,true,owner,incomingStorage);
     }
+    static MembershipCurrentGeneration reload(MembershipGrantJournal.HistoryRead owner,MembershipResources resources,
+            MembershipBallotAllocator.Cut cut,boolean ownedHistory,Verifier verifier,MembershipResources.GenerationReload reload)throws IOException {
+        owner.check();return new MembershipCurrentGeneration(owner.directory(),owner.root(),owner.identity(),resources,owner.promises(),owner.bases(),
+                owner.selections(),ownedHistory?null:Objects.requireNonNull(verifier),cut,true,ownedHistory?owner:null,null,reload);
+    }
     private MembershipCurrentGeneration(Path parent,MembershipRoot root,MembershipIdentity identity,MembershipResources resources,
             Collection<Decoded> promises,Collection<Decoded> bases,Collection<Decoded> selections,Verifier verifier,
             MembershipBallotAllocator.Cut cut,boolean installations,MembershipGrantJournal.HistoryRead historyOwner,MembershipResources.StorageBatch incomingStorage)throws IOException {
+        this(parent,root,identity,resources,promises,bases,selections,verifier,cut,installations,historyOwner,incomingStorage,null);
+    }
+    private MembershipCurrentGeneration(Path parent,MembershipRoot root,MembershipIdentity identity,MembershipResources resources,
+            Collection<Decoded> promises,Collection<Decoded> bases,Collection<Decoded> selections,Verifier verifier,
+            MembershipBallotAllocator.Cut cut,boolean installations,MembershipGrantJournal.HistoryRead historyOwner,
+            MembershipResources.StorageBatch incomingStorage,MembershipResources.GenerationReload reload)throws IOException {
         this.parent=parent;this.root=root;this.identity=identity;this.historyOwner=historyOwner;this.installations=installations;
         if(historyOwner!=null)historyOwner.check();
         directory=parent.resolve(DIRECTORY);directoryKey=key(directory);
@@ -91,11 +102,11 @@ final class MembershipCurrentGeneration implements AutoCloseable {
         var expected=new TreeSet<>(inventory.keySet());expected.add(MANIFEST);
         require(children(path,32).equals(expected) && inventory.containsKey(PACKET) && inventory.containsKey("promise.gsr"),"current file inventory");
         try {
-            leases.add(incomingStorage==null?resources.reserve(MembershipResources.Unit.MISC,"current-authority",MembershipResources.Unit.MISC.bytes):incomingStorage.claim(MembershipResources.Unit.MISC,"current-authority",MembershipResources.Unit.MISC.bytes));
-            leases.add(incomingStorage==null?resources.reserve(MembershipResources.Unit.GENERATION,generation,metadata):incomingStorage.claim(MembershipResources.Unit.GENERATION,generation,metadata));
+            leases.add(reserve(resources,incomingStorage,reload,MembershipResources.Unit.MISC,"current-authority",MembershipResources.Unit.MISC.bytes));
+            leases.add(reserve(resources,incomingStorage,reload,MembershipResources.Unit.GENERATION,generation,metadata));
             for(var file:inventory.values()) {
                 String name=(String)file.get("path");long size=number(file.get("size"));
-                if(name.endsWith(".image"))leases.add(incomingStorage==null?resources.reserve(MembershipResources.Unit.APPLICATION,"generation-"+generation+":"+name,size):incomingStorage.claim(MembershipResources.Unit.APPLICATION,"generation-"+generation+":"+name,size));
+                if(name.endsWith(".image"))leases.add(reserve(resources,incomingStorage,reload,MembershipResources.Unit.APPLICATION,"generation-"+generation+":"+name,size));
                 files.put(name,inspect(path.resolve(name),size,(String)file.get("sha256")));
             }
             var packet=MembershipSourcePacket.decode(AdmissionPaths.read(path.resolve(PACKET),MembershipSourcePacket.MAXIMUM));
@@ -181,6 +192,11 @@ final class MembershipCurrentGeneration implements AutoCloseable {
             AdmissionPaths.forceDirectory(parent);cut.at("CURRENT_DIRECTORY_FORCED");check();
         } catch(IOException | RuntimeException | Error error){close();throw error;}
     }
+    private static MembershipResources.Lease reserve(MembershipResources resources,MembershipResources.StorageBatch incoming,
+            MembershipResources.GenerationReload reload,MembershipResources.Unit unit,String name,long bytes) {
+        return reload!=null?reload.claim(unit,name,bytes):incoming!=null?incoming.claim(unit,name,bytes):resources.reserve(unit,name,bytes);
+    }
+    List<MembershipResources.Lease> reservations(){return List.copyOf(leases);}
     /** Private construction prevents a bare packet or path from asserting local provenance. */
     static final class RetainedCopy implements MembershipCapsule.StoredCopy {
         private final MembershipCurrentGeneration source;

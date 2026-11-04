@@ -1,0 +1,133 @@
+{
+  "baseHead": "20f1d89b28652277de3d2ae49b9a99b16e45aa50",
+  "compatibility": {
+    "log": {
+      "path": "target/v53-generation-reload-review/compatibility.log",
+      "sha256": "4e54296c568a4129a40da130368cbd60b85f06363c0bf8c91295ef007e07f636"
+    },
+    "reports": {
+      "V53AdoptionInstallTest": {
+        "path": "target/v53-generation-reload-review/compatibility-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53AdoptionInstallTest.xml",
+        "seconds": 7.235,
+        "sha256": "06f3d12ca23c6edc71760b15f27b2ad1da352b68e3732672374279cb9aabaf7f",
+        "tests": 2
+      },
+      "V53CurrentGenerationTest": {
+        "path": "target/v53-generation-reload-review/compatibility-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53CurrentGenerationTest.xml",
+        "seconds": 4.014,
+        "sha256": "453158df283c26981d734690de212431448815873054a36ff57a951473d398a6",
+        "tests": 9
+      },
+      "V53StorageReplacementTest": {
+        "path": "target/v53-generation-reload-review/compatibility-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53StorageReplacementTest.xml",
+        "seconds": 0.012,
+        "sha256": "cbcc5ac028c38576cd7d5e8f852e080395c37da58a78fe0d8303790213ea6af6",
+        "tests": 3
+      }
+    },
+    "scope": "existing current reader, storage custody and two conditional adoption methods",
+    "tests": 14
+  },
+  "finalSourceCohortQualified": false,
+  "finalizer": {
+    "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-generation-reload-review/finalize.py",
+    "sha256": "555da8934fa093c851a3ea280b4bc33bbf0bc6ec887f65bc24238ff19ba230a7"
+  },
+  "focused": {
+    "log": {
+      "path": "target/v53-generation-reload-review/corrected-01.log",
+      "sha256": "82372fa5397ca0a3c846c8c98b0ef9f73d2bec1bae9967d8ba84918eb1f30696"
+    },
+    "reports": {
+      "V53GenerationReloadTest": {
+        "path": "target/v53-generation-reload-review/focused-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationReloadTest.xml",
+        "seconds": 50.657,
+        "sha256": "04806d3e6f12b96b2ba0adea312cd1386962349848adb2e97cb0654f0df1278a",
+        "tests": 6
+      },
+      "V53GenerationReservationTest": {
+        "path": "target/v53-generation-reload-review/focused-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationReservationTest.xml",
+        "seconds": 1.146,
+        "sha256": "eb12eb599d28332415280ea5ae3abf386f5390ff4c55bde3d0a41e53e53bbf81",
+        "tests": 5
+      },
+      "V53PublicationReservationTest": {
+        "path": "target/v53-generation-reload-review/focused-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PublicationReservationTest.xml",
+        "seconds": 60.698,
+        "sha256": "7cc4c3efc71a16cdeb28991088bc21f749d9e6b8fb7baf1cf3b7cd75f8db4828",
+        "tests": 7
+      },
+      "V53ResourceTransferTest": {
+        "path": "target/v53-generation-reload-review/focused-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest.xml",
+        "seconds": 0.017,
+        "sha256": "dc0bb5d5dfb38397bae3dcd4c46e4a46331859dd34d2675a03b06f0c1d232ff6",
+        "tests": 8
+      },
+      "V53SourceReservationTest": {
+        "path": "target/v53-generation-reload-review/focused-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceReservationTest.xml",
+        "seconds": 3.023,
+        "sha256": "df3f0025cfb1eb7ddf0f1cde8f3e82f4dc28282688c84e9eb71d3db55ad7bf6e",
+        "tests": 7
+      }
+    },
+    "tests": 33
+  },
+  "native": {
+    "inventories": {
+      "path": "target/v53-generation-reload-review/original-inventories.json",
+      "sha256": "50528ae64b95d088be5d7023c10518b5b3d21e255a8c1a015ceb324959cdc8c0"
+    },
+    "originals": [
+      "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-generation-reload/refusal-5016a05f-48ef-4a17-927f-ee7e186387ec",
+      "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-generation-reload/publication-ac1df22e-5e60-4e43-aa8f-cffebe46b255"
+    ],
+    "publicationCallbacks": 30,
+    "scope": "explicitly orchestrated local native BARRIER/DATA and one interrupted publication; no TCP/process-death cohort"
+  },
+  "originalFailures": {
+    "driver": {
+      "path": "target/v53-generation-reload-review/reproduce.py",
+      "sha256": "53c94355e8d70a2628ad85d8a192dbc9571d9bf59403b13eb7d08ef5121cfd6c"
+    },
+    "execution": {
+      "path": "target/v53-generation-reload-review/original-execution.json",
+      "sha256": "a4e266b1b9d45128ed4053911bb597624a76f02cbf5976d60444e09e4ed004ed"
+    },
+    "log": {
+      "path": "target/v53-generation-reload-review/original-tests.log",
+      "sha256": "4a169051fb55620d3280c9f04f002c457796d19e16f717c2055ba064a18e3be6"
+    },
+    "scope": "direct native regression methods with isolated baseline classes",
+    "sources": {
+      "MembershipCurrentGeneration.java": {
+        "path": "target/v53-generation-reload-review/baseline-source/MembershipCurrentGeneration.java",
+        "sha256": "eacea4d8a25a8ad81a40d9e9dbba4e30eb5faa63c73c5947aa0099c7ee016c14"
+      },
+      "MembershipGenerationFiles.java": {
+        "path": "target/v53-generation-reload-review/baseline-source/MembershipGenerationFiles.java",
+        "sha256": "568ddaeffbae938a45887eb2ba76d447c4224ef03e837d6438aa37f05661b27b"
+      },
+      "MembershipGrantJournal.java": {
+        "path": "target/v53-generation-reload-review/baseline-source/MembershipGrantJournal.java",
+        "sha256": "fe3fd9e0b481552303ca7ff0f666b4e356c14257e2b57191d51dc5d6a9c9ade3"
+      },
+      "MembershipResources.java": {
+        "path": "target/v53-generation-reload-review/baseline-source/MembershipResources.java",
+        "sha256": "c69b3f42edec6faaa09ed341a5b5620a8e95cae344ff7500f3d882bbfb6dc000"
+      }
+    },
+    "tests": 2
+  },
+  "passiveDiagnosis": {
+    "path": "target/v53-generation-reload-review/serialization-corrected/diagnosis.json",
+    "sha256": "35b5c1647278bf4d1cb7d97e7e4d560df556be20a82da81c8f0a708c4dbb8bc9"
+  },
+  "phase3Complete": false,
+  "schema": "gse-v53-generation-reload-development-v1",
+  "sourceBeforeChecks": {
+    "path": "target/v53-generation-reload-review/tested-source-01.json",
+    "sha256": "9ca5afacf15a60ea11e32d2c6956e57df7dedcd66101ba91955d59e642659adf"
+  },
+  "status": "PARTIAL",
+  "wholeRuntimePeakQualified": false
+}

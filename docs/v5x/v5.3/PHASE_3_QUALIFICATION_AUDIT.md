@@ -161,9 +161,11 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    now derives the existing PROMISE matrix's actual boundary charges and completed
    cache lifetimes. [Publication reservation handoff](PHASE_3_PUBLICATION_RESERVATION.md)
    now atomically consumes the already-admitted image for candidate installation;
-   generation reload still closes old reservations before reconstructing them
-   and requires its own handoff/refusal audit. Full native transition/publication
-   overlap remains open.
+   [generation reload](PHASE_3_GENERATION_RELOAD.md) now retains the original
+   generation group through validation and commits only the complete reader pair.
+   Its native interruption check keeps original charges until owner close and
+   resumes the same forced files. Full native transition/publication overlap and
+   final-source execution remain open.
    Review actual lifetime overlap, then exercise
    selected/current/inactive sources, learner staging and reserved completion on
    real owners. `V53ResourceTransferTest` reserves the accounting envelope;

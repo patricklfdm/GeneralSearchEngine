@@ -85,8 +85,12 @@ verified backup to a new root; old tokens/operation IDs do not cross that bounda
 [Publication reservation handoff](PHASE_3_PUBLICATION_RESERVATION.md) keeps the
 original image maximum charged until the complete candidate reservation succeeds.
 Publication and carried installation consume its exact successor handle without
-a release/reacquire gap. Generation reload is a separate lifetime still under
-review; this is not full native peak-resource qualification.
+a release/reacquire gap. [Generation reload](PHASE_3_GENERATION_RELOAD.md) now
+keeps original generation/image charges while replacement readers validate;
+only a complete exact-handle transaction can shrink extents and transfer ownership.
+Interrupted validation keeps originals until journal close. Whole-runtime
+combined pressure remains under review; this is not full native peak-resource
+qualification.
 
 [Native reply resource lifetimes](PHASE_3_TRANSFER_RESOURCE_LIFETIME.md) derive
 storage and control charges at actual TCP boundaries from original files/frames.

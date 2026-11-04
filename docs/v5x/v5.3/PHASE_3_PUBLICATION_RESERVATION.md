@@ -88,11 +88,12 @@ mvn -o -B -ntp -f reactor/pom.xml -pl ../general-search-engine-replication -am \
 
 ## Remaining resource work
 
-The separate `reloadGenerations` path currently closes both generation owners
-before reconstructing their reservations from the forced selector. Its ownership
-handoff and refusal behavior need dedicated analysis and regression coverage;
-this correction must not be described as eliminating every resource-accounting
-gap. A separate passive original-owner probe completed publication and observed
+At this batch's source, the separate `reloadGenerations` path closed both
+generation owners before reconstructing their reservations from the forced
+selector. The subsequent [generation reload correction](PHASE_3_GENERATION_RELOAD.md)
+addresses that ownership handoff and refusal behavior; this publication-only
+receipt must not be described as qualifying the later correction. A separate
+passive original-owner probe completed publication and observed
 15 `CURRENT_*` callbacks across three owners with two physical generation
 directories but only one generation charged. It establishes the accounting gap,
 not an observed competing receiver or physical-capacity overrun. Its first

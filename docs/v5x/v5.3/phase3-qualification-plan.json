@@ -305,7 +305,8 @@
         "scripts/v53/test_carried_transition_history.py",
         "scripts/v53/test_carried_transition_history_hosted.py",
         "scripts/v53/test_carried_transition_history_workflow.py",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationReservationTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationReservationTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationReloadTest.java"
       ],
       "readers": [
         "scripts/v53/carried_process_evidence.py",
@@ -336,7 +337,8 @@
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_PREFIXES.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_COHORT.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_HOSTED.md",
-        "docs/v5x/v5.3/PHASE_3_PUBLICATION_RESERVATION.md"
+        "docs/v5x/v5.3/PHASE_3_PUBLICATION_RESERVATION.md",
+        "docs/v5x/v5.3/PHASE_3_GENERATION_RELOAD.md"
       ],
       "cohorts": [
         "node-renames",
@@ -518,7 +520,8 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SourceReservationTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransferReplyLifetimeTest.java",
         "scripts/v53/test_transfer_reply_lifetime.py",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationReservationTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationReservationTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationReloadTest.java"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -559,7 +562,8 @@
         "docs/v5x/v5.3/PHASE_3_GENERATION_RESERVATION.md",
         "docs/v5x/v5.3/PHASE_3_SOURCE_RESERVATION.md",
         "docs/v5x/v5.3/PHASE_3_TRANSFER_RESOURCE_LIFETIME.md",
-        "docs/v5x/v5.3/PHASE_3_PUBLICATION_RESERVATION.md"
+        "docs/v5x/v5.3/PHASE_3_PUBLICATION_RESERVATION.md",
+        "docs/v5x/v5.3/PHASE_3_GENERATION_RELOAD.md"
       ],
       "cohorts": [
         "profiles",

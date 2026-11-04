@@ -82,6 +82,67 @@ final class MembershipResources {
         return List.copyOf(rows);
     }
     record StorageReservation(Unit unit,String owner,long bytes) {}
+    private static boolean generationOwner(Key key) {
+        return key.unit==Unit.GENERATION || key.unit==Unit.MISC && key.owner.equals("current-authority")
+                || key.unit==Unit.APPLICATION && (key.owner.startsWith("generation-a:") || key.owner.startsWith("generation-b:"));
+    }
+    /** Validate replacement readers while the complete original generation group
+     * stays charged. Pending handles cannot allocate, grow or release storage. */
+    synchronized GenerationReload prepareGenerationReload(Set<Lease> expected) {
+        var actual=new HashSet<Lease>();for(var lease:leases.values())if(generationOwner(lease.key))actual.add(lease);
+        require(!expected.isEmpty() && expected.size()<=10 && expected.equals(actual),"generation reload original group");
+        require(expected.stream().anyMatch(l->l.key.unit==Unit.MISC) && expected.stream().anyMatch(l->l.key.unit==Unit.GENERATION),
+                "generation reload current owner");
+        var original=new LinkedHashMap<Key,StorageReservation>();
+        var owners=new LinkedHashMap<Key,Lease>();
+        for(var lease:expected) {
+            require(!lease.released && leases.get(lease.key)==lease
+                    && generationClaims.stream().noneMatch(c->c.source==lease)
+                    && sourceClaims.stream().noneMatch(c->c.source==lease),"generation reload original handle");
+            original.put(lease.key,new StorageReservation(lease.key.unit,lease.key.owner,lease.bytes));owners.put(lease.key,lease);
+        }
+        return new GenerationReload(original,owners);
+    }
+    final class GenerationReload implements AutoCloseable {
+        private final Map<Key,StorageReservation> originals;
+        private final Map<Key,Lease> owners;
+        private final Map<Key,Lease> issued=new LinkedHashMap<>();
+        private boolean closed;
+        private GenerationReload(Map<Key,StorageReservation> originals,Map<Key,Lease> owners){this.originals=originals;this.owners=owners;}
+        Lease claim(Unit unit,String owner,long bytes) {
+            synchronized(MembershipResources.this) {
+                var key=new Key(unit,owner);var original=originals.get(key);var old=owners.get(key);
+                require(!closed && original!=null && !old.released && leases.get(key)==old && old.bytes==original.bytes
+                        && bytes>0 && bytes<=original.bytes && !issued.containsKey(key),"generation reload claim differs or repeated");
+                var lease=new Lease(key,bytes);lease.reload=this;issued.put(key,lease);return lease;
+            }
+        }
+        void commit() {
+            synchronized(MembershipResources.this) {
+                require(!closed && issued.keySet().equals(originals.keySet()),"generation reload incomplete or closed");
+                long lessMetadata=0,lessStaging=0,lessProtected=0;
+                for(var row:originals.entrySet()) {
+                    var key=row.getKey();var old=owners.get(key);var original=row.getValue();
+                    require(!old.released && leases.get(key)==old && key.equals(old.key) && old.bytes==original.bytes,
+                            "generation reload original changed");
+                    long less=old.bytes-issued.get(key).bytes;
+                    if(key.unit.metadata)lessMetadata+=less;if(key.unit.staging)lessStaging+=less;
+                    if(key.unit.protectedSpace())lessProtected+=less;
+                }
+                var next=new HashMap<>(leases);next.putAll(issued);
+                var oldHandles=owners.values().toArray(Lease[]::new);var newHandles=issued.values().toArray(Lease[]::new);
+                // Everything that can refuse or allocate precedes this switch.
+                leases=next;metadata-=lessMetadata;staging-=lessStaging;protectedUsed-=lessProtected;
+                for(int n=0;n<oldHandles.length;n++)oldHandles[n].released=true;
+                for(int n=0;n<newHandles.length;n++)newHandles[n].reload=null;closed=true;
+            }
+        }
+        @Override public void close() {
+            synchronized(MembershipResources.this) {
+                if(!closed){issued.values().forEach(l->{l.released=true;l.reload=null;});closed=true;}
+            }
+        }
+    }
     /** Extend one inactive generation without releasing its original handles.
      * Other receivers see either the original charges or the complete reservation.
      * A failed extent/count admission leaves every original charge unchanged. */
@@ -225,6 +286,7 @@ final class MembershipResources {
     }
     final class Lease implements AutoCloseable {
         private Key key; private long bytes; private boolean released;
+        private GenerationReload reload;
         private Lease(Key key,long bytes) { this.key=key;this.bytes=bytes; }
         /** Account a declared control body before allocating it, without releasing its header slot. */
         void reserveControl(long total) {
@@ -306,6 +368,7 @@ final class MembershipResources {
         @Override public void close() {
             synchronized(MembershipResources.this) {
                 if(released)return;
+                if(reload!=null){reload.close();return;}
                 for(var claim:new ArrayList<>(generationClaims))if(claim.source==this)claim.close();
                 for(var claim:new ArrayList<>(sourceClaims))if(claim.source==this)claim.close();
                 require(leases.remove(key)==this,"foreign resource release");released=true;
