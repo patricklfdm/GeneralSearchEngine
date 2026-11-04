@@ -26,12 +26,14 @@ the backlog as a new feature.
 | [Native carried/stable rounds](PHASE_3_NATIVE_ROUND_HOSTED.md) | 7 | 7 | Four carried BARRIER phases and three guarded round histories |
 | [Native carried DATA](PHASE_3_CARRIED_DATA_HOSTED.md) | 4 | 4 | Four old DATA phases, carried completion and the next fresh BARRIER |
 | [Native carried INTENT/FINAL](PHASE_3_CARRIED_TRANSITION_HOSTED.md) | 2 | 2 | Complete carried transitions through stable BARRIER, six reader layers and actual retirement bytes |
+| [Automatic lifecycle components](PHASE_3_AUTOMATIC_HISTORY_HOSTED.md) | 50 | 3 | Competition, higher-ballot restart and the complete 48-case PROMISE reply-revocation matrix |
 
-These **462 planned native histories** are complementary subsets. This is neither
+These **512 planned native histories** are complementary subsets. This is neither
 a pass count nor a count of covered rows in the frozen S matrix. The inspector
 reads their actual Python catalogues and checks declared counts and ordered-case
 hashes. Joining groups must partition all 360 whole histories exactly; transfer
 groups must preserve their complete three-owner and eighteen-recovery matrices.
+Automatic groups preserve both whole campaigns and the complete 48-case matrix.
 Workflow and implementation references must exist as regular repository files. This
 checks inventory drift, not workflow scheduling behavior.
 
@@ -60,7 +62,7 @@ prove its semantics.
 | 3D removal | Departure fencing, retirement and original-disk recovery | Final-source original/negative process matrix |
 | 3E resources | Accounting, bounded transfers, publication refusal and conditional-prefix tests | Simultaneous physical peak and admitted completion |
 | 3E coverage | Frozen finite inventory and this dependency map | Concrete schedule/evidence/rejection mapping |
-| 3E cohort | Ten source-bound subset gates | Complete final admission, execution and closure audit |
+| 3E cohort | Eleven source-bound subset gates | Complete final admission, execution and closure audit |
 
 `MembershipStorageOperations` still refuses public learner operations and
 `MembershipSearchEngine` keeps reads disabled. Phase 3 private protocol work does
@@ -96,8 +98,11 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    [Automatic lifecycle component admission](PHASE_3_AUTOMATIC_HISTORY_COHORT.md)
    now binds competition, restart and the complete reply matrix to one exact
    source/build/toolchain/reader. It replays original layers and exact applicable
-   negatives across three complete groups; hosted adaptation and final-source
-   execution remain open. Retained historical originals are not new cohort slots.
+   negatives across three complete groups. Its
+   [hosted adapter](PHASE_3_AUTOMATIC_HISTORY_HOSTED.md) now freezes one seed and
+   requires all 50 original plans and three downloaded verifier receipts from
+   the exact run/attempt. Final-source execution remains open. Retained historical
+   originals are not new cohort slots.
    The [transfer matrix entry](PHASE_3_TRANSFER_HISTORY_COHORT.md) binds the existing
    complete TCP lifetime and two-process recovery matrices to one recorded
    source/build/toolchain/reader and independently replays both originals. It is

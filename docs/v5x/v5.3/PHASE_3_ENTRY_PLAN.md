@@ -1,8 +1,8 @@
 # V5.3 Phase 3 entry and closure checklist
 
 [The current qualification audit](PHASE_3_QUALIFICATION_AUDIT.md) reconciles the
-implementation and historical notes into twelve review obligations, ten
-implemented hosted subsets (462 planned whole histories) and five open work
+implementation and historical notes into twelve review obligations, eleven
+implemented hosted subsets (512 planned whole histories) and five open work
 groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
@@ -11,8 +11,10 @@ retain their original-source scope. Phase 3 remains OPEN.
 now provides three complete execution groups and 50 distinct original plans with
 exact common-source/build/toolchain/reader binding. Known competition shapes
 select their negative vector only after complete original replay; missing or
-unknown histories refuse. Hosted integration and final-source execution remain
-open; historical source versions are not combined into an accepted cohort.
+unknown histories refuse. Its [hosted adapter](PHASE_3_AUTOMATIC_HISTORY_HOSTED.md)
+now prepares three complete execution groups and three independent downloaded
+replays with exact run/attempt binding. Final-source execution remains open;
+historical source versions are not combined into an accepted cohort.
 
 [Native transfer reply revocation](PHASE_3_TRANSFER_REPLY_LIFETIME.md) now checks
 48 PROMISE-export TCP cases and 30 exact negatives at the final handler boundary.

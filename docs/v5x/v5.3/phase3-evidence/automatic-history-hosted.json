@@ -1,0 +1,92 @@
+{
+  "baseCommit": "cb5a5cd9b97d99fd9bd59f3bc16902a6d654e6e4",
+  "checks": {
+    "contract-final.json": {
+      "path": "target/v53-automatic-history-hosted/contract-final.json",
+      "sha256": "9bc91be48731c3b86aafa5b5f50a303432c0d2e20b382e3d93b5736cdcd1fb85"
+    },
+    "focused-optimized.log": {
+      "path": "target/v53-automatic-history-hosted/focused-optimized.log",
+      "sha256": "3a4b7d5b91036ed4a1c35aa2063cfb43f8445d80812d3aedc1672e902edabdcc"
+    },
+    "focused.log": {
+      "path": "target/v53-automatic-history-hosted/focused.log",
+      "sha256": "896938bf1069c7311c016ca8342b7b1003afcceea38021bfb8e08a5d8fad90a0"
+    },
+    "inspection-final/receipt.json": {
+      "path": "target/v53-automatic-history-hosted/inspection-final/receipt.json",
+      "sha256": "6c6398302fa452b811f6d80c4bb2b4e0588a4903c5ea94a1af976ca47ea36250"
+    },
+    "python-suite.log": {
+      "path": "target/v53-automatic-history-hosted/python-suite.log",
+      "sha256": "05894c4824bc09ba16bfa32c2b6382154444ef71c7954cad657a3eaa5bc6e102"
+    },
+    "reader.json": {
+      "path": "target/v53-automatic-history-hosted/reader.json",
+      "sha256": "72934a07f29079ec8e37572273174906eeaef1d56b39b3335c3e823ee14b4174"
+    },
+    "workflow-check.json": {
+      "path": "target/v53-automatic-history-hosted/workflow-check.json",
+      "sha256": "52cf8a48bd803ca87cdc0658dd214024aad727c1ee062813a2c205148796dc1d"
+    }
+  },
+  "completeExportLifetimesQualified": false,
+  "declaredExecutionGroups": [
+    "competition",
+    "higher-ballot-restart",
+    "reply-revocation"
+  ],
+  "existingRequiredChanged": false,
+  "expandedWorkflowJobs": 8,
+  "finalSourceCohortQualified": false,
+  "fullLifecycleQualified": false,
+  "hostedExecuted": false,
+  "measurementRetries": false,
+  "nativeExecuted": false,
+  "note": "Native execution and physical replay are mocked in orchestration tests. Previous retained-original composition is recorded separately; no historical input fills this new source/attempt.",
+  "optionalHostedSubsets": 11,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "plannedHostedHistories": 512,
+  "plannedOriginalHistories": 50,
+  "previousTenCohortsUnchanged": true,
+  "productionChanged": false,
+  "readerSha256": "733d77275707839fc77fda5ba49b4a1089150c3547c8f1dc78dd23f9f9ffbdff",
+  "schema": "gse-v53-automatic-history-hosted-development-v1",
+  "scope": "synthetic-orchestration-and-source-inspection",
+  "status": "PASS",
+  "syntheticNegativeVectors": {
+    "pregrant": {
+      "notApplicable": 7,
+      "rejected": 142
+    },
+    "superseded": {
+      "notApplicable": 0,
+      "rejected": 207
+    }
+  },
+  "tests": {
+    "focused": {
+      "seconds": 3.122,
+      "status": "PASS",
+      "tests": 70
+    },
+    "focused-optimized": {
+      "seconds": 3.125,
+      "status": "PASS",
+      "tests": 70
+    },
+    "python-suite": {
+      "seconds": 117.988,
+      "status": "PASS",
+      "tests": 2612
+    }
+  },
+  "unexecuted": [
+    "new native workload",
+    "hosted dispatch",
+    "Maven build",
+    "actionlint (not installed)"
+  ],
+  "workflow": ".github/workflows/v53-automatic-histories.yml"
+}

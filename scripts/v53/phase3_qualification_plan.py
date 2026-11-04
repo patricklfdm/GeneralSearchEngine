@@ -43,6 +43,7 @@ COHORTS = {
     'round-histories': ('round_history', 'CASES', 'round_history_hosted'),
     'carried-data-histories': ('carried_data_history', 'CASES', 'carried_data_history_hosted'),
     'carried-transition-histories': ('carried_transition_history', 'CASES', 'carried_transition_history_hosted'),
+    'automatic-histories': ('automatic_history_hosted', 'HISTORIES', 'automatic_history_hosted'),
 }
 GAPS = ('component-cohorts', 'combined-resources', 'frozen-coverage', 'cohort-admission', 'final-source-execution')
 need, encoded, digest = inventory.need, inventory.encoded, inventory.digest
@@ -74,10 +75,10 @@ def catalogues():
         cases = list(getattr(matrix, field))
         need(cases and all(type(v) is str and v for v in cases) and len(set(cases)) == len(cases),
              'qualification catalogue members: '+name)
-        if name == 'transfer-histories':
+        if name in ('transfer-histories','automatic-histories'):
             need(hosted.SHARDS == {case:tuple(case+'/'+v for v in matrix.m.histories(case)) for case in matrix.m.CASES},
-                 'qualification transfer whole-matrix partition')
-        groups = list(hosted.SHARDS.values()) if name in ('joining-process','transfer-histories') else [(case,) for case in cases]
+                 'qualification '+name+' whole-matrix partition')
+        groups = list(hosted.SHARDS.values()) if name in ('joining-process','transfer-histories','automatic-histories') else [(case,) for case in cases]
         need([v for group in groups for v in group] == cases, 'qualification whole-history partition: '+name)
         rows[name] = dict(matrix='scripts/v53/'+matrix_name+'.py', hosted='scripts/v53/'+hosted_name+'.py',
                           workflow=hosted.WORKFLOW, branch=hosted.BRANCH, cases=cases,

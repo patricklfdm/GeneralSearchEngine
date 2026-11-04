@@ -1,5 +1,10 @@
 # Source-bound automatic lifecycle component cohort
 
+The subsequent [hosted adapter](PHASE_3_AUTOMATIC_HISTORY_HOSTED.md) now connects
+this entry to three complete execution groups and independent downloaded replay.
+The development results below retain this local batch's original scope; no final
+common-source or hosted execution is implied.
+
 Phase 3 remains **OPEN**. This local entry binds existing native producers and
 independent readers. It provides three complete execution groups, with 50
 distinct original bootstrap plans. It does not claim a final-source cohort has

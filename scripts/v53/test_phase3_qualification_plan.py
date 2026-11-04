@@ -28,16 +28,17 @@ class Phase3QualificationPlanTest(unittest.TestCase):
     def test_current_sources_and_complete_planning_inventory(self):
         result = self.check()
         self.assertEqual(12, result['requirements'])
-        self.assertEqual(462, result['plannedHostedHistories'])
+        self.assertEqual(512, result['plannedHostedHistories'])
         self.assertEqual({'profiles':7, 'joining-reply-loss':3, 'remove-process':52,
                           'node-renames':4, 'joining-process':360, 'learner-histories':2, 'transfer-histories':21, 'round-histories':7, 'carried-data-histories':4,
-                          'carried-transition-histories':2},
+                          'carried-transition-histories':2, 'automatic-histories':50},
                          {k:v['members'] for k,v in result['cohorts'].items()})
         self.assertEqual(120, result['cohorts']['joining-process']['executionGroups'])
         self.assertEqual(2, result['cohorts']['transfer-histories']['executionGroups'])
         self.assertEqual(7, result['cohorts']['round-histories']['executionGroups'])
         self.assertEqual(4, result['cohorts']['carried-data-histories']['executionGroups'])
         self.assertEqual(2, result['cohorts']['carried-transition-histories']['executionGroups'])
+        self.assertEqual(3, result['cohorts']['automatic-histories']['executionGroups'])
         self.assertEqual(3310, result['frozenAcceptance']['scenarios'])
         self.assertEqual(24, result['frozenAcceptance']['negativeFamilies'])
         self.assertEqual([], result['frozenAcceptance']['coveredScenarioRows'])
@@ -106,6 +107,15 @@ class Phase3QualificationPlanTest(unittest.TestCase):
                        lambda v:v['requirements'][0].update(cohorts=['profiles','profiles'])):
             self.rejected(action,'requirement dependencies')
         self.rejected(lambda v:[r.update(cohorts=[]) for r in v['requirements']], 'orphan cohort/gap')
+
+    def test_automatic_groups_preserve_both_histories_and_complete_reply_matrix(self):
+        from . import automatic_history_hosted as hosted
+        self.assertEqual([1,1,48],[len(v) for v in hosted.SHARDS.values()])
+        groups=dict(hosted.SHARDS);groups['reply-revocation']=groups['reply-revocation'][:-1]
+        split=dict(hosted.SHARDS);split['extra']=split['reply-revocation'][:1];split['reply-revocation']=split['reply-revocation'][1:]
+        for value in (groups,split):
+            with patch.object(hosted,'SHARDS',value),self.assertRaisesRegex(ValueError,'whole-matrix partition'):
+                p.catalogues()
 
     def test_gaps_cannot_be_removed_reordered_or_self_certified(self):
         self.rejected(lambda v:v['gaps'].pop(), 'gap inventory/order')
