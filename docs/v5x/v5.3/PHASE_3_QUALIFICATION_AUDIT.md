@@ -110,8 +110,10 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    authorizes all 416 observed transfers and 20 complete-copy floors in those same
    originals, with 44 exact negatives. [Ledger/retirement replay](PHASE_3_CARRIED_TRANSITION_RETENTION.md)
    now adds continuous peer/future chains, all observed retirement callbacks and
-   154 exact negatives. Transient-byte/process capture and dedicated source-bound
-   admission remain; no subset is added.
+   154 exact negatives. [Retirement prefix capture](PHASE_3_CARRIED_TRANSITION_PREFIXES.md)
+   now adds actual writer-held bytes and compares them to those derived states,
+   with separate carried kind/result binding. Process-death coverage and dedicated
+   source-bound admission remain; no subset is added.
    Other carried payload/process axes remain; conditional Phase 2 fixtures cannot
    substitute for native originals. Continue competing-owner and transition
    recovery entries and uncovered learner profiles. Reuse existing producers/readers.

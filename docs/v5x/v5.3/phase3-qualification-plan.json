@@ -218,7 +218,8 @@
         "scripts/v53/test_carried_transition_network.py",
         "scripts/v53/test_carried_transition_exports.py",
         "scripts/v53/test_carried_transition_retention.py",
-        "scripts/v53/test_carried_transition_retirement.py"
+        "scripts/v53/test_carried_transition_retirement.py",
+        "scripts/v53/test_carried_transition_prefixes.py"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -227,7 +228,8 @@
         "scripts/v53/carried_transition_network.py",
         "scripts/v53/carried_transition_exports.py",
         "scripts/v53/carried_transition_retention.py",
-        "scripts/v53/carried_transition_retirement.py"
+        "scripts/v53/carried_transition_retirement.py",
+        "scripts/v53/carried_transition_prefixes.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_JOINT_COORDINATION.md",
@@ -236,7 +238,8 @@
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITIONS.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_NETWORK.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_EXPORTS.md",
-        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_RETENTION.md"
+        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_RETENTION.md",
+        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_PREFIXES.md"
       ],
       "cohorts": [
         "profiles",
@@ -283,7 +286,8 @@
         "scripts/v53/test_carried_transition_network.py",
         "scripts/v53/test_carried_transition_exports.py",
         "scripts/v53/test_carried_transition_retention.py",
-        "scripts/v53/test_carried_transition_retirement.py"
+        "scripts/v53/test_carried_transition_retirement.py",
+        "scripts/v53/test_carried_transition_prefixes.py"
       ],
       "readers": [
         "scripts/v53/carried_process_evidence.py",
@@ -295,7 +299,8 @@
         "scripts/v53/carried_transition_network.py",
         "scripts/v53/carried_transition_exports.py",
         "scripts/v53/carried_transition_retention.py",
-        "scripts/v53/carried_transition_retirement.py"
+        "scripts/v53/carried_transition_retirement.py",
+        "scripts/v53/carried_transition_prefixes.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_CARRIED_SLOTS.md",
@@ -307,7 +312,8 @@
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITIONS.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_NETWORK.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_EXPORTS.md",
-        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_RETENTION.md"
+        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_RETENTION.md",
+        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_PREFIXES.md"
       ],
       "cohorts": [
         "node-renames",
@@ -523,7 +529,8 @@
         "scripts/v53/test_carried_data_history_workflow.py",
         "scripts/v53/test_carried_transition_exports.py",
         "scripts/v53/test_carried_transition_retention.py",
-        "scripts/v53/test_carried_transition_retirement.py"
+        "scripts/v53/test_carried_transition_retirement.py",
+        "scripts/v53/test_carried_transition_prefixes.py"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -537,7 +544,8 @@
         "scripts/v53/carried_data_history.py",
         "scripts/v53/carried_transition_exports.py",
         "scripts/v53/carried_transition_retention.py",
-        "scripts/v53/carried_transition_retirement.py"
+        "scripts/v53/carried_transition_retirement.py",
+        "scripts/v53/carried_transition_prefixes.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md",
@@ -551,7 +559,8 @@
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITIONS.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_NETWORK.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_EXPORTS.md",
-        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_RETENTION.md"
+        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_RETENTION.md",
+        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_PREFIXES.md"
       ],
       "cohorts": [
         "profiles",

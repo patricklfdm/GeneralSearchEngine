@@ -14,7 +14,11 @@ class V53CarriedTransitionDriverTest {
     private void run(String kind,int index,int campaigns)throws Exception {
         var helper=new V53TransitionRoundDriverTest();helper.temp=temp;
         var ordinal=new AtomicInteger();
+        V53RemoveRetirementCapture captures=null;
         try(var n=helper.network("CARRIED_"+kind);var round=helper.driver(n,ordinal,MembershipRoundDriver.Events.NONE)) {
+            if(Boolean.getBoolean("v53.carried.retirement.captures")) {
+                captures=new V53RemoveRetirementCapture(n.f.raw);n.removeRetirementCapture=captures;
+            }
             // Retain every original send/receive and terminal failure before
             // the first higher-ballot campaign; replies alone are insufficient.
             n.observeRequests=true;
@@ -33,6 +37,7 @@ class V53CarriedTransitionDriverTest {
                     "activations",campaigns,"internalReady",true,"publicReady",false,"originalBudgetSeconds",600);
             Files.write(n.f.raw.resolve("carried-transition-result.json"),canonical(result,4096));
         }
+        if(captures!=null)captures.finishCarried(kind);
     }
     @Test void carriedIntentFinishesBeforeFreshStableBarrier()throws Exception {run("INTENT",5,3);}
     @Test void carriedFinalFinishesBeforeFreshStableBarrier()throws Exception {run("FINAL",6,2);}

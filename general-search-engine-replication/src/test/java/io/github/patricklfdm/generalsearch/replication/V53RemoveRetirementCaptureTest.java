@@ -58,4 +58,23 @@ class V53RemoveRetirementCaptureTest {
         assertThrows(IllegalArgumentException.class,()->capture.at("node-1",replica,"RETIREMENT_CREATED",2));
         assertThrows(IllegalArgumentException.class,()->capture.finish("4-REMOVE"));
     }
+    @Test void carriedCollectionBindsItsOwnKindAndResultAfterClosedTransactions()throws Exception {
+        for(String kind:List.of("INTENT","FINAL")) {
+            Path raw=Files.createDirectory(temp.resolve(kind)),replica=Files.createDirectory(temp.resolve(kind+"-replica"));
+            Files.write(replica.resolve("empty"),new byte[0]);var capture=new V53RemoveRetirementCapture(raw);
+            capture.at("node-1",replica,"RETIREMENT_OLD_FILES_FORCED",0);
+            assertThrows(IllegalArgumentException.class,()->capture.finishCarried(kind));
+            capture.at("node-1",replica,"RETIREMENT_BEFORE_RETURN",1);
+            Files.write(raw.resolve("events.json"),canonical(List.of(),4096));
+            Files.write(raw.resolve("transition-round-result.json"),canonical(Map.of("profile","4-REMOVE"),4096));
+            assertThrows(ReplicationException.class,()->capture.finishCarried(kind));
+            assertThrows(IllegalArgumentException.class,()->capture.finishCarried("4-REMOVE"));
+            assertThrows(IllegalArgumentException.class,()->capture.finish(kind));
+            byte[] result=canonical(Map.of("kind",kind),4096);Files.write(raw.resolve("carried-transition-result.json"),result);
+            capture.finishCarried(kind);var header=object(parse(Files.readAllBytes(capture.root.resolve("collection.json")),4096));
+            assertEquals(V53RemoveRetirementCapture.CARRIED_SCHEMA,header.get("schema"));assertEquals(kind,header.get("profile"));
+            assertEquals(hash(result),header.get("resultSha256"));assertEquals(2L,header.get("captures"));
+            assertThrows(IllegalArgumentException.class,()->capture.finishCarried(kind));
+        }
+    }
 }

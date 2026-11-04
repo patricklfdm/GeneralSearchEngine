@@ -1,0 +1,180 @@
+{
+  "baseCommit": "df94e94db67fd0ead9fc2458f6ec46cf10c6b3e7",
+  "capturedPrefixes": 1176,
+  "currentNewDocumentation": [
+    "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_PREFIXES.md",
+    "docs/v5x/v5.3/phase3-evidence/carried-transition-prefixes.json"
+  ],
+  "fullOriginalPrerequisitesReplayed": true,
+  "hostedSubsetAdded": false,
+  "members": [
+    {
+      "borrowedGenerations": 9,
+      "build": {
+        "path": "target/v53-carried-transition-prefixes/inputs/intent/build.json",
+        "sha256": "74d3ea0c577fc29f82d1b5c6318ea8b151a035e382646b574ffecb7411f6e1fd"
+      },
+      "captureBytes": 9307469,
+      "captureInventorySha256": "f0813f6338efb67625ac3c45460ca200e2fd11b684eb71159c7af1a8aab133cd",
+      "captureToCurrentDifferences": [
+        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_RETENTION.md",
+        "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+        "docs/v5x/v5.3/PHASE_3_QUALIFICATION_AUDIT.md",
+        "docs/v5x/v5.3/phase3-qualification-plan.json",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RemoveRetirementCaptureTest.java"
+      ],
+      "captures": 779,
+      "generations": 13,
+      "kind": "INTENT",
+      "negativeChecks": 19,
+      "originalBytes": 19070805,
+      "originalExecutionSeconds": 343.266,
+      "originalInventorySha256": "30390f6c0677a25cc199334ad4fdcbb8e6c932bc435622e791cbffac8188cc3f",
+      "physicalImagePeak": 7,
+      "portable": {
+        "path": "target/v53-carried-transition-prefixes/portable-results/intent-receipt.json",
+        "sha256": "b25ab5e2ef2324c6bed4cde8498224533e659216592fcb715b1cbd26590b5fae"
+      },
+      "portableArchiveSha256": "5ece61225c7313b34c6973d824ea0cc844ee91193c305ffde9f380656aebc85e",
+      "producer": {
+        "path": "target/v53-carried-transition-prefixes/inputs/intent/receipt.json",
+        "sha256": "11897534c46477b2140f0e295cf073d91e7beae04e5cd14fd3adf7aa6d6e06c7"
+      },
+      "replay": {
+        "path": "target/v53-carried-transition-prefixes/intent-replay-receipt.json",
+        "sha256": "bd06788b4abaf3f789a4794a444bc082e2aaf7c7477366bc17c67f3d4fc9c01e"
+      },
+      "result": {
+        "path": "target/v53-carried-transition-prefixes/intent-qualification.json",
+        "sha256": "758e707a34cea6caeffc9511b186072f2481d5773492f7b651804aa7a63a13b0"
+      },
+      "source": {
+        "path": "target/v53-carried-transition-prefixes/inputs/intent/source.json",
+        "sha256": "71d740bd062c3694f0a0e495663c81eb78aa3aff37abaebf95ff50ef91fc1d3b"
+      },
+      "sources": 8,
+      "toolchain": {
+        "path": "target/v53-carried-transition-prefixes/inputs/intent/toolchain.json",
+        "sha256": "c591dc03dac3461c7a931f18eb66a1af033b5138c0f72fc14e34590f47aeef68"
+      },
+      "transactionChainSha256": "9187a403602fe884783600637cd3168f3de7544156127fdfe3f69ef6a58e58b6"
+    },
+    {
+      "borrowedGenerations": 3,
+      "build": {
+        "path": "target/v53-carried-transition-prefixes/inputs/final/build.json",
+        "sha256": "74d3ea0c577fc29f82d1b5c6318ea8b151a035e382646b574ffecb7411f6e1fd"
+      },
+      "captureBytes": 4944692,
+      "captureInventorySha256": "d41e7c1ca15512804799581c2db7c944b25a6f4dc91448e6bf3eb6c8e1d65915",
+      "captureToCurrentDifferences": [
+        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_RETENTION.md",
+        "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+        "docs/v5x/v5.3/PHASE_3_QUALIFICATION_AUDIT.md",
+        "docs/v5x/v5.3/phase3-qualification-plan.json",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RemoveRetirementCaptureTest.java"
+      ],
+      "captures": 397,
+      "generations": 7,
+      "kind": "FINAL",
+      "negativeChecks": 19,
+      "originalBytes": 19723381,
+      "originalExecutionSeconds": 300.366,
+      "originalInventorySha256": "e619bace9bc6e90d7b538272a5f91d12ceefce1021bb479672d719c381bcf74d",
+      "physicalImagePeak": 7,
+      "portable": {
+        "path": "target/v53-carried-transition-prefixes/portable-results/final-receipt.json",
+        "sha256": "156e0c767fcd6ab8bd7ec2bb737d97106f743ab73d677e4563a583051c20c011"
+      },
+      "portableArchiveSha256": "54be7d398b29fd7d906ccc82c14a4f6264ee39140d231382d18343fc8a41b44d",
+      "producer": {
+        "path": "target/v53-carried-transition-prefixes/inputs/final/receipt.json",
+        "sha256": "b3c529c6410842a469dad84469714cabb8e93dd67c5ea40e4b4126623b495ea3"
+      },
+      "replay": {
+        "path": "target/v53-carried-transition-prefixes/final-replay-receipt.json",
+        "sha256": "4d532558a20bf5c7ae398a7297f788eff54ff2fbcc791db5e89fdfc3fe1588f2"
+      },
+      "result": {
+        "path": "target/v53-carried-transition-prefixes/final-qualification.json",
+        "sha256": "9033b3baf0dcef5000d2b557fc66f3cccc09f037b8ce0457211c64d25a709979"
+      },
+      "source": {
+        "path": "target/v53-carried-transition-prefixes/inputs/final/source.json",
+        "sha256": "71d740bd062c3694f0a0e495663c81eb78aa3aff37abaebf95ff50ef91fc1d3b"
+      },
+      "sources": 4,
+      "toolchain": {
+        "path": "target/v53-carried-transition-prefixes/inputs/final/toolchain.json",
+        "sha256": "f5894cab189662c08f1d65f090ee942cfdf9f908d7362a0c258a7b2569739007"
+      },
+      "transactionChainSha256": "efabc917a64303a64d8c22a19654577e1680982e173810f9784d9a67f68c3aa1"
+    }
+  ],
+  "nativeExecutionsThisBatch": 2,
+  "nativeRetriesThisBatch": 0,
+  "negativeChecks": 38,
+  "phase3Complete": false,
+  "pins": {
+    "buildSha256": "74d3ea0c577fc29f82d1b5c6318ea8b151a035e382646b574ffecb7411f6e1fd",
+    "readerSha256": "ae0a759b6ce0b709224b52e765ff21c9db7d5d97c85a5a09260b4abb0ef18839",
+    "sourceSha256": "71d740bd062c3694f0a0e495663c81eb78aa3aff37abaebf95ff50ef91fc1d3b",
+    "toolchainSha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+  },
+  "processDeathQualified": false,
+  "publicReady": false,
+  "readerManifest": {
+    "path": "target/v53-carried-transition-prefixes/reader.json",
+    "sha256": "acc6124838c10e38f3a98f7a12b09640bec322d8cc0ea09280eb18fc7170d5c9"
+  },
+  "runtimeChanged": false,
+  "schema": "gse-v53-carried-transition-prefix-development-v1",
+  "scope": "actual writer-held retirement bytes in two complete four-voter REMOVE carried INTENT/FINAL histories",
+  "sourceCohortQualified": false,
+  "sourceNote": "Both originals use one frozen development source and its exact reader. Later documentation and the collector test exception expectation differ. Dedicated final-source cohort admission and all earlier stage negative vectors remain separate.",
+  "status": "PARTIAL",
+  "transientRetirementBytesQualified": true,
+  "validation": {
+    "documentContract": {
+      "path": "target/v53-carried-transition-prefixes/document-contract.json",
+      "sha256": "2b93b2882192632a7319a171e9a798031d34d64b018ef6fbd9be33bd31eec6b8"
+    },
+    "documentTests": 18,
+    "documentTestsLog": {
+      "path": "target/v53-carried-transition-prefixes/document-tests.log",
+      "sha256": "990611917611eac4e01fb5d6339cb8709fa7411777472ad862917db1a526b81a"
+    },
+    "focused": {
+      "path": "target/v53-carried-transition-prefixes/focused.log",
+      "sha256": "551cc2d68b1fb8395d15d412a65058e0b797d0214a4e03cfe2ab7f36af57559c"
+    },
+    "focusedTests": 26,
+    "java": {
+      "path": "target/v53-carried-transition-prefixes/capture-tests-corrected.log",
+      "sha256": "014cda82b831b97d90e53121b0d1c32717d2b3a1b158e2b4a945d4012485b944"
+    },
+    "javaCollectorTests": 4,
+    "optimized": {
+      "path": "target/v53-carried-transition-prefixes/focused-optimized.log",
+      "sha256": "585256ebd6e50e795a0fe3e43833b166808af05f5423dcdb9b737e19d373aeba"
+    },
+    "ordinaryRemoveCollection": {
+      "path": "target/v53-carried-transition-prefixes/remove-collection-regression.json",
+      "sha256": "7f23ac378a62c2334e19d64f0fe04c8d5c099a43acd28da679caf210989414fd"
+    },
+    "priorIncorrectExceptionExpectation": {
+      "path": "target/v53-carried-transition-prefixes/capture-tests.log",
+      "sha256": "6bb3f23cfabad81164bedca753d6010101d424cad16e65f3f09d821bcfbcbc7c"
+    },
+    "pythonSuite": {
+      "path": "target/v53-carried-transition-prefixes/python-suite.log",
+      "sha256": "ff74a5a678fea0f9bdbfbc33e04e57fd7113ee94bd9049743a5794d46965fff6"
+    },
+    "pythonTests": 2484,
+    "qualificationInventory": {
+      "path": "target/v53-carried-transition-prefixes/inventory/receipt.json",
+      "sha256": "f508314e931c8f6d045c6b05f4d49ece7317fbe8483f0b9dedb1f19e3b8ad6d0"
+    }
+  },
+  "workflowChanged": false
+}

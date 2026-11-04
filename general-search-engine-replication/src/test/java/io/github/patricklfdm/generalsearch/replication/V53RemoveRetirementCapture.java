@@ -11,6 +11,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 final class V53RemoveRetirementCapture {
     static final int MAXIMUM_CAPTURES=2048;
     static final String SCHEMA="gse-v53-remove-retirement-capture-v1";
+    static final String CARRIED_SCHEMA="gse-v53-carried-retirement-capture-v1";
     final Path raw,root;
     private final Path objects;
     private final Map<String,String> active=new HashMap<>();
@@ -54,11 +55,18 @@ final class V53RemoveRetirementCapture {
         require(extent>=0 && extent<=V53GrantCapture.MAXIMUM_BYTES-bytes,"REMOVE capture aggregate byte capacity");bytes+=extent;
     }
     synchronized void finish(String profile)throws IOException {
-        require(!finished && active.isEmpty() && count>0,"REMOVE capture incomplete collection");
         require(Set.of("4-REMOVE","5-REMOVE").contains(profile),"REMOVE capture profile");
+        finish(SCHEMA,profile,"transition-round-result.json");
+    }
+    synchronized void finishCarried(String kind)throws IOException {
+        require(Set.of("INTENT","FINAL").contains(kind),"carried capture kind");
+        finish(CARRIED_SCHEMA,kind,"carried-transition-result.json");
+    }
+    private void finish(String schema,String profile,String resultName)throws IOException {
+        require(!finished && active.isEmpty() && count>0,"REMOVE capture incomplete collection");
         byte[] events=AdmissionPaths.read(raw.resolve("events.json"),32*1024*1024);
-        byte[] result=AdmissionPaths.read(raw.resolve("transition-round-result.json"),4096);
-        byte[] collection=canonical(Map.of("schema",SCHEMA,"profile",profile,"eventsSha256",hash(events),
+        byte[] result=AdmissionPaths.read(raw.resolve(resultName),4096);
+        byte[] collection=canonical(Map.of("schema",schema,"profile",profile,"eventsSha256",hash(events),
                 "resultSha256",hash(result),"captures",count,"storedBytes",bytes),4096);
         Files.write(root.resolve("collection.json"),collection,StandardOpenOption.CREATE_NEW);finished=true;
     }

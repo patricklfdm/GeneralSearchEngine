@@ -18,15 +18,21 @@ MAXIMUM_CAPTURES=2048
 
 
 def collect(root,sidecar,profile):
+    need(profile in r.n.original.PROFILES,'REMOVE prefix collection header')
+    return collect_bound(root,sidecar,profile,SCHEMA,'transition-round-result.json',int(profile[0]))
+
+
+def collect_bound(root,sidecar,profile,schema,result_name,node_count):
+    """Internal shared decoder; callers fix the producer/result contract."""
     root,sidecar=Path(root),Path(sidecar)
     inventory=r.n.collection.inventory(sidecar,maximum=g.MAXIMUM_BYTES+4096)
     _,header=g.json_file(sidecar/'collection.json')
     need(type(header) is dict and set(header)=={'schema','profile','eventsSha256','resultSha256','captures','storedBytes'} and
-         header['schema']==SCHEMA and profile in r.n.original.PROFILES and header['profile']==profile and
+         header['schema']==schema and header['profile']==profile and
          type(header['captures']) is int and 0<header['captures']<=MAXIMUM_CAPTURES and
          type(header['storedBytes']) is int and 0<header['storedBytes']<=g.MAXIMUM_BYTES,'REMOVE prefix collection header')
     events_raw=r.n.collection.snapshot.s.regular(root/'events.json',r.n.collection.EVENT_BYTES)
-    result_raw=r.n.collection.snapshot.s.regular(root/'transition-round-result.json',4096)
+    result_raw=r.n.collection.snapshot.s.regular(root/result_name,4096)
     need(header['eventsSha256']==sha(events_raw) and header['resultSha256']==sha(result_raw),'REMOVE prefix original history binding')
     events=r.n.collection.read_json(root,'events.json',r.n.collection.EVENT_BYTES)
     names=[f'capture-{i:04d}.json' for i in range(1,header['captures']+1)]
@@ -61,7 +67,7 @@ def collect(root,sidecar,profile):
                 digest=identity['sha256'];raw=payloads[digest]
                 need(len(raw)==identity['size'],'REMOVE prefix file size');files[path]=raw;used.add(digest)
             parent=Path(path).parent.as_posix();need(parent=='.' or parent in files and files[parent] is None,'REMOVE prefix parent directory')
-        need(type(node) is str and node in {'node-'+str(i+1) for i in range(int(profile[0]))},'REMOVE prefix original node')
+        need(type(node) is str and node in {'node-'+str(i+1) for i in range(node_count)},'REMOVE prefix original node')
         if node not in owners:
             owners[node]={key:g.snapshot.s.regular(root/'before-network'/node/key,16384) for key in ('root.gsr','node.gsr')}
         need(all(files.get(k)==v for k,v in owners[node].items()),'REMOVE prefix original owner records')

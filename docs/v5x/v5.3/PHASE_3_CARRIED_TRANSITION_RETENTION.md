@@ -93,3 +93,7 @@ recovery still require their native observations. Dedicated source-bound
 capture/admission and other membership/payload/process axes remain separate.
 Public readiness and Phase 3 closure are not claimed. No hosted subset was added;
 the nine existing entries still describe 460 planned whole histories.
+
+The later [retirement prefix component](PHASE_3_CARRIED_TRANSITION_PREFIXES.md)
+adds new writer-held byte captures. It does not upgrade these older callback-only
+originals into transient-file observations.

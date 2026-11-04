@@ -7,6 +7,12 @@ groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
 
+[Carried transition retirement prefixes](PHASE_3_CARRIED_TRANSITION_PREFIXES.md)
+add writer-held file capture before the first native campaign and exact comparison
+against the derived retirement states. The separate carried collection binds its
+own result and INTENT/FINAL kind; ordinary REMOVE collection stays compatible.
+Source-bound cohort admission and process-death coverage remain separate.
+
 [Carried transition ledger/retirement qualification](PHASE_3_CARRIED_TRANSITION_RETENTION.md)
 now composes continuous peer/future revisions and all observed retirement callbacks
 with the same originals, including 154 exact negatives. FINAL preserves its
