@@ -15,6 +15,8 @@ cold snapshots. Resource bounds and the original 12-minute maintenance deadline
 are unchanged.
 
 This covers incomplete copy bodies, not torn writes inside a file or halt/SIGKILL.
+The [separate process entry](PHASE_3_NATIVE_PROCESS_JOINT_FLOOR.md) now provides
+32 whole-history halt/SIGKILL executions; its complete replay/admission remains open.
 The initial writer receives already-held original copies at the seed-maintenance
 boundary; subsequent recovery performs real remote acquisition. It does not
 qualify initially remote-acquired floor construction or a complete simultaneous

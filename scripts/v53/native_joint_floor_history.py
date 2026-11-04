@@ -17,6 +17,9 @@ from .remove_process_matrix import BUILDS, reader_manifest
 need=h.need
 CLASS='io.github.patricklfdm.generalsearch.replication.V53NativePartialJointFloorTest'
 METHOD='originalPartialCopyResumesBeforeFinalAndStableBarrier'
+EXECUTION_SCHEMA='gse-v53-native-partial-joint-execution-v1'
+LABEL='native-partial-joint'
+MODULE='scripts.v53.native_joint_floor_history'
 CASES=tuple(str(n)+','+cut for n in range(1,5) for cut in floor.PARTIAL_CUTS)
 
 
@@ -32,16 +35,16 @@ def command(case):
         '-Dv53.native.partial.joint='+case,'test']
 
 
-def junit(reports):
+def junit(reports,classname=CLASS,method=METHOD):
     paths=sorted(Path(reports).glob('TEST-*.xml'))
     need(len(paths)==1,'native partial joint exact JUnit report')
     suite=ET.fromstring(h.snapshot.s.regular(paths[0],8*h.snapshot.MIB));tests=suite.findall('testcase')
-    need(suite.get('name')==CLASS and suite.get('tests')=='1' and len(tests)==1 and
+    need(suite.get('name')==classname and suite.get('tests')=='1' and len(tests)==1 and
         all(suite.get(k)=='0' for k in ('failures','errors','skipped')) and
-        tests[0].get('classname')==CLASS and tests[0].get('name')==METHOD and
+        tests[0].get('classname')==classname and tests[0].get('name')==method and
         not any(v.tag in ('failure','error','skipped') or v.tag.startswith(('flaky','rerun')) for v in suite.iter()),
         'native partial joint one unretried passing test')
-    return dict(className=CLASS,method=METHOD,tests=1,failures=0,errors=0,skipped=0,retries=0)
+    return dict(className=classname,method=method,tests=1,failures=0,errors=0,skipped=0,retries=0)
 
 
 def collect(raw,case):
@@ -59,12 +62,13 @@ def collect(raw,case):
     return result
 
 
-def capture(output,maven,case,source_from=None):
-    selected(case);output=Path(output).absolute()
+def capture(output,maven,case,source_from=None,*,entry=None):
+    entry=sys.modules[__name__] if entry is None else entry
+    entry.selected(case);output=Path(output).absolute()
     need(source_from is None or not output.resolve().is_relative_to(Path(source_from).resolve()),
          'native partial joint source separation')
     output.mkdir(parents=True,exist_ok=False)
-    receipt=dict(schema='gse-v53-native-partial-joint-execution-v1',case=case,status='RUNNING',
+    receipt=dict(schema=entry.EXECUTION_SCHEMA,case=case,status='RUNNING',
         executionStatus='NOT_RUN',collectionComplete=False,nativeHistoryQualified=False,
         processDeathQualified=False,phase3Complete=False,retries=0)
     try:
@@ -73,12 +77,12 @@ def capture(output,maven,case,source_from=None):
         need(all(source['files'].get(k)==v for k,v in reader['files'].items()),'native partial joint reader belongs to source')
         h.save(output/'toolchain.json',tc.capture(maven,work));h.save(output/'reader.json',reader)
         receipt.update(baseHead=source['head'],sourceSha256=h.digest((output/'source.json').read_bytes()),
-            toolchainSha256=h.digest((output/'toolchain.json').read_bytes()),readerSha256=reader['sha256'],command=[maven,*command(case)])
+            toolchainSha256=h.digest((output/'toolchain.json').read_bytes()),readerSha256=reader['sha256'],command=[maven,*entry.command(case)])
         h.save(output/'receipt.json',receipt)
-        execution=h.execute(receipt['command'],work,output/'maven.log',stage='native-partial-joint-'+case)
+        execution=h.execute(receipt['command'],work,output/'maven.log',stage=entry.LABEL+'-'+case)
         h.save(output/'execution.json',execution);receipt['execution']=execution;h.check_source(work,source)
         need(type(execution['exit']) is int and execution['exit']==0,'native partial joint execution failed; evidence retained')
-        receipt['junit']=junit(work/h.MODULE/'target/surefire-reports');receipt['executionStatus']='PASS'
+        receipt['junit']=entry.junit(work/h.MODULE/'target/surefire-reports');receipt['executionStatus']='PASS'
         h.save(output/'build.json',{name:h.inventory(work/name) for name in BUILDS})
         receipt['buildSha256']=h.digest((output/'build.json').read_bytes())
         parent=work/h.MODULE/'target/v53-native-dispatch';roots=list(parent.glob('run-*'))
@@ -86,11 +90,11 @@ def capture(output,maven,case,source_from=None):
         captures=raw/'source-retirement-captures'
         need({v.name for v in parent.iterdir()}=={raw.name},'native partial joint exact original and captures')
         receipt.update(raw=raw.relative_to(output).as_posix(),captures=captures.relative_to(output).as_posix())
-        execution=h.execute([sys.executable,'-B','-m','scripts.v53.native_joint_floor_history','collect',
-            str(output/'collection.json'),'--case',case,'--raw',str(raw)],work,output/'collection.log',stage='native-partial-joint-collection')
+        execution=h.execute([sys.executable,'-B','-m',entry.MODULE,'collect',
+            str(output/'collection.json'),'--case',case,'--raw',str(raw)],work,output/'collection.log',stage=entry.LABEL+'-collection')
         h.save(output/'collection-execution.json',execution);receipt['collectionExecution']=execution
         need(type(execution['exit']) is int and execution['exit']==0,'native partial joint collection failed; evidence retained')
-        need(floor.read(output/'collection.json')==collect(raw,case),'native partial joint immutable collection')
+        need(floor.read(output/'collection.json')==entry.collect(raw,case),'native partial joint immutable collection')
         h.check_source(work,source);receipt.update(status='PARTIAL',collectionComplete=True,
             collectionSha256=h.digest((output/'collection.json').read_bytes()))
     except BaseException as error:

@@ -491,7 +491,13 @@
         "scripts/v53/test_joint_history_evidence.py",
         "scripts/v53/test_joint_ledger_evidence.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativePartialJointFloorTest.java",
-        "scripts/v53/test_native_joint_floor_history.py"
+        "scripts/v53/test_native_joint_floor_history.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeProcessJointFloorTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JointFloorProcess.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JointFloorWorker.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JointFloorProcessTest.java",
+        "scripts/v53/test_native_process_joint_floor.py",
+        "scripts/v53/test_old_owner_lifetimes.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -505,7 +511,9 @@
         "scripts/v53/joint_floor_maintenance_evidence.py",
         "scripts/v53/joint_history_evidence.py",
         "scripts/v53/joint_ledger_evidence.py",
-        "scripts/v53/native_joint_floor_history.py"
+        "scripts/v53/native_joint_floor_history.py",
+        "scripts/v53/native_process_joint_floor.py",
+        "scripts/v53/old_owner_lifetimes.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -518,7 +526,8 @@
         "docs/v5x/v5.3/PHASE_3_PENDING_FLOOR_BORROW.md",
         "docs/v5x/v5.3/PHASE_3_JOINT_FLOOR_RECOVERY.md",
         "docs/v5x/v5.3/PHASE_3_PARTIAL_JOINT_FLOOR.md",
-        "docs/v5x/v5.3/PHASE_3_NATIVE_PARTIAL_JOINT_FLOOR.md"
+        "docs/v5x/v5.3/PHASE_3_NATIVE_PARTIAL_JOINT_FLOOR.md",
+        "docs/v5x/v5.3/PHASE_3_NATIVE_PROCESS_JOINT_FLOOR.md"
       ],
       "cohorts": [
         "profiles",

@@ -46,9 +46,9 @@ def observations(events,joining,*,old_owner_lifetimes=None):
         point=row['event']
         if not relevant(point) or at in excluded:continue
         need(point in WRITES+RESEAL+RETURNS,'joining learner unsupported retention event')
-        cold=lifetimes.get(row.get('node'));scoped=cold is not None and at>=cold[0]
+        cold=prior.cold_owners.scope(lifetimes,row.get('node'),at);scoped=cold is not None
         need(set(row)==({'node','scope','event'} if row.get('node')==joining or scoped else {'node','event'}),'joining learner event shape')
-        if scoped:need(row['scope']==cold[1],'joining learner original event owner')
+        if scoped:need(row['scope']==cold,'joining learner original event owner')
         if point not in WRITES:continue
         node=row['node'];held=pending.setdefault(node,[])
         need(point==WRITES[len(held)] and (not held or row.get('scope')==held[0][1].get('scope')),

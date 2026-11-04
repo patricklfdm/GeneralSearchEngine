@@ -11,6 +11,7 @@ import tempfile
 
 from . import joining_snapshot as snapshot
 from . import joining_retention_evidence as retention
+from . import old_owner_lifetimes as cold_owners
 
 f, need, sha = snapshot.f, snapshot.need, snapshot.s.digest
 disk = retention.physical
@@ -141,13 +142,9 @@ def require_intermediate(raw, rows, *, voters=('node-1', 'node-2'), old_owner_li
     Counters come from the original pre-continuation snapshot, not a ready flag
     or a hard-coded ballot. This checks presence only; no historical derivation.
     """
-    lifetimes = {} if old_owner_lifetimes is None else old_owner_lifetimes
-    need(type(lifetimes) is dict and set(lifetimes) <= set(voters) and
-         all(type(v) is tuple and len(v) == 2 and type(v[0]) is int and v[0] >= 0 and
-             type(v[1]) is str and v[1] for v in lifetimes.values()), 'grant capture declared owner lifetimes')
+    lifetimes = cold_owners.validate(old_owner_lifetimes,owners=voters,reason='grant capture declared owner lifetimes')
     def scope(row):
-        lifetime = lifetimes.get(row['node'])
-        return lifetime[1] if lifetime and row['capturedEvent'] >= lifetime[0] else 'network-owner'
+        return cold_owners.scope(lifetimes,row['node'],row['capturedEvent'],'network-owner') if row['node'] in lifetimes else 'network-owner'
     need(all(type(row.get('capturedEvent')) is int and row['capturedEvent'] >= 0 and row['scope'] == scope(row)
              for row in rows if row['node'] in lifetimes), 'grant capture original cold lifetime')
     before = Path(raw)/'before-joint-continuation'

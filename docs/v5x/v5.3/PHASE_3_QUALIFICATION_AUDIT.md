@@ -176,6 +176,11 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    now qualify observed remote forces, exports and physical maintenance. It is
    not process-death or a simultaneous full SOURCE maximum; broader controller
    overlap remains open.
+   A [32-history native process entry](PHASE_3_NATIVE_PROCESS_JOINT_FLOOR.md)
+   now records actual fresh-JVM acquisition, halt/SIGKILL and same-directory
+   continuation. Its focused process/partial-copy checks do not yet qualify
+   complete two-reopen composition or interrupted receiving-resource overlap;
+   the hosted-plan count remains 512.
    [Partial joint-floor writer coverage](PHASE_3_PARTIAL_JOINT_FLOOR.md) now checks
    all four copy ordinals at four actual handoff-writer boundaries. With two real
    PROMISE sources, all sixteen conditional cases recover within six SOURCE slots

@@ -13,6 +13,7 @@ import sys
 import tempfile
 
 from . import joining_same_view_authority as authority
+from . import old_owner_lifetimes as cold_owners
 
 a=authority
 f,disk,need,sha=a.f,a.disk,a.need,a.sha
@@ -25,12 +26,10 @@ RETURNS=['FUTURE_RETENTION_BEFORE_RETURN','FUTURE_RETENTION_ACK_BEFORE_RETURN',
 
 
 def declared_old_lifetimes(events,joining,old_owner_lifetimes):
-    lifetimes={} if old_owner_lifetimes is None else old_owner_lifetimes
-    need(type(lifetimes) is dict and all(type(node) is str and node!=joining and
-         type(value) is tuple and len(value)==2 and type(value[0]) is int and 0<=value[0]<len(events) and
-         type(value[1]) is str and bool(value[1]) and
-         events[value[0]]==dict(node=node,event='CURRENT_VALIDATED',scope=value[1])
-         for node,value in lifetimes.items()),'joining ledger declared original cold lifetime')
+    reason='joining ledger declared original cold lifetime'
+    lifetimes=cold_owners.validate(old_owner_lifetimes,maximum=len(events),reason=reason)
+    need(all(node!=joining and events[start]==dict(node=node,event='CURRENT_VALIDATED',scope=scope)
+             for node,value in lifetimes.items() for start,scope in cold_owners.entries(value)),reason)
     return lifetimes
 
 
@@ -41,10 +40,10 @@ def observations(events, *, joining='node-4',old_owner_lifetimes=None):
         point=row['event']
         if not point.startswith('FUTURE_RETENTION_'):continue
         need(point in WRITES+RESEAL+RETURNS,'joining future unsupported event')
-        cold=lifetimes.get(row.get('node'));scoped=cold is not None and at>=cold[0]
+        cold=cold_owners.scope(lifetimes,row.get('node'),at);scoped=cold is not None
         need(set(row)==({'node','event','scope'} if row.get('node')==joining or scoped else {'node','event'}),
              'joining future event shape')
-        if scoped:need(row['scope']==cold[1],'joining future original event owner')
+        if scoped:need(row['scope']==cold,'joining future original event owner')
         if point not in WRITES:continue
         node=row['node'];pending=active.setdefault(node,[])
         need(point==WRITES[len(pending)] and (not pending or row.get('scope')==pending[0][1].get('scope')),

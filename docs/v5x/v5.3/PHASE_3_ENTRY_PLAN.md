@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Native joint-floor process execution](PHASE_3_NATIVE_PROCESS_JOINT_FLOOR.md)
+now has 32 whole-history entries with a fresh required-voter JVM, real TCP
+acquisition, halt/SIGKILL and same-directory continuation. Process observations
+and focused partial-file inspection remain separate from full two-reopen replay,
+receiving-resource overlap and final-source admission; no hosted count is added.
+
 [Partial joint-floor writer coverage](PHASE_3_PARTIAL_JOINT_FLOOR.md) now checks
 sixteen actual handoff-writer cuts with two real PROMISE sources. Independent
 storage/transfer replay confirms recovery within six SOURCE slots and seven

@@ -27,6 +27,12 @@ class V53JointFloorRecoveryTest {
         }
     }
     private WriterCut writerCut;
+    private String processMode;
+
+    void runProcess(WriterCut cut,String mode)throws Exception {
+        if(cut==null || !Set.of("halt","kill").contains(mode))throw new IllegalArgumentException("joint floor process case");
+        processMode=mode;run(cut);
+    }
 
     @Test void originalFourCopyFloorResumesOverTcpBeforeFinalAndStableBarrier()throws Exception {
         run(null);
@@ -45,6 +51,10 @@ class V53JointFloorRecoveryTest {
                 if(cut!=null) {
                     receipt.put("schema","gse-v53-native-partial-joint-floor-v1");receipt.put("ordinal",cut.ordinal());
                     receipt.put("cut",cut.point());receipt.put("handoff",true);
+                }
+                if(processMode!=null) {
+                    receipt.put("schema","gse-v53-native-process-joint-floor-v1");receipt.put("mode",processMode);
+                    receipt.put("initialFloor","native-tcp");receipt.put("processDeath",true);
                 }
                 Files.write(raw.resolve("receipt.json"),canonical(receipt,65536));
             }
@@ -69,6 +79,19 @@ class V53JointFloorRecoveryTest {
             "replica",target.replicaDirectory().toString(),"application",target.materialization().directory().toString(),
             "cut",original.capsule.context.cut),65536));
         var usage=new ArrayList<Map<String,Object>>();long started=System.nanoTime();var ordinal=new AtomicInteger();
+        if(processMode!=null) {
+            n.endpoints.get(1).close();n.transports.get(1).close();old.close();assertEquals(0,budget.usage().leases());
+            var joinedLink=new AtomicReference<MembershipTransport>();
+            try(var joinedEndpoint=new MembershipActivationEndpoint(joining,joiningResources,n.bounds,
+                    (peer,request,kind,deadline)->joinedLink.get().exchange(peer,request,kind,deadline),List.of(),List.of(),
+                    temp.resolve("process-joining-incoming"),System::nanoTime,BUDGET,builder().configuration(),config.materialization());
+                var joinedTransport=new MembershipTransport(joining,n.bounds,joiningResources,joinedEndpoint::handle,trace.transport("joint-floor-export"))) {
+                joinedLink.set(joinedTransport);
+                V53JointFloorProcess.run(n,raw,target.replicaDirectory(),target.materialization().directory(),
+                    target.identity(),writerCut,processMode,started,temp.resolve("process-scratch"));
+            }
+            V53JournalApplicationTest.copy(target.replicaDirectory(),raw.resolve("interrupted"));
+        }else {
         n.hook.set(event->{
             usage.add(Map.of("event",event,"usage",V53CombinedReceiveResourcesTest.usage(budget)));
             if(event.equals("FLOOR_COPY_CREATED"))ordinal.incrementAndGet();
@@ -85,6 +108,8 @@ class V53JointFloorRecoveryTest {
         assertFalse(Files.exists(target.replicaDirectory().resolve("floor-copies/floor.gsr")));
         V53JournalApplicationTest.copy(target.replicaDirectory(),raw.resolve("interrupted"));
         n.endpoints.get(1).close();n.transports.get(1).close();old.close();assertEquals(0,budget.usage().leases());
+        }
+        assertFalse(Files.exists(target.replicaDirectory().resolve("floor-copies/floor.gsr")));
         V53JournalApplicationTest.copy(target.replicaDirectory(),raw.resolve("after-close"));
         var ownTrace=new V53JoiningTrace("node-2",n.events,n.wire);
         ownTrace.retainGrants(n.grantCapture,target.replicaDirectory());ownTrace.retainRetirements(n.retirementCapture,target.replicaDirectory());

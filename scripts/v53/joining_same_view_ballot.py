@@ -14,6 +14,7 @@ import tempfile
 from . import joining_same_view_learner as prior
 from .grant_evidence import order as ballot_order
 from .joining_same_view_future import declared_old_lifetimes
+from . import old_owner_lifetimes as cold_owners
 
 a, f, disk, need, sha = prior.a, prior.f, prior.disk, prior.need, prior.sha
 WRITES = ['ALLOCATOR_' + p for p in ('BEFORE_WRITE', 'CREATED', 'WRITTEN', 'FORCED',
@@ -41,8 +42,8 @@ def adoption_transactions(events,windows,owners,joining,*,old_owner_lifetimes=No
     pending={};result=[]
     for at,row in enumerate(events):
         if row['event'] not in ADOPTION:continue
-        node=row.get('node');cold=lifetimes.get(node)
-        scope='continuation-owner' if node==joining else cold[1] if cold is not None and at>=cold[0] else None
+        node=row.get('node')
+        scope='continuation-owner' if node==joining else cold_owners.scope(lifetimes,node,at)
         need(node in owners and row==dict(node=node,event=row['event'],**({} if scope is None else dict(scope=scope))),
              'joining ballot adoption owner scope')
         held=pending.setdefault(node,[])
@@ -62,7 +63,7 @@ def allocations(events, owners, joining,*,old_owner_lifetimes=None):
         if not row['event'].startswith('ALLOCATOR_'): continue
         need(row['event'] in WRITES, 'joining ballot unsupported allocator event')
         node = row.get('node')
-        cold=lifetimes.get(node);scope=cold[1] if cold is not None and at>=cold[0] else None
+        scope=cold_owners.scope(lifetimes,node,at)
         need(node in owners and set(row) == ({'node', 'scope', 'event'} if node == joining or scope is not None else {'node', 'event'}),
              'joining ballot allocator event shape')
         need(row.get('scope') in (('retaining-owner', 'repeated-basis-owner', 'continuation-owner') if node == joining else (scope,)),

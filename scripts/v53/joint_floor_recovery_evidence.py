@@ -94,10 +94,10 @@ def bounded(rows, images, sources):
          rows[-1]['usage']['counts'].get('SOURCE') == sources, 'joint floor physical originals remain charged')
 
 
-def transfer_sessions(root, events, copies, identities, cap, ballot):
-    sent = [v for v in events if v.get('node') == 'node-2' and v.get('scope') == 'joint-floor-reopened' and
+def transfer_sessions(root, events, copies, identities, cap, ballot, *, scope='joint-floor-reopened'):
+    sent = [v for v in events if v.get('node') == 'node-2' and v.get('scope') == scope and
             v['event'] == 'BEFORE_REQUEST_WRITE']
-    received = [v for v in events if v.get('node') == 'node-2' and v.get('scope') == 'joint-floor-reopened' and
+    received = [v for v in events if v.get('node') == 'node-2' and v.get('scope') == scope and
                 v['event'] == 'AFTER_RESPONSE_READ']
     sent_ids = {v['request'] for v in sent}
     rows = read(root/'wire.json')

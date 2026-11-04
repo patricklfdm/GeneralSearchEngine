@@ -108,10 +108,10 @@ def proposer_forces(events,node,scope,selected_at,upper,replies,members):
 
 
 def installations(root, events, rows, replay, bases, *, recovery=None, old_owner_lifetimes=None):
-    lifetimes = {} if old_owner_lifetimes is None else old_owner_lifetimes
+    lifetimes = phase.cold_owners.validate(old_owner_lifetimes,maximum=len(events),reason='joining declared old owner lifetimes')
     def owner_scope(node, at):
         if node == replay.joining: return 'continuation-owner'
-        return lifetimes[node][1] if node in lifetimes and at >= lifetimes[node][0] else None
+        return phase.cold_owners.scope(lifetimes,node,at)
     selections = {sha(parts['SELECTED']): f.decode(parts['SELECTED'],'records','SELECTED') for parts in replay.phases}
     recovery_digest = None
     if recovery is not None:

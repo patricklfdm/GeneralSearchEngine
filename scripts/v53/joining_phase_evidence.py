@@ -18,6 +18,7 @@ from . import discovered_selection_evidence as exchange
 from . import future_retention_evidence as future
 from . import joining_source_loss as loss
 from . import joining_slot_storage as slot_storage
+from . import old_owner_lifetimes as cold_owners
 
 f, need, sha, disk = semantic.f, semantic.need, semantic.sha, semantic.disk
 
@@ -92,10 +93,7 @@ def force_names():
 
 def blocks(events, replay, *, old_owner_lifetimes=None):
     result = {}; critical = force_names()
-    lifetimes = {} if old_owner_lifetimes is None else old_owner_lifetimes
-    need(type(lifetimes) is dict and set(lifetimes) <= set(replay.old) and
-         all(type(value) is tuple and len(value) == 2 and type(value[0]) is int and 0 <= value[0] < len(events) and
-             type(value[1]) is str and value[1] for value in lifetimes.values()), 'joining declared old owner lifetimes')
+    lifetimes = cold_owners.validate(old_owner_lifetimes,owners=replay.old,maximum=len(events),reason='joining declared old owner lifetimes')
     nodes=replay.old if replay.joining is None else (*replay.old,replay.joining)
     need(all(v.get('node') in nodes for v in events if v.get('event') in critical), 'joining slot force unknown owner')
     for node in nodes:
@@ -106,8 +104,7 @@ def blocks(events, replay, *, old_owner_lifetimes=None):
         for ordinal, index in enumerate(indices):
             held = rows[ordinal*len(critical):(ordinal+1)*len(critical)]
             for at, value in held:
-                scope = 'continuation-owner' if node == replay.joining else (
-                    lifetimes[node][1] if node in lifetimes and at >= lifetimes[node][0] else None)
+                scope = 'continuation-owner' if node == replay.joining else cold_owners.scope(lifetimes,node,at)
                 need(set(value) == ({'node', 'scope', 'event'} if scope is not None else {'node', 'event'}), 'joining force event shape')
                 if scope is not None: need(value['scope'] == scope, 'joining force owner lifetime')
             result[index, node] = {v['event']: at for at, v in held}
@@ -144,7 +141,7 @@ def forced_interval(events, node, lower, upper, names, reason, times=1):
 
 
 def phase_replay(events, rows, replay, physical, *, old_owner_lifetimes=None):
-    lifetimes = {} if old_owner_lifetimes is None else old_owner_lifetimes
+    lifetimes = cold_owners.validate(old_owner_lifetimes,owners=replay.old,maximum=len(events),reason='joining declared old owner lifetimes')
     used = set(); target_count = 0; storage_callbacks = 0
     for index, parts in enumerate(replay.phases, 1):
         cert = f.decode(parts['CERTIFICATE'], 'records', 'CERTIFICATE'); selected = f.decode(parts['SELECTED'], 'records', 'SELECTED')
@@ -209,8 +206,7 @@ def phase_replay(events, rows, replay, physical, *, old_owner_lifetimes=None):
                  'INSTALL_SELECTOR_RENAMED', 'INSTALL_PARENT_FORCED', 'CURRENT_FILES_FORCED', 'CURRENT_GENERATION_FORCED',
                  'CURRENT_SELECTOR_FORCED', 'CURRENT_DIRECTORY_FORCED'], 'joining published generation force sequence')
             storage_callbacks += slot_storage.validate_slot(events, node,
-                'continuation-owner' if node == replay.joining else (
-                    lifetimes[node][1] if node in lifetimes and own['ACCEPT_VALIDATED'] >= lifetimes[node][0] else None), own, ends[node],
+                'continuation-owner' if node == replay.joining else cold_owners.scope(lifetimes,node,own['ACCEPT_VALIDATED']), own, ends[node],
                 disk.current(pub[node])[1], f.decode(parts['ENTRY'], 'records', 'ENTRY')['kind'])
         for target in targets:
             identity = semantic.catalog.identities(replay.states[index]['identities'])[target]

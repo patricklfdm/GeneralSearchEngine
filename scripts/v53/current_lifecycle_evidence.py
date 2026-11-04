@@ -9,6 +9,7 @@ import hashlib
 from . import format_fixture as f
 from .current_generation_evidence import OPEN
 from .membership_model import need
+from . import old_owner_lifetimes as cold_owners
 
 CAPTURE = 'CURRENT_BEFORE_CAPTURE'
 RETURNS = ('INSTALL_BEFORE_RETURN', 'PUBLICATION_BEFORE_RETURN', 'ADOPTION_INSTALL_BEFORE_RETURN')
@@ -105,7 +106,7 @@ class Ownership:
             self.take(node, scope, lower, upper, OPEN, 'joining-open-'+scope)
 
     def generations(self, expected, joining, *, old_owner_lifetimes=None):
-        lifetimes = {} if old_owner_lifetimes is None else old_owner_lifetimes
+        lifetimes = cold_owners.validate(old_owner_lifetimes,maximum=len(self.events),reason='current lifecycle declared cold boundary')
         for node, steps in expected.items():
             parents = [i for i,v in enumerate(self.events) if v.get('node') == node and v.get('event') == 'INSTALL_PARENT_FORCED']
             returned = [(i, v) for i, v in enumerate(self.events) if v.get('node') == node and v.get('event') in RETURNS]
@@ -113,8 +114,7 @@ class Ownership:
                  'current lifecycle derived generation timeline')
             prior = -1
             for lower, (upper, row), (kind, identity) in zip(parents, returned, steps):
-                scope = 'continuation-owner' if node == joining else (
-                    lifetimes[node][1] if node in lifetimes and lower >= lifetimes[node][0] else None)
+                scope = 'continuation-owner' if node == joining else cold_owners.scope(lifetimes,node,lower)
                 need(self.events[lower] == dict(node=node,event='INSTALL_PARENT_FORCED',**({'scope':scope} if scope else {})),
                      'current lifecycle generation owner interval')
                 need(prior < lower < upper and row == dict(node=node, event=kind, **({'scope':scope} if scope else {})),
@@ -122,7 +122,8 @@ class Ownership:
                 self.take(node, scope, lower, upper, OPEN, kind+':'+identity); prior = upper
 
     def old_reopens(self, lifetimes):
-        for node,(start,scope) in lifetimes.items():
+        lifetimes=cold_owners.validate(lifetimes,maximum=len(self.events),reason='current lifecycle declared cold boundary')
+        for node,start,scope in ((node,start,scope) for node,values in lifetimes.items() for start,scope in cold_owners.entries(values)):
             need(0 <= start < len(self.events) and self.events[start] == dict(node=node,scope=scope,event='CURRENT_VALIDATED'),
                  'current lifecycle declared cold boundary')
             upper = next((i for i in range(start,len(self.events)) if self.events[i].get('node') == node and
