@@ -1,22 +1,32 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Pinned-floor process recovery](PHASE_3_PINNED_FLOOR_PROCESS.md) now passes all
+36 halt/SIGKILL cases, 108 fresh worker executions and eleven exact negative
+replays. Expected crash/reopen/final/cold bytes and force order come from original
+conditional seed bytes; this does not claim native fault-history or power-loss
+qualification. Phase 3 remains OPEN for complete native maintenance / resource
+composition, frozen coverage and final-source admission/execution.
+
 [Pinned local floor originals](PHASE_3_PINNED_FLOOR.md) now resolve the conditional
 installed-generation capacity conflict by keeping the already charged current
 generation and copying three remote originals. Four logical voters and the frozen
-six-source/seven-image bounds remain unchanged. Full native required-four and
-process/resource qualification remain OPEN.
+six-source/seven-image bounds remain unchanged. The corrected required-four
+history now passes FINAL, stable BARRIER, cold reopen and independent semantic /
+34-publication replay with thirteen exact negatives. Full native maintenance /
+resource composition and final-source qualification remain OPEN.
 
 [Deferred-grant process recovery](PHASE_3_DEFERRED_GRANT_PROCESS.md) now passes
 fourteen real halt/SIGKILL cases and ten exact independent negatives on conditional
-originals. The corrected required-four run passes retention preparation and JOINT
-installation, but fails before FINAL: two generations + two sources + four floor
-copies require eight images. The seven-image limit remains unchanged; the short
-reproducer passes, and complete native/resource qualification remains OPEN.
+originals. The earlier required-four follow-up passed retention preparation and JOINT
+installation but failed before FINAL because four additional copies required
+eight images. That failed original and its short reproducer remain retained;
+the later pinned-floor correction passes the native semantic/publication gate
+without increasing the seven-image limit.
 
 [Deferred capture after source reclamation](PHASE_3_DEFERRED_GRANT.md) now orders
 the durable PROMISE, ordinary governing-floor cleanup and first BASIS capture
 under one guarded invocation. Incoming/outgoing and joining preparation use it;
-complete required-four native and process qualification remain open.
+complete native physical/resource composition remains open.
 
 [Required-four replacement](PHASE_3_REQUIRED_FOUR.md) adds an explicit native
 topology with only two reachable common members, one departing member and one
@@ -24,8 +34,9 @@ joining member. Its semantic/publication reader requires all four joint votes
 and forbids a departing successor checkpoint ACK. This development entry is
 separate from four observed floor copies. Its first native run failed before
 FINAL: three retained sources plus four floor copies exceed six SOURCE slots.
-The failure and short capacity diagnosis are retained; the runtime correction
-and full qualification remain open.
+The failure and short capacity diagnosis are retained separately from the later
+correction and successful native semantic/publication history. Full qualification
+remains open.
 
 [Native publication storage observations](PHASE_3_PUBLICATION_RESOURCES.md) now
 collect original inventories and charges at eleven existing publication boundaries.

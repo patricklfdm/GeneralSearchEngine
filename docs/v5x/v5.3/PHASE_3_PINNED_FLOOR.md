@@ -1,6 +1,7 @@
 # Installed-generation floor with a pinned local original
 
-Status: **conditional storage PASS; native required-four history OPEN**.
+Status: **conditional storage and native required-four semantic/publication
+replay PASS; full native physical/resource qualification OPEN**.
 
 The [required-four follow-up](PHASE_3_DEFERRED_GRANT_PROCESS.md) reached JOINT
 installation but failed before FINAL. Two real selected generations, two
@@ -65,6 +66,9 @@ after its replacement copy is forced, and resumes an interrupted drain through
 individual original-copy recovery before publishing FLOOR.
 These reopen tests are same-JVM component recovery; they do not claim SIGKILL or
 power-loss qualification.
+The later [process matrix](PHASE_3_PINNED_FLOOR_PROCESS.md) adds all 36 actual
+halt/SIGKILL cases and independent exact recovery from the same conditional seeds;
+native fault histories and power-loss qualification remain separate.
 
 The independent reader `scripts.v53.pinned_floor_evidence` decodes the four
 original seed owners, selected records, source packets and image inventories.
@@ -87,8 +91,22 @@ or hosted cohort count is increased by this change.
 
 ## Still required
 
-1. A corrected-source complete required-four native history through FINAL and
-   stable BARRIER, including physical publication/maintenance replay.
+The corrected-source native history on `25d80cb3` completed all eleven slots,
+FINAL, stable BARRIER and cold reopen in **1353.704 seconds**. Its original
+Java sources and compiled classes were hashed before/after and stayed unchanged.
+Independent replay accepted all original catalog/certificate/checkpoint records
+and 34 applied-to-published inventories; thirteen exact-reason mutations were
+rejected only after the unmodified history passed. The four actual joint voters
+are 1/2/3/6; every three-member subset is insufficient. The successor checkpoint
+uses 1/2/6 and gives the departing node no vote.
+
+The [native follow-up index](phase3-evidence/required-four-pinned-native.json)
+retains execution and reader results separately. Earlier failures remain retained.
+This successful history proves this semantic/publication slice; it does not
+qualify all native floor/retirement bytes, transfer lifetimes or resource maxima.
+
+1. Complete pin-aware native floor, maintenance and retirement replay, composed
+   with the original network/export/control history.
 2. Native handoff, interrupted floor and process-death qualification of this
    representation, with original provenance and same-history recovery.
 3. Complete concurrent resource accounting and the already planned final-source

@@ -1,0 +1,260 @@
+{
+  "completePhysicalQualified": false,
+  "execution": {
+    "classesUnchanged": true,
+    "completePhysicalQualified": false,
+    "details": [],
+    "errors": 0,
+    "failures": 0,
+    "finalSourceCohortQualified": false,
+    "head": "25d80cb3c654289ac3b14aa976016a912a5c445a",
+    "javaSourcesUnchanged": true,
+    "originalInventory": {
+      "path": "target/v53-pinned-floor-native/run-20261104T224200Z/raw-inventory.json",
+      "sha256": "a518bef3d4e760b5933d72d83ae76b7312902d69ed701395e33bad32a3f081bc"
+    },
+    "phase3Complete": false,
+    "raw": "general-search-engine-replication/target/v53-native-dispatch/run-d9b8fe61-4036-416d-b2e4-7f7ed47bd0ad",
+    "reports": [
+      {
+        "path": "target/v53-pinned-floor-native/run-20261104T224200Z/TEST-io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest.xml",
+        "sha256": "ec5c7c01a78ca232373c9bac783dcf25f8c7c1ebf510bf29124b0d15e4020af2"
+      },
+      {
+        "path": "target/v53-pinned-floor-native/run-20261104T224200Z/native-01.log",
+        "sha256": "375c7d1e8145f4df305787fa7aa303b023105f595c22112a7dd845d60c2dbbfd"
+      }
+    ],
+    "seconds": 1353.704,
+    "semanticChainQualified": false,
+    "skipped": 0,
+    "status": "PASS",
+    "tests": 1
+  },
+  "finalSourceCohortQualified": false,
+  "forceAndNetworkQualified": false,
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "publicationPhysicalQualified": true,
+  "readers": [
+    {
+      "path": "scripts/v53/required_four_evidence.py",
+      "sha256": "48e7a9646ebeb8726cf5f88fc4ebd3751e5d5a835f50e8e282cb2bb71242b726"
+    },
+    {
+      "path": "scripts/v53/joining_catalog_evidence.py",
+      "sha256": "b876202f0a5dbc20effec5203a418f249e752677e57d1462ff049722441fc51b"
+    },
+    {
+      "path": "scripts/v53/joining_publication_evidence.py",
+      "sha256": "b14dd05936b4db2d96062384459c518b8e223a81e3370580debc71d568587e6c"
+    }
+  ],
+  "remaining": [
+    "complete pin-aware native floor/maintenance/retirement replay",
+    "complete original network/export/control composition",
+    "combined resource maxima",
+    "final-source cohort qualification"
+  ],
+  "reports": [
+    {
+      "path": "target/v53-pinned-floor-native/run-20261104T224200Z/execution-summary.json",
+      "sha256": "a058e5fcc5ceb2792e8bf7f9e893472c558ca130ccf1912dc4385f6b56f56455"
+    },
+    {
+      "path": "target/v53-pinned-floor-native/run-20261104T224200Z/semantic-replay-01.json",
+      "sha256": "7adb05859488d1adb0e20c9f2cdabf5d46933839f52a71ffb6f57ef805fe4c0e"
+    },
+    {
+      "path": "target/v53-pinned-floor-native/run-20261104T224200Z/semantic-replay-01.log",
+      "sha256": "2edb2e71bb1961d21119e17a6441ed16e99233490325e3e6d5e37e4f59a74093"
+    },
+    {
+      "path": "target/v53-pinned-floor-native/run-20261104T224200Z/raw-inventory.json",
+      "sha256": "a518bef3d4e760b5933d72d83ae76b7312902d69ed701395e33bad32a3f081bc"
+    },
+    {
+      "path": "target/v53-pinned-floor-native/run-20261104T224200Z/source-before.json",
+      "sha256": "fb7b74ab1b703c719d76f5343dee95677d2a1f65489a0f46eed6956148890508"
+    },
+    {
+      "path": "target/v53-pinned-floor-native/run-20261104T224200Z/source-after.json",
+      "sha256": "fb7b74ab1b703c719d76f5343dee95677d2a1f65489a0f46eed6956148890508"
+    },
+    {
+      "path": "target/v53-pinned-floor-native/run-20261104T224200Z/classes-before.json",
+      "sha256": "42d875bea4f005e128cd2ba302fa4f2f4f8a15ed33ece339875125bf12b99981"
+    },
+    {
+      "path": "target/v53-pinned-floor-native/run-20261104T224200Z/classes-after.json",
+      "sha256": "42d875bea4f005e128cd2ba302fa4f2f4f8a15ed33ece339875125bf12b99981"
+    }
+  ],
+  "runtimeHead": "25d80cb3c654289ac3b14aa976016a912a5c445a",
+  "schema": "gse-v53-required-four-pinned-native-v1",
+  "semanticChainQualified": true,
+  "semanticReplay": {
+    "negatives": [
+      {
+        "case": "missing-joint-proof-node-1",
+        "reason": "both governing majorities",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-joint-proof-node-2",
+        "reason": "both governing majorities",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-joint-proof-node-3",
+        "reason": "both governing majorities",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-joint-proof-node-6",
+        "reason": "both governing majorities",
+        "status": "REJECTED"
+      },
+      {
+        "case": "departing-successor-ack",
+        "reason": "joining applied end voting eligibility",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-successor-ack",
+        "reason": "joining applied end voting eligibility",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joining-original-ack",
+        "reason": "joining retained pending ACK bytes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "offline-owner",
+        "reason": "joining offline voter changed",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-final-ready",
+        "reason": "joining complete round lifecycle",
+        "status": "REJECTED"
+      },
+      {
+        "case": "ready-before-barrier",
+        "reason": "joining readiness before stable barrier",
+        "status": "REJECTED"
+      },
+      {
+        "case": "departing-grant",
+        "reason": "joining exact publication inventory",
+        "status": "REJECTED"
+      },
+      {
+        "case": "departing-future",
+        "reason": "joining exact publication inventory",
+        "status": "REJECTED"
+      },
+      {
+        "case": "departing-ack-force",
+        "reason": "joining exact slot force order: node-3",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "completePhysicalQualified": false,
+      "departingCheckpointVotes": 0,
+      "finalSourceCohortQualified": false,
+      "forceAndNetworkQualified": false,
+      "jointVoters": [
+        "node-1",
+        "node-2",
+        "node-3",
+        "node-6"
+      ],
+      "original": {
+        "checkpointObservations": 70,
+        "completePhysicalQualified": false,
+        "controls": [
+          "BARRIER",
+          "RESERVE",
+          "BARRIER",
+          "PREPARE",
+          "BARRIER",
+          "READY",
+          "BARRIER",
+          "SEAL",
+          "INTENT",
+          "FINAL",
+          "BARRIER"
+        ],
+        "forceAndNetworkQualified": false,
+        "internalReadyCuts": [
+          1,
+          3,
+          5,
+          7,
+          11
+        ],
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "profile": "5-REPLACE-required-four",
+        "publicReady": false,
+        "scope": "native-REPLACE-catalog-certificate-checkpoint-chain",
+        "selections": 6,
+        "semanticChainQualified": true,
+        "slots": 11,
+        "status": "PASS"
+      },
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "profile": "5-REPLACE-required-four",
+      "publicationPhysicalQualified": true,
+      "publications": {
+        "collectedCheckpointTransfers": 144,
+        "comparedBytes": 6118305,
+        "completePhysicalQualified": false,
+        "forceAndNetworkQualified": false,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "profile": "5-REPLACE-required-four",
+        "publicationPhysicalQualified": true,
+        "publications": 34,
+        "scope": "native-REPLACE-applied-to-published-inventories",
+        "slots": 11,
+        "status": "PASS"
+      },
+      "refusedThreeVoterSubsets": [
+        [
+          "node-1",
+          "node-2",
+          "node-3"
+        ],
+        [
+          "node-1",
+          "node-2",
+          "node-6"
+        ],
+        [
+          "node-1",
+          "node-3",
+          "node-6"
+        ],
+        [
+          "node-2",
+          "node-3",
+          "node-6"
+        ]
+      ],
+      "scope": "required-four-native-semantic-chain",
+      "semanticChainQualified": true,
+      "status": "PASS",
+      "successorVoters": [
+        "node-1",
+        "node-2",
+        "node-6"
+      ]
+    }
+  },
+  "status": "PASS"
+}

@@ -114,9 +114,9 @@ def release_events(state):
     return names+['FLOOR_RELEASE_PROPOSAL_CLEARED','FLOOR_RELEASE_LOCAL_CLEARED','FLOOR_RELEASE_AUTHORITY_CLEARED','FLOOR_RELEASE_CLEARED','FLOOR_RELEASE_BEFORE_RETURN']
 
 
-def validate(root):
-    root=Path(root);original.history_inventory(root)
-    need({v.name for v in root.iterdir()}=={'seed','pinned','retired','compacted','released','cold','events.json'},'pinned evidence inventory')
+def derive(root):
+    """Project from original seed bytes; never use a produced snapshot as the plan."""
+    root=Path(root)
     initial,rows,local,old,copies,raw,selector=seed(root)
     names,files,dirs=floor_plan(copies,raw,selector)
     pinned=dict(initial,**{n:dict(directory=True) for n in dirs},**{n:original.info(v) for n,v in files.items()})
@@ -136,6 +136,14 @@ def validate(root):
     compact_steps=source_release.transaction(expected['retired'],authority,compact,old_id);expected['compacted']=compact_steps[-1][1]
     expected['released']={n:v for n,v in expected['compacted'].items() if n!='floor-copies' and not n.startswith('floor-copies/')}
     expected['cold']=expected['released']
+    return dict(initial=initial,expected=expected,copies=copies,floor=raw,selector=selector,floorEvents=names,
+        old=old,retirement=record,binding=binding,retireSteps=retire,authority=authority,compact=compact,oldSource=old_id,compactSteps=compact_steps)
+
+
+def validate(root):
+    root=Path(root);original.history_inventory(root)
+    need({v.name for v in root.iterdir()}=={'seed','pinned','retired','compacted','released','cold','events.json'},'pinned evidence inventory')
+    plan=derive(root);expected=plan['expected'];names=plan['floorEvents'];retire=plan['retireSteps'];compact_steps=plan['compactSteps']
     for name,state in expected.items():
         need(s.inventory(root/name)==state,'pinned exact '+name)
         need(sum(n.endswith('.image') for n in state)<=7,'pinned physical image bound')

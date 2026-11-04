@@ -1,10 +1,19 @@
 # Phase 3 qualification inventory and remaining work
 
+[Pinned-floor process recovery](PHASE_3_PINNED_FLOOR_PROCESS.md) now passes all
+36 halt/SIGKILL cases, 108 fresh worker executions and eleven exact negative
+replays. Expected crash/reopen/final/cold bytes and force order come from original
+conditional seed bytes; this does not claim native fault-history or power-loss
+qualification. Phase 3 remains OPEN for complete native maintenance / resource
+composition, frozen coverage and final-source admission/execution.
+
 [Pinned local floor originals](PHASE_3_PINNED_FLOOR.md) now resolve the conditional
 installed-generation capacity conflict by keeping the already charged current
 generation and copying three remote originals. Four logical voters and the frozen
-six-source/seven-image bounds remain unchanged. Full native required-four and
-process/resource qualification remain OPEN.
+six-source/seven-image bounds remain unchanged. The corrected required-four
+history now passes FINAL, stable BARRIER, cold reopen and independent semantic /
+34-publication replay with thirteen exact negatives. Full native maintenance /
+resource composition and final-source qualification remain OPEN.
 
 Phase 3 remains **OPEN**. This inventory originated from baseline `867df7c4`;
 the current table also includes the subsequent learner, transfer and round cohorts. It does
@@ -60,8 +69,10 @@ planned entries above; their final-source executions remain open.
 reclamation order with unchanged incomplete-PROMISE recovery and capacity rules.
 Its [fourteen fresh-process cases](PHASE_3_DEFERRED_GRANT_PROCESS.md) now pass
 conditional physical replay and ten exact negatives. The later required-four
-native run passes preparation but fails in installed-generation maintenance
-at eight required images. Native completion and combined-resource gaps stay OPEN.
+native follow-up passed preparation but failed in installed-generation
+maintenance at eight required images. Pinned-floor reuse subsequently completed
+that native history and passed semantic/publication replay; full maintenance
+composition and combined-resource gaps stay OPEN.
 
 [Required-four replacement](PHASE_3_REQUIRED_FOUR.md) adds a development
 topology with live common members 1/2, departing member 3 and joining member 6;
@@ -70,8 +81,11 @@ joint view needs all four available voters. Its original semantic/publication
 reader does not add a hosted subset or qualify the full physical/resource peak.
 The first native execution failed before FINAL at floor reservation: three
 retained sources plus four required floor copies exceed the six-slot SOURCE
-limit. No required-four native qualification or negative set has passed; the
-short conditional capacity diagnosis is not a runtime correction.
+limit. The corrected runtime now passes the complete native semantic/publication
+slice and thirteen negatives, recorded in the
+[native follow-up index](phase3-evidence/required-four-pinned-native.json).
+The conditional capacity diagnosis itself is still only a reproducer; this does
+not qualify the remaining full physical/network/resource composition.
 
 [Floor/retirement refusal accounting](PHASE_3_SOURCE_RESERVATION.md) now retains
 the charges for incomplete original files and rolls back partial handoff growth.

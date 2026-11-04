@@ -1,0 +1,374 @@
+{
+  "combinedResourceMaximumQualified": false,
+  "exactPhysicalRecoveryQualified": true,
+  "finalSourceCohortQualified": false,
+  "historicalAuthority": "conditional-fixture",
+  "implementationAtIndex": [
+    {
+      "path": "scripts/v53/pinned_floor_evidence.py",
+      "sha256": "1300f696cde1acd378e7c6001a7d3c999f00d6f4a693ef1a7ee2aa413859b3cf"
+    },
+    {
+      "path": "scripts/v53/pinned_floor_process_evidence.py",
+      "sha256": "4eb32edf996a3ad18697dc0bbc8220d86de3e67600a6ef850608a9c894bc887c"
+    },
+    {
+      "path": "scripts/v53/test_pinned_floor_process_evidence.py",
+      "sha256": "5239e8189e3eedf07f83d3636f52a1faae2fcd92cd2eb60626353590a21cf297"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PinnedFloorTest.java",
+      "sha256": "a1904927a990786ec8959c2e276359dec4437ba1cf997c42776b595b3f8772f5"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PinnedFloorProcessTest.java",
+      "sha256": "3cd3daf785dc7724881cf6c9424179a63f154adda4c8d048849bb26fc1b7f3be"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PinnedFloorProcessWorker.java",
+      "sha256": "da7068cc3a7df4d59abc64444779408fc3fd4160d2b3967b6fed9e10a2f6bd5f"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCurrentGeneration.java",
+      "sha256": "51996e7130a787a7fe537128cee5f8f59a4175e59f5ffec5e9bca67fc6523c96"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFloorFiles.java",
+      "sha256": "9f70888114a3f212d9f1ce7ede5c071cb76a11c35de0fb28840e3fda6d5e87a9"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "sha256": "801ea0853b9d357534cc0e824f38178efe84116933eca87579f548404c77bcff"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java",
+      "sha256": "2356212f43fca87d5d20976d4afd2d0691c746f1ce28c0bbdaa9583d4d5c2dac"
+    }
+  ],
+  "independentReplay": {
+    "report": {
+      "path": "target/v53-pinned-floor-process-review/replay-01.json",
+      "sha256": "1cd63ed68a1fe2a192f2af403967672b360d3e6119dcecec69acbbcab9404b31"
+    },
+    "result": {
+      "negatives": [
+        {
+          "case": "missing-pin",
+          "reason": "pinned process exact crash",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-local-image",
+          "reason": "pinned process exact crash",
+          "status": "REJECTED"
+        },
+        {
+          "case": "deleted-predecessor",
+          "reason": "pinned process exact crash",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-retirement-backup",
+          "reason": "pinned process exact crash",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-reopened-original",
+          "reason": "pinned process exact reopened",
+          "status": "REJECTED"
+        },
+        {
+          "case": "cold-selector",
+          "reason": "pinned process exact cold",
+          "status": "REJECTED"
+        },
+        {
+          "case": "invented-floor",
+          "reason": "pinned process exact crash",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-force",
+          "reason": "pinned process exact force order: fault",
+          "status": "REJECTED"
+        },
+        {
+          "case": "false-kill-exit",
+          "reason": "pinned process actual outcome",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reused-process",
+          "reason": "pinned process fresh identities",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-case",
+          "reason": "pinned process complete receipt",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "cases": [
+          {
+            "case": "halt-FLOOR_DIRECTORY_CREATED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "halt-FLOOR_LOCAL_ORIGINAL_FORCED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "halt-FLOOR_LOCAL_SELECTOR_WRITTEN",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "halt-FLOOR_LOCAL_SELECTOR_FORCED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "halt-FLOOR_LOCAL_PARENT_FORCED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "halt-FLOOR_PROPOSAL_FORCED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "halt-FLOOR_IMAGE_FORCED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "halt-FLOOR_PARENT_FORCED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "halt-FLOOR_BEFORE_RETURN",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "halt-RETIREMENT_PARENT_FORCED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "halt-RETIREMENT_FILE_DELETED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "halt-RETIREMENT_DIRECTORY_DELETED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "halt-SOURCE_RETIREMENT_JOURNAL_PRUNED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "halt-FLOOR_RELEASE_PARENT_FORCED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "halt-FLOOR_RELEASE_RELINQUISHED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "halt-FLOOR_RELEASE_FILE_DELETED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "halt-FLOOR_RELEASE_LOCAL_CLEARED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "halt-FLOOR_RELEASE_AUTHORITY_CLEARED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "kill-FLOOR_DIRECTORY_CREATED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "kill-FLOOR_LOCAL_ORIGINAL_FORCED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "kill-FLOOR_LOCAL_SELECTOR_WRITTEN",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "kill-FLOOR_LOCAL_SELECTOR_FORCED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "kill-FLOOR_LOCAL_PARENT_FORCED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "kill-FLOOR_PROPOSAL_FORCED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "kill-FLOOR_IMAGE_FORCED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "kill-FLOOR_PARENT_FORCED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "kill-FLOOR_BEFORE_RETURN",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "kill-RETIREMENT_PARENT_FORCED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "kill-RETIREMENT_FILE_DELETED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "kill-RETIREMENT_DIRECTORY_DELETED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "kill-SOURCE_RETIREMENT_JOURNAL_PRUNED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "kill-FLOOR_RELEASE_PARENT_FORCED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "kill-FLOOR_RELEASE_RELINQUISHED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "kill-FLOOR_RELEASE_FILE_DELETED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "kill-FLOOR_RELEASE_LOCAL_CLEARED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          },
+          {
+            "case": "kill-FLOOR_RELEASE_AUTHORITY_CLEARED",
+            "freshProcesses": 3,
+            "status": "PASS"
+          }
+        ],
+        "exactPhysicalRecoveryQualified": true,
+        "freshProcesses": 108,
+        "fullResourceCompositionQualified": false,
+        "nativeHistoryQualified": false,
+        "phase3Complete": false,
+        "powerLossQualified": false,
+        "scope": "conditional-pinned-floor-process",
+        "status": "PASS"
+      }
+    }
+  },
+  "java": {
+    "errors": 0,
+    "failures": 0,
+    "log": {
+      "path": "target/v53-pinned-floor-process-review/process-01.log",
+      "sha256": "0e089b2ddf89b7330fb0348044afd521f3792f72f6b3cbd0c2afb659479d8475"
+    },
+    "report": {
+      "path": "target/v53-pinned-floor-process-review/TEST-io.github.patricklfdm.generalsearch.replication.V53PinnedFloorProcessTest.xml",
+      "sha256": "cb4eb9e2c03834bbbb4b170e40bd5b25f1d74523fd07487b6b44ada3f697a4a0"
+    },
+    "seconds": 177.751,
+    "skipped": 0,
+    "tests": 1
+  },
+  "matrix": {
+    "additionalOwnerLockProbes": 18,
+    "cases": 36,
+    "cuts": [
+      "FLOOR_DIRECTORY_CREATED",
+      "FLOOR_LOCAL_ORIGINAL_FORCED",
+      "FLOOR_LOCAL_SELECTOR_WRITTEN",
+      "FLOOR_LOCAL_SELECTOR_FORCED",
+      "FLOOR_LOCAL_PARENT_FORCED",
+      "FLOOR_PROPOSAL_FORCED",
+      "FLOOR_IMAGE_FORCED",
+      "FLOOR_PARENT_FORCED",
+      "FLOOR_BEFORE_RETURN",
+      "RETIREMENT_PARENT_FORCED",
+      "RETIREMENT_FILE_DELETED",
+      "RETIREMENT_DIRECTORY_DELETED",
+      "SOURCE_RETIREMENT_JOURNAL_PRUNED",
+      "FLOOR_RELEASE_PARENT_FORCED",
+      "FLOOR_RELEASE_RELINQUISHED",
+      "FLOOR_RELEASE_FILE_DELETED",
+      "FLOOR_RELEASE_LOCAL_CLEARED",
+      "FLOOR_RELEASE_AUTHORITY_CLEARED"
+    ],
+    "freshWorkerProcesses": 108
+  },
+  "nativeHistoryQualified": false,
+  "original": "general-search-engine-replication/target/v53-pinned-floor-process/run-4579e2c4-fd97-4fe1-9109-b7a5220e40b6",
+  "originalInventory": {
+    "path": "target/v53-pinned-floor-process-review/raw-inventory.json",
+    "sha256": "8fb12f98e47bb17152a342b364ea9871a9170ca40df25bd111b5762738391ae2"
+  },
+  "originalReceipt": {
+    "path": "general-search-engine-replication/target/v53-pinned-floor-process/run-4579e2c4-fd97-4fe1-9109-b7a5220e40b6/receipt.json",
+    "sha256": "9be2354bde2303b4ead8006ee5161ff7cd51a9fb3af8a877558a1304cde0b5ac"
+  },
+  "phase3Complete": false,
+  "powerLossQualified": false,
+  "python": {
+    "log": {
+      "path": "target/v53-pinned-floor-process-review/python-final.log",
+      "sha256": "76b782b07d14adf1a267cac7477199b674733ac62f8942af7601c21b9d7a4261"
+    },
+    "status": "PASS",
+    "tests": 34
+  },
+  "remaining": [
+    "same-history native pin-aware physical/maintenance/retirement composition",
+    "native interruption and transfer ownership at this pin layout",
+    "complete concurrent resource accounting",
+    "final-source hosted cohort and phase admission"
+  ],
+  "runtimeHead": "25d80cb3c654289ac3b14aa976016a912a5c445a",
+  "schema": "gse-v53-pinned-floor-process-qualification-v1",
+  "status": "PASS"
+}
