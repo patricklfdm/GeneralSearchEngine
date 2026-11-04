@@ -251,12 +251,13 @@ def expected_publication(replay, files, index, node):
     return expected
 
 
-def validate(root, *, size=3, kind='ADD', required_four=False):
+def validate(root, *, size=3, kind='ADD', required_four=False, publication_observer=None):
     root = Path(root); inventory = semantic.collection.inventory(root)
     original = semantic.validate(root,size=size,kind=kind,required_four=required_four)
     replay = semantic.Replay(root,size=size,kind=kind,required_four=required_four)
     for index in range(1, original['slots']+1): replay.step(index)
     replay.publication_receipts=CheckpointReceipts(root,replay)
+    replay.publication_observer=publication_observer
     publications = byte_count = 0
     for index, parts in enumerate(replay.phases, 1):
         voters = [v['voter'] for v in f.decode(parts['CERTIFICATE'], 'records', 'CERTIFICATE')['proofs']]

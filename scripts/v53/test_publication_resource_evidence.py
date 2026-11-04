@@ -98,6 +98,33 @@ class PublicationResourceEvidenceTest(unittest.TestCase):
     def test_invalid_profile_cannot_select_another_reader(self):
         with self.assertRaisesRegex(ValueError,'unknown profile'): r.original(self.root,'other')
 
+    def test_required_four_uses_complete_physical_derivation_and_exact_publication_count(self):
+        from . import required_four_physical as physical
+        def original(root,*,publication_observer):
+            self.assertEqual(self.root,root)
+            for index in range(1,35):publication_observer('node-1',index,self.before,self.after)
+            return {'scope':'independent physical precondition'}
+        with patch.object(physical,'validate',side_effect=original):
+            receipt,plans=r.original(self.root,'5-REPLACE-required-four')
+        self.assertEqual(34,len(plans));self.assertEqual('independent physical precondition',receipt['scope'])
+        self.assertEqual((self.before,self.after),plans['node-1',34])
+        def duplicate(root,*,publication_observer):
+            publication_observer('node-1',1,self.before,self.after)
+            publication_observer('node-1',1,self.before,self.after)
+        for derive,reason in ((duplicate,'duplicate derivation'),(lambda *a,**kw:{},'required-four complete publications')):
+            with patch.object(physical,'validate',side_effect=derive),self.assertRaisesRegex(ValueError,reason):
+                r.original(self.root,'5-REPLACE-required-four')
+
+    def test_required_four_physical_failure_cannot_become_resource_acceptance(self):
+        from . import required_four_physical as physical
+        def failed(root,*,publication_observer):
+            for index in range(1,35):publication_observer('node-1',index,self.before,self.after)
+            raise ValueError('underived original owner')
+        for entry in (r.validate,n.qualify):
+            with patch.object(physical,'validate',side_effect=failed),patch.object(r,'collect') as collect:
+                with self.assertRaisesRegex(ValueError,'underived original owner'):entry(self.root,'5-REPLACE-required-four')
+                collect.assert_not_called()
+
     def test_resource_sidecar_requires_explicit_native_layout_opt_in(self):
         names = {'initial','original-plan.gsbp','original-application.image','before-network','installed',
                  'applied-1','published-1','applied-2','published-2','after-close','calls.json','events.json',

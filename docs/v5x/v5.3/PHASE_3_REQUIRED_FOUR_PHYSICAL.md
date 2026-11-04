@@ -90,9 +90,33 @@ all observations through the independent reader before qualifying a new native
 history. Historical traces without that information retain their limited scope.
 
 The [connection-observation follow-up](PHASE_3_CONNECTION_ATTEMPTS.md) now
-passes two native TCP component histories and exact negatives. Its whole-history
-collector/reader integration is still pending; it cannot supply missing identity
-to this historical trace.
+passes two native TCP component histories and exact negatives. The [joining collector/reader integration](PHASE_3_JOINING_CONNECTIONS.md) now
+passes its short native gates; the fresh whole-history qualification is pending.
+Neither result supplies missing identity to this historical trace.
+
+## Publication storage boundary follow-up
+
+The [publication resource index](phase3-evidence/required-four-publication-resources.json)
+now replays the same unchanged historical runtime original with the current
+Python resource reader. The required-four entry first completes the independent
+owner-file and retirement derivation above; the publication observer supplies
+its derived before/after files to the existing boundary accounting. Exactly 34
+publications and 374 observed boundaries are required, including the departing
+owner's nonvoting FINAL publication. Duplicate or missing publication plans and
+any physical-precondition failure reject before resource acceptance.
+
+All 26 original-first capture negatives pass. Within those publication boundaries,
+the largest observed storage charges are 35,936,964 metadata bytes and 268,492,833
+staging bytes, with at most six application owners and one source owner. These
+are measured boundary maxima, not the simultaneous whole-runtime maximum or
+control/transport accounting. The six-source / seven-image limits remain unchanged.
+The current Python reader does not retroactively change the older runtime's source
+identity or qualify its ambiguous network attempts.
+
+```bash
+python3 -m scripts.v53.publication_resource_evidence "$ORIGINAL" \
+  --profile 5-REPLACE-required-four --qualify
+```
 
 ## Remaining qualification and rollback
 

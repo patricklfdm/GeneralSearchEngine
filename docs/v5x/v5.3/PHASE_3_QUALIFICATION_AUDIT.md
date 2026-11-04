@@ -10,14 +10,16 @@ pending; the original ambiguous trace keeps its prior scope.
 [Connection-scoped transport observations](PHASE_3_CONNECTION_ATTEMPTS.md) now
 preserve the actual socket pair and local invocation identity across late failure
 callbacks. Two real overlapping identical-request histories and eight independent
-negative replays pass. Integration into the complete joining collector/readers
-and a fresh required-four native execution remain OPEN; old traces are not
+negative replays pass. Collector/shared-reader integration now passes its short native gate. Fresh
+required-four whole-history qualification remains OPEN; old traces are not
 upgraded by this component result.
 
 [Required-four physical replay](PHASE_3_REQUIRED_FOUR_PHYSICAL.md) now derives
 all eleven slots through cold reopen, including three pinned maintenance floors,
 22 source-retirement transactions / 330 prefixes and the departing nonvoting
 FINAL owner. Separate slot-force replay checks 34 transactions and 5,234 callbacks.
+The same original also passes 34 publication resource transactions / 374 boundaries
+and 26 exact capture negatives; whole-runtime/control maxima remain OPEN.
 Strict network qualification remains OPEN: identical ACCEPT retries overlap late
 server terminals, and the retained trace lacks unambiguous attempt correlation.
 The original failed network gate is retained; no timeout or acceptance rule is

@@ -1,0 +1,220 @@
+{
+  "completeNetworkQualified": false,
+  "controlChargesDerived": false,
+  "finalSourceCohortQualified": false,
+  "nativeExecution": {
+    "path": "target/v53-pinned-floor-native/run-20261104T224200Z/execution-summary.json",
+    "sha256": "a058e5fcc5ceb2792e8bf7f9e893472c558ca130ccf1912dc4385f6b56f56455"
+  },
+  "negatives": [
+    {
+      "case": "incomplete-index",
+      "reason": "publication resources complete index",
+      "status": "REJECTED"
+    },
+    {
+      "case": "index-path",
+      "reason": "publication resources ordered index",
+      "status": "REJECTED"
+    },
+    {
+      "case": "capture-digest",
+      "reason": "publication resources capture digest",
+      "status": "REJECTED"
+    },
+    {
+      "case": "boolean-event-index",
+      "reason": "publication resources metadata binding",
+      "status": "REJECTED"
+    },
+    {
+      "case": "duplicate-event",
+      "reason": "publication resources metadata binding",
+      "status": "REJECTED"
+    },
+    {
+      "case": "foreign-scope",
+      "reason": "publication resources exact event",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-object",
+      "reason": "publication resources missing object/size",
+      "status": "REJECTED"
+    },
+    {
+      "case": "altered-object",
+      "reason": "publication resources object identity/capacity",
+      "status": "REJECTED"
+    },
+    {
+      "case": "extra-object",
+      "reason": "publication resources unobserved object",
+      "status": "REJECTED"
+    },
+    {
+      "case": "extra-metadata",
+      "reason": "publication resources unobserved metadata",
+      "status": "REJECTED"
+    },
+    {
+      "case": "boolean-directory",
+      "reason": "publication resources directory type",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-parent",
+      "reason": "publication resources parent directory",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-boundary",
+      "reason": "publication resources complete boundary order",
+      "status": "REJECTED"
+    },
+    {
+      "case": "changed-storage",
+      "reason": "publication resources storage changed during observation",
+      "status": "REJECTED"
+    },
+    {
+      "case": "boolean-charge",
+      "reason": "publication resources usage shape",
+      "status": "REJECTED"
+    },
+    {
+      "case": "incorrect-lease-count",
+      "reason": "publication resources observed limits",
+      "status": "REJECTED"
+    },
+    {
+      "case": "lost-old-generation-charge",
+      "reason": "publication resources exact charges: CURRENT_VALIDATED",
+      "status": "REJECTED"
+    },
+    {
+      "case": "premature-candidate-shrink",
+      "reason": "publication resources exact charges: CURRENT_DIRECTORY_FORCED",
+      "status": "REJECTED"
+    },
+    {
+      "case": "late-candidate-shrink",
+      "reason": "publication resources exact charges: PUBLICATION_SELECTOR_FORCED",
+      "status": "REJECTED"
+    },
+    {
+      "case": "lost-completion-reserve",
+      "reason": "publication resources exact charges: PUBLICATION_VALIDATED",
+      "status": "REJECTED"
+    },
+    {
+      "case": "leaked-completion-reserve",
+      "reason": "publication resources exact charges: PUBLICATION_RETIRED",
+      "status": "REJECTED"
+    },
+    {
+      "case": "extra-file",
+      "reason": "publication resources exact inventory: PUBLICATION_VALIDATED",
+      "status": "REJECTED"
+    },
+    {
+      "case": "changed-original-file",
+      "reason": "publication resources exact inventory: PUBLICATION_VALIDATED",
+      "status": "REJECTED"
+    },
+    {
+      "case": "early-selector",
+      "reason": "publication resources exact inventory: INSTALL_RESERVED",
+      "status": "REJECTED"
+    },
+    {
+      "case": "early-vote-cleanup",
+      "reason": "publication resources exact inventory: PUBLICATION_SELECTOR_FORCED",
+      "status": "REJECTED"
+    },
+    {
+      "case": "lost-old-generation",
+      "reason": "publication resources exact inventory: CURRENT_VALIDATED",
+      "status": "REJECTED"
+    }
+  ],
+  "originalInventory": {
+    "path": "target/v53-pinned-floor-native/run-20261104T224200Z/raw-inventory.json",
+    "sha256": "a518bef3d4e760b5933d72d83ae76b7312902d69ed701395e33bad32a3f081bc"
+  },
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "publicationStorageDerived": true,
+  "pythonTests": {
+    "errors": 0,
+    "executions": 66,
+    "failures": 0,
+    "newTests": 2
+  },
+  "raw": "general-search-engine-replication/target/v53-native-dispatch/run-d9b8fe61-4036-416d-b2e4-7f7ed47bd0ad",
+  "readerBaseHead": "2f5cce27ffd2054011ed04fd7791c75bb9e090f9",
+  "replay": {
+    "path": "target/v53-required-four-connections/historical-resource-replay-01.json",
+    "sha256": "a06743ee992e99fd2c88da75b5eeb7c7978d1ce3f1893c928b3c753675c161a1"
+  },
+  "reports": [
+    {
+      "path": "target/v53-required-four-connections/historical-resource-replay-01.json",
+      "sha256": "a06743ee992e99fd2c88da75b5eeb7c7978d1ce3f1893c928b3c753675c161a1"
+    },
+    {
+      "path": "target/v53-required-four-connections/historical-resource-replay-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-required-four-connections/resource-python-01.log",
+      "sha256": "0fcccd50375da9329ca9bce6a4d692ccdd97b85142a6180728984bab24fdbf8b"
+    },
+    {
+      "path": "target/v53-required-four-connections/resource-python-02.log",
+      "sha256": "69742f3cea6f884ddba1b9869b97f1375dddb3db77a695dc326011b8b0914352"
+    },
+    {
+      "path": "target/v53-required-four-connections/resource-python-03.log",
+      "sha256": "512bb4521093003f644b57ca4c5be07320bbeec1f42171e247abec1c7ab50bff"
+    }
+  ],
+  "result": {
+    "maximumObservedStorage": {
+      "applications": 6,
+      "metadata": 35936964,
+      "sources": 1,
+      "staging": 268492833
+    },
+    "observedBoundaries": 374,
+    "publications": 34
+  },
+  "runtimeSource": "25d80cb3c654289ac3b14aa976016a912a5c445a",
+  "schema": "gse-v53-required-four-publication-resources-v1",
+  "scope": "historical-native-publication-storage-replay",
+  "sourceBinding": "current Python reader over unchanged historical runtime original; not a new native or final-source cohort",
+  "sources": [
+    {
+      "path": "scripts/v53/joining_publication_evidence.py",
+      "sha256": "23e198a5e17d8abcdc2b4ce8349fa18cb427912932db9cf28f775092b81675cf"
+    },
+    {
+      "path": "scripts/v53/publication_resource_evidence.py",
+      "sha256": "2a06acb61eb06b3f91aa2c74acd24a5dcdbf1c30ba042df6e2dee77fba1f4be4"
+    },
+    {
+      "path": "scripts/v53/required_four_evidence.py",
+      "sha256": "c0f41ebfdb4b2824ef0d7a109950b1146874ca230eab20fa271a9081520fbad7"
+    },
+    {
+      "path": "scripts/v53/required_four_physical.py",
+      "sha256": "0e2100a4473a8cc60446ef75cb369f68f482680b37cc774c64918dc13020b053"
+    },
+    {
+      "path": "scripts/v53/test_publication_resource_evidence.py",
+      "sha256": "e0540e6c89c668ec2c143926e4b26eb4057927f2663dbff5a0cdfcf968e57fc1"
+    }
+  ],
+  "status": "PASS",
+  "wholeRuntimePeakQualified": false
+}

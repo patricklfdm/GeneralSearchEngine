@@ -37,7 +37,7 @@ def required_joint(view, voters):
     return rejected
 
 
-def validate(root):
+def validate(root, *, publication_observer=None):
     root = Path(root); inventory = c.collection.inventory(root)
     original = c.validate(root, size=5, kind='REPLACE', required_four=True)
     replay = c.Replay(root, size=5, kind='REPLACE', required_four=True)
@@ -60,7 +60,8 @@ def validate(root):
     final_statement = c.f.encode('records', 'CHECKPOINT', replay.checkpoint(9, 10, 'MEMBERSHIP'))
     need(sorted(n for h, n in replay.acks if h == c.sha(final_statement)) == STABLE_LIVE,
          'required-four successor checkpoint voters')
-    publications = publication.validate(root, size=5, kind='REPLACE', required_four=True)
+    publications = publication.validate(root, size=5, kind='REPLACE', required_four=True,
+                                        publication_observer=publication_observer)
     need(publications['publications'] == 34, 'required-four complete publications')
     need(c.collection.inventory(root) == inventory, 'required-four original changed')
     return dict(status='PASS', scope='required-four-native-semantic-chain', profile=PROFILE,

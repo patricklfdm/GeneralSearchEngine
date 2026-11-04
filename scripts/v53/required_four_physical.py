@@ -141,8 +141,10 @@ def replay(root):
                 governingFloorForceWindows=len(retirements.floors),pinnedMaintenanceFloors=continuation.pinned_floors)
 
 
-def validate(root):
-    root=Path(root);before=s.collection.inventory(root);original=semantic.validate(root);result=replay(root)
+def validate(root, *, publication_observer=None):
+    root=Path(root);before=s.collection.inventory(root)
+    original=semantic.validate(root) if publication_observer is None else semantic.validate(root,publication_observer=publication_observer)
+    result=replay(root)
     need(s.collection.inventory(root)==before,'required-four physical original changed')
     return dict(status='PASS',scope='required-four-derived-owner-files',profile=semantic.PROFILE,semantic=original,physical=result,
                 ownerFilesQualified=True,sourceRetirementPhysicalQualified=True,completePhysicalQualified=False,

@@ -641,7 +641,8 @@
         "docs/v5x/v5.3/phase3-evidence/pinned-floor-process.json",
         "docs/v5x/v5.3/phase3-evidence/required-four-pinned-native.json",
         "docs/v5x/v5.3/PHASE_3_REQUIRED_FOUR_PHYSICAL.md",
-        "docs/v5x/v5.3/phase3-evidence/required-four-physical.json"
+        "docs/v5x/v5.3/phase3-evidence/required-four-physical.json",
+        "docs/v5x/v5.3/phase3-evidence/required-four-publication-resources.json"
       ],
       "cohorts": [
         "profiles",

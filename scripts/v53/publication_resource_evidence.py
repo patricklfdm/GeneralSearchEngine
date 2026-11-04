@@ -185,12 +185,17 @@ def original(root, profile, progress=None):
         _,rounds,_,_ = native.physical(root,confirmed_retention=True)
         for row in rounds:
             for node in native.VOTERS: plans[node,row['index']] = row['recorded'][node],row['published'][node]
-    elif profile == '5-REPLACE':
-        from . import joint_ledger_evidence as joint
+    elif profile in ('5-REPLACE','5-REPLACE-required-four'):
         def observer(node,index,before,after):
             need((node,index) not in plans, 'publication resources duplicate derivation')
             plans[node,index] = before,after
-        receipt = joint.validate(root,progress,publication_observer=observer)
+        if profile == '5-REPLACE':
+            from . import joint_ledger_evidence as joint
+            receipt = joint.validate(root,progress,publication_observer=observer)
+        else:
+            from . import required_four_physical as required_four
+            receipt = required_four.validate(root,publication_observer=observer)
+            need(len(plans)==34,'publication resources required-four complete publications')
     else: raise ValueError('publication resources unknown profile')
     return receipt,plans
 
@@ -207,7 +212,7 @@ def validate(directory, profile='stable', progress=None):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(); parser.add_argument('root'); parser.add_argument('--profile',choices=('stable','5-REPLACE'),default='stable')
+    parser = argparse.ArgumentParser(); parser.add_argument('root'); parser.add_argument('--profile',choices=('stable','5-REPLACE','5-REPLACE-required-four'),default='stable')
     parser.add_argument('--qualify',action='store_true')
     args = parser.parse_args()
     if args.qualify:
