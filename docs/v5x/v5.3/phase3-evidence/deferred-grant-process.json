@@ -1,0 +1,92 @@
+{
+  "baseHead": "aa7a982036930ebae98a5a821c62b350eb3d4b22",
+  "classes": {
+    "path": "target/v53-deferred-process-review/classes.json",
+    "sha256": "1f0bffa4cb7e96e5033e5aa5697c84c2ca94cf3e134db2b46fc789b725ac32b5"
+  },
+  "combinedPeakQualified": false,
+  "conditionalPhysicalRecoveryQualified": true,
+  "draftFailure": {
+    "path": "target/v53-deferred-process-draft/unit-draft.log",
+    "sha256": "e16e0d44573633e0acad645ec20cea103cca294b192681e6886588e88c4b87fc"
+  },
+  "earlierPythonCommandError": "python-02 named a nonexistent test_native_activation_evidence module; corrected to test_native_activation in python-03",
+  "earlierValidation": {
+    "python-01.log": {
+      "path": "target/v53-deferred-process-review/python-01.log",
+      "sha256": "d1a3bdcaa925bbf92cc120237c5ab1078f911832e5f3bbdd16fd82aab85d59fa"
+    },
+    "python-02.log": {
+      "path": "target/v53-deferred-process-review/python-02.log",
+      "sha256": "60a5bc5cb5ad70516726fc5688055e7b1332dbc9a2c18974dc150ef2dedde31f"
+    },
+    "replay-01.json": {
+      "path": "target/v53-deferred-process-review/replay-01.json",
+      "sha256": "9a79fd8631edaa79426911014e36b0ffb381fb7dfef0c99807bde02cbe943ea0"
+    }
+  },
+  "finalSourceCohortQualified": false,
+  "finalizer": {
+    "path": "target/v53-deferred-process-review/finalize.py",
+    "sha256": "d05d6aca9706e0bcebc329b662962ec29626e56eb97f767b684a7fbd311c9a75"
+  },
+  "independentReplay": {
+    "cases": 14,
+    "exactReasons": true,
+    "negativeCases": 10,
+    "originalFirst": true,
+    "receipt": {
+      "path": "target/v53-deferred-process-review/replay-02.json",
+      "sha256": "9a79fd8631edaa79426911014e36b0ffb381fb7dfef0c99807bde02cbe943ea0"
+    },
+    "status": "PASS"
+  },
+  "nativeHistoryQualified": false,
+  "original": "general-search-engine-replication/target/v53-deferred-grant-process/run-2e2740e3-7e56-4b07-aa2a-dd2264e95d0d",
+  "originalInventory": {
+    "path": "target/v53-deferred-process-review/original-inventory.json",
+    "sha256": "384d018b259ce179336975edbf8382c6520a39e14132d1e6a109a8dd4e86fb82"
+  },
+  "phase3Complete": false,
+  "powerLossQualified": false,
+  "processExecution": {
+    "cases": 14,
+    "freshProcesses": 42,
+    "historicalAuthority": "conditional-fixture",
+    "lockProbeProcesses": 7,
+    "log": {
+      "path": "target/v53-deferred-process-review/native-01.log",
+      "sha256": "4523eed156da841537f77c45b8fe57440a94ed0695d002861c5f9156f712acbb"
+    },
+    "report": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-deferred-process-review/TEST-io.github.patricklfdm.generalsearch.replication.V53DeferredGrantProcessTest.xml",
+      "seconds": 49.531,
+      "sha256": "0932aeb5a7c7b8b2fda4096fbe5f626b0b0b3d9364c0c7ff5e5ac9af460525d2",
+      "skipped": 0,
+      "tests": 1
+    },
+    "status": "PASS"
+  },
+  "productionJavaChanged": false,
+  "pythonLog": {
+    "path": "target/v53-deferred-process-review/python-03.log",
+    "sha256": "55e6eac7a393b4f015dc6c872b32d0ff424617ac7df24e11751a4ca091e735b4"
+  },
+  "receipt": {
+    "path": "general-search-engine-replication/target/v53-deferred-grant-process/run-2e2740e3-7e56-4b07-aa2a-dd2264e95d0d/receipt.json",
+    "sha256": "51f6fbe589ca349785e987404e23d4d1c6d0da47bd16c92443e1eda19ae05a0a"
+  },
+  "requiredFourFollowup": "docs/v5x/v5.3/phase3-evidence/required-four-followup.json",
+  "schema": "gse-v53-deferred-grant-process-development-v1",
+  "source": {
+    "path": "target/v53-deferred-process-review/tested-files.json",
+    "sha256": "de2048c6d946a0c61162bd11665d3365550a01a8d491261b4f48b77aac2cc451"
+  },
+  "status": "PARTIAL",
+  "unchangedProductionClasses": {
+    "path": "target/v53-deferred-process-review/production-classes.json",
+    "sha256": "720299190e07bf9c799be26e3c7e2f1cb7391756dee22b696d34cce61063ed31"
+  }
+}

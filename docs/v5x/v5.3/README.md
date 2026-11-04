@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Deferred-grant process recovery](PHASE_3_DEFERRED_GRANT_PROCESS.md) now passes
+fourteen real halt/SIGKILL cases and ten exact independent negatives on conditional
+originals. The corrected required-four run passes retention preparation and JOINT
+installation, but fails before FINAL: two generations + two sources + four floor
+copies require eight images. The seven-image limit remains unchanged; the short
+reproducer passes, and complete native/resource qualification remains OPEN.
+
 [Deferred grant capture](PHASE_3_DEFERRED_GRANT.md) now reclaims unused same-cut
 sources after a durable higher PROMISE and before a new source consumes floor
 headroom. Complete required-four native qualification remains pending.

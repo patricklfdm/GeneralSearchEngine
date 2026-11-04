@@ -1,0 +1,115 @@
+{
+  "acceptedNativeHistories": 0,
+  "baseHead": "aa7a982036930ebae98a5a821c62b350eb3d4b22",
+  "bindings": {
+    "classes-after.json": {
+      "path": "target/v53-required-four-followup/run-20261104T215116Z/classes-after.json",
+      "sha256": "6110ae01dda4189e688c0c78a05586ccd41c7f104e241df18b962783493f49d9"
+    },
+    "classes-before.json": {
+      "path": "target/v53-required-four-followup/run-20261104T215116Z/classes-before.json",
+      "sha256": "6110ae01dda4189e688c0c78a05586ccd41c7f104e241df18b962783493f49d9"
+    },
+    "source-after.json": {
+      "path": "target/v53-required-four-followup/run-20261104T215116Z/source-after.json",
+      "sha256": "ca88ecf459cc5bd711cb5d6ed90e3cdf4ec5a814cbbc77a7d6dc28423014fc33"
+    },
+    "source.json": {
+      "path": "target/v53-required-four-followup/run-20261104T215116Z/source.json",
+      "sha256": "c90632353518131376a592c3865be6892c383a1afa68decda05f336162e9ea15"
+    }
+  },
+  "classesUnchangedDuringExecution": true,
+  "combinedPeakQualified": false,
+  "completePhysicalQualified": false,
+  "diagnostic": {
+    "log": {
+      "path": "target/v53-required-four-followup/run-20261104T215116Z/capacity-01.log",
+      "sha256": "b32c15058c2e53d940ce32d001809f31eeddb078ec1a8a7b90b903ad3ab86bd6"
+    },
+    "report": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-required-four-followup/run-20261104T215116Z/TEST-io.github.patricklfdm.generalsearch.replication.V53RequiredFourCapacityTest.xml",
+      "seconds": 3.867,
+      "sha256": "0213ca63cd41c72e8e63596734f4d5629ab46fbc95062158f8dc791aa9e4ee27",
+      "skipped": 0,
+      "tests": 3
+    },
+    "scope": "conditional real selected generations; no synthetic pressure",
+    "source": {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RequiredFourCapacityTest.java",
+      "sha256": "e3826e228e19e5135e40bb500b62cd2700468198bf4b463644af7af89a95963b"
+    }
+  },
+  "finalSourceCohortQualified": false,
+  "imageDiagnosis": {
+    "frozenImageSlots": 7,
+    "originalImages": 4,
+    "requiredFloorImages": 4,
+    "requiredTotalImages": 8,
+    "runtimeCorrectionImplemented": false
+  },
+  "independentReplay": {
+    "log": {
+      "path": "target/v53-required-four-followup/run-20261104T215116Z/replay-01.stderr",
+      "sha256": "a9a505398e084da795f1f7f3f95e4cda69d63aa018172b7d060882cdc4913390"
+    },
+    "qualifiedNegatives": 0,
+    "reason": "joining complete control order",
+    "status": "REJECTED"
+  },
+  "nativeExecution": {
+    "failure": "resource ownership/count",
+    "installedCut": 9,
+    "joiningColdReopened": true,
+    "location": "installed-generation maintenance before FINAL ACCEPT",
+    "log": {
+      "path": "target/v53-required-four-followup/run-20261104T215116Z/native-01.log",
+      "sha256": "7512e704edb71e3735892cca45e3cadebf1a14f5a4dba57f1788893c6eb5f941"
+    },
+    "report": {
+      "errors": 1,
+      "failures": 0,
+      "path": "target/v53-required-four-followup/run-20261104T215116Z/TEST-io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest.xml",
+      "seconds": 1079.384,
+      "sha256": "62e1f1f8fcad96fd72559dc25faaadcea4fd4a48f8d629ed1bd5eede1bc6d314",
+      "skipped": 0,
+      "tests": 1
+    },
+    "status": "FAIL"
+  },
+  "original": "general-search-engine-replication/target/v53-native-dispatch/run-53c9d87d-be82-4f0e-8bbb-0424c6e5ff15",
+  "originalFailure": "docs/v5x/v5.3/phase3-evidence/required-four.json",
+  "originalInventory": {
+    "path": "target/v53-required-four-followup/run-20261104T215116Z/raw-inventory.json",
+    "sha256": "7c905b2300afae7ca7ddfc1800b3b956ec8fc1182cc5ce1fbf5e230d7a7bfdfe"
+  },
+  "phase3Complete": false,
+  "publicationPhysicalQualified": false,
+  "runtimeCorrection": "docs/v5x/v5.3/phase3-evidence/deferred-grant.json",
+  "schema": "gse-v53-required-four-followup-development-v1",
+  "semanticChainQualified": false,
+  "snapshotCounts": {
+    "node-1": {
+      "generationImages": 2,
+      "generations": 2,
+      "sourceImages": 2,
+      "sources": 2
+    },
+    "node-2": {
+      "generationImages": 2,
+      "generations": 2,
+      "sourceImages": 2,
+      "sources": 2
+    },
+    "node-3": {
+      "generationImages": 2,
+      "generations": 2,
+      "sourceImages": 2,
+      "sources": 2
+    }
+  },
+  "sourceUnchangedDuringExecution": true,
+  "status": "FAIL"
+}

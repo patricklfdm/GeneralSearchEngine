@@ -1,9 +1,10 @@
 # Reclaim same-cut sources before a fresh capture
 
-Status: implementation and bounded component validation complete. The failed
-[required-four execution](PHASE_3_REQUIRED_FOUR.md) remains the latest retained
-execution of that complete topology. This correction does not yet establish a
-successful required-four native history or Phase 3 closure.
+Status: implementation and bounded component validation complete. The subsequent
+[process qualification and required-four follow-up](PHASE_3_DEFERRED_GRANT_PROCESS.md)
+adds fourteen fresh-process cases. Its complete native run passes the original
+preparation failure, then exposes a distinct installed-generation/floor image
+conflict. A successful required-four history and Phase 3 closure remain open.
 
 ## Ordering and authority
 

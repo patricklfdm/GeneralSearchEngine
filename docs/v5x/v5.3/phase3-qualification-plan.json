@@ -23,17 +23,22 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationDriverTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCampaignFenceTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DeferredGrantTest.java",
-        "scripts/v53/test_native_activation.py"
+        "scripts/v53/test_native_activation.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DeferredGrantProcessTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DeferredGrantProcessWorker.java",
+        "scripts/v53/test_deferred_grant_process_evidence.py"
       ],
       "readers": [
         "scripts/v53/activation_evidence.py",
         "scripts/v53/activation_driver_evidence.py",
-        "scripts/v53/native_activation_evidence.py"
+        "scripts/v53/native_activation_evidence.py",
+        "scripts/v53/deferred_grant_process_evidence.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_ACTIVATION.md",
         "docs/v5x/v5.3/PHASE_3_ACTIVATION_DRIVER.md",
-        "docs/v5x/v5.3/PHASE_3_DEFERRED_GRANT.md"
+        "docs/v5x/v5.3/PHASE_3_DEFERRED_GRANT.md",
+        "docs/v5x/v5.3/PHASE_3_DEFERRED_GRANT_PROCESS.md"
       ],
       "cohorts": [
         "profiles",
@@ -583,7 +588,8 @@
         "docs/v5x/v5.3/PHASE_3_GENERATION_RELOAD.md",
         "docs/v5x/v5.3/PHASE_3_PUBLICATION_RESOURCES.md",
         "docs/v5x/v5.3/PHASE_3_REQUIRED_FOUR.md",
-        "docs/v5x/v5.3/PHASE_3_DEFERRED_GRANT.md"
+        "docs/v5x/v5.3/PHASE_3_DEFERRED_GRANT.md",
+        "docs/v5x/v5.3/PHASE_3_DEFERRED_GRANT_PROCESS.md"
       ],
       "cohorts": [
         "profiles",

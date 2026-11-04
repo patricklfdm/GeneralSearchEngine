@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Deferred-grant process recovery](PHASE_3_DEFERRED_GRANT_PROCESS.md) now passes
+fourteen real halt/SIGKILL cases and ten exact independent negatives on conditional
+originals. The corrected required-four run passes retention preparation and JOINT
+installation, but fails before FINAL: two generations + two sources + four floor
+copies require eight images. The seven-image limit remains unchanged; the short
+reproducer passes, and complete native/resource qualification remains OPEN.
+
 [Deferred capture after source reclamation](PHASE_3_DEFERRED_GRANT.md) now orders
 the durable PROMISE, ordinary governing-floor cleanup and first BASIS capture
 under one guarded invocation. Incoming/outgoing and joining preparation use it;

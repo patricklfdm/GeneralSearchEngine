@@ -52,8 +52,10 @@ planned entries above; their final-source executions remain open.
 
 [Deferred grant capture](PHASE_3_DEFERRED_GRANT.md) implements the clean-source
 reclamation order with unchanged incomplete-PROMISE recovery and capacity rules.
-Its conditional interruption tests do not qualify a native four-voter lifetime
-or fresh-process crash matrix; the combined-resource and execution gaps stay OPEN.
+Its [fourteen fresh-process cases](PHASE_3_DEFERRED_GRANT_PROCESS.md) now pass
+conditional physical replay and ten exact negatives. The later required-four
+native run passes preparation but fails in installed-generation maintenance
+at eight required images. Native completion and combined-resource gaps stay OPEN.
 
 [Required-four replacement](PHASE_3_REQUIRED_FOUR.md) adds a development
 topology with live common members 1/2, departing member 3 and joining member 6;
