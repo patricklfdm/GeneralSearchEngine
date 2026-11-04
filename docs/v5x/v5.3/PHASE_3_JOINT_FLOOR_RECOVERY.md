@@ -114,8 +114,37 @@ producer/build/raw evidence, the current Python reader, relocated optimized
 replay and retained failed development probes. This extends evidence replay;
 it does not rerun Java or change the native workload, runtime or limits.
 
-Continuous whole-history peer/learner/future ledger composition, native
-partial-body/process-death axes, other Phase 3 obligations and final-source
+### Continuous retention and ballot composition
+
+`scripts.v53.joint_ledger_evidence` composes the same original's peer, learner,
+future and allocator/promise chains after complete physical, network, export,
+control and floor-maintenance replay. The cold node-2 owner adds an explicit
+original lifetime. Its reopened files are comparison targets for the preceding
+derived state, never a new seed or permission to reset a revision.
+
+The three retention readers derive 147 peer writes (99 maintenance, 15 selected,
+33 publication), 12 learner writes (six recording, three confirmation, three
+selected) and 99 future writes (66 recording, 33 clearing). Each binds eleven
+actual original open/reopen force sequences. Original grant captures, installed
+generations, applied/published snapshots and final cold files compare against
+the same chain. No write or completion may remain unbound. The ballot reader
+derives ten reservations, nine self-grants, one burned unused reservation and
+26 forced promises, including the original membership-adoption fence. The
+recovered allocator is compared before subsequent operations, without reseeding.
+
+Negative qualification includes the existing four-layer catalogues and focused
+cold-owner tests: wrong scope, missing/reordered reopen force, invented callback
+fields and valid-but-reset reopened ledger bytes. Unrelated files, wire and
+other layers' callbacks must remain unchanged. Historical peer omission markers
+are converted into actual callback omission so this protection stays exact.
+The joining owner performs no learner-ledger write in this original; its
+write-scope negative is recorded as not applicable, never as a rejection.
+Other missing targets fail qualification rather than being silently skipped.
+
+The [continuous-ledger receipt](phase3-evidence/joint-ledger.json) binds the
+retained original, exact reader, test results, relocated optimized replay and
+development diagnostics. Native partial-body/process-death axes, transient
+generation-retirement prefixes, other Phase 3 obligations and final-source
 qualification remain open. Phase 3 is not closed by this one retained original.
 
 See the [development receipt](phase3-evidence/joint-floor-recovery.json) for the
@@ -146,6 +175,8 @@ python3 -B -m scripts.v53.joint_floor_maintenance_evidence \
   general-search-engine-replication/target/v53-native-dispatch/run-<original-id> --qualify
 python3 -B -m scripts.v53.joint_history_evidence \
   general-search-engine-replication/target/v53-native-dispatch/run-<original-id> --qualify
+python3 -B -m scripts.v53.joint_ledger_evidence \
+  general-search-engine-replication/target/v53-native-dispatch/run-<original-id> --qualify --workers 4
 ```
 
 The JUnit entry is opt-in and adds no normal-CI duration. Do not combine an old

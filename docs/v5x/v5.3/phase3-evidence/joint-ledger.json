@@ -1,0 +1,1380 @@
+{
+  "ballotCompositionQualified": true,
+  "baseCommit": "de697b431870f7766cb539009876faf35dd6c9a1",
+  "checks": {
+    "contract-final.json": {
+      "path": "target/v53-joint-ledger-batch/contract-final.json",
+      "sha256": "dc87b3533702f994e984f97711b8f4ebcf2a178e4b2b39a6d2d96016501af5be"
+    },
+    "inspection-final/receipt.json": {
+      "path": "target/v53-joint-ledger-batch/inspection-final/receipt.json",
+      "sha256": "851aca5b672bfbf4274c791b9347c4ac7668e7e3a6f404a3d778c5628b329cc0"
+    },
+    "integrity.json": {
+      "path": "target/v53-joint-ledger-batch/integrity.json",
+      "sha256": "727bd79ba13f3da17f820a1a01dcc8239ba1f1668fcbef342974d5165c17e56b"
+    },
+    "python-all-final.log": {
+      "path": "target/v53-joint-ledger-batch/python-all-final.log",
+      "sha256": "4f84cbd2c04712853699b06fecd327e537607b995465a0c5230bbf9201e44b74"
+    },
+    "python-focused-final.log": {
+      "path": "target/v53-joint-ledger-batch/python-focused-final.log",
+      "sha256": "f6ef69683ef115dbdb2052410b9a2a9be9090916bc41086754022dee43a0bbe1"
+    },
+    "python-plan-final.log": {
+      "path": "target/v53-joint-ledger-batch/python-plan-final.log",
+      "sha256": "29ae10cdffa13f76d2d2caef7f36d61365110315c73ebabbbd3bf3fa8b3e842b"
+    },
+    "qualified-final.json": {
+      "path": "target/v53-joint-ledger-batch/qualified-final.json",
+      "sha256": "ec887d6da6f3efbccb9e1c7a4133acedcc20e030235760cf6943c62e31eacd97"
+    },
+    "qualified-final.log": {
+      "path": "target/v53-joint-ledger-batch/qualified-final.log",
+      "sha256": "a548b7039cebc77fba0d55f2e98ad897ed34ab078e60ff0afc2ceb123f0907a4"
+    },
+    "qualified-portable.json": {
+      "path": "target/v53-joint-ledger-batch/qualified-portable.json",
+      "sha256": "ec887d6da6f3efbccb9e1c7a4133acedcc20e030235760cf6943c62e31eacd97"
+    },
+    "qualified-portable.log": {
+      "path": "target/v53-joint-ledger-batch/qualified-portable.log",
+      "sha256": "a156dc8aff85eb5184caecfeced7acffd321446f8e703b4a33f01d7f71703828"
+    },
+    "reader-final.json": {
+      "path": "target/v53-joint-ledger-batch/reader-final.json",
+      "sha256": "a35b7b162238e6171432e33240e2adf0cc208094e8f6fad69071f204cea9bdf8"
+    }
+  },
+  "corrections": [
+    "Old owners use explicit cold scopes without relaxing ordinary scopes or resetting independently derived ledgers.",
+    "Cold observations compare the original reopened bytes after complete original physical validation.",
+    "Historical peer omission marker rows are converted to exact omission; unrelated observation protection remains strict.",
+    "Ballot synthetic readers retain the ordinary default declaration; original native probe remained successful.",
+    "The unused ballot mutation targets an ordinary old owner; the cold peer mutation follows recovered floor release so each reaches its declared validator.",
+    "No native workload rerun or producer changes; initial negative-driver diagnostics remain retained."
+  ],
+  "diagnostics": {
+    "probe-01.jsonl": {
+      "path": "target/v53-joint-ledger-batch/probe-01.jsonl",
+      "sha256": "d61a374b14bb856b0be888ee3221cd83f3d9c812a9177e53c3b10786bec5a98a"
+    },
+    "probe-01.log": {
+      "path": "target/v53-joint-ledger-batch/probe-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "probe-02.jsonl": {
+      "path": "target/v53-joint-ledger-batch/probe-02.jsonl",
+      "sha256": "5be37f3221eded564733f6202df40a1411a39f7c9b175486dfc4f62d410b806e"
+    },
+    "probe-02.log": {
+      "path": "target/v53-joint-ledger-batch/probe-02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "probe.py": {
+      "path": "target/v53-joint-ledger-batch/probe.py",
+      "sha256": "2699ee7a8e3b9aa18ee73a8dc64f2fa67a145defd0274bbff898b62d0b3c3b4e"
+    },
+    "probe_targeting.py": {
+      "path": "target/v53-joint-ledger-batch/probe_targeting.py",
+      "sha256": "2f10563193d63e0c9c1bdee7547939c9ae51e64ab3be74e1e4865f2c7bc827bf"
+    },
+    "python-all-01.log": {
+      "path": "target/v53-joint-ledger-batch/python-all-01.log",
+      "sha256": "572b0eb8e483b4158fc6892f4aae0523821229ea92e05afbb90d55e5c6b94ae3"
+    },
+    "python-all-precorrection.log": {
+      "path": "target/v53-joint-ledger-batch/python-all-precorrection.log",
+      "sha256": "3964bf2e32569462658bb3de9b0781b8c1f76b295b54772866018a0e7b9cd59d"
+    },
+    "python-existing-01.log": {
+      "path": "target/v53-joint-ledger-batch/python-existing-01.log",
+      "sha256": "d5323dd680c22cafacb2c5d2a1af9c87b57713b43c4521271e0521457ccd7647"
+    },
+    "python-existing-02.log": {
+      "path": "target/v53-joint-ledger-batch/python-existing-02.log",
+      "sha256": "67b988253756703d4587aaa5e93b3fa4ab1925ddaa5dd19a316c6cc2a32a73bd"
+    },
+    "python-focused-01.log": {
+      "path": "target/v53-joint-ledger-batch/python-focused-01.log",
+      "sha256": "9606aeed714285d51757f1f949f594df66c29cec5f4ce0d84db897ec19e13898"
+    },
+    "python-focused-02.log": {
+      "path": "target/v53-joint-ledger-batch/python-focused-02.log",
+      "sha256": "24abbea4bb792dc4b07adee4f30071d17d819d2527c5115f8c5d1e5a071d2330"
+    },
+    "python-focused-precorrection.log": {
+      "path": "target/v53-joint-ledger-batch/python-focused-precorrection.log",
+      "sha256": "985173590f9a5037d7b9e658a1768e8d1c949f01f0e8e33bfbca6d2fee4fe142"
+    },
+    "python-targeting-01.log": {
+      "path": "target/v53-joint-ledger-batch/python-targeting-01.log",
+      "sha256": "cac5b565578e1b31f6787112c1d12a0e79d4751c7f652d4b10f39d4362432419"
+    },
+    "qualified-01.json": {
+      "path": "target/v53-joint-ledger-batch/qualified-01.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "qualified-01.log": {
+      "path": "target/v53-joint-ledger-batch/qualified-01.log",
+      "sha256": "27209c31192b86ef6d675678a4d1c0f643d4c05929f8617b75c2d2036cf6cfb4"
+    },
+    "qualified-final-precorrection.json": {
+      "path": "target/v53-joint-ledger-batch/qualified-final-precorrection.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "qualified-final-precorrection.log": {
+      "path": "target/v53-joint-ledger-batch/qualified-final-precorrection.log",
+      "sha256": "65d7cc96aa1782eb0d1d6d813986cd279c9b409def768da36e3edffd8290b512"
+    },
+    "qualified-portable-precorrection.json": {
+      "path": "target/v53-joint-ledger-batch/qualified-portable-precorrection.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "qualified-portable-precorrection.log": {
+      "path": "target/v53-joint-ledger-batch/qualified-portable-precorrection.log",
+      "sha256": "d9b81a07d5608272eecf4545e03bee37d75528169c45a449a3ddd8b0bf56e61b"
+    },
+    "reader-precorrection.json": {
+      "path": "target/v53-joint-ledger-batch/reader-precorrection.json",
+      "sha256": "9ec2ce10ae61ec2bec7b91d22897d59e23298dd70056b023dbd56c35a0dd9304"
+    },
+    "targeting-01.jsonl": {
+      "path": "target/v53-joint-ledger-batch/targeting-01.jsonl",
+      "sha256": "d16f8ce0267da36a23c568987cf68d0ca1233da3eec61da3829adc530de4ee51"
+    },
+    "targeting-01.log": {
+      "path": "target/v53-joint-ledger-batch/targeting-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "finalSourceQualified": false,
+  "finalize": {
+    "path": "target/v53-joint-ledger-batch/finalize.py",
+    "sha256": "a38c293f64426116756771a0425b49cbbecf89102a0c663f2b1d2142b881b802"
+  },
+  "futureLedgerCompositionQualified": true,
+  "learnerLedgerCompositionQualified": true,
+  "nativeRerun": false,
+  "peerLedgerCompositionQualified": true,
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "producer": {
+    "collection.json": {
+      "path": "target/v53-joint-floor-recovery-batch/native-02/collection.json",
+      "sha256": "beac4665922512429cea5457c70067506c9436f275ee765e3d7fee839ea8ba04"
+    },
+    "command.json": {
+      "path": "target/v53-joint-floor-recovery-batch/native-02/command.json",
+      "sha256": "da19b015a1f0e36fa640a6bb8e96d162bc5d955ca855d22778575e1f8e3da8a9"
+    },
+    "execution.json": {
+      "path": "target/v53-joint-floor-recovery-batch/native-02/execution.json",
+      "sha256": "daf5f7d96934ad0aa3c797b15a76413c6a993b3354387fa138b17f99b13db223"
+    },
+    "source.json": {
+      "path": "target/v53-joint-floor-recovery-batch/native-02/source.json",
+      "sha256": "c82bc863abdeeb6d39b0c2b79062652f5c7f993f150334169a344cfcb15c9ff3"
+    },
+    "toolchain.json": {
+      "path": "target/v53-joint-floor-recovery-batch/native-02/toolchain.json",
+      "sha256": "33edd6b7bfe0be565f2591d187910155c510c68a7284561f364848dfd10098d3"
+    }
+  },
+  "producerHead": "c0a425c9f931789e4cbff5c2d4cd68f26a864a3c",
+  "python": {
+    "python-all-final.log": {
+      "elapsedSeconds": 248.01,
+      "status": "PASS",
+      "tests": 2688
+    },
+    "python-focused-final.log": {
+      "elapsedSeconds": 0.647,
+      "status": "PASS",
+      "tests": 108
+    },
+    "python-plan-final.log": {
+      "elapsedSeconds": 0.975,
+      "status": "PASS",
+      "tests": 18
+    }
+  },
+  "qualification": {
+    "mutatedPrerequisiteReplayed": false,
+    "negativePrecondition": "whole unmodified original; exact designated callback/file changes only",
+    "negatives": [
+      {
+        "case": "adoption-fence-missing",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot exact adoption boundary order",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "adoption-promise-missing",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot exact promise force order",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-ledger-reset",
+        "mutationScope": "original-reopened-ledger",
+        "reason": "joining ballot exact continuous allocator: joint-floor-reopen: node-2",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-promise-owner",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot exact promise force order",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "directory-force-missing",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot exact allocator force order",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "duplicate-return",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot exact allocator force order",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-local-reservation",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot exact allocation before local grant",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "force-missing",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot exact allocator force order",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "foreign-owner",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot allocator event shape",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "forged-field",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot allocator event shape",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "incomplete-write",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot incomplete allocation",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "promise-force-before-write",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot exact promise force order",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "promise-write-missing",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot exact promise force order",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "promise-wrong-scope",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot exact promise force order",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "rename-before-force",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot exact allocator force order",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reservation-after-grant",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot exact allocation before local grant",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reservation-before-open",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot exact allocation before local grant",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unbound-promise",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot unbound promise forces",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unbound-reservation",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot unbound allocations",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unknown-allocator-event",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot unsupported allocator event",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unused-after-owner",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot retained unused reservation lifetime",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unused-before-repeated-read",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot retained unused reservation lifetime",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-joining-scope",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining ballot allocator owner scope",
+        "stage": "ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "ack-before-return",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future exact completion lifetime: FUTURE_RETENTION_ACK_BEFORE_RETURN",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "clear-after-completion",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future exact bounded write count",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "clear-before-promotion",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future exact bounded write count",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-ledger-reset",
+        "mutationScope": "original-reopened-ledger",
+        "reason": "joining future exact continuous ledger: reopen: node-2",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-reseal-order",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future reopen force order",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-reseal-parent-missing",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future exact reopen count",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-write-owner",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future original event owner",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "event-forged-field",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future event shape",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "event-forged-owner-scope",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future event shape",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "record-after-publication",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future exact recording count",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "record-return-before-force",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future exact completion lifetime: FUTURE_RETENTION_BEFORE_RETURN",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "record-write-duplicated",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future exact recording count",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "record-write-omitted",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future exact recording count",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "rename-before-force",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future exact write force order",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reopen-after-accept",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future reopen before accept recovery",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reopen-parent-before-file",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future reopen force order",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reopen-parent-missing",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future exact reopen count",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unbound-reopen",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future unbound completion/reopen",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unbound-return",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future unbound completion/reopen",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unbound-write",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future unbound durable writes",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unsupported-recovery",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future unsupported event",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "write-force-missing",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future exact write force order",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "write-truncated",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining future incomplete durable write",
+        "stage": "future",
+        "status": "REJECTED"
+      },
+      {
+        "case": "admission-after-replica",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner admission before replica",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "admission-before-plan",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner admission before replica",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "admission-duplicate",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner exact admission retention sequence",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "admission-force-missing",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner exact admission retention sequence",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "admission-wrong-owner",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner exact admission retention sequence",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-ledger-reset",
+        "mutationScope": "original-reopened-ledger",
+        "reason": "joining learner exact continuous ledger: reopen: node-2",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-reseal-order",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner reopen force order",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-reseal-parent-missing",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner exact reopen count",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-write-owner",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner original event owner",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "confirm-after-completion",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner confirm durable write count",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "confirm-before-delivery",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner confirm durable write count",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "force-missing",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner exact write force order",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "forged-event-field",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner event shape",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "incomplete-write",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner incomplete durable write",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "record-after-ACK",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner record durable write count",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "record-before-generation",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner record durable write count",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "rename-before-force",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner exact write force order",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reopen-after-peer",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner reopen force order",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reopen-before-current",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner reopen before current force",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reopen-parent-before-file",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner reopen force order",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reopen-parent-missing",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner exact reopen count",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "selected-after-return",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner selected durable write count",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "selected-before-peer",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner selected durable write count",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "selected-completion-duplicate",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner selected completion count",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "selected-completion-missing",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner selected completion count",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unbound-completion",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner unbound completion/reopen",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unbound-reopen",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner unbound completion/reopen",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unbound-write",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner unbound durable writes",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unsupported-recovery",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining learner unsupported retention event",
+        "stage": "learner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-write-scope",
+        "reason": "original continuous learner chain contains no joining-owner write",
+        "stage": "learner",
+        "status": "NOT_APPLICABLE"
+      },
+      {
+        "case": "candidate-parent-missing",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer exact write force order",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-forged-write-field",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer write event shape",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-ledger-reset",
+        "mutationScope": "original-reopened-ledger",
+        "reason": "joining peer exact original ledger: open-reseal: node-2",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-reseal-order",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer open reseal force order",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-reseal-parent-missing",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer exact open reseal count",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-write-owner",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer original write owner",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "duplicate-write",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer publication durable write count",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "force-missing",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer exact write force order",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "foreign-write-owner",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer original write owner",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "incomplete-write",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer incomplete durable write",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "maintenance-after-retirement",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer maintenance durable write count",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "maintenance-before-floor",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer maintenance durable write count",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "maintenance-omit-write",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer maintenance durable write count",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "publication-after-promotion",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer publication durable write count",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "publication-before-retirement",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer publication durable write count",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "rename-before-force",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer exact write force order",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reseal-after-future-recovery",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer open reseal force order",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reseal-parent-before-active",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer open reseal force order",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reseal-parent-missing",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer exact open reseal count",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "selected-before-force",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer selected durable write count",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "selected-before-install",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer selected durable write count",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "selected-without-completion",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer selected completion count",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unbound-completion",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer unbound selected completions",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unbound-reseal",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer unbound open reseal",
+        "stage": "peers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unbound-write",
+        "mutationScope": "designated-ledger-callbacks",
+        "reason": "joining peer unbound durable writes",
+        "stage": "peers",
+        "status": "REJECTED"
+      }
+    ],
+    "notApplicable": 1,
+    "original": {
+      "ballotCompositionQualified": true,
+      "futureLedgerCompositionQualified": true,
+      "learnerLedgerCompositionQualified": true,
+      "ledgers": {
+        "ballot": {
+          "adoptionFences": [
+            {
+              "certificate": "f85015e0d3b26315dd3f048ef5d1ab2533012e4dc939e392c61f1361a189bcb7",
+              "certificateIndex": 10,
+              "cut": 11,
+              "end": 36665,
+              "node": "node-6",
+              "priorPromise": "2123ed3767595aba2f6c8c5e132c0ad692691df04defcd30f4f620d266f13d54",
+              "promise": "7be6a51d49b0adff3001527a6d9943d1c7385b0dd6f5c6ec5a1569f6d879140b",
+              "promiseAppended": true,
+              "start": 36636
+            }
+          ],
+          "allocatorComparisons": 124,
+          "ballotForceQualified": true,
+          "chainSha256": "08f98c6c476f5410a65ed34e1dd51751d3aa5a8a759263cefe7f8f3fae70dbb0",
+          "completePhysicalQualified": false,
+          "finalCounters": {
+            "node-1": 9,
+            "node-2": 1,
+            "node-3": 1,
+            "node-4": 1,
+            "node-5": 1,
+            "node-6": 7
+          },
+          "forcedPromises": 26,
+          "phase3Complete": false,
+          "reservations": 10,
+          "sameViewPhysicalQualified": false,
+          "scope": "one-native-REPLACE-continuous-ballot",
+          "selfGrants": 9,
+          "status": "PASS",
+          "unusedReservations": 1
+        },
+        "future": {
+          "chainSha256": "de0217b25eabfbe22b000604874d333343b04c3faabff5a82540517c43ee8d5c",
+          "completePhysicalQualified": false,
+          "durableWrites": 99,
+          "finalRevisions": {
+            "node-1": 33,
+            "node-2": 33,
+            "node-3": 33,
+            "node-4": 0,
+            "node-5": 0,
+            "node-6": 0
+          },
+          "futureLedgerCompositionQualified": true,
+          "learnerLedgerCompositionQualified": false,
+          "ledgerComparisons": 113,
+          "openReseals": 11,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "scope": "one-native-REPLACE-continuous-future-ledger",
+          "status": "PASS",
+          "writesByKind": {
+            "clear": 33,
+            "record": 66
+          }
+        },
+        "learner": {
+          "admissionCustodyEvents": 11,
+          "capturedLedgers": 25,
+          "chainSha256": "6fca4601d77ed5f9d927baeae9a3a0cb94851c2fd8914dbda32c48402a3f97a2",
+          "completePhysicalQualified": false,
+          "durableWrites": 12,
+          "finalRevisions": {
+            "node-1": 4,
+            "node-2": 4,
+            "node-3": 4,
+            "node-4": 0,
+            "node-5": 0,
+            "node-6": 0
+          },
+          "joiningWrites": 0,
+          "learnerLedgerCompositionQualified": true,
+          "ledgerComparisons": 139,
+          "openReseals": 11,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "sameViewPhysicalQualified": false,
+          "scope": "one-native-REPLACE-continuous-learner-ledger",
+          "selectedTransitions": 18,
+          "status": "PASS",
+          "writesByKind": {
+            "confirm": 3,
+            "record": 6,
+            "selected": 3
+          }
+        },
+        "peers": {
+          "capturedLedgers": 25,
+          "chainSha256": "31ff454cd7863aa284b8f648d7fd68f51f4571096790fd2e14fcec0f8b6a8c59",
+          "completePhysicalQualified": false,
+          "durableWrites": 147,
+          "finalRevisions": {
+            "node-1": 49,
+            "node-2": 49,
+            "node-3": 49,
+            "node-4": 0,
+            "node-5": 0,
+            "node-6": 0
+          },
+          "forceAndNetworkQualified": false,
+          "ledgerComparisons": 133,
+          "openReseals": 11,
+          "peerLedgerCompositionQualified": true,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "scope": "one-native-REPLACE-original-peer-ledger-chain",
+          "status": "PASS",
+          "writesByKind": {
+            "maintenance": 99,
+            "publication": 33,
+            "selected": 15
+          }
+        }
+      },
+      "peerLedgerCompositionQualified": true,
+      "phase3Complete": false,
+      "precondition": {
+        "controls": {
+          "allExportFamiliesQualified": false,
+          "completePhysicalQualified": false,
+          "confirmedHeads": 3,
+          "controls": {
+            "completion": 2,
+            "intent": 2,
+            "preparation": 1,
+            "retention": 3,
+            "root": 1
+          },
+          "forceAndNetworkQualified": false,
+          "learnerSessions": {
+            "published": 2,
+            "recorded": 4
+          },
+          "observedCommittedContents": 1388,
+          "observedContentSessions": 727,
+          "observedControlExportsQualified": true,
+          "observedLearnerRetentionQualified": true,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "retentionRounds": 2,
+          "scope": "one-native-REPLACE-original-control-exports-and-learner-retention",
+          "status": "PASS"
+        },
+        "exports": {
+          "allExportFamiliesQualified": false,
+          "boundSessions": {
+            "current-generation": 212,
+            "frozen-source": 36,
+            "journal": 28,
+            "learner-current-content": 6,
+            "native-applied-checkpoint": 69,
+            "native-vote-receipt": 198,
+            "pending-payload": 12,
+            "pending-record": 88,
+            "published-local-checkpoint": 6,
+            "published-record": 63
+          },
+          "boundTransfers": {
+            "current-generation": 780,
+            "frozen-source": 108,
+            "journal": 28,
+            "learner-current-content": 27,
+            "native-applied-checkpoint": 69,
+            "native-vote-receipt": 198,
+            "pending-payload": 12,
+            "pending-record": 88,
+            "published-local-checkpoint": 6,
+            "published-record": 63
+          },
+          "completePhysicalQualified": false,
+          "forceAndNetworkQualified": false,
+          "generationWindows": 58,
+          "joiningExportLifetimes": 4,
+          "learnerRetentionAuthorizationQualified": false,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "recordWindows": 535,
+          "scope": "native-REPLACE-temporal-exports-and-original-record-capabilities",
+          "sourceWindows": 25,
+          "status": "PARTIAL",
+          "unqualifiedSessionCount": 9,
+          "unqualifiedSessions": [
+            {
+              "firstEvent": 10786,
+              "firstKind": "ROOT",
+              "owner": "node-1",
+              "reader": "node-6",
+              "reference": "cfe471d25c59803d0e3315b340557527335838b46a312d77dc32769a16157cf3",
+              "trace": "07325d04-7e73-468e-9948-9f6e39db9059",
+              "transfers": 1
+            },
+            {
+              "firstEvent": 25721,
+              "firstKind": "unframed-record",
+              "owner": "node-1",
+              "reader": "node-6",
+              "reference": "3e2f3b365b0cb715d87f57eef6eb1e14996530ba599103cb65cba8bc52f853c4",
+              "trace": "87541bec-2912-420f-a2b9-91cfc43a33c4",
+              "transfers": 1
+            },
+            {
+              "firstEvent": 25741,
+              "firstKind": "unframed-record",
+              "owner": "node-1",
+              "reader": "node-6",
+              "reference": "3e2f3b365b0cb715d87f57eef6eb1e14996530ba599103cb65cba8bc52f853c4",
+              "trace": "bcda9494-e1c1-494a-91dd-3980a61594ff",
+              "transfers": 1
+            },
+            {
+              "firstEvent": 27923,
+              "firstKind": "unframed-record",
+              "owner": "node-1",
+              "reader": "node-6",
+              "reference": "b6c028de4c130289766619429f964229389da5153702718847ea75733a9e0d8d",
+              "trace": "fd5914cd-1426-49b1-9de0-7d472300bc73",
+              "transfers": 1
+            },
+            {
+              "firstEvent": 27935,
+              "firstKind": "unframed-record",
+              "owner": "node-1",
+              "reader": "node-6",
+              "reference": "a71d721791b188c3a986a8f6ab83a3ca6c349fb8267fe4e8accadb2c188e9660",
+              "trace": "0db73b84-68eb-4e03-9010-220b79b112ac",
+              "transfers": 1
+            },
+            {
+              "firstEvent": 27947,
+              "firstKind": "unframed-record",
+              "owner": "node-2",
+              "reader": "node-6",
+              "reference": "a71d721791b188c3a986a8f6ab83a3ca6c349fb8267fe4e8accadb2c188e9660",
+              "trace": "8fb1c213-8eeb-4817-9747-0a7f865aba91",
+              "transfers": 1
+            },
+            {
+              "firstEvent": 27959,
+              "firstKind": "unframed-record",
+              "owner": "node-3",
+              "reader": "node-6",
+              "reference": "a71d721791b188c3a986a8f6ab83a3ca6c349fb8267fe4e8accadb2c188e9660",
+              "trace": "fd44d6b4-3d8e-4d71-b2b3-6c3f6ed40129",
+              "transfers": 1
+            },
+            {
+              "firstEvent": 28014,
+              "firstKind": "unframed-record",
+              "owner": "node-6",
+              "reader": "node-1",
+              "reference": "a7d29c1731bfd0daaff125bad23f20d796daad1624f4e18c8090b52c9ea698c5",
+              "trace": "f7be1044-979b-4c33-917c-6f5f8f16e0ae",
+              "transfers": 1
+            },
+            {
+              "firstEvent": 29277,
+              "firstKind": "unframed-record",
+              "owner": "node-6",
+              "reader": "node-1",
+              "reference": "a7d29c1731bfd0daaff125bad23f20d796daad1624f4e18c8090b52c9ea698c5",
+              "trace": "d1d88713-bf32-410b-809f-0f71009dbfcf",
+              "transfers": 1
+            }
+          ],
+          "unqualifiedTransfers": 9
+        },
+        "maintenance": {
+          "acquiredRemoteCopies": 105,
+          "boundRetirementEvents": 2949,
+          "completeCopies": 169,
+          "completePhysicalQualified": false,
+          "directFixtureFloors": 3,
+          "discoveryHints": 109,
+          "floorEvents": 5951,
+          "forceAndNetworkQualified": false,
+          "interruptedFloors": 1,
+          "maintenanceForceQualified": true,
+          "networkFloors": 52,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "retiredGenerations": 48,
+          "scope": "one-native-REPLACE-discovery-and-complete-copy-floor-lifetimes",
+          "status": "PASS"
+        },
+        "network": {
+          "boundInstallReplies": 12,
+          "boundPhaseResponses": 132,
+          "boundPromiseReplies": 16,
+          "committedTransfers": 1388,
+          "completeSlotStorageCallbacks": 5100,
+          "deliveredResponses": 4445,
+          "exactTransferRetries": 2,
+          "failedAttempts": 8,
+          "forcedGrants": 25,
+          "forcedSelections": 18,
+          "futureTargets": 22,
+          "ownedSlotTransactions": 33,
+          "proposerLocalInstallations": 6,
+          "receivedRequests": 4453,
+          "rejectedTransferAttempts": 3,
+          "responseLessFailures": 8,
+          "sentRequests": 4453,
+          "slots": 11,
+          "terminalObservations": 16,
+          "transferSessions": 730,
+          "transferredBytes": 8213178,
+          "wireExchanges": 4445
+        },
+        "peerLedgerCompositionQualified": false,
+        "phase3Complete": false,
+        "physical": {
+          "continuation": {
+            "capturedGrantComparisons": 25,
+            "completePhysicalQualified": false,
+            "finalCut": 11,
+            "forceAndNetworkQualified": false,
+            "ownerSnapshotComparisons": 42,
+            "phase3Complete": false,
+            "processDeathQualified": false,
+            "profile": "5-REPLACE",
+            "recovery": {
+              "adoptionEnd": 36665,
+              "adoptionStart": 36636,
+              "donor": "node-1",
+              "fromCut": 9,
+              "inheritedLocalBridges": 1,
+              "originalTransfers": 3,
+              "promiseAppended": true,
+              "remoteBridges": 0,
+              "requiredParents": 4,
+              "sameViewInstallation": false,
+              "toCut": 11
+            },
+            "scope": "profile-selected-continuation",
+            "sourceRetirementLocalOrderSegments": 21,
+            "status": "PARTIAL"
+          },
+          "governingFloors": 21,
+          "prefix": {
+            "campaigns": 4,
+            "completePhysicalQualified": false,
+            "forceAndNetworkQualified": false,
+            "ownerSnapshotComparisons": 115,
+            "phase3Complete": false,
+            "processDeathQualified": false,
+            "profile": "5-REPLACE",
+            "scope": "native-REPLACE-bootstrap-through-old-voter-INTENT",
+            "slots": 9,
+            "status": "PASS",
+            "throughIntentPhysicalQualified": true
+          },
+          "sourceRetirementPrefixes": 315,
+          "sourceRetirementTransactions": 21
+        },
+        "preceding": {
+          "freshExchanges": 66,
+          "fullMaintenanceReplayQualified": false,
+          "joiningPlacement": {
+            "comparedFiles": 65,
+            "completePhysicalQualified": false,
+            "forceAndNetworkQualified": false,
+            "joiningPlacementPhysicalQualified": true,
+            "nativeInitializationQualified": false,
+            "oldOwnerSnapshots": 115,
+            "phase3Complete": false,
+            "placedRoots": 8,
+            "processDeathQualified": false,
+            "scope": "native-REPLACE-original-joining-placement",
+            "status": "PASS"
+          },
+          "originalCopies": 4,
+          "originalPrefix": {
+            "campaigns": 4,
+            "completePhysicalQualified": false,
+            "forceAndNetworkQualified": false,
+            "ownerSnapshotComparisons": 115,
+            "phase3Complete": false,
+            "processDeathQualified": false,
+            "profile": "5-REPLACE",
+            "scope": "native-REPLACE-bootstrap-through-old-voter-INTENT",
+            "slots": 9,
+            "status": "PASS",
+            "throughIntentPhysicalQualified": true
+          },
+          "phase3Complete": false,
+          "physicalImages": 7,
+          "processDeathQualified": false,
+          "profile": "5-REPLACE",
+          "remoteExportForceQualified": false,
+          "retainedSources": 5,
+          "scope": "joint-floor-storage-and-catalog-chain",
+          "semanticChain": {
+            "checkpointObservations": 70,
+            "completePhysicalQualified": false,
+            "controls": [
+              "BARRIER",
+              "RESERVE",
+              "BARRIER",
+              "PREPARE",
+              "BARRIER",
+              "READY",
+              "BARRIER",
+              "SEAL",
+              "INTENT",
+              "FINAL",
+              "BARRIER"
+            ],
+            "forceAndNetworkQualified": false,
+            "internalReadyCuts": [
+              1,
+              3,
+              5,
+              7,
+              11
+            ],
+            "phase3Complete": false,
+            "processDeathQualified": false,
+            "profile": "5-REPLACE",
+            "publicReady": false,
+            "scope": "native-REPLACE-catalog-certificate-checkpoint-chain",
+            "selections": 6,
+            "semanticChainQualified": true,
+            "slots": 11,
+            "status": "PASS"
+          },
+          "status": "PASS"
+        },
+        "processDeathQualified": false,
+        "profile": "5-REPLACE",
+        "scope": "whole-interrupted-history-network-exports-maintenance",
+        "status": "PASS",
+        "transientGenerationRetirementPrefixesCaptured": false,
+        "wholeFloorMaintenanceQualified": true,
+        "wholeNetworkExportQualified": true
+      },
+      "processDeathQualified": false,
+      "profile": "5-REPLACE",
+      "scope": "complete-interrupted-history-continuous-ledgers",
+      "status": "PASS"
+    },
+    "rejected": 100
+  },
+  "reader": {
+    "path": "target/v53-joint-ledger-batch/reader-final.json",
+    "sha256": "a35b7b162238e6171432e33240e2adf0cc208094e8f6fad69071f204cea9bdf8"
+  },
+  "remaining": [
+    "Native partial-body and process-death interruption axes.",
+    "Unobserved transient generation-retirement prefixes.",
+    "Remaining Phase 3 obligations and final-source whole-history cohort."
+  ],
+  "runtimeChanged": false,
+  "schema": "gse-v53-joint-ledger-development-v1",
+  "scope": "retained-original-continuous-peer-learner-future-ballot",
+  "status": "PASS",
+  "transientGenerationRetirementPrefixesCaptured": false
+}

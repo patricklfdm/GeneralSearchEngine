@@ -24,14 +24,27 @@ RETURNS=['FUTURE_RETENTION_BEFORE_RETURN','FUTURE_RETENTION_ACK_BEFORE_RETURN',
          'FUTURE_RETENTION_PROMOTED','FUTURE_RETENTION_CLEARED']
 
 
-def observations(events, *, joining='node-4'):
+def declared_old_lifetimes(events,joining,old_owner_lifetimes):
+    lifetimes={} if old_owner_lifetimes is None else old_owner_lifetimes
+    need(type(lifetimes) is dict and all(type(node) is str and node!=joining and
+         type(value) is tuple and len(value)==2 and type(value[0]) is int and 0<=value[0]<len(events) and
+         type(value[1]) is str and bool(value[1]) and
+         events[value[0]]==dict(node=node,event='CURRENT_VALIDATED',scope=value[1])
+         for node,value in lifetimes.items()),'joining ledger declared original cold lifetime')
+    return lifetimes
+
+
+def observations(events, *, joining='node-4',old_owner_lifetimes=None):
+    lifetimes=declared_old_lifetimes(events,joining,old_owner_lifetimes)
     active={};transactions=[];used=set()
     for at,row in enumerate(events):
         point=row['event']
         if not point.startswith('FUTURE_RETENTION_'):continue
         need(point in WRITES+RESEAL+RETURNS,'joining future unsupported event')
-        need(set(row)==({'node','event','scope'} if row.get('node')==joining else {'node','event'}),
+        cold=lifetimes.get(row.get('node'));scoped=cold is not None and at>=cold[0]
+        need(set(row)==({'node','event','scope'} if row.get('node')==joining or scoped else {'node','event'}),
              'joining future event shape')
+        if scoped:need(row['scope']==cold[1],'joining future original event owner')
         if point not in WRITES:continue
         node=row['node'];pending=active.setdefault(node,[])
         need(point==WRITES[len(pending)] and (not pending or row.get('scope')==pending[0][1].get('scope')),
@@ -45,15 +58,21 @@ def observations(events, *, joining='node-4'):
 
 
 class Replay:
-    def __init__(self,root,*,base=None):
+    def __init__(self,root,*,base=None,old_owner_lifetimes=None):
         self.root=Path(root);self.base=a.Replay(root) if base is None else base;self.events=self.base.events;self.model=self.base.model
-        self.tx,self.write_events=observations(self.events,joining=self.model.joining)
+        self.tx,self.write_events=observations(self.events,joining=self.model.joining,old_owner_lifetimes=old_owner_lifetimes)
         self.state={};self.used=set();self.callbacks=set();self.steps=[];self.comparisons=0;self.reseals=0
 
     def compare(self,node,files,label):
         need(node in self.state and self.state[node]['raw']==files[future.FILE],
              'joining future exact continuous ledger: '+label+': '+node)
         self.comparisons+=1
+
+    def write_scope(self,node,at):
+        return 'continuation-owner' if node==self.model.joining else None
+
+    def reopen_files(self,node,at):
+        return disk.inventory(self.root/'before-network'/node) if node!=self.model.joining else disk.inventory(self.root/self.base.current(node,at,at)['path'])
 
     def initialize(self,node,files):
         need(node not in self.state,'joining future duplicate initialization')
@@ -64,7 +83,7 @@ class Replay:
         found=[v for v in self.tx if v['node']==node and lower<v['start']<=v['end']<upper]
         need(len(found)==1,'joining future exact bounded write count')
         tx=found[0]
-        need(tx['start'] not in self.used and tx['scope']==('continuation-owner' if node==self.model.joining else None),
+        need(tx['start'] not in self.used and tx['scope']==self.write_scope(node,tx['start']),
              'joining future original write owner')
         self.used.add(tx['start']);return tx
 
@@ -72,7 +91,7 @@ class Replay:
         matches=[i for i,v in enumerate(self.events) if lower<i<upper and v.get('node')==node and v['event']==name]
         need(len(matches)==1,'joining future exact completion lifetime: '+name)
         at=matches[0];row=self.events[at]
-        need(at not in self.callbacks and row.get('scope')==('continuation-owner' if node==self.model.joining else None),
+        need(at not in self.callbacks and row.get('scope')==self.write_scope(node,at),
              'joining future original completion owner')
         self.callbacks.add(at);return at
 
@@ -166,8 +185,7 @@ class Replay:
         if scope=='stable-cold-owner':
             finishes=[i for i,p in rows if p=='FIXTURE_OPEN_RETURNED']
             need(len(finishes)==1 and at<finishes[0],'joining future reopen before owner return')
-        own=None if node!=self.model.joining else self.base.current(node,at,at)
-        files=disk.inventory(self.root/'before-network'/node) if own is None else disk.inventory(self.root/own['path'])
+        files=self.reopen_files(node,at)
         self.compare(node,files,'reopen');self.callbacks.update(order[1:]);self.reseals+=1
 
     def run(self):

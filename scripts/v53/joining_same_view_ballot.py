@@ -13,6 +13,7 @@ import tempfile
 
 from . import joining_same_view_learner as prior
 from .grant_evidence import order as ballot_order
+from .joining_same_view_future import declared_old_lifetimes
 
 a, f, disk, need, sha = prior.a, prior.f, prior.disk, prior.need, prior.sha
 WRITES = ['ALLOCATOR_' + p for p in ('BEFORE_WRITE', 'CREATED', 'WRITTEN', 'FORCED',
@@ -34,12 +35,14 @@ def membership_fence(packet,members,root):
     return raw,value
 
 
-def adoption_transactions(events,windows,owners,joining):
+def adoption_transactions(events,windows,owners,joining,*,old_owner_lifetimes=None):
+    lifetimes=declared_old_lifetimes(events,joining,old_owner_lifetimes)
     originals={v['start']:v for v in windows if v['start']>=0 and events[v['start']]['event']==ADOPTION[-1]}
     pending={};result=[]
     for at,row in enumerate(events):
         if row['event'] not in ADOPTION:continue
-        node=row.get('node');scope='continuation-owner' if node==joining else None
+        node=row.get('node');cold=lifetimes.get(node)
+        scope='continuation-owner' if node==joining else cold[1] if cold is not None and at>=cold[0] else None
         need(node in owners and row==dict(node=node,event=row['event'],**({} if scope is None else dict(scope=scope))),
              'joining ballot adoption owner scope')
         held=pending.setdefault(node,[])
@@ -52,15 +55,17 @@ def adoption_transactions(events,windows,owners,joining):
     return result
 
 
-def allocations(events, owners, joining):
+def allocations(events, owners, joining,*,old_owner_lifetimes=None):
+    lifetimes=declared_old_lifetimes(events,joining,old_owner_lifetimes)
     pending, result = {}, []
     for at, row in enumerate(events):
         if not row['event'].startswith('ALLOCATOR_'): continue
         need(row['event'] in WRITES, 'joining ballot unsupported allocator event')
         node = row.get('node')
-        need(node in owners and set(row) == ({'node', 'scope', 'event'} if node == joining else {'node', 'event'}),
+        cold=lifetimes.get(node);scope=cold[1] if cold is not None and at>=cold[0] else None
+        need(node in owners and set(row) == ({'node', 'scope', 'event'} if node == joining or scope is not None else {'node', 'event'}),
              'joining ballot allocator event shape')
-        need(row.get('scope') in (('retaining-owner', 'repeated-basis-owner', 'continuation-owner') if node == joining else (None,)),
+        need(row.get('scope') in (('retaining-owner', 'repeated-basis-owner', 'continuation-owner') if node == joining else (scope,)),
              'joining ballot allocator owner scope')
         held = pending.setdefault(node, [])
         need(row['event'] == WRITES[len(held)] and (not held or row.get('scope') == held[0][1].get('scope')),
@@ -101,10 +106,13 @@ class State:
 
 
 class Replay:
-    def __init__(self, root, *, base=None):
+    old_owner_lifetimes=None
+
+    def __init__(self, root, *, base=None,old_owner_lifetimes=None):
         self.root = Path(root); self.base = a.Replay(root) if base is None else base; self.model = self.base.model; self.events = self.base.events
         self.owners = (*self.model.old, self.model.joining)
-        self.tx = allocations(self.events, self.owners, self.model.joining)
+        self.old_owner_lifetimes=old_owner_lifetimes
+        self.tx = allocations(self.events, self.owners, self.model.joining,old_owner_lifetimes=old_owner_lifetimes)
         self.captures = a.physical.p.captures.collect(root, self.events)
         self.state = State(self.model.root); self.used = set(); self.promise_points = set(); self.self_grants = 0
         self.promise_history=[];self.adoption_fences=[]
@@ -130,7 +138,7 @@ class Replay:
             points=[i for i in self.promise_points if i<cap['returnEvent'] and self.events[i].get('node')==source['node'] and self.events[i]['event']=='PROMISE_FORCED']
             need(points,'joining ballot original grant promise witness')
             self.promise_history.append((max(points),source['node'],source['promise']))
-        for tx in adoption_transactions(self.events,self.base.windows,self.owners,self.model.joining):
+        for tx in adoption_transactions(self.events,self.base.windows,self.owners,self.model.joining,old_owner_lifetimes=self.old_owner_lifetimes):
             node=tx['node'];own=tx['own'];raw,certificate=membership_fence(own['packet'],own['members'],self.model.root)
             index=certificate['index']
             need(1<=index<=len(self.model.phases) and self.model.phases[index-1]['CERTIFICATE']==raw,
@@ -183,6 +191,9 @@ class Replay:
         need(ballot == dict(counter=self.state.counters[node], proposer=node, incarnation=identity['storage']),
              'joining ballot local grant uses reserved counter')
 
+    def reopen_actions(self):
+        return []
+
     def run(self):
         initial = a.physical.t.selected.initialize(self.model.original)
         for node, files in initial.items():
@@ -233,6 +244,7 @@ class Replay:
             # reservation. Compare that snapshot only at the actual burn above.
             if own['start'] >= 0 and self.events[own['start']]['event'] in ('INSTALL_BEFORE_RETURN', 'ADOPTION_INSTALL_BEFORE_RETURN'):
                 actions.append((own['start'], 'original', (own['node'], own['path'], 'generation')))
+        actions.extend(self.reopen_actions())
         for _, kind, args in sorted(actions, key=lambda v: v[0]):
             getattr(self.state if kind in ('seed', 'promise', 'reserve', 'compare') else self, kind)(*args)
         for node in self.owners:

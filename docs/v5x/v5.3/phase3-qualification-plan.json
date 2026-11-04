@@ -486,7 +486,10 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JointFloorRecoveryTest.java",
         "scripts/v53/test_joint_floor_recovery_evidence.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PartialJointFloorTest.java",
-        "scripts/v53/test_partial_joint_floor_evidence.py"
+        "scripts/v53/test_partial_joint_floor_evidence.py",
+        "scripts/v53/test_joint_floor_maintenance_evidence.py",
+        "scripts/v53/test_joint_history_evidence.py",
+        "scripts/v53/test_joint_ledger_evidence.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -496,7 +499,10 @@
         "scripts/v53/partial_floor_resume_evidence.py",
         "scripts/v53/automatic_floor_resume_evidence.py",
         "scripts/v53/joint_floor_recovery_evidence.py",
-        "scripts/v53/partial_joint_floor_evidence.py"
+        "scripts/v53/partial_joint_floor_evidence.py",
+        "scripts/v53/joint_floor_maintenance_evidence.py",
+        "scripts/v53/joint_history_evidence.py",
+        "scripts/v53/joint_ledger_evidence.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -734,7 +740,7 @@
       "id": "combined-resources",
       "status": "OPEN",
       "dependsOn": [],
-      "work": "Exercise physical simultaneous selected/current/inactive sources, learner staging and completion reservations under the frozen shared owner limits. Review actual lifetime overlap before adding a producer; existing accounting and conditional-prefix tests are prerequisites only. Nine native current/PROMISE and receiving-copy overlap histories now have independent physical accounting, exact/one-byte-short staging boundaries, retained failed-packet charges and post-refusal allocator force. They do not close the full metadata maximum, admitted FINAL/application completion or interrupted rotation obligations. A diagnostic with externally retained receiving copies failed at the seven-image floor-copy bound; establish normal-runtime reachability and legitimate joint quorum overlap before choosing an admission/lifetime correction. The diagnostic is not positive qualification.",
+      "work": "Exercise physical simultaneous selected/current/inactive sources, learner staging and completion reservations under the frozen shared owner limits. Review actual lifetime overlap before adding a producer; existing accounting and conditional-prefix tests are prerequisites only. Nine native current/PROMISE and receiving-copy overlap histories now have independent physical accounting, exact/one-byte-short staging boundaries, retained failed-packet charges and post-refusal allocator force. They do not close the full metadata maximum, admitted FINAL/application completion or interrupted rotation obligations. A diagnostic with externally retained receiving copies failed at the seven-image floor-copy bound; establish normal-runtime reachability and legitimate joint quorum overlap before choosing an admission/lifetime correction. The diagnostic is not positive qualification. Subsequent native 5-REPLACE recovery now resumes its exact interrupted four-original floor over TCP and completes FINAL and the stable BARRIER on the same original directories. Independent whole-history storage, network, export, floor/source-retirement, continuous peer/learner/future and ballot replay now qualify that retained original. Its actual peak is seven images and five SOURCE slots; the separate partial-writer component covers six SOURCE slots. This does not close the simultaneous full maximum, native partial-body/process-death axes or final-source cohort.",
       "acceptance": "Retain actual peak owner/lease/byte observations and independent physical replay at/over the bound, including admitted FINAL/recovery completion and stable DATA after membership exhaustion. Arithmetic alone does not qualify this obligation."
     },
     {

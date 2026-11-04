@@ -31,7 +31,8 @@ ADMISSION=['LEARNER_RETENTION_'+v for v in ('CREATED','PREFIX_WRITTEN','WRITTEN'
 def relevant(event):return event.startswith('LEARNER_RETENTION_') or event==RETURNS[-1]
 
 
-def observations(events,joining):
+def observations(events,joining,*,old_owner_lifetimes=None):
+    lifetimes=prior.declared_old_lifetimes(events,joining,old_owner_lifetimes)
     admission=[(i,v) for i,v in enumerate(events) if relevant(v['event']) and v.get('scope')=='learner-admission']
     need([v['event'] for _,v in admission]==ADMISSION and
          all(v==dict(node=joining,scope='learner-admission',event=v['event']) for _,v in admission),
@@ -45,7 +46,9 @@ def observations(events,joining):
         point=row['event']
         if not relevant(point) or at in excluded:continue
         need(point in WRITES+RESEAL+RETURNS,'joining learner unsupported retention event')
-        need(set(row)==({'node','scope','event'} if row.get('node')==joining else {'node','event'}),'joining learner event shape')
+        cold=lifetimes.get(row.get('node'));scoped=cold is not None and at>=cold[0]
+        need(set(row)==({'node','scope','event'} if row.get('node')==joining or scoped else {'node','event'}),'joining learner event shape')
+        if scoped:need(row['scope']==cold[1],'joining learner original event owner')
         if point not in WRITES:continue
         node=row['node'];held=pending.setdefault(node,[])
         need(point==WRITES[len(held)] and (not held or row.get('scope')==held[0][1].get('scope')),
@@ -58,12 +61,18 @@ def observations(events,joining):
 
 
 class Replay:
-    def __init__(self,root,*,base=None):
+    def __init__(self,root,*,base=None,old_owner_lifetimes=None):
         self.root=Path(root);self.base=a.Replay(root) if base is None else base;self.model=self.base.model;self.events=self.base.events
-        self.tx,self.admission=observations(self.events,self.model.joining)
+        self.tx,self.admission=observations(self.events,self.model.joining,old_owner_lifetimes=old_owner_lifetimes)
         self.state={};self.steps=[];self.used=set();self.callbacks=set();self.comparisons=0;self.selected=0;self.reseals=0
 
     def files(self,own):return disk.inventory(self.root/own['path'])
+
+    def write_scope(self,node,at):
+        return 'continuation-owner' if node==self.model.joining else None
+
+    def reopen_files(self,node,at):
+        return disk.inventory(self.root/'before-network'/node) if node!=self.model.joining else self.files(self.base.current(node,at,at))
 
     def compare(self,node,raw,label):
         need(self.state.get(node)==raw,'joining learner exact continuous ledger: '+label+': '+node);self.comparisons+=1
@@ -71,7 +80,7 @@ class Replay:
     def callback(self,node,name,lower,upper):
         points=[i for i,v in enumerate(self.events) if lower<i<upper and v.get('node')==node and v['event']==name]
         need(len(points)==1,'joining learner exact completion lifetime: '+name)
-        at=points[0];need(at not in self.callbacks and self.events[at].get('scope')==('continuation-owner' if node==self.model.joining else None),
+        at=points[0];need(at not in self.callbacks and self.events[at].get('scope')==self.write_scope(node,at),
                           'joining learner original completion owner')
         return at
 
@@ -80,7 +89,7 @@ class Replay:
         actual=[v for v in self.tx if v['node']==node and lower<v['start'] and v['end']<upper]
         need(len(actual)==int(changed),'joining learner '+kind+' durable write count')
         if not changed:return
-        tx=actual[0];need(tx['start'] not in self.used and tx['scope']==('continuation-owner' if node==self.model.joining else None),
+        tx=actual[0];need(tx['start'] not in self.used and tx['scope']==self.write_scope(node,tx['start']),
                           'joining learner original write owner')
         old,new=learner.decode(before),learner.decode(after)
         need(new['root']==old['root'] and new['owner']==old['owner'] and new['revision']==old['revision']+1 and new['previous']==sha(before),
@@ -154,8 +163,8 @@ class Replay:
         prior='JOINING_RETENTION_BEFORE_RETURN' if scope=='initial-owner' else 'CURRENT_DIRECTORY_FORCED'
         starts=[i for i,v in rows if v==prior];need(starts and starts[0]<order[0],'joining learner reopen before current force')
         if node==self.model.joining:
-            a.c.owner_lifetime(self.events,node,scope,order[0],at);files=self.files(self.base.current(node,at,at))
-        else:files=disk.inventory(self.root/'before-network'/node)
+            a.c.owner_lifetime(self.events,node,scope,order[0],at)
+        files=self.reopen_files(node,at)
         self.compare(node,files[FILE],'reopen');self.callbacks.update(order[:2]);self.reseals+=1
 
     def recording_actions(self):

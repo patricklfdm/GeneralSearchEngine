@@ -47,6 +47,8 @@ def transactions(events):
     active={};result=[]
     for at,row in enumerate(events):
         if row['event'] not in WRITES:continue
+        need(set(row)==({'node','event','scope'} if row.get('scope') is not None else {'node','event'}),
+             'joining peer write event shape')
         node=row['node'];pending=active.setdefault(node,[])
         need(row['event']==WRITES[len(pending)] and (not pending or row.get('scope')==pending[0][1].get('scope')),
              'joining peer exact write force order')
@@ -84,6 +86,12 @@ class Replay(m.Replay):
     def lifetimes(self):
         return owner_lifetimes(self.model)
 
+    def write_scope(self,node,at):
+        return 'continuation-owner' if node==self.model.joining else None
+
+    def reopen_files(self,node,at):
+        return disk.inventory(self.root/'before-network'/node) if node!=self.model.joining else self.files(self.current(node,at,at))
+
     def initialization_point(self):
         points=[i for i,v in enumerate(self.events) if v['event']=='JOINING_RETENTION_BEFORE_RETURN']
         need(len(points)==1,'joining peer original initialization count')
@@ -110,7 +118,7 @@ class Replay(m.Replay):
         actual=[v for v in self.tx if v['node']==node and lower<v['start'] and v['end']<upper]
         need(len(actual)==len(changes),'joining peer '+kind+' durable write count')
         for tx,change in zip(actual,changes):
-            need(tx['start'] not in self.used and tx['scope']==('continuation-owner' if node==self.model.joining else None),
+            need(tx['start'] not in self.used and tx['scope']==self.write_scope(node,tx['start']),
                  'joining peer original write owner')
             before,after,cause=change
             need(peers.decode(before)['owner']['node']==node,'joining peer original write owner')
@@ -192,7 +200,7 @@ class Replay(m.Replay):
         at,node=value
         # Old owners open only at bootstrap, including original voters unused
         # by later selections. Their original bootstrap files bind each reseal.
-        files=disk.inventory(self.root/'before-network'/node) if node!=self.model.joining else self.files(self.current(node,at,at))
+        files=self.reopen_files(node,at)
         self.compare(node,files[FILE],'open-reseal')
 
     def adoption(self,own):

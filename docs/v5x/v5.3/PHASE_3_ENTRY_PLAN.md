@@ -14,8 +14,10 @@ floor's six remote sessions, peer-ledger writes and retirement/release order.
 The whole-history extension binds all 4,445 exchanges, 727 non-rejected content
 sessions, every floor lifetime and 315 captured source-retirement prefixes;
 eleven exact negatives protect its cold-owner and interrupted-floor boundaries.
-The earlier conditional test covers six SOURCE slots. Continuous whole-history
-ledger composition, native partial bodies and process-death cuts remain open.
+Continuous composition additionally derives all peer/learner/future revisions
+and allocator/promise forces through the original cold reopen, with targeted
+negative replay. The earlier conditional test covers six SOURCE slots. Native
+partial bodies, process-death cuts and final-source qualification remain open.
 
 [Automatic partial-floor resumption](PHASE_3_AUTOMATIC_FLOOR_RESUME.md) now
 reacquires the exact original proposal one copy at a time, retaining all charges
