@@ -1,5 +1,12 @@
 # Phase 3 qualification inventory and remaining work
 
+[Connection-scoped transport observations](PHASE_3_CONNECTION_ATTEMPTS.md) now
+preserve the actual socket pair and local invocation identity across late failure
+callbacks. Two real overlapping identical-request histories and eight independent
+negative replays pass. Integration into the complete joining collector/readers
+and a fresh required-four native execution remain OPEN; old traces are not
+upgraded by this component result.
+
 [Required-four physical replay](PHASE_3_REQUIRED_FOUR_PHYSICAL.md) now derives
 all eleven slots through cold reopen, including three pinned maintenance floors,
 22 source-retirement transactions / 330 prefixes and the departing nonvoting

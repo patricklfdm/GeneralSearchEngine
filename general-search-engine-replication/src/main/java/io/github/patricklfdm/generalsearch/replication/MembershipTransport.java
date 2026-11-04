@@ -29,8 +29,17 @@ final class MembershipTransport implements AutoCloseable {
         /** Terminal observation only, after a write/read boundary was observed.
          * This is neither a protocol REJECT nor evidence of remote non-execution. */
         default void failed(boolean outbound,Decoded request,Reason reason)throws IOException {}
+        /** Local observation only. The token is never transmitted or used as protocol authority. */
+        default void at(String event,Decoded request,Decoded response,Connection connection)throws IOException {at(event,request,response);}
+        default void failed(boolean outbound,Decoded request,Reason reason,Connection connection)throws IOException {failed(outbound,request,reason);}
     }
-    private static final class Attempt {boolean observed;}
+    record Connection(UUID id,InetSocketAddress local,InetSocketAddress remote) {
+        Connection {Objects.requireNonNull(id);Objects.requireNonNull(local);Objects.requireNonNull(remote);}
+    }
+    private static Connection connection(SocketChannel channel)throws IOException {
+        return new Connection(UUID.randomUUID(),(InetSocketAddress)channel.getLocalAddress(),(InetSocketAddress)channel.getRemoteAddress());
+    }
+    private static final class Attempt {boolean observed;Connection connection;}
     private record Peer(MembershipIdentity identity,InetSocketAddress endpoint,Set<InetAddress> addresses,
                         Semaphore outgoing,Semaphore incoming) {}
     private record Received(Decoded frame,MembershipResources.Lease lease) implements AutoCloseable {
@@ -202,7 +211,7 @@ final class MembershipTransport implements AutoCloseable {
                     try{reply=send(target,request,bytes,responseKind,deadline,result::isCancelled,beforeWrite,attempt);}
                     catch(Throwable error){failure=classify(error);}
                     finally{owned.close();target.outgoing.release();outboundCount.decrementAndGet();}
-                    if(failure!=null && attempt.observed)observeFailure(true,request,failure);
+                    if(failure!=null && attempt.observed)observeFailure(true,request,failure,attempt.connection);
                     // Continuations may immediately submit another request; release first.
                     if(failure==null)result.complete(reply);else result.completeExceptionally(failure);
                 });
@@ -221,9 +230,9 @@ final class MembershipTransport implements AutoCloseable {
         if(error instanceof IllegalArgumentException)return new Failure(Reason.PROTOCOL,"membership frame/context rejected",error);
         return new Failure(Reason.IO,"membership exchange I/O failed",error);
     }
-    private void observeFailure(boolean outbound,Decoded request,Throwable failure) {
+    private void observeFailure(boolean outbound,Decoded request,Throwable failure,Connection connection) {
         if(!(failure instanceof Failure classified))return;
-        try{events.failed(outbound,request,classified.reason);}
+        try{events.failed(outbound,request,classified.reason,connection);}
         catch(Throwable observer){if(observer!=failure)failure.addSuppressed(observer);}
     }
     private Decoded send(Peer peer,Decoded request,byte[] bytes,String kind,long deadline,BooleanSupplier cancelled,
@@ -233,11 +242,12 @@ final class MembershipTransport implements AutoCloseable {
             try {
                 check(deadline,cancelled);channel.configureBlocking(false);channel.register(selector,SelectionKey.OP_CONNECT);
                 channel.connect(peer.endpoint);while(!channel.finishConnect())ready(selector,SelectionKey.OP_CONNECT,deadline,cancelled);
-                attempt.observed=true;events.at("BEFORE_REQUEST_WRITE",request,null);beforeWrite.check();check(deadline,cancelled);
+                attempt.connection=connection(channel);attempt.observed=true;
+                events.at("BEFORE_REQUEST_WRITE",request,null,attempt.connection);beforeWrite.check();check(deadline,cancelled);
                 transfer(channel,selector,ByteBuffer.wrap(bytes),true,deadline,cancelled);
                 try(var response=read(channel,selector,deadline,cancelled)) {
                     MembershipWire.envelope(response.frame,root,peer.identity,local);MembershipWire.correlated(request,response.frame,kind);
-                    events.at("AFTER_RESPONSE_READ",request,response.frame);check(deadline,cancelled);return response.frame;
+                    events.at("AFTER_RESPONSE_READ",request,response.frame,attempt.connection);check(deadline,cancelled);return response.frame;
                 }
             }finally{channels.remove(channel);}
         }
@@ -266,19 +276,20 @@ final class MembershipTransport implements AutoCloseable {
                 MembershipWire.envelope(request,root,sender,local);
                 require(peer.addresses.contains(((InetSocketAddress)channel.getRemoteAddress()).getAddress()),"transport sender address binding");
                 if(!peer.incoming.tryAcquire())throw new Failure(Reason.CAPACITY,"membership inbound peer capacity",null);admitted=peer;
+                var connection=connection(channel);
                 try {
-                    events.at("AFTER_REQUEST_READ",request,null);check(deadline,()->false);
+                    events.at("AFTER_REQUEST_READ",request,null,connection);check(deadline,()->false);
                     var response=Objects.requireNonNull(handler.handle(sender,request),"membership handler response");
                     MembershipWire.envelope(response,root,local,sender);MembershipWire.correlated(request,response,response.kind());
                     require(response.size()<=maximum,"transport response frame size");
                     try(var lease=reserve(response.size())) {
-                        events.at("BEFORE_RESPONSE_WRITE",request,response);
+                        events.at("BEFORE_RESPONSE_WRITE",request,response,connection);
                         transfer(channel,selector,ByteBuffer.wrap(response.bytes()),true,deadline,()->false);
                     }
                 }catch(IOException|RuntimeException error){
                     // Publish the handler's terminal observation before closing
                     // this socket can unblock an identical caller retry.
-                    observeFailure(false,request,classify(error));throw error;
+                    observeFailure(false,request,classify(error),connection);throw error;
                 }
             }
         }catch(IOException|RuntimeException ignored){

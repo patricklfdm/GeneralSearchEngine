@@ -1,0 +1,251 @@
+{
+  "baseHead": "534651bd0914aedf25bde830fc5540e94a5c4739",
+  "completeMembershipHistory": false,
+  "completeNetworkQualified": false,
+  "componentQualification": {
+    "negatives": [
+      {
+        "case": "wrong-local-socket",
+        "reason": "connection invocation changed",
+        "status": "REJECTED"
+      },
+      {
+        "case": "crossed-reply",
+        "reason": "connection delivered response binding",
+        "status": "REJECTED"
+      },
+      {
+        "case": "late-terminal-on-retry",
+        "reason": "connection incomplete invocation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-caller-terminal",
+        "reason": "connection incomplete invocation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-server-terminal",
+        "reason": "connection missing receiver terminal",
+        "status": "REJECTED"
+      },
+      {
+        "case": "duplicate-terminal",
+        "reason": "connection duplicate boundary",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-original-response",
+        "reason": "connection missing original response",
+        "status": "REJECTED"
+      },
+      {
+        "case": "claims-membership",
+        "reason": "connection receipt scope",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "cases": [
+        {
+          "attempts": 2,
+          "callerFailures": 1,
+          "case": "late-handler",
+          "deliveredReplies": 1,
+          "serverFailures": 1,
+          "storageUnchanged": true
+        },
+        {
+          "attempts": 2,
+          "callerFailures": 1,
+          "case": "late-response",
+          "deliveredReplies": 1,
+          "serverFailures": 1,
+          "storageUnchanged": true
+        }
+      ],
+      "completeMembershipHistory": false,
+      "execution": "loopback-tcp-component",
+      "phase3Complete": false,
+      "schema": "gse-v53-transport-connections-v1",
+      "status": "PASS"
+    }
+  },
+  "connectionComponentQualified": true,
+  "javaTests": [
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53TransportConnectionTest",
+      "seconds": 12.694,
+      "skipped": 0,
+      "tests": 1
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53TransportAttemptTest",
+      "seconds": 40.913,
+      "skipped": 0,
+      "tests": 4
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53MembershipTransportTest",
+      "seconds": 53.292,
+      "skipped": 0,
+      "tests": 13
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53JoiningTraceTest",
+      "seconds": 0.022,
+      "skipped": 0,
+      "tests": 4
+    }
+  ],
+  "joiningConnectionCaptureIntegrated": false,
+  "legacyProjection": [
+    {
+      "case": "late-handler",
+      "execution": "read-only-legacy-observation-projection",
+      "reason": "joining failure missing caller terminal",
+      "status": "REJECTED"
+    },
+    {
+      "case": "late-response",
+      "execution": "read-only-legacy-observation-projection",
+      "reason": "joining failure missing caller terminal",
+      "status": "REJECTED"
+    }
+  ],
+  "legacyRegression": {
+    "cases": 6,
+    "evidence": {
+      "path": "target/v53-connection-attempts/legacy-replay.json",
+      "sha256": "766a8d9f0b79c26eff7f8ad428eef963c464cf6d1f5b03a31861b85ce869a77e"
+    },
+    "negatives": 13,
+    "status": "PASS"
+  },
+  "phase3Complete": false,
+  "pythonTests": {
+    "errors": 0,
+    "executions": 76,
+    "failures": 0,
+    "newTests": 17
+  },
+  "raw": "general-search-engine-replication/target/v53-transport-connections/run-0bd30c5c-57d6-44c0-9ad4-b7c6402cb772",
+  "remaining": [
+    "joining old/new owner collector connection propagation",
+    "complete phase/attempt/transfer/control reader composition",
+    "fresh integrated required-four history",
+    "combined resources, frozen coverage and final-source hosted qualification"
+  ],
+  "reports": [
+    {
+      "path": "target/v53-connection-attempts/TEST-io.github.patricklfdm.generalsearch.replication.V53JoiningTraceTest.xml",
+      "sha256": "8f21019e1277cfc1e21fa5c6d1f4c229890d6c57e6c858db1c71a6aa2da9f6fe"
+    },
+    {
+      "path": "target/v53-connection-attempts/TEST-io.github.patricklfdm.generalsearch.replication.V53MembershipTransportTest.xml",
+      "sha256": "16f5bf6ae8207adda44d0e5c37d0383e156914553a8feced8a0965245320427d"
+    },
+    {
+      "path": "target/v53-connection-attempts/TEST-io.github.patricklfdm.generalsearch.replication.V53TransportAttemptTest.xml",
+      "sha256": "1cf56df4a8345c5bc35d4ebb8345a262d7d394b820abfbf1aa5e6a6fb7f1a73a"
+    },
+    {
+      "path": "target/v53-connection-attempts/TEST-io.github.patricklfdm.generalsearch.replication.V53TransportConnectionTest.xml",
+      "sha256": "8ae685d654809ab773a9d7026ca5615df9edc55d6e213e25e69ccce934399554"
+    },
+    {
+      "path": "target/v53-connection-attempts/classes-at-validation.json",
+      "sha256": "b1a05f40f9b615a861fcd4f33e7573e82db0a8587c7e3e9a6376c032539003a1"
+    },
+    {
+      "path": "target/v53-connection-attempts/legacy-projection.json",
+      "sha256": "f0ec2eddb176e947f4dce09290b6250eaeb6d462e47f0c36aa40bc3683993304"
+    },
+    {
+      "path": "target/v53-connection-attempts/legacy-replay.json",
+      "sha256": "766a8d9f0b79c26eff7f8ad428eef963c464cf6d1f5b03a31861b85ce869a77e"
+    },
+    {
+      "path": "target/v53-connection-attempts/legacy-replay.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-connection-attempts/maven-01.log",
+      "sha256": "21f1105bf8eac9c0cc2f2da2fb74528af5d7af4ccb5ba69b6e7b753642ed1add"
+    },
+    {
+      "path": "target/v53-connection-attempts/python-01.log",
+      "sha256": "59519aeaed9a8fbf13b69d39a1994dfb0542c659ff2d5d9cd6b7d56d09cfadd1"
+    },
+    {
+      "path": "target/v53-connection-attempts/python-02.log",
+      "sha256": "37f3cad56c4749cc0e3af2162668e175e471c454d2998076416cd1e17b74ac55"
+    },
+    {
+      "path": "target/v53-connection-attempts/python-03.log",
+      "sha256": "104ac1562c383cb223fcc7ea031dd4e882981981b793eeef37eca2bbf5482c78"
+    },
+    {
+      "path": "target/v53-connection-attempts/raw-inventory.json",
+      "sha256": "698f46162ef88f140fa00cdd0d777d4b9a44480795cf5bf45617600016477374"
+    },
+    {
+      "path": "target/v53-connection-attempts/replay-01.json",
+      "sha256": "2648fa65568a130ef45fd374884ec25e2f5e3ede3a4c1cd5873f1743ea85f835"
+    },
+    {
+      "path": "target/v53-connection-attempts/replay-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-connection-attempts/replay-02.json",
+      "sha256": "2648fa65568a130ef45fd374884ec25e2f5e3ede3a4c1cd5873f1743ea85f835"
+    },
+    {
+      "path": "target/v53-connection-attempts/replay-02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-connection-attempts/source-at-validation.json",
+      "sha256": "4cd8aedeac62789e7f10c12a7e44697c3d836d2f49e332335f474aeec307036d"
+    }
+  ],
+  "schema": "gse-v53-connection-attempt-component-v1",
+  "scope": "two-loopback-TCP-overlap-components",
+  "sourceBinding": "post-validation source/class snapshot; development working tree, not final-source cohort admission",
+  "sources": [
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransport.java",
+      "sha256": "a1c01061a7fe7afc69930908741d119db50b630ddea38e8dc8585d3d94799971"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransportConnectionTest.java",
+      "sha256": "b9d71855381aa875cff2e8a735e97bf862bdf478d05750d018686503d366d2cd"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ConnectionTrace.java",
+      "sha256": "b0df2137d77c237a42c06310d2aa2aa13ea2be92e0ae8a14efca66b6a4e2d528"
+    },
+    {
+      "path": "scripts/v53/connection_transcript.py",
+      "sha256": "a5f88d94ff814120e9e528528ecd93643c9f9c26857e44e75e6ee02145ad7f05"
+    },
+    {
+      "path": "scripts/v53/transport_connection_evidence.py",
+      "sha256": "3057534c45685dfe2b8f3c15898c45e8ca9517063978af2410cee3e778d55ee7"
+    },
+    {
+      "path": "scripts/v53/test_connection_transcript.py",
+      "sha256": "6d467a4e05048446ab1b983bd9cc5e965e009144f9eebdab0b38503b60f68c2a"
+    }
+  ],
+  "status": "PASS"
+}

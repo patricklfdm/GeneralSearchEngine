@@ -89,6 +89,11 @@ identity, exercise overlapping identical retries deterministically, and bind
 all observations through the independent reader before qualifying a new native
 history. Historical traces without that information retain their limited scope.
 
+The [connection-observation follow-up](PHASE_3_CONNECTION_ATTEMPTS.md) now
+passes two native TCP component histories and exact negatives. Its whole-history
+collector/reader integration is still pending; it cannot supply missing identity
+to this historical trace.
+
 ## Remaining qualification and rollback
 
 `completePhysicalQualified`, `forceAndNetworkQualified`,
