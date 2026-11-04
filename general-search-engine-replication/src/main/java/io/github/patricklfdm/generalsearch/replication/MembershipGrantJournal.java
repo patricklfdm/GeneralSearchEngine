@@ -2611,7 +2611,8 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** Read-only admission hint; deletion still requires complete governing copies. */
     synchronized boolean nativeGenerationMaintenanceRequired()throws IOException {
         require(ownedHistory && inactive!=null && retirement!=null && floors!=null,"native generation maintenance owner required");
-        checkOwner();require(!inactive.pending() && !retirement.pending() && !floors.pending(),"native maintenance requires recovered storage");
+        checkOwner();require(!inactive.pending() && !retirement.pending(),"native maintenance requires recovered storage");
+        if(floors.pending())floors.pendingProposal(floorCopyCurrent()).orElseThrow();
         return inactive.exists() || floors.exists();
     }
     /** A completed publication can require retirement before another grant adds
@@ -2687,6 +2688,18 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     synchronized Decoded establishFloor(List<MembershipFloor.Copy> offered) throws IOException {
         return establishFloor(offered,null);
+    }
+    synchronized Optional<Decoded> pendingFloorProposal()throws IOException {
+        require(floors!=null,"floor storage owner required");checkOwner();applicationReferencesIdle();rotationIdle();
+        require(retirement==null || !retirement.pending(),"pending retirement must finish before authority changes");
+        if(!floors.pending())return Optional.empty();
+        return floors.pendingProposal(floorCopyCurrent());
+    }
+    synchronized void resumeFloorCopy(Decoded proposal,MembershipFloor.Copy copy,MembershipGenerationFiles.Guard guard)throws IOException {
+        require(floors!=null,"floor storage owner required");checkOwner();applicationReferencesIdle();rotationIdle();
+        require(retirement==null || !retirement.pending(),"pending retirement must finish before authority changes");
+        try{floors.resumeCopy(floorCopyCurrent(),proposal,copy,()->{checkWithoutFloor();guard.check();},cut);}
+        catch(IOException | RuntimeException | Error error){failed=true;throw error;}
     }
     synchronized Decoded establishFloor(List<MembershipFloor.Copy> offered,MembershipFloorFiles.Handoff handoff) throws IOException {
         require(floors!=null,"floor storage owner required");checkOwner();applicationReferencesIdle();rotationIdle();

@@ -11,8 +11,8 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
  * floor authority. Receiving ownership lives through durable floor/observations;
  * the floor then owns the complete copies through retirement/release. */
 final class MembershipGenerationMaintenance implements AutoCloseable {
-    /** A completed published-copy pass lacked exact original owners. No floor,
-     * observation or retirement has been forced at this point. This type is
+    /** A completed copy pass lacked exact original owners. It creates no new
+     * floor authority, observation or retirement; partial copies remain owned. This type is
      * distinct from decoding, integrity, fencing and cleanup failures. */
     static final class Unavailable extends IOException {
         private static final long serialVersionUID=1L;
@@ -90,7 +90,12 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
     void run()throws IOException {
         synchronized(this){require(!used && !closed,"native maintenance single use/closed");used=true;}
         check();if(!(published==null?owner.nativeGenerationMaintenanceRequired():owner.publishedMaintenanceRequired()))return;
-        var own=owner.floorCopyCurrent();var retained=owner.retainedMaintenanceCopies();
+        var own=owner.floorCopyCurrent();var pending=owner.pendingFloorProposal();
+        var required=new TreeMap<String,Map<String,Object>>();
+        if(pending.isPresent())for(Object value:MembershipFormat.list(pending.get().value().get("sources"))) {
+            var ref=MembershipFormat.object(value);required.put((String)ref.get("voter"),ref);
+        }
+        var retained=pending.isPresent()?List.<MembershipFloor.Copy>of():owner.retainedMaintenanceCopies();
         var copies=new ArrayList<MembershipFloor.Copy>(retained);if(copies.isEmpty())copies.add(own);
         var receiving=new HashMap<String,List<MembershipSourcePull>>();
         var voters=new TreeSet<String>();for(var copy:copies)voters.add(copy.owner.nodeId().value());
@@ -116,7 +121,8 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
         try(var images=owner.exportPrefix(MembershipContext.cutDigest(context.cut),ballot,
                 context.authority(),resources,clock,started,budget)) {
         for(String node:copyOrder(context,joining,installed)) {
-            if(quorum(voters) && voters.containsAll(joining))break;if(voters.contains(node))continue;check();
+            if(quorum(voters) && voters.containsAll(joining) && voters.containsAll(required.keySet()))break;
+            if(voters.contains(node) || pending.isPresent() && !required.containsKey(node))continue;check();
             MembershipSourcePull source=null,generation=null;boolean retain=false;
             try {
                 var hint=discover(context.identities.get(node));check();
@@ -138,13 +144,21 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
                 generation=prefix(hint);var copy=generation.fetchGeneration(source);check();
                 require(copy.owner.equals(hint.peer()),"native maintenance exact original copy");
                 MembershipFloor.covers(own.capsule,copy);
-                copies.add(copy);voters.add(node);receiving.put(copy.generation.digest(),List.of(generation,source));retain=true;
+                if(pending.isPresent()) {
+                    if(!copy.reference().equals(required.get(node)))throw new Unavailable("native maintenance original floor copy unavailable");
+                    // One authenticated receiver at a time, including when all
+                    // original copy files survived but FLOOR itself was torn.
+                    owner.resumeFloorCopy(pending.get(),copy,this::check);check();
+                    release(generation);generation=null;release(source);source=null;check();
+                }else {receiving.put(copy.generation.digest(),List.of(generation,source));retain=true;}
+                copies.add(copy);voters.add(node);
             }catch(MembershipTransport.Failure error) {
                 if(error.reason!=MembershipTransport.Reason.IO && error.reason!=MembershipTransport.Reason.DEADLINE
                         && error.reason!=MembershipTransport.Reason.CAPACITY)throw error;check();
             }finally{if(!retain){try{release(generation);}finally{release(source);}}}
         }
         check();
+        if(!voters.containsAll(required.keySet()))throw new Unavailable("native maintenance original floor cohort unavailable");
         if(published!=null && !quorum(voters)) {
             // An obsolete same-cut source is a reclamation opportunity, not
             // permission to delete it and not a prerequisite for another grant.
@@ -158,6 +172,7 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
         if(published!=null && !voters.containsAll(joining))throw new Unavailable("native generation maintenance joining copy unavailable");
         require(quorum(voters),"native generation maintenance quorum unavailable");
         require(voters.containsAll(joining),"native generation maintenance joining copy unavailable");
+        if(pending.isPresent()){owner.resumeFloorCopy(pending.get(),own,this::check);check();}
         owner.establishFloor(copies,copy->{
             // Only this exact complete replacement has been forced, including
             // directory parents. Delete its receiving scratch before reserving

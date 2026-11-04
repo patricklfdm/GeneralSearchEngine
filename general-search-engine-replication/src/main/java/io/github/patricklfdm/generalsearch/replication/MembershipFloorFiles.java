@@ -125,6 +125,45 @@ final class MembershipFloorFiles implements AutoCloseable {
         var floor=decode(bytes,"records","FLOOR");require(floor.value().get("root").equals(root.manifestDigest()) && floor.value().get("node").equals(local.nodeId().value()),"retained floor root/owner");return floor;
     }
     record Retained(Decoded floor,List<MembershipFloor.Copy> copies) {}
+    /** A complete proposal is only a recovery locator. It does not attest to
+     * remote force observations and cannot authorize retirement or a grant. */
+    Optional<Decoded> pendingProposal(MembershipFloor.Copy current)throws IOException {
+        check();if(!pending())return Optional.empty();
+        require(!releasing() && files.containsKey(PROPOSAL),"partial floor requires original complete proposal");
+        var proposal=bound(AdmissionPaths.read(path.resolve(PROPOSAL),16384));
+        require(proposal.value().get("cut").equals(current.capsule.context.cut),"partial floor local cut changed");
+        var refs=list(proposal.value().get("sources")).stream().map(MembershipFormat::object).toList();
+        require(refs.stream().anyMatch(current.reference()::equals),"partial floor local generation changed");
+        var ids=new TreeSet<String>();for(var ref:refs)ids.add((String)ref.get("generation"));
+        require(ids.containsAll(directories.keySet()),"unrelated retained floor directory");
+        if(files.containsKey(FLOOR))require(prefix(AdmissionPaths.read(path.resolve(FLOOR),16384),proposal.bytes()),"floor differs from original proposal");
+        check();return Optional.of(proposal);
+    }
+    /** Resume one freshly authenticated original, retaining all old charges.
+     * The caller may drain its receiver only after this method forces the copy
+     * and both parents. Authority still requires establish with every original. */
+    void resumeCopy(MembershipFloor.Copy current,Decoded proposal,MembershipFloor.Copy copy,
+            MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
+        owner.check();var original=pendingProposal(current).orElseThrow();
+        require(Arrays.equals(original.bytes(),proposal.bytes()),"floor requires exact original proposal");
+        MembershipFloor.covers(current.capsule,copy);
+        require(list(original.value().get("sources")).contains(copy.reference()),"partial floor requires exact original copy");
+        String id=copy.generation.digest();var plan=new TreeMap<String,byte[]>();
+        for(var file:copy.copyFiles().entrySet())plan.put(id+"/"+file.getKey(),file.getValue());
+        for(var file:files.entrySet())if(file.getKey().startsWith(id+"/"))
+            require(plan.containsKey(file.getKey()) && prefix(AdmissionPaths.read(path.resolve(file.getKey()),Math.toIntExact(limit(file.getKey()))),plan.get(file.getKey())),
+                    "partial floor original copy changed");
+        reserveCopy(plan,id);cut.at("FLOOR_RESUME_RESERVED");check();owner.check();
+        completeFile(PROPOSAL,proposal.bytes(),owner,cut,"FLOOR_PROPOSAL");
+        if(!directories.containsKey(id)){Files.createDirectory(path.resolve(id));capture();}
+        cut.at("FLOOR_COPY_CREATED");check();owner.check();
+        completeFile(id+"/generation.gsr",plan.get(id+"/generation.gsr"),owner,cut,"FLOOR_MANIFEST");
+        for(var file:plan.entrySet())if(!file.getKey().endsWith("/generation.gsr"))
+            completeFile(file.getKey(),file.getValue(),owner,cut,file.getKey().endsWith(".image")?"FLOOR_IMAGE":"FLOOR_MEMBER");
+        AdmissionPaths.forceDirectory(path.resolve(id));cut.at("FLOOR_COPY_DIRECTORY_FORCED");check();owner.check();
+        AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(parent);
+        cut.at("FLOOR_RESUME_COPY_FORCED");check();owner.check();
+    }
     Optional<Decoded> read() throws IOException {return retained().map(Retained::floor);}
     Optional<Retained> retained() throws IOException {check();return releasing()?Optional.empty():retainedOriginal();}
     private Optional<Retained> retainedOriginal() throws IOException {

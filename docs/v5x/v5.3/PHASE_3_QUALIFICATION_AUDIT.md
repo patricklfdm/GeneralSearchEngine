@@ -162,7 +162,9 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    observes the surviving majority completing the inherited operation while the
    partial-floor voter remains unchanged and fenced. Exact original floor
    completion now has [explicit original-copy storage replay](PHASE_3_PARTIAL_FLOOR_RESUME.md).
-   Automatic missing-copy acquisition and complete continuation replay remain open.
+   [Automatic resumption](PHASE_3_AUTOMATIC_FLOOR_RESUME.md) now stages exact
+   originals sequentially and retains the original deadline and charges. Full
+   remote-force/continuation replay and remaining interrupted states stay open.
 3. **Finish concrete protocol coverage.** Map exact schedules, original evidence
    selectors and rejection reasons; identify uncovered combinations. Inapplicable
    operations still require explicit refusal with unchanged bytes. Keep final

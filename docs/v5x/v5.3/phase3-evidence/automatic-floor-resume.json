@@ -1,0 +1,267 @@
+{
+  "automaticDiscovery": "OBSERVED",
+  "baseCommit": "7d6010cb553e77409332f07d9f11e1c3a7b7fa5c",
+  "checks": {
+    "contract.json": {
+      "path": "target/v53-automatic-floor-resume-batch/contract.json",
+      "sha256": "ff9796527e634c363d3a722e3fc97176bfdecd7a457c5ff1028e9023b50076b6"
+    },
+    "focused-optimized-final.log": {
+      "path": "target/v53-automatic-floor-resume-batch/focused-optimized-final.log",
+      "sha256": "ebd7850d88cee2a4a37cacd13b1fcd49ec03f632fa0eb34ca89592877f8ceffa"
+    },
+    "inspection/receipt.json": {
+      "path": "target/v53-automatic-floor-resume-batch/inspection/receipt.json",
+      "sha256": "db4eadaf0d18797ef3dc8b3bd9b65c657b2dbb1faae3a235b5fd123d60021af4"
+    },
+    "producer-java-match.json": {
+      "path": "target/v53-automatic-floor-resume-batch/producer-java-match.json",
+      "sha256": "44596e0ac4e3c800ae9af81ebca6fbfbec84e48daa04c536ef46555f1a825e9e"
+    },
+    "reader-final.json": {
+      "path": "target/v53-automatic-floor-resume-batch/reader-final.json",
+      "sha256": "183aadfd7d9b3136ae47bde627ee6dd3099fdc67295857e9e95f1601ca3b7931"
+    },
+    "storage-qualified.json": {
+      "path": "target/v53-automatic-floor-resume-batch/storage-qualified.json",
+      "sha256": "9e1cf82b498cc9db2d0266ab5a403100b7a3877bc64b575087e52ec6f32bc022"
+    },
+    "storage-relocated-optimized.json": {
+      "path": "target/v53-automatic-floor-resume-batch/storage-relocated-optimized.json",
+      "sha256": "9e1cf82b498cc9db2d0266ab5a403100b7a3877bc64b575087e52ec6f32bc022"
+    }
+  },
+  "existingRequiredChanged": false,
+  "fullHistoryQualified": false,
+  "hostedExecuted": false,
+  "independentRemoteForceReplayQualified": false,
+  "injectedPressureRuntimeReachabilityQualified": false,
+  "limitsChanged": false,
+  "nativeExecutions": {
+    "native-01": {
+      "execution": {
+        "elapsedSeconds": 354.589,
+        "exit": 0
+      },
+      "files": {
+        "collection.json": {
+          "path": "target/v53-automatic-floor-resume-batch/native-01/collection.json",
+          "sha256": "ea9ebd36a425dd45f0d2d76274148b25d375ee00415d9ff26864939ea6e6bd5b"
+        },
+        "command.json": {
+          "path": "target/v53-automatic-floor-resume-batch/native-01/command.json",
+          "sha256": "c78830f3b6329a42365527bb6c88e9b27dd962521bdf2e3366d5da46449af920"
+        },
+        "execution.json": {
+          "path": "target/v53-automatic-floor-resume-batch/native-01/execution.json",
+          "sha256": "48f8a0e2606a1e026fce283ad227d2d6a5a82f6e161d97064b7e3dfc580a2117"
+        },
+        "maven.log": {
+          "path": "target/v53-automatic-floor-resume-batch/native-01/maven.log",
+          "sha256": "708b4923ac8e09321dc8d4d551b021f3e7f61660182757013fc3c0737569618d"
+        },
+        "source.json": {
+          "path": "target/v53-automatic-floor-resume-batch/native-01/source.json",
+          "sha256": "58ee5cf9bb66f88ba6e2e7d96218da988c251c5070a5767fc77bb795114825ae"
+        },
+        "toolchain.json": {
+          "path": "target/v53-automatic-floor-resume-batch/native-01/toolchain.json",
+          "sha256": "2b97ac5479a940069fb0d2fd4c381aa9d81e5f071b41aa96790d6dfc6652576d"
+        }
+      },
+      "junit": {
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53CombinedResourceRecoveryTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "1",
+          "time": "339.739"
+        }
+      }
+    },
+    "regression-01": {
+      "execution": {
+        "elapsedSeconds": 389.387,
+        "exit": 0
+      },
+      "files": {
+        "collection.json": {
+          "path": "target/v53-automatic-floor-resume-batch/regression-01/collection.json",
+          "sha256": "230cf9d540cb98155dfb13965d03b689e02b0459f5db03fe81497cf9633af40b"
+        },
+        "command.json": {
+          "path": "target/v53-automatic-floor-resume-batch/regression-01/command.json",
+          "sha256": "25090ac76ab961bcf7633985cf929539aedb803348f4248526e028ec7b25eec6"
+        },
+        "execution.json": {
+          "path": "target/v53-automatic-floor-resume-batch/regression-01/execution.json",
+          "sha256": "9f094564ca882f071db15f1718a3544fd1085eba54e9b484ad60425d3d0e4fe8"
+        },
+        "maven.log": {
+          "path": "target/v53-automatic-floor-resume-batch/regression-01/maven.log",
+          "sha256": "e0ba17d409642c788bd5dafdfc0d54a86c9ebb7541895dfa36e5af3e5d60fcbc"
+        },
+        "source.json": {
+          "path": "target/v53-automatic-floor-resume-batch/regression-01/source.json",
+          "sha256": "78a0ca14c9231bee6118a4241674883a1f092b2854ec6410024e3a413d38920a"
+        },
+        "toolchain.json": {
+          "path": "target/v53-automatic-floor-resume-batch/regression-01/toolchain.json",
+          "sha256": "389f8fae4b282dbd193ac521201e9373610fc3d38f6d56368ebc9aea21576310"
+        }
+      },
+      "junit": {
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53CombinedResourceRecoveryTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "1",
+          "tests": "1",
+          "time": "0.0"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "13",
+          "time": "23.255"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53FloorResumeCopyTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "5",
+          "time": "7.043"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53MaintenanceCampaignTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "2",
+          "time": "15.25"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53MaintenanceDrainTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "4",
+          "time": "24.467"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53MaintenanceLifetimeTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "1",
+          "time": "191.822"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53MaintenanceObservationTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "2",
+          "time": "112.396"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53PartialFloorResumeTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "1",
+          "tests": "1",
+          "time": "0.0"
+        }
+      }
+    },
+    "storage-01": {
+      "execution": {
+        "elapsedSeconds": 43.573,
+        "exit": 0
+      },
+      "files": {
+        "collection.json": {
+          "path": "target/v53-automatic-floor-resume-batch/storage-01/collection.json",
+          "sha256": "aa8efd98e5697634157922d2f31a33c5883e24040a6107e02c7c6093fd13d42e"
+        },
+        "command.json": {
+          "path": "target/v53-automatic-floor-resume-batch/storage-01/command.json",
+          "sha256": "98de21f4c3bb0a350e84880f1d175444b13cca17a3939d9ade6bf2c991359282"
+        },
+        "execution.json": {
+          "path": "target/v53-automatic-floor-resume-batch/storage-01/execution.json",
+          "sha256": "95246becd025c9c3dd31fe802910ccaa0d2181cecdd86f95716e27e2cfb2d41c"
+        },
+        "maven.log": {
+          "path": "target/v53-automatic-floor-resume-batch/storage-01/maven.log",
+          "sha256": "1aaf6605f1affdc4ef1b2ce6163d5a2a12fd4fa34531858adbf513f8cf16e010"
+        },
+        "source.json": {
+          "path": "target/v53-automatic-floor-resume-batch/storage-01/source.json",
+          "sha256": "25887d6597c6ffdb334ffd2379cbad179638b4610f97fa157f29bde6c88c2747"
+        },
+        "toolchain.json": {
+          "path": "target/v53-automatic-floor-resume-batch/storage-01/toolchain.json",
+          "sha256": "60c8014b54df6325e61bd85a288b6ed8d5fcf3752b7ded2dbac3e88e0c9f4d43"
+        }
+      },
+      "junit": {
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "13",
+          "time": "19.483"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53FloorResumeCopyTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "5",
+          "time": "7.975"
+        }
+      }
+    }
+  },
+  "originalPressureOutcome": "FAIL",
+  "paidCloud": false,
+  "phase3Complete": false,
+  "python": {
+    "execution": {
+      "elapsedSeconds": 132.341,
+      "exit": 0
+    },
+    "log": {
+      "path": "target/v53-automatic-floor-resume-batch/python-final.log",
+      "sha256": "ffc23569d2454f0321cf4e667cb4fcb35f7df0c618e08fee96cfe69c584daeb9"
+    },
+    "receipt": {
+      "path": "target/v53-automatic-floor-resume-batch/python-final.json",
+      "sha256": "5696d6173201ccfdaf85cfbe9d48c29b85c9959c82b0b0adff7a7971d30b991e"
+    },
+    "tests": 2639
+  },
+  "remaining": [
+    "full remote-force and continuation replay",
+    "missing or torn proposal recovery",
+    "advanced original owners",
+    "remaining process/fence/close/deadline combinations",
+    "legitimate resource overlap and maximum metadata",
+    "required joint quorums",
+    "final-source Phase 3 cohort admission"
+  ],
+  "requiredVoterContinuation": "OBSERVED",
+  "schema": "gse-v53-automatic-floor-resume-development-v1",
+  "scope": "automatic-floor-storage",
+  "scripts": {
+    "collect.py": {
+      "path": "target/v53-automatic-floor-resume-batch/collect.py",
+      "sha256": "3d83ff2c98fe31f36344667a705bff0d6af08dae553c5b625f877ef71ef8636a"
+    },
+    "execute.py": {
+      "path": "target/v53-automatic-floor-resume-batch/execute.py",
+      "sha256": "72a7a42f55f9a5cb773f83ef587224773f3b71be5db89609351e95c2cf2fee87"
+    },
+    "finalize.py": {
+      "path": "target/v53-automatic-floor-resume-batch/finalize.py",
+      "sha256": "91b0149288f2822228a1a5bd598f59acbd2a20693d40d333a9c2b6a9868a4dbd"
+    }
+  },
+  "sourceNote": "Native runtime and producer Java exactly match current sources; reader is separately bound. This is not final-source cohort admission.",
+  "status": "PASS"
+}

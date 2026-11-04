@@ -59,7 +59,9 @@ SIGKILL/power-loss behavior or every interrupted-floor position.
 
 ## Next implementation boundary
 
-Automatic maintenance currently rejects pending floor storage. It must acquire
+On this historical source automatic maintenance rejected pending floor storage.
+The subsequent [automatic recovery change](PHASE_3_AUTOMATIC_FLOOR_RESUME.md)
+implements sequential acquisition for complete original proposals. It must acquire
 missing originals under its existing fence and original deadline, using the
 persisted proposal as an exact locator, never as deletion/vote authority. The
 final existing floor transaction remains responsible for full copy validation

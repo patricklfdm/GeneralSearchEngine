@@ -463,7 +463,9 @@
       ],
       "implementation": [
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java",
-        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPublicationCapacity.java"
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPublicationCapacity.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFloorFiles.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java"
       ],
       "tests": [
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransferTest.java",
@@ -476,14 +478,17 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CombinedResourceRecoveryTest.java",
         "scripts/v53/test_combined_recovery_observations.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PartialFloorResumeTest.java",
-        "scripts/v53/test_partial_floor_resume_evidence.py"
+        "scripts/v53/test_partial_floor_resume_evidence.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FloorResumeCopyTest.java",
+        "scripts/v53/test_automatic_floor_resume_evidence.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
         "scripts/v53/combined_receive_evidence.py",
         "scripts/v53/combined_resource_probe.py",
         "scripts/v53/combined_recovery_observations.py",
-        "scripts/v53/partial_floor_resume_evidence.py"
+        "scripts/v53/partial_floor_resume_evidence.py",
+        "scripts/v53/automatic_floor_resume_evidence.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -491,7 +496,8 @@
         "docs/v5x/v5.3/PHASE_3_COMBINED_RECEIVE_RESOURCES.md",
         "docs/v5x/v5.3/PHASE_3_COMBINED_RESOURCE_PROBE.md",
         "docs/v5x/v5.3/PHASE_3_COLD_RESOURCE_CONTINUATION.md",
-        "docs/v5x/v5.3/PHASE_3_PARTIAL_FLOOR_RESUME.md"
+        "docs/v5x/v5.3/PHASE_3_PARTIAL_FLOOR_RESUME.md",
+        "docs/v5x/v5.3/PHASE_3_AUTOMATIC_FLOOR_RESUME.md"
       ],
       "cohorts": [
         "profiles",

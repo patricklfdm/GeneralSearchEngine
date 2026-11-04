@@ -11,9 +11,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
 
 /** One original history: retain the pressure failure, release imposed copies,
- * then cold-open the same owner directories. The surviving majority carries the
- * original INTENT; the unfinished-floor owner remains fenced and unchanged.
- * This does not qualify recovery of that owner's partial floor. */
+ * then cold-open the same owner directories. Native maintenance reacquires the
+ * exact original floor before this required voter participates in continuation. */
 @EnabledIfSystemProperty(named="v53.combined.recovery.probe",matches="true")
 class V53CombinedResourceRecoveryTest {
     @TempDir Path temp;
@@ -24,11 +23,11 @@ class V53CombinedResourceRecoveryTest {
             }
         }return files;
     }
-    @Test void survivingMajorityCarriesIntentWhilePartialFloorVoterRemainsFenced()throws Exception {
+    @Test void partialFloorVoterAutomaticallyResumesBeforeCarriedIntent()throws Exception {
         run(false);
     }
     void run(boolean completeOriginalFloor)throws Exception {
-        Path root=Files.createDirectories(Path.of((completeOriginalFloor?"target/v53-partial-floor-resume/":"target/v53-combined-recovery/")+"run-"+UUID.randomUUID()));
+        Path root=Files.createDirectories(Path.of((completeOriginalFloor?"target/v53-partial-floor-resume/":"target/v53-automatic-floor-resume/")+"run-"+UUID.randomUUID()));
         System.out.println("v53CombinedRecoveryEvidence="+root.toAbsolutePath());boolean success=false;
         var probe=new V53CombinedTransitionResourcesTest();probe.temp=temp;
         Path pressure=Files.createDirectory(root.resolve("pressure"));
@@ -58,6 +57,18 @@ class V53CombinedResourceRecoveryTest {
             try(var n=helper.new Network(fixture,probe.retainedBounds,TimeUnit.MINUTES.toNanos(10));
                 var driver=rounds.driver(n,ordinal,MembershipRoundDriver.Events.NONE)) {
                 n.observeRequests=true;
+                var captured=new java.util.concurrent.atomic.AtomicBoolean();
+                var usage=new ArrayList<Map<String,Object>>();
+                if(!completeOriginalFloor)n.hook.set(event->{
+                    if(captured.get())return;
+                    usage.add(Map.of("event",event,"usage",V53CombinedReceiveResourcesTest.usage(n.resources.get(1))));
+                    if(event.equals("FLOOR_BEFORE_RETURN")) {
+                        V53JournalApplicationTest.copy(fixture.request.targets().get(1).replicaDirectory(),root.resolve("automatic-floor"));
+                        Files.write(root.resolve("floor-usage.json"),canonical(usage,1024*1024));
+                        synchronized(n.events){Files.write(root.resolve("floor-events.json"),canonical(n.events,4*1024*1024));}
+                        captured.set(true);
+                    }
+                });
                 var completed=driver.start();assertEquals("PUBLISH_ACK",completed.kind());
                 assertEquals(MembershipRoundDriver.State.READY,driver.state());assertEquals(3,ordinal.get());
                 assertArrayEquals(completed.bytes(),driver.readiness().bytes());
@@ -66,22 +77,18 @@ class V53CombinedResourceRecoveryTest {
                 var context=n.owners.getFirst().activationContext();assertEquals(7L,context.cut.get("index"));
                 assertNull(context.catalog.get("active"));assertNull(context.view.get("operation"));
                 assertEquals(List.of("node-1","node-2","node-3"),list(context.view.get("new")));
-                if(completeOriginalFloor) {
+                {
                     assertEquals(7L,n.owners.get(1).activationContext().cut.get("index"));
                     for(int i=1;i<=3;i++)assertTrue(list(decode(Files.readAllBytes(resumed.resolve("selected-"+i+".gsr")),"records","SELECTED").value().get("sources"))
                         .stream().map(MembershipFormat::object).anyMatch(v->v.get("voter").equals("node-2")),"resumed owner remains required");
-                } else {
-                    assertEquals(4L,n.owners.get(1).activationContext().cut.get("index"));
-                    assertEquals("native maintenance requires recovered storage",assertThrows(IllegalArgumentException.class,
-                        ()->n.owners.get(1).nativeGenerationMaintenanceRequired()).getMessage());
-                    assertEquals(disk(original.resolve("after-close/node-2")),disk(fixture.request.targets().get(1).replicaDirectory()));
                 }
+                if(!completeOriginalFloor)assertTrue(captured.get(),"original floor forced before continuation");
                 Files.write(resumed.resolve("result.json"),canonical(Map.of("status","PASS","activations",ordinal.get(),
                     "internalReady",true,"publicReady",false),65536));
             }
             success=true;
         }finally {
-            Files.write(root.resolve("receipt.json"),canonical(Map.of("schema",completeOriginalFloor?"gse-v53-partial-floor-resume-v1":"gse-v53-combined-recovery-v1",
+            Files.write(root.resolve("receipt.json"),canonical(Map.of("schema",completeOriginalFloor?"gse-v53-partial-floor-resume-v1":"gse-v53-automatic-floor-resume-v1",
                 "status",success?"PASS":"FAIL","profile","4-REMOVE","pressureOutcome","FAIL",
                 "sameDirectories",true,"partialFloorRecoveryQualified",false,"automaticRuntimeReachabilityQualified",false,"phase3Complete",false),65536));
         }

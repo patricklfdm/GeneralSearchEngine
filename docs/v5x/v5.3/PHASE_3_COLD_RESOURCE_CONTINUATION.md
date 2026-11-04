@@ -1,5 +1,10 @@
 # Phase 3 cold majority continuation after resource refusal
 
+This page and its reader retain the historical `54f281e6` producer outcome.
+The current producer now exercises [automatic original-floor resumption](PHASE_3_AUTOMATIC_FLOOR_RESUME.md)
+and emits `v53-automatic-floor-resume`; use its new reader for new executions.
+Do not replay the historical fenced-voter expectation against the new behavior.
+
 This development probe extends the [failed combined-resource history](PHASE_3_COMBINED_RESOURCE_PROBE.md)
 through a cold owner restart. It preserves that failed prefix and its original
 unresolved INTENT. It does not qualify automatic recovery of the partial floor,

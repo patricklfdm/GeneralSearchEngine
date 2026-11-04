@@ -1,15 +1,19 @@
 # V5.3 Phase 3 entry and closure checklist
 
-[Explicit original-floor recovery](PHASE_3_PARTIAL_FLOOR_RESUME.md) now rejects a
-different governing quorum without mutation, resumes the exact original floor
-within seven images, and observes node-2 continuing through the stable barrier.
-Independent storage replay does not replace automatic missing-copy acquisition
-or complete Phase 3 qualification.
+[Automatic partial-floor resumption](PHASE_3_AUTOMATIC_FLOOR_RESUME.md) now
+reacquires the exact original proposal one copy at a time, retaining all charges
+and writing authority last. Its storage replay and required-voter continuation
+remain scoped evidence; complete Phase 3 qualification is still open.
 
-[Cold majority continuation](PHASE_3_COLD_RESOURCE_CONTINUATION.md) now retains the
+[Explicit original-floor recovery](PHASE_3_PARTIAL_FLOOR_RESUME.md) previously rejected a
+different governing quorum without mutation, resumed the exact original floor
+within seven images, and observed node-2 continuing through the stable barrier.
+This earlier storage replay does not replace complete Phase 3 qualification.
+
+[Cold majority continuation](PHASE_3_COLD_RESOURCE_CONTINUATION.md) retained the
 pressure failure across original-directory close/reopen. The surviving majority
 carries the original INTENT through FINAL and BARRIER; the partial-floor voter
-remains fenced and unchanged. This observation does not qualify that voter's
+remained fenced and unchanged on that historical source. This observation does not qualify that voter's
 automatic recovery or complete Phase 3 acceptance.
 
 [The current qualification audit](PHASE_3_QUALIFICATION_AUDIT.md) reconciles the
