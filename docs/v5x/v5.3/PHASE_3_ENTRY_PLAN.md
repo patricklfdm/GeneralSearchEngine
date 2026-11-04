@@ -7,6 +7,13 @@ groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
 
+[Automatic lifecycle component admission](PHASE_3_AUTOMATIC_HISTORY_COHORT.md)
+now provides three complete execution groups and 50 distinct original plans with
+exact common-source/build/toolchain/reader binding. Known competition shapes
+select their negative vector only after complete original replay; missing or
+unknown histories refuse. Hosted integration and final-source execution remain
+open; historical source versions are not combined into an accepted cohort.
+
 [Native transfer reply revocation](PHASE_3_TRANSFER_REPLY_LIFETIME.md) now checks
 48 PROMISE-export TCP cases and 30 exact negatives at the final handler boundary.
 The original bytes, deadline, revoked response and resource drain are bound to

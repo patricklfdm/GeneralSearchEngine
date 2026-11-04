@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Automatic lifecycle cohort admission](PHASE_3_AUTOMATIC_HISTORY_COHORT.md) now
+binds ungated competition, higher-ballot restart and the complete reply-revocation
+matrix to one source/build/toolchain/reader. Original-first composition preserves
+exact applicable negatives and failures. Its three local execution groups are
+not a completed final-source cohort; Phase 3 remains OPEN.
+
 [Native transfer reply revocation](PHASE_3_TRANSFER_REPLY_LIFETIME.md) adds
 48 original TCP cases at sizes 3/4/5: expiry, close and actual owner fencing after
 reply materialization, plus exact and new-trace refusal. Independent replay keeps

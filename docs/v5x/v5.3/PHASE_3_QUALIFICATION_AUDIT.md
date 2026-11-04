@@ -93,6 +93,11 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    48 original TCP cases for PROMISE exports at offer/data/commit/cached-retry
    boundaries. Its 30 negatives preserve exact clocks, bytes and resource drain;
    this component does not qualify other export kinds or add a hosted cohort.
+   [Automatic lifecycle component admission](PHASE_3_AUTOMATIC_HISTORY_COHORT.md)
+   now binds competition, restart and the complete reply matrix to one exact
+   source/build/toolchain/reader. It replays original layers and exact applicable
+   negatives across three complete groups; hosted adaptation and final-source
+   execution remain open. Retained historical originals are not new cohort slots.
    The [transfer matrix entry](PHASE_3_TRANSFER_HISTORY_COHORT.md) binds the existing
    complete TCP lifetime and two-process recovery matrices to one recorded
    source/build/toolchain/reader and independently replays both originals. It is

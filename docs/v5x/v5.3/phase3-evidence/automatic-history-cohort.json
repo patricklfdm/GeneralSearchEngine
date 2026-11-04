@@ -1,0 +1,207 @@
+{
+  "baseCommit": "0c0e2de557b8e4b75ede9461de9b9ae49421f0a5",
+  "checks": {
+    "competition/collection.json": {
+      "path": "target/v53-automatic-history/retained-01/competition/collection.json",
+      "sha256": "d525be3243e7f67c88bc73f12a3c99a8b64ca68984069a622e3a0d9d6c8cad7a"
+    },
+    "competition/receipt.json": {
+      "path": "target/v53-automatic-history/retained-01/competition/receipt.json",
+      "sha256": "03bae947adf68a8299579759ea12a2f7da323e462462e0f88d11a0d61f57287f"
+    },
+    "competition/replay.json": {
+      "path": "target/v53-automatic-history/retained-01/competition/replay.json",
+      "sha256": "8130c4e3f55665e351ccc9991600be1b4d18eb6a023359cb5618d3ba74f7a691"
+    },
+    "higher-ballot-restart/collection.json": {
+      "path": "target/v53-automatic-history/retained-01/higher-ballot-restart/collection.json",
+      "sha256": "bbd5dc02a238db4205342d58c11a16bd8e33352529ffa3f0d3bb6bded8726b3e"
+    },
+    "higher-ballot-restart/receipt.json": {
+      "path": "target/v53-automatic-history/retained-01/higher-ballot-restart/receipt.json",
+      "sha256": "f7fdf1ab3fe6a4cfaa5f98c50a453ff4d886b3e828731e4879ef54ffb2d08726"
+    },
+    "higher-ballot-restart/replay.json": {
+      "path": "target/v53-automatic-history/retained-01/higher-ballot-restart/replay.json",
+      "sha256": "f055db49359c988e1268a85ea67332195a7244a584d3e4fe87d22b1ca7c49810"
+    },
+    "plan.json": {
+      "path": "target/v53-automatic-history/plan.json",
+      "sha256": "0e196979e52f328f6d6b073f53c793d70b005265c8448c56aff5d93e11411424"
+    },
+    "python-focused-01.log": {
+      "path": "target/v53-automatic-history/python-focused-01.log",
+      "sha256": "82f5c509f7f40673cfd1fece60e564c8aa8f6d01b33606839241e744169323bc"
+    },
+    "python-focused-optimized.log": {
+      "path": "target/v53-automatic-history/python-focused-optimized.log",
+      "sha256": "4bee396675954ae22ba9398ea3e424f52a2a249651fe0b481b26f0bd43920270"
+    },
+    "python-suite.log": {
+      "path": "target/v53-automatic-history/python-suite.log",
+      "sha256": "4bb9e5cdd78c3c98540ea8ccfede1c452e1866673205ea7ba3e43cbfbe065639"
+    },
+    "reply-revocation/collection.json": {
+      "path": "target/v53-automatic-history/retained-01/reply-revocation/collection.json",
+      "sha256": "ef034adfdc34f20e0a2b6cb6df7561e144ff45547380aa69b4a553f695df38a8"
+    },
+    "reply-revocation/receipt.json": {
+      "path": "target/v53-automatic-history/retained-01/reply-revocation/receipt.json",
+      "sha256": "b631a1de0bd9cd6e4d12a3c5ddb6d0466329a00458fb205ecb6805525aa73fed"
+    },
+    "reply-revocation/replay.json": {
+      "path": "target/v53-automatic-history/retained-01/reply-revocation/replay.json",
+      "sha256": "cb9347963a66f1f25aef758312295d7d5839bd6c999d52eaffe14b5680033e4c"
+    },
+    "retained-01.log": {
+      "path": "target/v53-automatic-history/retained-01.log",
+      "sha256": "edd15dc2ba249ea6be63f016debcea4227079921edafd79f59ab5ba1131dd3e7"
+    },
+    "retained-01/reader.json": {
+      "path": "target/v53-automatic-history/retained-01/reader.json",
+      "sha256": "7423d63c98d03f0b1cceb935027c6a54fe5eef107e4d7f95eb6bedc0e60ae8d5"
+    },
+    "retained-01/summary.json": {
+      "path": "target/v53-automatic-history/retained-01/summary.json",
+      "sha256": "36942d274d7b76abadf0e0722cfb7c307aa983febc5225653d7991d1a194b398"
+    }
+  },
+  "completeExportLifetimesQualified": false,
+  "declaredGroups": [
+    "competition",
+    "higher-ballot-restart",
+    "reply-revocation"
+  ],
+  "declaredOriginalPlans": 50,
+  "finalSourceCohortQualified": false,
+  "focusedTests": 29,
+  "fullLifecycleQualified": false,
+  "hostedExecuted": false,
+  "nativeExecuted": false,
+  "nativeRerun": false,
+  "note": "Retained originals have different source hashes; they validate composition but cannot fill the new common-source cohort.",
+  "optimizedFocusedTests": 29,
+  "optimizedResultAndCollectionMatch": true,
+  "originalPreserved": true,
+  "phase3Complete": false,
+  "plannedHostedHistories": 462,
+  "pythonTests": 2588,
+  "readerSha256": "b795c8dafd9d5b6091d55a58e24c1e4f7e43f517683be25a53838ecb5e5f4154",
+  "retainedComposition": {
+    "competition": {
+      "case": "competition",
+      "nativeExecuted": false,
+      "negativeCases": 39,
+      "notApplicable": {
+        "journal-after-retirement": "Original history has no source retirement.",
+        "partial-after-retirement": "Original history has no incomplete SELECTED transfer.",
+        "partial-before-selection": "Original history has no incomplete SELECTED transfer.",
+        "partial-bytes": "Original history has no incomplete SELECTED transfer.",
+        "partial-other-owner": "Original history has no incomplete SELECTED transfer.",
+        "partial-received-at-retirement": "Original history has no incomplete SELECTED transfer.",
+        "partial-view": "Original history has no incomplete SELECTED transfer."
+      },
+      "plans": {
+        "competition": "5420f053114b59a18e009529306046a896d7b259056f0d26192e5c1fba871584"
+      },
+      "raw": "target/v53-automatic-lifecycle/native/workspace/general-search-engine-replication/target/v53-competing-node/run-07db2cf0-31db-4fbc-86b3-b6b89770806c",
+      "seconds": 17.435,
+      "sourceBoundCohortQualified": false,
+      "status": "PASS"
+    },
+    "higher-ballot-restart": {
+      "case": "higher-ballot-restart",
+      "nativeExecuted": false,
+      "negativeCases": 73,
+      "notApplicable": {},
+      "plans": {
+        "higher-ballot-restart": "6c4eb053b1bd1a3fa04cc16a4ccc5188964cf0fa40a820a76fc71e5489502c97"
+      },
+      "raw": "target/v53-restart-lifecycle/input/workspace/general-search-engine-replication/target/v53-native-dispatch/run-434ec6c3-4768-4a99-9b35-b34ebebcfb95",
+      "seconds": 124.981,
+      "sourceBoundCohortQualified": false,
+      "status": "PASS"
+    },
+    "reply-revocation": {
+      "case": "reply-revocation",
+      "nativeExecuted": false,
+      "negativeCases": 30,
+      "notApplicable": {},
+      "plans": {
+        "3-cached-commit-expiry": "778e816658351bd3910e5f569a8dabf431493579969f1e5f3f7ff655cec0ed81",
+        "3-cached-commit-higher-ballot": "fa4174b2a9ecdeb9bc0c8ed8f8b177a4f0cff7dba188f51a2c7c491615065c02",
+        "3-cached-commit-owner-close": "0284b1a8a4e784e4843606254f8b983abb832c612cead57a5c603a5caeaaad53",
+        "3-cached-commit-service-close": "8178f44a9d8f39c299a58e51331b7a95fa2d9f81b376c0eaae50b18c5fa2464b",
+        "3-commit-expiry": "c24fcf07fa37b97f3afee62c32e2dd1c975e2f29032fa2efaa3ba50bb65d2010",
+        "3-commit-higher-ballot": "44cbe487cc6d0883968a4de653947f1c3c730375ffbf4b59887ce2b437ab92ff",
+        "3-commit-owner-close": "5db0439bbd5995bde13f34562e09a218a84412f76c028a400308064e7c558599",
+        "3-commit-service-close": "0f823d4d5ef6759c53a446c88ce613490a0124846587b732e3d70fe851e23911",
+        "3-data-expiry": "a07896cc3a152a338d0190d4a41e9049a33ffd6f8f57d88cfb5adfd214a7ba40",
+        "3-data-higher-ballot": "167aefa0808cfda963fd41f393f41b844816cb3bae0a951d565d459ee3303392",
+        "3-data-owner-close": "bb621465139793ebf5cc951c458e63cd00ed5d592e608368328fdece5ce61ae2",
+        "3-data-service-close": "19bff9522423ce65d5deb3468dbcbf31e4d171c8a37987c1cd23298f5db731bb",
+        "3-offer-expiry": "366292849305d73eef9a7f205cc136267e3918889f52b39291965a3eb18fdd23",
+        "3-offer-higher-ballot": "6a61a964a380553a4dbf440257abc46db60ee5f70611877044c202983d4f12a7",
+        "3-offer-owner-close": "0053308b7719ce61ccd54848cf424039f153d71e78c2f29b3d8060a3f93997f8",
+        "3-offer-service-close": "a77176f290e15869bddb7a67f887e09ef44f68cd474dda544258b4dd50be27dc",
+        "4-cached-commit-expiry": "5b4e40135f8388353ee604f261c9c827834de97e613d4b46e54db7a2fc9f5cfa",
+        "4-cached-commit-higher-ballot": "deb9bb6007e43fd8dc59b68c910bc48ffe4013cc2b682da38e681b5f06635ca6",
+        "4-cached-commit-owner-close": "1b7a0a9acf651c787cd108701d8746f339c2231dbc72f17bc36db761256cc7ec",
+        "4-cached-commit-service-close": "822f88189ef91c612e78f10fecc33013de16ac64a94acced8d0ba0b0a0cfa4bb",
+        "4-commit-expiry": "924bc3d870be5a89f94a42f9853e675ab6378c51aa4806b78b34c6060848b799",
+        "4-commit-higher-ballot": "eafc39668666f1451e33308065f3750e4a2cec92e0d75672ecda24799e8f42dd",
+        "4-commit-owner-close": "11f301576c2e5708e4185ed1d9f10bd605173630ae1da65ea313aa46c8279fc9",
+        "4-commit-service-close": "8da9cd47c016e924cce8377950ce45672309ada2faf8d0201f7fde9564473c28",
+        "4-data-expiry": "68b06f27f680742c23b144fdb1858e348ce5d56ef38283b6b205fd603ea24e51",
+        "4-data-higher-ballot": "20e8baf269ba4f31706d34fa07ccf31df91408ac2ca7b031085c66e5a8b1568a",
+        "4-data-owner-close": "c52e0e9e1981f504822401e395896d3f1db2706adb35a137eaa76c4d43b46704",
+        "4-data-service-close": "1baa9d77a745b2cefff330d31d85e72c8eaec74d91e2d4a2a821ce659fcfc389",
+        "4-offer-expiry": "a4085bbd8b98ab020b2eea067b23618c8945c972adcbd20cd43c36b74a51ec45",
+        "4-offer-higher-ballot": "b6519574fed34e2de3fa1883439b5df67f30cec97adc7b277b0d80b8d70ae9e6",
+        "4-offer-owner-close": "8f1123a705adf16a27a82b3b19560b95f42b604d935ade104b577f0e098c2cfb",
+        "4-offer-service-close": "b88f66cf8f2e7ff296d14e2ed85417981b2c2e033fd4448a0f11dc497d77e512",
+        "5-cached-commit-expiry": "dbc017f19e68add0468ebb8df7931ddd495135c75a94ac705206385e2b35b3a4",
+        "5-cached-commit-higher-ballot": "a60430b255ec592c3025eb448a0f6bfa589a64eacd873c91fcb1c3741d30fc3d",
+        "5-cached-commit-owner-close": "97121c517d4efee022fc69f62195d61f91d86b28b24c56597281c046af82013d",
+        "5-cached-commit-service-close": "c505e9959ba0571fd28e008c39b677c68e12cd54e050e08b9dc52a591fba8229",
+        "5-commit-expiry": "6f2448521e507c2a9588371fa827edaa23560f28ef43b677e1368068f64ceb9d",
+        "5-commit-higher-ballot": "6efc80fd65dd046380db50fdf707a9d9a5c0bdd3b7b19e034bc22ba13efe8136",
+        "5-commit-owner-close": "c30d05af56f83e9093512a82bdf4b81b94db09ce3f7645354af3758f424946b1",
+        "5-commit-service-close": "8eee214bd130f9bc830cd36031c2400df9538fd2e50c0bcabf7973c67233f4da",
+        "5-data-expiry": "d9488b9265ab2e432518378b806e070197989e14b42b2c987421d8b9a538cfee",
+        "5-data-higher-ballot": "de2e2055e1d7982e2a97cb0d5eb563c2cfb04f8f897541c41de61f174de4df05",
+        "5-data-owner-close": "278263747d35e4f38bea004dc8639b64b64c54b59054810fa04ad40931280d18",
+        "5-data-service-close": "a14ea46e2d5f8b2452a61413fa942c5f7f15e14ae06541ee7fe2d2264a0b93e4",
+        "5-offer-expiry": "7f47adb384cab4f652b02b65c7692a12d3d2bdfe1ef5e21426e37f91a8f886f6",
+        "5-offer-higher-ballot": "2e4ac16a8d792a8d344ec654fbc5a141da9bff2a20b5bcac07da7c0eed7d39aa",
+        "5-offer-owner-close": "899626ad664959afeeb5acd2baedffb03669bd4fbadbbb296bac83b835032d73",
+        "5-offer-service-close": "d81d5672782177e1786377077e3579877435f3220773e019453e004038258ce4"
+      },
+      "raw": "/home/klfdm/perception/GeneralSearchEngine/target/v53-transfer-reply-lifetime-batch/input/workspace/general-search-engine-replication/target/v53-transfer-reply-lifetime/run-6d506fef-9674-4e77-aead-7c0274aa2a33",
+      "seconds": 83.566,
+      "sourceBoundCohortQualified": false,
+      "status": "PASS"
+    }
+  },
+  "retainedEvidenceNegatives": 142,
+  "retainedInputs": {
+    "competition": {
+      "path": "target/v53-automatic-lifecycle/native/source.json",
+      "sha256": "b6a204cd41acd98e090ffc03ad03ed32f8aa3e7596496531d589e6fb1a77d0f7"
+    },
+    "higher-ballot-restart": {
+      "path": "target/v53-restart-lifecycle/input/source.json",
+      "sha256": "b2f902076a5fc574378fed57cdba824dcbf9b2da921de117d882f24b01613c29"
+    },
+    "reply-revocation": {
+      "path": "target/v53-transfer-reply-lifetime-batch/input/source.json",
+      "sha256": "be158c31482a751d92971779e7b01bd8ca24c1d69b2669cd76d1a716b38ae7b8"
+    }
+  },
+  "retainedNotApplicable": 7,
+  "schema": "gse-v53-automatic-history-development-v1",
+  "sourceBoundCohortQualified": false,
+  "status": "PASS",
+  "supersededExpectedNegatives": 104,
+  "supersededLifecycleCompositionExecuted": false
+}

@@ -357,7 +357,8 @@
       "implementation": [
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipAutomaticOwner.java",
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipNodeOwner.java",
-        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipHeartbeat.java"
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipHeartbeat.java",
+        "scripts/v53/automatic_history.py"
       ],
       "tests": [
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CompetingNodeQualification.java",
@@ -370,7 +371,9 @@
         "scripts/v53/test_automatic_restart_lifecycle.py",
         "scripts/v53/test_automatic_restart_current.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransferReplyLifetimeTest.java",
-        "scripts/v53/test_transfer_reply_lifetime.py"
+        "scripts/v53/test_transfer_reply_lifetime.py",
+        "scripts/v53/test_automatic_history.py",
+        "scripts/v53/test_automatic_history_replay.py"
       ],
       "readers": [
         "scripts/v53/competing_node_evidence.py",
@@ -385,7 +388,8 @@
         "scripts/v53/competing_pregrant_evidence.py",
         "scripts/v53/automatic_restart_lifecycle.py",
         "scripts/v53/automatic_restart_current.py",
-        "scripts/v53/transfer_reply_lifetime.py"
+        "scripts/v53/transfer_reply_lifetime.py",
+        "scripts/v53/automatic_history_replay.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_COMPETING_REPLAY.md",
@@ -400,7 +404,8 @@
         "docs/v5x/v5.3/PHASE_3_AUTOMATIC_LIFECYCLE.md",
         "docs/v5x/v5.3/PHASE_3_PREGRANT_LOSS_REPLAY.md",
         "docs/v5x/v5.3/PHASE_3_RESTART_LIFECYCLE.md",
-        "docs/v5x/v5.3/PHASE_3_TRANSFER_REPLY_LIFETIME.md"
+        "docs/v5x/v5.3/PHASE_3_TRANSFER_REPLY_LIFETIME.md",
+        "docs/v5x/v5.3/PHASE_3_AUTOMATIC_HISTORY_COHORT.md"
       ],
       "cohorts": [
         "node-renames"
