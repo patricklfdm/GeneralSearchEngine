@@ -1,11 +1,19 @@
 # V5.3 Phase 3 entry and closure checklist
 
 [The current qualification audit](PHASE_3_QUALIFICATION_AUDIT.md) reconciles the
-implementation and historical notes into twelve review obligations, nine
-implemented hosted subsets (460 planned whole histories) and five open work
+implementation and historical notes into twelve review obligations, ten
+implemented hosted subsets (462 planned whole histories) and five open work
 groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
+
+[Carried transition cohort admission](PHASE_3_CARRIED_TRANSITION_COHORT.md) now
+binds both complete INTENT/FINAL originals, their retirement sidecars and all six
+reader layers to one source/build/toolchain/reader. Its
+[hosted entry](PHASE_3_CARRIED_TRANSITION_HOSTED.md) prepares two whole executions
+and two downloaded replays, requiring all 602 exact negatives. This adds two
+planned histories; final-source execution and remaining process/profile axes
+stay open.
 
 [Carried transition retirement prefixes](PHASE_3_CARRIED_TRANSITION_PREFIXES.md)
 add writer-held file capture before the first native campaign and exact comparison

@@ -42,6 +42,7 @@ COHORTS = {
     'transfer-histories': ('transfer_history_hosted', 'HISTORIES', 'transfer_history_hosted'),
     'round-histories': ('round_history', 'CASES', 'round_history_hosted'),
     'carried-data-histories': ('carried_data_history', 'CASES', 'carried_data_history_hosted'),
+    'carried-transition-histories': ('carried_transition_history', 'CASES', 'carried_transition_history_hosted'),
 }
 GAPS = ('component-cohorts', 'combined-resources', 'frozen-coverage', 'cohort-admission', 'final-source-execution')
 need, encoded, digest = inventory.need, inventory.encoded, inventory.digest

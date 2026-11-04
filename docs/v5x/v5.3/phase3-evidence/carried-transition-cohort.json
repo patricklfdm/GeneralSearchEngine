@@ -1,0 +1,136 @@
+{
+  "allMembershipProfilesQualified": false,
+  "baseCommit": "1c61743ba26b40be1f12dcc5a8a476192cc7ddb5",
+  "cases": [
+    "intent",
+    "final"
+  ],
+  "declaredReaderCompositionQualified": true,
+  "finalSourceQualified": false,
+  "hostedExecutionsThisBatch": 0,
+  "inventory": {
+    "optionalHostedSubsets": 10,
+    "plannedWholeHistories": 462,
+    "receipt": {
+      "path": "target/v53-carried-transition-cohort/inventory-final/receipt.json",
+      "sha256": "f8a0c05358161b1f5251ebac9eb28ceb20b0128215e4d2f48b39649175898717"
+    }
+  },
+  "members": [
+    {
+      "case": "intent",
+      "elapsedSeconds": 1479.3159966719995,
+      "originalBuildSha256": "74d3ea0c577fc29f82d1b5c6318ea8b151a035e382646b574ffecb7411f6e1fd",
+      "originalInventorySha256": "30390f6c0677a25cc199334ad4fdcbb8e6c932bc435622e791cbffac8188cc3f",
+      "originalProducer": {
+        "path": "target/v53-carried-transition-prefixes/inputs/intent/receipt.json",
+        "sha256": "11897534c46477b2140f0e295cf073d91e7beae04e5cd14fd3adf7aa6d6e06c7"
+      },
+      "originalSidecarInventorySha256": "f0813f6338efb67625ac3c45460ca200e2fd11b684eb71159c7af1a8aab133cd",
+      "originalSourceSha256": "71d740bd062c3694f0a0e495663c81eb78aa3aff37abaebf95ff50ef91fc1d3b",
+      "replay": {
+        "path": "target/v53-carried-transition-cohort/intent-development-replay.json",
+        "sha256": "6b57e23a197e4ad230f547bb76ad622628a84e50690d543baa895825829dfe0a"
+      },
+      "replayReceipt": {
+        "path": "target/v53-carried-transition-cohort/intent-development-receipt.json",
+        "sha256": "f2087ecdd233a3133ce126ccce59c37cf924571f17d4c48a96f02a6bfe18a8c0"
+      },
+      "stageNegativeCounts": {
+        "exports": 22,
+        "network": 153,
+        "physical": 30,
+        "prefixes": 19,
+        "retention": 41,
+        "retirement": 36
+      }
+    },
+    {
+      "case": "final",
+      "elapsedSeconds": 977.7712726509999,
+      "originalBuildSha256": "74d3ea0c577fc29f82d1b5c6318ea8b151a035e382646b574ffecb7411f6e1fd",
+      "originalInventorySha256": "e619bace9bc6e90d7b538272a5f91d12ceefce1021bb479672d719c381bcf74d",
+      "originalProducer": {
+        "path": "target/v53-carried-transition-prefixes/inputs/final/receipt.json",
+        "sha256": "b3c529c6410842a469dad84469714cabb8e93dd67c5ea40e4b4126623b495ea3"
+      },
+      "originalSidecarInventorySha256": "d41e7c1ca15512804799581c2db7c944b25a6f4dc91448e6bf3eb6c8e1d65915",
+      "originalSourceSha256": "71d740bd062c3694f0a0e495663c81eb78aa3aff37abaebf95ff50ef91fc1d3b",
+      "replay": {
+        "path": "target/v53-carried-transition-cohort/final-development-replay.json",
+        "sha256": "251dacfca1fbac792d0c840616d0f1622a5dfb1d62ac43a6643bd970f2857893"
+      },
+      "replayReceipt": {
+        "path": "target/v53-carried-transition-cohort/final-development-receipt.json",
+        "sha256": "9033171968dfa82dd5d0ffe9b237be94f4390b7c4c20bd6bbcd5f61bdd4fb0b6"
+      },
+      "stageNegativeCounts": {
+        "exports": 22,
+        "network": 153,
+        "physical": 30,
+        "prefixes": 19,
+        "retention": 41,
+        "retirement": 36
+      }
+    }
+  ],
+  "nativeExecutionsThisBatch": 0,
+  "nativeRetriesThisBatch": 0,
+  "negativeChecks": 602,
+  "note": "The prior captures are retained unchanged and are explicitly refused as new-schema cohort producers. New source-bound native capture and hosted execution remain pending. Synthetic adapter tests do not fill those slots.",
+  "paidCloud": false,
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "publicReady": false,
+  "reader": {
+    "path": "target/v53-carried-transition-cohort/development-reader.json",
+    "sha256": "92477773d7c8ae6ce95281c07007009c8e60e329c9a1548d43c2ac44b47ff728"
+  },
+  "readerSha256": "be34933413d9f289eb7238dd46a9c6776f9ebc1d40b2be07f300f4c796f7e1a6",
+  "requiredChanged": false,
+  "runtimeChanged": false,
+  "schema": "gse-v53-carried-transition-cohort-development-v1",
+  "scope": "source-bound carried INTENT/FINAL entry and opt-in hosted adapter; development replay over retained original bytes",
+  "sourceBoundCohortExecuted": false,
+  "status": "PARTIAL",
+  "tests": {
+    "cliCollection": {
+      "path": "target/v53-carried-transition-cohort/cli-collection-receipt.json",
+      "sha256": "26c757b954ea2b79c81b65eb907282879558114cdae59ca37d74f2fb64c0a7ea"
+    },
+    "documentContract": {
+      "path": "target/v53-carried-transition-cohort/document-contract-final.json",
+      "sha256": "137a6fa60c01839a224bb60c1fb232dcc75aec9a6899e288457803730f9e0d98"
+    },
+    "documentTests": {
+      "path": "target/v53-carried-transition-cohort/document-tests-final.log",
+      "sha256": "6cb4f0bc5e523a3e05bd30c3e66559642ef0c01e8c7027695752d129bbc10e67"
+    },
+    "focused": {
+      "path": "target/v53-carried-transition-cohort/focused.log",
+      "sha256": "b7516721cea803bfce6cd30611edab0793589426e2dda0dee1e0eeda89cde23f"
+    },
+    "focusedTests": 59,
+    "historicalAdmissionRejection": {
+      "path": "target/v53-carried-transition-cohort/historical-admission-rejections.json",
+      "sha256": "b9d97723257b0cd53a721d534c3a9cb04b878131e451ab32d583624f2cfdceb2"
+    },
+    "implementation": {
+      "path": "target/v53-carried-transition-cohort/implementation-hashes.json",
+      "sha256": "87058cc743fae5b7a37fe2dd37730aa0945f2969f8affd66d98b3c854a46fc6f"
+    },
+    "optimized": {
+      "path": "target/v53-carried-transition-cohort/focused-optimized.log",
+      "sha256": "ae3a528b5a6c3a20d7d05a82a3078ead56c1ae41d935f7c81834aef9d16785bb"
+    },
+    "pythonSuite": {
+      "path": "target/v53-carried-transition-cohort/python-suite.log",
+      "sha256": "7b06e579f4086254f63a80f8064dcc0d6be933b5f25024871d3b7421973bed89"
+    },
+    "pythonTests": 2525,
+    "workflow": {
+      "path": "target/v53-carried-transition-cohort/workflow-check.json",
+      "sha256": "cf3514d604de69f0855254e40326cc1eb0411875cf7d1e1bc6f413fc9cd39803"
+    }
+  }
+}

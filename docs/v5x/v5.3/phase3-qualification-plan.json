@@ -219,7 +219,10 @@
         "scripts/v53/test_carried_transition_exports.py",
         "scripts/v53/test_carried_transition_retention.py",
         "scripts/v53/test_carried_transition_retirement.py",
-        "scripts/v53/test_carried_transition_prefixes.py"
+        "scripts/v53/test_carried_transition_prefixes.py",
+        "scripts/v53/test_carried_transition_history.py",
+        "scripts/v53/test_carried_transition_history_hosted.py",
+        "scripts/v53/test_carried_transition_history_workflow.py"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -229,7 +232,9 @@
         "scripts/v53/carried_transition_exports.py",
         "scripts/v53/carried_transition_retention.py",
         "scripts/v53/carried_transition_retirement.py",
-        "scripts/v53/carried_transition_prefixes.py"
+        "scripts/v53/carried_transition_prefixes.py",
+        "scripts/v53/carried_transition_history.py",
+        "scripts/v53/carried_transition_history_hosted.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_JOINT_COORDINATION.md",
@@ -239,12 +244,15 @@
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_NETWORK.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_EXPORTS.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_RETENTION.md",
-        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_PREFIXES.md"
+        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_PREFIXES.md",
+        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_COHORT.md",
+        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_HOSTED.md"
       ],
       "cohorts": [
         "profiles",
         "remove-process",
-        "joining-process"
+        "joining-process",
+        "carried-transition-histories"
       ],
       "gaps": [
         "component-cohorts",
@@ -287,7 +295,10 @@
         "scripts/v53/test_carried_transition_exports.py",
         "scripts/v53/test_carried_transition_retention.py",
         "scripts/v53/test_carried_transition_retirement.py",
-        "scripts/v53/test_carried_transition_prefixes.py"
+        "scripts/v53/test_carried_transition_prefixes.py",
+        "scripts/v53/test_carried_transition_history.py",
+        "scripts/v53/test_carried_transition_history_hosted.py",
+        "scripts/v53/test_carried_transition_history_workflow.py"
       ],
       "readers": [
         "scripts/v53/carried_process_evidence.py",
@@ -300,7 +311,9 @@
         "scripts/v53/carried_transition_exports.py",
         "scripts/v53/carried_transition_retention.py",
         "scripts/v53/carried_transition_retirement.py",
-        "scripts/v53/carried_transition_prefixes.py"
+        "scripts/v53/carried_transition_prefixes.py",
+        "scripts/v53/carried_transition_history.py",
+        "scripts/v53/carried_transition_history_hosted.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_CARRIED_SLOTS.md",
@@ -313,12 +326,15 @@
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_NETWORK.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_EXPORTS.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_RETENTION.md",
-        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_PREFIXES.md"
+        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_PREFIXES.md",
+        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_COHORT.md",
+        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_HOSTED.md"
       ],
       "cohorts": [
         "node-renames",
         "round-histories",
-        "carried-data-histories"
+        "carried-data-histories",
+        "carried-transition-histories"
       ],
       "gaps": [
         "component-cohorts",
@@ -530,7 +546,10 @@
         "scripts/v53/test_carried_transition_exports.py",
         "scripts/v53/test_carried_transition_retention.py",
         "scripts/v53/test_carried_transition_retirement.py",
-        "scripts/v53/test_carried_transition_prefixes.py"
+        "scripts/v53/test_carried_transition_prefixes.py",
+        "scripts/v53/test_carried_transition_history.py",
+        "scripts/v53/test_carried_transition_history_hosted.py",
+        "scripts/v53/test_carried_transition_history_workflow.py"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -545,7 +564,9 @@
         "scripts/v53/carried_transition_exports.py",
         "scripts/v53/carried_transition_retention.py",
         "scripts/v53/carried_transition_retirement.py",
-        "scripts/v53/carried_transition_prefixes.py"
+        "scripts/v53/carried_transition_prefixes.py",
+        "scripts/v53/carried_transition_history.py",
+        "scripts/v53/carried_transition_history_hosted.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md",
@@ -560,7 +581,9 @@
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_NETWORK.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_EXPORTS.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_RETENTION.md",
-        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_PREFIXES.md"
+        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_PREFIXES.md",
+        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_COHORT.md",
+        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_HOSTED.md"
       ],
       "cohorts": [
         "profiles",
@@ -571,7 +594,8 @@
         "learner-histories",
         "transfer-histories",
         "round-histories",
-        "carried-data-histories"
+        "carried-data-histories",
+        "carried-transition-histories"
       ],
       "gaps": [
         "cohort-admission",
@@ -624,6 +648,11 @@
       "members": 4,
       "casesSha256": "569c67072cf5d3fc44d8df50e1f9c9ca56c4cd77a19969eb07783f8be456e2b5",
       "status": "ENTRY_READY_EXECUTION_PENDING"
+    },
+    "carried-transition-histories": {
+      "members": 2,
+      "casesSha256": "7209e51ab95a9de69ff9f00e4cb410ae98e95feb0c494e1b5bb7afb785de7487",
+      "status": "ENTRY_READY_EXECUTION_PENDING"
     }
   },
   "gaps": [
@@ -631,7 +660,7 @@
       "id": "component-cohorts",
       "status": "OPEN",
       "dependsOn": [],
-      "work": "The focused 3-ADD learner pair and complete TCP lifetime/process matrices have source-bound capture, admission and hosted entries. Seven native carried/stable round histories now have source-bound local admission and an independent seven-job hosted entry. Four carried DATA phases now have a source-bound local entry with immutable payload, derived application state and next-BARRIER qualification; its four-member hosted adapter is prepared, with final-source execution pending. Two four-voter REMOVE carried INTENT/FINAL originals now have independent physical/lifecycle replay and 60 exact negatives, including portable optimized replay. Two new request-observed originals now add complete attempted transport, durable activation/slot replies and 153 exact network negatives per kind. Older response-only records are explicitly refused for this scope. The same originals now have temporal export authorization and complete-copy floor lifetime replay (416 transfers, 20 floors, 44 exact negatives). Continuous peer/future revision composition and complete observed retirement callbacks now add 154 exact negatives on those same originals. Transient retirement byte/process capture and dedicated source-bound capture/admission remain; it does not add a hosted subset. Continue other carried payload/process axes, competing owners, transition recovery and uncovered learner profiles. Phase 2 conditional process fixtures cannot substitute for Phase 3 native originals. Final-source execution remains pending; reuse existing producers/readers.",
+      "work": "The focused 3-ADD learner pair and complete TCP lifetime/process matrices have source-bound capture, admission and hosted entries. Seven native carried/stable round histories now have source-bound local admission and an independent seven-job hosted entry. Four carried DATA phases now have a source-bound local entry with immutable payload, derived application state and next-BARRIER qualification; its four-member hosted adapter is prepared, with final-source execution pending. Two four-voter REMOVE carried INTENT/FINAL originals now have independent physical/lifecycle replay and 60 exact negatives, including portable optimized replay. Two new request-observed originals now add complete attempted transport, durable activation/slot replies and 153 exact network negatives per kind. Older response-only records are explicitly refused for this scope. The same originals now have temporal export authorization and complete-copy floor lifetime replay (416 transfers, 20 floors, 44 exact negatives). Continuous peer/future revision composition and complete observed retirement callbacks now add 154 exact negatives on those same originals. Two new originals now retain 1176 actual retirement file prefixes with 38 exact negatives and portable replay. The carried transition pair now has source/build/toolchain/reader-bound whole-history capture/admission and a two-job hosted execution/downloaded-replay entry requiring all 602 negative checks. Final-source execution, carried process-death histories and other profiles remain open. Continue other carried payload/process axes, competing owners, transition recovery and uncovered learner profiles. Phase 2 conditional process fixtures cannot substitute for Phase 3 native originals. Final-source execution remains pending; reuse existing producers/readers.",
       "acceptance": "Exact source/build/toolchain/reader-bound originals and independent original-first replay. Missing observations, unsupported histories or an original deadline failure remain failures. Whole ownership and revision histories stay indivisible."
     },
     {

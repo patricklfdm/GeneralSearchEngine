@@ -25,8 +25,9 @@ the backlog as a new feature.
 | [Transfer lifetime/process matrices](PHASE_3_TRANSFER_HISTORY_HOSTED.md) | 21 | 2 | Three continuous owner histories and eighteen two-process recoveries |
 | [Native carried/stable rounds](PHASE_3_NATIVE_ROUND_HOSTED.md) | 7 | 7 | Four carried BARRIER phases and three guarded round histories |
 | [Native carried DATA](PHASE_3_CARRIED_DATA_HOSTED.md) | 4 | 4 | Four old DATA phases, carried completion and the next fresh BARRIER |
+| [Native carried INTENT/FINAL](PHASE_3_CARRIED_TRANSITION_HOSTED.md) | 2 | 2 | Complete carried transitions through stable BARRIER, six reader layers and actual retirement bytes |
 
-These **460 planned native histories** are complementary subsets. This is neither
+These **462 planned native histories** are complementary subsets. This is neither
 a pass count nor a count of covered rows in the frozen S matrix. The inspector
 reads their actual Python catalogues and checks declared counts and ordered-case
 hashes. Joining groups must partition all 360 whole histories exactly; transfer
@@ -53,13 +54,13 @@ prove its semantics.
 | 3B recovery | Retained ancestry, owned reopening and cross-view adoption | Final-source restart/discovery coverage |
 | 3C learner | Six-revision/cancellation producers, source retention, readers and hosted pair | Complete final-source histories and profile coverage |
 | 3C initialization | Actual joining owner, three-ledger initialization and 360-case entry | Final-source matrix; combined bounds |
-| 3C joint | Private INTENT/FINAL/BARRIER coordination for all seven profiles; [carried INTENT/FINAL physical replay](PHASE_3_CARRIED_TRANSITIONS.md) for four-voter REMOVE | Final-source profiles, complete carried network/admission and interrupted transitions |
-| 3D rounds | Carried-first publication, two durable phases, round reuse, [seven-history admission](PHASE_3_NATIVE_ROUND_COHORT.md) and [carried INTENT/FINAL physical/lifecycle replay](PHASE_3_CARRIED_TRANSITIONS.md) | Final-source native round execution; carried DATA has a [four-history local entry](PHASE_3_CARRIED_DATA_COHORT.md); complete carried transition network/admission, other payload axes and process faults remain |
+| 3C joint | Private INTENT/FINAL/BARRIER coordination for all seven profiles; [carried INTENT/FINAL physical replay](PHASE_3_CARRIED_TRANSITIONS.md) for four-voter REMOVE | Final-source profiles and carried pair execution, other profiles and interrupted transitions |
+| 3D rounds | Carried-first publication, two durable phases, round reuse, [seven-history admission](PHASE_3_NATIVE_ROUND_COHORT.md) and [carried INTENT/FINAL physical/lifecycle replay](PHASE_3_CARRIED_TRANSITIONS.md) | Final-source native round execution; carried DATA has a [four-history local entry](PHASE_3_CARRIED_DATA_COHORT.md); the [carried transition pair](PHASE_3_CARRIED_TRANSITION_COHORT.md) has six-layer admission; final-source execution, other payload axes and process faults remain |
 | 3D automatic | Competing owners, heartbeat, original grants, both campaign networks, maintenance, installation/publication, [observed export authority](PHASE_3_COMPETING_EXPORTS.md), [actual lifecycle collection](PHASE_3_AUTOMATIC_LIFECYCLE.md) and [pre-grant-loss whole replay](PHASE_3_PREGRANT_LOSS_REPLAY.md) | Export expiry/close faults, complete lifecycle/recovery, final-source competition and failure coverage |
 | 3D removal | Departure fencing, retirement and original-disk recovery | Final-source original/negative process matrix |
 | 3E resources | Accounting, bounded transfers, publication refusal and conditional-prefix tests | Simultaneous physical peak and admitted completion |
 | 3E coverage | Frozen finite inventory and this dependency map | Concrete schedule/evidence/rejection mapping |
-| 3E cohort | Nine source-bound subset gates | Complete final admission, execution and closure audit |
+| 3E cohort | Ten source-bound subset gates | Complete final admission, execution and closure audit |
 
 `MembershipStorageOperations` still refuses public learner operations and
 `MembershipSearchEngine` keeps reads disabled. Phase 3 private protocol work does
@@ -112,8 +113,10 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    now adds continuous peer/future chains, all observed retirement callbacks and
    154 exact negatives. [Retirement prefix capture](PHASE_3_CARRIED_TRANSITION_PREFIXES.md)
    now adds actual writer-held bytes and compares them to those derived states,
-   with separate carried kind/result binding. Process-death coverage and dedicated
-   source-bound admission remain; no subset is added.
+   with separate carried kind/result binding. The
+   [source-bound cohort and hosted pair](PHASE_3_CARRIED_TRANSITION_HOSTED.md) now
+   require all six reader vectors (602 negatives) and both complete sidecars.
+   Final-source execution, process-death coverage and other profiles remain open.
    Other carried payload/process axes remain; conditional Phase 2 fixtures cannot
    substitute for native originals. Continue competing-owner and transition
    recovery entries and uncovered learner profiles. Reuse existing producers/readers.
