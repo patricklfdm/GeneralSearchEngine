@@ -1,0 +1,154 @@
+{
+  "acceptedNativeHistories": 0,
+  "baseHead": "68d9030e5afdef346ba7c0f01ee68dcc1acab5c0",
+  "compiledClasses": {
+    "path": "target/v53-required-four-review/compiled-classes.json",
+    "sha256": "bb67cbaed7cb28b8c2b27afbd6af267a0cadcadf4e039086567575d3823c2cfc"
+  },
+  "declaredNegatives": 13,
+  "diagnosticLog": {
+    "path": "target/v53-required-four-review/capacity-diagnosis-02.log",
+    "sha256": "81790e3db6857b19c2ef12df29fa2f04be539d82ea737833a409cb16c387041d"
+  },
+  "diagnosticSource": {
+    "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RequiredFourCapacityTest.java",
+    "sha256": "18420a096b6d715dd943a6203772896fcd9c7649ac660e0221af3fedc28e8dc6"
+  },
+  "diagnosticTests": {
+    "V53JoiningProfileTest": {
+      "path": "target/v53-required-four-review/reports/diagnostic-02-V53JoiningProfileTest.xml",
+      "seconds": 0.114,
+      "sha256": "8a7c30ac445a7a619e9a648b4ee19177482adff8000889ce9518a8f64a4a3217",
+      "tests": 13
+    },
+    "V53RequiredFourCapacityTest": {
+      "path": "target/v53-required-four-review/reports/diagnostic-02-V53RequiredFourCapacityTest.xml",
+      "seconds": 1.8,
+      "sha256": "27b19adee443708ed781cea007df5480ff20764b588c61d87861aeeb4dfae82b",
+      "tests": 2
+    },
+    "V53SourceReservationTest": {
+      "path": "target/v53-required-four-review/reports/diagnostic-02-V53SourceReservationTest.xml",
+      "seconds": 3.1,
+      "sha256": "b25766d2d91e1591485fddb5e5bfd933db6e3f77cd40228717152f28955a5a8d",
+      "tests": 7
+    }
+  },
+  "finalSourceCohortQualified": false,
+  "finalizer": {
+    "path": "target/v53-required-four-review/finalize.py",
+    "sha256": "134f26ffd8caedf50d3db3d26ae713805afb1b8ef7c3dc435dfe07080b703ced"
+  },
+  "historicalOriginal": "general-search-engine-replication/target/v53-native-dispatch/run-381e20e1-7742-4cc2-ab98-169a846fa2cf",
+  "historicalReplays": {
+    "historical-physical-replay.log": {
+      "path": "target/v53-required-four-review/historical-physical-replay.log",
+      "sha256": "70d14628ef38bc87d4876526e512dd81ed77461a8642a953940b6d7197ec86bc"
+    },
+    "historical-semantic-replay.log": {
+      "path": "target/v53-required-four-review/historical-semantic-replay.log",
+      "sha256": "07b4bd233a59dfa46ef0dfaa455b96ccda40f7744c278630493a27da86e5f5b0"
+    }
+  },
+  "javaSource": {
+    "path": "target/v53-required-four-review/tested-java-source.json",
+    "sha256": "7df2e459e6e3e95f1f99f4b9bebd84d8ee2bb7ffc3decb6d64b5dfd4549f059f"
+  },
+  "nativeExecution": {
+    "beforeFinal": true,
+    "error": "resource ownership/count",
+    "log": {
+      "path": "target/v53-required-four-review/native-01.log",
+      "sha256": "cbff793904ab47873c64076c03a0742e9766df72778757ae3a291d9102685b38"
+    },
+    "report": {
+      "path": "target/v53-required-four-review/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest.xml",
+      "seconds": 955.652,
+      "sha256": "42d42342833ef1c4fd50324faa22ce2789b69b949f2caa2ce043a44f14cf9493",
+      "tests": 1
+    },
+    "status": "FAIL"
+  },
+  "original": "general-search-engine-replication/target/v53-native-dispatch/run-ff827179-3eab-42b7-afc0-855312f9ee2e",
+  "originalInventory": {
+    "path": "target/v53-required-four-review/original-inventory.json",
+    "sha256": "419b87b1a504ac67767ee7431eef45b0594fb3958ada542258c573d697111086"
+  },
+  "originalRejection": {
+    "log": {
+      "path": "target/v53-required-four-review/failed-original-replay.log",
+      "sha256": "a19713f7579384c96bd2f48cf681e119270c9738d05f4788697126c5ab4859fd"
+    },
+    "reason": "joining complete control order",
+    "status": "REJECTED"
+  },
+  "phase3Complete": false,
+  "physicalObservations": {
+    "node-1": {
+      "imageByteSizes": [
+        837
+      ],
+      "sourceCount": 3,
+      "sourceDirectories": [
+        "00972770-63cd-4a6e-9331-90da02e78d69",
+        "0b22a5f6-1656-4b62-b461-528cfcebff27",
+        "6400e1ed-b8b5-4115-ac3e-57b31436e71f"
+      ]
+    },
+    "node-2": {
+      "imageByteSizes": [
+        837
+      ],
+      "sourceCount": 2,
+      "sourceDirectories": [
+        "5793e740-a8a4-4b68-a25c-8c9f4ff0a6fb",
+        "92555ccd-fab5-4485-9b03-41ccc9f05d73"
+      ]
+    },
+    "node-3": {
+      "imageByteSizes": [
+        837
+      ],
+      "sourceCount": 2,
+      "sourceDirectories": [
+        "a5e927ce-b1c2-4d23-a8b6-d0f1c8b35b22",
+        "e9bf3912-64f5-4780-91cb-0a1791d9fcb2"
+      ]
+    }
+  },
+  "priorDiagnosticFailure": {
+    "log": {
+      "path": "target/v53-required-four-review/capacity-diagnosis-01.log",
+      "sha256": "aabdaf01b1bf81aca23090b368fb1e452349bcfad7a4cb5761dbc3ca73372955"
+    },
+    "reason": "live-only accessor after deliberately failed storage operation",
+    "report": {
+      "path": "target/v53-required-four-review/reports/capacity-diagnosis-01.xml",
+      "sha256": "86e203a9c0cc56cd8cd6b9abc9095ab0a4f102ceac16ef7a1cbfa933ca5e93c6"
+    }
+  },
+  "productionJavaChanged": false,
+  "pythonLog": {
+    "path": "target/v53-required-four-review/python-regressions-final.log",
+    "sha256": "6a8d5fa85a7d162a5595adc182e625fc6610f2eb58abe3db1a041a77a6d16203"
+  },
+  "pythonTests": 844,
+  "qualifiedNativeNegatives": 0,
+  "readerSource": {
+    "path": "target/v53-required-four-review/reader-source.json",
+    "sha256": "ddd824a7c761d776760ae5cf588cb8676c98bffb5ec4684b4ec9b40e59fe488f"
+  },
+  "requiredFourPublicationQualified": false,
+  "requiredFourSemanticQualified": false,
+  "schema": "gse-v53-required-four-development-v1",
+  "sourceCapacityDiagnosis": {
+    "frozenSourceSlots": 6,
+    "originalSources": 3,
+    "requiredFloorCopies": 4,
+    "runtimeCorrectionImplemented": false,
+    "threeSourceConditionalRefusal": "PASS",
+    "twoSourceConditionalCase": "PASS"
+  },
+  "status": "PARTIAL",
+  "wholeRuntimePeakQualified": false
+}

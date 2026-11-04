@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Required-four replacement](PHASE_3_REQUIRED_FOUR.md) adds the availability shape
+in which no three reachable members can satisfy both joint majorities. Its
+semantic/publication reader distinguishes governing FINAL votes from successor
+checkpoint endorsements. The first native execution exposed a source/floor
+capacity conflict before FINAL; its diagnosis is retained and the runtime fix
+and complete phase qualification remain open.
+
 [Native publication storage observations](PHASE_3_PUBLICATION_RESOURCES.md) add
 original writer inventories and resource counters at eleven publication boundaries.
 Independent history replay derives candidate/old-generation and completion-image

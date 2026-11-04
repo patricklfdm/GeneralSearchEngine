@@ -50,6 +50,16 @@ planned entries above; their final-source executions remain open.
 
 ## Current obligation map
 
+[Required-four replacement](PHASE_3_REQUIRED_FOUR.md) adds a development
+topology with live common members 1/2, departing member 3 and joining member 6;
+common members 4/5 remain offline. Unlike the earlier four-copy floor, this
+joint view needs all four available voters. Its original semantic/publication
+reader does not add a hosted subset or qualify the full physical/resource peak.
+The first native execution failed before FINAL at floor reservation: three
+retained sources plus four required floor copies exceed the six-slot SOURCE
+limit. No required-four native qualification or negative set has passed; the
+short conditional capacity diagnosis is not a runtime correction.
+
 [Floor/retirement refusal accounting](PHASE_3_SOURCE_RESERVATION.md) now retains
 the charges for incomplete original files and rolls back partial handoff growth.
 This follows the generation reservation correction. Its conditional regressions

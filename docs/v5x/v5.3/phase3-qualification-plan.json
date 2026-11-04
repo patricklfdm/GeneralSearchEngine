@@ -228,7 +228,10 @@
         "scripts/v53/test_carried_transition_prefixes.py",
         "scripts/v53/test_carried_transition_history.py",
         "scripts/v53/test_carried_transition_history_hosted.py",
-        "scripts/v53/test_carried_transition_history_workflow.py"
+        "scripts/v53/test_carried_transition_history_workflow.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningProfileTest.java",
+        "scripts/v53/test_required_four_evidence.py"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -240,7 +243,8 @@
         "scripts/v53/carried_transition_retirement.py",
         "scripts/v53/carried_transition_prefixes.py",
         "scripts/v53/carried_transition_history.py",
-        "scripts/v53/carried_transition_history_hosted.py"
+        "scripts/v53/carried_transition_history_hosted.py",
+        "scripts/v53/required_four_evidence.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_JOINT_COORDINATION.md",
@@ -252,7 +256,8 @@
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_RETENTION.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_PREFIXES.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_COHORT.md",
-        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_HOSTED.md"
+        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_HOSTED.md",
+        "docs/v5x/v5.3/PHASE_3_REQUIRED_FOUR.md"
       ],
       "cohorts": [
         "profiles",
@@ -523,7 +528,8 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationReservationTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationReloadTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationResourceCapture.java",
-        "scripts/v53/test_publication_resource_evidence.py"
+        "scripts/v53/test_publication_resource_evidence.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RequiredFourCapacityTest.java"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -568,7 +574,8 @@
         "docs/v5x/v5.3/PHASE_3_TRANSFER_RESOURCE_LIFETIME.md",
         "docs/v5x/v5.3/PHASE_3_PUBLICATION_RESERVATION.md",
         "docs/v5x/v5.3/PHASE_3_GENERATION_RELOAD.md",
-        "docs/v5x/v5.3/PHASE_3_PUBLICATION_RESOURCES.md"
+        "docs/v5x/v5.3/PHASE_3_PUBLICATION_RESOURCES.md",
+        "docs/v5x/v5.3/PHASE_3_REQUIRED_FOUR.md"
       ],
       "cohorts": [
         "profiles",

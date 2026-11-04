@@ -9,6 +9,24 @@ import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.*;
 
 class V53JoiningProfileTest {
+    @Test void requiredFourReplacementCannotUseAnyThreeOfTheAvailableVoters() {
+        var p=V53JoiningProfile.parse("5-REPLACE-required-four");
+        assertEquals(List.of("node-1","node-2","node-3"),p.oldVoters());
+        assertEquals(List.of("node-1","node-2","node-4","node-5","node-6"),p.targets());
+        assertTrue(p.requiresJoiningAck());
+        var all=List.of("node-1","node-2","node-3","node-6");
+        var joint=Map.<String,Object>of("old",List.of("node-1","node-2","node-3","node-4","node-5"),"new",p.targets());
+        assertEquals(Set.copyOf(all),p.selected(joint,all));
+        for(String absent:all) {
+            var shortSet=new ArrayList<>(all);shortSet.remove(absent);
+            assertThrows(IllegalArgumentException.class,()->p.selected(joint,shortSet),absent);
+        }
+        var stable=Map.<String,Object>of("old",p.targets(),"new",p.targets());
+        assertEquals(Set.of("node-1","node-2","node-6"),p.selected(stable,List.of("node-1","node-2","node-6")));
+        assertThrows(IllegalArgumentException.class,()->p.selected(stable,List.of("node-1","node-2","node-3")));
+        assertThrows(IllegalArgumentException.class,()->new V53JoiningProfile(4,MembershipChangeKind.REPLACE,true));
+        assertThrows(IllegalArgumentException.class,()->new V53JoiningProfile(4,MembershipChangeKind.ADD,true));
+    }
     @ParameterizedTest
     @CsvSource({"3-ADD,true", "4-ADD,false", "3-REPLACE,false", "4-REPLACE,false", "5-REPLACE,false"})
     void actualSeparateMajoritiesAgreeWithTheDeclaredTopology(String name,boolean joiningRequired) {

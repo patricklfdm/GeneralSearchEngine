@@ -40,6 +40,13 @@ class CheckpointReceipts:
             lower,upper=block['APPLY_BEFORE_RETURN'],block['PUBLICATION_VALIDATED']
             local=replay.owner('applied',index,node)
             groups={}
+            if (index,node) in getattr(replay,'nonvoting',set()):
+                # A departing FINAL owner must collect successor endorsements
+                # remotely. It has an original statement, never a local ACK.
+                need('applied-end/ack.gsr' not in local, 'joining publication nonvoting local ACK')
+                raw=local['applied-end/statement.gsr'];value=f.decode(raw,'records','CHECKPOINT',replay.root)
+                need(value['end']==replay.states[index]['cut'], 'joining publication nonvoting statement')
+                groups[sha(raw)]={}
             for name,raw in local.items():
                 if name.startswith('applied-end/') and (name=='applied-end/ack.gsr' or name.endswith('-ack.gsr')):
                     value=f.decode(raw,'records','CHECKPOINT_ACK',replay.root)
@@ -200,7 +207,8 @@ def publication_ledgers(replay, files, index):
     voters = [v['voter'] for v in f.decode(parts['CERTIFICATE'], 'records', 'CERTIFICATE')['proofs']]
     parent, upper = anchor(replay, index-1), anchor(replay, index)
     local = disk.current(files)[1]
-    originals = {k: files['applied-end/'+k] for k in ('selector.gsr', 'certificate.gsr', 'catalog.gsr', 'statement.gsr', 'ack.gsr')}
+    originals = {k: files['applied-end/'+k] for k in ('selector.gsr', 'certificate.gsr', 'catalog.gsr', 'statement.gsr')}
+    if 'applied-end/ack.gsr' in files: originals['ack.gsr']=files['applied-end/ack.gsr']
     originals.update({k: local[k] for k in ('promise.gsr', 'selected.gsr')})
     originals.update({k.lower()+'.gsr': parts[k] for k in ('ENTRY', 'ACCEPT', 'PROOF')})
     future = files[phases.future.FILE]; meta = phases.empty_future(future, files); targets = []
@@ -243,9 +251,10 @@ def expected_publication(replay, files, index, node):
     return expected
 
 
-def validate(root, *, size=3, kind='ADD'):
+def validate(root, *, size=3, kind='ADD', required_four=False):
     root = Path(root); inventory = semantic.collection.inventory(root)
-    original = semantic.validate(root,size=size,kind=kind); replay = semantic.Replay(root,size=size,kind=kind)
+    original = semantic.validate(root,size=size,kind=kind,required_four=required_four)
+    replay = semantic.Replay(root,size=size,kind=kind,required_four=required_four)
     for index in range(1, original['slots']+1): replay.step(index)
     replay.publication_receipts=CheckpointReceipts(root,replay)
     publications = byte_count = 0
@@ -256,7 +265,7 @@ def validate(root, *, size=3, kind='ADD'):
             need(replay.owner('published', index, node) == expected, 'joining exact publication inventory')
             publications += 1; byte_count += sum(len(v) for v in expected.values() if v is not None)
     need(semantic.collection.inventory(root) == inventory, 'joining original changed during publication replay')
-    return dict(status='PASS', scope='native-'+kind+'-applied-to-published-inventories', profile=str(size)+'-'+kind, slots=original['slots'],
+    return dict(status='PASS', scope='native-'+kind+'-applied-to-published-inventories', profile=original['profile'], slots=original['slots'],
         publications=publications, comparedBytes=byte_count, collectedCheckpointTransfers=replay.publication_receipts.transfers,
         publicationPhysicalQualified=True,
         completePhysicalQualified=False, forceAndNetworkQualified=False, processDeathQualified=False, phase3Complete=False)

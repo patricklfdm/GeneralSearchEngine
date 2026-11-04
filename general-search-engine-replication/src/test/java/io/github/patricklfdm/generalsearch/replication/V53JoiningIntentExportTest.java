@@ -125,6 +125,14 @@ class V53JoiningIntentExportTest {
         var profile=V53JoiningProfile.parse(System.getProperty("v53.joining.profile","3-ADD"));
         nativeJoining(true,true,true,true,true,true,true,true,true,profile,false);
     }
+    /** The departing old voter is live, both other common voters are offline.
+     * All four available identities are necessary under the actual joint view. */
+    @Test
+    @org.junit.jupiter.api.condition.EnabledIfSystemProperty(named="v53.joining.requiredFour",matches="true")
+    void requiredFourVotersCompleteReplacementFinalAndStableBarrier()throws Exception {
+        assertTrue(System.getProperty("v53.joining.sourceFault","").isEmpty());
+        nativeJoining(true,true,true,true,true,true,true,true,true,V53JoiningProfile.parse("5-REPLACE-required-four"),false);
+    }
     private boolean recoverAtFinal;
     @Test void joiningProfileRequiresSameViewFinalRecovery()throws Exception {
         var profile=V53JoiningProfile.parse(System.getProperty("v53.joining.profile","3-REPLACE"));
@@ -647,6 +655,8 @@ class V53JoiningIntentExportTest {
                     events.add(Map.of("event",event,"bytes",Base64.getEncoder().encodeToString(record.bytes()),"sha256",record.digest()));
                     if(event.equals("INSTALLED")) {
                         var selected=profile.selected(n.owners.getFirst().activationContext().view,record);
+                        if(profile.requiredFour())assertEquals(number(object(record.value().get("cut")).get("index"))==stableIndex-2?
+                                Set.of("node-1","node-2","node-3","node-6"):Set.of("node-1","node-2","node-6"),selected);
                         currentSelected.set(selected);
                         long index=number(object(record.value().get("cut")).get("index"));
                         selections.add(Map.of("cut",index,"voters",selected.stream().sorted().toList(),"selection",record.digest()));

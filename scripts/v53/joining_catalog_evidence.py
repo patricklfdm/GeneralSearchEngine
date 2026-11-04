@@ -60,14 +60,34 @@ def phased_certificate(raw, parent, identities, root):
     return parts, values
 
 
+def target_nodes(size, kind, required_four=False):
+    """Explicit test contract, never inferred from a producer profile label."""
+    need(type(required_four) is bool and (not required_four or (size, kind) == (5, 'REPLACE')),
+         'joining required-four profile')
+    old = ['node-' + str(i) for i in range(1, size+1)]
+    departing = 'node-3' if required_four else old[-1]
+    return [n for n in old if kind == 'ADD' or n != departing] + ['node-' + str(size+1)]
+
+
+def applied_voter(before, after, kind, node, end):
+    """A governing FINAL voter may cease to be an end-checkpoint voter."""
+    voting = node in set(after['cut']['view']['old']) | set(after['cut']['view']['new'])
+    need(voting or (kind == 'FINAL' and node in before['cut']['view']['old'] and
+                    node not in before['cut']['view']['new']), 'joining nonvoting FINAL owner')
+    need(('ack.gsr' in end) == voting, 'joining applied end voting eligibility')
+    need(voting or not any(n.endswith('-ack.gsr') or n.endswith('-statement.gsr') for n in end),
+         'joining departing ancestor endorsement')
+    return voting
+
+
 class Replay:
-    def __init__(self, root, *, size=3, kind='ADD'):
+    def __init__(self, root, *, size=3, kind='ADD', required_four=False):
         need((size,kind) in ((3,'ADD'),(4,'ADD'),(3,'REPLACE'),(4,'REPLACE'),(5,'REPLACE')), 'joining replay profile')
         self.size, self.kind = size, kind
         self.joining = 'node-' + str(size+1)
         self.old = tuple('node-' + str(i) for i in range(1,size+1))
         self.offline = self.old[size//2+1:]
-        self.targets = list(self.old if kind=='ADD' else self.old[:-1]) + [self.joining]
+        self.targets = target_nodes(size, kind, required_four)
         self.path = Path(root); self.original = bootstrap.original(self.path, size, False)
         _, members, packet = disk.current(self.original['node-1'])
         self.root = packet['capsule']['root']; self.root_bytes = self.original['node-1']['root.gsr']
@@ -77,6 +97,7 @@ class Replay:
         self.catalogs = [packet['objects'][packet['capsule']['catalog']]]
         self.entries, self.phases, self.acks = [], [], {}
         self.selections = {}; self.sources = {}; self.snapshots = {}; self.placed = None
+        self.nonvoting = set()
 
     def placed_snapshot(self):
         if self.placed is None: self.placed = joining.read(self.path / 'joining-originals-placed', stage='placed')
@@ -219,8 +240,10 @@ class Replay:
             expected = dict(zip(('selector.gsr', 'certificate.gsr', 'catalog.gsr', 'statement.gsr', 'application.image'),
                 (files['selector.gsr'], parts['CERTIFICATE'], self.catalogs[-1], statement, self.image)))
             need(all(end.get(k) == raw for k, raw in expected.items()), 'joining independently reduced applied end')
-            need(set(end) >= set(expected) | {'ack.gsr', 'plan.json'}, 'joining complete applied end')
-            self.ack(statement, node, end['ack.gsr'])
+            voting = applied_voter(before, after, kind, node, end)
+            if not voting: self.nonvoting.add((index, node))
+            need(set(end) >= set(expected) | {'plan.json'}, 'joining complete applied end')
+            if voting: self.ack(statement, node, end['ack.gsr'])
             extra = set(end) - set(expected) - {'ack.gsr', 'plan.json'}
             prefixes = {name.removesuffix('-statement.gsr') for name in extra if name.endswith('-statement.gsr')}
             need(all(p == 'parent' or re.fullmatch(r'ancestor-[0-5]', p) for p in prefixes) and
@@ -297,13 +320,13 @@ def lifecycle(root, replay):
     return ready
 
 
-def validate(root, *, size=3, kind='ADD'):
+def validate(root, *, size=3, kind='ADD', required_four=False):
     root = Path(root); original = collection.inventory(root)
     indices = sorted(int(p.name.removeprefix('applied-')) for p in root.iterdir() if re.fullmatch(r'applied-[1-9][0-9]*', p.name))
     need(1 <= len(indices) <= 64 and indices == list(range(1, len(indices)+1)), 'joining complete consecutive applied history')
     need(sorted(p.name for p in root.iterdir() if re.fullmatch(r'published-[1-9][0-9]*', p.name)) ==
          sorted('published-' + str(i) for i in indices), 'joining complete publication history')
-    replay = Replay(root,size=size,kind=kind); kinds = [replay.step(i) for i in indices]
+    replay = Replay(root,size=size,kind=kind,required_four=required_four); kinds = [replay.step(i) for i in indices]
     need(tuple(k for k in kinds if k != 'BARRIER') == CONTROLS and kinds[0] == kinds[-1] == 'BARRIER' and
          kinds[-2] == 'FINAL' and kinds[kinds.index('INTENT')+1] == 'FINAL', 'joining complete control order')
     final = replay.states[-1]
@@ -328,7 +351,7 @@ def validate(root, *, size=3, kind='ADD'):
     replay.packet(disk.current(cold)[2], len(indices)); ready = lifecycle(root, replay)
     need(collection.inventory(root) == original, 'joining original history changed during replay')
     return dict(status='PASS', scope='native-'+kind+'-catalog-certificate-checkpoint-chain', slots=len(indices), controls=kinds,
-        profile=str(size)+'-'+kind, selections=len(replay.selections), checkpointObservations=len(replay.acks), internalReadyCuts=ready, semanticChainQualified=True,
+        profile=str(size)+'-'+kind+('-required-four' if required_four else ''), selections=len(replay.selections), checkpointObservations=len(replay.acks), internalReadyCuts=ready, semanticChainQualified=True,
         publicReady=False,
         completePhysicalQualified=False, forceAndNetworkQualified=False, processDeathQualified=False, phase3Complete=False)
 

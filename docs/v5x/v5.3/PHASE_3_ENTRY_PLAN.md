@@ -1,5 +1,14 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Required-four replacement](PHASE_3_REQUIRED_FOUR.md) adds an explicit native
+topology with only two reachable common members, one departing member and one
+joining member. Its semantic/publication reader requires all four joint votes
+and forbids a departing successor checkpoint ACK. This development entry is
+separate from four observed floor copies. Its first native run failed before
+FINAL: three retained sources plus four floor copies exceed six SOURCE slots.
+The failure and short capacity diagnosis are retained; the runtime correction
+and full qualification remain open.
+
 [Native publication storage observations](PHASE_3_PUBLICATION_RESOURCES.md) now
 collect original inventories and charges at eleven existing publication boundaries.
 Independent replay derives expected files and completion/generation reservations

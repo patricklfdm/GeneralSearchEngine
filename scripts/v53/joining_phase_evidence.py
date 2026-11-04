@@ -78,21 +78,22 @@ def exchanges(events, wires, identities, root):
     return result
 
 
-def force_names():
+def force_names(*, nonvoting=False):
     names = []
     for phase in ('ACCEPT', 'PROOF', 'CERTIFICATE'):
         names += [phase + suffix for suffix in ('_VALIDATED', '_CANDIDATE_FORCED', '_CANDIDATE_PARENT_FORCED',
                                                '_RENAMED', '_PARENT_FORCED', '_BEFORE_RETURN')]
-    return names + ['CERTIFICATE_ACTIVE_FORCED', 'CERTIFICATE_ACTIVE_PARENT_FORCED', 'NATIVE_CERTIFICATE_RETAINED',
+    names += ['CERTIFICATE_ACTIVE_FORCED', 'CERTIFICATE_ACTIVE_PARENT_FORCED', 'NATIVE_CERTIFICATE_RETAINED',
         'APPLICATION_AUTHORITY_VALIDATED', 'REPLAY_CLAIM_FORCED', 'REPLAY_BEFORE_APPLICATION', 'REPLAY_APPLICATION_FINISHED',
-        'REPLAY_BEFORE_RETURN', 'APPLY_PLAN_FORCED', 'APPLY_IMAGE_FORCED', 'APPLY_END_FORCED', 'APPLY_ACK_FORCED',
-        'APPLY_ACK_DIRECTORY_FORCED', 'APPLY_BEFORE_RETURN', 'PUBLICATION_VALIDATED', 'PUBLICATION_SELECTOR_FORCED',
+        'REPLAY_BEFORE_RETURN', 'APPLY_PLAN_FORCED', 'APPLY_IMAGE_FORCED', 'APPLY_END_FORCED']
+    names += ['APPLY_NONVOTING_DIRECTORY_FORCED'] if nonvoting else ['APPLY_ACK_FORCED', 'APPLY_ACK_DIRECTORY_FORCED']
+    return names + ['APPLY_BEFORE_RETURN', 'PUBLICATION_VALIDATED', 'PUBLICATION_SELECTOR_FORCED',
         'PUBLICATION_COVERAGE_VALIDATED', 'PUBLICATION_RETIRED', 'FUTURE_RETENTION_PROMOTED',
         'FUTURE_RETENTION_CLEARED', 'PUBLICATION_BEFORE_RETURN']
 
 
 def blocks(events, replay, *, old_owner_lifetimes=None):
-    result = {}; critical = force_names()
+    result = {}; critical = set(force_names()) | set(force_names(nonvoting=True))
     lifetimes = cold_owners.validate(old_owner_lifetimes,owners=replay.old,maximum=len(events),reason='joining declared old owner lifetimes')
     nodes=replay.old if replay.joining is None else (*replay.old,replay.joining)
     need(all(v.get('node') in nodes for v in events if v.get('event') in critical), 'joining slot force unknown owner')
@@ -100,9 +101,12 @@ def blocks(events, replay, *, old_owner_lifetimes=None):
         indices = [i for i, raw in enumerate(replay.phases, 1)
                    if node in [v['voter'] for v in f.decode(raw['CERTIFICATE'], 'records', 'CERTIFICATE')['proofs']]]
         rows = [(i, v) for i, v in enumerate(events) if v.get('node') == node and v.get('event') in critical]
-        need([v['event'] for _, v in rows] == critical * len(indices), 'joining exact slot force order: ' + node)
-        for ordinal, index in enumerate(indices):
-            held = rows[ordinal*len(critical):(ordinal+1)*len(critical)]
+        expected = {index: force_names(nonvoting=(index,node) in getattr(replay,'nonvoting',set())) for index in indices}
+        need([v['event'] for _, v in rows] == [name for index in indices for name in expected[index]],
+             'joining exact slot force order: ' + node)
+        offset = 0
+        for index in indices:
+            held = rows[offset:offset+len(expected[index])]; offset += len(expected[index])
             for at, value in held:
                 scope = 'continuation-owner' if node == replay.joining else cold_owners.scope(lifetimes,node,at)
                 need(set(value) == ({'node', 'scope', 'event'} if scope is not None else {'node', 'event'}), 'joining force event shape')
