@@ -18,13 +18,15 @@ RESULT=dict(status='PASS',kind='REMOVE',activations=3,internalReady=True,publicR
 PROFILES=('4-REMOVE','5-REMOVE')
 
 
-def lifecycle(root,*,size=4):
+def lifecycle(root,*,size=4,carried=None):
+    need(carried in (None,'INTENT','FINAL'),'transition round carried kind')
     profiles=continuous.topology(size)
+    if carried=='FINAL':profiles=profiles[1:]
     rows=d.read(root/'events.json')
     held=[(at,row) for at,row in enumerate(rows) if row['event'].startswith('ROUND_')]
-    names=['INSTALLED','SLOT_BEGIN','SLOT_COMPLETE']*3+['BEFORE_READY']
+    names=['INSTALLED','SLOT_BEGIN','SLOT_COMPLETE']*len(profiles)+['BEFORE_READY']
     need([row['event'] for _,row in held]==['ROUND_'+name for name in names],'transition round exact lifecycle')
-    ordinal=0;cursor=4;selected=None;last_complete=-1;last_ack=None
+    ordinal=0;cursor=5 if carried=='FINAL' else 4;selected=None;last_complete=-1;last_ack=None
     for at,row in held:
         need(set(row)=={'node','event','record','bytes'} and row['node']=='node-1','transition round original owner')
         raw=base64.b64decode(row['bytes'],validate=True)
@@ -37,12 +39,18 @@ def lifecycle(root,*,size=4):
             for node in voters:
                 need(any(v['node']==node and v['event']=='INSTALL_BEFORE_RETURN' for v in rows[last_complete+1:at]),
                      'transition round fresh installed authority')
-            need(selected['nextEntry'] is None,'transition round declared noncarried profile')
+            if carried and ordinal==1:
+                need(selected['nextEntry']==e.digest((root/f'entry-{cursor+1}.gsr').read_bytes()),'transition round exact selected carried entry')
+            else:need(selected['nextEntry'] is None,'transition round declared noncarried profile')
         elif event=='ROUND_SLOT_BEGIN':
             cursor+=1;entry=f.decode(raw,'records','ENTRY')
             need(raw==(root/f'native-entry-{cursor}.gsr').read_bytes() and entry['index']==cursor,
                  'transition round original entry')
-            need(entry['origin']==selected['ballot'] and entry['authority']==selected['view'] and
+            if carried and ordinal==1:
+                need(raw==(root/f'entry-{cursor}.gsr').read_bytes() and entry['origin']!=selected['ballot'],
+                     'transition round unchanged carried origin')
+            else:need(entry['origin']==selected['ballot'],'transition round active authority')
+            need(entry['authority']==selected['view'] and
                  entry['kind']==profiles[ordinal-1][0],'transition round active authority')
             need(any(v['event']=='SLOT_BEGIN' and v['index']==cursor for v in rows[at+1:]),'transition round real slot admission')
         elif event=='ROUND_SLOT_COMPLETE':
@@ -62,7 +70,7 @@ def lifecycle(root,*,size=4):
                  'transition round completion after driver')
             last_complete=at;last_ack=raw
         else:
-            need(cursor==7 and ordinal==3 and raw==last_ack,'transition round readiness after fresh barrier')
+            need(cursor==7 and ordinal==len(profiles) and raw==last_ack,'transition round readiness after fresh barrier')
             _,_,packet=c.current(c.inventory(root/'published-7/node-1'))
             need(packet['capsule']['cut']['view']['operation'] is None,'transition round stable readiness')
 

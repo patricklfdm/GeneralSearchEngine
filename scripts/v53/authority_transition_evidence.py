@@ -19,7 +19,7 @@ b,c,e,f,need=d.b,d.c,d.e,d.f,d.need
 VOTERS=('node-1','node-2','node-3')
 
 
-def prelude(root,kind,*,size=4):
+def prelude(root,kind,*,size=4,match_before=True):
     need(kind in ('READY','INTENT','FINAL'),'transition preparation profile')
     need(type(size) is int and size in (4,5),'transition REMOVE voter count')
     group=d.s.initialize(b.original(root,size,False))
@@ -40,7 +40,12 @@ def prelude(root,kind,*,size=4):
     if kind=='FINAL':
         operation=walk.state()[3]['results'][-1]
         walk.publish('INTENT',dict(sealed={k:operation[k] for k in ('request','prepared','receipt')}))
-    b.match(root,'before-network',walk.group)
+    if match_before:b.match(root,'before-network',walk.group)
+    preparation_calls(root,walk)
+    return walk
+
+
+def preparation_calls(root,walk):
     calls=d.read(root/'calls.json')
     need(type(calls) is list and len(calls)<=4096,'transition bounded preparation calls')
     critical={
@@ -57,7 +62,6 @@ def prelude(root,kind,*,size=4):
         rows=[v for v in calls if v['operation']==label];required=critical[label.rsplit('-',1)[0]]
         need([v['node'] for v in rows]==nodes,'transition preparation force owners')
         for row in rows:need([v for v in row['events'] if v in required]==required,'transition preparation force before return')
-    return walk
 
 
 def install(root,group):

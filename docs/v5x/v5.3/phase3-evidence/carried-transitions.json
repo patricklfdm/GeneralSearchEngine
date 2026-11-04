@@ -1,0 +1,219 @@
+{
+  "baseCommit": "4d358f30a30ec4778caca3bff0f7e68ced732052",
+  "earlierReaderDiagnostics": [
+    {
+      "bytes": 128,
+      "path": "target/v53-carried-transition/replay-01/final.json",
+      "sha256": "af05f36fc032fd2626b42a8d127f8aea1a0b35b48567d7699af99368801610c9"
+    },
+    {
+      "bytes": 114,
+      "path": "target/v53-carried-transition/replay-01/intent.json",
+      "sha256": "6227316941801321d949b2a13074193628cf156f42624fb0480156418680e6d3"
+    },
+    {
+      "bytes": 362,
+      "path": "target/v53-carried-transition/replay-01/receipt.json",
+      "sha256": "9446de443f8a0b33b1739380a18d19bf52f2b729a999e306f0024dcbaaacbf2d"
+    },
+    {
+      "bytes": 128,
+      "path": "target/v53-carried-transition/replay-02/final.json",
+      "sha256": "af05f36fc032fd2626b42a8d127f8aea1a0b35b48567d7699af99368801610c9"
+    },
+    {
+      "bytes": 148,
+      "path": "target/v53-carried-transition/replay-02/intent.json",
+      "sha256": "9716a213eb84d00228221be49d623b1121d6b716495c121f3b57f2b93ae0f045"
+    },
+    {
+      "bytes": 397,
+      "path": "target/v53-carried-transition/replay-02/receipt.json",
+      "sha256": "271960cd0433ee84a04ae445aa7cd91cd6a7484824c2a5258011b414d904b496"
+    },
+    {
+      "bytes": 148,
+      "path": "target/v53-carried-transition/replay-03/final.json",
+      "sha256": "4adf59e8395793ff0d648ab260fb00600b9d136ddedcaa452191da4c752f6603"
+    },
+    {
+      "bytes": 160,
+      "path": "target/v53-carried-transition/replay-03/intent.json",
+      "sha256": "5e509c00c03621062d8cb9981a422d263f3e5eb7d2f21b701662830fac020b17"
+    },
+    {
+      "bytes": 429,
+      "path": "target/v53-carried-transition/replay-03/receipt.json",
+      "sha256": "2fbfc87f9f1d7ccce70d584551d4302308997ed821f0b7a5a3a8388b27e10fa2"
+    }
+  ],
+  "fullNetworkQualified": false,
+  "hostedSubsetAdded": false,
+  "internalReady": true,
+  "members": [
+    {
+      "execution": {
+        "elapsedSeconds": 313.396,
+        "exit": 0
+      },
+      "junit": {
+        "errors": 0,
+        "failures": 0,
+        "method": "carriedIntentFinishesBeforeFreshStableBarrier",
+        "retries": 0,
+        "tests": 1
+      },
+      "kind": "INTENT",
+      "nativeExecutions": 1,
+      "originalQualification": {
+        "bytes": 4893,
+        "path": "target/v53-carried-transition/qualification-01/intent.json",
+        "sha256": "1cd6c7c32ac38dabad15648a83c4dcd2741dfe41aeed42120bdd061266847a09"
+      },
+      "raw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-ea07b51b-cb81-4a27-85ad-06463c3cd3e4",
+      "rawBytes": 17886657,
+      "rawFiles": 4331,
+      "receipt": {
+        "bytes": 597767,
+        "path": "target/v53-carried-transition/inputs/intent/receipt.json",
+        "sha256": "8292e81dded0adf3da439064734bc266c425273521792bf4c5b3ddc6f44896a0"
+      },
+      "retries": 0
+    },
+    {
+      "execution": {
+        "elapsedSeconds": 291.336,
+        "exit": 0
+      },
+      "junit": {
+        "errors": 0,
+        "failures": 0,
+        "method": "carriedFinalFinishesBeforeFreshStableBarrier",
+        "retries": 0,
+        "tests": 1
+      },
+      "kind": "FINAL",
+      "nativeExecutions": 1,
+      "originalQualification": {
+        "bytes": 4880,
+        "path": "target/v53-carried-transition/qualification-01/final.json",
+        "sha256": "a58565beaa33ba569f289312b409f64ecf10235d4bb296b10f98b78c67ecf692"
+      },
+      "raw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-f09af643-bd87-4852-8216-d29e9fab5f9e",
+      "rawBytes": 19109344,
+      "rawFiles": 5029,
+      "receipt": {
+        "bytes": 701208,
+        "path": "target/v53-carried-transition/inputs/final/receipt.json",
+        "sha256": "e0f7dc6ef7437221e84eb966e4017ba8a55564ec6d957a5abc7b691db070557d"
+      },
+      "retries": 0
+    }
+  ],
+  "nativeExecuted": true,
+  "nativeHistories": 2,
+  "nativeRetries": 0,
+  "noncarriedRegression": {
+    "bytes": 1344,
+    "negatives": 10,
+    "path": "target/v53-carried-transition/noncarried-legacy-regression.json",
+    "scope": "unchanged historical original; default noncarried physical and lifecycle replay",
+    "sha256": "60f8fee4dd09b0981259ee2d475082175af6870edaa5f3feb0bda20d95033da8",
+    "status": "PASS"
+  },
+  "phase3Complete": false,
+  "physicalQualified": true,
+  "pins": {
+    "buildSha256": "df5be34cc39243484d5a7498420c0f5ac5fac9bb9c1e82ce76d1a0e79385cb65",
+    "readerSha256": "6af2a6826a256830d081c3a0405fa9c825f83fb3b418d81881d8f529574c1d8a",
+    "sourceSha256": "f3b2b4be9374d453a67b128aa27634acce2fbf16bc399e66b27a18558f2345a1",
+    "toolchainSha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+  },
+  "portable": {
+    "bytes": 642,
+    "members": [
+      {
+        "archiveSha256": "a3ad49b16604a7500867c91fbd4c4150f444c3fd6776be80cd49a4879045bd27",
+        "elapsedSeconds": 67.27167853199995,
+        "kind": "INTENT",
+        "negatives": 30,
+        "pythonOptimized": true,
+        "readerSha256": "6af2a6826a256830d081c3a0405fa9c825f83fb3b418d81881d8f529574c1d8a",
+        "status": "PASS"
+      },
+      {
+        "archiveSha256": "11e004c803f6bedc23482ca5051c2b094f292ad81e274f00135d4a1ac0eb9ff8",
+        "elapsedSeconds": 56.67550553700005,
+        "kind": "FINAL",
+        "negatives": 30,
+        "pythonOptimized": true,
+        "readerSha256": "6af2a6826a256830d081c3a0405fa9c825f83fb3b418d81881d8f529574c1d8a",
+        "status": "PASS"
+      }
+    ],
+    "originalsPreserved": true,
+    "path": "target/v53-carried-transition/portable-results/receipt.json",
+    "pythonOptimized": true,
+    "sha256": "01b958b5430c9689fbe2fee366599eb37aec9db6573a9e6d995c7cd9883f5732",
+    "status": "PASS"
+  },
+  "processDeathQualified": false,
+  "publicReady": false,
+  "publicationBoundaryQualified": true,
+  "qualification": {
+    "bytes": 232,
+    "negatives": 60,
+    "path": "target/v53-carried-transition/qualification-01/receipt.json",
+    "sha256": "b871e1f17b939a28ff473f12d5f288709972d9aa8b0cc9e33dbfa3cc4f353ee5",
+    "status": "PASS"
+  },
+  "runtimeChanged": false,
+  "schema": "gse-v53-carried-transitions-development-v1",
+  "scope": "four-voter REMOVE original-byte physical and lifecycle component",
+  "sourceNote": "Both original producers share the recorded source at base 4d358f30 with the retained native test wrapper, frozen before the new reader was finished. Current-reader replay is development qualification only; original PARTIAL receipts are preserved, not promoted to final-source cohort acceptance.",
+  "status": "PARTIAL",
+  "unrelatedPathDiagnostic": {
+    "bytes": 1433,
+    "path": "target/v53-carried-transition/noncarried-regression.stderr",
+    "sha256": "2155c5a31b3153e9e8e5047c0a1abc435bb42c7d0c9e68d53cdd1429e1a72d94"
+  },
+  "validation": {
+    "documentContract": {
+      "bytes": 167,
+      "path": "target/v53-carried-transition/document-contract.json",
+      "sha256": "428c0ae57d4c799657b62b96caaf5b3fbfada8041fcf394397d868499b70028b",
+      "status": "PASS"
+    },
+    "focused": {
+      "bytes": 152,
+      "elapsedSeconds": 0.118,
+      "path": "target/v53-carried-transition/tests-final.log",
+      "sha256": "7d38f27fc9324e49a28fc93207f5504521ca93bd8c3fdea474a25fb306f35f02",
+      "status": "PASS",
+      "tests": 53
+    },
+    "optimized": {
+      "bytes": 152,
+      "elapsedSeconds": 0.141,
+      "path": "target/v53-carried-transition/tests-optimized.log",
+      "sha256": "2d052b4ea89eed1f23c37154f3c5d6978b5d820502e1bb8b78ef4290eb45d702",
+      "status": "PASS",
+      "tests": 53
+    },
+    "python": {
+      "bytes": 4669,
+      "elapsedSeconds": 125.738,
+      "path": "target/v53-carried-transition/python-suite.log",
+      "sha256": "027d0b12f1c1fab66382eb297c210bda40585f034207b80fd344e13a1235a930",
+      "status": "PASS",
+      "tests": 2446
+    },
+    "sourceInventory": {
+      "bytes": 53482,
+      "path": "target/v53-carried-transition/inventory/receipt.json",
+      "sha256": "dfe506b122ddaa96708f2bb0ddcee28c85965fa1fd5850d9245d2a9a295e205b",
+      "status": "PASS"
+    }
+  },
+  "workflowChanged": false
+}

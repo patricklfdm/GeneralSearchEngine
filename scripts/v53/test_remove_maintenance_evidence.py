@@ -97,10 +97,42 @@ class RemoveMaintenanceEvidenceTest(unittest.TestCase):
         before={n:{'sources/old/source.gscp':b'original'} for n in voters};after={n:{} for n in voters}
         return rows,voters,before,after
 
-    def check(self,rows,voters,before,after,ordinal=1):
+    def check(self,rows,voters,before,after,ordinal=1,**options):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp);(root/f'selected-{ordinal}.gsr').write_bytes(b'selected')
-            with patch.object(m.d,'read',return_value=rows):m.boundaries(root,ordinal,voters,before,after)
+            with patch.object(m.d,'read',return_value=rows):m.boundaries(root,ordinal,voters,before,after,**options)
+
+    def carried(self):
+        rows,voters,before,after=self.fixture(2)
+        # FINAL recovery starts one slot later; the prior carried vote prevented
+        # retirement until its publication completed, before this new campaign.
+        for row in rows:
+            if row['event']=='DRIVER_PUBLISHED':row['index']+=1
+        pregrant_before={n:{'sources/old':None,'sources/old/source.gscp':b'packet','sources/old/image.image':b'image'} for n in voters}
+        pregrant_after={n:{} for n in voters}
+        for node in voters:
+            at=next(i for i,v in enumerate(rows) if v['node']==node and v['event']=='FLOOR_RELEASE_BEFORE_RETURN')
+            source=m.SOURCE[:5]+('SOURCE_RETIREMENT_FILE_DELETED',)*2+m.SOURCE[6:]
+            rows[at:at]=[dict(node=node,event=event) for event in source]
+        return rows,voters,before,after,(pregrant_before,pregrant_after)
+
+    def test_carried_pregrant_retirement_binds_derived_original_file_count(self):
+        rows,voters,before,after,pregrant=self.carried()
+        self.check(rows,voters,before,after,2,index=7,pregrant=pregrant)
+        for changes in ('missing','duplicate','uncovered','late'):
+            changed=copy.deepcopy(rows);pair=copy.deepcopy(pregrant)
+            at=next(i for i,v in enumerate(changed) if v['node']=='node-1' and v['event']=='SOURCE_RETIREMENT_FILE_DELETED')
+            if changes=='missing':changed.pop(at)
+            elif changes=='duplicate':changed.insert(at,copy.deepcopy(changed[at]))
+            elif changes=='uncovered':pair[1]['node-1']['sources/old/image.image']=b'image'
+            else:
+                row=changed.pop(at);end=next(i for i,v in enumerate(changed) if v['node']=='node-1' and v['event']=='PROMISE_FORCED');changed.insert(end+1,row)
+            with self.subTest(change=changes),self.assertRaisesRegex(ValueError,'exact pre-grant retirement: node-1'):
+                self.check(changed,voters,before,after,2,index=7,pregrant=pair)
+
+    def test_carried_pregrant_uses_the_original_slot_not_the_ordinal(self):
+        rows,voters,before,after,pregrant=self.carried()
+        with self.assertRaisesRegex(ValueError,'original slot lifetime'):self.check(rows,voters,before,after,2,pregrant=pregrant)
 
     def test_each_original_maintenance_lifetime_has_its_own_order(self):
         for ordinal in (1,2,3):self.check(*self.fixture(ordinal),ordinal)

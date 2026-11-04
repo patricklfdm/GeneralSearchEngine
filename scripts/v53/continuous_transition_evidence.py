@@ -37,7 +37,7 @@ def reconcile(group,voters):
     return result
 
 
-def install(root,group,ordinal,voters,*,current_maintenance=False):
+def install(root,group,ordinal,voters,*,current_maintenance=False,counter=None):
     from . import remove_maintenance_evidence as maintenance
     group=reconcile(group,voters)
     if ordinal>1 and current_maintenance:
@@ -51,7 +51,7 @@ def install(root,group,ordinal,voters,*,current_maintenance=False):
     options={}
     if current_maintenance:
         options=dict(merge_ledgers=lambda before,sources:maintenance.merge(group,before,sources))
-    _,_,installed=d.s.campaign(root,{n:group[n] for n in voters},ordinal+2,'installed-'+str(ordinal),selected_prefix=d.slot.prefix,**options)
+    _,_,installed=d.s.campaign(root,{n:group[n] for n in voters},ordinal+2 if counter is None else counter,'installed-'+str(ordinal),selected_prefix=d.slot.prefix,**options)
     group=dict(group,**installed);b.match(root,'installed-'+str(ordinal),group)
     chosen=c.current(group['node-1'])[1]['selected.gsr']
     need((root/f'selected-{ordinal}.gsr').read_bytes()==chosen,'continuous original selection')

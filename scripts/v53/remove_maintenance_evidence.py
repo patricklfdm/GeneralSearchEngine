@@ -18,12 +18,13 @@ SOURCE=('SOURCE_RETIREMENT_FORCED','SOURCE_RETIREMENT_PARENT_FORCED','JOURNAL_RO
 RELEASE=('FLOOR_RELEASE_BEFORE_RETURN',)
 
 
-def boundaries(root,ordinal,voters,before_group,after_group):
+def boundaries(root,ordinal,voters,before_group,after_group,*,index=None,pregrant=None):
+    index=ordinal+4 if index is None else index
     events=d.read(root/'events.json')
     installed=[i for i,v in enumerate(events) if v['event']=='CONTINUOUS_INSTALLED' and v['ordinal']==ordinal]
     need(len(installed)==1 and events[installed[0]]['selection']==e.digest((root/f'selected-{ordinal}.gsr').read_bytes()),
          'continuous installed original selection')
-    finishes=[i for i,v in enumerate(events) if v['event']=='DRIVER_PUBLISHED' and v['index']==ordinal+4]
+    finishes=[i for i,v in enumerate(events) if v['event']=='DRIVER_PUBLISHED' and v['index']==index]
     need(len(finishes)==1 and installed[0]<finishes[0],'REMOVE maintenance original slot lifetime')
     all_points=set(FLOOR+RETIRE+SOURCE+RELEASE)
     for node in voters:
@@ -36,11 +37,17 @@ def boundaries(root,ordinal,voters,before_group,after_group):
         need([v for v in before if v in all_points]==list(FLOOR+RETIRE+source+RELEASE),
              'REMOVE maintenance exact pre-slot retirement: '+node)
     if ordinal==1:return
-    prior=[i for i,v in enumerate(events) if v['event']=='DRIVER_PUBLISHED' and v['index']==ordinal+3]
+    prior=[i for i,v in enumerate(events) if v['event']=='DRIVER_PUBLISHED' and v['index']==index-1]
     need(len(prior)==1 and prior[0]<installed[0],'REMOVE maintenance original campaign lifetime')
-    expected=FLOOR+RETIRE+RELEASE+('PROMISE_FORCED','SOURCE_DIRECTORY_FORCED','BASIS_FORCED','GRANT_BEFORE_RETURN',
+    grant=('PROMISE_FORCED','SOURCE_DIRECTORY_FORCED','BASIS_FORCED','GRANT_BEFORE_RETURN',
         'SELECTED_FORCED','INSTALL_PARENT_FORCED','INSTALL_BEFORE_RETURN')
     for node in voters:
+        source=()
+        if pregrant is not None:
+            before,after=pregrant
+            removed=[k for k,v in before[node].items() if k.startswith('sources/') and v is not None and k not in after[node]]
+            if removed:source=SOURCE[:5]+('SOURCE_RETIREMENT_FILE_DELETED',)*len(removed)+SOURCE[6:]
+        expected=FLOOR+RETIRE+source+RELEASE+grant
         trace=[v['event'] for v in events[prior[0]:installed[0]] if v['node']==node]
         need([v for v in trace if v in all_points|set(expected)]==list(expected),
              'REMOVE maintenance exact pre-grant retirement: '+node)

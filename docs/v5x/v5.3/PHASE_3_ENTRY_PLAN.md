@@ -7,13 +7,21 @@ groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
 
+[Carried INTENT / FINAL replay](PHASE_3_CARRIED_TRANSITIONS.md) now derives two
+complete four-voter REMOVE originals through the old vote, unchanged carried
+command, later transitions and fresh stable BARRIER. Both physical/lifecycle
+readers and 60 exact negatives pass, including relocated optimized replay.
+Full activation/transfer network qualification, process faults and dedicated
+cohort admission remain open; this does not add a hosted subset.
+
 [Native carried DATA admission](PHASE_3_CARRIED_DATA_COHORT.md) now adds the
 four old vote/application phases, immutable payload completion and the next
 fresh BARRIER. Exact typed images retain application sequence and last DATA
 index 1 through cut 2. Its four histories bound to one source require 129 original-first
 negative checks. Its [hosted adapter](PHASE_3_CARRIED_DATA_HOSTED.md) now prepares four executions
-and four independent downloaded replays; carried control,
-INTENT/FINAL readers and remaining native process coverage stay open.
+and four independent downloaded replays. The INTENT/FINAL physical/lifecycle
+continuation above is now available; other carried control and remaining native
+process coverage stay open.
 
 [Hosted native rounds](PHASE_3_NATIVE_ROUND_HOSTED.md) now provide one immutable
 seed, seven whole native executions and seven independent downloaded replays.
