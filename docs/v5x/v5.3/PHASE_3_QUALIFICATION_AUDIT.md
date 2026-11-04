@@ -50,6 +50,11 @@ planned entries above; their final-source executions remain open.
 
 ## Current obligation map
 
+[Floor/retirement refusal accounting](PHASE_3_SOURCE_RESERVATION.md) now retains
+the charges for incomplete original files and rolls back partial handoff growth.
+This follows the generation reservation correction. Its conditional regressions
+add no hosted histories and do not close the combined physical-peak obligation.
+
 The machine plan has 12 review groups with concrete production/tooling, test,
 reader and documentation paths, related frozen families, existing hosted subsets
 and unresolved work. References locate implementation; the inspector cannot

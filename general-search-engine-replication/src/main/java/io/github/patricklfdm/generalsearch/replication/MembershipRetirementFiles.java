@@ -17,6 +17,7 @@ final class MembershipRetirementFiles implements AutoCloseable {
     private final MembershipBasisSources basisSources;
     private final Map<String,FileIdentity> files=new TreeMap<>();
     private final List<MembershipResources.Lease> leases=new ArrayList<>();
+    private final Map<String,MembershipResources.Lease> parts=new HashMap<>();
     private Object pathKey,sourceKey;
     private boolean exists,sourceExists;
     private String reserved;
@@ -65,19 +66,26 @@ final class MembershipRetirementFiles implements AutoCloseable {
         for(var file:files.entrySet())require(file.getValue().equals(inspect(path.resolve(file.getKey()),file.getValue().bytes(),file.getValue().digest())),"retirement file inode changed");
     }
     private void reserve(SortedMap<String,byte[]> plan) {
-        close();if(plan==null && !sourceExists && !files.containsKey(MembershipRetirementImages.FILE))return;
-        try {
-            long metadata=0;var images=new TreeMap<String,Long>();
-            if(plan==null)for(var file:files.entrySet())if(file.getKey().startsWith(SOURCE+"/") || file.getKey().equals(MembershipRetirementImages.FILE)) {
-                if(file.getKey().endsWith(".image"))images.put(file.getKey(),file.getValue().bytes());else metadata=Math.addExact(metadata,file.getValue().bytes());
-            }
-            if(plan!=null)for(var file:plan.entrySet())if(file.getKey().startsWith(SOURCE+"/") || file.getKey().equals(MembershipRetirementImages.FILE)) {
-                if(file.getKey().endsWith(".image"))images.put(file.getKey(),(long)file.getValue().length);else metadata=Math.addExact(metadata,file.getValue().length);
-            }
-            leases.add(resources.reserve(MembershipResources.Unit.SOURCE,"retirement",Math.max(1,metadata)));
-            int ordinal=0;for(long size:images.values())leases.add(resources.reserve(MembershipResources.Unit.APPLICATION,"retirement:"+(ordinal++),Math.max(1,size)));
-            reserved=plan==null?null:hash(plan.get(PROPOSAL));
-        }catch(RuntimeException | Error error){close();throw error;}
+        if(plan==null && !sourceExists && !files.containsKey(MembershipRetirementImages.FILE))return;
+        long metadata=0;var images=new TreeMap<String,Long>();
+        if(plan==null)for(var file:files.entrySet())if(file.getKey().startsWith(SOURCE+"/") || file.getKey().equals(MembershipRetirementImages.FILE)) {
+            if(file.getKey().endsWith(".image"))images.put(file.getKey(),file.getValue().bytes());else metadata=Math.addExact(metadata,file.getValue().bytes());
+        }
+        if(plan!=null)for(var file:plan.entrySet())if(file.getKey().startsWith(SOURCE+"/") || file.getKey().equals(MembershipRetirementImages.FILE)) {
+            if(file.getKey().endsWith(".image"))images.put(file.getKey(),(long)file.getValue().length);else metadata=Math.addExact(metadata,file.getValue().length);
+        }
+        var required=new LinkedHashMap<String,MembershipResources.StorageReservation>();
+        required.put("metadata",new MembershipResources.StorageReservation(MembershipResources.Unit.SOURCE,"retirement",Math.max(1,metadata)));
+        int ordinal=0;for(var image:images.entrySet())required.put(image.getKey(),new MembershipResources.StorageReservation(
+                MembershipResources.Unit.APPLICATION,"retirement:"+(ordinal++),Math.max(1,image.getValue())));
+        require(required.keySet().containsAll(parts.keySet()),"retirement reservation cannot drop original parts");
+        var growth=new LinkedHashMap<MembershipResources.Lease,Long>();var additions=new ArrayList<MembershipResources.StorageReservation>();
+        var names=new ArrayList<String>();
+        required.forEach((name,row)->{var lease=parts.get(name);
+            if(lease==null){names.add(name);additions.add(row);}else growth.put(lease,row.bytes());});
+        var acquired=resources.extendSources(growth,additions);
+        for(int n=0;n<names.size();n++){var lease=acquired.get(n);parts.put(names.get(n),lease);leases.add(lease);}
+        reserved=plan==null?null:hash(plan.get(PROPOSAL));
     }
     Optional<Decoded> authority()throws IOException {
         check();if(!files.containsKey(AUTHORITY))return Optional.empty();byte[] raw=AdmissionPaths.read(path.resolve(AUTHORITY),65536);
@@ -225,5 +233,5 @@ final class MembershipRetirementFiles implements AutoCloseable {
         AdmissionPaths.exact(file,bytes);capture();
     }
     private static boolean prefix(byte[] actual,byte[] expected){return actual.length<=expected.length && Arrays.equals(actual,Arrays.copyOf(expected,actual.length));}
-    @Override public void close(){leases.forEach(MembershipResources.Lease::close);leases.clear();reserved=null;}
+    @Override public void close(){leases.forEach(MembershipResources.Lease::close);leases.clear();parts.clear();reserved=null;}
 }

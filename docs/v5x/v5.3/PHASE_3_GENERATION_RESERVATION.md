@@ -77,8 +77,10 @@ This adds no hosted subset or planned history: the catalogue remains twelve
 subsets and 544 planned histories. Final-source execution, transient transport
 resources, admitted FINAL/publication under full combined pressure and the
 phase-wide gate remain open. The separate floor non-handoff and retirement
-reservation paths still need the same refusal-lifetime audit; this correction
-is limited to inactive generation installation and its publication reservation.
+reservation paths were still open at this batch. The subsequent
+[source reservation correction](PHASE_3_SOURCE_RESERVATION.md) covers those paths;
+this earlier receipt remains limited to inactive generation installation and its
+publication reservation.
 
 Reproduce the short new regression class without running a cloud experiment:
 

@@ -82,6 +82,12 @@ verified backup to a new root; old tokens/operation IDs do not cross that bounda
 
 ## Tests and acceptance boundaries
 
+[Floor and retirement resume](PHASE_3_SOURCE_RESERVATION.md) preserves original
+SOURCE/APPLICATION handles on capacity refusal. Complete non-handoff plans and
+individual handoff copies use atomic expansion; force-before-release and exact
+retirement image borrowing remain unchanged. These conditional regressions do
+not qualify the simultaneous native physical maximum.
+
 [Partial-generation resume](PHASE_3_GENERATION_RESERVATION.md) keeps every original
 file charged if capacity expansion fails. New reservation groups either complete
 under the shared monitor or restore all original extents; existing completion

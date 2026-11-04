@@ -91,19 +91,25 @@ final class MembershipFloorFiles implements AutoCloseable {
         for(var file:files.entrySet())require(file.getValue().equals(inspect(path.resolve(file.getKey()),file.getValue().bytes(),file.getValue().digest())),"floor file inode changed");
     }
     private void reserve(SortedMap<String,byte[]> plan) {
-        close();if(!exists && plan==null)return;
-        try {
-            Set<String> ids=new TreeSet<>();if(plan==null)ids.addAll(directories.keySet());else for(String name:plan.keySet())if(name.contains("/"))ids.add(name.substring(0,name.indexOf('/')));
-            for(String id:ids)reserveCopy(plan,id);
-            reserved=plan==null?null:hash(plan.get(PROPOSAL));
-        }catch(RuntimeException | Error error){close();throw error;}
+        if(!exists && plan==null)return;
+        Set<String> ids=new TreeSet<>();if(plan==null)ids.addAll(directories.keySet());else for(String name:plan.keySet())if(name.contains("/"))ids.add(name.substring(0,name.indexOf('/')));
+        var required=new LinkedHashMap<String,MembershipResources.StorageReservation>();
+        for(String id:ids)required.putAll(copyReservations(plan,id));
+        require(required.keySet().containsAll(copyLeases.keySet()),"floor reservation cannot drop original parts");
+        reserveParts(required);reserved=plan==null?null:hash(plan.get(PROPOSAL));
     }
-    private void reservePart(String key,MembershipResources.Unit unit,String owner,long bytes) {
-        var lease=copyLeases.get(key);
-        if(lease==null){lease=resources.reserve(unit,owner,Math.max(1,bytes));leases.add(lease);copyLeases.put(key,lease);}
-        else lease.reserveStorage(Math.max(1,bytes));
+    private void reserveParts(Map<String,MembershipResources.StorageReservation> required) {
+        var growth=new LinkedHashMap<MembershipResources.Lease,Long>();var additions=new ArrayList<MembershipResources.StorageReservation>();
+        var names=new ArrayList<String>();
+        required.forEach((name,row)->{var lease=copyLeases.get(name);
+            if(lease==null){names.add(name);additions.add(row);}else growth.put(lease,row.bytes());});
+        var acquired=resources.extendSources(growth,additions);
+        for(int n=0;n<names.size();n++){var lease=acquired.get(n);copyLeases.put(names.get(n),lease);leases.add(lease);}
     }
     private void reserveCopy(SortedMap<String,byte[]> plan,String id) {
+        reserveParts(copyReservations(plan,id));
+    }
+    private Map<String,MembershipResources.StorageReservation> copyReservations(SortedMap<String,byte[]> plan,String id) {
         long metadata=0;var images=new TreeMap<String,Long>();String prefix=id+"/";
         if(plan==null)for(var file:files.entrySet())if(file.getKey().startsWith(prefix)) {
             if(file.getKey().endsWith(".image"))images.put(file.getKey(),file.getValue().bytes());else metadata=Math.addExact(metadata,file.getValue().bytes());
@@ -111,8 +117,11 @@ final class MembershipFloorFiles implements AutoCloseable {
         if(plan!=null)for(var file:plan.entrySet())if(file.getKey().startsWith(prefix)) {
             if(file.getKey().endsWith(".image"))images.put(file.getKey(),(long)file.getValue().length);else metadata=Math.addExact(metadata,file.getValue().length);
         }
-        reservePart(id,MembershipResources.Unit.SOURCE,"floor:"+id,metadata);
-        int ordinal=0;for(var image:images.entrySet())reservePart(image.getKey(),MembershipResources.Unit.APPLICATION,"floor:"+id+":"+(ordinal++),image.getValue());
+        var required=new LinkedHashMap<String,MembershipResources.StorageReservation>();
+        required.put(id,new MembershipResources.StorageReservation(MembershipResources.Unit.SOURCE,"floor:"+id,Math.max(1,metadata)));
+        int ordinal=0;for(var image:images.entrySet())required.put(image.getKey(),new MembershipResources.StorageReservation(
+                MembershipResources.Unit.APPLICATION,"floor:"+id+":"+(ordinal++),Math.max(1,image.getValue())));
+        return required;
     }
     private boolean complete() throws IOException {
         if(!files.containsKey(FLOOR))return false;

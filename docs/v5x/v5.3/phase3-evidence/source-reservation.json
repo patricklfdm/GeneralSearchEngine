@@ -1,0 +1,131 @@
+{
+  "baseHead": "dc1499c2533db5e637e87da6cc970c60f6312b4e",
+  "competingPressure": "accounting reservations, not physical receiving copies",
+  "finalSourceQualified": false,
+  "finalizer": {
+    "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-source-reservation/finalize.py",
+    "sha256": "d0bef8dbe65a906771a6ec163c6afb0217e32c5f33dc80a8e48884f506a2fb53"
+  },
+  "isolatedBaselineProbe": {
+    "baselineProduction": {
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFloorFiles.java": "511e05eb5225f56f5af3eaf7f3927af0963fe4779d318f3c73b41644c4801999",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java": "868f338dd2c20c475253c13a06d81e1cb0a6dbf7f87e49de6f57875dee41dd5b",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRetirementFiles.java": "1a380cc470c0d313665c216cafa080c5ac022a97ac5c0cdcc6904bd89eb74871"
+    },
+    "expectedFailures": 5,
+    "log": {
+      "path": "target/v53-source-reservation/baseline-01/probe.log",
+      "sha256": "8d802bd99a595557d93724e2ed2e335d769b667be150927fad330dfeefb8eca4"
+    },
+    "originalFiles": "target/v53-source-reservation/baseline-01/originals",
+    "receipt": {
+      "path": "target/v53-source-reservation/baseline-01/receipt.json",
+      "sha256": "cef53ec18139e6d44eb35712cf4c418ae274c78384d965b783ec71d2f916efdf"
+    },
+    "script": {
+      "path": "target/v53-source-reservation/baseline_probe.py",
+      "sha256": "4031220688306c24870cb22642d6de8f78e3a7e33b636a2e4dab98665bb23da0"
+    },
+    "tests": 5
+  },
+  "nativeDistributedMaximumQualified": false,
+  "originalRegression": {
+    "expectedFailures": 4,
+    "log": {
+      "path": "target/v53-source-reservation/red.log",
+      "sha256": "4aa6b7af6d7da8963320575f9bb37f1a1337ccf863000346540dc99dfa757ccf"
+    },
+    "report": {
+      "path": "target/v53-source-reservation/red.xml",
+      "sha256": "347c10b322a395abc43aaa02c2970f7666e6a755de9c86a4db3eec45f1455528"
+    },
+    "tests": 4
+  },
+  "phase3Complete": false,
+  "schema": "gse-v53-source-reservation-development-v1",
+  "scope": "conditional original disk recovery and process-local accounting",
+  "sourceRecordedAfterExecution": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFloorFiles.java": "f3150a2fe316572acba93cd590524f90c26e67d4d3339ca4896f57a24d3dfbaa",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java": "0c1e61d3b139735486f9adb37a5ef98e3d8bc607306dd444f7b2916ef3badf57",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRetirementFiles.java": "0baa1fa023f245157f5821f47fb85c724526811d246630f9043837662d7a1492",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FloorFilesTest.java": "12d77f0146022313f1bec408357e58442ef4f4e5129b1079b7f420c599cb51f2",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationReservationTest.java": "c41757f78383dc9f714f7160c8c52864f15469c3a9c22fce414533811cc8d40c",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransferTest.java": "77d509f4979567810f9180ddab104525ceabad10b4d2cd943c187778d342427d",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RetirementImagesTest.java": "0d4b0d73e8d5f7a354095b52384d35c96b65c0237356b374b1f5be6d1098572c",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RetirementTest.java": "a64f835c94c630e18dc072c10a297a02e86ee7f2463e1034338c70534690692c",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SourceReservationTest.java": "b64c628d2b296c1e3c0e29508a9e634ceb3b10c4d104da12a832326da79df8a8"
+  },
+  "status": "PARTIAL",
+  "validation": {
+    "command": "/opt/maven/bin/mvn -o -B -ntp -f reactor/pom.xml -pl ../general-search-engine-replication -am -Dsurefire.failIfNoSpecifiedTests=false -Dtest=V53SourceReservationTest,V53GenerationReservationTest,V53ResourceTransferTest,V53FloorFilesTest,V53RetirementTest,V53RetirementImagesTest test",
+    "errors": 0,
+    "failures": 0,
+    "log": {
+      "path": "target/v53-source-reservation/green.log",
+      "sha256": "7ceddb5aa960ac51cfbf6071780767559a6dd9aff3ef62af9ac695d6046665fe"
+    },
+    "skipped": 0,
+    "status": "PASS",
+    "suites": [
+      {
+        "name": "V53SourceReservationTest",
+        "report": {
+          "path": "target/v53-source-reservation/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceReservationTest.xml",
+          "sha256": "016016689a6c1df821bc381b507e518dafea315cae41512a107b8ab894117f52"
+        },
+        "seconds": 3.134,
+        "tests": 7
+      },
+      {
+        "name": "V53GenerationReservationTest",
+        "report": {
+          "path": "target/v53-source-reservation/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationReservationTest.xml",
+          "sha256": "656a7e4c217a2e5961283b8817047444d7db20df7f1f05568c2edfd9cd7e4155"
+        },
+        "seconds": 0.819,
+        "tests": 5
+      },
+      {
+        "name": "V53ResourceTransferTest",
+        "report": {
+          "path": "target/v53-source-reservation/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest.xml",
+          "sha256": "2292c01410e1174c7e4b9c1de030cf420fb5537e5e9e76f8b917175a39a9ad10"
+        },
+        "seconds": 0.024,
+        "tests": 8
+      },
+      {
+        "name": "V53FloorFilesTest",
+        "report": {
+          "path": "target/v53-source-reservation/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest.xml",
+          "sha256": "b4fbf2cfd17efcd8a4ed79ea81e4fe77d5565cba8503711f559dc9eaf3872c1b"
+        },
+        "seconds": 19.972,
+        "tests": 13
+      },
+      {
+        "name": "V53RetirementTest",
+        "report": {
+          "path": "target/v53-source-reservation/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53RetirementTest.xml",
+          "sha256": "e6792ccbd93c8dd251c2941a60a82a3c7ff70ada8b658947f2e2e0d8d2ddcffd"
+        },
+        "seconds": 28.295,
+        "tests": 11
+      },
+      {
+        "name": "V53RetirementImagesTest",
+        "report": {
+          "path": "target/v53-source-reservation/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53RetirementImagesTest.xml",
+          "sha256": "5f96573446a2d3e2ebf578058d975f1ddd9aa56fddc8da2303fbfa2698ce32e5"
+        },
+        "seconds": 88.994,
+        "tests": 8
+      }
+    ],
+    "tests": 52,
+    "toolchain": {
+      "path": "target/v53-source-reservation/toolchain.txt",
+      "sha256": "443cc879899ecbd09fa6667688591cf23af3af72367b452556451e82e864f1b0"
+    }
+  }
+}

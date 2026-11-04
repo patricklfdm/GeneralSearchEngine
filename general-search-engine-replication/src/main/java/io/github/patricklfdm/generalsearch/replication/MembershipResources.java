@@ -86,16 +86,24 @@ final class MembershipResources {
      * Other receivers see either the original charges or the complete reservation.
      * A failed extent/count admission leaves every original charge unchanged. */
     synchronized List<Lease> extendGeneration(Map<Lease,Long> growth,List<StorageReservation> additions) {
-        require(growth.size()+additions.size()<=8,"generation reservation group bound");
+        return extendStorage(growth,additions,Unit.GENERATION,8);
+    }
+    /** Extend retained source copies without giving up charges for partial files.
+     * A floor handoff calls this per copy, before releasing its receiving owner. */
+    synchronized List<Lease> extendSources(Map<Lease,Long> growth,List<StorageReservation> additions) {
+        return extendStorage(growth,additions,Unit.SOURCE,Unit.SOURCE.count+Unit.APPLICATION.count);
+    }
+    private List<Lease> extendStorage(Map<Lease,Long> growth,List<StorageReservation> additions,Unit metadataUnit,int bound) {
+        require(growth.size()+additions.size()<=bound,"storage reservation group bound");
         var originals=new LinkedHashMap<Lease,Long>();
         for(var row:growth.entrySet()) {
             var lease=Objects.requireNonNull(row.getKey());long total=row.getValue();
             require(!lease.released && leases.get(lease.key)==lease
-                    && (lease.key.unit==Unit.GENERATION || lease.key.unit==Unit.APPLICATION),"generation reservation original owner");
-            require(total>0 && total<=lease.key.unit.bytes,"generation reservation extent");
+                    && (lease.key.unit==metadataUnit || lease.key.unit==Unit.APPLICATION),"storage reservation original owner");
+            require(total>0 && total<=lease.key.unit.bytes,"storage reservation extent");
             originals.put(lease,lease.bytes);
         }
-        for(var row:additions)require(row.unit==Unit.GENERATION || row.unit==Unit.APPLICATION,"generation reservation category");
+        for(var row:additions)require(row.unit==metadataUnit || row.unit==Unit.APPLICATION,"storage reservation category");
         long originalMetadata=metadata,originalStaging=staging;
         var acquired=new ArrayList<Lease>(additions.size());
         try {

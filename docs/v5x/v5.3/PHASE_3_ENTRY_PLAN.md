@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Floor and retirement reservation](PHASE_3_SOURCE_RESERVATION.md) now extends
+the same refusal-lifetime correction to original source files, including atomic
+per-copy handoff admission. Conditional failure/resume checks preserve existing
+capacity limits and deletion authority; full combined native qualification remains open.
+
 [Partial generation reservation](PHASE_3_GENERATION_RESERVATION.md) now preserves
 original file charges when installation expansion is refused. Two deterministic
 disk regressions and grouped reservation tests cover the correction; combined
