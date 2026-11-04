@@ -23,6 +23,7 @@ class V53NativeDispatchTest {
         final List<MembershipActivationEndpoint> endpoints=new ArrayList<>();
         final List<MembershipTransport> transports=new ArrayList<>();
         final List<AtomicReference<MembershipTransport>> links=new ArrayList<>();
+        V53PublicationResourceCapture publicationResources;
         private V53ProcessTrace processTrace;
         volatile V53RestartLifecycleCapture restartLifecycleCapture;
         final List<Map<String,Object>> wire=Collections.synchronizedList(new ArrayList<>()),events=Collections.synchronizedList(new ArrayList<>() {
@@ -93,6 +94,7 @@ class V53NativeDispatchTest {
             this.bounds=bounds;f=retained;openActors(endpointBudget,false);
         }
         private void openActors(long endpointBudget,boolean liveDirectory)throws Exception {
+            if(Boolean.getBoolean("v53.publication.resources"))publicationResources=new V53PublicationResourceCapture(f.raw);
             f.snapshot("before-network");
             for(var target:f.request.targets()) {
                 var budget=new MembershipResources(512*MembershipResources.MIB);resources.add(budget);links.add(new AtomicReference<>());
@@ -102,6 +104,7 @@ class V53NativeDispatchTest {
                             var remove=removeRetirementCapture;if(remove!=null)remove.at(target.identity().nodeId().value(),target.replicaDirectory(),event,eventIndex);
                             var capture=grantCapture;if(capture!=null)capture.at(target.identity().nodeId().value(),"network-owner",target.replicaDirectory(),event);
                             var retirement=retirementCapture;if(retirement!=null)retirement.at(target.identity().nodeId().value(),"network-owner",target.replicaDirectory(),event);
+                            if(publicationResources!=null)publicationResources.at(target.identity().nodeId().value(),"",target.replicaDirectory(),budget,event,eventIndex);
                             if(target.identity().nodeId().value().equals("node-2"))hook.get().at(event);}));
             }
             for(int i=0;i<f.request.targets().size();i++) {
@@ -217,6 +220,7 @@ class V53NativeDispatchTest {
             Files.write(f.raw.resolve("wire.json"),V53EvidenceArray.encode(wire,V53EvidenceArray.WIRE_BYTES));Files.write(f.raw.resolve("events.json"),V53EvidenceArray.encode(events,V53EvidenceArray.EVENT_BYTES));
             Files.write(f.raw.resolve("failures.json"),V53EvidenceArray.encode(failures,1024*1024));
             f.snapshot("after-close");V53NativeApplicationTest.save(f);
+            if(publicationResources!=null)publicationResources.save();
             if(diagnose)try(var writer=Files.newBufferedWriter(Files.createDirectories(Path.of("target/v53-native-dispatch-diagnostics")).resolve(f.raw.getFileName()+".jsonl"))) {
                 for(var row:diagnostics){writer.write(new String(canonical(row,65536),java.nio.charset.StandardCharsets.UTF_8));writer.newLine();}
             }

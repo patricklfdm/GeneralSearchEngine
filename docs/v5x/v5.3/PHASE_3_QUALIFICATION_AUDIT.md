@@ -164,8 +164,10 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    [generation reload](PHASE_3_GENERATION_RELOAD.md) now retains the original
    generation group through validation and commits only the complete reader pair.
    Its native interruption check keeps original charges until owner close and
-   resumes the same forced files. Full native transition/publication overlap and
-   final-source execution remain open.
+   resumes the same forced files. [Publication storage observations](PHASE_3_PUBLICATION_RESOURCES.md)
+   now capture eleven existing boundaries per native publication and independently
+   compare their inventories and storage reservations. CONTROL/WAITER lifetimes,
+   the full simultaneous maximum and final-source execution remain separate obligations.
    Review actual lifetime overlap, then exercise
    selected/current/inactive sources, learner staging and reserved completion on
    real owners. `V53ResourceTransferTest` reserves the accounting envelope;

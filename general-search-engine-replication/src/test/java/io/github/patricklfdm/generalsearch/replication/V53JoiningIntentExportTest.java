@@ -214,6 +214,7 @@ class V53JoiningIntentExportTest {
             var pool=new MembershipResources(512*MembershipResources.MIB);
             var config=new MembershipReplicaConfig<>(request.root(),joining,List.of(),request.replicaDirectory(),storage(temp.resolve("core"),2),
                     n.bounds,AutomaticLeadershipPolicy.forBounds(n.bounds));
+            trace.retainPublicationResources(n.publicationResources,config.replicaDirectory(),pool);
             if(earlyStartup || initializationProcess!=null)trace.retainGrants(n.grantCapture,request.replicaDirectory());
             if(earlyStartup || initializationProcess!=null)trace.retainRetirements(n.retirementCapture,request.replicaDirectory());
             long sourceStarted=System.nanoTime();

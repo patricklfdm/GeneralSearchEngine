@@ -41,12 +41,13 @@ class Continuation(v.Continuation):
         return v.c.maintenance(group, node, self.retirements.compare, voters=floor_voters(group,node))
 
 
-def physical(root, events, *, owner_lifetimes=None, initialization_class=Initialization):
+def physical(root, events, *, owner_lifetimes=None, initialization_class=Initialization, publication_observer=None):
     life = lifetimes(events) if owner_lifetimes is None else owner_lifetimes
     old = p.NODES[:-1]
     retires = retirement.Retirements(root, events, voters=p.NODES)
     observed = v.p.Captures(root, events, voters=old, old_owner_lifetimes=life)
     model = v.s.Replay(root, size=5, kind='REPLACE')
+    model.publication_observer = publication_observer
     for index in range(1,12): model.step(index)
     model.publication_receipts = v.c.t.publication.CheckpointReceipts(root, model, old_owner_lifetimes=life)
     history = History(root, model, observed); history.retirements = retires; prefix = history.run()
@@ -172,10 +173,10 @@ class Replay(maintenance.Replay):
                     boundRetirementEvents=retirements,interruptedFloors=1)
 
 
-def validate(directory, progress=None):
+def validate(directory, progress=None, *, publication_observer=None):
     root=Path(directory);before=h.inventory(root);events=p.read(root/'events.json');life=lifetimes(events)
     preceding=p.validate(root)
-    derived=physical(root,events)
+    derived=physical(root,events) if publication_observer is None else physical(root,events,publication_observer=publication_observer)
     if progress:progress(dict(stage='physical',status='PASS'))
     network=e.n.network(root,size=5,kind='REPLACE',old_owner_lifetimes=life)
     reader=control.Replay(root,'5-REPLACE',old_owner_lifetimes=life)

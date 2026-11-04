@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Native publication storage observations](PHASE_3_PUBLICATION_RESOURCES.md) add
+original writer inventories and resource counters at eleven publication boundaries.
+Independent history replay derives candidate/old-generation and completion-image
+charges. This is a development gate; the [qualification audit](PHASE_3_QUALIFICATION_AUDIT.md)
+tracks the remaining combined-resource and final-source obligations.
+
 [Partial joint-floor writer coverage](PHASE_3_PARTIAL_JOINT_FLOOR.md) now checks
 sixteen actual handoff-writer cuts with two real PROMISE sources. Independent
 storage/transfer replay confirms recovery within six SOURCE slots and seven

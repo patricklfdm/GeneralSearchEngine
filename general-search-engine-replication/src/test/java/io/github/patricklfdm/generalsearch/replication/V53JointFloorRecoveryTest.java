@@ -113,6 +113,7 @@ class V53JointFloorRecoveryTest {
         assertFalse(Files.exists(target.replicaDirectory().resolve("floor-copies/floor.gsr")));
         V53JournalApplicationTest.copy(target.replicaDirectory(),raw.resolve("after-close"));
         var ownTrace=new V53JoiningTrace("node-2",n.events,n.wire);
+        ownTrace.retainPublicationResources(n.publicationResources,target.replicaDirectory(),budget);
         ownTrace.retainGrants(n.grantCapture,target.replicaDirectory());ownTrace.retainRetirements(n.retirementCapture,target.replicaDirectory());
         var resumedUsage=new ArrayList<Map<String,Object>>();var captured=new AtomicBoolean();
         var observed=ownTrace.cut("joint-floor-reopened");

@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Native publication storage observations](PHASE_3_PUBLICATION_RESOURCES.md) now
+collect original inventories and charges at eleven existing publication boundaries.
+Independent replay derives expected files and completion/generation reservations
+from the original history. This optional gate adds no final-source cohort slot;
+the full physical maximum and Phase 3 closure remain open.
+
 [Publication image handoff](PHASE_3_PUBLICATION_RESERVATION.md) now transfers an
 already-reserved completion image to its candidate generation atomically. Failed
 admission preserves the old handle; full-count admission does not need an extra

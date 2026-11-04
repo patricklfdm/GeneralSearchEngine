@@ -521,7 +521,9 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransferReplyLifetimeTest.java",
         "scripts/v53/test_transfer_reply_lifetime.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationReservationTest.java",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationReloadTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationReloadTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationResourceCapture.java",
+        "scripts/v53/test_publication_resource_evidence.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -542,7 +544,9 @@
         "scripts/v53/process_joint_scratch.py",
         "scripts/v53/process_joint_cohort.py",
         "scripts/v53/process_joint_hosted.py",
-        "scripts/v53/transfer_reply_resources.py"
+        "scripts/v53/transfer_reply_resources.py",
+        "scripts/v53/publication_resource_evidence.py",
+        "scripts/v53/publication_resource_negatives.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -563,7 +567,8 @@
         "docs/v5x/v5.3/PHASE_3_SOURCE_RESERVATION.md",
         "docs/v5x/v5.3/PHASE_3_TRANSFER_RESOURCE_LIFETIME.md",
         "docs/v5x/v5.3/PHASE_3_PUBLICATION_RESERVATION.md",
-        "docs/v5x/v5.3/PHASE_3_GENERATION_RELOAD.md"
+        "docs/v5x/v5.3/PHASE_3_GENERATION_RELOAD.md",
+        "docs/v5x/v5.3/PHASE_3_PUBLICATION_RESOURCES.md"
       ],
       "cohorts": [
         "profiles",

@@ -14,6 +14,9 @@ final class V53JoiningTrace {
     private V53SourceRetirementCapture retirements;
     private Path retirementReplica;
     private Path replica;
+    private V53PublicationResourceCapture publicationResources;
+    private Path resourceReplica;
+    private MembershipResources resources;
     V53JoiningTrace(String node,List<Map<String,Object>> events,List<Map<String,Object>> wire) {
         this.node=Objects.requireNonNull(node);this.events=Objects.requireNonNull(events);this.wire=Objects.requireNonNull(wire);
     }
@@ -25,11 +28,17 @@ final class V53JoiningTrace {
         if(this.retirements!=null)throw new IllegalStateException("joining retirement observation already bound");
         this.retirements=Objects.requireNonNull(retirements);this.retirementReplica=Objects.requireNonNull(replica);
     }
+    void retainPublicationResources(V53PublicationResourceCapture capture,Path replica,MembershipResources resources) {
+        if(capture==null)return;
+        if(publicationResources!=null)throw new IllegalStateException("publication resource observation already bound");
+        publicationResources=capture;resourceReplica=Objects.requireNonNull(replica);this.resources=Objects.requireNonNull(resources);
+    }
     MembershipBallotAllocator.Cut cut(String scope) {
         Objects.requireNonNull(scope);
-        return event->{events.add(Map.of("node",node,"scope",scope,"event",event));
+        return event->{int index;synchronized(events){index=events.size();events.add(Map.of("node",node,"scope",scope,"event",event));}
             if(grants!=null)grants.at(node,scope,replica,event);
-            if(retirements!=null)retirements.at(node,scope,retirementReplica,event);};
+            if(retirements!=null)retirements.at(node,scope,retirementReplica,event);
+            if(publicationResources!=null)publicationResources.at(node,scope,resourceReplica,resources,event,index);};
     }
     /** Optional old-owner request observations. Keep their existing response
      * callbacks untouched; an attempted write is not proof of delivery. */

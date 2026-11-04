@@ -1,4 +1,5 @@
 import copy
+import json
 from pathlib import Path
 from types import SimpleNamespace
 import unittest
@@ -29,6 +30,35 @@ class JoiningPublicationEvidenceTest(unittest.TestCase):
     def promote(self, replay, files, members):
         with patch.object(j.disk, 'current', return_value=('', members, {})):
             return j.promoted_ledgers(replay, files, 9)
+
+    def test_publication_observation_uses_recorded_intent_before_final_clear(self):
+        replay, files, old, members = self.fixture()
+        with patch.object(j.disk, 'current', return_value=('', members, {})):
+            recorded, final = j.publication_ledgers(replay, files, 9)
+        # The transient intent is the exact predecessor of the final empty
+        # ledger, not the earlier empty ledger from the applied-end snapshot.
+        self.assertNotEqual(files[j.phases.future.FILE],recorded)
+        size = int.from_bytes(recorded[44:48],'big')
+        meta = json.loads(recorded[48:48+size])
+        originals = int.from_bytes(recorded[48+size:52+size],'big')
+        cleared = j.phases.empty_future(final[j.phases.future.FILE],files)
+        self.assertEqual(j.sha(recorded),cleared['previous'])
+        self.assertEqual(meta['revision']+1,cleared['revision'])
+        self.assertTrue(meta['peers']); self.assertEqual(10,originals)
+        self.assertEqual([],cleared['peers'])
+
+    def test_observed_publication_does_not_follow_later_slot_mutations(self):
+        replay, files, old, members = self.fixture(); observed = []
+        replay.publication_observer = lambda *values: observed.append(values)
+        with patch.object(j,'publication_members',return_value=({},{})), \
+             patch.object(j.disk,'generation',return_value=(b'next selector',{'generations/b':None})), \
+             patch.object(j,'publication_ledgers',return_value=(b'recorded intent',{j.phases.future.FILE:b'cleared ledger'})):
+            after = j.expected_publication(replay,files,9,'node-2')
+        after['pending.accept'] = b'next slot vote'; after[j.phases.future.FILE] = b'next slot intent'
+        self.assertEqual(('node-2',9),observed[0][:2])
+        self.assertEqual(b'recorded intent',observed[0][2][j.phases.future.FILE])
+        self.assertEqual(j.disk.EMPTY,observed[0][3]['pending.accept'])
+        self.assertEqual(b'cleared ledger',observed[0][3][j.phases.future.FILE])
 
     def test_promotion_preserves_original_owner_other_peers_and_view(self):
         replay, files, old, members = self.fixture()

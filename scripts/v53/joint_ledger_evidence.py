@@ -98,8 +98,9 @@ def replay(root,progress=None):
     return results
 
 
-def validate(root,progress=None):
-    root=Path(root);before=h.inventory(root);original=history.validate(root,progress)
+def validate(root,progress=None,*,publication_observer=None):
+    root=Path(root);before=h.inventory(root)
+    original=history.validate(root,progress) if publication_observer is None else history.validate(root,progress,publication_observer=publication_observer)
     ledgers=replay(root,progress)
     need(h.inventory(root)==before,'joint ledger original changed')
     return dict(status='PASS',scope='complete-interrupted-history-continuous-ledgers',profile='5-REPLACE',

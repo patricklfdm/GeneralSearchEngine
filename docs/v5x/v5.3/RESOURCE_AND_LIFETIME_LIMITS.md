@@ -92,6 +92,12 @@ Interrupted validation keeps originals until journal close. Whole-runtime
 combined pressure remains under review; this is not full native peak-resource
 qualification.
 
+[Native publication observations](PHASE_3_PUBLICATION_RESOURCES.md) compare all
+original files and storage charges at eleven validation/reservation/force/release
+boundaries per publication. Expected extents and completion reservations come
+from independent history derivation. This adds no artificial receiving lifetime,
+capacity increase, CONTROL/WAITER lifetime proof or whole-runtime maximum claim.
+
 [Native reply resource lifetimes](PHASE_3_TRANSFER_RESOURCE_LIFETIME.md) derive
 storage and control charges at actual TCP boundaries from original files/frames.
 Completed reply caches replace the original export/session; revoked retries may

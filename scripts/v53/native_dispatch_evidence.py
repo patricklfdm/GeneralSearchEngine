@@ -433,10 +433,12 @@ def unselected_rejections(failures):
     need(type(failures) is list and len(failures) <= 6 and all(set(row) == {'node','kind','request','failure'} and row['node'] == 'node-3' and row['kind'] == 'FUTURE_RETENTION_INTENT' and row['failure'] == 'java.lang.IllegalArgumentException: higher ballot observed; fresh campaign required' for row in failures), 'native dispatch bounded unselected rejection')
 
 
-def validate(root, *, discovery=False, rejection_check=None, confirmed_retention=False, precommand_maintenance=False):
+def validate(root, *, discovery=False, rejection_check=None, confirmed_retention=False, precommand_maintenance=False,
+             publication_resources=False):
     root = Path(root)
     b.selection.layout(root, {'initial','original-plan.gsbp','original-application.image','before-network','installed',
-        'applied-1','published-1','applied-2','published-2','after-close','calls.json','events.json','wire.json','failures.json','result.json','selected.gsr'}, 'native dispatch case inventory')
+        'applied-1','published-1','applied-2','published-2','after-close','calls.json','events.json','wire.json','failures.json','result.json','selected.gsr'} |
+        ({'publication-resource-captures'} if publication_resources else set()), 'native dispatch case inventory')
     states, rounds, selected, identities = physical(root, confirmed_retention=confirmed_retention)
     calls = read(root/'calls.json')
     need([(row['node'], row['operation']) for row in calls] == [(n,'initialize-retention') for n in sorted(identities)], 'native dispatch bootstrap owner calls')

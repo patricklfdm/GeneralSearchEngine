@@ -194,7 +194,8 @@ def publication_members(replay, files, index):
     return new_cap, members
 
 
-def promoted_ledgers(replay, files, index):
+def publication_ledgers(replay, files, index):
+    """Derive recorded future intent and final promoted ledgers from original votes."""
     parts = replay.phases[index-1]
     voters = [v['voter'] for v in f.decode(parts['CERTIFICATE'], 'records', 'CERTIFICATE')['proofs']]
     parent, upper = anchor(replay, index-1), anchor(replay, index)
@@ -217,8 +218,12 @@ def promoted_ledgers(replay, files, index):
         need(row['possible'] == [parent], 'joining publication original dispatch endpoint')
         row['possible'].append(upper)
     meta = dict(meta, revision=meta['revision']+1, previous=sha(future), parent=None, peers=[])
-    return {PEERS: peers.frame(dict(state, revision=state['revision']+1, previous=sha(files[PEERS]), plan=plan)),
-            phases.future.FILE: phases.future.frame(meta, {})}
+    return future, {PEERS: peers.frame(dict(state, revision=state['revision']+1, previous=sha(files[PEERS]), plan=plan)),
+                    phases.future.FILE: phases.future.frame(meta, {})}
+
+
+def promoted_ledgers(replay, files, index):
+    return publication_ledgers(replay, files, index)[1]
 
 
 def expected_publication(replay, files, index, node):
@@ -230,8 +235,11 @@ def expected_publication(replay, files, index, node):
          'joining publication inactive slot not retired')
     selector, generation = disk.generation(members, cap, node, slot, None)
     expected = {name: raw for name, raw in files.items() if name != 'applied-end' and not name.startswith('applied-end/')}
-    expected.update(generation); expected.update(promoted_ledgers(replay, files, index))
+    recorded, ledgers = publication_ledgers(replay, files, index)
+    expected.update(generation); expected.update(ledgers)
     expected.update({'selector.gsr': selector, 'pending.accept': disk.EMPTY})
+    observer = getattr(replay, 'publication_observer', None)
+    if observer is not None: observer(node, index, dict(files, **{phases.future.FILE:recorded}), dict(expected))
     return expected
 
 

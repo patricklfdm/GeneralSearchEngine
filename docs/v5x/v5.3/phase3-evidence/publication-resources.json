@@ -1,0 +1,143 @@
+{
+  "baseHead": "aa57fce3023fee597f2ed7254da3a27d02c079f8",
+  "compiledClasses": {
+    "path": "target/v53-publication-resource-review/compiled-classes.json",
+    "sha256": "9f534d41333d30b64129a19f4468200d8a17da6733bd2b03bcbc0ccbd496137e"
+  },
+  "controlChargesDerived": false,
+  "documentationChecks": {
+    "contract.json": {
+      "path": "target/v53-publication-resource-review/contract.json",
+      "sha256": "e191589a4aea880baa3b32efd15cf13b182efa9d5c53a573e90de1d081a09108"
+    },
+    "qualification-plan-review/receipt.json": {
+      "path": "target/v53-publication-resource-review/qualification-plan-review/receipt.json",
+      "sha256": "320a731719b283f3a74ef802bf0525dd455d0abc2f339ff3ab0284ee73533dc7"
+    }
+  },
+  "executions": {
+    "5-REPLACE": {
+      "negatives": 26,
+      "observations": {
+        "maximumObservedStorage": {
+          "applications": 6,
+          "metadata": 35902254,
+          "sources": 1,
+          "staging": 268492102
+        },
+        "observedBoundaries": 363,
+        "publications": 33
+      },
+      "original": "general-search-engine-replication/target/v53-native-dispatch/run-381e20e1-7742-4cc2-ab98-169a846fa2cf",
+      "qualification": {
+        "path": "target/v53-publication-resource-review/joint-qualification.json",
+        "sha256": "cd308af40ec71260ce141461c99cdc4135e65397566c7870e874c3c21df7c22e"
+      }
+    },
+    "stable": {
+      "negatives": 26,
+      "observations": {
+        "maximumObservedStorage": {
+          "applications": 6,
+          "metadata": 35693775,
+          "sources": 1,
+          "staging": 268442795
+        },
+        "observedBoundaries": 44,
+        "publications": 4
+      },
+      "original": "general-search-engine-replication/target/v53-native-dispatch/run-6438ab1f-8cfa-47f2-bae2-557477472da3",
+      "qualification": {
+        "path": "target/v53-publication-resource-review/stable-qualification-03.json",
+        "sha256": "bc2cb0e047c7bf6fc5e2c04a0e5b729129bbc304e0568c4efd6c1c5648eb7ad0"
+      }
+    }
+  },
+  "finalSourceCohortQualified": false,
+  "finalizer": {
+    "path": "target/v53-publication-resource-review/finalize.py",
+    "sha256": "bc7b275071382d755bd38789ec6a7da6531a70b33ac71d25a63db0772bcebe9b"
+  },
+  "nativeLogs": {
+    "joint.log": {
+      "path": "target/v53-publication-resource-review/joint.log",
+      "sha256": "b7a8d8536d66de1866bcf393266cb9229a3d9b6fa804e30725f17dcfe0ebf52f"
+    },
+    "stable.log": {
+      "path": "target/v53-publication-resource-review/stable.log",
+      "sha256": "52e81d2e6ccaf5b297741f4140c4eb021b75b265345c1c2d831f20e89d1d666d"
+    }
+  },
+  "nativeReports": {
+    "V53JointFloorRecoveryTest": {
+      "path": "target/v53-publication-resource-review/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53JointFloorRecoveryTest.xml",
+      "seconds": 1149.59,
+      "sha256": "b1ce0baaabdb9f8a54c1e6a5c25dc86514e3ebe04e5f6cc43f2334cef98653bf",
+      "tests": 1
+    },
+    "V53NativeDispatchTest": {
+      "path": "target/v53-publication-resource-review/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml",
+      "seconds": 56.298,
+      "sha256": "fc8e391a29b82f92709dbd4bd66cbbc3a60fbed90a9f167dbff76caafc2f846b",
+      "tests": 1
+    }
+  },
+  "nativeSourceManifest": {
+    "path": "target/v53-publication-resource-review/tested-java-source.json",
+    "sha256": "ed1f832904a110fa74318a65bac4664b8d1e797739a291d853291c0dfeb3733b"
+  },
+  "originalInventories": {
+    "path": "target/v53-publication-resource-review/original-inventories.json",
+    "sha256": "5d304ee5a7573aca0dded93db5a4f49b97b2348f7bc0f72d328e22209cd281ec"
+  },
+  "phase3Complete": false,
+  "productionJavaChanged": false,
+  "publicationStorageDerived": true,
+  "pythonRegressions": {
+    "path": "target/v53-publication-resource-review/python-regressions-final.log",
+    "sha256": "607a3d73032b983fee73add9d65953c9a874179211b993258f06b2f2f6689720",
+    "tests": 161
+  },
+  "readerDevelopmentDiagnostics": {
+    "joint-replay-01.log": {
+      "path": "target/v53-publication-resource-review/joint-replay-01.log",
+      "reason": "new adapter used legacy 8 MiB event reader; complete history uses the existing bounded 32 MiB collector; unchanged native original replayed",
+      "sha256": "8d7f868471fdebf00b8e0d7facf9ce6e9f0eab34314b4f8cce76447b920583b8"
+    },
+    "publication-ledgers-01.log": {
+      "path": "target/v53-publication-resource-review/publication-ledgers-01.log",
+      "reason": "new unit test referenced a nonexistent decode helper; test corrected before final validation",
+      "sha256": "3befdf7cdcf6c4851bf8e01f8964cb5fa9f1fa4d0ea5efcd9ef6df3a8ed42a70"
+    },
+    "stable-replay-01.log": {
+      "path": "target/v53-publication-resource-review/stable-replay-01.log",
+      "reason": "incorrect reader precommand option for explicitly orchestrated stable history; corrected reader replayed the unchanged original",
+      "sha256": "d7a795179a0153200bd864e4937450cc867ce845566948a0ab47c3b9f161f0a0"
+    }
+  },
+  "readerManifest": {
+    "path": "target/v53-publication-resource-review/reader-source.json",
+    "sha256": "5b0e0e15f1381e4a723c6eb9238c915f3eebea29e7e4838a93c2d00230889338"
+  },
+  "replayLog": {
+    "path": "target/v53-publication-resource-review/joint-replay-02.log",
+    "sha256": "717cfea542f108cec8b754b9b53c216c0d0fc4ee6a453567d7582d617599d256"
+  },
+  "schema": "gse-v53-publication-resources-development-v1",
+  "status": "PARTIAL",
+  "toolchains": {
+    "java-version.log": {
+      "path": "target/v53-publication-resource-review/java-version.log",
+      "sha256": "f2cd23c52a518f94e2950b9bed898639933c0b2ee04c5d14deb6906176a84af8"
+    },
+    "maven-version.log": {
+      "path": "target/v53-publication-resource-review/maven-version.log",
+      "sha256": "76491158c17a80a30a3e9a573bf6d349cb0568dc8ddcb348f7c4d5e34b1b87cd"
+    },
+    "python-version.log": {
+      "path": "target/v53-publication-resource-review/python-version.log",
+      "sha256": "f6b75e07f1488db28a89724a522725e3e01af3dc78f6fd365f17eb4059e41056"
+    }
+  },
+  "wholeRuntimePeakQualified": false
+}
