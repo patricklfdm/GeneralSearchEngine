@@ -50,11 +50,20 @@ final class MembershipActivation implements AutoCloseable {
     }
     /** A fresh ballot does not grant the enclosing activation another time budget. */
     MembershipActivation(MembershipGrantJournal owner,MembershipResources resources,LongSupplier clock,long started,long budget) throws IOException {
+        this(owner,resources,clock,started,budget,null);
+    }
+    MembershipActivation(MembershipGrantJournal owner,MembershipResources resources,LongSupplier clock,long started,long budget,
+            MembershipGrantJournal.GrantMaintenance maintenance) throws IOException {
         require(budget>0 && budget<Long.MAX_VALUE/2,"activation time budget");
         this.owner=Objects.requireNonNull(owner);this.resources=Objects.requireNonNull(resources);
         this.clock=Objects.requireNonNull(clock);this.budget=budget;this.started=started;
         long elapsed=clock.getAsLong()-started;require(elapsed>=0 && elapsed<budget,"original activation deadline");
-        synchronized(owner) {
+        if(maintenance!=null)own=owner.beginActivation(grant->{
+            long spent=clock.getAsLong()-started;require(spent>=0 && spent<budget,"original activation deadline");
+            grant.check();maintenance.run(grant);grant.check();
+            spent=clock.getAsLong()-started;require(spent>=0 && spent<budget,"original activation deadline");
+        },()->{long spent=clock.getAsLong()-started;require(spent>=0 && spent<budget,"original activation deadline");});
+        else synchronized(owner) {
             elapsed=clock.getAsLong()-started;require(elapsed>=0 && elapsed<budget,"original activation deadline");
             own=owner.beginActivation();
         }
@@ -237,13 +246,32 @@ final class MembershipActivation implements AutoCloseable {
     }
     /** Receiver is called only after authenticating the sender and obtaining its exact PROMISE. */
     static Prepared prepare(MembershipGrantJournal owner,MembershipIdentity proposer,Decoded request,Decoded originalPromise) throws IOException {
+        return prepare(owner,proposer,request,originalPromise,null);
+    }
+    static Prepared prepare(MembershipGrantJournal owner,MembershipIdentity proposer,Decoded request,Decoded originalPromise,
+            MembershipGrantJournal.GrantMaintenance maintenance) throws IOException {
+        return prepare(owner,proposer,request,originalPromise,maintenance,()->{});
+    }
+    static Prepared prepare(MembershipGrantJournal owner,MembershipIdentity proposer,Decoded request,Decoded originalPromise,
+            MembershipGrantJournal.GrantMaintenance maintenance,MembershipSourcePull.Guard entry) throws IOException {
         synchronized(owner) {
+            entry.check();
             var context=incoming(owner,proposer,request,"PREPARE");var p=originalPromise.value();
             require(originalPromise.family().equals("records") && originalPromise.kind().equals("PROMISE")
                     && originalPromise.digest().equals(object(request.value().get("payload")).get("promise"))
                     && p.get("root").equals(context.root) && p.get("view").equals(context.authority())
                     && p.get("ballot").equals(request.value().get("ballot")) && p.get("basisId")!=null,"proposer original promise binding");
-            var basis=owner.prepareCurrent(object(request.value().get("ballot")));var source=owner.originalSource();
+            if(maintenance==null) {
+                var basis=owner.prepareCurrent(object(request.value().get("ballot")));var source=owner.originalSource();
+                owner.checkActivation(basis,null,false);
+                return new Prepared(reply("PROMISE",context,owner,proposer,request,Map.of("basis",basis.digest())),source);
+            }
+        }
+        // Reverse-copy work must run outside the writer used by source replies.
+        var basis=owner.prepareCurrent(object(request.value().get("ballot")),maintenance,
+                ()->{entry.check();incoming(owner,proposer,request,"PREPARE");});
+        synchronized(owner) {
+            entry.check();var context=incoming(owner,proposer,request,"PREPARE");var source=owner.originalSource();
             owner.checkActivation(basis,null,false);
             return new Prepared(reply("PROMISE",context,owner,proposer,request,Map.of("basis",basis.digest())),source);
         }

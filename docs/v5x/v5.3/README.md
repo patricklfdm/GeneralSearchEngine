@@ -1,5 +1,9 @@
 # V5.3 — controlled cluster operations
 
+[Deferred grant capture](PHASE_3_DEFERRED_GRANT.md) now reclaims unused same-cut
+sources after a durable higher PROMISE and before a new source consumes floor
+headroom. Complete required-four native qualification remains pending.
+
 [Required-four replacement](PHASE_3_REQUIRED_FOUR.md) adds the availability shape
 in which no three reachable members can satisfy both joint majorities. Its
 semantic/publication reader distinguishes governing FINAL votes from successor

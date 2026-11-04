@@ -5,6 +5,11 @@ This batch adds the opt-in regression and reader, preserves the failed original,
 and diagnoses a real source/floor capacity conflict. It does not change production
 Java or claim that the conflict is fixed.
 
+Follow-up: [deferred grant capture](PHASE_3_DEFERRED_GRANT.md) now implements
+the clean-source scheduling correction. The failed execution and development
+index below describe the preceding source; a successful complete native run
+on the corrected implementation is still required.
+
 The earlier 5-REPLACE floor histories retain four physical copies, but their
 three live common members already satisfy both majorities. Four observed copies
 do not establish the availability case in which four distinct voters are necessary.

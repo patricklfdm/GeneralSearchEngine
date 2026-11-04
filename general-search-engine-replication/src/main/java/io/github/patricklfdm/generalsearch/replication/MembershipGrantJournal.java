@@ -3115,6 +3115,77 @@ final class MembershipGrantJournal implements AutoCloseable {
         current.capsule.context.ballot(incoming,true);reconcileKnownPeerConfiguration();
         return prepareBound(voteCapsule(),incoming,voteAccepted(),current.images());
     }
+    @FunctionalInterface interface GrantMaintenance {void run(DeferredGrant grant)throws IOException;}
+    /** A live-only right to finish the first capture of one unexposed promise.
+     * It is never recovered from disk: an unmarked PROMISE after reopen still
+     * requires a strictly newer ballot. Maintenance cannot change the selected
+     * generation or create a vote while this right is in use. */
+    final class DeferredGrant {
+        private final MembershipCurrentGeneration generation=current;
+        private final Decoded originalPromise=promise;
+        private boolean finished;
+        private DeferredGrant() { }
+        void check()throws IOException {
+            synchronized(MembershipGrantJournal.this) {
+                checkOwner();fence(object(originalPromise.value().get("ballot")));
+                require(!finished && current==generation && promise!=null && basis==null && selection==null
+                        && Arrays.equals(promise.bytes(),originalPromise.bytes()),"deferred grant authority changed");
+                require(voteAccepted()==null && (pendingAccept==null || !pendingAccept.pending() && pendingAccept.active()==null)
+                        && (pendingContext==null || !pendingContext.pending() && pendingContext.active().isEmpty()),
+                        "deferred grant cannot replace pending vote/context");
+                applicationReferencesIdle();
+            }
+        }
+    }
+    /** Before another complete source consumes the floor's headroom, supersede
+     * the latest unused same-cut source with a forced promise. Exact ordinary
+     * floor/retirement rules do all deletion; this hook supplies no authority.
+     * Never hold the writer monitor while acquiring remote original copies. */
+    Decoded prepareCurrent(Map<String,Object> incoming,GrantMaintenance maintenance)throws IOException {
+        return prepareCurrent(incoming,maintenance,()->{});
+    }
+    Decoded prepareCurrent(Map<String,Object> incoming,GrantMaintenance maintenance,MembershipSourcePull.Guard entry)throws IOException {
+        Objects.requireNonNull(maintenance);DeferredGrant deferred;
+        synchronized(this) {
+            require(current!=null,"current generation required");checkOwner();entry.check();
+            if(!deferGrantForSources(incoming))return prepareCurrent(incoming);
+            floorIdle();applicationReferencesIdle();
+            require(!inactive.exists(),"deferred grant requires retired inactive generation");
+            var context=current.capsule.context;var next=ballot(context.ballot(incoming,true));
+            require(identity.equals(context.identities.get(identity.nodeId().value())) && context.voters().contains(identity.nodeId().value()),
+                    "grant local eligible identity");
+            observe(context,next);fence(next);cut.at("CURRENT_BEFORE_CAPTURE");checkOwner();
+            reconcileKnownPeerConfiguration();ensureJournalCapacity(RESERVATION,"grant journal rotation required");
+            var grant=decode(encode("records","PROMISE",Map.of("root",root.manifestDigest(),"view",context.authority(),
+                    "ballot",next,"basisId",UUID.randomUUID().toString())),"records","PROMISE");
+            try {
+                append(grant,next);promise=grant;basis=null;selection=null;promises.put((String)grant.value().get("basisId"),grant);
+                deferred=new DeferredGrant();deferred.check();
+            }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+        }
+        // No capture intent/source/BASIS exists yet. If this throws or the
+        // process dies, the ordinary incomplete-PROMISE recovery rule applies.
+        try {
+            maintenance.run(deferred);
+            synchronized(this) {
+                entry.check();deferred.check();floorIdle();
+                require(!inactive.exists() && !floors.exists() && !sameCutSourceMaintenanceRequired(),
+                        "deferred grant source maintenance incomplete");
+                return prepareBound(voteCapsule(),incoming,voteAccepted(),current.images(),deferred);
+            }
+        }finally{synchronized(this){deferred.finished=true;}}
+    }
+    private boolean deferGrantForSources(Map<String,Object> incoming)throws IOException {
+        return sourceRetirement!=null && capture!=null && floorReleaseEnabled && sources.retainedIdentities().size()>=2
+                && promise!=null && basis!=null && selection==null
+                && compareBallot(object(promise.value().get("ballot")),incoming)<0
+                && basis.value().get("accepted")==null && voteAccepted()==null
+                && basis.value().get("cut").equals(current.capsule.context.cut)
+                && !promise.digest().equals(current.manifest.value().get("promise"))
+                && !basis.digest().equals(current.manifest.value().get("basis"))
+                && (pendingAccept==null || !pendingAccept.pending() && pendingAccept.active()==null)
+                && (pendingContext==null || !pendingContext.pending() && pendingContext.active().isEmpty());
+    }
     private Decoded prepareContextCurrent(Map<String,Object> incoming)throws IOException {
         contextCaptureIdle(false);var context=current.capsule.context;var next=ballot(context.ballot(incoming,true));
         observe(context,next);fence(next);
@@ -3151,6 +3222,17 @@ final class MembershipGrantJournal implements AutoCloseable {
         long counter=reserveCounter();
         prepareCurrent(Map.of("counter",counter,"proposer",identity.nodeId().value(),"incarnation",identity.storageId().toString()));
         return originalSource();
+    }
+    MembershipSelection.Source beginActivation(GrantMaintenance maintenance,MembershipSourcePull.Guard entry)throws IOException {
+        Map<String,Object> next;MembershipCurrentGeneration generation;
+        synchronized(this) {
+            require(current!=null,"current generation required");checkOwner();entry.check();
+            require(identity.equals(current.capsule.context.identities.get(identity.nodeId().value()))
+                    && current.capsule.context.voters().contains(identity.nodeId().value()),"activation requires current voter");
+            next=Map.of("counter",reserveCounter(),"proposer",identity.nodeId().value(),"incarnation",identity.storageId().toString());generation=current;
+        }
+        var original=prepareCurrent(next,maintenance,()->{entry.check();require(current==generation,"activation generation changed before grant");});
+        synchronized(this){entry.check();checkActivation(original,null,false);return originalSource();}
     }
     MembershipIdentity activationIdentity() {return identity;}
     synchronized MembershipScratch openScratch(Path path,MembershipScratch.Role role,MembershipResources budget,MembershipScratch.Events events)throws IOException {
@@ -3785,18 +3867,23 @@ final class MembershipGrantJournal implements AutoCloseable {
         objects.put(accept.digest(),accept.bytes());objects.put(entry.digest(),entry.bytes());objects.put(hash(payload),payload);
     }
     private Decoded prepareBound(MembershipCapsule source,Map<String,Object> incoming,String accepted,Map<String,byte[]> images) throws IOException {
+        return prepareBound(source,incoming,accepted,images,null);
+    }
+    private Decoded prepareBound(MembershipCapsule source,Map<String,Object> incoming,String accepted,Map<String,byte[]> images,DeferredGrant deferred) throws IOException {
         require((sources==null)==(images==null),"grant source mode mismatch");
         live();var context=source.context;
         require(context.root.equals(root.manifestDigest()) && identity.equals(context.identities.get(identity.nodeId().value()))
                 && context.voters().contains(identity.nodeId().value()),"grant local eligible identity");
         var next=ballot(context.ballot(incoming,true));observe(current==null?context:current.capsule.context,next);fence(next);checkOwner();
-        if(promise!=null && promise.value().get("ballot").equals(next)) {
+        if(deferred!=null) {
+            deferred.check();require(promise.value().get("ballot").equals(next),"deferred grant original ballot");
+        }else if(promise!=null && promise.value().get("ballot").equals(next)) {
             require(promise.value().get("view").equals(context.authority()),"duplicate grant changed configuration");
             require(basis!=null,"incomplete original basis; fresh ballot required");fence(next);return basis;
         }
         // Reserve both maximum frames before PROMISE; never strand its BASIS on our own byte limit.
         ensureJournalCapacity(RESERVATION,"grant journal rotation required");
-        var grant=decode(encode("records","PROMISE",Map.of("root",root.manifestDigest(),"view",context.authority(),
+        var grant=deferred!=null?promise:decode(encode("records","PROMISE",Map.of("root",root.manifestDigest(),"view",context.authority(),
                 "ballot",next,"basisId",UUID.randomUUID().toString())),"records","PROMISE");
         var body=new TreeMap<String,Object>(grant.value());body.put("voter",identity.nodeId().value());body.put("cut",context.cut);
         if(current!=null) {
@@ -3812,7 +3899,8 @@ final class MembershipGrantJournal implements AutoCloseable {
         }
         var reservation=sources==null?null:sources.prepare(frozen,source,images);
         try(var retained=reservation) {
-            append(grant,next);promise=grant;basis=null;selection=null;promises.put((String)grant.value().get("basisId"),grant);
+            if(deferred==null){append(grant,next);promise=grant;basis=null;selection=null;promises.put((String)grant.value().get("basisId"),grant);}
+            else {deferred.check();deferred.finished=true;}
             if(retained!=null){
                 if(capture==null)retained.capture();
                 else {

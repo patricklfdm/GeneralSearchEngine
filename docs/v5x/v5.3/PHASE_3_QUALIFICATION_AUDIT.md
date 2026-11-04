@@ -50,6 +50,11 @@ planned entries above; their final-source executions remain open.
 
 ## Current obligation map
 
+[Deferred grant capture](PHASE_3_DEFERRED_GRANT.md) implements the clean-source
+reclamation order with unchanged incomplete-PROMISE recovery and capacity rules.
+Its conditional interruption tests do not qualify a native four-voter lifetime
+or fresh-process crash matrix; the combined-resource and execution gaps stay OPEN.
+
 [Required-four replacement](PHASE_3_REQUIRED_FOUR.md) adds a development
 topology with live common members 1/2, departing member 3 and joining member 6;
 common members 4/5 remain offline. Unlike the earlier four-copy floor, this

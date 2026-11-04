@@ -8,6 +8,47 @@ from . import native_activation_evidence as q
 
 
 class NativeActivationEvidenceTest(unittest.TestCase):
+    @staticmethod
+    def materialization_fixture():
+        from .test_source_packet import fixture
+        capsule,index,objects=fixture();f=q.e.f;cap=f.decode(capsule,'records','CAPSULE');catalog=f.catalog()
+        root=f.sample(catalog['records']['ROOT']['schema'],catalog['types']);root['genesis']=cap['initial']
+        root_record=f.encode('records','ROOT',root);objects[q.e.digest(root_record)]=root_record
+        raw=q.c.packet_bytes(cap,objects,{row['sha256']:row['bytes'] for row in index['images']})
+        return {'source.gscp':raw},q.e.p.decode(raw),root_record
+
+    def test_current_materialization_derives_reachable_objects_without_changing_frozen_source(self):
+        initial,packet,root=self.materialization_fixture();before=copy.deepcopy(packet)
+        self.assertEqual(initial['source.gscp'],q.materialized_source(initial,packet,root))
+        raw=q.materialized_source(initial,packet,root,current_prefix=True);derived=q.e.p.decode(raw)
+        self.assertNotEqual(initial['source.gscp'],raw)
+        self.assertEqual(set(packet['objects'])-{q.e.digest(b'')},set(derived['objects']))
+        self.assertEqual(packet['images'],derived['images'])
+        self.assertEqual({k:v for k,v in packet['capsule'].items() if k!='inventory'},
+                         {k:v for k,v in derived['capsule'].items() if k!='inventory'})
+        self.assertEqual(before,packet)
+
+    def test_current_materialization_cannot_recover_missing_original_objects_from_output(self):
+        initial,packet,root=self.materialization_fixture()
+        for key in (packet['capsule']['catalog'],packet['capsule']['initial'],q.e.digest(root)):
+            changed=copy.deepcopy(packet);del changed['objects'][key]
+            with self.subTest(key=key),self.assertRaises(ValueError):
+                q.materialized_source(initial,changed,root,current_prefix=True)
+
+    def test_current_materialization_requires_exact_original_root(self):
+        initial,packet,root=self.materialization_fixture()
+        changed=q.e.f.decode(root,'records','ROOT');changed['genesis']='f'*64
+        with self.assertRaisesRegex(ValueError,'reachable exact original ROOT'):
+            q.materialized_source(initial,packet,q.e.f.encode('records','ROOT',changed),current_prefix=True)
+
+    def test_case_explicitly_selects_materialization_policy_after_original_replay(self):
+        for policy in (False,True):
+            with (patch.object(q.b.selection,'layout'),patch.object(q,'original',return_value=({'original':{}},'history')),
+                  patch.object(q,'installation',side_effect=ValueError('stopped at installation')) as installed):
+                with self.assertRaisesRegex(ValueError,'stopped at installation'):
+                    q.case('raw',3,False,current_prefix=policy)
+                installed.assert_called_once_with(Path('raw'),{'original':{}},current_prefix=policy)
+
     def test_invalid_original_never_counts_as_a_rejected_mutation(self):
         with patch.object(q,'validate',side_effect=ValueError('original failed')),patch.object(q.shutil,'copytree') as copied:
             with self.assertRaisesRegex(ValueError,'original failed'):q.qualify('missing')

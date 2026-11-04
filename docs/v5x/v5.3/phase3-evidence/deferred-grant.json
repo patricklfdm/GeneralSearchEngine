@@ -1,0 +1,154 @@
+{
+  "baseHead": "6f4071d1df59752bd70a1b761a00789b54df0493",
+  "combinedPeakQualified": false,
+  "compiledClasses": {
+    "path": "target/v53-deferred-grant-review/final-classes.json",
+    "sha256": "6110ae01dda4189e688c0c78a05586ccd41c7f104e241df18b962783493f49d9"
+  },
+  "documentation": {
+    "contract-final.json": {
+      "path": "target/v53-deferred-grant-review/contract-final.json",
+      "sha256": "b9456047d1cfb1b64cbe9b0274987f176ff1956db9c3fbabd0b9354108c5931e"
+    },
+    "documentation-tests-final.log": {
+      "path": "target/v53-deferred-grant-review/documentation-tests-final.log",
+      "sha256": "31f7e76269d14a0c23587d25c45d0b080f6f9ae45102011822196c505b1efacd"
+    },
+    "qualification-plan-final/receipt.json": {
+      "path": "target/v53-deferred-grant-review/qualification-plan-final/receipt.json",
+      "sha256": "d5254f2f26b075fcc1f37e034790a60d7e7e09436c87ed3047da9e1cd71a8afc"
+    }
+  },
+  "finalSourceCohortQualified": false,
+  "finalizer": {
+    "path": "target/v53-deferred-grant-review/finalize.py",
+    "sha256": "1a46b0c4816b2849c2ba70e395481536e8c81b1f02f5be4f86126c27cbaf50d0"
+  },
+  "intermediateScope": "before-final-entry-and-deadline-guards; not final-source qualification",
+  "intermediateValidation": {
+    "activation-01.log": {
+      "path": "target/v53-deferred-grant-review/activation-01.log",
+      "sha256": "0156afe1935b20722465ecce745996ee913fa4a520dea2861f8d5d761322704d"
+    },
+    "intermediate-activation-classes.json": {
+      "path": "target/v53-deferred-grant-review/intermediate-activation-classes.json",
+      "sha256": "2db08c88c8c8fe0a429f2ccd5ea686aa9e836a0d09a587e90d4c4965bff33a87"
+    },
+    "targeted-01.log": {
+      "path": "target/v53-deferred-grant-review/targeted-01.log",
+      "sha256": "6cbaec3da05f747c3ca89b03fa927daf1aab876a0e6538b5cb21acd32ecbba60"
+    },
+    "targeted-02.log": {
+      "path": "target/v53-deferred-grant-review/targeted-02.log",
+      "sha256": "6df6c0a0784dff2d818cff5ebd43ce44b04bf4f039df67209052573fb6353c52"
+    }
+  },
+  "javaSource": {
+    "path": "target/v53-deferred-grant-review/final-source.json",
+    "sha256": "f1a529eef8bf216a44cea29401b4d856cda00964281713a300ed82cca486d6f8"
+  },
+  "log": {
+    "path": "target/v53-deferred-grant-review/final-tests.log",
+    "sha256": "adb00d7461f70a14240283cf260349989e88c81ef25da2a507b769a8e2fa9d9d"
+  },
+  "nativeRegression": {
+    "independentReplay": {
+      "path": "target/v53-deferred-grant-review/native-replay.json",
+      "sha256": "9c1548be93290121dc24b73b45a19348e57d766ea48336964a6e77bf23eb628b"
+    },
+    "original": "general-search-engine-replication/target/v53-native-activation/run-08f8dbce-1afd-4721-8054-8296d96cd05f",
+    "receipt": {
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-activation/run-08f8dbce-1afd-4721-8054-8296d96cd05f/receipt.json",
+      "sha256": "de26e67e8fb4a4f89abce21644dd792c21b4208a582f4815a8c3b2096779a495"
+    },
+    "scope": "ordinary-three-voter-activation-only"
+  },
+  "originalFailure": "docs/v5x/v5.3/phase3-evidence/required-four.json",
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "readerSource": {
+    "path": "target/v53-deferred-grant-review/final-reader-source.json",
+    "sha256": "3ab55b0dcb98e0d5865fb1a12c176f92aeaf653bac690a2d3afa2fd38d56d61f"
+  },
+  "readerTests": {
+    "path": "target/v53-deferred-grant-review/native-reader-tests.log",
+    "sha256": "6084b874a4258c3fb3f96b54c3338739f7c443689cfd7f35262327e858ed5d80"
+  },
+  "replayDiagnostics": {
+    "native-negative-draft-failure.json": {
+      "path": "target/v53-deferred-grant-review/native-negative-draft-failure.json",
+      "sha256": "03e39914b31699fc404fe82df00a19e67148a9911eda22e224cbc2db43857fb3"
+    },
+    "native-replay-01.json": {
+      "path": "target/v53-deferred-grant-review/native-replay-01.json",
+      "sha256": "218c12c93290d2baf869e75658064695b15bfda997e4d4543bc28f1da0c00c8f"
+    },
+    "native-replay-02.json": {
+      "path": "target/v53-deferred-grant-review/native-replay-02.json",
+      "sha256": "f687166c21c4f398058f67ad94e72ba46edaf5201579591f4c685b29db662dc0"
+    },
+    "replay-native-01.py": {
+      "path": "target/v53-deferred-grant-review/replay-native-01.py",
+      "sha256": "72a4fb25d019a339edc087c562f4896a35535bb54d2f92b9942ac557113c759b"
+    }
+  },
+  "replayDriver": {
+    "path": "target/v53-deferred-grant-review/replay-native.py",
+    "sha256": "7f46502788019d918b4e40b6a1cde5f896d425faaf37862300911ade833af80d"
+  },
+  "requiredFourNativeQualified": false,
+  "runtimeCorrectionImplemented": true,
+  "schema": "gse-v53-deferred-grant-development-v1",
+  "status": "PARTIAL",
+  "tests": {
+    "V53ActivationEndpointTest": {
+      "path": "target/v53-deferred-grant-review/reports/final/V53ActivationEndpointTest.xml",
+      "seconds": 99.254,
+      "sha256": "f6b847027492b8262755627d5f59e3c2cc7febc79e5872d22c291eccb7801829",
+      "tests": 16
+    },
+    "V53ActivationTest": {
+      "path": "target/v53-deferred-grant-review/reports/final/V53ActivationTest.xml",
+      "seconds": 22.646,
+      "sha256": "c59709a1e5efc6f7df51a72ee6c9c27ee374bb6d097ea94669dc9b10cea70b92",
+      "tests": 11
+    },
+    "V53CaptureJournalTest": {
+      "path": "target/v53-deferred-grant-review/reports/final/V53CaptureJournalTest.xml",
+      "seconds": 7.786,
+      "sha256": "924fcef0dce598439d05b67b7fa4c5736529d7a879b124c4dc7bb47fcef17d5b",
+      "tests": 5
+    },
+    "V53DeferredGrantTest": {
+      "path": "target/v53-deferred-grant-review/reports/final/V53DeferredGrantTest.xml",
+      "seconds": 25.334,
+      "sha256": "aa5d4d6c80fbf949ed12675f98f7ced30d6c71faeba31d0cbfe07973841eaad7",
+      "tests": 13
+    },
+    "V53GrantJournalTest": {
+      "path": "target/v53-deferred-grant-review/reports/final/V53GrantJournalTest.xml",
+      "seconds": 1.537,
+      "sha256": "b0702ea5fc861a3dfae7c910d31033c9467d200706035b042b219827804b8ca9",
+      "tests": 10
+    },
+    "V53JoiningRetentionCampaignTest": {
+      "path": "target/v53-deferred-grant-review/reports/final/V53JoiningRetentionCampaignTest.xml",
+      "seconds": 8.196,
+      "sha256": "2f90058060ccfdd69f24d081098700c900dad214599f79a2ccfd74f5e97f9a7a",
+      "tests": 8
+    },
+    "V53NativeActivationTest": {
+      "path": "target/v53-deferred-grant-review/reports/final/V53NativeActivationTest.xml",
+      "seconds": 41.883,
+      "sha256": "9f69afa2736440032a629dfed17474a095ac24db0e198a9482d5752ef2b00fdf",
+      "tests": 1
+    },
+    "V53RequiredFourCapacityTest": {
+      "path": "target/v53-deferred-grant-review/reports/final/V53RequiredFourCapacityTest.xml",
+      "seconds": 2.105,
+      "sha256": "8176f2de2f2b578243e38728446192f1d826d2ecaa4a0cb2f995c5b79cb4fca7",
+      "tests": 2
+    }
+  },
+  "totalTests": 66
+}

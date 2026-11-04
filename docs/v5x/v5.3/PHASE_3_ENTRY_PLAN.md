@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Deferred capture after source reclamation](PHASE_3_DEFERRED_GRANT.md) now orders
+the durable PROMISE, ordinary governing-floor cleanup and first BASIS capture
+under one guarded invocation. Incoming/outgoing and joining preparation use it;
+complete required-four native and process qualification remain open.
+
 [Required-four replacement](PHASE_3_REQUIRED_FOUR.md) adds an explicit native
 topology with only two reachable common members, one departing member and one
 joining member. Its semantic/publication reader requires all four joint votes

@@ -21,15 +21,19 @@
       "tests": [
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationDriverTest.java",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCampaignFenceTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCampaignFenceTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DeferredGrantTest.java",
+        "scripts/v53/test_native_activation.py"
       ],
       "readers": [
         "scripts/v53/activation_evidence.py",
-        "scripts/v53/activation_driver_evidence.py"
+        "scripts/v53/activation_driver_evidence.py",
+        "scripts/v53/native_activation_evidence.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_ACTIVATION.md",
-        "docs/v5x/v5.3/PHASE_3_ACTIVATION_DRIVER.md"
+        "docs/v5x/v5.3/PHASE_3_ACTIVATION_DRIVER.md",
+        "docs/v5x/v5.3/PHASE_3_DEFERRED_GRANT.md"
       ],
       "cohorts": [
         "profiles",
@@ -231,7 +235,8 @@
         "scripts/v53/test_carried_transition_history_workflow.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningProfileTest.java",
-        "scripts/v53/test_required_four_evidence.py"
+        "scripts/v53/test_required_four_evidence.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DeferredGrantTest.java"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -257,7 +262,8 @@
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_PREFIXES.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_COHORT.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_HOSTED.md",
-        "docs/v5x/v5.3/PHASE_3_REQUIRED_FOUR.md"
+        "docs/v5x/v5.3/PHASE_3_REQUIRED_FOUR.md",
+        "docs/v5x/v5.3/PHASE_3_DEFERRED_GRANT.md"
       ],
       "cohorts": [
         "profiles",
@@ -529,7 +535,8 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationReloadTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationResourceCapture.java",
         "scripts/v53/test_publication_resource_evidence.py",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RequiredFourCapacityTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RequiredFourCapacityTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DeferredGrantTest.java"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -575,7 +582,8 @@
         "docs/v5x/v5.3/PHASE_3_PUBLICATION_RESERVATION.md",
         "docs/v5x/v5.3/PHASE_3_GENERATION_RELOAD.md",
         "docs/v5x/v5.3/PHASE_3_PUBLICATION_RESOURCES.md",
-        "docs/v5x/v5.3/PHASE_3_REQUIRED_FOUR.md"
+        "docs/v5x/v5.3/PHASE_3_REQUIRED_FOUR.md",
+        "docs/v5x/v5.3/PHASE_3_DEFERRED_GRANT.md"
       ],
       "cohorts": [
         "profiles",

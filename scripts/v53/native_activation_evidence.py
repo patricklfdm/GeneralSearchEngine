@@ -16,6 +16,7 @@ from . import bootstrap_publication_evidence as b
 from . import promised_source_evidence as p
 from . import offline_fixture_image as image
 from .owned_cross_view_evidence import same
+from .selected_prefix_evidence import prefix
 
 e=b.e;c=b.c
 PROFILES=tuple((size,backup) for size in (3,4,5) for backup in (False,True))
@@ -87,7 +88,14 @@ def original(root,size,backup):
     return group,history
 
 
-def installation(root,before):
+def materialized_source(initial,packet,root_record,*,current_prefix=False):
+    # This policy is selected by the caller, never inferred from output bytes.
+    # Frozen grants and transfers still use their complete original packet.
+    if not current_prefix:return initial['source.gscp']
+    return c.packet_bytes(packet['capsule'],prefix(packet,root_record),packet['images'])
+
+
+def installation(root,before,*,current_prefix=False):
     selected=b.t.plans.read(root/'selected.gsr',65536);selection=e.f.decode(selected,'records','SELECTED')
     names=[v['voter'] for v in selection['sources']]
     e.need(names==sorted(set(names)) and len(names)==len(before)//2+1 and 'node-1' in names
@@ -120,9 +128,10 @@ def installation(root,before):
                   sources=[dict(voter=n,basisId=e.f.decode(bases[n],'records','BASIS')['basisId'],basisDigest=e.digest(bases[n])) for n in names])
     e.need(selected==e.f.encode('records','SELECTED',expected),'native activation fixed selection')
     installed=dict(before)
+    materialized=materialized_source(initial,packet,before['node-1']['root.gsr'],current_prefix=current_prefix)
     for node in names:
         files=prepared[node];files['grants.gsr']+=selected
-        members={'source.gscp':initial['source.gscp'],'promise.gsr':promises[node],'basis.gsr':bases[node],
+        members={'source.gscp':materialized,'promise.gsr':promises[node],'basis.gsr':bases[node],
                  'selected.gsr':selected,'selected-sources.gsr':b''.join(bases[n] for n in names)}
         members.update({h+'.image':initial[h+'.image'] for h in packet['images']})
         old_prefix=c.current(before[node])[0]
@@ -189,19 +198,19 @@ def forces(root,names,selected):
          'native activation reopen events')
 
 
-def case(root,size,backup):
+def case(root,size,backup,*,current_prefix=False):
     root=Path(root);b.selection.layout(root,{'history','receipt.json','selected.gsr','wire.json','events.json','native-final.json'},'native activation case')
     before,history=original(root/'history',size,backup)
-    values=installation(root,before);selection=values[0]
+    values=installation(root,before,current_prefix=current_prefix);selection=values[0]
     count=network(root,*values);selected=[v['voter'] for v in selection['sources']];forces(root,sorted(before),selected)
     same(read(root/'receipt.json'),dict(schema='gse-v53-native-activation-v1',status='PASS',size=size,backup=backup,campaigns=1,
          historicalObservationsSupplied=False,network=True,publicRuntime=False),'native activation receipt')
     return dict(case=name(size,backup),history=history,selected=len(selected),installed=len(selected),sourceExchanges=count)
 
 
-def validate(directory):
+def validate(directory,*,current_prefix=False):
     root=Path(directory);b.selection.layout(root,{name(*p) for p in PROFILES},'native activation profiles')
-    cases=[case(root/name(*profile),*profile) for profile in PROFILES]
+    cases=[case(root/name(*profile),*profile,current_prefix=current_prefix) for profile in PROFILES]
     e.need(len({v['history'] for v in cases})==len(PROFILES),'native activation distinct histories')
     return dict(status='PASS',profiles=len(cases),nodePublications=48,installed=sum(v['installed'] for v in cases),
                 sourceExchanges=sum(v['sourceExchanges'] for v in cases),independentImageSemantics=True,
@@ -256,12 +265,12 @@ def mutate(root,variant):
     path.write_bytes(e.f.canonical(value))
 
 
-def qualify(directory):
-    original=validate(directory);results=[]
+def qualify(directory,*,current_prefix=False):
+    original=validate(directory,current_prefix=current_prefix);results=[]
     for variant,reason in VARIANTS.items():
         with tempfile.TemporaryDirectory(prefix='v53-native-activation-negative-') as tmp:
             target=Path(tmp)/'raw';shutil.copytree(Path(directory)/name(3,False),target);mutate(target,variant)
-            try:case(target,3,False)
+            try:case(target,3,False,current_prefix=current_prefix)
             except ValueError as error:e.need(str(error)==reason,'native activation unrelated negative: '+variant+': '+str(error))
             else:raise ValueError('native activation accepted negative: '+variant)
             results.append(dict(case=variant,status='REJECTED',reason=reason))
@@ -269,5 +278,7 @@ def qualify(directory):
 
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('directory');parser.add_argument('--qualify',action='store_true');args=parser.parse_args()
-    print(json.dumps(qualify(args.directory) if args.qualify else validate(args.directory),sort_keys=True))
+    parser=argparse.ArgumentParser();parser.add_argument('directory');parser.add_argument('--qualify',action='store_true')
+    parser.add_argument('--current-prefix',action='store_true',help='derive the selected materialization from original reachable objects; historical default is unchanged')
+    args=parser.parse_args()
+    print(json.dumps((qualify if args.qualify else validate)(args.directory,current_prefix=args.current_prefix),sort_keys=True))

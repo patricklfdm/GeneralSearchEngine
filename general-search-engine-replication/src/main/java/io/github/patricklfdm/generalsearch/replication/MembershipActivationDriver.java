@@ -86,6 +86,19 @@ final class MembershipActivationDriver implements AutoCloseable {
         if(cause instanceof MembershipCampaignLost lost)return lost;
         return new IOException(message,cause);
     }
+    private void maintainPublished(MembershipSourcePull.Guard grant)throws IOException {
+        remaining();grant.check();
+        var work=MembershipGenerationMaintenance.beforeGrant(owner,resources,bounds,link,()->{remaining();grant.check();},scratch,clock,started,budget);
+        synchronized(lifecycle){if(closed){work.close();throw new IOException("activation driver closed before maintenance");}maintenance=work;}
+        try(work){work.run();remaining();grant.check();}
+        catch(MembershipGenerationMaintenance.Unavailable unavailable) {
+            // Preserve the original promise and every partial copy; unavailable
+            // originals cannot authorize a source capture or deletion.
+            if(unavailable.getSuppressed().length!=0)throw unavailable;
+            var lost=new MembershipCampaignLost(MembershipCampaignLost.Reason.CONTACT_UNAVAILABLE,"pre-grant original copies unavailable");
+            lost.initCause(unavailable);throw lost;
+        }finally{if(work.drained())maintenance=null;}
+    }
     /** The returned record is only an installed selection; voting must still check its live owner. */
     Decoded run()throws IOException {
         return run(clock.getAsLong());
@@ -97,17 +110,7 @@ final class MembershipActivationDriver implements AutoCloseable {
         String deferred=null;PeerUnavailable lastUnavailable=null;
         try {
             if(nativeHistory && owner.publishedMaintenanceRequired()) {
-                remaining();var work=MembershipGenerationMaintenance.beforeGrant(owner,resources,bounds,link,()->remaining(),scratch,clock,started,budget);
-                synchronized(lifecycle){if(closed){work.close();throw new IOException("activation driver closed before maintenance");}maintenance=work;}
-                try(work){work.run();remaining();}
-                catch(MembershipGenerationMaintenance.Unavailable unavailable) {
-                    // A concurrently publishing peer may not yet have this
-                    // exact cut. Drain and return to bounded discovery/election;
-                    // never skip the floor or guess retryability from a message.
-                    if(unavailable.getSuppressed().length!=0)throw unavailable;
-                    var lost=new MembershipCampaignLost(MembershipCampaignLost.Reason.CONTACT_UNAVAILABLE,"pre-grant original copies unavailable");
-                    lost.initCause(unavailable);throw lost;
-                }finally{if(work.drained())maintenance=null;}
+                maintainPublished(()->{});
             }
             while(campaigns<maximumCampaigns) {
                 remaining();Round round=new Round();active=round;campaigns++;
@@ -168,7 +171,8 @@ final class MembershipActivationDriver implements AutoCloseable {
         volatile boolean ended;
         boolean success;
         Round()throws IOException {
-            try{campaign=new MembershipActivation(owner,resources,clock,started,budget);}
+            try{campaign=new MembershipActivation(owner,resources,clock,started,budget,
+                    nativeHistory?grant->maintainPublished(grant::check):null);}
             catch(MembershipOperationException unavailable) {
                 // Only initial grant admission, before an original grant is
                 // submitted. Concurrent incoming copies can own this headroom;

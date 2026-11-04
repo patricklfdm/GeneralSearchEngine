@@ -41,6 +41,7 @@ final class MembershipJoiningRetentionCampaign implements AutoCloseable {
     private final MembershipScratch scratch;
     private final CountDownLatch finished=new CountDownLatch(1);
     private volatile MembershipActivation campaign;
+    private volatile MembershipGrantJournal.DeferredGrant deferredGrant;
     private volatile MembershipGenerationMaintenance maintenance;
     private volatile boolean closed;
     private boolean used;
@@ -68,7 +69,10 @@ final class MembershipJoiningRetentionCampaign implements AutoCloseable {
         long elapsed=clock.getAsLong()-started;require(elapsed>=0 && elapsed<budget,"joining preparation original deadline");guard.check();
         synchronized(owner) {
             var current=owner.activationContext();require(context.root.equals(current.root) && context.cut.equals(current.cut),"joining preparation original cut changed");
-            var active=campaign;if(active==null)owner.checkActivationBallot(context.authority(),initialFence);
+            var active=campaign;if(active==null) {
+                var deferred=deferredGrant;
+                if(deferred==null)owner.checkActivationBallot(context.authority(),initialFence);else deferred.check();
+            }
             else owner.checkActivation(active.ownSource().basis,null,false);
         }
         elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"joining preparation original deadline");return budget-elapsed;
@@ -80,10 +84,14 @@ final class MembershipJoiningRetentionCampaign implements AutoCloseable {
             check();if(owner.publishedMaintenanceRequired()) {
                 var work=MembershipGenerationMaintenance.beforeGrant(owner,resources,bounds,link,()->check(),scratch.directory(),clock,started,budget);
                 synchronized(this){if(closed){work.close();throw new IOException("joining preparation closed before maintenance");}maintenance=work;}
-                try(work){work.run();check();}finally{maintenance=null;}
+                try(work){work.run();check();}finally{if(work.drained())maintenance=null;}
             }
-            // Recheck while holding the writer before allocating the only ballot.
-            synchronized(owner){check();campaign=new MembershipActivation(owner,resources,clock,started,budget);}
+            check();campaign=new MembershipActivation(owner,resources,clock,started,budget,grant->{
+                deferredGrant=grant;check();
+                var work=MembershipGenerationMaintenance.beforeGrant(owner,resources,bounds,link,()->{check();grant.check();},scratch.directory(),clock,started,budget);
+                synchronized(this){if(closed){work.close();throw new IOException("joining preparation closed before grant maintenance");}maintenance=work;}
+                try(work){work.run();check();}finally{if(work.drained())maintenance=null;}
+            });deferredGrant=null;
             check();require(campaign.ownSource().basis.value().get("accepted")==null,"joining preparation local unsettled tail");
             endpoint.serve(campaign);check();
             var step=new OldSide(campaign,owner,resources,bounds,link,()->check(),clock,started,budget,joining);

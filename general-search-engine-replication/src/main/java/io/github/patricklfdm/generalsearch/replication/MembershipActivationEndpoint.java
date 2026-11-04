@@ -447,7 +447,8 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                                     && value.value().get("ballot").equals(active.ballot) && value.value().get("basisId")!=null,"activation endpoint original promise");
                         });
                         active.check();if(nativeHistory)active.maintain(true);
-                        active.check();response=MembershipActivation.prepare(owner,sender,request,promise).response();active.granted();
+                        active.check();response=MembershipActivation.prepare(owner,sender,request,promise,
+                                nativeHistory?grant->active.maintain(true,grant::check):null,active::check).response();active.granted();
                         // Complete same-cut retirement before advertising this
                         // grant. All selected receivers must finish PREPARE
                         // before any installation can replace a source generation.
