@@ -1,0 +1,413 @@
+{
+  "applicationImages": 7,
+  "baseCommit": "104ba5d4fac3d1c4932e4b1a00aef88733dbd952",
+  "checks": {
+    "contract.json": {
+      "path": "target/v53-joint-floor-borrow-batch/contract.json",
+      "sha256": "907a67466b8703272d02f7c56e2e969acbd09f4406e302bae1122314965067a4"
+    },
+    "focused-optimized.log": {
+      "path": "target/v53-joint-floor-borrow-batch/focused-optimized.log",
+      "sha256": "a477a31179f03c965f0095de666f3182d699ecf44ce6c89234d53fe11ba981cc"
+    },
+    "inspection/receipt.json": {
+      "path": "target/v53-joint-floor-borrow-batch/inspection/receipt.json",
+      "sha256": "2e5d1c96cebe3dde8e16219dc0206d63783edab00b2ece0036f3130a238cc770"
+    },
+    "producer-java-match.json": {
+      "path": "target/v53-joint-floor-borrow-batch/producer-java-match.json",
+      "sha256": "c980ea67526a6ad7b9a4fe5193f8eff5da95d2e9633f693ccb2a6530e34706ab"
+    },
+    "reader-final.json": {
+      "path": "target/v53-joint-floor-borrow-batch/reader-final.json",
+      "sha256": "183aadfd7d9b3136ae47bde627ee6dd3099fdc67295857e9e95f1601ca3b7931"
+    },
+    "storage-qualified.json": {
+      "path": "target/v53-joint-floor-borrow-batch/storage-qualified.json",
+      "sha256": "9e1cf82b498cc9db2d0266ab5a403100b7a3877bc64b575087e52ec6f32bc022"
+    },
+    "storage-relocated-optimized.json": {
+      "path": "target/v53-joint-floor-borrow-batch/storage-relocated-optimized.json",
+      "sha256": "9e1cf82b498cc9db2d0266ab5a403100b7a3877bc64b575087e52ec6f32bc022"
+    }
+  },
+  "existingRequiredChanged": false,
+  "finalExecutions": {
+    "component-final": {
+      "execution": {
+        "elapsedSeconds": 85.673,
+        "exit": 0
+      },
+      "files": {
+        "collection.json": {
+          "path": "target/v53-joint-floor-borrow-batch/component-final/collection.json",
+          "sha256": "47ac994ca232f0b598c631f917807ec2f312f9d759976e0438cb83fab2074684"
+        },
+        "command.json": {
+          "path": "target/v53-joint-floor-borrow-batch/component-final/command.json",
+          "sha256": "07927a1314bb6008983db2b0cb67574aaa017bca4555d755991598a860d41df6"
+        },
+        "execution.json": {
+          "path": "target/v53-joint-floor-borrow-batch/component-final/execution.json",
+          "sha256": "60d40922d65919ea6b370ea94142a6f7786a789a777816505ae190a663eef276"
+        },
+        "maven.log": {
+          "path": "target/v53-joint-floor-borrow-batch/component-final/maven.log",
+          "sha256": "64e3626730bb98ce98161a4d1573646f0e861ad2c0a62e3ef4b8050e37da988b"
+        },
+        "source.json": {
+          "path": "target/v53-joint-floor-borrow-batch/component-final/source.json",
+          "sha256": "67b47f8a813f3cba6a9921714f98438599ccb0ba439c03a2bbcf8ae15704bf52"
+        },
+        "toolchain.json": {
+          "path": "target/v53-joint-floor-borrow-batch/component-final/toolchain.json",
+          "sha256": "c36492b13312296837b841c98853d826d8179bc4db7bb69763eb7c6637cda981"
+        }
+      },
+      "junit": {
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "13",
+          "time": "21.57"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53FloorResumeCopyTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "5",
+          "time": "8.535"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationCopyFaultTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "4",
+          "time": "6.085"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationCopyTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "4",
+          "time": "15.975"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53PendingFloorBorrowTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "5",
+          "time": "15.709"
+        }
+      }
+    },
+    "native-01": {
+      "execution": {
+        "elapsedSeconds": 348.927,
+        "exit": 0
+      },
+      "files": {
+        "collection.json": {
+          "path": "target/v53-joint-floor-borrow-batch/native-01/collection.json",
+          "sha256": "5a2c2c4924ec1f2f70bcfce7f4d9b213f3766c687745005138869601fddc6504"
+        },
+        "command.json": {
+          "path": "target/v53-joint-floor-borrow-batch/native-01/command.json",
+          "sha256": "c78830f3b6329a42365527bb6c88e9b27dd962521bdf2e3366d5da46449af920"
+        },
+        "execution.json": {
+          "path": "target/v53-joint-floor-borrow-batch/native-01/execution.json",
+          "sha256": "842f88fa8a0833f95c4ddc9c80cc153032cf90666f6b82f158774fce58d2964f"
+        },
+        "maven.log": {
+          "path": "target/v53-joint-floor-borrow-batch/native-01/maven.log",
+          "sha256": "f49efde5b8b98a7a31d8952941439ea28daa952ee41577cf53c60339d347db3c"
+        },
+        "source.json": {
+          "path": "target/v53-joint-floor-borrow-batch/native-01/source.json",
+          "sha256": "67b47f8a813f3cba6a9921714f98438599ccb0ba439c03a2bbcf8ae15704bf52"
+        },
+        "toolchain.json": {
+          "path": "target/v53-joint-floor-borrow-batch/native-01/toolchain.json",
+          "sha256": "0c9616e8aa14acb87d5cb1eaa08d5a4a67931b2af1cc585408af9a6ace3b1c46"
+        }
+      },
+      "junit": {
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53CombinedResourceRecoveryTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "1",
+          "time": "331.653"
+        }
+      }
+    }
+  },
+  "fullHistoryQualified": false,
+  "hostedExecuted": false,
+  "intermediateCorrections": [
+    {
+      "execution": "compile-01",
+      "reason": "Declare IOException from existing sourceIdentity accessor"
+    },
+    {
+      "execution": "component-01",
+      "reason": "Check full resource plateau after cold-open has loaded all retained owners"
+    },
+    {
+      "execution": "component-02",
+      "reason": "Observe CHUNK request / SOURCE_OFFER response as distinct protocol directions"
+    },
+    {
+      "execution": "component-03",
+      "reason": "Then preserve full-receive fallback for unusable retained manifests and test partial manifest refusal"
+    }
+  ],
+  "intermediateExecutions": {
+    "compile-01": {
+      "execution": {
+        "elapsedSeconds": 7.833,
+        "exit": 1
+      },
+      "files": {
+        "collection.json": {
+          "path": "target/v53-joint-floor-borrow-batch/compile-01/collection.json",
+          "sha256": "7398769482d510259ce3e2a0acbd56f0b1d94d2607c5a850aaade1a12c7f370a"
+        },
+        "command.json": {
+          "path": "target/v53-joint-floor-borrow-batch/compile-01/command.json",
+          "sha256": "2bf6e077bb5595558c9ea9550d70e4321356e0bd536519ebe54aa4a8e8748214"
+        },
+        "execution.json": {
+          "path": "target/v53-joint-floor-borrow-batch/compile-01/execution.json",
+          "sha256": "5b728b078651cea8c5b118038e19aed2789ac05e08aa030352dc6c662a27c68e"
+        },
+        "maven.log": {
+          "path": "target/v53-joint-floor-borrow-batch/compile-01/maven.log",
+          "sha256": "2d1d60b6156304e3c601dfb8cca9e79911a0db9bb35afc54c5445ebcceddc42d"
+        },
+        "source.json": {
+          "path": "target/v53-joint-floor-borrow-batch/compile-01/source.json",
+          "sha256": "928ba2b535f7327aa8bb6590eae93592ab1a07fd710bc1af54c29231cdbaed8f"
+        },
+        "toolchain.json": {
+          "path": "target/v53-joint-floor-borrow-batch/compile-01/toolchain.json",
+          "sha256": "7b467243554f7990e153d233d857e94074800b1777c4c3a99c7367edc2bf2ab9"
+        }
+      },
+      "junit": {}
+    },
+    "component-01": {
+      "execution": {
+        "elapsedSeconds": 66.429,
+        "exit": 1
+      },
+      "files": {
+        "collection.json": {
+          "path": "target/v53-joint-floor-borrow-batch/component-01/collection.json",
+          "sha256": "8bcaf765f110880071caf920c608ecbf6d5623a6abe763e217b06fa3dcbf8f78"
+        },
+        "command.json": {
+          "path": "target/v53-joint-floor-borrow-batch/component-01/command.json",
+          "sha256": "efbf9884ebb9eb01b74ac160e083eef8f9c9c24b65a95db93ba4c196a02b312f"
+        },
+        "execution.json": {
+          "path": "target/v53-joint-floor-borrow-batch/component-01/execution.json",
+          "sha256": "6ed522129d5d3745429f4394436aab9165b10e1312bdebe86d7b40b6923c567d"
+        },
+        "maven.log": {
+          "path": "target/v53-joint-floor-borrow-batch/component-01/maven.log",
+          "sha256": "c415bb82854335463d66a4d779ec5fa0d111a50d33ed1e797fc5539b0c8f7fd2"
+        },
+        "source.json": {
+          "path": "target/v53-joint-floor-borrow-batch/component-01/source.json",
+          "sha256": "20fd229a159c0a80cbc5c931ca651af68207479347ac629d67eab521f7bf38b0"
+        },
+        "toolchain.json": {
+          "path": "target/v53-joint-floor-borrow-batch/component-01/toolchain.json",
+          "sha256": "61b78c83edd43b76a7607d8670c1cc60d423155cc8bbec781a43d1b67f0d4c62"
+        }
+      },
+      "junit": {
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53FloorResumeCopyTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "5",
+          "time": "17.818"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationCopyTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "4",
+          "time": "16.065"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53PendingFloorBorrowTest.xml": {
+          "errors": "0",
+          "failures": "1",
+          "skipped": "0",
+          "tests": "4",
+          "time": "18.226"
+        }
+      }
+    },
+    "component-02": {
+      "execution": {
+        "elapsedSeconds": 46.678,
+        "exit": 1
+      },
+      "files": {
+        "collection.json": {
+          "path": "target/v53-joint-floor-borrow-batch/component-02/collection.json",
+          "sha256": "0ffab820b521da73ff2d5f6cb3c384be4395b5b5a62b208022837553ba1257b5"
+        },
+        "command.json": {
+          "path": "target/v53-joint-floor-borrow-batch/component-02/command.json",
+          "sha256": "efbf9884ebb9eb01b74ac160e083eef8f9c9c24b65a95db93ba4c196a02b312f"
+        },
+        "execution.json": {
+          "path": "target/v53-joint-floor-borrow-batch/component-02/execution.json",
+          "sha256": "344f4115d382e1788b76f0b589d350f3cc5d9824164cddb22481ae4218ba7c46"
+        },
+        "maven.log": {
+          "path": "target/v53-joint-floor-borrow-batch/component-02/maven.log",
+          "sha256": "e44148c1be7d1cf7ee0226d1aa6ec36cbb2d00e6f2c42e0fecb3fcb8fce65aad"
+        },
+        "source.json": {
+          "path": "target/v53-joint-floor-borrow-batch/component-02/source.json",
+          "sha256": "e0d24cee3bd28c6a68ffe099024fff42457a872c13486b4086c313893ba4abd0"
+        },
+        "toolchain.json": {
+          "path": "target/v53-joint-floor-borrow-batch/component-02/toolchain.json",
+          "sha256": "70efd73dfd20859dea4d815d70fbab00069539a89e0c2274eafacfad3dbb2e88"
+        }
+      },
+      "junit": {
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53FloorResumeCopyTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "5",
+          "time": "7.065"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationCopyTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "4",
+          "time": "14.468"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53PendingFloorBorrowTest.xml": {
+          "errors": "0",
+          "failures": "1",
+          "skipped": "0",
+          "tests": "5",
+          "time": "11.209"
+        }
+      }
+    },
+    "component-03": {
+      "execution": {
+        "elapsedSeconds": 74.451,
+        "exit": 0
+      },
+      "files": {
+        "collection.json": {
+          "path": "target/v53-joint-floor-borrow-batch/component-03/collection.json",
+          "sha256": "dc976be0d19bdf517eccf044d2c7da2df20ec666e89316074774b34d8ca48bc3"
+        },
+        "command.json": {
+          "path": "target/v53-joint-floor-borrow-batch/component-03/command.json",
+          "sha256": "07927a1314bb6008983db2b0cb67574aaa017bca4555d755991598a860d41df6"
+        },
+        "execution.json": {
+          "path": "target/v53-joint-floor-borrow-batch/component-03/execution.json",
+          "sha256": "8ff69d4ebdf3717b934fb0190221bfd80c3c062b43ea9ad6ac6bea7340274313"
+        },
+        "maven.log": {
+          "path": "target/v53-joint-floor-borrow-batch/component-03/maven.log",
+          "sha256": "5e5838750581599b2b6351ff94e2255a2ccfaaa2447277330a48a55086156f3c"
+        },
+        "source.json": {
+          "path": "target/v53-joint-floor-borrow-batch/component-03/source.json",
+          "sha256": "0e1c7722002647d9372dfc9709263c68a3a41faba194cf66691b506700fd4848"
+        },
+        "toolchain.json": {
+          "path": "target/v53-joint-floor-borrow-batch/component-03/toolchain.json",
+          "sha256": "699697f91c66546e343937299a2c3bb6f3b26213b02d36294989d3173be67008"
+        }
+      },
+      "junit": {
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "13",
+          "time": "19.148"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53FloorResumeCopyTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "5",
+          "time": "7.112"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationCopyFaultTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "4",
+          "time": "5.509"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationCopyTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "4",
+          "time": "14.596"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53PendingFloorBorrowTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "5",
+          "time": "12.797"
+        }
+      }
+    }
+  },
+  "jointEvidence": "JUnit conditional generation stores and actual transfer service; no independent joint history replay",
+  "limitsChanged": false,
+  "nativeFiveReplaceQualified": false,
+  "originalCopies": 4,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "realPromiseSources": 2,
+  "remaining": [
+    "admitted native 5-REPLACE interruption/recovery",
+    "four-copy incomplete bodies at full SOURCE occupancy",
+    "full independent remote-force and continuation replay",
+    "legitimate maximum metadata overlap",
+    "final-source Phase 3 cohort admission"
+  ],
+  "schema": "gse-v53-pending-floor-borrow-development-v1",
+  "scope": "conditional-joint-floor-reacquisition",
+  "scripts": {
+    "collect.py": {
+      "path": "target/v53-joint-floor-borrow-batch/collect.py",
+      "sha256": "21078f73986276d5d6b13d116df27a2aeeb2b0e4d7d1c37807bbb83bb8a8bf41"
+    },
+    "execute.py": {
+      "path": "target/v53-joint-floor-borrow-batch/execute.py",
+      "sha256": "72a7a42f55f9a5cb773f83ef587224773f3b71be5db89609351e95c2cf2fee87"
+    },
+    "finalize.py": {
+      "path": "target/v53-joint-floor-borrow-batch/finalize.py",
+      "sha256": "b801e20114b816dfeb1fd5080c8fa38a6545ef963c78873d9967bd9a24709942"
+    }
+  },
+  "sourceSlots": 6,
+  "status": "PASS"
+}

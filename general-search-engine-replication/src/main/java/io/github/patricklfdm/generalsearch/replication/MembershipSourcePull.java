@@ -40,6 +40,7 @@ final class MembershipSourcePull implements AutoCloseable {
     private volatile boolean closed;
     private CompletableFuture<Decoded> pending;
     private MembershipSourceReceive received;
+    private MembershipFloorFiles.PendingPrefix borrowedFloor;
     private Record receivedRecord;
     private final List<MembershipResources.Lease> ancestryLeases=new ArrayList<>();
     private MembershipCapsule ancestryPrefix,ancestryResult;
@@ -321,6 +322,33 @@ final class MembershipSourcePull implements AutoCloseable {
         private static final long serialVersionUID=1L;
         MissingBorrowedImages(){super("borrowed prefix requires every original image");}
     }
+    /** A pending floor supplies only existing bytes. Fresh packet transfer and
+     * original generation verification still authenticate the permanent owner;
+     * no receiving SOURCE or application file is created over those charges. */
+    void fetchBorrowedFloorPrefix(MembershipFloorFiles.PendingPrefix original)throws IOException {
+        synchronized(this){require(prefixCut!=null && learner==null && !used && !closed,"borrowed floor prefix single use");used=true;borrowedFloor=Objects.requireNonNull(original);}
+        try {
+            check();original.check();require(original.resources()==resources && original.local().equals(local)
+                    && original.identity.equals(source),"borrowed floor original owner/budget");
+            byte[] bytes=original.packet().bytes();var cap=original.packet().capsule();
+            require(cap.value().get("root").equals(requestRoot) && cap.value().get("cut").equals(prefixCut),"borrowed floor original cut");
+            String reference=hash(canonical(Map.of("root",requestRoot,"cut",prefixCut,"scope","retained-current-packet"),16384));
+            var packet=offer(UUID.randomUUID(),reference,MembershipTransfer.Kind.CAPSULE,hash(bytes),(long)bytes.length);
+            int offset=0;
+            while(offset<bytes.length) {
+                check();original.check();byte[] part=chunk(packet,offset);
+                require(Arrays.equals(part,0,part.length,bytes,offset,offset+part.length),"borrowed floor original packet bytes");offset+=part.length;
+            }
+            original.check();commit(packet);check();original.check();completeSource=true;
+        }catch(IOException|RuntimeException|Error error){try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;}
+    }
+    private void checkPrefixCopy()throws IOException {
+        require(received!=null || borrowedFloor!=null,"complete prefix bytes missing");
+        if(received!=null)received.recheck();else borrowedFloor.check();
+    }
+    private MembershipSourcePacket prefixPacket()throws IOException {checkPrefixCopy();return received!=null?received.packet():borrowedFloor.packet();}
+    private Map<String,byte[]> prefixImages()throws IOException {checkPrefixCopy();return received!=null?received.images():borrowedFloor.images();}
+    private MembershipIdentity prefixIdentity()throws IOException {return received!=null?received.sourceIdentity():borrowedFloor.identity;}
     private MembershipSourceReceive fetchPrefix(Path scratch,MembershipImageBorrow originalImages,boolean packetOnly)throws IOException {
         synchronized(this){require(prefixCut!=null && !used && !closed,"read-only prefix single use");used=true;}
         try {
@@ -389,15 +417,15 @@ final class MembershipSourcePull implements AutoCloseable {
         Objects.requireNonNull(prefix);require(prefix!=this,"generation requires separate complete prefix receive");
         try {
             check();prefix.check();
-            require(prefix.prefixCut!=null && prefix.completeSource && prefix.received!=null
+            require(prefix.prefixCut!=null && prefix.completeSource && (prefix.received!=null || prefix.borrowedFloor!=null)
                     && prefix.prefixCut.equals(prefixCut) && prefix.source.equals(source) && prefix.local.equals(local)
                     && prefix.requestRoot.equals(requestRoot) && prefix.requestView.equals(requestView) && Objects.equals(prefix.learner,learner) && prefix.learnerProgress==learnerProgress
                     && prefix.ballot.equals(ballot) && prefix.resources==resources && prefix.started==started && prefix.budget==budget,
                     "generation original prefix owner/deadline");
-            var complete=fetchAncestry(prefix.verifiedPrefix(),true);prefix.received.recheck();
+            var complete=fetchAncestry(prefix.verifiedPrefix(),true);prefix.checkPrefixCopy();
             var files=new TreeMap<String,byte[]>();files.put("generation.gsr",ancestryManifest.bytes());
-            files.put("source.gscp",prefix.received.packet().bytes());
-            for(var image:prefix.received.images().entrySet())files.put(image.getKey()+".image",image.getValue());
+            files.put("source.gscp",prefix.prefixPacket().bytes());
+            for(var image:prefix.prefixImages().entrySet())files.put(image.getKey()+".image",image.getValue());
             var members=list(ancestryManifest.value().get("files"));require(members.size()<32,"generation complete file count");
             long metadata=ancestryManifest.size();
             for(Object value:members) {
@@ -406,7 +434,7 @@ final class MembershipSourcePull implements AutoCloseable {
                 if(!name.endsWith(".image")){metadata=Math.addExact(metadata,bytes);require(metadata<=MembershipResources.Unit.GENERATION.bytes,"generation original metadata capacity");}
             }
             for(Object value:members) {
-                check();prefix.received.recheck();var member=object(value);String name=(String)member.get("path"),digest=(String)member.get("sha256");
+                check();prefix.checkPrefixCopy();var member=object(value);String name=(String)member.get("path"),digest=(String)member.get("sha256");
                 long bytes=number(member.get("size"));byte[] original=files.get(name);
                 if(original==null) {
                     require(!name.equals("source.gscp") && !name.endsWith(".image"),"generation original image missing");
@@ -420,10 +448,10 @@ final class MembershipSourcePull implements AutoCloseable {
             original.check(complete);
             complete=complete.retainingGeneration(original);
             MembershipFloor.Copy.validateMaterialization(ancestryManifest,complete,source,files);
-            prefix.received.recheck();prefix.check();check();
+            prefix.checkPrefixCopy();prefix.check();check();
             var forced=new Owned(source.nodeId().value(),source.storageId(),ancestryManifest.digest(),cutDigest(complete.context.cut));
             var result=MembershipFloor.Copy.verify(ancestryManifest,complete,source,Set.of(forced),files);
-            prefix.received.recheck();prefix.check();check();return result;
+            prefix.checkPrefixCopy();prefix.check();check();return result;
         }catch(IOException|RuntimeException|Error error){try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;}
     }
     /** Only a fully downloaded current-generation owner can mint this provenance.
@@ -435,10 +463,10 @@ final class MembershipSourcePull implements AutoCloseable {
             this.pull=pull;this.prefix=prefix;this.files=Map.copyOf(files);
         }
         void check(MembershipCapsule capsule)throws IOException {
-            pull.check();prefix.check();prefix.received.recheck();
+            pull.check();prefix.check();prefix.checkPrefixCopy();
             require(pull.completeAncestry && pull.ancestryManifest!=null && prefix.completeSource
                     && capsule.context.cut.equals(pull.prefixCut) && capsule.context.root.equals(pull.requestRoot)
-                    && Arrays.equals(capsule.packet.bytes(),prefix.received.packet().bytes())
+                    && Arrays.equals(capsule.packet.bytes(),prefix.prefixPacket().bytes())
                     && Arrays.equals(files.get("source.gscp"),capsule.packet.bytes())
                     && Arrays.equals(files.get("generation.gsr"),pull.ancestryManifest.bytes()),"generation original copy binding");
             var fields=pull.ancestryManifest.value();require(fields.get("node").equals(pull.source.nodeId().value()),"generation original owner");
@@ -479,21 +507,21 @@ final class MembershipSourcePull implements AutoCloseable {
         private final MembershipSourcePull pull;
         private RetainedCopy(MembershipSourcePull pull){this.pull=pull;}
         void check(Decoded root,MembershipSourcePacket packet)throws IOException {
-            pull.check();require(pull.completeSource && pull.received!=null,"complete retained source exchange required");
-            require(Arrays.equals(root.bytes(),pull.originalRoot.bytes()) && pull.received.sourceIdentity().equals(pull.source)
-                    && Arrays.equals(packet.bytes(),pull.received.packet().bytes()),"retained copy original root/source/packet");
+            pull.check();require(pull.completeSource && (pull.received!=null || pull.borrowedFloor!=null),"complete retained source exchange required");
+            require(Arrays.equals(root.bytes(),pull.originalRoot.bytes()) && pull.prefixIdentity().equals(pull.source)
+                    && Arrays.equals(packet.bytes(),pull.prefixPacket().bytes()),"retained copy original root/source/packet");
             if(pull.prefixCut!=null)require(packet.capsule().value().get("cut").equals(pull.prefixCut),"retained copy discovered cut");
             else {
                 var basis=pull.received.basis();packet.bind(basis);
                 require(basis.value().get("voter").equals(pull.source.nodeId().value()) && basis.value().get("view").equals(pull.context.authority())
                         && basis.value().get("ballot").equals(pull.ballot),"retained copy original grant");
             }
-            pull.received.recheck();pull.check();
+            pull.checkPrefixCopy();pull.check();
         }
     }
     private MembershipCapsule retainedCapsule()throws IOException {
-        check();require(completeSource && received!=null,"complete retained source exchange required");
-        return MembershipCapsule.verifyRetained(originalRoot,received.packet(),received.images(),new RetainedCopy(this));
+        check();require(completeSource && (received!=null || borrowedFloor!=null),"complete retained source exchange required");
+        return MembershipCapsule.verifyRetained(originalRoot,prefixPacket(),prefixImages(),new RetainedCopy(this));
     }
     /** Authenticate a complete historical copy from the exact current-generation
      * endpoint. Does not manufacture Owned observations for former voters. */
@@ -564,6 +592,7 @@ final class MembershipSourcePull implements AutoCloseable {
         closed=true;if(pending!=null)pending.cancel(true);
         if(receivedRecord!=null){receivedRecord.close();receivedRecord=null;}
         if(received!=null){received.close();received=null;}
+        if(borrowedFloor!=null){borrowedFloor.close();borrowedFloor=null;}
         for(var lease:ancestryLeases)lease.close();ancestryLeases.clear();
         ancestryManifest=null;ancestryPrefix=null;ancestryResult=null;ancestryBytes=null;
     }

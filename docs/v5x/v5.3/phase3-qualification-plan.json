@@ -465,7 +465,8 @@
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java",
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPublicationCapacity.java",
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFloorFiles.java",
-        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java"
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java"
       ],
       "tests": [
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransferTest.java",
@@ -480,7 +481,8 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PartialFloorResumeTest.java",
         "scripts/v53/test_partial_floor_resume_evidence.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FloorResumeCopyTest.java",
-        "scripts/v53/test_automatic_floor_resume_evidence.py"
+        "scripts/v53/test_automatic_floor_resume_evidence.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingFloorBorrowTest.java"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -497,7 +499,8 @@
         "docs/v5x/v5.3/PHASE_3_COMBINED_RESOURCE_PROBE.md",
         "docs/v5x/v5.3/PHASE_3_COLD_RESOURCE_CONTINUATION.md",
         "docs/v5x/v5.3/PHASE_3_PARTIAL_FLOOR_RESUME.md",
-        "docs/v5x/v5.3/PHASE_3_AUTOMATIC_FLOOR_RESUME.md"
+        "docs/v5x/v5.3/PHASE_3_AUTOMATIC_FLOOR_RESUME.md",
+        "docs/v5x/v5.3/PHASE_3_PENDING_FLOOR_BORROW.md"
       ],
       "cohorts": [
         "profiles",

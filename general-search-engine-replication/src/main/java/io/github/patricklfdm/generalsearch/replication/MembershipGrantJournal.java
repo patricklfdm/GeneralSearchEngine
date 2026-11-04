@@ -2701,6 +2701,13 @@ final class MembershipGrantJournal implements AutoCloseable {
         try{floors.resumeCopy(floorCopyCurrent(),proposal,copy,()->{checkWithoutFloor();guard.check();},cut);}
         catch(IOException | RuntimeException | Error error){failed=true;throw error;}
     }
+    synchronized Optional<MembershipFloorFiles.PendingPrefix> borrowPendingFloorPrefix(Map<String,Object> reference)throws IOException {
+        require(floors!=null,"floor storage owner required");checkOwner();applicationReferencesIdle();rotationIdle();
+        var original=current;
+        return floors.pendingPrefix(floorCopyCurrent(),reference,()->{
+            synchronized(MembershipGrantJournal.this){checkOwner();require(current==original,"pending prefix local generation changed");}
+        });
+    }
     synchronized Decoded establishFloor(List<MembershipFloor.Copy> offered,MembershipFloorFiles.Handoff handoff) throws IOException {
         require(floors!=null,"floor storage owner required");checkOwner();applicationReferencesIdle();rotationIdle();
         if(retirement!=null)require(!retirement.pending(),"pending retirement must finish before authority changes");var own=floorCopyCurrent();

@@ -165,6 +165,9 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    [Automatic resumption](PHASE_3_AUTOMATIC_FLOOR_RESUME.md) now stages exact
    originals sequentially and retains the original deadline and charges. Full
    remote-force/continuation replay and remaining interrupted states stay open.
+   [Pending-floor byte reuse](PHASE_3_PENDING_FLOOR_BORROW.md) removes the redundant
+   receiving slot for complete four-copy originals. Conditional joint storage
+   tests do not replace admitted 5-REPLACE recovery or incomplete-body coverage.
 3. **Finish concrete protocol coverage.** Map exact schedules, original evidence
    selectors and rejection reasons; identify uncovered combinations. Inapplicable
    operations still require explicit refusal with unchanged bytes. Keep final

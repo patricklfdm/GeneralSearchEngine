@@ -133,7 +133,9 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
                         || MembershipFormat.number(hint.cut().get("index"))<MembershipFormat.number(context.cut.get("index"))
                         || joining.contains(node) && !hint.cut().equals(context.cut))continue;
                 source=prefix(hint);
-                try{source.fetchBorrowedPrefix(scratch.resolve("source-"+UUID.randomUUID()),images);}
+                var borrowed=pending.isPresent()?owner.borrowPendingFloorPrefix(required.get(node)):Optional.<MembershipFloorFiles.PendingPrefix>empty();
+                if(borrowed.isPresent())source.fetchBorrowedFloorPrefix(borrowed.get());
+                else try{source.fetchBorrowedPrefix(scratch.resolve("source-"+UUID.randomUUID()),images);}
                 catch(MembershipSourcePull.MissingBorrowedImages missing) {
                     // Same terminal application need not mean identical historical
                     // image inventories. Only this completed packet-only probe may

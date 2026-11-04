@@ -139,6 +139,72 @@ final class MembershipFloorFiles implements AutoCloseable {
         if(files.containsKey(FLOOR))require(prefix(AdmissionPaths.read(path.resolve(FLOOR),16384),proposal.bytes()),"floor differs from original proposal");
         check();return Optional.of(proposal);
     }
+    /** Borrow complete retained bytes without remembering a remote force. The
+     * caller must authenticate them again through the permanent remote owner. */
+    Optional<PendingPrefix> pendingPrefix(MembershipFloor.Copy current,Map<String,Object> reference,
+            MembershipGenerationFiles.Guard owner)throws IOException {
+        owner.check();var proposal=pendingProposal(current).orElseThrow();
+        require(list(proposal.value().get("sources")).contains(reference),"pending prefix original proposal reference");
+        String id=(String)reference.get("generation"),prefix=id+"/";
+        if(!files.containsKey(prefix+"generation.gsr"))return Optional.empty();
+        Decoded generation;
+        try{generation=decode(AdmissionPaths.read(path.resolve(prefix+"generation.gsr"),65536),"records","GENERATION");}
+        catch(IllegalArgumentException incomplete) {
+            // An unusable locator cannot authenticate a borrow. Preserve the
+            // ordinary full-receive path: its fresh original must still match
+            // every retained prefix before anything can be resumed or forced.
+            return Optional.empty();
+        }
+        require(generation.digest().equals(id) && generation.value().get("node").equals(reference.get("voter"))
+                && generation.value().get("root").equals(root.manifestDigest())
+                && generation.value().get("catalog").equals(reference.get("catalog"))
+                && generation.value().get("application").equals(reference.get("snapshot")),"pending prefix original generation");
+        var expected=new TreeSet<String>(Set.of("generation.gsr"));var members=new TreeMap<String,byte[]>();
+        members.put("generation.gsr",generation.bytes());long metadata=generation.size();
+        for(Object value:list(generation.value().get("files"))) {
+            var row=object(value);String name=(String)row.get("path");long length=number(row.get("size"));
+            require(expected.add(name) && length>0 && length<=MembershipGenerationFiles.limit(name),"pending prefix member extent");
+            if(!name.endsWith(".image")){metadata=Math.addExact(metadata,length);require(metadata<=MembershipResources.Unit.SOURCE.bytes,"pending prefix metadata capacity");}
+            var actual=files.get(prefix+name);if(actual==null || actual.bytes()<length)return Optional.empty();
+            require(actual.bytes()==length && actual.digest().equals(row.get("sha256")),"pending prefix member changed");
+            members.put(name,AdmissionPaths.read(path.resolve(prefix+name),Math.toIntExact(length)));
+        }
+        var actualNames=new TreeSet<String>();for(String name:files.keySet())if(name.startsWith(prefix))actualNames.add(name.substring(prefix.length()));
+        require(expected.equals(actualNames) && members.containsKey(PACKET),"pending prefix complete inventory");
+        var packet=MembershipSourcePacket.decode(members.get(PACKET));
+        require(packet.capsule().digest().equals(generation.value().get("capsule"))
+                && packet.capsule().value().get("cut").equals(generation.value().get("cut")),"pending prefix original packet");
+        var images=new TreeMap<String,byte[]>();for(String hash:packet.images().keySet())images.put(hash,members.get(hash+".image"));packet.verifyImages(images);
+        var pinned=new TreeMap<String,FileIdentity>();for(String name:expected)pinned.put(prefix+name,files.get(prefix+name));
+        var result=new PendingPrefix(current,proposal,current.capsule.context.identities.get(reference.get("voter")),packet,images,pinned,owner);
+        result.check();return Optional.of(result);
+    }
+    final class PendingPrefix implements AutoCloseable {
+        private final MembershipFloor.Copy current;
+        private final Decoded proposal;
+        final MembershipIdentity identity;
+        private final MembershipSourcePacket packet;
+        private final Map<String,byte[]> images;
+        private final Map<String,FileIdentity> pinned;
+        private final MembershipGenerationFiles.Guard owner;
+        private volatile boolean closed;
+        private PendingPrefix(MembershipFloor.Copy current,Decoded proposal,MembershipIdentity identity,MembershipSourcePacket packet,
+                Map<String,byte[]> images,Map<String,FileIdentity> pinned,MembershipGenerationFiles.Guard owner) {
+            this.current=current;this.proposal=proposal;this.identity=Objects.requireNonNull(identity);this.packet=packet;
+            this.images=Map.copyOf(images);this.pinned=Map.copyOf(pinned);this.owner=owner;
+        }
+        void check()throws IOException {
+            require(!closed,"pending prefix borrow closed");owner.check();MembershipFloorFiles.this.check();
+            require(pendingProposal(current).map(v->Arrays.equals(v.bytes(),proposal.bytes())).orElse(false),"pending prefix authority changed");
+            for(var item:pinned.entrySet())require(item.getValue().equals(files.get(item.getKey())),"pending prefix physical copy changed");
+            owner.check();require(!closed,"pending prefix borrow closed");
+        }
+        MembershipSourcePacket packet()throws IOException {check();return packet;}
+        MembershipResources resources(){return resources;}
+        MembershipIdentity local(){return local;}
+        Map<String,byte[]> images()throws IOException {check();var copy=new TreeMap<String,byte[]>();images.forEach((k,v)->copy.put(k,v.clone()));check();return copy;}
+        @Override public void close(){closed=true;}
+    }
     /** Resume one freshly authenticated original, retaining all old charges.
      * The caller may drain its receiver only after this method forces the copy
      * and both parents. Authority still requires establish with every original. */
