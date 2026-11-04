@@ -152,6 +152,12 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    including retained failed packet charges and post-refusal allocator force.
    They do not qualify two generations plus the full selected/learner metadata
    maximum, admitted FINAL/application completion or interrupted rotation.
+   A new [native pressure probe](PHASE_3_COMBINED_RESOURCE_PROBE.md) failed during
+   floor construction with seven live images. It deliberately extends external
+   receiving lifetimes, so normal-runtime reachability is unproved. First map
+   legitimate controller overlap and required joint quorum sizes, then qualify
+   completion/recovery; neither suppress this failure nor assume an eight-image
+   limit is the correction.
 3. **Finish concrete protocol coverage.** Map exact schedules, original evidence
    selectors and rejection reasons; identify uncovered combinations. Inapplicable
    operations still require explicit refusal with unchanged bytes. Keep final

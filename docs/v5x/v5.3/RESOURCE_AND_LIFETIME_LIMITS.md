@@ -90,6 +90,11 @@ Physical replay checks every copy, the failed packet's retained charge and
 release after cleanup. Full metadata maximum and admitted FINAL/publication
 completion under combined pressure remain separate, unclosed obligations.
 
+The [opt-in transition pressure probe](PHASE_3_COMBINED_RESOURCE_PROBE.md) retains
+a failed original at the seven-image floor-copy boundary. Its external receiving
+copies deliberately outlive the native controllers; normal-runtime reachability
+is unproved. The diagnosis does not change these bounds or qualify completion.
+
 The [Phase 3 local future-retention container](PHASE_3_FUTURE_RETENTION.md) shares
 the existing 32 MiB journal ceiling. Its active and candidate files are each at
 most 3 MiB; before accepting an intention it also reserves the ordinary 64 KiB

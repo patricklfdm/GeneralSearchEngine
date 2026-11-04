@@ -1,0 +1,229 @@
+{
+  "automaticRecoveryQualified": false,
+  "baseCommit": "31800582b7ba88ca8698fe92379e23098d7f8a59",
+  "checks": {
+    "contract-final.json": {
+      "path": "target/v53-combined-transition-batch/contract-final.json",
+      "sha256": "5839ae0a1c29a47e3220b3fbc3af670b836642013cc1a50c7da26c386cdafdf0"
+    },
+    "diagnosis-final.json": {
+      "path": "target/v53-combined-transition-batch/diagnosis-final.json",
+      "sha256": "47a0ec187042ea0e438a64aad4aa7e84f3e8bb67628824208de6c86d064e6173"
+    },
+    "diagnosis-relocated-optimized.json": {
+      "path": "target/v53-combined-transition-batch/diagnosis-relocated-optimized.json",
+      "sha256": "a2689b245898d8dee83c26fefe06d8dc769571944dc350bcc632870c5e7822d2"
+    },
+    "inspection-final/receipt.json": {
+      "path": "target/v53-combined-transition-batch/inspection-final/receipt.json",
+      "sha256": "5606e618df2f1ae37c00bee5ce65ebea96dc5ce1709a88ff7edabec29862a9bc"
+    },
+    "raw-probe-before.json": {
+      "path": "target/v53-combined-transition-batch/raw-probe-before.json",
+      "sha256": "f2087b31044a3c588ca1615f18d802e20b5514ddf153e38a038a432f79649728"
+    }
+  },
+  "defaultProbeSelection": "SKIPPED_UNLESS_EXPLICIT_PROPERTY",
+  "diagnosis": {
+    "admittedPrefixAndInstallation": "PASS",
+    "automaticRuntimeReachabilityQualified": false,
+    "cause": "application image count exhausted during floor copy construction",
+    "completedProfiles": 0,
+    "externalReceivingCopies": 2,
+    "failedProfile": "4-REMOVE",
+    "forcedFloorCopies": 1,
+    "nativeOutcome": "FAIL",
+    "nextImageWouldBe": 8,
+    "observedSourceCountAtBoundary": 5,
+    "originalAuthorityRetained": true,
+    "originalPreserved": true,
+    "originalUnresolvedAcceptRetained": true,
+    "phase3Complete": false,
+    "physicalImagesAtRefusal": 7,
+    "status": "DIAGNOSED",
+    "unresolvedEntrySha256": "233ab42e1869727c27d0fad138504dbc5e88557ea118ac84b5bec289b8bc4f4e"
+  },
+  "diagnosticNegatives": 14,
+  "existingRequiredChanged": false,
+  "finalSourceCohortQualified": false,
+  "focusedTests": {
+    "path": "target/v53-combined-transition-batch/focused-final.log",
+    "seconds": 0.011,
+    "sha256": "474dae795f951822d9efb3cb10d4f6cb5ba05f2e84b3534f42c92c4745add0d8",
+    "tests": 15
+  },
+  "hostedExecuted": false,
+  "nativeExecutions": {
+    "default-selection": {
+      "collection": {
+        "path": "target/v53-combined-transition-batch/default-selection/collection.json",
+        "sha256": "e2d2216667fbb1a8437a53b7a24d3f3ee9a0deb1a87f0afd3e44ad9e2786e753"
+      },
+      "command": {
+        "path": "target/v53-combined-transition-batch/default-selection/command.json",
+        "sha256": "b17a07b7b0c850bd15468169a7051e4171fa28f5145aad75ba0c66e88fcedb61"
+      },
+      "error": [],
+      "execution": {
+        "elapsedSeconds": 16.906,
+        "exit": 0
+      },
+      "junit": {
+        "errors": "0",
+        "failures": "0",
+        "name": "io.github.patricklfdm.generalsearch.replication.V53CombinedTransitionResourcesTest",
+        "skipped": "1",
+        "tests": "1",
+        "time": "0.007"
+      },
+      "log": {
+        "path": "target/v53-combined-transition-batch/default-selection/maven.log",
+        "sha256": "97b1bdae1efc92ca4bce4214a09133f187a07d5734d46f720d942e65b4ae9cc6"
+      },
+      "nativeOutcome": "NOT_RUN",
+      "source": {
+        "path": "target/v53-combined-transition-batch/default-selection/source.json",
+        "sha256": "cdb3028face624cc7162ef188829e06013b4525721e4a3b442f8d9ee4766d5a3"
+      },
+      "toolchain": {
+        "path": "target/v53-combined-transition-batch/default-selection/toolchain.json",
+        "sha256": "6018bc3cec7b1e3f13006abda23ae42b268ca5e8e04dfd8539f0150d847d3a78"
+      },
+      "toolchainIdentitySha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+    },
+    "native-01": {
+      "collection": {
+        "path": "target/v53-combined-transition-batch/native-01/collection.json",
+        "sha256": "f0ede92570cfdc3b6ab1cd6dfff8dd8ca145a4adf96ce4a2c3cc522296d6f697"
+      },
+      "command": {
+        "path": "target/v53-combined-transition-batch/native-01/command.json",
+        "sha256": "b17a07b7b0c850bd15468169a7051e4171fa28f5145aad75ba0c66e88fcedb61"
+      },
+      "error": [
+        {
+          "message": "membership exchange I/O failed",
+          "type": "io.github.patricklfdm.generalsearch.replication.MembershipTransport$Failure"
+        }
+      ],
+      "execution": {
+        "elapsedSeconds": 187.832,
+        "exit": 1
+      },
+      "junit": {
+        "errors": "1",
+        "failures": "0",
+        "name": "io.github.patricklfdm.generalsearch.replication.V53CombinedTransitionResourcesTest",
+        "skipped": "0",
+        "tests": "1",
+        "time": "172.292"
+      },
+      "log": {
+        "path": "target/v53-combined-transition-batch/native-01/maven.log",
+        "sha256": "415702f8b7bbc5b9e4d61b1e916d3ed7a2039ea6305de6877578c6db871b6fe9"
+      },
+      "nativeOutcome": "FAIL",
+      "raw": "target/v53-combined-transition-batch/native-01/workspace/general-search-engine-replication/target/v53-combined-transition/run-ede4439b-ee93-40d8-becc-6b740c37ea45",
+      "rawBytes": 9814710,
+      "rawFiles": 3414,
+      "source": {
+        "path": "target/v53-combined-transition-batch/native-01/source.json",
+        "sha256": "66e16b3cdb8390434530913b71d3f8299ff75955c8f124008f3d844c1d5e1348"
+      },
+      "toolchain": {
+        "path": "target/v53-combined-transition-batch/native-01/toolchain.json",
+        "sha256": "e6c4a871298b29675ea84fe4c797d88e8565c3c9cf3a09fd2599c6afa78309ee"
+      },
+      "toolchainIdentitySha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+    },
+    "native-02": {
+      "collection": {
+        "path": "target/v53-combined-transition-batch/native-02/collection.json",
+        "sha256": "28315054623cb293aea173d5edf937b22e40589acdae28e20007b10ef43de7d0"
+      },
+      "command": {
+        "path": "target/v53-combined-transition-batch/native-02/command.json",
+        "sha256": "f2859eecf93c24634bc394d79aa6fbb434a1c288d592c3d16c5c534d7caedea5"
+      },
+      "error": [
+        {
+          "message": "membership exchange I/O failed",
+          "type": "io.github.patricklfdm.generalsearch.replication.MembershipTransport$Failure"
+        }
+      ],
+      "execution": {
+        "elapsedSeconds": 156.348,
+        "exit": 1
+      },
+      "junit": {
+        "errors": "1",
+        "failures": "0",
+        "name": "io.github.patricklfdm.generalsearch.replication.V53CombinedTransitionResourcesTest",
+        "skipped": "0",
+        "tests": "1",
+        "time": "142.138"
+      },
+      "log": {
+        "path": "target/v53-combined-transition-batch/native-02/maven.log",
+        "sha256": "3364f35c734a46e8f4c02f7220af3c8371f91c251b74b8e7ecda0afb2a35045b"
+      },
+      "nativeOutcome": "FAIL",
+      "raw": "target/v53-combined-transition-batch/native-02/workspace/general-search-engine-replication/target/v53-combined-transition/run-1716aee1-6c72-4006-a16b-ca4eea228094",
+      "rawBytes": 10187981,
+      "rawFiles": 3504,
+      "source": {
+        "path": "target/v53-combined-transition-batch/native-02/source.json",
+        "sha256": "0e9e0c17f033de10c37a3fdfec4e1283e0331949c664b95237a89e0dd93b0e29"
+      },
+      "toolchain": {
+        "path": "target/v53-combined-transition-batch/native-02/toolchain.json",
+        "sha256": "296df31885d7ff582b7c9b8913d20d0ce09bd97a31d5fd9c5970f0d1f7891cb0"
+      },
+      "toolchainIdentitySha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+    }
+  },
+  "nativeOutcome": "FAIL",
+  "normalRuntimeReachabilityQualified": false,
+  "note": "The first pressure execution failed. The second source execution added explicit handoff/failure observations and also failed. Neither is accepted as qualification. Its current probe remains opt-in and expects the unresolved failure; no resource bound, runtime code or existing CI gate was changed.",
+  "optimizedFocusedTests": {
+    "path": "target/v53-combined-transition-batch/focused-final-optimized.log",
+    "seconds": 0.01,
+    "sha256": "dc93e1ad8c71598c3eb66567fa8d82decd8763a2bb977499ab18ee5efdb2ed29",
+    "tests": 15
+  },
+  "optionalHostedSubsets": 11,
+  "originalsPreserved": true,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "plannedHostedHistories": 512,
+  "productionChanged": false,
+  "prototype": {
+    "files": [
+      {
+        "path": "target/v53-combined-transition-batch/unqualified-prototype/combined_transition_evidence.py",
+        "sha256": "d2f080c06c1cb75f132175e636b83978f97d17a2e70953e2fb2c48d211d6520c"
+      },
+      {
+        "path": "target/v53-combined-transition-batch/unqualified-prototype/test_combined_transition_evidence.py",
+        "sha256": "00e1a8cebbd6946bd292433f91b16d8015114267d89c80746f6005c813551881"
+      }
+    ],
+    "status": "UNQUALIFIED"
+  },
+  "pythonTests": {
+    "path": "target/v53-combined-transition-batch/python-suite-final.log",
+    "seconds": 121.151,
+    "sha256": "3f75df23cf3abec5624e9fc0a04876d32a1d00ac51d645d31b53195d1bbe9ce2",
+    "tests": 2623
+  },
+  "reader": {
+    "path": "target/v53-combined-transition-batch/reader-final.json",
+    "sha256": "d19684e9f29024831c80678b52b5353886bd3cfef2252f59fe6e09d99ae0458a"
+  },
+  "readerSha256": "62e4d682996d920dd09fe83a4348cb64fa51cd88ced2c9e9ea4acf140619f4f8",
+  "sameSourceQualificationRetries": 0,
+  "schema": "gse-v53-combined-resource-probe-development-v1",
+  "simultaneousMaximumQualified": false,
+  "status": "DIAGNOSED",
+  "successfulNewNativeHistories": 0
+}

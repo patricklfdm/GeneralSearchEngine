@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[A combined-resource diagnostic](PHASE_3_COMBINED_RESOURCE_PROBE.md) now retains
+an actual failed REMOVE attempt: externally held copies exhaust the seven-image
+limit during floor construction. Its diagnosis preserves the failed outcome;
+normal-runtime reachability and admitted completion remain unqualified.
+
 [Combined receiving resources](PHASE_3_COMBINED_RECEIVE_RESOURCES.md) now bind
 actual current/PROMISE files and source/learner receiving copies to one budget.
 Nine native histories cover the seven-image count and exact/one-byte-short

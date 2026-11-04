@@ -470,16 +470,20 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationCapacityTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AncestorCapacityTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CombinedReceiveResourcesTest.java",
-        "scripts/v53/test_combined_receive_evidence.py"
+        "scripts/v53/test_combined_receive_evidence.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CombinedTransitionResourcesTest.java",
+        "scripts/v53/test_combined_resource_probe.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
-        "scripts/v53/combined_receive_evidence.py"
+        "scripts/v53/combined_receive_evidence.py",
+        "scripts/v53/combined_resource_probe.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
         "docs/v5x/v5.3/PHASE_3_LEARNER_CYCLE_REPLAY.md",
-        "docs/v5x/v5.3/PHASE_3_COMBINED_RECEIVE_RESOURCES.md"
+        "docs/v5x/v5.3/PHASE_3_COMBINED_RECEIVE_RESOURCES.md",
+        "docs/v5x/v5.3/PHASE_3_COMBINED_RESOURCE_PROBE.md"
       ],
       "cohorts": [
         "profiles",
@@ -705,7 +709,7 @@
       "id": "combined-resources",
       "status": "OPEN",
       "dependsOn": [],
-      "work": "Exercise physical simultaneous selected/current/inactive sources, learner staging and completion reservations under the frozen shared owner limits. Review actual lifetime overlap before adding a producer; existing accounting and conditional-prefix tests are prerequisites only. Nine native current/PROMISE and receiving-copy overlap histories now have independent physical accounting, exact/one-byte-short staging boundaries, retained failed-packet charges and post-refusal allocator force. They do not close the full metadata maximum, admitted FINAL/application completion or interrupted rotation obligations.",
+      "work": "Exercise physical simultaneous selected/current/inactive sources, learner staging and completion reservations under the frozen shared owner limits. Review actual lifetime overlap before adding a producer; existing accounting and conditional-prefix tests are prerequisites only. Nine native current/PROMISE and receiving-copy overlap histories now have independent physical accounting, exact/one-byte-short staging boundaries, retained failed-packet charges and post-refusal allocator force. They do not close the full metadata maximum, admitted FINAL/application completion or interrupted rotation obligations. A diagnostic with externally retained receiving copies failed at the seven-image floor-copy bound; establish normal-runtime reachability and legitimate joint quorum overlap before choosing an admission/lifetime correction. The diagnostic is not positive qualification.",
       "acceptance": "Retain actual peak owner/lease/byte observations and independent physical replay at/over the bound, including admitted FINAL/recovery completion and stable DATA after membership exhaustion. Arithmetic alone does not qualify this obligation."
     },
     {

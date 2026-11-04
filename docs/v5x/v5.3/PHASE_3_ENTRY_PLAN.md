@@ -13,6 +13,11 @@ files. Original-first replay derives their charges and refusal/cleanup from
 physical snapshots. This covers image count and shared-byte boundaries, not
 the full metadata maximum or FINAL/publication completion; 3E remains open.
 
+An [opt-in native pressure probe](PHASE_3_COMBINED_RESOURCE_PROBE.md) subsequently
+failed at the seven-image floor-copy boundary. It retains the failed original
+and its unresolved ACCEPT. Establish legitimate controller overlap before a
+runtime correction; external pressure diagnosis does not close 3E.
+
 [Automatic lifecycle component admission](PHASE_3_AUTOMATIC_HISTORY_COHORT.md)
 now provides three complete execution groups and 50 distinct original plans with
 exact common-source/build/toolchain/reader binding. Known competition shapes
