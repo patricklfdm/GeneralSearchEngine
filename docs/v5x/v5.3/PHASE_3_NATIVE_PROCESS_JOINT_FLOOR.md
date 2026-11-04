@@ -70,8 +70,8 @@ use distinct native discovery intervals, and only the completed floor can cause
 ledger maintenance. Both intervals retain all original force observations.
 
 Expanded process-negative qualification and the frozen 32-history matrix remain
-open. The retained receiving scratch still requires
-independent ownership and overlapping-resource replay. The representative late local-copy cut cannot stand
+open. The v2 producer and scoped resource reader described below add original
+scratch recovery and interrupted-writer accounting. The representative late local-copy cut cannot stand
 in for earlier remote-copy cuts. Torn writes inside files and the full combined
 resource maximum remain separate obligations.
 
@@ -85,13 +85,85 @@ process-observation negatives; it does not replace the broader final-source
 negative matrix. The [composition receipt](phase3-evidence/process-joint-composition.json)
 keeps execution provenance and these checks separate from full process admission.
 
+## Same scratch recovery and resource overlap
+
+The v1 producer captured receiving scratch, but resumed maintenance in fresh
+directories. Its successful late local-copy cut had no abandoned receiver and
+does not qualify cleanup of earlier cuts. The v2 producer opens its outgoing
+directory through the actual journal's `MembershipScratch`, matching normal
+runtime ownership. After death it reopens **both original scratch paths** using
+the same reopened journal and resource budget, before starting any new local
+request. Maintenance and the endpoint then reuse those directories. No copied
+evidence directory is adopted, no manual deletion substitutes for recovery, and
+no fresh resource pool hides retained charges.
+
+`scratch-recovery/recovery.json` retains every recovery callback, its original
+common-event position, live resource counters, authority-file hashes and a
+separate physical scratch snapshot. It also records the returned discard lists
+and both drained original scopes after maintenance. Recording does not add a
+protocol event or reset the original deadline. A failed recovery retains FAIL
+and its partial observations; the fixture never retries it in another directory.
+
+`process_joint_scratch` independently derives:
+
+- Both owner markers' root, permanent identity, role, exact original paths,
+  parent identity and distinct directory keys, retained unchanged through death.
+- The remaining complete remote packets from the original four copies and
+  the interrupted copy ordinal; images remain borrowed from the original local
+  generation. A completed handoff removes exactly its receiver.
+- Every initial writer callback from `FLOOR_RESERVED` to the selected cut:
+  current/inactive generations, retained PROMISE source, whole reserved floor
+  copies, outstanding packet receivers, fetched metadata and owner controls.
+- The reopened storage budget from the actual retained bytes, including empty
+  partial files/directories. Recovery reserves every abandoned file before its
+  first deletion, releases only removed files, forces each removal and keeps its
+  owner reservation until close. Authority-file hashes remain unchanged.
+- Each resumed copy's writer interval and the final floor's publication:
+  complete old copies can lend their prefix, while partial copies require a new
+  packet receiver. All old physical charges coexist with the newly reserved
+  complete copy and fetched metadata until its force completes.
+
+The v2 inspector requires exact resource equality at every covered observation,
+not only a peak below a bound. Twenty-one targeted negatives cover ownership,
+path rebinding, receiver bytes, reset/early-released charges, missing/reordered
+forces, deletion snapshots, authority changes, late recovery, discard omissions,
+leftovers, interrupted/resumed writer accounting and missing resumed callbacks. The original must pass
+first, every mutation protects unrelated inputs, and each requires its exact
+layer-specific rejection. Receiver mutations require an early cut with actual
+abandoned data; an empty late cut cannot supply that negative vector.
+
+Strict schema selection preserves v1 replay without upgrading old evidence:
+v2 requires `scratchRecovery=true` and its additional sidecar; missing fields,
+unknown versions and v1 records with a v2 sidecar refuse. The new resource gate
+itself rejects v1. The scope remains PARTIAL: transient transport/acquisition
+allocation and later application-publication peaks, torn-file axes, the complete 32-case
+matrix and final-source admission are still separate obligations. Neither the
+production implementation nor the six-source/seven-image limits are changed.
+
+```bash
+python3 -B -m scripts.v53.process_joint_scratch <original-v2-raw-directory> --qualify
+```
+
+The representative v2 `1,FLOOR_COPY_CREATED,kill` execution completed through
+FINAL and stable BARRIER with no workload retry. It retained three original
+abandoned receivers. The new reader checked 24 cleanup observations, five
+interrupted-writer observations and 177 resumed-writer observations. Cold cleanup
+kept five SOURCE slots charged at its peak; resumed writing reached seven
+application-image slots while retaining five SOURCE slots. These are measured
+observations of this original, not the full simultaneous physical maximum.
+All 21 resource mutations and twelve process-observation mutations were rejected
+for their exact reasons. `phase3-evidence/process-joint-scratch.json` binds the
+producer/build, independently versioned reader, validations and retained short
+fixture failures. Historical v1 focused and whole-history results remain exactly
+unchanged; v1 cannot satisfy the v2 scratch recovery gate.
+
 ## Operator entry
 
 ```bash
 python3 -B -m scripts.v53.native_process_joint_floor plan
 python3 -B -m scripts.v53.native_process_joint_floor capture \
   target/v53-native-process-joint/operator-001 \
-  --case 4,FLOOR_MEMBER_FORCED,kill --maven /opt/maven/bin/mvn
+  --case 1,FLOOR_COPY_CREATED,kill --maven /opt/maven/bin/mvn
 ```
 
 Every execution uses a fresh immutable source copy, emits progress each minute
@@ -106,10 +178,10 @@ rerunning the workload:
 ```bash
 python3 -B -m scripts.v53.native_process_joint_floor inspect \
   target/v53-native-process-joint/inspection.json \
-  --case 4,FLOOR_MEMBER_FORCED,kill --raw <original-raw-directory>
+  --case 1,FLOOR_COPY_CREATED,kill --raw <original-raw-directory>
 python3 -B -m scripts.v53.native_process_joint_floor qualify \
   target/v53-native-process-joint/process-negatives.json \
-  --case 4,FLOOR_MEMBER_FORCED,kill --raw <original-raw-directory>
+  --case 1,FLOOR_COPY_CREATED,kill --raw <original-raw-directory>
 python3 -B -m scripts.v53.process_joint_history <original-raw-directory> --qualify
 ```
 

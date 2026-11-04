@@ -146,7 +146,12 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    selected/current/inactive sources, learner staging and reserved completion on
    real owners. `V53ResourceTransferTest` reserves the accounting envelope;
    `V53PublicationCapacityTest` checks conditional-prefix refusal and stable DATA.
-   Neither alone proves a simultaneous native physical maximum.
+   Neither alone proves a simultaneous native physical maximum. The
+   [native process v2 entry](PHASE_3_NATIVE_PROCESS_JOINT_FLOOR.md) now reuses the
+   killed owner's exact receiving directories and budget. Its independent reader
+   derives interrupted/resumed writers and cold scratch cleanup from original bytes,
+   with twenty-one targeted negatives; transient acquisition/application publication and the
+   complete final-source process matrix remain open.
    The new same-budget current/PROMISE plus receiving-copy histories now qualify
    image-count and exact/one-byte-short staging refusal with physical snapshots,
    including retained failed packet charges and post-refusal allocator force.

@@ -27,10 +27,21 @@ def selected(case):
     ordinal,cut,mode=case.split(',');return int(ordinal),cut,mode
 
 
-def scope(case):
+def scope(case,*,scratch_recovery=False):
     ordinal,cut,mode=selected(case)
-    return dict(floor.partial_scope(ordinal,cut),schema='gse-v53-native-process-joint-floor-v1',
+    row=dict(floor.partial_scope(ordinal,cut),schema='gse-v53-native-process-joint-floor-v1',
                 mode=mode,initialFloor='native-tcp',processDeath=True)
+    if scratch_recovery:row.update(schema='gse-v53-native-process-joint-floor-v2',scratchRecovery=True)
+    return row
+
+
+def producer_scope(raw,case):
+    row=floor.read(Path(raw)/'joint-floor-recovery/receipt.json')
+    need(type(row) is dict and row.get('schema') in ('gse-v53-native-process-joint-floor-v1',
+         'gse-v53-native-process-joint-floor-v2'),'native process joint known producer version')
+    expected=scope(case,scratch_recovery=row['schema'].endswith('-v2'))
+    floor.same(row,expected,'native process joint exact producer cut')
+    return expected
 
 
 def command(case):
@@ -46,8 +57,9 @@ def junit(reports):return base.junit(reports,CLASS,METHOD)
 def collect(raw,case):
     raw=Path(raw);selected(case);before=h.inventory(raw)
     side=raw/'joint-floor-recovery'
-    need(side.is_dir() and {v.name for v in side.iterdir()}==floor.FILES|{'process'},'native process joint complete sidecar')
-    floor.same(floor.read(side/'receipt.json'),scope(case),'native process joint exact producer cut')
+    producer=producer_scope(raw,case)
+    extra={'scratch-recovery'} if producer.get('scratchRecovery') else set()
+    need(side.is_dir() and {v.name for v in side.iterdir()}==floor.FILES|{'process'}|extra,'native process joint complete sidecar')
     plan=h.snapshot.s.regular(raw/'original-plan.gsbp',h.snapshot.MIB)
     result=dict(status='PARTIAL',case=case,collectionComplete=True,nativeHistoryQualified=False,
         processDeathQualified=False,phase3Complete=False,inventory=before,
@@ -179,8 +191,13 @@ def inspect(raw,case):
     transfers={name:floor.transfer_sessions(raw,captured,copies,ids,cap,ballot,scope=owner)
         for name,owner in (('beforeDeath',SCOPE),('afterDeath','joint-floor-reopened'))}
     need(collect(raw,case)==before,'joint process inspection changed original')
+    scratch=None
+    if producer_scope(raw,case).get('scratchRecovery'):
+        from . import process_joint_scratch as recovery
+        scratch=recovery.validate(raw,spec)
     return dict(status='PARTIAL',case=case,processBoundaryChecked=True,interruptedBytesChecked=True,
         originalCopyExchanges=transfers,scratchRetained=True,
+        **({'scratchRecovery':scratch} if scratch is not None else {}),
         nativeHistoryQualified=False,processDeathQualified=False,phase3Complete=False,
         outstanding=['complete-two-reopen-physical-network-ledger-replay','resource-overlap-replay','final-source-matrix'])
 

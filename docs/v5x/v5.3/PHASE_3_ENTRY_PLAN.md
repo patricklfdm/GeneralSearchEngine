@@ -4,9 +4,12 @@
 now has 32 whole-history entries with a fresh required-voter JVM, real TCP
 acquisition, halt/SIGKILL and same-directory continuation. A composed reader now
 checks both cold owners against the whole physical/network/maintenance history
-and four continuous ledgers, with sixteen targeted negatives. Interrupted
-receiving-resource overlap, expanded negatives and final-source admission remain
-open; no hosted count is added.
+and four continuous ledgers, with sixteen targeted negatives. The v2 producer
+now reopens the same owned receiving directories and records their recovery.
+Independent derivation checks interrupted/resumed writers and cold cleanup with
+twenty-one targeted negatives; complete transport/publication resource coverage,
+expanded process negatives and final-source admission remain open. No hosted
+count is added.
 
 [Partial joint-floor writer coverage](PHASE_3_PARTIAL_JOINT_FLOOR.md) now checks
 sixteen actual handoff-writer cuts with two real PROMISE sources. Independent

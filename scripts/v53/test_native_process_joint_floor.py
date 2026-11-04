@@ -48,6 +48,21 @@ def sample(root,mode='kill'):
 
 
 class NativeProcessJointFloorTest(unittest.TestCase):
+    def test_versioned_scratch_scope_requires_its_own_complete_sidecar(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);sample(root);side=root/'joint-floor-recovery'
+            self.assertNotIn('scratchRecovery',m.producer_scope(root,CASE))
+            m.h.save(side/'receipt.json',m.scope(CASE,scratch_recovery=True))
+            with self.assertRaisesRegex(ValueError,'complete sidecar'):m.collect(root,CASE)
+            (side/'scratch-recovery').mkdir()
+            self.assertTrue(m.producer_scope(root,CASE)['scratchRecovery']);self.assertEqual('PARTIAL',m.collect(root,CASE)['status'])
+            row=m.scope(CASE,scratch_recovery=True);row['scratchRecovery']=False;m.h.save(side/'receipt.json',row)
+            with self.assertRaisesRegex(ValueError,'exact producer cut'):m.collect(root,CASE)
+            row['schema']='gse-v53-native-process-joint-floor-v3';m.h.save(side/'receipt.json',row)
+            with self.assertRaisesRegex(ValueError,'known producer version'):m.collect(root,CASE)
+            m.h.save(side/'receipt.json',m.scope(CASE))
+            with self.assertRaisesRegex(ValueError,'complete sidecar'):m.collect(root,CASE)
+
     def test_original_identity_uses_checked_frame_digest_and_rejects_rebinding(self):
         catalog=m.floor.f.catalog();root=m.floor.f.sample(catalog['records']['ROOT']['schema'],catalog['types'])
         raw=m.floor.f.encode('records','ROOT',root);digest=raw[16:48].hex();identity=root['initial'][0]

@@ -21,7 +21,7 @@ NODE,SCOPE=history.recovered.NODE,history.recovered.SCOPE
 def case(root):
     row=history.p.read(Path(root)/'joint-floor-recovery/receipt.json')
     value=str(row.get('ordinal'))+','+str(row.get('cut'))+','+str(row.get('mode'))
-    history.p.same(row,process.scope(value),'process history exact native producer')
+    process.producer_scope(root,value)
     return value
 
 
@@ -178,7 +178,9 @@ def validate(root,progress=None):
     return dict(status='PARTIAL',case=case(root),precondition=precondition,physical=physical,network=network,
         exports=exports,controls=controls,maintenance=maintenance,ledgers=ledgers,
         wholePhysicalNetworkLedgerReplayChecked=True,processDeathQualified=False,phase3Complete=False,
-        outstanding=['expanded-process-negative-matrix','interrupted-resource-overlap','final-source-process-matrix'])
+        outstanding=['expanded-process-negative-matrix',
+                     'remaining-transfer-publication-resources' if 'scratchRecovery' in precondition else 'interrupted-resource-overlap',
+                     'final-source-process-matrix'])
 
 
 NEGATIVES={

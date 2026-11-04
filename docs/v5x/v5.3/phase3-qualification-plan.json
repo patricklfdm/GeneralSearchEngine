@@ -498,7 +498,10 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JointFloorProcessTest.java",
         "scripts/v53/test_native_process_joint_floor.py",
         "scripts/v53/test_old_owner_lifetimes.py",
-        "scripts/v53/test_process_joint_history.py"
+        "scripts/v53/test_process_joint_history.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JointFloorScratch.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JointFloorScratchTest.java",
+        "scripts/v53/test_process_joint_scratch.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -515,7 +518,8 @@
         "scripts/v53/native_joint_floor_history.py",
         "scripts/v53/native_process_joint_floor.py",
         "scripts/v53/old_owner_lifetimes.py",
-        "scripts/v53/process_joint_history.py"
+        "scripts/v53/process_joint_history.py",
+        "scripts/v53/process_joint_scratch.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",

@@ -50,13 +50,14 @@ public final class V53JointFloorWorker {
                 resources,MembershipGrantJournal.MAXIMUM,cut)) {
             line("OPENED",Map.of("pid",pid,"replica",spec.replica().toString(),"application",spec.application().toString()));
             var bounds=new V53RoundDriverTest().controlBounds();var link=new AtomicReference<MembershipTransport>();
-            try(var endpoint=new MembershipActivationEndpoint(owner,resources,bounds,
+            try(var outgoing=owner.openScratch(spec.scratch().resolve("outgoing"),MembershipScratch.Role.OUTGOING,resources,event->{});
+                var endpoint=new MembershipActivationEndpoint(owner,resources,bounds,
                     (peer,q,kind,deadline)->link.get().exchange(peer,q,kind,deadline),List.of(),List.of(),
                     spec.scratch().resolve("incoming"),System::nanoTime,V53JointFloorRecoveryTest.BUDGET,builder().configuration(),storage(spec.application(),2));
                 var transport=new MembershipTransport(owner,bounds,resources,endpoint::handle,trace.transport(SCOPE))) {
                 link.set(transport);
                 try(var maintenance=MembershipGenerationMaintenance.beforeGrant(owner,resources,bounds,transport::exchange,()->{},
-                        spec.scratch().resolve("outgoing"),System::nanoTime,spec.startedNanos(),V53JointFloorRecoveryTest.BUDGET)) {
+                        outgoing.directory(),System::nanoTime,spec.startedNanos(),V53JointFloorRecoveryTest.BUDGET)) {
                     maintenance.run();
                 }
             }

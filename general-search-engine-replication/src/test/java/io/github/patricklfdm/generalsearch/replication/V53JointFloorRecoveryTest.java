@@ -53,7 +53,8 @@ class V53JointFloorRecoveryTest {
                     receipt.put("cut",cut.point());receipt.put("handoff",true);
                 }
                 if(processMode!=null) {
-                    receipt.put("schema","gse-v53-native-process-joint-floor-v1");receipt.put("mode",processMode);
+                    receipt.put("schema","gse-v53-native-process-joint-floor-v2");receipt.put("mode",processMode);
+                    receipt.put("scratchRecovery",true);
                     receipt.put("initialFloor","native-tcp");receipt.put("processDeath",true);
                 }
                 Files.write(raw.resolve("receipt.json"),canonical(receipt,65536));
@@ -130,9 +131,16 @@ class V53JointFloorRecoveryTest {
         n.owners.set(1,reopened);
         V53JournalApplicationTest.copy(target.replicaDirectory(),raw.resolve("after-reopen"));
         assertEquals(V53CombinedResourceRecoveryTest.disk(raw.resolve("after-close")),V53CombinedResourceRecoveryTest.disk(raw.resolve("after-reopen")));
+        Path incoming=temp.resolve("reopened-incoming"),outgoing=temp.resolve("joint-floor-native-resume");
+        if(processMode!=null) {
+            Path scratch=temp.resolve("process-scratch");
+            V53JointFloorScratch.recover(reopened,budget,scratch,target.replicaDirectory(),raw.resolve("scratch-recovery"),
+                ()->{synchronized(n.events){return n.events.size();}});
+            incoming=scratch.resolve("incoming");outgoing=scratch.resolve("outgoing");
+        }
         var endpoint=new MembershipActivationEndpoint(reopened,budget,n.bounds,
             (peer,request,kind,deadline)->n.links.get(1).get().exchange(peer,request,kind,deadline),List.of(),List.of(),
-            temp.resolve("reopened-incoming"),System::nanoTime,BUDGET,builder().configuration(),target.materialization());
+            incoming,System::nanoTime,BUDGET,builder().configuration(),target.materialization());
         n.endpoints.set(1,endpoint);
         var transport=new MembershipTransport(reopened,n.bounds,budget,endpoint::handle,ownTrace.transport("joint-floor-reopened"));
         n.transports.set(1,transport);n.links.get(1).set(transport);
@@ -145,9 +153,11 @@ class V53JointFloorRecoveryTest {
                 temp.resolve("floor-joining-incoming"),System::nanoTime,BUDGET,builder().configuration(),config.materialization());
             var joinedTransport=new MembershipTransport(joining,n.bounds,joiningResources,joinedEndpoint::handle,trace.transport("joint-floor-export"))) {
             joinedLink.set(joinedTransport);
-            try(var maintenance=MembershipGenerationMaintenance.beforeGrant(reopened,budget,n.bounds,transport::exchange,()->{},
-                    temp.resolve("joint-floor-native-resume"),System::nanoTime,started,BUDGET)) {maintenance.run();}
+            try(var scratch=processMode==null?null:reopened.openScratch(outgoing,MembershipScratch.Role.OUTGOING,budget,event->{});
+                var maintenance=MembershipGenerationMaintenance.beforeGrant(reopened,budget,n.bounds,transport::exchange,()->{},
+                    outgoing,System::nanoTime,started,BUDGET)) {maintenance.run();}
         }
+        if(processMode!=null)V53JointFloorScratch.copy(temp.resolve("process-scratch"),raw.resolve("scratch-recovery/after-maintenance"));
         assertTrue(captured.get(),"original floor forced before maintenance retirement");
         assertTrue(reopened.governingFloor().isEmpty(),"normal maintenance releases only the completed original floor");
         assertEquals(original.capsule.context.cut,reopened.activationContext().cut);

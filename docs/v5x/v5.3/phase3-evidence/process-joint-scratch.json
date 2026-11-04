@@ -1,0 +1,233 @@
+{
+  "baseCommit": "771241a425a1f3ae54e7713cc97a3a0fda68735b",
+  "build": {
+    "path": "target/v53-process-joint-scratch/native-01/build.json",
+    "sha256": "e8f0d130c9ff74db57ec5965942ac9b4df4942f92d502282ca7fc3eacbb4ca20"
+  },
+  "case": "1,FLOOR_COPY_CREATED,kill",
+  "collection": {
+    "path": "target/v53-process-joint-scratch/native-01/collection.json",
+    "sha256": "274b57c74c0b664f08a4c01c1e9131d1b1b7546acf62145432dc4f9b34c3dd69"
+  },
+  "compositionNegativeRejections": 16,
+  "execution": {
+    "elapsedSeconds": 1318.095,
+    "exit": 0
+  },
+  "finalSourceQualified": false,
+  "finalizer": {
+    "path": "target/v53-process-joint-scratch/finalize.py",
+    "sha256": "ffd0da8226c0b8ba0282cfee25d1af5639393317430ed9d9cd701a046907847d"
+  },
+  "fixture": {
+    "path": "target/v53-process-joint-scratch/fixture-pins.json",
+    "sha256": "d69aa83fda6b54ce480e3cf37dceb936817909dab19e0f3b9945dbfaef93d6ce"
+  },
+  "fullNativeMatrixQualified": false,
+  "javaShortTests": {
+    "newOwnerRecovery": 3,
+    "unchangedProcessFraming": 4,
+    "unchangedScratch": 13
+  },
+  "legacyWholeHistoryResultUnchanged": true,
+  "phase3Complete": false,
+  "processBoundaryNegativeRejections": 12,
+  "processDeathQualified": false,
+  "producer": {
+    "path": "target/v53-process-joint-scratch/native-01/receipt.json",
+    "sha256": "280c5775949b126c142ea099ec8bd6769c92794290dbc9a84e065521dd51d4d9"
+  },
+  "python": {
+    "focused-final.log": {
+      "elapsedSeconds": 0.583,
+      "status": "PASS",
+      "tests": 61
+    },
+    "optimized-final.log": {
+      "elapsedSeconds": 0.674,
+      "status": "PASS",
+      "tests": 61
+    },
+    "python-all-final.log": {
+      "elapsedSeconds": 125.933,
+      "status": "PASS",
+      "tests": 2751
+    }
+  },
+  "reader": {
+    "path": "target/v53-process-joint-scratch/reader-final.json",
+    "sha256": "7c839226be0ef83cf708d7b261beddf7f7ff9275ac9f979645d38e362c4ff1b3"
+  },
+  "remaining": [
+    "Transient transport/acquisition and later application-publication resource lifetimes.",
+    "All 32 process histories, expanded process negatives and exact final-source cohort admission.",
+    "Torn-file and full simultaneous physical maximum remain separate obligations."
+  ],
+  "retainedDevelopmentFailures": [
+    {
+      "path": "target/v53-process-joint-scratch/java-short.log",
+      "sha256": "37aa0db238529d63e02c0e1727e0601e55ba0d8c2ba4b13285428bfe37091f8c"
+    },
+    {
+      "path": "target/v53-process-joint-scratch/java-short-02.log",
+      "sha256": "8c578cc99866c2c84b057b87d203e76a5eaa99b90a1c2e9dea6b60dfcd716f22"
+    },
+    {
+      "path": "target/v53-process-joint-scratch/python-short.log",
+      "sha256": "decb631ea9530bd6a9d77b97b22f6c85ba724878ba7bae5003e429e04c42eb59"
+    }
+  ],
+  "runtimeChanged": false,
+  "schema": "gse-v53-process-joint-scratch-development-v1",
+  "scratch": {
+    "callbacks": 24,
+    "coldBaseline": {
+      "counts": {
+        "APPLICATION": 3,
+        "GENERATION": 2,
+        "JOURNAL": 1,
+        "MISC": 1,
+        "SOURCE": 2
+      },
+      "leases": 9,
+      "metadata": 35777827,
+      "queued": 0,
+      "staging": 40608
+    },
+    "discardedFiles": 3,
+    "interruptedWriterOverlap": {
+      "callbacks": 5,
+      "copied": 1,
+      "handedOff": 0,
+      "peak": {
+        "counts": {
+          "APPLICATION": 4,
+          "CONTROL": 24,
+          "GENERATION": 2,
+          "JOURNAL": 1,
+          "MISC": 1,
+          "SOURCE": 5
+        },
+        "leases": 37,
+        "metadata": 35916996,
+        "queued": 123166,
+        "staging": 180614
+      }
+    },
+    "liveWriterResourcesQualified": false,
+    "peak": {
+      "counts": {
+        "APPLICATION": 3,
+        "CONTROL": 1,
+        "GENERATION": 2,
+        "JOURNAL": 1,
+        "MISC": 1,
+        "SOURCE": 5
+      },
+      "leases": 13,
+      "metadata": 35874295,
+      "queued": 32768,
+      "staging": 137076
+    },
+    "phase3Complete": false,
+    "processDeathQualified": false,
+    "resumedWriterOverlap": {
+      "callbacks": 177,
+      "peak": {
+        "counts": {
+          "APPLICATION": 7,
+          "CONTROL": 11,
+          "GENERATION": 2,
+          "JOURNAL": 1,
+          "MISC": 1,
+          "SOURCE": 5
+        },
+        "leases": 26,
+        "metadata": 35963046,
+        "queued": 89078,
+        "staging": 229175
+      },
+      "remoteBorrowedCopies": 0,
+      "remoteReceivedCopies": 3
+    },
+    "sameScratchRecoveryChecked": true,
+    "status": "PARTIAL"
+  },
+  "scratchNegativeRejections": 21,
+  "source": {
+    "path": "target/v53-process-joint-scratch/native-01/source.json",
+    "sha256": "5513b487b4de178abbca1c4b54999262c36c344986328caee748d3f16e610abd"
+  },
+  "status": "PARTIAL",
+  "validation": {
+    "composed-qualified.json": {
+      "path": "target/v53-process-joint-scratch/composed-qualified.json",
+      "sha256": "d1957f9ea1c2275e26d3ec6dff8ebff569f82cd4589205c0649cd179cb9f5877"
+    },
+    "composed-qualified.log": {
+      "path": "target/v53-process-joint-scratch/composed-qualified.log",
+      "sha256": "dc8ad33a6888adb5129d922089ae28cd116d1ee2ded5cae4f8aab7e4f03d01ad"
+    },
+    "contract-complete.json": {
+      "path": "target/v53-process-joint-scratch/contract-complete.json",
+      "sha256": "6a635672c8abf69c54a8e175f66fb3dfdfc53ccaced6802f76efd0d43b9aaf22"
+    },
+    "focused-final.log": {
+      "path": "target/v53-process-joint-scratch/focused-final.log",
+      "sha256": "a02c82dbcfe459da1c5e7459bd646778d994b678fc559ecc29ac83c28128b3a6"
+    },
+    "inspection-complete/receipt.json": {
+      "path": "target/v53-process-joint-scratch/inspection-complete/receipt.json",
+      "sha256": "3b0357c9eb145811a03e875a2c311260675e198af99745b0ce2404e0c9d08265"
+    },
+    "java-short-03.log": {
+      "path": "target/v53-process-joint-scratch/java-short-03.log",
+      "sha256": "18cd48440a869614e5fc31c264d52234893bbdf0ff7fe936e24d2dcee9d2dc4e"
+    },
+    "java-short.log": {
+      "path": "target/v53-process-joint-scratch/java-short.log",
+      "sha256": "37aa0db238529d63e02c0e1727e0601e55ba0d8c2ba4b13285428bfe37091f8c"
+    },
+    "legacy-focused.json": {
+      "path": "target/v53-process-joint-scratch/legacy-focused.json",
+      "sha256": "9d49a3ca230ff1efc21a7da18a28c3e9553db7316306fda2e2ef64e7fbec4359"
+    },
+    "legacy-resource-diagnostic.json": {
+      "path": "target/v53-process-joint-scratch/legacy-resource-diagnostic.json",
+      "sha256": "8e08c82c7c34ac42e4544ed62897d362d45b8ff8e13763e415bbfedcf63d20a3"
+    },
+    "legacy-whole.json": {
+      "path": "target/v53-process-joint-scratch/legacy-whole.json",
+      "sha256": "0257217e983fbf5149fdc3014551eef573200799f5cf427061305b2c531c4e3f"
+    },
+    "optimized-final.log": {
+      "path": "target/v53-process-joint-scratch/optimized-final.log",
+      "sha256": "06c1a2ccef6499527654beb9ce8ec9fc97092071f8bfc7731bef87710e0c5ae7"
+    },
+    "process-qualified.json": {
+      "path": "target/v53-process-joint-scratch/process-qualified.json",
+      "sha256": "8b6b18ce1e64835baff750ec01103982d17e72ff94701c66528b46ea1f1de0d4"
+    },
+    "process-qualified.log": {
+      "path": "target/v53-process-joint-scratch/process-qualified.log",
+      "sha256": "13098df6e8ac071a45fb2f2662690c0205254eac9374fafb3c691e9e2b65fb94"
+    },
+    "python-all-final.log": {
+      "path": "target/v53-process-joint-scratch/python-all-final.log",
+      "sha256": "5e5b623fbffd4a4752ef02dd5e60ce8f5ab3e0f1e067c2e48034d9599a596277"
+    },
+    "scratch-diagnostic-01.json": {
+      "path": "target/v53-process-joint-scratch/scratch-diagnostic-01.json",
+      "sha256": "26914f65e934da2ec4ced6bb173dd1d9e9e9806986290903c36cbc6926ce9c99"
+    },
+    "scratch-qualified.json": {
+      "path": "target/v53-process-joint-scratch/scratch-qualified.json",
+      "sha256": "58a2dd7a965a81f7e563d51d08c13027ee9a52946b34b0585fa8ca834400b0d3"
+    },
+    "scratch-qualified.log": {
+      "path": "target/v53-process-joint-scratch/scratch-qualified.log",
+      "sha256": "88f4ae216a2f6bc41841dfc56cb316ccb3030c3acdb8018f146017d83ccf2a67"
+    }
+  },
+  "wholePhysicalNetworkLedgerReplayChecked": true
+}
