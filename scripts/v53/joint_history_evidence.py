@@ -41,8 +41,9 @@ class Continuation(v.Continuation):
         return v.c.maintenance(group, node, self.retirements.compare, voters=floor_voters(group,node))
 
 
-def physical(root, events):
-    life = lifetimes(events); old = p.NODES[:-1]
+def physical(root, events, *, owner_lifetimes=None, initialization_class=Initialization):
+    life = lifetimes(events) if owner_lifetimes is None else owner_lifetimes
+    old = p.NODES[:-1]
     retires = retirement.Retirements(root, events, voters=p.NODES)
     observed = v.p.Captures(root, events, voters=old, old_owner_lifetimes=life)
     model = v.s.Replay(root, size=5, kind='REPLACE')
@@ -51,7 +52,7 @@ def physical(root, events):
     history = History(root, model, observed); history.retirements = retires; prefix = history.run()
     owner = v.init.placement.Placement(root, history); owner.run()
     handoff = v.init.retirement.Retirement(root, owner); handoff.run()
-    initialized = Initialization(root, handoff, observed); initialized.retirements = retires; initialized.run()
+    initialized = initialization_class(root, handoff, observed); initialized.retirements = retires; initialized.run()
     continued = Continuation(root, initialized, observed, old_owner_lifetimes=life); continued.retirements = retires
     result = continued.run(); retires.complete()
     return dict(prefix=prefix, continuation=result, sourceRetirementTransactions=retires.transactions,
@@ -93,6 +94,10 @@ def exports(reader):
 
 class Replay(maintenance.Replay):
     joining_status_scopes = ENDPOINTS
+    recovered_counts = (1, 1)  # One native reacquisition after one direct fixture floor.
+
+    def direct_fixture_nodes(self):
+        return self.expected_confirmations
 
     def __init__(self, reader):
         self.__dict__.update(vars(reader)); self.direct_nodes = set(); self.floor_inputs = []
@@ -137,7 +142,8 @@ class Replay(maintenance.Replay):
                 need(previous.get(node,-1)<start,'joining maintenance overlapping floors')
                 points,new,copies,retired=self.recovered_floor()
                 need(not covered.intersection(points) and not used.intersection(new),'joint history recovery reused observations')
-                covered.update(points);used.update(new);network+=1;direct+=1;copies_total+=copies;generations+=retired
+                covered.update(points);used.update(new)
+                network+=self.recovered_counts[0];direct+=self.recovered_counts[1];copies_total+=copies;generations+=retired
                 previous[node]=self.released;continue
             ends=[i for i,row in enumerate(self.events) if i>start and row.get('node')==node and row['event']=='FLOOR_RELEASE_BEFORE_RETURN']
             need(ends,'joining maintenance incomplete floor release');end=ends[0]
@@ -158,7 +164,7 @@ class Replay(maintenance.Replay):
             covered.update(i for i,_ in actual);copies_total+=len(copies);previous[node]=end
         eligible={i for i,row in enumerate(self.events) if row['event'].startswith('FLOOR_') and row['event']!='FLOOR_COPY_BEFORE_RETURN'}
         need(covered==eligible,'joining maintenance unbound floor events')
-        need(self.direct_nodes==self.expected_confirmations and direct==len(self.expected_confirmations),
+        need(self.direct_nodes==self.direct_fixture_nodes() and direct==len(self.direct_fixture_nodes()),
              'joining profile maintenance complete direct cohort')
         retirements=retirement_coverage(self.events,self.resumed)
         return dict(networkFloors=network,directFixtureFloors=direct,completeCopies=copies_total,

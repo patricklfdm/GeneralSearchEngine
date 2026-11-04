@@ -1,0 +1,377 @@
+{
+  "baseCommit": "bb5d08aa4963603a714216621570ccfae6609f48",
+  "build": {
+    "path": "target/v53-native-process-joint-batch/native-02/build.json",
+    "sha256": "0a167d116c701352c2947573b8f83577bf82525699cf6230088ed5435cc0f172"
+  },
+  "checks": {
+    "contract.json": {
+      "path": "target/v53-process-joint-composition/contract.json",
+      "sha256": "00c8dd7acb9764264b4cccd6f2b78310ac35ac11b1e100cf1e75bb1421a28b28"
+    },
+    "focused-01.log": {
+      "path": "target/v53-process-joint-composition/focused-01.log",
+      "sha256": "76e5eb029cbbdf17dc4c31d2c846d8d23eb23b8a351d4fc8916c9f3fcdeb78b9"
+    },
+    "inspection/receipt.json": {
+      "path": "target/v53-process-joint-composition/inspection/receipt.json",
+      "sha256": "1eb993fff1976d5acb054c316c0bafdc1e5d1ebe2326a2ea7139c0552b4565fc"
+    },
+    "legacy-replay.json": {
+      "path": "target/v53-process-joint-composition/legacy-replay.json",
+      "sha256": "d48b09535d182eb5018f7bbe2174439b7a3e55ded262d108bdc9c613fd9ea840"
+    },
+    "legacy-replay.log": {
+      "path": "target/v53-process-joint-composition/legacy-replay.log",
+      "sha256": "ea1d84cc765f921481ce529603dc0ab7c58b4b159513e4180d4677488cf759b6"
+    },
+    "optimized.log": {
+      "path": "target/v53-process-joint-composition/optimized.log",
+      "sha256": "be61b0a62389c5955b0a8d605b4f44841392bb04a744d4d7ef801442012277ab"
+    },
+    "python-all.log": {
+      "path": "target/v53-process-joint-composition/python-all.log",
+      "sha256": "1ad9eb3a2df8fe5e2283ddc7412d5f5475073785efef014565eafe813712942a"
+    },
+    "qualified-01.log": {
+      "path": "target/v53-process-joint-composition/qualified-01.log",
+      "sha256": "dc8ad33a6888adb5129d922089ae28cd116d1ee2ded5cae4f8aab7e4f03d01ad"
+    }
+  },
+  "diagnosticInitialReplay": {
+    "path": "target/v53-process-joint-composition/replay-01.json",
+    "sha256": "a7aed16beda80dce686d7bb92dbcb7db081185a682e1521ce0697b8c74b80982"
+  },
+  "finalSourceQualified": false,
+  "finalizer": {
+    "path": "target/v53-process-joint-composition/finalize.py",
+    "sha256": "32f736e83b186e5d449f1c4944b8bc79f756802fc6eeee8e2c1492ba43a3a755"
+  },
+  "fullNativeMatrixQualified": false,
+  "ledgers": {
+    "ballot": {
+      "allocatorComparisons": 125,
+      "ballotForceQualified": true,
+      "chainSha256": "9fd4fd9fee09465b3bb2b242fa00c48cc355c26d0151b65a4ed31895cb98ca44",
+      "completePhysicalQualified": false,
+      "finalCounters": {
+        "node-1": 9,
+        "node-2": 1,
+        "node-3": 1,
+        "node-4": 1,
+        "node-5": 1,
+        "node-6": 7
+      },
+      "forcedPromises": 26,
+      "phase3Complete": false,
+      "reservations": 10,
+      "sameViewPhysicalQualified": false,
+      "scope": "one-native-REPLACE-continuous-ballot",
+      "selfGrants": 9,
+      "status": "PASS",
+      "unusedReservations": 1
+    },
+    "future": {
+      "chainSha256": "514b421bed902e0b5aed729d4f101d760277b303a5ff9137e0ece4a58f999141",
+      "completePhysicalQualified": false,
+      "durableWrites": 99,
+      "finalRevisions": {
+        "node-1": 33,
+        "node-2": 33,
+        "node-3": 33,
+        "node-4": 0,
+        "node-5": 0,
+        "node-6": 0
+      },
+      "futureLedgerCompositionQualified": true,
+      "learnerLedgerCompositionQualified": false,
+      "ledgerComparisons": 114,
+      "openReseals": 12,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "scope": "one-native-REPLACE-continuous-future-ledger",
+      "status": "PASS",
+      "writesByKind": {
+        "clear": 33,
+        "record": 66
+      }
+    },
+    "learner": {
+      "admissionCustodyEvents": 11,
+      "capturedLedgers": 25,
+      "chainSha256": "5381dbd8bee087df7b552298a4835764bf6a4f0ed5c0abda176c4ad1d37f0686",
+      "completePhysicalQualified": false,
+      "durableWrites": 12,
+      "finalRevisions": {
+        "node-1": 4,
+        "node-2": 4,
+        "node-3": 4,
+        "node-4": 0,
+        "node-5": 0,
+        "node-6": 0
+      },
+      "learnerLedgerCompositionQualified": true,
+      "ledgerComparisons": 140,
+      "openReseals": 12,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "sameViewPhysicalQualified": false,
+      "scope": "one-native-REPLACE-continuous-learner-ledger",
+      "selectedTransitions": 18,
+      "status": "PASS",
+      "writesByKind": {
+        "confirm": 3,
+        "record": 6,
+        "selected": 3
+      }
+    },
+    "peers": {
+      "capturedLedgers": 25,
+      "chainSha256": "14db99ab52555b781cf324516da64d707d8810714361e79c75394d8676cdc6da",
+      "completePhysicalQualified": false,
+      "durableWrites": 147,
+      "finalRevisions": {
+        "node-1": 49,
+        "node-2": 49,
+        "node-3": 49,
+        "node-4": 0,
+        "node-5": 0,
+        "node-6": 0
+      },
+      "forceAndNetworkQualified": false,
+      "ledgerComparisons": 134,
+      "openReseals": 12,
+      "peerLedgerCompositionQualified": true,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "scope": "one-native-REPLACE-original-peer-ledger-chain",
+      "status": "PASS",
+      "writesByKind": {
+        "maintenance": 99,
+        "publication": 33,
+        "selected": 15
+      }
+    }
+  },
+  "legacyWholeHistoryResultUnchanged": true,
+  "maintenance": {
+    "acquiredRemoteCopies": 108,
+    "boundRetirementEvents": 2949,
+    "completeCopies": 169,
+    "completePhysicalQualified": false,
+    "directFixtureFloors": 2,
+    "discoveryHints": 112,
+    "floorEvents": 5938,
+    "forceAndNetworkQualified": false,
+    "interruptedFloors": 1,
+    "maintenanceForceQualified": true,
+    "networkFloors": 53,
+    "phase3Complete": false,
+    "processDeathQualified": false,
+    "retiredGenerations": 48,
+    "scope": "one-native-REPLACE-discovery-and-complete-copy-floor-lifetimes",
+    "status": "PASS"
+  },
+  "negatives": [
+    {
+      "case": "child-current",
+      "reason": "process history child current force order",
+      "stage": "owners",
+      "status": "REJECTED"
+    },
+    {
+      "case": "overlapping-child",
+      "reason": "process history disjoint original cold owners",
+      "stage": "owners",
+      "status": "REJECTED"
+    },
+    {
+      "case": "original-allocator",
+      "reason": "process history independently derived interrupted owner",
+      "stage": "physical",
+      "status": "REJECTED"
+    },
+    {
+      "case": "child-request",
+      "reason": "joining network response without request",
+      "stage": "network",
+      "status": "REJECTED"
+    },
+    {
+      "case": "export-owner",
+      "reason": "joining control original owner lifetime",
+      "stage": "exports",
+      "status": "REJECTED"
+    },
+    {
+      "case": "child-copy-force",
+      "reason": "process history complete interrupted floor callbacks",
+      "stage": "maintenance",
+      "status": "REJECTED"
+    },
+    {
+      "case": "resumed-copy-force",
+      "reason": "process history complete interrupted floor callbacks",
+      "stage": "maintenance",
+      "status": "REJECTED"
+    },
+    {
+      "case": "resumed-floor-owner",
+      "reason": "process history complete interrupted floor callbacks",
+      "stage": "maintenance",
+      "status": "REJECTED"
+    },
+    {
+      "case": "child-peers-reset",
+      "reason": "joining peer exact original ledger: open-reseal: node-2",
+      "stage": "peers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "resumed-peers-reset",
+      "reason": "joining peer exact original ledger: open-reseal: node-2",
+      "stage": "peers",
+      "status": "REJECTED"
+    },
+    {
+      "case": "child-learner-reset",
+      "reason": "joining learner exact continuous ledger: reopen: node-2",
+      "stage": "learner",
+      "status": "REJECTED"
+    },
+    {
+      "case": "resumed-learner-reset",
+      "reason": "joining learner exact continuous ledger: reopen: node-2",
+      "stage": "learner",
+      "status": "REJECTED"
+    },
+    {
+      "case": "child-future-reset",
+      "reason": "joining future exact continuous ledger: reopen: node-2",
+      "stage": "future",
+      "status": "REJECTED"
+    },
+    {
+      "case": "resumed-future-reset",
+      "reason": "joining future exact continuous ledger: reopen: node-2",
+      "stage": "future",
+      "status": "REJECTED"
+    },
+    {
+      "case": "child-ballot-reset",
+      "reason": "joining ballot exact continuous allocator: joint-floor-process: node-2",
+      "stage": "ballot",
+      "status": "REJECTED"
+    },
+    {
+      "case": "resumed-ballot-reset",
+      "reason": "joining ballot exact continuous allocator: joint-floor-reopened: node-2",
+      "stage": "ballot",
+      "status": "REJECTED"
+    }
+  ],
+  "network": {
+    "committedTransfers": 1409,
+    "receivedRequests": 4519,
+    "rejectedTransferAttempts": 3,
+    "responseLessFailures": 8,
+    "sentRequests": 4519,
+    "transferSessions": 736,
+    "wireExchanges": 4511
+  },
+  "newNativeExecutions": 0,
+  "phase3Complete": false,
+  "physical": {
+    "continuation": {
+      "capturedGrantComparisons": 25,
+      "completePhysicalQualified": false,
+      "finalCut": 11,
+      "forceAndNetworkQualified": false,
+      "ownerSnapshotComparisons": 42,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "profile": "5-REPLACE",
+      "recovery": {
+        "adoptionEnd": 36930,
+        "adoptionStart": 36901,
+        "donor": "node-1",
+        "fromCut": 9,
+        "inheritedLocalBridges": 1,
+        "originalTransfers": 3,
+        "promiseAppended": true,
+        "remoteBridges": 0,
+        "requiredParents": 4,
+        "sameViewInstallation": false,
+        "toCut": 11
+      },
+      "scope": "profile-selected-continuation",
+      "sourceRetirementLocalOrderSegments": 21,
+      "status": "PARTIAL"
+    },
+    "governingFloors": 21,
+    "prefix": {
+      "campaigns": 4,
+      "completePhysicalQualified": false,
+      "forceAndNetworkQualified": false,
+      "ownerSnapshotComparisons": 115,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "profile": "5-REPLACE",
+      "scope": "native-REPLACE-bootstrap-through-old-voter-INTENT",
+      "slots": 9,
+      "status": "PASS",
+      "throughIntentPhysicalQualified": true
+    },
+    "sourceRetirementPrefixes": 315,
+    "sourceRetirementTransactions": 21
+  },
+  "processDeathQualified": false,
+  "producer": {
+    "path": "target/v53-native-process-joint-batch/native-02/receipt.json",
+    "sha256": "8a2a0e50f3ad0993476b64363da6db059e2355dec163cd5f9f31b6311f0bacde"
+  },
+  "python": {
+    "focused-01.log": {
+      "elapsedSeconds": 0.028,
+      "status": "PASS",
+      "tests": 37
+    },
+    "optimized.log": {
+      "elapsedSeconds": 0.031,
+      "status": "PASS",
+      "tests": 37
+    },
+    "python-all.log": {
+      "elapsedSeconds": 124.649,
+      "status": "PASS",
+      "tests": 2738
+    }
+  },
+  "qualification": {
+    "path": "target/v53-process-joint-composition/qualified-01.json",
+    "sha256": "20fcbc1f84d38a7e045656e188cef1084ff23d86fb57183c0492b586acc11152"
+  },
+  "reader": {
+    "path": "target/v53-process-joint-composition/reader-01.json",
+    "sha256": "f603025a6457a3dcd44dbb0ca9509a4470ba451490f361128ff94c32a42aacdc"
+  },
+  "recollection": {
+    "path": "target/v53-native-process-joint-batch/recollection.json",
+    "sha256": "45f122a550d7db7e3211f393408147382d0cd640f8229f5323598278168b3d54"
+  },
+  "remaining": [
+    "Independent interrupted receiving-resource and overlapping physical lifetime derivation.",
+    "Expanded negative coverage, all 32 process histories and final-source cohort admission.",
+    "Torn-file and full combined-resource axes remain separate obligations."
+  ],
+  "retainedNativeCase": "4,FLOOR_MEMBER_FORCED,kill",
+  "runtimeChanged": false,
+  "schema": "gse-v53-process-joint-composition-development-v1",
+  "source": {
+    "path": "target/v53-native-process-joint-batch/native-02/source.json",
+    "sha256": "ea3c8046b29ba3a2c0c546b2928be80bb9ec76da6ce1582ef9e267f88d625f5e"
+  },
+  "status": "PARTIAL",
+  "targetedNegativeRejections": 16,
+  "wholePhysicalNetworkLedgerReplayChecked": true
+}

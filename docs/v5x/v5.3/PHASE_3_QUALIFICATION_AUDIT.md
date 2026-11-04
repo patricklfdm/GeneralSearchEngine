@@ -178,9 +178,10 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    overlap remains open.
    A [32-history native process entry](PHASE_3_NATIVE_PROCESS_JOINT_FLOOR.md)
    now records actual fresh-JVM acquisition, halt/SIGKILL and same-directory
-   continuation. Its focused process/partial-copy checks do not yet qualify
-   complete two-reopen composition or interrupted receiving-resource overlap;
-   the hosted-plan count remains 512.
+   continuation. Its composed reader now binds both cold owners to complete
+   physical/network/maintenance replay and four continuous ledgers, with sixteen
+   targeted negatives. Interrupted receiving-resource overlap, expanded negatives
+   and the full native matrix remain open; the hosted-plan count remains 512.
    [Partial joint-floor writer coverage](PHASE_3_PARTIAL_JOINT_FLOOR.md) now checks
    all four copy ordinals at four actual handoff-writer boundaries. With two real
    PROMISE sources, all sixteen conditional cases recover within six SOURCE slots

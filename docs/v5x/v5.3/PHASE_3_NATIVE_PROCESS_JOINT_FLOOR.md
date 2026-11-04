@@ -61,11 +61,29 @@ allocator, slot, grant and CURRENT checks retain all observations. This supports
 the upcoming composed reader; it does not itself supply that composition or
 reset any derived ledger at a reopen.
 
-Complete two-reopen composition, all-layer negative qualification and the frozen
-32-history matrix remain open. The retained receiving scratch still requires
+The `process_joint_history` reader now composes both cold owners with the complete
+original physical, network, export, maintenance and four-ledger derivations.
+It derives the interrupted owner's state from bootstrap and the original learner
+confirmations, before comparing the sidecar. Both cold snapshots compare against
+the continuous ledgers; neither resets them. The initial floor and reacquisition
+use distinct native discovery intervals, and only the completed floor can cause
+ledger maintenance. Both intervals retain all original force observations.
+
+Expanded process-negative qualification and the frozen 32-history matrix remain
+open. The retained receiving scratch still requires
 independent ownership and overlapping-resource replay. The representative late local-copy cut cannot stand
 in for earlier remote-copy cuts. Torn writes inside files and the full combined
 resource maximum remain separate obligations.
+
+Sixteen targeted composition negatives cover child/current overlap, original
+allocator rebinding, missing child requests, temporary export ownership, both
+partial floor intervals, and resets of each of the four ledgers at each cold
+open. The complete unmodified history must pass first. Each mutation changes
+one declared file, protects every other byte and directory, and must fail at
+its designated layer for its exact reason. This coverage supplements the twelve
+process-observation negatives; it does not replace the broader final-source
+negative matrix. The [composition receipt](phase3-evidence/process-joint-composition.json)
+keeps execution provenance and these checks separate from full process admission.
 
 ## Operator entry
 
@@ -92,6 +110,7 @@ python3 -B -m scripts.v53.native_process_joint_floor inspect \
 python3 -B -m scripts.v53.native_process_joint_floor qualify \
   target/v53-native-process-joint/process-negatives.json \
   --case 4,FLOOR_MEMBER_FORCED,kill --raw <original-raw-directory>
+python3 -B -m scripts.v53.process_joint_history <original-raw-directory> --qualify
 ```
 
 The latter runs the focused original inspection first, then twelve isolated
@@ -111,4 +130,5 @@ and later collection-CLI failure are retained separately; correcting collection
 did not rerun the successful Java history. The previous single-reopen history's
 complete replay result also remains exactly unchanged. These observations cover
 one late local-copy cut, not all 32 process histories or the complete two-reopen
-qualification.
+resource qualification. The composed reader is independently exercised against
+these same retained bytes; Java execution is not repeated for reader changes.

@@ -2,9 +2,11 @@
 
 [Native joint-floor process execution](PHASE_3_NATIVE_PROCESS_JOINT_FLOOR.md)
 now has 32 whole-history entries with a fresh required-voter JVM, real TCP
-acquisition, halt/SIGKILL and same-directory continuation. Process observations
-and focused partial-file inspection remain separate from full two-reopen replay,
-receiving-resource overlap and final-source admission; no hosted count is added.
+acquisition, halt/SIGKILL and same-directory continuation. A composed reader now
+checks both cold owners against the whole physical/network/maintenance history
+and four continuous ledgers, with sixteen targeted negatives. Interrupted
+receiving-resource overlap, expanded negatives and final-source admission remain
+open; no hosted count is added.
 
 [Partial joint-floor writer coverage](PHASE_3_PARTIAL_JOINT_FLOOR.md) now checks
 sixteen actual handoff-writer cuts with two real PROMISE sources. Independent
