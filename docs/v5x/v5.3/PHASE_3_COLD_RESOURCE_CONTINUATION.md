@@ -66,9 +66,9 @@ through normal controller lifetimes.
 
 ## Remaining recovery work
 
-1. Qualify explicit completion of the exact original floor proposal, using its
-   original complete generation copies and the same physical resource owner.
-   Preserve the pending ACCEPT and all predecessor authority during that work.
+1. [Explicit original-copy completion](PHASE_3_PARTIAL_FLOOR_RESUME.md) now has
+   storage replay with the pending ACCEPT and predecessor authority preserved.
+   Extend this to the automatic acquisition path and other interrupted positions.
 2. Qualify interruptions during a native controller's real floor construction,
    separately from artificially extended external receiving lifetimes.
 3. Supply an automatic continuation path only when the original missing copies

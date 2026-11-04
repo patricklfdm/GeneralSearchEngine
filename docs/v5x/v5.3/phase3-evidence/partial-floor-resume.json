@@ -1,0 +1,168 @@
+{
+  "automaticRecoveryQualified": false,
+  "baseCommit": "54f281e67d699b30f05069d566e537251847d92e",
+  "checks": {
+    "contract.json": {
+      "path": "target/v53-partial-floor-resume-batch/contract.json",
+      "sha256": "0e90cfbde47a6e439390362c85bbc0082cf3364c598a9e74ef63af3ecd2a81f5"
+    },
+    "focused-optimized.log": {
+      "path": "target/v53-partial-floor-resume-batch/focused-optimized.log",
+      "sha256": "c948a68c4e6cb175ca350b4642a00afd7f5d44ce20ac45a4bc29580f6cc55d13"
+    },
+    "inspection/receipt.json": {
+      "path": "target/v53-partial-floor-resume-batch/inspection/receipt.json",
+      "sha256": "eddf0dbb842e7a51fb47f59063ec593ac9fd9c982393021bb103a722b75a87a0"
+    },
+    "producer-java-match.json": {
+      "path": "target/v53-partial-floor-resume-batch/producer-java-match.json",
+      "sha256": "21c65e9fc061447d952f59ba92620a338cdfc1473560085651a6fb5df239d1e4"
+    },
+    "reader-final.json": {
+      "path": "target/v53-partial-floor-resume-batch/reader-final.json",
+      "sha256": "ef29ecca2d8a0a56294171220a6d28beabc284351842779c3ea3f17e76a99485"
+    },
+    "storage-qualified-final.json": {
+      "path": "target/v53-partial-floor-resume-batch/storage-qualified-final.json",
+      "sha256": "5da4f804fad17a87e8f0e72cfed1b2793ea70d675d02e071fc66eb7a29f504d0"
+    },
+    "storage-relocated-optimized.json": {
+      "path": "target/v53-partial-floor-resume-batch/storage-relocated-optimized.json",
+      "sha256": "5da4f804fad17a87e8f0e72cfed1b2793ea70d675d02e071fc66eb7a29f504d0"
+    }
+  },
+  "existingRequiredChanged": false,
+  "fullHistoryQualified": false,
+  "hostedExecuted": false,
+  "nativeExecutions": {
+    "default-selection": {
+      "execution": {
+        "elapsedSeconds": 15.302,
+        "exit": 0
+      },
+      "files": {
+        "collection.json": {
+          "path": "target/v53-partial-floor-resume-batch/default-selection/collection.json",
+          "sha256": "74de6cfc644b2617c2f43ec2680537fd0f13c123032277edc2410ab4cb11c7d7"
+        },
+        "command.json": {
+          "path": "target/v53-partial-floor-resume-batch/default-selection/command.json",
+          "sha256": "df80abf6b8686fb7b61536b2c06136665147cde5f465d677295b54e64d5a88c9"
+        },
+        "execution.json": {
+          "path": "target/v53-partial-floor-resume-batch/default-selection/execution.json",
+          "sha256": "e8d167c2578a7b36ddeea0301edfaa5aca0492ece1a8b420e9f3fb20f4fc9987"
+        },
+        "maven.log": {
+          "path": "target/v53-partial-floor-resume-batch/default-selection/maven.log",
+          "sha256": "578bb926c31df67d03469b0d0a9364fda61c1b0b47b8498c44b65e8337bbea5b"
+        },
+        "source.json": {
+          "path": "target/v53-partial-floor-resume-batch/default-selection/source.json",
+          "sha256": "412756d793bf18c623071d880f5c0ff0cc1eaa47838957358a77430ed8bc6f02"
+        },
+        "toolchain.json": {
+          "path": "target/v53-partial-floor-resume-batch/default-selection/toolchain.json",
+          "sha256": "d74d4eff748b0e83e94a97efdeace42675673e801762b0da532d6a814e578055"
+        }
+      },
+      "junit": {
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53CombinedResourceRecoveryTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "1",
+          "tests": "1",
+          "time": "0.006"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53PartialFloorResumeTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "1",
+          "tests": "1",
+          "time": "0.001"
+        }
+      }
+    },
+    "native-01": {
+      "execution": {
+        "elapsedSeconds": 333.039,
+        "exit": 0
+      },
+      "files": {
+        "collection.json": {
+          "path": "target/v53-partial-floor-resume-batch/native-01/collection.json",
+          "sha256": "a23b960ec8b6fc63b373d0b7684af386f780a177eaaa29e36af9110cdedd2d1d"
+        },
+        "command.json": {
+          "path": "target/v53-partial-floor-resume-batch/native-01/command.json",
+          "sha256": "25b5c14c76a06c19821666998bbe1053dbfb422b1f72a795e6602bcdfe3655e6"
+        },
+        "execution.json": {
+          "path": "target/v53-partial-floor-resume-batch/native-01/execution.json",
+          "sha256": "ef625a88af28958bf9c00abb22b9c63a22765d7b82fc7554dd16f95699cd969c"
+        },
+        "maven.log": {
+          "path": "target/v53-partial-floor-resume-batch/native-01/maven.log",
+          "sha256": "2f39968263295b7b6f0f8794339b209127934e271990754fbe6a591aa378b378"
+        },
+        "source.json": {
+          "path": "target/v53-partial-floor-resume-batch/native-01/source.json",
+          "sha256": "cbc6091c0f6188c973194fc6dc038796a78a464abc03a3aa2d9975bed3dd45d2"
+        },
+        "toolchain.json": {
+          "path": "target/v53-partial-floor-resume-batch/native-01/toolchain.json",
+          "sha256": "89d2866156aba178de20acf135a21a6e7af09408a400f60110686b882384ae86"
+        }
+      },
+      "junit": {
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53PartialFloorResumeTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "1",
+          "time": "318.751"
+        }
+      }
+    }
+  },
+  "negativeCases": 13,
+  "notes": [
+    "Original pressure segment remains FAIL; wrong-cohort attempt is an expected storage refusal with unchanged originals.",
+    "Actual complete original copies are read directly from the same owners; missing-copy acquisition is explicit and not autonomous.",
+    "Storage replay covers exact resumed floor, force order and unchanged owners; subsequent required-voter native continuation is observed, not complete independent history replay.",
+    "Seven physical images remain charged; metadata maximum and all interrupted-floor positions remain unqualified.",
+    "Final Java matches the native source; later reader/docs have separately retained hashes."
+  ],
+  "paidCloud": false,
+  "phase3Complete": false,
+  "productionCodeChanged": false,
+  "pythonTests": {
+    "execution": {
+      "path": "target/v53-partial-floor-resume-batch/python-final.json",
+      "sha256": "d7154f0b3b68845e48323eda3f5224c9c8d0ce2ec5fa041178f3f907e21609af"
+    },
+    "log": {
+      "path": "target/v53-partial-floor-resume-batch/python-final.log",
+      "sha256": "b7f7de92fcbef4cb285fd3b8ecb7885b13ca044915ca3970d1f61bf263d565cc"
+    },
+    "seconds": 117.06,
+    "tests": 2634
+  },
+  "schema": "gse-v53-partial-floor-development-v1",
+  "scope": "explicit-original-copy-storage-resume",
+  "status": "PASS",
+  "storage": {
+    "automaticRecoveryQualified": false,
+    "completeContinuationReplayQualified": false,
+    "forcedOriginalCopies": 3,
+    "originalPendingAcceptPreserved": true,
+    "originalPreserved": true,
+    "phase3Complete": false,
+    "physicalImages": 7,
+    "pressureOutcome": "FAIL",
+    "requiredVoterContinuation": "OBSERVED",
+    "scope": "explicit-original-copy-storage-resume",
+    "status": "PASS",
+    "wrongCohortRefused": true
+  }
+}

@@ -161,7 +161,8 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    The [cold continuation probe](PHASE_3_COLD_RESOURCE_CONTINUATION.md) now
    observes the surviving majority completing the inherited operation while the
    partial-floor voter remains unchanged and fenced. Exact original floor
-   completion and autonomous recovery still require qualification.
+   completion now has [explicit original-copy storage replay](PHASE_3_PARTIAL_FLOOR_RESUME.md).
+   Automatic missing-copy acquisition and complete continuation replay remain open.
 3. **Finish concrete protocol coverage.** Map exact schedules, original evidence
    selectors and rejection reasons; identify uncovered combinations. Inapplicable
    operations still require explicit refusal with unchanged bytes. Keep final

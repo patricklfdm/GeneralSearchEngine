@@ -25,7 +25,10 @@ class V53CombinedResourceRecoveryTest {
         }return files;
     }
     @Test void survivingMajorityCarriesIntentWhilePartialFloorVoterRemainsFenced()throws Exception {
-        Path root=Files.createDirectories(Path.of("target/v53-combined-recovery/run-"+UUID.randomUUID()));
+        run(false);
+    }
+    void run(boolean completeOriginalFloor)throws Exception {
+        Path root=Files.createDirectories(Path.of((completeOriginalFloor?"target/v53-partial-floor-resume/":"target/v53-combined-recovery/")+"run-"+UUID.randomUUID()));
         System.out.println("v53CombinedRecoveryEvidence="+root.toAbsolutePath());boolean success=false;
         var probe=new V53CombinedTransitionResourcesTest();probe.temp=temp;
         Path pressure=Files.createDirectory(root.resolve("pressure"));
@@ -43,6 +46,7 @@ class V53CombinedResourceRecoveryTest {
             var local=probe.retained.request.targets().getFirst();
             assertArrayEquals(Files.readAllBytes(original.resolve("after-close/node-1/pending.accept")),
                 Files.readAllBytes(local.replicaDirectory().resolve("pending.accept")));
+            if(completeOriginalFloor)V53PartialFloorResumeTest.resume(probe.retained,Files.createDirectory(root.resolve("storage-resume")));
             Path resumed=Files.createDirectory(root.resolve("recovery"));
             var fixture=new V53BootstrapPublicationTest.Fixture(resumed,probe.retained);
             var paths=fixture.request.targets().stream().map(t->Map.of("node",t.identity().nodeId().value(),
@@ -62,16 +66,22 @@ class V53CombinedResourceRecoveryTest {
                 var context=n.owners.getFirst().activationContext();assertEquals(7L,context.cut.get("index"));
                 assertNull(context.catalog.get("active"));assertNull(context.view.get("operation"));
                 assertEquals(List.of("node-1","node-2","node-3"),list(context.view.get("new")));
-                assertEquals(4L,n.owners.get(1).activationContext().cut.get("index"));
-                assertEquals("native maintenance requires recovered storage",assertThrows(IllegalArgumentException.class,
-                    ()->n.owners.get(1).nativeGenerationMaintenanceRequired()).getMessage());
-                assertEquals(disk(original.resolve("after-close/node-2")),disk(fixture.request.targets().get(1).replicaDirectory()));
+                if(completeOriginalFloor) {
+                    assertEquals(7L,n.owners.get(1).activationContext().cut.get("index"));
+                    for(int i=1;i<=3;i++)assertTrue(list(decode(Files.readAllBytes(resumed.resolve("selected-"+i+".gsr")),"records","SELECTED").value().get("sources"))
+                        .stream().map(MembershipFormat::object).anyMatch(v->v.get("voter").equals("node-2")),"resumed owner remains required");
+                } else {
+                    assertEquals(4L,n.owners.get(1).activationContext().cut.get("index"));
+                    assertEquals("native maintenance requires recovered storage",assertThrows(IllegalArgumentException.class,
+                        ()->n.owners.get(1).nativeGenerationMaintenanceRequired()).getMessage());
+                    assertEquals(disk(original.resolve("after-close/node-2")),disk(fixture.request.targets().get(1).replicaDirectory()));
+                }
                 Files.write(resumed.resolve("result.json"),canonical(Map.of("status","PASS","activations",ordinal.get(),
                     "internalReady",true,"publicReady",false),65536));
             }
             success=true;
         }finally {
-            Files.write(root.resolve("receipt.json"),canonical(Map.of("schema","gse-v53-combined-recovery-v1",
+            Files.write(root.resolve("receipt.json"),canonical(Map.of("schema",completeOriginalFloor?"gse-v53-partial-floor-resume-v1":"gse-v53-combined-recovery-v1",
                 "status",success?"PASS":"FAIL","profile","4-REMOVE","pressureOutcome","FAIL",
                 "sameDirectories",true,"partialFloorRecoveryQualified",false,"automaticRuntimeReachabilityQualified",false,"phase3Complete",false),65536));
         }

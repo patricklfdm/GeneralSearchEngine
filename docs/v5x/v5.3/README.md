@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Explicit original-floor recovery](PHASE_3_PARTIAL_FLOOR_RESUME.md) now rejects a
+different governing quorum without mutation, resumes the exact original floor
+within seven images, and observes node-2 continuing through the stable barrier.
+Independent storage replay does not replace automatic missing-copy acquisition
+or complete Phase 3 qualification.
+
 [Cold majority continuation](PHASE_3_COLD_RESOURCE_CONTINUATION.md) now retains the
 pressure failure across original-directory close/reopen. The surviving majority
 carries the original INTENT through FINAL and BARRIER; the partial-floor voter
