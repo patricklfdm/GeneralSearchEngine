@@ -42,6 +42,11 @@ and run/attempt. Those gates are not redeveloped by the inspector. Separate prep
 not automatically form one accepted phase-wide cohort; that admission still
 needs integration. No hosted workflow was dispatched for this audit.
 
+The [joint-floor process component gate](PHASE_3_PROCESS_JOINT_COHORT.md) now
+adds local admission of 32 whole v2 histories with 1,544 predeclared exact
+negatives. Its hosted adapter and final-source executions remain open, so this
+local entry does not increase the hosted table's 512 planned histories.
+
 ## Current obligation map
 
 The machine plan has 12 review groups with concrete production/tooling, test,
@@ -185,8 +190,11 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    now records actual fresh-JVM acquisition, halt/SIGKILL and same-directory
    continuation. Its composed reader now binds both cold owners to complete
    physical/network/maintenance replay and four continuous ledgers, with sixteen
-   targeted negatives. Interrupted receiving-resource overlap, expanded negatives
-   and the full native matrix remain open; the hosted-plan count remains 512.
+   targeted negatives. Its v2 scratch reader now derives interrupted/resumed
+   writer and cold cleanup charges. The component cohort binds those readers
+   and the fixed cut-specific negative vectors; remaining native negative axes,
+   transient transport/publication resources and the full final-source matrix
+   remain open. The hosted-plan count remains 512.
    [Partial joint-floor writer coverage](PHASE_3_PARTIAL_JOINT_FLOOR.md) now checks
    all four copy ordinals at four actual handoff-writer boundaries. With two real
    PROMISE sources, all sixteen conditional cases recover within six SOURCE slots

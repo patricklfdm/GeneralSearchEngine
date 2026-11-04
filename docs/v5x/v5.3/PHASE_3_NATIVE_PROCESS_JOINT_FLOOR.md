@@ -2,7 +2,10 @@
 
 The [native partial writer entry](PHASE_3_NATIVE_PARTIAL_JOINT_FLOOR.md) now has
 a separate process-death producer. Four copy ordinals, four callbacks and two
-death modes form **32 complete 5-REPLACE histories**. These entries are not yet
+death modes form **32 complete 5-REPLACE histories**. Their
+[component cohort gate](PHASE_3_PROCESS_JOINT_COHORT.md) now binds one source,
+build, toolchain and reader and requires 1,544 exact negative results.
+These entries are not yet
 part of the existing 512-history hosted plan and do not close Phase 3.
 
 ## Original ownership and execution
@@ -130,14 +133,17 @@ forces, deletion snapshots, authority changes, late recovery, discard omissions,
 leftovers, interrupted/resumed writer accounting and missing resumed callbacks. The original must pass
 first, every mutation protects unrelated inputs, and each requires its exact
 layer-specific rejection. Receiver mutations require an early cut with actual
-abandoned data; an empty late cut cannot supply that negative vector.
+abandoned data; an empty late cut cannot supply that negative vector. The new
+cohort declares 21 scratch negatives for ordinals 1–3 and 18 for ordinal 4.
+Original replay must establish exactly 3, 2, 1 or 0 abandoned files respectively;
+missing data never selects a smaller vector after the fact.
 
 Strict schema selection preserves v1 replay without upgrading old evidence:
 v2 requires `scratchRecovery=true` and its additional sidecar; missing fields,
 unknown versions and v1 records with a v2 sidecar refuse. The new resource gate
 itself rejects v1. The scope remains PARTIAL: transient transport/acquisition
 allocation and later application-publication peaks, torn-file axes, the complete 32-case
-matrix and final-source admission are still separate obligations. Neither the
+matrix and final-source execution are still separate obligations. Neither the
 production implementation nor the six-source/seven-image limits are changed.
 
 ```bash

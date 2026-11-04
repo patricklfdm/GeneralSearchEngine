@@ -1,0 +1,112 @@
+{
+  "aggregateTestsSynthetic": true,
+  "baseCommit": "df543e8ad3c0212732f510243ebc6b371687e848",
+  "cohortAdmissionImplemented": true,
+  "combinedPeakResourcesQualified": false,
+  "declaredJointFloorProcessHistoriesQualified": false,
+  "declaredNegativeCases": 1544,
+  "declaredWholeHistories": 32,
+  "finalSourceQualified": false,
+  "finalizer": {
+    "path": "target/v53-process-joint-cohort/finalize.py",
+    "sha256": "d6f0e2a51d5c186e79b421fe5cb0d9f114d00f612901f8aca61557aef78ea00c"
+  },
+  "hostedPlannedHistories": 512,
+  "matrixExecuted": false,
+  "newHostedWorkflow": false,
+  "newNativeExecution": false,
+  "originalRetainedReplay": {
+    "case": "1,FLOOR_COPY_CREATED,kill",
+    "currentSourceAdmitted": false,
+    "elapsedSeconds": 434.291,
+    "negativeCases": 49,
+    "producer": {
+      "path": "target/v53-process-joint-scratch/native-01/receipt.json",
+      "sha256": "280c5775949b126c142ea099ec8bd6769c92794290dbc9a84e065521dd51d4d9"
+    },
+    "source": {
+      "path": "target/v53-process-joint-scratch/native-01/source.json",
+      "sha256": "5513b487b4de178abbca1c4b54999262c36c344986328caee748d3f16e610abd"
+    },
+    "unchanged": true
+  },
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "pythonTests": {
+    "focused-02.log": {
+      "elapsedSeconds": 5.369,
+      "status": "PASS",
+      "tests": 59
+    },
+    "optimized-01.log": {
+      "elapsedSeconds": 5.83,
+      "status": "PASS",
+      "tests": 77
+    },
+    "python-all-01.log": {
+      "elapsedSeconds": 127.248,
+      "status": "PASS",
+      "tests": 2767
+    }
+  },
+  "remaining": [
+    "Hosted adapter and exact final-source 32-member execution.",
+    "Transient acquisition and later application-publication resources, remaining native negatives and torn-file axes.",
+    "Phase-wide admission, complete simultaneous physical peak and closure audit."
+  ],
+  "retainedDevelopmentFailures": [
+    {
+      "path": "target/v53-process-joint-cohort/focused-01.log",
+      "sha256": "94577ac95fa78d142cb5dcd621292a86731ba9b0bb2e33528a756d2f6714a75b"
+    }
+  ],
+  "runtimeChanged": false,
+  "schema": "gse-v53-process-joint-cohort-development-v1",
+  "status": "PARTIAL",
+  "validation": {
+    "cli-checks.json": {
+      "path": "target/v53-process-joint-cohort/cli-checks.json",
+      "sha256": "4b3d977e7493797f2592ca557411ba73f7ef981773ee481c91bda886418abd81"
+    },
+    "cli-refusal-01/receipt.json": {
+      "path": "target/v53-process-joint-cohort/cli-refusal-01/receipt.json",
+      "sha256": "e47c93624af1eff938e95d70241383d43ee566a787f428b56e751e20a7154282"
+    },
+    "contract-final.json": {
+      "path": "target/v53-process-joint-cohort/contract-final.json",
+      "sha256": "999ff10001b82bb4f7820fc35a09d26961d6efb457d476ef9bd62413576ece63"
+    },
+    "focused-02.log": {
+      "path": "target/v53-process-joint-cohort/focused-02.log",
+      "sha256": "6864dc859265754737ce039e11e201c5d2c7667e8e5a5ebc929c98e0120cc8fa"
+    },
+    "historical-admission-01.json": {
+      "path": "target/v53-process-joint-cohort/historical-admission-01.json",
+      "sha256": "c74a07a80c0ca6b01a6b45705dee7dfb791eeedd744998d97a00de98db217b7b"
+    },
+    "inspection-final/receipt.json": {
+      "path": "target/v53-process-joint-cohort/inspection-final/receipt.json",
+      "sha256": "1a5be38faaf7520f907825148c9ee9da5d7990352153f9d42b2eabe7a3addd26"
+    },
+    "optimized-01.log": {
+      "path": "target/v53-process-joint-cohort/optimized-01.log",
+      "sha256": "dbf3fd3413760d7a0d892dfea24604c68a683daa144511bce5115399770acd9c"
+    },
+    "plan-01.json": {
+      "path": "target/v53-process-joint-cohort/plan-01.json",
+      "sha256": "9419da9f0188ae35e3f0f52741d36295d9b12b491f3ab3683f1cd7f8a17885b3"
+    },
+    "python-all-01.log": {
+      "path": "target/v53-process-joint-cohort/python-all-01.log",
+      "sha256": "7a22318638d6fdc3a28133488fc17afc705792e4c94ddfd455408a5f7ca0c6fe"
+    },
+    "retained-replay-01.json": {
+      "path": "target/v53-process-joint-cohort/retained-replay-01.json",
+      "sha256": "1a8b9ba7c117df2d073b15aec7b6f4db645e2d53def1cd2cc2ace99b544324aa"
+    },
+    "retained-replay-01.log": {
+      "path": "target/v53-process-joint-cohort/retained-replay-01.log",
+      "sha256": "7dca2e1c608b87e74017572c8280dd2d56d5672474940931d5e13c2b2e0adb4e"
+    }
+  }
+}

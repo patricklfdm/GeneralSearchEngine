@@ -156,6 +156,32 @@ class ProcessJointScratchTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'^invalid original$'):m.qualify(root)
             negative.assert_not_called()
 
+    def test_negative_vectors_are_predeclared_by_copy_ordinal(self):
+        for case in m.p.CASES:
+            ordinal,_,_=m.p.selected(case);names=m.negative_cases(case)
+            self.assertEqual(18 if ordinal==4 else 21,len(names))
+            self.assertEqual(ordinal!=4,'receiver-bytes' in names)
+            self.assertEqual(ordinal!=4,'early-deletion' in names)
+            self.assertEqual(ordinal!=4,'discard-omission' in names)
+        with self.assertRaisesRegex(ValueError,'exact case'):m.negative_cases('5,FLOOR_COPY_CREATED,kill')
+
+    def test_empty_final_scope_runs_exact_vector_and_wrong_receiver_count_refuses_before_mutation(self):
+        for ordinal in (1,2,3,4):
+            for count in (4-ordinal,9):
+                with self.subTest(ordinal=ordinal,count=count),tempfile.TemporaryDirectory() as tmp:
+                    root=Path(tmp);case=f'{ordinal},FLOOR_COPY_CREATED,kill';(root/'joint-floor-recovery').mkdir()
+                    m.h.save(root/'joint-floor-recovery/receipt.json',m.p.scope(case,scratch_recovery=True))
+                    original=dict(scratchRecovery=dict(sameScratchRecoveryChecked=True,discardedFiles=count))
+                    def negative(raw,name,before):return dict(case=name,status='REJECTED',reason='joint scratch '+m.NEGATIVES[name])
+                    with patch.object(m.p,'inspect',return_value=original),patch.object(m,'negative',side_effect=negative) as runner:
+                        if count==9:
+                            with self.assertRaisesRegex(ValueError,'declared cut receiver count'):m.qualify(root)
+                            runner.assert_not_called()
+                        else:
+                            value=m.qualify(root)
+                            self.assertEqual(list(m.negative_cases(case)),[v['case'] for v in value['negatives']])
+                            self.assertEqual(18 if ordinal==4 else 21,runner.call_count)
+
     def test_negative_requires_exact_error_and_preserves_all_other_bytes(self):
         for error in (None,ValueError('unrelated'),ValueError('joint scratch recovery receipt scope')):
             with self.subTest(error=error),tempfile.TemporaryDirectory() as tmp:

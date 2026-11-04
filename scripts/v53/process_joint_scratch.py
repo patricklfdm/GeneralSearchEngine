@@ -292,6 +292,14 @@ NEGATIVES={
 }
 
 
+def negative_cases(case):
+    ordinal,_,_=p.selected(case)
+    # The fourth copy is local and the three remote receivers have handed off.
+    # Choose before replay from the declared cut, never from observed failures.
+    absent={'receiver-bytes','early-deletion','discard-omission'} if ordinal==4 else set()
+    return {name:reason for name,reason in NEGATIVES.items() if name not in absent}
+
+
 def mutate(raw,name):
     need(name in NEGATIVES,'joint scratch unknown negative');raw=Path(raw);side=raw/'joint-floor-recovery';area=side/'scratch-recovery'
     path=area/'recovery.json';value=p.floor.read(path);rows=value['rows']
@@ -359,10 +367,12 @@ def qualify(raw,progress=None):
     original=p.inspect(raw,case)
     need(original.get('scratchRecovery',{}).get('sameScratchRecoveryChecked') is True,
          'joint scratch requires v2 original history')
-    # Receiver mutations require an early remote cut with actual abandoned data.
-    need(original['scratchRecovery']['discardedFiles']>0,'joint scratch negatives require original abandoned receivers')
+    ordinal,_,_=p.selected(case)
+    need(type(original['scratchRecovery'].get('discardedFiles')) is int and
+         original['scratchRecovery']['discardedFiles']==4-ordinal,
+         'joint scratch declared cut receiver count')
     results=[]
-    for name in NEGATIVES:
+    for name in negative_cases(case):
         results.append(negative(raw,name,before))
         if progress:progress(results[-1])
     need(h.inventory(raw)==before,'joint scratch negatives changed original')

@@ -501,7 +501,8 @@
         "scripts/v53/test_process_joint_history.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JointFloorScratch.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JointFloorScratchTest.java",
-        "scripts/v53/test_process_joint_scratch.py"
+        "scripts/v53/test_process_joint_scratch.py",
+        "scripts/v53/test_process_joint_cohort.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -519,7 +520,8 @@
         "scripts/v53/native_process_joint_floor.py",
         "scripts/v53/old_owner_lifetimes.py",
         "scripts/v53/process_joint_history.py",
-        "scripts/v53/process_joint_scratch.py"
+        "scripts/v53/process_joint_scratch.py",
+        "scripts/v53/process_joint_cohort.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -533,7 +535,8 @@
         "docs/v5x/v5.3/PHASE_3_JOINT_FLOOR_RECOVERY.md",
         "docs/v5x/v5.3/PHASE_3_PARTIAL_JOINT_FLOOR.md",
         "docs/v5x/v5.3/PHASE_3_NATIVE_PARTIAL_JOINT_FLOOR.md",
-        "docs/v5x/v5.3/PHASE_3_NATIVE_PROCESS_JOINT_FLOOR.md"
+        "docs/v5x/v5.3/PHASE_3_NATIVE_PROCESS_JOINT_FLOOR.md",
+        "docs/v5x/v5.3/PHASE_3_PROCESS_JOINT_COHORT.md"
       ],
       "cohorts": [
         "profiles",
@@ -633,7 +636,8 @@
         "scripts/v53/test_carried_transition_history_hosted.py",
         "scripts/v53/test_carried_transition_history_workflow.py",
         "scripts/v53/test_automatic_history_hosted.py",
-        "scripts/v53/test_automatic_history_workflow.py"
+        "scripts/v53/test_automatic_history_workflow.py",
+        "scripts/v53/test_process_joint_cohort.py"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -651,7 +655,8 @@
         "scripts/v53/carried_transition_prefixes.py",
         "scripts/v53/carried_transition_history.py",
         "scripts/v53/carried_transition_history_hosted.py",
-        "scripts/v53/automatic_history_hosted.py"
+        "scripts/v53/automatic_history_hosted.py",
+        "scripts/v53/process_joint_cohort.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md",
@@ -669,7 +674,8 @@
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_PREFIXES.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_COHORT.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_HOSTED.md",
-        "docs/v5x/v5.3/PHASE_3_AUTOMATIC_HISTORY_HOSTED.md"
+        "docs/v5x/v5.3/PHASE_3_AUTOMATIC_HISTORY_HOSTED.md",
+        "docs/v5x/v5.3/PHASE_3_PROCESS_JOINT_COHORT.md"
       ],
       "cohorts": [
         "profiles",

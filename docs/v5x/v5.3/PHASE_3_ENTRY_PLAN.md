@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joint-floor process component admission](PHASE_3_PROCESS_JOINT_COHORT.md) now
+requires all 32 complete v2 originals on one source/build/toolchain/reader, with
+1,544 predeclared exact negative results. Early remote cuts retain their receiver
+checks; the last local cut has an explicit empty-scratch vector. Hosted adaptation,
+final-source matrix execution and remaining resource/fault axes stay open.
+This local gate does not change the 512 planned hosted histories.
+
 [Native joint-floor process execution](PHASE_3_NATIVE_PROCESS_JOINT_FLOOR.md)
 now has 32 whole-history entries with a fresh required-voter JVM, real TCP
 acquisition, halt/SIGKILL and same-directory continuation. A composed reader now
