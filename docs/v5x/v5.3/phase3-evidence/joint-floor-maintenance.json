@@ -1,0 +1,465 @@
+{
+  "baseCommit": "cb005bb92bc028363a7498093dcd6690018b3f0c",
+  "checks": {
+    "contract-final.json": {
+      "path": "target/v53-joint-floor-maintenance-batch/contract-final.json",
+      "sha256": "99e7a0661357bafd6bc7b5b8b8068383e8d507e0135a1e874df97322b399f2f2"
+    },
+    "inspection-final/receipt.json": {
+      "path": "target/v53-joint-floor-maintenance-batch/inspection-final/receipt.json",
+      "sha256": "2e188b8da822205e064d3c4282f2111ab3644b9bceb9ebb8162a3a4d8932584d"
+    },
+    "integrity.json": {
+      "path": "target/v53-joint-floor-maintenance-batch/integrity.json",
+      "sha256": "be38ce998174bc2e1e453a84cdf95930ede318339413337444f01dc104f5a950"
+    },
+    "python-all-final.log": {
+      "path": "target/v53-joint-floor-maintenance-batch/python-all-final.log",
+      "sha256": "3de51c35e40163589218a8ea4a084888d1a17c3ac55eb90d0eb64c008a7037d9"
+    },
+    "python-focused-sealed.log": {
+      "path": "target/v53-joint-floor-maintenance-batch/python-focused-sealed.log",
+      "sha256": "36bac42afbc9ec7695c8a2b44b11ed018cc199f1672383ab1bf0fe2d7924819d"
+    },
+    "qualified-final.json": {
+      "path": "target/v53-joint-floor-maintenance-batch/qualified-final.json",
+      "sha256": "c2dc4f481dbf83a27f4deea4c6c20ee2079254ac6bfaa869c78b4e78ab21060f"
+    },
+    "qualified-final.log": {
+      "path": "target/v53-joint-floor-maintenance-batch/qualified-final.log",
+      "sha256": "d16995701748e339939b40859ea1f255ea7a25aa03cb151dd689d5dcc9d7202f"
+    },
+    "qualified-relocated-final-02.json": {
+      "path": "target/v53-joint-floor-maintenance-batch/qualified-relocated-final-02.json",
+      "sha256": "c2dc4f481dbf83a27f4deea4c6c20ee2079254ac6bfaa869c78b4e78ab21060f"
+    },
+    "qualified-relocated-final-02.log": {
+      "path": "target/v53-joint-floor-maintenance-batch/qualified-relocated-final-02.log",
+      "sha256": "d16995701748e339939b40859ea1f255ea7a25aa03cb151dd689d5dcc9d7202f"
+    },
+    "reader-sealed.json": {
+      "path": "target/v53-joint-floor-maintenance-batch/reader-sealed.json",
+      "sha256": "3caf65ea52e5cb2a4f1fe3aaeca821bafe1283e0ed004031df1767239c2436d2"
+    }
+  },
+  "completeHistoryMaintenanceQualified": false,
+  "corrections": [
+    "Cold-owner capture scope is explicit and event-bound; ordinary defaults remain strict.",
+    "PREPARE sequences are contiguous per trace, independent of response arrival order.",
+    "Initial boundary selects the first cold validation; later installation revalidation is not another cold open.",
+    "Original producer was never rerun; unsuccessful reader development probes remain retained."
+  ],
+  "diagnostics": {
+    "contract.log": {
+      "path": "target/v53-joint-floor-maintenance-batch/contract.log",
+      "sha256": "8adf4b014f95e69757317c203e19fdd3441bcbf59813a1cea99914391723fccc"
+    },
+    "original-01.json": {
+      "path": "target/v53-joint-floor-maintenance-batch/original-01.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "original-01.log": {
+      "path": "target/v53-joint-floor-maintenance-batch/original-01.log",
+      "sha256": "1800e86ec96a32b841f01f31fda499963d8cef2f370b13253f5aeaf6e8d0abd2"
+    },
+    "original-02.json": {
+      "path": "target/v53-joint-floor-maintenance-batch/original-02.json",
+      "sha256": "b3b207dde3da723751e16f90a2fec1e86359695f88fb7eab12ffee6e1647aaba"
+    },
+    "original-02.log": {
+      "path": "target/v53-joint-floor-maintenance-batch/original-02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "probe-01.log": {
+      "path": "target/v53-joint-floor-maintenance-batch/probe-01.log",
+      "sha256": "78e304765462c20fea1da12dc22fdaf41487f6c176399b415968d2ea356c2fdd"
+    },
+    "probe-02.log": {
+      "path": "target/v53-joint-floor-maintenance-batch/probe-02.log",
+      "sha256": "d5481436a6547b21c39b77b7ebdd24a54a13bb205f5ba363299ed1acafe9ebd7"
+    },
+    "probe-03.log": {
+      "path": "target/v53-joint-floor-maintenance-batch/probe-03.log",
+      "sha256": "3e3687746a77e9fa0ec27165da92fa8612a42830231a18ef9b1bfccdf5d5c68a"
+    },
+    "probe-04.log": {
+      "path": "target/v53-joint-floor-maintenance-batch/probe-04.log",
+      "sha256": "f4edcd7e7386b37b08a61b21c3f6469b50dfeef262c5c76cbf45ae5c1365a37a"
+    },
+    "probe-05.log": {
+      "path": "target/v53-joint-floor-maintenance-batch/probe-05.log",
+      "sha256": "b77538d3e0b9478a72ad43f2c6286fb4d5320be5c794d536883f4b2652dd7eab"
+    },
+    "probe-06.log": {
+      "path": "target/v53-joint-floor-maintenance-batch/probe-06.log",
+      "sha256": "91a6920b5dad523c1c58a1f4c4b85200109d448f5b136a17523768c87d0affc2"
+    },
+    "python-all-01.log": {
+      "path": "target/v53-joint-floor-maintenance-batch/python-all-01.log",
+      "sha256": "488a9aa768ef9f99c7e854f7f4ce113341c46d0b6f036a9276cf787038063430"
+    },
+    "python-focused-final.log": {
+      "path": "target/v53-joint-floor-maintenance-batch/python-focused-final.log",
+      "sha256": "1b4e2300400e2fadde42a950dcbf776c49b96bed2980f78a03f5d446ea46c638"
+    },
+    "qualified-01.json": {
+      "path": "target/v53-joint-floor-maintenance-batch/qualified-01.json",
+      "sha256": "68cca17573eec120efb51d533dc20bf8241eaecb882e0ff6ea25fd4c09d268b9"
+    },
+    "qualified-01.log": {
+      "path": "target/v53-joint-floor-maintenance-batch/qualified-01.log",
+      "sha256": "8e8e70b213b120e0d888e921a91f3a20911faf7d7108d90c1cc7501bbf852b56"
+    },
+    "qualified-relocated-final.json": {
+      "path": "target/v53-joint-floor-maintenance-batch/qualified-relocated-final.json",
+      "sha256": "68cca17573eec120efb51d533dc20bf8241eaecb882e0ff6ea25fd4c09d268b9"
+    },
+    "qualified-relocated-final.log": {
+      "path": "target/v53-joint-floor-maintenance-batch/qualified-relocated-final.log",
+      "sha256": "8e8e70b213b120e0d888e921a91f3a20911faf7d7108d90c1cc7501bbf852b56"
+    }
+  },
+  "finalSourceQualified": false,
+  "finalize": {
+    "path": "target/v53-joint-floor-maintenance-batch/finalize.py",
+    "sha256": "a388836dc535bb7422773232d290ded98b3fa880d91bb0857185384023baa450"
+  },
+  "nativeRerun": false,
+  "originalRaw": {
+    "path": "target/v53-joint-floor-recovery-batch/native-02/collection.json",
+    "sha256": "beac4665922512429cea5457c70067506c9436f275ee765e3d7fee839ea8ba04"
+  },
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "producer": {
+    "collection.json": {
+      "path": "target/v53-joint-floor-recovery-batch/native-02/collection.json",
+      "sha256": "beac4665922512429cea5457c70067506c9436f275ee765e3d7fee839ea8ba04"
+    },
+    "command.json": {
+      "path": "target/v53-joint-floor-recovery-batch/native-02/command.json",
+      "sha256": "da19b015a1f0e36fa640a6bb8e96d162bc5d955ca855d22778575e1f8e3da8a9"
+    },
+    "execution.json": {
+      "path": "target/v53-joint-floor-recovery-batch/native-02/execution.json",
+      "sha256": "daf5f7d96934ad0aa3c797b15a76413c6a993b3354387fa138b17f99b13db223"
+    },
+    "source.json": {
+      "path": "target/v53-joint-floor-recovery-batch/native-02/source.json",
+      "sha256": "c82bc863abdeeb6d39b0c2b79062652f5c7f993f150334169a344cfcb15c9ff3"
+    },
+    "toolchain.json": {
+      "path": "target/v53-joint-floor-recovery-batch/native-02/toolchain.json",
+      "sha256": "33edd6b7bfe0be565f2591d187910155c510c68a7284561f364848dfd10098d3"
+    }
+  },
+  "producerHead": "c0a425c9f931789e4cbff5c2d4cd68f26a864a3c",
+  "python": {
+    "python-all-final.log": {
+      "elapsedSeconds": 116.784,
+      "status": "PASS",
+      "tests": 2666
+    },
+    "python-focused-sealed.log": {
+      "elapsedSeconds": 0.51,
+      "status": "PASS",
+      "tests": 46
+    }
+  },
+  "qualification": {
+    "negatives": [
+      {
+        "case": "cold-force-missing",
+        "reason": "joint maintenance original cold force order",
+        "stage": "exports",
+        "status": "REJECTED"
+      },
+      {
+        "case": "temporary-endpoint-substituted",
+        "reason": "joint maintenance temporary endpoint scope",
+        "stage": "exports",
+        "status": "REJECTED"
+      },
+      {
+        "case": "server-receive-missing",
+        "reason": "joining network response without request",
+        "stage": "exports",
+        "status": "REJECTED"
+      },
+      {
+        "case": "export-manifest-force-missing",
+        "reason": "joint maintenance original exporter force order",
+        "stage": "exports",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joining-open-force-missing",
+        "reason": "joint maintenance original joining force order",
+        "stage": "exports",
+        "status": "REJECTED"
+      },
+      {
+        "case": "borrowed-force-missing",
+        "reason": "joint maintenance exact retirement release force order",
+        "stage": "maintenance",
+        "status": "REJECTED"
+      },
+      {
+        "case": "peer-force-missing",
+        "reason": "joint maintenance exact peer ledger force order",
+        "stage": "maintenance",
+        "status": "REJECTED"
+      },
+      {
+        "case": "peer-write-before-floor",
+        "reason": "joint maintenance peer ledger outside floor",
+        "stage": "maintenance",
+        "status": "REJECTED"
+      },
+      {
+        "case": "release-file-missing",
+        "reason": "joint maintenance exact retirement release force order",
+        "stage": "maintenance",
+        "status": "REJECTED"
+      },
+      {
+        "case": "release-before-retirement",
+        "reason": "joint maintenance exact retirement release force order",
+        "stage": "maintenance",
+        "status": "REJECTED"
+      },
+      {
+        "case": "foreign-retirement-owner",
+        "reason": "joint maintenance recovered owner scope",
+        "stage": "maintenance",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-retained-allocation",
+        "reason": "joint maintenance exact retained state",
+        "stage": "maintenance",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lost-pinned-source",
+        "reason": "joint maintenance exact retained state",
+        "stage": "maintenance",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lost-journal",
+        "reason": "joint maintenance exact retained state",
+        "stage": "maintenance",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "fullMaintenanceReplayQualified": false,
+      "phase3Complete": false,
+      "physicalChain": {
+        "continuation": {
+          "capturedGrantComparisons": 25,
+          "completePhysicalQualified": false,
+          "finalCut": 11,
+          "forceAndNetworkQualified": false,
+          "ownerSnapshotComparisons": 42,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "profile": "5-REPLACE",
+          "recovery": {
+            "adoptionEnd": 36665,
+            "adoptionStart": 36636,
+            "donor": "node-1",
+            "fromCut": 9,
+            "inheritedLocalBridges": 1,
+            "originalTransfers": 3,
+            "promiseAppended": true,
+            "remoteBridges": 0,
+            "requiredParents": 4,
+            "sameViewInstallation": false,
+            "toCut": 11
+          },
+          "scope": "profile-selected-continuation",
+          "sourceRetirementLocalOrderSegments": 21,
+          "status": "PARTIAL"
+        },
+        "handoff": {
+          "comparedFiles": 24,
+          "completePhysicalQualified": false,
+          "deletedOriginalMembers": 46,
+          "exactSidecarFamilies": 9,
+          "forceAndNetworkQualified": false,
+          "joiningRetirementPhysicalQualified": true,
+          "nativeInitializationQualified": false,
+          "nativeOwnerHandoffPhysicalQualified": true,
+          "nativeReservations": 4,
+          "oldOwnerSnapshots": 115,
+          "phase3Complete": false,
+          "predecessorReservations": 11,
+          "preservedOriginalKeys": 33,
+          "processDeathQualified": false,
+          "scope": "native-REPLACE-original-retirement-and-owner",
+          "status": "PASS"
+        },
+        "initialization": {
+          "comparedNativeFiles": 33,
+          "completePhysicalQualified": false,
+          "forceAndNetworkQualified": false,
+          "initializedLedgers": 3,
+          "joiningInitializationLocalOrderQualified": true,
+          "joiningInitializationPhysicalQualified": true,
+          "nativeFamilies": 10,
+          "oldOwnerSnapshots": 120,
+          "originalHeadExchanges": 3,
+          "phase3Complete": false,
+          "preparedOldSources": 3,
+          "processDeathQualified": false,
+          "scope": "native-REPLACE-original-joining-initialization",
+          "status": "PASS"
+        },
+        "placement": {
+          "comparedFiles": 65,
+          "completePhysicalQualified": false,
+          "forceAndNetworkQualified": false,
+          "joiningPlacementPhysicalQualified": true,
+          "nativeInitializationQualified": false,
+          "oldOwnerSnapshots": 115,
+          "phase3Complete": false,
+          "placedRoots": 8,
+          "processDeathQualified": false,
+          "scope": "native-REPLACE-original-joining-placement",
+          "status": "PASS"
+        },
+        "prefix": {
+          "campaigns": 4,
+          "completePhysicalQualified": false,
+          "forceAndNetworkQualified": false,
+          "ownerSnapshotComparisons": 115,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "profile": "5-REPLACE",
+          "scope": "native-REPLACE-bootstrap-through-old-voter-INTENT",
+          "slots": 9,
+          "status": "PASS",
+          "throughIntentPhysicalQualified": true
+        }
+      },
+      "precondition": {
+        "freshExchanges": 66,
+        "fullMaintenanceReplayQualified": false,
+        "joiningPlacement": {
+          "comparedFiles": 65,
+          "completePhysicalQualified": false,
+          "forceAndNetworkQualified": false,
+          "joiningPlacementPhysicalQualified": true,
+          "nativeInitializationQualified": false,
+          "oldOwnerSnapshots": 115,
+          "phase3Complete": false,
+          "placedRoots": 8,
+          "processDeathQualified": false,
+          "scope": "native-REPLACE-original-joining-placement",
+          "status": "PASS"
+        },
+        "originalCopies": 4,
+        "originalPrefix": {
+          "campaigns": 4,
+          "completePhysicalQualified": false,
+          "forceAndNetworkQualified": false,
+          "ownerSnapshotComparisons": 115,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "profile": "5-REPLACE",
+          "scope": "native-REPLACE-bootstrap-through-old-voter-INTENT",
+          "slots": 9,
+          "status": "PASS",
+          "throughIntentPhysicalQualified": true
+        },
+        "phase3Complete": false,
+        "physicalImages": 7,
+        "processDeathQualified": false,
+        "profile": "5-REPLACE",
+        "remoteExportForceQualified": false,
+        "retainedSources": 5,
+        "scope": "joint-floor-storage-and-catalog-chain",
+        "semanticChain": {
+          "checkpointObservations": 70,
+          "completePhysicalQualified": false,
+          "controls": [
+            "BARRIER",
+            "RESERVE",
+            "BARRIER",
+            "PREPARE",
+            "BARRIER",
+            "READY",
+            "BARRIER",
+            "SEAL",
+            "INTENT",
+            "FINAL",
+            "BARRIER"
+          ],
+          "forceAndNetworkQualified": false,
+          "internalReadyCuts": [
+            1,
+            3,
+            5,
+            7,
+            11
+          ],
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "profile": "5-REPLACE",
+          "publicReady": false,
+          "scope": "native-REPLACE-catalog-certificate-checkpoint-chain",
+          "selections": 6,
+          "semanticChainQualified": true,
+          "slots": 11,
+          "status": "PASS"
+        },
+        "status": "PASS"
+      },
+      "processDeathQualified": false,
+      "profile": "5-REPLACE",
+      "recoveredExports": {
+        "recoveredExchanges": 66,
+        "recoveredSessions": 6,
+        "wholeExchanges": 4445,
+        "wholeTranscript": {
+          "committedTransfers": 1388,
+          "exactTransferRetries": 2,
+          "rejectedTransferAttempts": 3,
+          "transferSessions": 730,
+          "transferredBytes": 8213178
+        }
+      },
+      "recoveredMaintenance": {
+        "borrowedImages": 1,
+        "exactRetainedState": true,
+        "peerLedgerWrites": 2,
+        "retainedSources": 1,
+        "retiredGenerations": 1,
+        "retiredMembers": 9,
+        "retirementAndReleaseEvents": 101,
+        "transientRetirementBytesCaptured": false
+      },
+      "recoveredMaintenanceReplayQualified": true,
+      "recoveredRemoteExportForceQualified": true,
+      "scope": "original-joint-floor-recovery-and-continuation",
+      "status": "PASS"
+    }
+  },
+  "reader": {
+    "path": "target/v53-joint-floor-maintenance-batch/reader-sealed.json",
+    "sha256": "3caf65ea52e5cb2a4f1fe3aaeca821bafe1283e0ed004031df1767239c2436d2"
+  },
+  "recoveredFloorQualified": true,
+  "remaining": [
+    "All other floor/export/retirement lifetimes in this interrupted history.",
+    "Native partial-body and process-death interruption axes.",
+    "Remaining Phase 3 groups and final-source whole-history cohort."
+  ],
+  "runtimeChanged": false,
+  "schema": "gse-v53-joint-floor-maintenance-development-v1",
+  "scope": "retained-original-recovered-floor-and-continuation",
+  "status": "PASS",
+  "transientRetirementPrefixesCaptured": false
+}

@@ -47,11 +47,35 @@ overflow, missing force/delivery, changed packet bytes, altered scope, directory
 lineage or deadline must be rejected for their specified reason. Relocation
 does not change the original recorded directory identity.
 
-Complete remote export-force causality and physical maintenance/retirement replay
-remain separate obligations. A semantic history pass or a producer PASS does not
-close these gaps or qualify Phase 3. Incomplete four-copy bodies at full capacity,
-other interrupted cuts and final-source cohort execution remain open. The eleven
-optional hosted subsets and 512 planned histories are unchanged.
+The additional `scripts.v53.joint_floor_maintenance_evidence` reader now composes
+the original physical chain through initialization, FINAL, BARRIER and joining
+recovery, comparing all 25 captured grants and 42 continuation owner snapshots.
+Cold node-2 captures are bound to the explicit original reopen event; default
+profile readers still require their ordinary owner lifetime. Multi-peer PREPARE
+correlation accepts a contiguous sequence within a shared trace, as used by the
+native round, as well as the earlier fixtures' separate traces. Response arrival
+order is not assumed to equal request sequence.
+
+The complete wire transcript (4,445 exchanges, 730 sessions) is causally paired.
+Within the recovered floor, all six packet/metadata sessions and 66 request/reply
+pairs are authorized against the physically derived, forced original generation
+and its actual lifetime, including the temporary joining endpoint. The reader
+derives both peer-ledger writes, the borrowed image, nine-member inactive
+generation retirement, exact preserved source/journal and final floor release.
+All 101 retirement/release callbacks and their ordering relative to durable floor
+authority are checked. Fourteen targeted evidence mutations must reject for their
+specified layer and reason after the unmodified original passes. Other physical
+inputs are protected from each mutation.
+
+This qualifies the recovered floor's exports and maintenance, not all other floor
+transactions in the history. Transient retirement-file bytes were not captured
+at every callback; the reader checks their derived event sequence and exact final
+state, without claiming those unobserved prefixes. Process death, remaining
+partial-body/native interruption axes, complete-history force/maintenance
+composition and final-source cohort execution remain open. The eleven optional
+hosted subsets and 512 planned histories are unchanged. See the additional
+[maintenance replay receipt](phase3-evidence/joint-floor-maintenance.json) for the
+original producer identity, current reader and retained development diagnostics.
 
 See the [development receipt](phase3-evidence/joint-floor-recovery.json) for the
 actual producer source, toolchain, executions, independently replayed results and
@@ -76,6 +100,8 @@ mvn -o -B -ntp -f reactor/pom.xml -pl ../general-search-engine-replication -am \
   '-Dtest=V53JointFloorRecoveryTest#originalFourCopyFloorResumesOverTcpBeforeFinalAndStableBarrier' \
   -Dv53.joint.floor.recovery=true test
 python3 -B -m scripts.v53.joint_floor_recovery_evidence \
+  general-search-engine-replication/target/v53-native-dispatch/run-<original-id> --qualify
+python3 -B -m scripts.v53.joint_floor_maintenance_evidence \
   general-search-engine-replication/target/v53-native-dispatch/run-<original-id> --qualify
 ```
 

@@ -135,12 +135,21 @@ def collect(raw, events, *, learner_retention=True):
     return rows
 
 
-def require_intermediate(raw, rows, *, voters=('node-1', 'node-2')):
+def require_intermediate(raw, rows, *, voters=('node-1', 'node-2'), old_owner_lifetimes=None):
     """Require pre-activation grants for every declared old-majority owner.
 
     Counters come from the original pre-continuation snapshot, not a ready flag
     or a hard-coded ballot. This checks presence only; no historical derivation.
     """
+    lifetimes = {} if old_owner_lifetimes is None else old_owner_lifetimes
+    need(type(lifetimes) is dict and set(lifetimes) <= set(voters) and
+         all(type(v) is tuple and len(v) == 2 and type(v[0]) is int and v[0] >= 0 and
+             type(v[1]) is str and v[1] for v in lifetimes.values()), 'grant capture declared owner lifetimes')
+    def scope(row):
+        lifetime = lifetimes.get(row['node'])
+        return lifetime[1] if lifetime and row['capturedEvent'] >= lifetime[0] else 'network-owner'
+    need(all(type(row.get('capturedEvent')) is int and row['capturedEvent'] >= 0 and row['scope'] == scope(row)
+             for row in rows if row['node'] in lifetimes), 'grant capture original cold lifetime')
     before = Path(raw)/'before-joint-continuation'
     node1, _, _ = inventory(before/'node-1')
     identity = f.decode(node1['node.gsr'], 'records', 'NODE')['identity']
@@ -152,7 +161,7 @@ def require_intermediate(raw, rows, *, voters=('node-1', 'node-2')):
         files, _, _ = inventory(before/owner)
         actual = f.decode(files['node.gsr'], 'records', 'NODE', allocator['root'])['identity']
         for wanted in (ballot, dict(ballot, counter=counter+1)):
-            matches = [v for v in rows if v['node'] == owner and v['scope'] == 'network-owner' and v['ballot'] == wanted
+            matches = [v for v in rows if v['node'] == owner and v['scope'] == scope(v) and v['ballot'] == wanted
                        and v['root'] == allocator['root'] and v['identity'] == actual]
             need(len(matches) == 1, 'grant capture intermediate preparation missing/duplicate')
     return counter

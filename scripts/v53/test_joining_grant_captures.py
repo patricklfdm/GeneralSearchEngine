@@ -122,6 +122,22 @@ class JoiningGrantCapturesTest(unittest.TestCase):
         for flag in ('nativeHistoryQualified','intermediatePreparationPhysicalQualified','forceAndNetworkQualified','phase3Complete'):
             self.assertIs(result[flag],False)
 
+    def test_cold_owner_requires_explicit_event_boundary(self):
+        rows=[dict(observed(node,counter),capturedEvent=counter) for node in ('node-1','node-2') for counter in (7,8)]
+        rows=[dict(v,scope='cold-owner') if v['node']=='node-2' and v['capturedEvent']>=8 else v for v in rows]
+        def load(path):return self.before(path.name),{},0
+        with patch.object(g,'inventory',side_effect=load):
+            with self.assertRaisesRegex(ValueError,'intermediate preparation missing/duplicate'):g.require_intermediate(self.root,rows)
+            self.assertEqual(7,g.require_intermediate(self.root,rows,old_owner_lifetimes={'node-2':(8,'cold-owner')}))
+            for boundary,scope in ((7,'cold-owner'),(9,'cold-owner'),(8,'foreign-owner')):
+                with self.assertRaisesRegex(ValueError,'original cold lifetime'):
+                    g.require_intermediate(self.root,rows,old_owner_lifetimes={'node-2':(boundary,scope)})
+
+    def test_owner_lifetime_declarations_fail_closed(self):
+        for value in ({'foreign':(1,'cold')},{'node-2':(True,'cold')},{'node-2':(-1,'cold')},{'node-2':(1,'')},[]):
+            with self.subTest(value=value),self.assertRaisesRegex(ValueError,'declared owner lifetimes'):
+                g.require_intermediate(self.root,[],old_owner_lifetimes=value)
+
     def test_negative_driver_requires_valid_original_and_exact_rejection(self):
         with patch.object(g,'validate',side_effect=ValueError('original')),patch.object(g,'mutate') as mutation:
             with self.assertRaisesRegex(ValueError,'^original$'):g.qualify(self.root,[])

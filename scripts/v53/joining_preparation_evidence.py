@@ -20,10 +20,10 @@ init, s, f, disk, need, sha = c.init, c.s, c.f, c.disk, c.need, c.sha
 
 
 class Captures:
-    def __init__(self, root, events, *, voters=('node-1', 'node-2')):
+    def __init__(self, root, events, *, voters=('node-1', 'node-2'), old_owner_lifetimes=None):
         self.root = Path(root)
         rows = captures.collect(root, events)
-        self.counter = captures.require_intermediate(root, rows, voters=voters)
+        self.counter = captures.require_intermediate(root, rows, voters=voters, old_owner_lifetimes=old_owner_lifetimes)
         self.by_ballot = {(v['node'], f.canonical(v['ballot'])):v for v in rows}
         need(len(self.by_ballot) == len(rows), 'joining preparation duplicate observed grant')
         self.used = set(); self.comparisons = 0; self.derived = {}

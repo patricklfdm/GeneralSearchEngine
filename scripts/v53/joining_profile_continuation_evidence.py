@@ -99,13 +99,22 @@ def prepared_exchanges(root, group, ballot, sources, voters):
     promise = f.encode('records', 'PROMISE', {k:own[k] for k in ('root','view','ballot','basisId')})
     observed = [(row,q,answer,a) for row,kind,q,answer,a in decoded if kind == 'PREPARE' and q['ballot'] == ballot]
     need(len(observed) == len(voters)-1, 'joining profile preparation response count')
+    need({q['recipient']['node'] for _,q,_,_ in observed} == set(voters)-{proposer},
+         'joining profile preparation exact peers')
+    sequences = {}
+    for _, q, _, _ in observed: sequences.setdefault(q['trace'], []).append(q['sequence'])
+    need(all(sorted(values) == list(range(1, len(values)+1)) for values in sequences.values()),
+         'joining profile preparation original correlation')
     used = set(); exchanges = 0
     for row,q,answer,a in observed:
         peer = q['recipient']['node']
         need(peer in voters and peer != proposer and peer not in used and row['withheld'] is False and answer == 'PROMISE',
              'joining profile preparation exact peers')
         used.add(peer)
-        fields = dict(root=own['root'], view=own['view'], ballot=ballot, trace=q['trace'], sequence=1)
+        # A native multi-peer round shares a trace and increments sequence;
+        # older fixtures allocated a separate trace per peer. In either case
+        # require the complete contiguous original request sequence.
+        fields = dict(root=own['root'], view=own['view'], ballot=ballot, trace=q['trace'], sequence=q['sequence'])
         need(q == dict(fields, sender=ids[proposer], recipient=ids[peer], payload=dict(promise=sha(promise))) and
              a == dict(fields, sender=ids[peer], recipient=ids[proposer], payload=dict(basis=sha(sources[peer][0]))),
              'joining profile preparation original correlation')
@@ -122,6 +131,10 @@ def prepared_exchanges(root, group, ballot, sources, voters):
 
 
 class Continuation(p.Continuation):
+    def __init__(self, root, initialization, originals, *, old_owner_lifetimes=None):
+        super().__init__(root, initialization, originals)
+        self.old_owner_lifetimes = old_owner_lifetimes
+
     def preparation(self):
         ballot = init.next_ballot(self.group['node-1'])
         need(ballot['counter'] == self.captures.counter, 'joining profile preparation next ballot')
@@ -143,7 +156,8 @@ class Continuation(p.Continuation):
 
     def recover(self,events):
         before=self.group[self.joining];self.joining_snapshot('joining-before-final-recovery')
-        lower=max(block['PUBLICATION_BEFORE_RETURN'] for (index,_),block in c.t.publication.phases.blocks(events,self.replay).items() if index==11)
+        lower=max(block['PUBLICATION_BEFORE_RETURN'] for (index,_),block in c.t.publication.phases.blocks(
+            events,self.replay,old_owner_lifetimes=self.old_owner_lifetimes).items() if index==11)
         starts=[i for i,v in enumerate(events) if v['event']=='ADOPTION_INSTALL_VALIDATED' and v.get('node')==self.joining]
         need(len(starts)==1,'joining profile recovery requires original newer-authority adoption')
         upper=starts[0];identities=s.catalog.identities(self.replay.states[-1]['identities'])

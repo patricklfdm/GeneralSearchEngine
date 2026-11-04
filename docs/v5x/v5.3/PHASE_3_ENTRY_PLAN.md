@@ -8,9 +8,11 @@ images. This conditional component does not qualify native process-death recover
 [Native 5-REPLACE floor recovery](PHASE_3_JOINT_FLOOR_RECOVERY.md) now exercises
 an interrupted four-original floor, same-directory cold reopen and TCP recovery
 before FINAL and the stable BARRIER. Independent storage/catalog replay observes
-seven application images and five SOURCE slots. The earlier conditional test
-covers six SOURCE slots; incomplete bodies and full remote-force/maintenance
-replay remain open.
+seven application images and five SOURCE slots. Its additional original replay
+now derives the continuation's 25 captured grants and qualifies the recovered
+floor's six remote sessions, peer-ledger writes and retirement/release order.
+The earlier conditional test covers six SOURCE slots; complete-history force/
+maintenance composition, native partial bodies and process-death cuts remain open.
 
 [Automatic partial-floor resumption](PHASE_3_AUTOMATIC_FLOOR_RESUME.md) now
 reacquires the exact original proposal one copy at a time, retaining all charges

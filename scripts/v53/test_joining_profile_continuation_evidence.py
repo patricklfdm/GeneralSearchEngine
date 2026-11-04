@@ -120,6 +120,27 @@ class JoiningProfileContinuationEvidenceTest(unittest.TestCase):
             with self.subTest(profile=profile),self.assertRaisesRegex(ValueError,'^joining profile preparation response count$'):
                 self.preparation(profile,lambda rows:rows.pop(4))
 
+    def shared_trace(self, rows, sequence=2):
+        trace=e.c.exchange.wire(rows[0]['request'])[1]['trace']
+        for field in ('request','response'):
+            kind,value=e.c.exchange.wire(rows[4][field]);value.update(trace=trace,sequence=sequence)
+            rows[4][field]=base64.b64encode(e.f.encode('wire',kind,value)).decode()
+
+    def test_native_multi_peer_preparation_increments_shared_trace(self):
+        result=self.preparation('5-REPLACE',self.shared_trace)
+        self.assertEqual(['node-2','node-3'],result['oldPeers'])
+        self.assertEqual(6,result['originalPromiseTransferExchanges'])
+
+    def test_shared_trace_cannot_duplicate_or_skip_sequence(self):
+        for sequence in (1,3):
+            with self.subTest(sequence=sequence),self.assertRaisesRegex(ValueError,'original correlation'):
+                self.preparation('5-REPLACE',lambda rows:self.shared_trace(rows,sequence))
+
+    def test_shared_trace_response_arrival_order_is_not_request_sequence(self):
+        def change(rows):
+            self.shared_trace(rows);rows[:]=rows[4:]+rows[:4]
+        self.assertEqual(['node-2','node-3'],self.preparation('5-REPLACE',change)['oldPeers'])
+
     def test_third_old_response_cannot_borrow_second_owner_identity(self):
         def change(rows):
             kind,value=e.c.exchange.wire(rows[4]['response'])
