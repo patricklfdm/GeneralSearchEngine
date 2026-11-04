@@ -172,15 +172,20 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    the complete four-original floor at the actual seed-maintenance boundary:
    exception/close/reopen, native TCP reacquisition and continuation through
    FINAL/BARRIER, with independent storage and catalog replay. It observes seven
-   images and five SOURCE slots. It is not process-death, full remote-force or
-   full physical maintenance qualification; incomplete bodies at full SOURCE
-   occupancy and broader controller overlap remain open.
+   images and five SOURCE slots. Its later [whole-history and continuous-ledger extensions](PHASE_3_JOINT_FLOOR_RECOVERY.md)
+   now qualify observed remote forces, exports and physical maintenance. It is
+   not process-death or a simultaneous full SOURCE maximum; broader controller
+   overlap remains open.
    [Partial joint-floor writer coverage](PHASE_3_PARTIAL_JOINT_FLOOR.md) now checks
    all four copy ordinals at four actual handoff-writer boundaries. With two real
    PROMISE sources, all sixteen conditional cases recover within six SOURCE slots
    and seven images; at full occupancy the incomplete last copy is local. This
    narrows the handoff-order gap without claiming native history, torn-file or
    process-death qualification. Non-handoff/context paths remain separate.
+   The [native sixteen-history entry](PHASE_3_NATIVE_PARTIAL_JOINT_FLOOR.md) now
+   captures actual admitted 5-REPLACE partial-copy cuts through complete TCP
+   recovery and FINAL/BARRIER. Complete matrix execution, all negative layers
+   and final-source admission remain separate from its local development checks.
 3. **Finish concrete protocol coverage.** Map exact schedules, original evidence
    selectors and rejection reasons; identify uncovered combinations. Inapplicable
    operations still require explicit refusal with unchanged bytes. Keep final

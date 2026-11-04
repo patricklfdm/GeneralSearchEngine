@@ -1,0 +1,636 @@
+{
+  "allNewOriginalNegativeLayersQualified": false,
+  "baseCommit": "c28eda360fd787c6eaf62fb6f8dd4d50c073b415",
+  "case": "4,FLOOR_MEMBER_FORCED",
+  "checks": {
+    "contract-final.json": {
+      "path": "target/v53-native-partial-joint-batch/contract-final.json",
+      "sha256": "51003ff9aea5bd104286b91a0678cfa1d186f9d23cb57f84481dbc6a0f6c34a1"
+    },
+    "inspection-final/receipt.json": {
+      "path": "target/v53-native-partial-joint-batch/inspection-final/receipt.json",
+      "sha256": "e1cd58c07a8b9bfd9d0d3bc625e49a1d334229407c31d20c11ee88b126b0d6db"
+    },
+    "legacy-positive.json": {
+      "path": "target/v53-native-partial-joint-batch/legacy-positive.json",
+      "sha256": "932407eec716067f0237474851725b0252ab60b52ce908aeacee5b9aefaeba1b"
+    },
+    "legacy-positive.log": {
+      "path": "target/v53-native-partial-joint-batch/legacy-positive.log",
+      "sha256": "dd3dc668fc6d89721d4b322af0f0df61a5b7daa2a53d031b5d5588a32051d69f"
+    },
+    "legacy-qualification.json": {
+      "path": "target/v53-native-partial-joint-batch/legacy-qualification.json",
+      "sha256": "04871da3533ad5c64c7f29a8e4e16cbce4c688db9e2ae35bbf203b02429b8fc4"
+    },
+    "legacy-qualification.log": {
+      "path": "target/v53-native-partial-joint-batch/legacy-qualification.log",
+      "sha256": "4e0a7a3a058cad1281ce58dbda259b139361bf509dcdc783b8709b9e1f7ec6ef"
+    },
+    "native-negatives.json": {
+      "path": "target/v53-native-partial-joint-batch/native-negatives.json",
+      "sha256": "592139bf742ad78c6148d1f542aba9ddc6176bb112ae8147c50bd523f46d5441"
+    },
+    "native-positive.json": {
+      "path": "target/v53-native-partial-joint-batch/native-positive.json",
+      "sha256": "84c9f08cb0f6ad68aa01dccb8d1c5788641bdd4bb8317df0854600d7b23abbaa"
+    },
+    "native-replay.log": {
+      "path": "target/v53-native-partial-joint-batch/native-replay.log",
+      "sha256": "aefad0be5f94a9f36fa2ba2c7c5a97ab0ec5dc3800a3ac6ac0fe9c220679bf87"
+    },
+    "plan.json": {
+      "path": "target/v53-native-partial-joint-batch/plan.json",
+      "sha256": "b2a35e6c43089b5dd8a930eaf3a65c6dd929b87092dd5174735fa6fea3893029"
+    },
+    "python-all-01.log": {
+      "path": "target/v53-native-partial-joint-batch/python-all-01.log",
+      "sha256": "5ddefce39af9b744b157a439d85fc0d677c4d29a79a2308230290adb4837ca1a"
+    },
+    "python-optimized.log": {
+      "path": "target/v53-native-partial-joint-batch/python-optimized.log",
+      "sha256": "9dd5d461680936d622a55c1b408f16d254341fd75b3ee7ee7645694bfd6dd020"
+    },
+    "reader-final.json": {
+      "path": "target/v53-native-partial-joint-batch/reader-final.json",
+      "sha256": "e2b17457473971d1c3022cb1a27bf3c17878c682fec33e3c069b7b0a3366cd5d"
+    }
+  },
+  "completeNativeMatrixQualified": false,
+  "diagnostics": {
+    "native-01.log": {
+      "path": "target/v53-native-partial-joint-batch/native-01.log",
+      "sha256": "bafd03c5c15752e172ef67ce59068156ca4fa66450a558c336f12f85375803f4"
+    },
+    "native-01/execution.json": {
+      "path": "target/v53-native-partial-joint-batch/native-01/execution.json",
+      "sha256": "06060948e713b1b23aedc1cbe29aa850771047e6b0ae1e05d792928f7347a4b1"
+    },
+    "native-01/maven.log": {
+      "path": "target/v53-native-partial-joint-batch/native-01/maven.log",
+      "sha256": "4c8351442793ccd07a2aa1588daf82e092e0d55f6182bba28b8a50954ddc66db"
+    },
+    "native-01/receipt.json": {
+      "path": "target/v53-native-partial-joint-batch/native-01/receipt.json",
+      "sha256": "8d1c1a2e0d505aa9fafb859b312dbfb9d69d0aee5cec2327739e00c61f037617"
+    }
+  },
+  "finalSourceQualified": false,
+  "finalize": {
+    "path": "target/v53-native-partial-joint-batch/finalize.py",
+    "sha256": "324da5d5d71c04b9a258ccea6a3891059b2a982b3c5c72645400d31e04f99a2a"
+  },
+  "firstExecution": {
+    "cause": "sandbox socket creation refused before native protocol execution",
+    "retained": true,
+    "status": "FAIL"
+  },
+  "legacyNegativeRejections": 17,
+  "legacyOriginalPreserved": true,
+  "legacyPositiveResultUnchanged": true,
+  "nativeHistoriesQualified": 1,
+  "newNegatives": [
+    {
+      "case": "partial-ordinal",
+      "reason": "joint floor exact interrupted originals: interrupted",
+      "status": "REJECTED"
+    },
+    {
+      "case": "partial-cut",
+      "reason": "joint floor exact interrupted originals: interrupted",
+      "status": "REJECTED"
+    },
+    {
+      "case": "partial-handoff",
+      "reason": "joint floor bounded scope",
+      "status": "REJECTED"
+    }
+  ],
+  "phase3Complete": false,
+  "plannedNativeHistories": 16,
+  "processDeathQualified": false,
+  "producer": {
+    "build.json": {
+      "path": "target/v53-native-partial-joint-batch/native-02/build.json",
+      "sha256": "37e0c1d0c41825590fbd4eb7c3307bd902e01214e37912a3d25cd832cf18e2e7"
+    },
+    "collection-execution.json": {
+      "path": "target/v53-native-partial-joint-batch/native-02/collection-execution.json",
+      "sha256": "b4e2af928edc756a902f358caf6a45dfb1844313f4592646e091ccc797a78bb4"
+    },
+    "collection.json": {
+      "path": "target/v53-native-partial-joint-batch/native-02/collection.json",
+      "sha256": "65b8d62f0bcb92fbe0f28a69c8aa6614b3465ea1fc51355f84bab1be76a85766"
+    },
+    "collection.log": {
+      "path": "target/v53-native-partial-joint-batch/native-02/collection.log",
+      "sha256": "66a3556321c29009d68a8a655f4d62ae682932e2c8394f19bad1301d88eeab6c"
+    },
+    "execution.json": {
+      "path": "target/v53-native-partial-joint-batch/native-02/execution.json",
+      "sha256": "f2728ad2cc18a71b6e663b382f31e65ebf3f2a1aa50b38658bc18b74c77c1713"
+    },
+    "maven.log": {
+      "path": "target/v53-native-partial-joint-batch/native-02/maven.log",
+      "sha256": "43415dbe58c656e6bab52e7e2bd8c65d3b53808e15ec4730b8d1529976da3e7b"
+    },
+    "reader.json": {
+      "path": "target/v53-native-partial-joint-batch/native-02/reader.json",
+      "sha256": "9824d4cf0f4204ee8db11318bfebfca59450a1748035958cd3dafc37afe17497"
+    },
+    "receipt.json": {
+      "path": "target/v53-native-partial-joint-batch/native-02/receipt.json",
+      "sha256": "02d281675eda5f89e1dadc276286f06a59d6385ddebd41f55901b4dfbcd71554"
+    },
+    "source.json": {
+      "path": "target/v53-native-partial-joint-batch/native-02/source.json",
+      "sha256": "8f4c7d825c842d11d4735e3a9767f5608fa4c16cfe51a6afd407f5d546b87aa7"
+    },
+    "toolchain.json": {
+      "path": "target/v53-native-partial-joint-batch/native-02/toolchain.json",
+      "sha256": "1e8e55d0b6db382b721d869482a6003ca64e4ccc2eff459f901efdea7ede7091"
+    }
+  },
+  "productionJavaFiles": 528,
+  "python": {
+    "python-all-01.log": {
+      "elapsedSeconds": 125.52,
+      "status": "PASS",
+      "tests": 2700
+    },
+    "python-optimized.log": {
+      "elapsedSeconds": 0.127,
+      "status": "PASS",
+      "tests": 52
+    }
+  },
+  "qualification": {
+    "ballotCompositionQualified": true,
+    "futureLedgerCompositionQualified": true,
+    "learnerLedgerCompositionQualified": true,
+    "ledgers": {
+      "ballot": {
+        "adoptionFences": [
+          {
+            "certificate": "49541f5b9011f13b9086f3d057c42a61719b5ed8b10f73999583b0643d974c89",
+            "certificateIndex": 10,
+            "cut": 11,
+            "end": 36654,
+            "node": "node-6",
+            "priorPromise": "f06681f63083680e28e7b01a3942eae30848e2adfcd7fc195515607a682ca2b9",
+            "promise": "f4a9e4d60e6d354a481297854121701db20cbe95227422b164197fa54258c4b0",
+            "promiseAppended": true,
+            "start": 36625
+          }
+        ],
+        "allocatorComparisons": 124,
+        "ballotForceQualified": true,
+        "chainSha256": "53a71811317dd61020e22c84bfe9b0e3e05ced1f0f0ccf709b6c18cd3bc57eb6",
+        "completePhysicalQualified": false,
+        "finalCounters": {
+          "node-1": 9,
+          "node-2": 1,
+          "node-3": 1,
+          "node-4": 1,
+          "node-5": 1,
+          "node-6": 7
+        },
+        "forcedPromises": 26,
+        "phase3Complete": false,
+        "reservations": 10,
+        "sameViewPhysicalQualified": false,
+        "scope": "one-native-REPLACE-continuous-ballot",
+        "selfGrants": 9,
+        "status": "PASS",
+        "unusedReservations": 1
+      },
+      "future": {
+        "chainSha256": "6eb960a43cb52bb680109b88007f70f8106d00c1d422915868e8e5e8dba31edf",
+        "completePhysicalQualified": false,
+        "durableWrites": 99,
+        "finalRevisions": {
+          "node-1": 33,
+          "node-2": 33,
+          "node-3": 33,
+          "node-4": 0,
+          "node-5": 0,
+          "node-6": 0
+        },
+        "futureLedgerCompositionQualified": true,
+        "learnerLedgerCompositionQualified": false,
+        "ledgerComparisons": 113,
+        "openReseals": 11,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "scope": "one-native-REPLACE-continuous-future-ledger",
+        "status": "PASS",
+        "writesByKind": {
+          "clear": 33,
+          "record": 66
+        }
+      },
+      "learner": {
+        "admissionCustodyEvents": 11,
+        "capturedLedgers": 25,
+        "chainSha256": "59697d5dc2f19651fb92428a89900c4090bc40a6125b56f2448bbeb647b46fc5",
+        "completePhysicalQualified": false,
+        "durableWrites": 12,
+        "finalRevisions": {
+          "node-1": 4,
+          "node-2": 4,
+          "node-3": 4,
+          "node-4": 0,
+          "node-5": 0,
+          "node-6": 0
+        },
+        "joiningWrites": 0,
+        "learnerLedgerCompositionQualified": true,
+        "ledgerComparisons": 139,
+        "openReseals": 11,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "sameViewPhysicalQualified": false,
+        "scope": "one-native-REPLACE-continuous-learner-ledger",
+        "selectedTransitions": 18,
+        "status": "PASS",
+        "writesByKind": {
+          "confirm": 3,
+          "record": 6,
+          "selected": 3
+        }
+      },
+      "peers": {
+        "capturedLedgers": 25,
+        "chainSha256": "7381508446d6cef004ee4e2fcca624311db6ba8f4bbe531468d75a3176bf2f53",
+        "completePhysicalQualified": false,
+        "durableWrites": 147,
+        "finalRevisions": {
+          "node-1": 49,
+          "node-2": 49,
+          "node-3": 49,
+          "node-4": 0,
+          "node-5": 0,
+          "node-6": 0
+        },
+        "forceAndNetworkQualified": false,
+        "ledgerComparisons": 133,
+        "openReseals": 11,
+        "peerLedgerCompositionQualified": true,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "scope": "one-native-REPLACE-original-peer-ledger-chain",
+        "status": "PASS",
+        "writesByKind": {
+          "maintenance": 99,
+          "publication": 33,
+          "selected": 15
+        }
+      }
+    },
+    "peerLedgerCompositionQualified": true,
+    "phase3Complete": false,
+    "precondition": {
+      "controls": {
+        "allExportFamiliesQualified": false,
+        "completePhysicalQualified": false,
+        "confirmedHeads": 3,
+        "controls": {
+          "completion": 2,
+          "intent": 2,
+          "preparation": 1,
+          "retention": 3,
+          "root": 1
+        },
+        "forceAndNetworkQualified": false,
+        "learnerSessions": {
+          "published": 2,
+          "recorded": 4
+        },
+        "observedCommittedContents": 1388,
+        "observedContentSessions": 727,
+        "observedControlExportsQualified": true,
+        "observedLearnerRetentionQualified": true,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "retentionRounds": 2,
+        "scope": "one-native-REPLACE-original-control-exports-and-learner-retention",
+        "status": "PASS"
+      },
+      "exports": {
+        "allExportFamiliesQualified": false,
+        "boundSessions": {
+          "current-generation": 212,
+          "frozen-source": 36,
+          "journal": 28,
+          "learner-current-content": 6,
+          "native-applied-checkpoint": 69,
+          "native-vote-receipt": 198,
+          "pending-payload": 12,
+          "pending-record": 88,
+          "published-local-checkpoint": 6,
+          "published-record": 63
+        },
+        "boundTransfers": {
+          "current-generation": 780,
+          "frozen-source": 108,
+          "journal": 28,
+          "learner-current-content": 27,
+          "native-applied-checkpoint": 69,
+          "native-vote-receipt": 198,
+          "pending-payload": 12,
+          "pending-record": 88,
+          "published-local-checkpoint": 6,
+          "published-record": 63
+        },
+        "completePhysicalQualified": false,
+        "forceAndNetworkQualified": false,
+        "generationWindows": 58,
+        "joiningExportLifetimes": 4,
+        "learnerRetentionAuthorizationQualified": false,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "recordWindows": 535,
+        "scope": "native-REPLACE-temporal-exports-and-original-record-capabilities",
+        "sourceWindows": 25,
+        "status": "PARTIAL",
+        "unqualifiedSessionCount": 9,
+        "unqualifiedSessions": [
+          {
+            "firstEvent": 10786,
+            "firstKind": "ROOT",
+            "owner": "node-1",
+            "reader": "node-6",
+            "reference": "6832ce77389ee96c9d7fd1f65f098b1d0e407f515e53a8d0f0285b9e077a3b67",
+            "trace": "8e98e583-f041-4877-8129-f832c2211125",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 25721,
+            "firstKind": "unframed-record",
+            "owner": "node-1",
+            "reader": "node-6",
+            "reference": "55c0b8205fd3ae8abba115e1848ab6251f461197b39fdcd88167084a7c19d369",
+            "trace": "816dd099-143e-4d3a-8e64-cc0c4bba337e",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 25741,
+            "firstKind": "unframed-record",
+            "owner": "node-1",
+            "reader": "node-6",
+            "reference": "55c0b8205fd3ae8abba115e1848ab6251f461197b39fdcd88167084a7c19d369",
+            "trace": "7df50175-3e61-4e4c-aff8-96b35915b1af",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 27912,
+            "firstKind": "unframed-record",
+            "owner": "node-1",
+            "reader": "node-6",
+            "reference": "835379a7ebdffa1399221b2d390ac8af522ab23495f53f953da51e996fd60d1d",
+            "trace": "78160985-e2b6-4c4f-9c3b-cada085bd959",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 27924,
+            "firstKind": "unframed-record",
+            "owner": "node-1",
+            "reader": "node-6",
+            "reference": "f19b971740ce36b0d147d244b08c4c4e57e0e09027301953a4def2884bf95287",
+            "trace": "c9f7ec15-9a61-433b-a170-e8a373336b8f",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 27936,
+            "firstKind": "unframed-record",
+            "owner": "node-2",
+            "reader": "node-6",
+            "reference": "f19b971740ce36b0d147d244b08c4c4e57e0e09027301953a4def2884bf95287",
+            "trace": "930f1faf-5ced-4586-8a61-7454f6fa4262",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 27948,
+            "firstKind": "unframed-record",
+            "owner": "node-3",
+            "reader": "node-6",
+            "reference": "f19b971740ce36b0d147d244b08c4c4e57e0e09027301953a4def2884bf95287",
+            "trace": "4bad2af4-816c-47f6-aa26-716f39c215ea",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 28003,
+            "firstKind": "unframed-record",
+            "owner": "node-6",
+            "reader": "node-1",
+            "reference": "20d2a8709e371dff9b054dfecf57ea2580b5b22f2f6dff35a150a327ba9c31ed",
+            "trace": "5aa64269-7036-443d-8d58-8489d634d527",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 29266,
+            "firstKind": "unframed-record",
+            "owner": "node-6",
+            "reader": "node-1",
+            "reference": "20d2a8709e371dff9b054dfecf57ea2580b5b22f2f6dff35a150a327ba9c31ed",
+            "trace": "90f3e6e5-ec90-4038-bdef-08830390ce47",
+            "transfers": 1
+          }
+        ],
+        "unqualifiedTransfers": 9
+      },
+      "maintenance": {
+        "acquiredRemoteCopies": 105,
+        "boundRetirementEvents": 2949,
+        "completeCopies": 169,
+        "completePhysicalQualified": false,
+        "directFixtureFloors": 3,
+        "discoveryHints": 109,
+        "floorEvents": 5940,
+        "forceAndNetworkQualified": false,
+        "interruptedFloors": 1,
+        "maintenanceForceQualified": true,
+        "networkFloors": 52,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "retiredGenerations": 48,
+        "scope": "one-native-REPLACE-discovery-and-complete-copy-floor-lifetimes",
+        "status": "PASS"
+      },
+      "network": {
+        "boundInstallReplies": 12,
+        "boundPhaseResponses": 132,
+        "boundPromiseReplies": 16,
+        "committedTransfers": 1388,
+        "completeSlotStorageCallbacks": 5100,
+        "deliveredResponses": 4445,
+        "exactTransferRetries": 2,
+        "failedAttempts": 8,
+        "forcedGrants": 25,
+        "forcedSelections": 18,
+        "futureTargets": 22,
+        "ownedSlotTransactions": 33,
+        "proposerLocalInstallations": 6,
+        "receivedRequests": 4453,
+        "rejectedTransferAttempts": 3,
+        "responseLessFailures": 8,
+        "sentRequests": 4453,
+        "slots": 11,
+        "terminalObservations": 16,
+        "transferSessions": 730,
+        "transferredBytes": 8213178,
+        "wireExchanges": 4445
+      },
+      "peerLedgerCompositionQualified": false,
+      "phase3Complete": false,
+      "physical": {
+        "continuation": {
+          "capturedGrantComparisons": 25,
+          "completePhysicalQualified": false,
+          "finalCut": 11,
+          "forceAndNetworkQualified": false,
+          "ownerSnapshotComparisons": 42,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "profile": "5-REPLACE",
+          "recovery": {
+            "adoptionEnd": 36654,
+            "adoptionStart": 36625,
+            "donor": "node-1",
+            "fromCut": 9,
+            "inheritedLocalBridges": 1,
+            "originalTransfers": 3,
+            "promiseAppended": true,
+            "remoteBridges": 0,
+            "requiredParents": 4,
+            "sameViewInstallation": false,
+            "toCut": 11
+          },
+          "scope": "profile-selected-continuation",
+          "sourceRetirementLocalOrderSegments": 21,
+          "status": "PARTIAL"
+        },
+        "governingFloors": 21,
+        "prefix": {
+          "campaigns": 4,
+          "completePhysicalQualified": false,
+          "forceAndNetworkQualified": false,
+          "ownerSnapshotComparisons": 115,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "profile": "5-REPLACE",
+          "scope": "native-REPLACE-bootstrap-through-old-voter-INTENT",
+          "slots": 9,
+          "status": "PASS",
+          "throughIntentPhysicalQualified": true
+        },
+        "sourceRetirementPrefixes": 315,
+        "sourceRetirementTransactions": 21
+      },
+      "preceding": {
+        "freshExchanges": 66,
+        "fullMaintenanceReplayQualified": false,
+        "joiningPlacement": {
+          "comparedFiles": 65,
+          "completePhysicalQualified": false,
+          "forceAndNetworkQualified": false,
+          "joiningPlacementPhysicalQualified": true,
+          "nativeInitializationQualified": false,
+          "oldOwnerSnapshots": 115,
+          "phase3Complete": false,
+          "placedRoots": 8,
+          "processDeathQualified": false,
+          "scope": "native-REPLACE-original-joining-placement",
+          "status": "PASS"
+        },
+        "originalCopies": 4,
+        "originalPrefix": {
+          "campaigns": 4,
+          "completePhysicalQualified": false,
+          "forceAndNetworkQualified": false,
+          "ownerSnapshotComparisons": 115,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "profile": "5-REPLACE",
+          "scope": "native-REPLACE-bootstrap-through-old-voter-INTENT",
+          "slots": 9,
+          "status": "PASS",
+          "throughIntentPhysicalQualified": true
+        },
+        "partialWriter": {
+          "cut": "FLOOR_MEMBER_FORCED",
+          "handoff": true,
+          "initialImages": 7,
+          "initialSources": 5,
+          "ordinal": 4
+        },
+        "phase3Complete": false,
+        "physicalImages": 7,
+        "processDeathQualified": false,
+        "profile": "5-REPLACE",
+        "remoteExportForceQualified": false,
+        "retainedSources": 5,
+        "scope": "joint-floor-storage-and-catalog-chain",
+        "semanticChain": {
+          "checkpointObservations": 70,
+          "completePhysicalQualified": false,
+          "controls": [
+            "BARRIER",
+            "RESERVE",
+            "BARRIER",
+            "PREPARE",
+            "BARRIER",
+            "READY",
+            "BARRIER",
+            "SEAL",
+            "INTENT",
+            "FINAL",
+            "BARRIER"
+          ],
+          "forceAndNetworkQualified": false,
+          "internalReadyCuts": [
+            1,
+            3,
+            5,
+            7,
+            11
+          ],
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "profile": "5-REPLACE",
+          "publicReady": false,
+          "scope": "native-REPLACE-catalog-certificate-checkpoint-chain",
+          "selections": 6,
+          "semanticChainQualified": true,
+          "slots": 11,
+          "status": "PASS"
+        },
+        "status": "PASS"
+      },
+      "processDeathQualified": false,
+      "profile": "5-REPLACE",
+      "scope": "whole-interrupted-history-network-exports-maintenance",
+      "status": "PASS",
+      "transientGenerationRetirementPrefixesCaptured": false,
+      "wholeFloorMaintenanceQualified": true,
+      "wholeNetworkExportQualified": true
+    },
+    "processDeathQualified": false,
+    "profile": "5-REPLACE",
+    "scope": "complete-interrupted-history-continuous-ledgers",
+    "status": "PASS"
+  },
+  "remaining": [
+    "Fifteen other complete native ordinal/cut histories and all-layer negatives on the frozen cohort.",
+    "Native process-death/torn-file and full simultaneous resource maximum.",
+    "Phase-wide exact-source admission and final-source qualification."
+  ],
+  "replay": {
+    "path": "target/v53-native-partial-joint-batch/replay_native.py",
+    "sha256": "394282b4e0e6bc70bc98541bc5bae0908d5a8af602017e80f5fae8dbbac03067"
+  },
+  "runtimeChanged": false,
+  "schema": "gse-v53-native-partial-joint-development-v1",
+  "status": "PASS",
+  "tornFileQualified": false
+}

@@ -112,8 +112,7 @@ class Replay(maintenance.Replay):
         self.governing(copies,own)
         original = {sha(c['manifest']):dict(c['members'], **{'generation.gsr':c['manifest']}) for c in copies.values()}
         proposal = (self.root/'joint-floor-recovery/proposal.gsr').read_bytes()
-        first = [row['event'] for row in p.generation.floor.transaction(original,proposal)[0]]
-        first = first[:first.index('FLOOR_COPIES_FORCED')+1]
+        first = p.writer_prefix(original,proposal,p.read(self.root/'joint-floor-recovery/receipt.json'))['events']
         expected = first + sum((p.resume.resume_events(dict(copies[n]['members'], **{'generation.gsr':copies[n]['manifest']}))
                                for n in ('node-6','node-1','node-3','node-2')), [])
         expected += [row['event'] for row in p.generation.floor.transaction(original,proposal,handoff=True)[0]]

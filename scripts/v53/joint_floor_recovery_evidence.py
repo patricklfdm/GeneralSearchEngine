@@ -26,6 +26,37 @@ FILES = {'receipt.json', 'proposal.gsr', 'lineage.json', 'originals', 'interrupt
 SCOPE = dict(schema='gse-v53-joint-floor-recovery-v1', status='PASS', profile='5-REPLACE', node='node-2',
              sameDirectory=True, initialFloor='seed-maintenance-original-copies', recovery='native-tcp',
              processDeath=False, phase3Complete=False)
+PARTIAL_CUTS = ('FLOOR_COPY_CREATED', 'FLOOR_MANIFEST_FORCED', 'FLOOR_IMAGE_FORCED', 'FLOOR_MEMBER_FORCED')
+
+
+def partial_scope(ordinal, cut):
+    need(type(ordinal) is int and 1 <= ordinal <= 4 and cut in PARTIAL_CUTS, 'joint floor declared partial writer cut')
+    return dict(SCOPE, schema='gse-v53-native-partial-joint-floor-v1', ordinal=ordinal, cut=cut, handoff=True)
+
+
+def writer_case(scope):
+    if type(scope) is dict and scope.get('schema') == 'gse-v53-native-partial-joint-floor-v1':
+        expected = partial_scope(scope.get('ordinal'), scope.get('cut'))
+        same(scope, expected, 'joint floor bounded scope')
+        return scope['ordinal'], scope['cut']
+    same(scope, SCOPE, 'joint floor bounded scope')
+    return None
+
+
+def writer_prefix(offered, proposal, scope):
+    case = writer_case(scope)
+    events, files, writes, directories = generation.floor.transaction(offered, proposal, handoff=case is not None)
+    ordinal = 0; at = None
+    for i, row in enumerate(events):
+        if row['event'] == 'FLOOR_COPY_CREATED': ordinal += 1
+        if (case is None and row['event'] == 'FLOOR_COPIES_FORCED' or
+                case is not None and ordinal == case[0] and row['event'] == case[1]):
+            at = i; break
+    need(at is not None, 'joint floor declared writer cut absent')
+    return dict(events=[v['event'] for v in events[:at+1]], chargedCopies=ordinal,
+        interrupted=dict({name: None for name, index in directories.items() if index <= at},
+                         **{name: raw for name, raw in files.items() if writes[name] <= at}),
+        completed=dict({name: None for name in directories}, **files))
 
 
 def read(path):
@@ -118,7 +149,7 @@ def transfer_sessions(root, events, copies, identities, cap, ballot):
 def validate(directory):
     root = Path(directory); inventory = h.inventory(root); side = root/'joint-floor-recovery'
     need(side.is_dir() and not side.is_symlink() and {p.name for p in side.iterdir()} == FILES, 'joint floor exact sidecar inventory')
-    same(read(side/'receipt.json'), SCOPE, 'joint floor bounded scope')
+    scope = read(side/'receipt.json'); case = writer_case(scope)
     need({p.name for p in (side/'originals').iterdir()} == set(NODES), 'joint floor original owners')
     originals = {n: c.inventory(side/'originals'/n) for n in NODES}
     copies = {}; refs = []; identities = {}; cap = None
@@ -137,18 +168,22 @@ def validate(directory):
     proposal = f.encode('records', 'FLOOR', dict(root=cap['root'], node='node-2', cut=cap['cut'], sources=refs))
     need((side/'proposal.gsr').read_bytes() == proposal, 'joint floor exact original proposal')
     offered = {catalog.sha(m['generation.gsr']): m for m in copies.values()}
-    events, files, _, directories = generation.floor.transaction(offered, proposal)
-    complete = dict(originals['node-2'], **{p: None for p in directories}, **files)
-    interrupted = dict(complete); del interrupted['floor-copies/floor.gsr']
+    writer = writer_prefix(offered, proposal, scope)
+    complete = dict(originals['node-2'], **writer['completed'])
+    interrupted = dict(originals['node-2'], **writer['interrupted'])
     for name in ('interrupted', 'after-close', 'after-reopen'):
         need(c.inventory(side/name) == interrupted, 'joint floor exact interrupted originals: '+name)
     need(c.inventory(side/'resumed-floor') == complete, 'joint floor exact resumed inventory')
     image_count = sum(n.endswith('.image') for n in complete)
     source_count = len(copies) + sum(n.startswith('sources/') and n.count('/') == 1 and v is None for n,v in complete.items())
     initial = read(side/'interrupted-usage.json'); resumed = read(side/'resumed-usage.json')
-    bounded(initial, image_count, source_count); bounded(resumed, image_count, source_count)
-    expected = [e['event'] for e in events]; expected = expected[:expected.index('FLOOR_COPIES_FORCED')+1]
-    need([v['event'] for v in initial] == ['FLOOR_COPY_BEFORE_RETURN', *expected], 'joint floor interrupted force order')
+    # The reservation is charged at directory creation even if no body/image
+    # has been written yet. Missing later copies cannot create phantom charges.
+    missing = len(copies)-writer['chargedCopies']
+    need(all(sum(name.endswith('.image') for name in members) == 1 for members in copies.values()),
+         'joint floor one original image per copy')
+    bounded(initial, image_count-missing, source_count-missing); bounded(resumed, image_count, source_count)
+    need([v['event'] for v in initial] == ['FLOOR_COPY_BEFORE_RETURN', *writer['events']], 'joint floor interrupted force order')
     captured = read(side/'floor-events.json'); native = read(root/'events.json')
     need(captured and captured == native[:len(captured)] and captured[-1]['event'] == 'FLOOR_BEFORE_RETURN' and
          captured[-1].get('node') == 'node-2' and captured[-1].get('scope') == 'joint-floor-reopened', 'joint floor native event prefix')
@@ -197,10 +232,14 @@ def validate(directory):
         need(not any(n.startswith('floor-copies') for n in actual) and c.current(actual)[2]['capsule']['cut'] == cap['cut'], 'joint floor maintenance observation')
     need(c.current(c.inventory(root/'after-close/node-2'))[2]['capsule']['cut']['index'] == semantic['slots'], 'joint floor required voter completed barrier')
     need(h.inventory(root) == inventory, 'joint floor original changed')
-    return dict(status='PASS', scope='joint-floor-storage-and-catalog-chain', profile='5-REPLACE', originalCopies=4,
+    result = dict(status='PASS', scope='joint-floor-storage-and-catalog-chain', profile='5-REPLACE', originalCopies=4,
         physicalImages=image_count, retainedSources=source_count, freshExchanges=exchanges, semanticChain=semantic,
         originalPrefix=prefix_result, joiningPlacement=placement_result,
         remoteExportForceQualified=False, fullMaintenanceReplayQualified=False, processDeathQualified=False, phase3Complete=False)
+    if case is not None:
+        result['partialWriter'] = dict(ordinal=case[0], cut=case[1], handoff=True,
+            initialImages=image_count-missing, initialSources=source_count-missing)
+    return result
 
 
 NEGATIVES = {
@@ -217,10 +256,27 @@ NEGATIVES = {
     'legacy-generation-route': 'joint floor generation original offer',
     'consistent-extra-allocation': 'joint floor independently derived interrupted owner',
 }
+PARTIAL_NEGATIVES = {
+    'partial-ordinal': 'joint floor exact interrupted originals: interrupted',
+    'partial-cut': 'joint floor exact interrupted originals: interrupted',
+    'partial-handoff': 'joint floor bounded scope',
+}
+
+
+def negative_cases(directory):
+    case = writer_case(read(Path(directory)/'joint-floor-recovery/receipt.json'))
+    return dict(NEGATIVES, **(PARTIAL_NEGATIVES if case is not None else {}))
 
 
 def mutate(root, name):
-    need(name in NEGATIVES, 'joint floor declared mutation'); side = root/'joint-floor-recovery'
+    need(name in NEGATIVES or name in PARTIAL_NEGATIVES, 'joint floor declared mutation'); side = root/'joint-floor-recovery'
+    if name in PARTIAL_NEGATIVES:
+        path = side/'receipt.json'; value = read(path); case = writer_case(value)
+        need(case is not None, 'joint floor partial mutation requires original partial case')
+        if name == 'partial-ordinal': value['ordinal'] = case[0] % 4 + 1
+        elif name == 'partial-cut': value['cut'] = PARTIAL_CUTS[(PARTIAL_CUTS.index(case[1])+1) % len(PARTIAL_CUTS)]
+        else: value['handoff'] = False
+        h.save(path, value); return
     if name == 'proposal': (side/'proposal.gsr').write_bytes(b'changed'); return
     if name == 'premature-authority': (side/'interrupted/floor-copies/floor.gsr').write_bytes((side/'proposal.gsr').read_bytes()); return
     if name in ('closed-original','reopened-original'):
@@ -287,7 +343,7 @@ def mutate(root, name):
 def qualify(directory, progress=None):
     root = Path(directory); before = h.inventory(root); original = validate(root); negatives = []
     if progress: progress(dict(stage='original', status='PASS', profile='5-REPLACE'))
-    for name, reason in NEGATIVES.items():
+    for name, reason in negative_cases(root).items():
         with tempfile.TemporaryDirectory(prefix='v53-joint-floor-negative-') as tmp:
             changed = Path(tmp)/'raw'; shutil.copytree(root, changed); mutate(changed, name)
             try: validate(changed)

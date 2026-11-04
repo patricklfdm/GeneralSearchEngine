@@ -17,7 +17,7 @@ eleven exact negatives protect its cold-owner and interrupted-floor boundaries.
 Continuous composition additionally derives all peer/learner/future revisions
 and allocator/promise forces through the original cold reopen, with targeted
 negative replay. The earlier conditional test covers six SOURCE slots. Native
-partial bodies, process-death cuts and final-source qualification remain open.
+partial bodies now have a [sixteen-history execution entry](PHASE_3_NATIVE_PARTIAL_JOINT_FLOOR.md); complete native matrix execution, process-death cuts and final-source qualification remain open.
 
 [Automatic partial-floor resumption](PHASE_3_AUTOMATIC_FLOOR_RESUME.md) now
 reacquires the exact original proposal one copy at a time, retaining all charges

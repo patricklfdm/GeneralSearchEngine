@@ -19,15 +19,35 @@ class V53JointFloorRecoveryTest {
     @TempDir Path temp;
     static final long BUDGET=TimeUnit.MINUTES.toNanos(12);
     Path raw;
+    record WriterCut(int ordinal,String point) {
+        WriterCut {
+            if(ordinal<1 || ordinal>4 || !List.of("FLOOR_COPY_CREATED","FLOOR_MANIFEST_FORCED",
+                    "FLOOR_IMAGE_FORCED","FLOOR_MEMBER_FORCED").contains(point))
+                throw new IllegalArgumentException("native joint floor writer cut");
+        }
+    }
+    private WriterCut writerCut;
 
     @Test void originalFourCopyFloorResumesOverTcpBeforeFinalAndStableBarrier()throws Exception {
+        run(null);
+    }
+
+    void run(WriterCut cut)throws Exception {
+        writerCut=cut;
         var fixture=new V53JoiningIntentExportTest();fixture.temp=temp;boolean success=false;
         try {fixture.jointFloorRecovery(this::recover);success=true;}
         finally {
-            if(raw!=null)Files.write(raw.resolve("receipt.json"),canonical(Map.of("schema","gse-v53-joint-floor-recovery-v1",
+            if(raw!=null) {
+                var receipt=new TreeMap<String,Object>(Map.of("schema","gse-v53-joint-floor-recovery-v1",
                 "status",success?"PASS":"FAIL","profile","5-REPLACE","node","node-2","sameDirectory",true,
                 "initialFloor","seed-maintenance-original-copies","recovery","native-tcp","processDeath",false,
-                "phase3Complete",false),65536));
+                "phase3Complete",false));
+                if(cut!=null) {
+                    receipt.put("schema","gse-v53-native-partial-joint-floor-v1");receipt.put("ordinal",cut.ordinal());
+                    receipt.put("cut",cut.point());receipt.put("handoff",true);
+                }
+                Files.write(raw.resolve("receipt.json"),canonical(receipt,65536));
+            }
         }
     }
 
@@ -48,13 +68,19 @@ class V53JointFloorRecoveryTest {
         Files.write(raw.resolve("lineage.json"),canonical(Map.of("root",n.f.result.root().manifestDigest(),"node","node-2",
             "replica",target.replicaDirectory().toString(),"application",target.materialization().directory().toString(),
             "cut",original.capsule.context.cut),65536));
-        var usage=new ArrayList<Map<String,Object>>();long started=System.nanoTime();
+        var usage=new ArrayList<Map<String,Object>>();long started=System.nanoTime();var ordinal=new AtomicInteger();
         n.hook.set(event->{
             usage.add(Map.of("event",event,"usage",V53CombinedReceiveResourcesTest.usage(budget)));
-            if(event.equals("FLOOR_COPIES_FORCED"))throw new IOException("joint floor interrupted before authority");
+            if(event.equals("FLOOR_COPY_CREATED"))ordinal.incrementAndGet();
+            if(writerCut==null?event.equals("FLOOR_COPIES_FORCED"):
+                    ordinal.get()==writerCut.ordinal() && event.equals(writerCut.point()))
+                throw new IOException("joint floor interrupted before authority");
         });
         try {
-            assertEquals("joint floor interrupted before authority",assertThrows(IOException.class,()->old.establishFloor(copies)).getMessage());
+            assertEquals("joint floor interrupted before authority",assertThrows(IOException.class,()->{
+                if(writerCut==null)old.establishFloor(copies);
+                else old.establishFloor(copies,copy->{});
+            }).getMessage());
         }finally {n.hook.set(event->{});Files.write(raw.resolve("interrupted-usage.json"),canonical(usage,1024*1024));}
         assertFalse(Files.exists(target.replicaDirectory().resolve("floor-copies/floor.gsr")));
         V53JournalApplicationTest.copy(target.replicaDirectory(),raw.resolve("interrupted"));

@@ -70,3 +70,7 @@ outputs cannot be appended to a new source. The JUnit cases are bounded componen
 regressions; no hosted subset or planned history is added. Full admitted native
 partial-body recovery, torn-file/process-death cuts, complete
 remote-force/maintenance replay and final-source Phase 3 admission remain open.
+
+The [native sixteen-history entry](PHASE_3_NATIVE_PARTIAL_JOINT_FLOOR.md) now reuses
+these writer ordinals in actual 5-REPLACE admission and TCP recovery. Its evidence
+is separate from this conditional matrix and does not upgrade these originals.
