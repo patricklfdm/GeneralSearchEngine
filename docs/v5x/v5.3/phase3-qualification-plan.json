@@ -472,18 +472,22 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CombinedReceiveResourcesTest.java",
         "scripts/v53/test_combined_receive_evidence.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CombinedTransitionResourcesTest.java",
-        "scripts/v53/test_combined_resource_probe.py"
+        "scripts/v53/test_combined_resource_probe.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CombinedResourceRecoveryTest.java",
+        "scripts/v53/test_combined_recovery_observations.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
         "scripts/v53/combined_receive_evidence.py",
-        "scripts/v53/combined_resource_probe.py"
+        "scripts/v53/combined_resource_probe.py",
+        "scripts/v53/combined_recovery_observations.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
         "docs/v5x/v5.3/PHASE_3_LEARNER_CYCLE_REPLAY.md",
         "docs/v5x/v5.3/PHASE_3_COMBINED_RECEIVE_RESOURCES.md",
-        "docs/v5x/v5.3/PHASE_3_COMBINED_RESOURCE_PROBE.md"
+        "docs/v5x/v5.3/PHASE_3_COMBINED_RESOURCE_PROBE.md",
+        "docs/v5x/v5.3/PHASE_3_COLD_RESOURCE_CONTINUATION.md"
       ],
       "cohorts": [
         "profiles",

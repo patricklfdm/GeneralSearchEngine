@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Cold majority continuation](PHASE_3_COLD_RESOURCE_CONTINUATION.md) now retains the
+pressure failure across original-directory close/reopen. The surviving majority
+carries the original INTENT through FINAL and BARRIER; the partial-floor voter
+remains fenced and unchanged. This observation does not qualify that voter's
+automatic recovery or complete Phase 3 acceptance.
+
 [A combined-resource diagnostic](PHASE_3_COMBINED_RESOURCE_PROBE.md) now retains
 an actual failed REMOVE attempt: externally held copies exhaust the seven-image
 limit during floor construction. Its diagnosis preserves the failed outcome;

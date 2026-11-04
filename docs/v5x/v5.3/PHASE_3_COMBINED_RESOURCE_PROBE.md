@@ -90,7 +90,10 @@ The next acceptance work must establish actual permitted ownership overlap:
    treat duplicate images as independent votes, or suppress the original failure.
 4. Qualify recovery from an original partial floor and unresolved ACCEPT under
    the original ownership rules. The present diagnostic stops at failure; it
-   does not establish cold recovery, FINAL completion or the metadata maximum.
+   does not establish cold recovery, FINAL completion or the metadata maximum. A subsequent
+   [cold majority continuation](PHASE_3_COLD_RESOURCE_CONTINUATION.md) observes
+   FINAL and BARRIER through other voters while the partial-floor owner remains
+   fenced; it does not qualify recovery of that owner.
 
 The 324 MiB expression remains a conservative metadata reservation envelope,
 not proof that all category maxima may coexist in every role or that one short

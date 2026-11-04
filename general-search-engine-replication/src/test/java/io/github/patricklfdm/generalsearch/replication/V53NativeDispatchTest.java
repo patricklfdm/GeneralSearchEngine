@@ -87,6 +87,12 @@ class V53NativeDispatchTest {
             f.ownedHistory=true;f.nativeApplication=true;
             for(var target:f.request.targets())try(var owner=f.open(target,"initialize-retention")){owner.initializePeerRetention();owner.initializeFutureRetention();}
             preparation.prepare(f);
+            openActors(endpointBudget,liveDirectory);
+        }
+        Network(V53BootstrapPublicationTest.Fixture retained,ReplicationBounds bounds,long endpointBudget)throws Exception {
+            this.bounds=bounds;f=retained;openActors(endpointBudget,false);
+        }
+        private void openActors(long endpointBudget,boolean liveDirectory)throws Exception {
             f.snapshot("before-network");
             for(var target:f.request.targets()) {
                 var budget=new MembershipResources(512*MembershipResources.MIB);resources.add(budget);links.add(new AtomicReference<>());
@@ -98,7 +104,7 @@ class V53NativeDispatchTest {
                             var retirement=retirementCapture;if(retirement!=null)retirement.at(target.identity().nodeId().value(),"network-owner",target.replicaDirectory(),event);
                             if(target.identity().nodeId().value().equals("node-2"))hook.get().at(event);}));
             }
-            for(int i=0;i<size;i++) {
+            for(int i=0;i<f.request.targets().size();i++) {
                 int index=i;var owner=owners.get(i);
                 var endpoint=new MembershipActivationEndpoint(owner,resources.get(i),bounds,
                         (peer,request,kind,deadline)->{

@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Cold majority continuation](PHASE_3_COLD_RESOURCE_CONTINUATION.md) now retains the
+pressure failure across original-directory close/reopen. The surviving majority
+carries the original INTENT through FINAL and BARRIER; the partial-floor voter
+remains fenced and unchanged. This observation does not qualify that voter's
+automatic recovery or complete Phase 3 acceptance.
+
 [The current qualification audit](PHASE_3_QUALIFICATION_AUDIT.md) reconciles the
 implementation and historical notes into twelve review obligations, eleven
 implemented hosted subsets (512 planned whole histories) and five open work

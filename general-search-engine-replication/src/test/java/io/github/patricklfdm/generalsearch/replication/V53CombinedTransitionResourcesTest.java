@@ -19,6 +19,8 @@ import static io.github.patricklfdm.generalsearch.replication.V53SourceReceiveTe
 @EnabledIfSystemProperty(named="v53.combined.transition.probe",matches="true")
 class V53CombinedTransitionResourcesTest {
     @TempDir Path temp;
+    V53BootstrapPublicationTest.Fixture retained;
+    ReplicationBounds retainedBounds;
     static final Set<String> POINTS=Set.of("INSTALL_BEFORE_RETURN","ACCEPT_PARENT_FORCED","PROOF_PARENT_FORCED",
             "PUBLICATION_ACK_BEFORE_RETURN","JOURNAL_ROTATION_PARENT_FORCED","SOURCE_RETIREMENT_BEFORE_RETURN","FLOOR_COPY_HANDED_OFF");
 
@@ -70,6 +72,7 @@ class V53CombinedTransitionResourcesTest {
         var held=new ArrayList<MembershipSourceReceive>();boolean success=false;
         try {
             try(var n=helper.network("SEALED",size)) {
+                retained=n.f;retainedBounds=n.bounds;
                 history=n.f.raw;capture=new Capture(raw.resolve("states"),scratch,n);var observed=capture;
                 var owner=n.owners.get(1);var budget=n.resources.get(1);capture.at("before-hold",-1);
                 try {

@@ -158,6 +158,10 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    legitimate controller overlap and required joint quorum sizes, then qualify
    completion/recovery; neither suppress this failure nor assume an eight-image
    limit is the correction.
+   The [cold continuation probe](PHASE_3_COLD_RESOURCE_CONTINUATION.md) now
+   observes the surviving majority completing the inherited operation while the
+   partial-floor voter remains unchanged and fenced. Exact original floor
+   completion and autonomous recovery still require qualification.
 3. **Finish concrete protocol coverage.** Map exact schedules, original evidence
    selectors and rejection reasons; identify uncovered combinations. Inapplicable
    operations still require explicit refusal with unchanged bytes. Keep final

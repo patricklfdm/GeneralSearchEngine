@@ -1,0 +1,243 @@
+{
+  "automaticRuntimeReachabilityQualified": false,
+  "baseCommit": "7c8b348b493308f7ff2a979b710ac764fd67a5d5",
+  "checks": {
+    "contract-final.json": {
+      "path": "target/v53-combined-recovery-batch/contract-final.json",
+      "sha256": "0f11e2e6a3d08e578857cb7987f13a3ebd9b94feaa487a6528eab51bb8f48487"
+    },
+    "focused-optimized.log": {
+      "path": "target/v53-combined-recovery-batch/focused-optimized.log",
+      "sha256": "6a5161b3cf086718f005a0ea6d682568d0515d223388a0eecf7c27866f37699d"
+    },
+    "inspection-final/receipt.json": {
+      "path": "target/v53-combined-recovery-batch/inspection-final/receipt.json",
+      "sha256": "985a5cfb6bdd2ede3aeb82d16515369655e7e7cfdeba9ff2f95cd20d7c6949c7"
+    },
+    "observation-qualified.json": {
+      "path": "target/v53-combined-recovery-batch/observation-qualified.json",
+      "sha256": "eeb219a196eb720a268c4bbe72f13d21aa470dbfcce1d8eb4c3f7d521a56c2f5"
+    },
+    "observation-reader-first-failure.json": {
+      "path": "target/v53-combined-recovery-batch/observation-reader-first-failure.json",
+      "sha256": "2f8090a030641e26af871ae308b1bda2e0e76c00610380db3f0b9e4d8583b697"
+    },
+    "observation-relocated-optimized.json": {
+      "path": "target/v53-combined-recovery-batch/observation-relocated-optimized.json",
+      "sha256": "eeb219a196eb720a268c4bbe72f13d21aa470dbfcce1d8eb4c3f7d521a56c2f5"
+    },
+    "producer-java-match.json": {
+      "path": "target/v53-combined-recovery-batch/producer-java-match.json",
+      "sha256": "5ebcee9ec6f81f50d245b62e539e84973619a805f2e2964a774add7f274f6e18"
+    },
+    "reader-final.json": {
+      "path": "target/v53-combined-recovery-batch/reader-final.json",
+      "sha256": "326e258b11be2a805f5d911592a3f833693765491fbc9234447566e9ff2351e3"
+    }
+  },
+  "existingRequiredChanged": false,
+  "fullHistoryQualified": false,
+  "hostedExecuted": false,
+  "nativeExecutions": {
+    "default-and-fixture": {
+      "execution": {
+        "elapsedSeconds": 71.238,
+        "exit": 0
+      },
+      "junit": {
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53CombinedResourceRecoveryTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "1",
+          "tests": "1",
+          "time": "0.001"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53CombinedTransitionResourcesTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "1",
+          "tests": "1",
+          "time": "0.0"
+        },
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "1",
+          "time": "56.37"
+        }
+      },
+      "retainedFiles": {
+        "collection.json": {
+          "path": "target/v53-combined-recovery-batch/default-and-fixture/collection.json",
+          "sha256": "4bd762285146d18d0c6bc701657acd46b23edbe7aad157cdc1048c781b32f2b5"
+        },
+        "command.json": {
+          "path": "target/v53-combined-recovery-batch/default-and-fixture/command.json",
+          "sha256": "ac0d4526ef508d317e1f7217efb1360288ce44f77c13d8fef7d784d19d9567c9"
+        },
+        "execution.json": {
+          "path": "target/v53-combined-recovery-batch/default-and-fixture/execution.json",
+          "sha256": "6ae79ca86fec6723f606ca7ef6af1d13b59104dde2becb02ca94ea0887f4c4d8"
+        },
+        "maven.log": {
+          "path": "target/v53-combined-recovery-batch/default-and-fixture/maven.log",
+          "sha256": "dd776ec3fff5a97c3a011266414221b064fc0361b46bc6dc8dfbb0bf9717f3d0"
+        },
+        "source.json": {
+          "path": "target/v53-combined-recovery-batch/default-and-fixture/source.json",
+          "sha256": "6c0e6230f400ad94122616997d01d484f4698aaf0610a4c00f368c5959d00b6f"
+        },
+        "toolchain.json": {
+          "path": "target/v53-combined-recovery-batch/default-and-fixture/toolchain.json",
+          "sha256": "332750d3670a60372d898313d6600a0f88c0616d747969bffdfe3a231994d18c"
+        }
+      }
+    },
+    "native-01": {
+      "execution": {
+        "elapsedSeconds": 357.043,
+        "exit": 0
+      },
+      "junit": {
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53CombinedResourceRecoveryTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "1",
+          "time": "341.174"
+        }
+      },
+      "retainedFiles": {
+        "collection.json": {
+          "path": "target/v53-combined-recovery-batch/native-01/collection.json",
+          "sha256": "45e81c403270b32801502ad0280ffe263bf7641bf6dd9620e579c6e3fbb0ca12"
+        },
+        "command.json": {
+          "path": "target/v53-combined-recovery-batch/native-01/command.json",
+          "sha256": "10a2a363f8e7453b5b243ca05bef811fe043eebc8e5e9d5a2021ed807415fc22"
+        },
+        "execution.json": {
+          "path": "target/v53-combined-recovery-batch/native-01/execution.json",
+          "sha256": "4a590100d2ce00da447f4db75b30b3b555060d11b680d8dfb1675ca49502053a"
+        },
+        "maven.log": {
+          "path": "target/v53-combined-recovery-batch/native-01/maven.log",
+          "sha256": "b15f63e5fc5eeb41f7da08aead4ecc0e38de72ac541d3bdfa949b4e3b738a9d3"
+        },
+        "source.json": {
+          "path": "target/v53-combined-recovery-batch/native-01/source.json",
+          "sha256": "de2781515a7f5de4b137f5e3f2271f99e5b9cf9aa56f2e11a13d8ac321abb9fe"
+        },
+        "toolchain.json": {
+          "path": "target/v53-combined-recovery-batch/native-01/toolchain.json",
+          "sha256": "739c6bdb037172ae73a58338f249408a18460f6870651056de1d74f1a12e8f83"
+        }
+      }
+    },
+    "native-02": {
+      "execution": {
+        "elapsedSeconds": 340.001,
+        "exit": 0
+      },
+      "junit": {
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53CombinedResourceRecoveryTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "1",
+          "time": "325.51"
+        }
+      },
+      "retainedFiles": {
+        "collection.json": {
+          "path": "target/v53-combined-recovery-batch/native-02/collection.json",
+          "sha256": "93fc8d27c708a8819a5c06d479bc5617e7f92331627b4a395d0faac7c22cf406"
+        },
+        "command.json": {
+          "path": "target/v53-combined-recovery-batch/native-02/command.json",
+          "sha256": "10a2a363f8e7453b5b243ca05bef811fe043eebc8e5e9d5a2021ed807415fc22"
+        },
+        "execution.json": {
+          "path": "target/v53-combined-recovery-batch/native-02/execution.json",
+          "sha256": "6938c1a47759d4abd17f0937b0514ab3f5bd401c38fee43e0e0cdfebfea1b0df"
+        },
+        "maven.log": {
+          "path": "target/v53-combined-recovery-batch/native-02/maven.log",
+          "sha256": "0a8536d3b18fb2f2e7b180383a70886f59be092b1027e0d274bbfc92b1fde62c"
+        },
+        "source.json": {
+          "path": "target/v53-combined-recovery-batch/native-02/source.json",
+          "sha256": "330cf2e042947ea7fcd6b86c8b435fc645c21dc044c2314367bc5dbcce6ad00b"
+        },
+        "toolchain.json": {
+          "path": "target/v53-combined-recovery-batch/native-02/toolchain.json",
+          "sha256": "75fcc8fc1f9a0e42813c13f859d46b3db5fa27ff80b2925ad4d9d5cad978787c"
+        }
+      }
+    }
+  },
+  "nextWork": [
+    "qualify exact-original partial floor resumption",
+    "qualify real native floor interruption",
+    "implement original-bound automatic recovery and complete replay"
+  ],
+  "notes": [
+    "Native pressure prefix remains FAIL in both executions.",
+    "Final native execution asserts byte-identical fenced node-2; only majority continuation succeeds.",
+    "Final Java producers match current source; reader/docs were completed afterwards and have separate hashes.",
+    "First reader incorrectly required a successor checkpoint ACK from departing FINAL owner; corrected to exact nonvoting application boundary with regression."
+  ],
+  "observation": {
+    "completePhysicalReplayQualified": false,
+    "fullNetworkQualified": false,
+    "originalCommandPreserved": true,
+    "originalPreserved": true,
+    "partialFloorOwnerUnchanged": true,
+    "partialFloorRecovered": false,
+    "phase3Complete": false,
+    "pressureDiagnosis": "DIAGNOSED",
+    "publishedSlots": [
+      5,
+      6,
+      7
+    ],
+    "status": "OBSERVED",
+    "survivingCohorts": [
+      [
+        "node-1",
+        "node-3",
+        "node-4"
+      ],
+      [
+        "node-1",
+        "node-3",
+        "node-4"
+      ],
+      [
+        "node-1",
+        "node-3"
+      ]
+    ]
+  },
+  "observationNegatives": 13,
+  "paidCloud": false,
+  "partialFloorRecoveryQualified": false,
+  "phase3Complete": false,
+  "plannedHostedHistories": 512,
+  "productionCodeChanged": false,
+  "pythonTests": {
+    "execution": {
+      "path": "target/v53-combined-recovery-batch/python-suite-final.json",
+      "sha256": "e22ae02421c6a16458747dda13d80abff7a05d89150f99a034cf13f79af9884e"
+    },
+    "log": {
+      "path": "target/v53-combined-recovery-batch/python-suite-final.log",
+      "sha256": "faf14f3bf14a3e4e6f5611e3b28c33383afa9e8b72718f7c9b491d2b146f599c"
+    },
+    "seconds": 125.076,
+    "tests": 2629
+  },
+  "schema": "gse-v53-cold-resource-development-v1",
+  "status": "OBSERVED"
+}

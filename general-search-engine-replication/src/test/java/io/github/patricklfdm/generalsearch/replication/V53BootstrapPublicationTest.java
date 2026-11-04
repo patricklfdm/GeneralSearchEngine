@@ -32,6 +32,11 @@ class V53BootstrapPublicationTest {
             var helper=new V53BootstrapCoordinatorTest();helper.temp=root;return helper.request("group",size,backup);
         }
         Fixture(Path root,Path raw,int size,boolean backup)throws Exception {this(raw,request(root,size,backup));}
+        /** New observation directory, same original runtime directories and bootstrap identity. */
+        Fixture(Path raw,Fixture retained) {
+            this.raw=raw;request=retained.request;result=retained.result;original=retained.original;
+            immutable.putAll(retained.immutable);ownedHistory=retained.ownedHistory;nativeApplication=retained.nativeApplication;
+        }
         Fixture(Path raw,MembershipBootstrapRequest<Integer,Doc> request)throws Exception {
             this.raw=raw;this.request=request;
             var plan=MembershipStorageOperations.planBootstrap(builder(),request);
