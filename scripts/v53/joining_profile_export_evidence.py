@@ -22,7 +22,7 @@ NEGATIVES=e.NEGATIVES
 PENDING_ABSENT='no committed pending checkpoint export in original'
 
 
-def context(root,profile):
+def context(root,profile,*,old_owner_lifetimes=None):
     size,kind,old,new=topology(profile);root=Path(root)
     model=e.n.s.Replay(root,size=size,kind=kind)
     for index in range(1,12):model.step(index)
@@ -36,7 +36,7 @@ def context(root,profile):
     nodes=(*old,model.joining)
     windows=e.generation_windows(root,events,model,nodes=nodes,final_adoption=True)
     sources=e.source_windows(root,events)
-    records=e.record_windows(root,events,model,windows,sources,nodes=nodes)
+    records=e.record_windows(root,events,model,windows,sources,nodes=nodes,old_owner_lifetimes=old_owner_lifetimes)
     return SimpleNamespace(model=model,events=events,rows=rows,contents=contents,
                            groups=e.sessions(contents),windows=windows,sources=sources,records=records)
 

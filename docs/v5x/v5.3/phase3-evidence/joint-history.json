@@ -1,0 +1,597 @@
+{
+  "baseCommit": "89a67773ef519575850b2a235a119e64e01d7051",
+  "checks": {
+    "contract-final.json": {
+      "path": "target/v53-joint-history-batch/contract-final.json",
+      "sha256": "44e7ffb8e9cd7391c50db6f87dbb7909db9fb3bed1b5de184410bf717c6dee11"
+    },
+    "inspection-final/receipt.json": {
+      "path": "target/v53-joint-history-batch/inspection-final/receipt.json",
+      "sha256": "9718a4b3d9d26a930451fc4f28d112da2918543d61db9307aeedee27f2c7df84"
+    },
+    "integrity.json": {
+      "path": "target/v53-joint-history-batch/integrity.json",
+      "sha256": "727bd79ba13f3da17f820a1a01dcc8239ba1f1668fcbef342974d5165c17e56b"
+    },
+    "python-all-final.log": {
+      "path": "target/v53-joint-history-batch/python-all-final.log",
+      "sha256": "7fbff262758a5487c4134ee54c78e7f52375324cda4ae9241db03fc7a1861ea6"
+    },
+    "python-focused-final.log": {
+      "path": "target/v53-joint-history-batch/python-focused-final.log",
+      "sha256": "f03064786f841a359ab1ec0b1ba96caacaa9d243c38a46a542419a064916a1cf"
+    },
+    "qualified-final.json": {
+      "path": "target/v53-joint-history-batch/qualified-final.json",
+      "sha256": "f59ef3aba891a4b9b44e503a1c9fbc74cb87b14ea7c716aba7daa8e5e12c0ee5"
+    },
+    "qualified-final.log": {
+      "path": "target/v53-joint-history-batch/qualified-final.log",
+      "sha256": "64374ea995890a69873903e8602d8e646717fc5ba79605fb52a577e4827ae3f6"
+    },
+    "qualified-portable.json": {
+      "path": "target/v53-joint-history-batch/qualified-portable.json",
+      "sha256": "f59ef3aba891a4b9b44e503a1c9fbc74cb87b14ea7c716aba7daa8e5e12c0ee5"
+    },
+    "qualified-portable.log": {
+      "path": "target/v53-joint-history-batch/qualified-portable.log",
+      "sha256": "64374ea995890a69873903e8602d8e646717fc5ba79605fb52a577e4827ae3f6"
+    },
+    "reader-final.json": {
+      "path": "target/v53-joint-history-batch/reader-final.json",
+      "sha256": "f8fb42d1e0459489c878e86328ade9409e01346faf4d2be6df6a40ea20884dde"
+    }
+  },
+  "corrections": [
+    "Original pre-grant floor uses the first sufficient independently derived voter set; initialization keeps its actual four originals.",
+    "One declared cold owner is bound to original force callbacks without relaxing ordinary defaults.",
+    "Both interrupted and resumed reservation prefixes are checked, with exactly one allowed overlap and full retirement coverage.",
+    "The pre-cold selection negative uses a foreign scope to reach its intended network check rather than altering cold-boundary discovery."
+  ],
+  "diagnostics": {
+    "export-01.json": {
+      "path": "target/v53-joint-history-batch/export-01.json",
+      "sha256": "c1acda68991631ea78ea5d23848ea51354a05b61a89b5e610e33eaf5415ddcc0"
+    },
+    "export-01.log": {
+      "path": "target/v53-joint-history-batch/export-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "floors-01.json": {
+      "path": "target/v53-joint-history-batch/floors-01.json",
+      "sha256": "015b0a859789776b8f3b1d06e5564b061a6bf3b3c1c10947eb88b67f1463e185"
+    },
+    "floors-01.log": {
+      "path": "target/v53-joint-history-batch/floors-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "negative-probe-01.jsonl": {
+      "path": "target/v53-joint-history-batch/negative-probe-01.jsonl",
+      "sha256": "8dfc33b9ecd229f22232eda6454231ec7622828e3e02a13a2b9da6b5c2f1d6cb"
+    },
+    "negative-probe-01.log": {
+      "path": "target/v53-joint-history-batch/negative-probe-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "network-01.json": {
+      "path": "target/v53-joint-history-batch/network-01.json",
+      "sha256": "ad9ba1d246409ce8ab7a08741d05c62a175c69539fc2e82aa93a06b9c802c34a"
+    },
+    "network-01.log": {
+      "path": "target/v53-joint-history-batch/network-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "physical-01.log": {
+      "path": "target/v53-joint-history-batch/physical-01.log",
+      "sha256": "1fd9888bdce28584cbe09488a69c5166f7c9feb74331b1b6938d45b2e23f4bfd"
+    },
+    "physical-02.log": {
+      "path": "target/v53-joint-history-batch/physical-02.log",
+      "sha256": "df13fd87156914bfa786480f4149e7749fdd017f9af1523d66126ce40766fc09"
+    },
+    "probe_export.py": {
+      "path": "target/v53-joint-history-batch/probe_export.py",
+      "sha256": "c17cd2e6ae1bf810191de0ef3140c64b46d515b70f53073c38bc5740f82f067f"
+    },
+    "probe_floors.py": {
+      "path": "target/v53-joint-history-batch/probe_floors.py",
+      "sha256": "127b7155d382c1864ffdb8a945051ead0326ae31b93d4644682c674995a376d7"
+    },
+    "probe_negatives.py": {
+      "path": "target/v53-joint-history-batch/probe_negatives.py",
+      "sha256": "16dee6f30a344ae5f0611cdcd1b630cffba4ab4b507b340ab55e1fda3af743b1"
+    },
+    "probe_network.py": {
+      "path": "target/v53-joint-history-batch/probe_network.py",
+      "sha256": "c5c909ffb224bcd73ab9400fcad6467d2d0d8847988e650fda171a9b74228584"
+    },
+    "probe_retirement.py": {
+      "path": "target/v53-joint-history-batch/probe_retirement.py",
+      "sha256": "d8e8a852e0442fa02d907c922e9876e600b126966c1f4fb76cc8c52130699e5c"
+    },
+    "python-all-01.log": {
+      "path": "target/v53-joint-history-batch/python-all-01.log",
+      "sha256": "3881ad2ce2154b8d8b9d527d6fe2beee1c17f020c6a43c1d5194d8a1fe4f8079"
+    },
+    "python-focused-01.log": {
+      "path": "target/v53-joint-history-batch/python-focused-01.log",
+      "sha256": "ca3691546a64a4d2c903e70a78b53a9453c2785cda14a3ed2f0c3bde38f8d3dd"
+    },
+    "python-focused-02.log": {
+      "path": "target/v53-joint-history-batch/python-focused-02.log",
+      "sha256": "9e8167575aa23924f97ca73816625a720408f45b3d1ad5e9809ee3bea9234551"
+    },
+    "qualified-01.json": {
+      "path": "target/v53-joint-history-batch/qualified-01.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "qualified-01.log": {
+      "path": "target/v53-joint-history-batch/qualified-01.log",
+      "sha256": "1510d798c822363e7be2027ca87c1ba459ce330452778726ff8005dd7c04530b"
+    },
+    "whole-01.log": {
+      "path": "target/v53-joint-history-batch/whole-01.log",
+      "sha256": "ecd61608be8ba53a18d6c4fe145d04009d44d6161f08e57f2dd8d1c07b0ded7c"
+    },
+    "whole-02.json": {
+      "path": "target/v53-joint-history-batch/whole-02.json",
+      "sha256": "1544a543bcf9bb56df4ac4e8a5824c62241f2d3cb55270f3a2fbcde206d49614"
+    },
+    "whole-02.log": {
+      "path": "target/v53-joint-history-batch/whole-02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "finalSourceQualified": false,
+  "finalize": {
+    "path": "target/v53-joint-history-batch/finalize.py",
+    "sha256": "17bb97318592b6513b04097f77c580a75f8be844539bec1719fb7499effd0afd"
+  },
+  "futureLedgerCompositionQualified": false,
+  "learnerLedgerCompositionQualified": false,
+  "nativeRerun": false,
+  "peerLedgerCompositionQualified": false,
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "producer": {
+    "collection.json": {
+      "path": "target/v53-joint-floor-recovery-batch/native-02/collection.json",
+      "sha256": "beac4665922512429cea5457c70067506c9436f275ee765e3d7fee839ea8ba04"
+    },
+    "command.json": {
+      "path": "target/v53-joint-floor-recovery-batch/native-02/command.json",
+      "sha256": "da19b015a1f0e36fa640a6bb8e96d162bc5d955ca855d22778575e1f8e3da8a9"
+    },
+    "execution.json": {
+      "path": "target/v53-joint-floor-recovery-batch/native-02/execution.json",
+      "sha256": "daf5f7d96934ad0aa3c797b15a76413c6a993b3354387fa138b17f99b13db223"
+    },
+    "source.json": {
+      "path": "target/v53-joint-floor-recovery-batch/native-02/source.json",
+      "sha256": "c82bc863abdeeb6d39b0c2b79062652f5c7f993f150334169a344cfcb15c9ff3"
+    },
+    "toolchain.json": {
+      "path": "target/v53-joint-floor-recovery-batch/native-02/toolchain.json",
+      "sha256": "33edd6b7bfe0be565f2591d187910155c510c68a7284561f364848dfd10098d3"
+    }
+  },
+  "producerHead": "c0a425c9f931789e4cbff5c2d4cd68f26a864a3c",
+  "python": {
+    "python-all-final.log": {
+      "elapsedSeconds": 122.459,
+      "status": "PASS",
+      "tests": 2675
+    },
+    "python-focused-final.log": {
+      "elapsedSeconds": 0.729,
+      "status": "PASS",
+      "tests": 90
+    }
+  },
+  "qualification": {
+    "negatives": [
+      {
+        "case": "selection-before-cold",
+        "reason": "joining network selection lifetime",
+        "stage": "network",
+        "status": "REJECTED"
+      },
+      {
+        "case": "selection-after-cold",
+        "reason": "joining network selection lifetime",
+        "stage": "network",
+        "status": "REJECTED"
+      },
+      {
+        "case": "post-cold-slot-scope",
+        "reason": "joining force event shape",
+        "stage": "network",
+        "status": "REJECTED"
+      },
+      {
+        "case": "temporary-export-owner",
+        "reason": "joining control original owner lifetime",
+        "stage": "exports",
+        "status": "REJECTED"
+      },
+      {
+        "case": "interrupted-copy-force",
+        "reason": "joint history complete interrupted floor callbacks",
+        "stage": "floors",
+        "status": "REJECTED"
+      },
+      {
+        "case": "resumed-copy-force",
+        "reason": "joint history complete interrupted floor callbacks",
+        "stage": "floors",
+        "status": "REJECTED"
+      },
+      {
+        "case": "resumed-floor-owner",
+        "reason": "joint history complete interrupted floor callbacks",
+        "stage": "floors",
+        "status": "REJECTED"
+      },
+      {
+        "case": "ordinary-floor-missing",
+        "reason": "joining profile maintenance unbound retirement event",
+        "stage": "floors",
+        "status": "REJECTED"
+      },
+      {
+        "case": "source-capture-missing",
+        "reason": "retirement capture missing copy/start",
+        "stage": "physical",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-source-floor",
+        "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_WRITTEN",
+        "stage": "physical",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-source-prefix-file",
+        "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_BEFORE_RETURN",
+        "stage": "physical",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "controls": {
+        "allExportFamiliesQualified": false,
+        "completePhysicalQualified": false,
+        "confirmedHeads": 3,
+        "controls": {
+          "completion": 2,
+          "intent": 2,
+          "preparation": 1,
+          "retention": 3,
+          "root": 1
+        },
+        "forceAndNetworkQualified": false,
+        "learnerSessions": {
+          "published": 2,
+          "recorded": 4
+        },
+        "observedCommittedContents": 1388,
+        "observedContentSessions": 727,
+        "observedControlExportsQualified": true,
+        "observedLearnerRetentionQualified": true,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "retentionRounds": 2,
+        "scope": "one-native-REPLACE-original-control-exports-and-learner-retention",
+        "status": "PASS"
+      },
+      "exports": {
+        "allExportFamiliesQualified": false,
+        "boundSessions": {
+          "current-generation": 212,
+          "frozen-source": 36,
+          "journal": 28,
+          "learner-current-content": 6,
+          "native-applied-checkpoint": 69,
+          "native-vote-receipt": 198,
+          "pending-payload": 12,
+          "pending-record": 88,
+          "published-local-checkpoint": 6,
+          "published-record": 63
+        },
+        "boundTransfers": {
+          "current-generation": 780,
+          "frozen-source": 108,
+          "journal": 28,
+          "learner-current-content": 27,
+          "native-applied-checkpoint": 69,
+          "native-vote-receipt": 198,
+          "pending-payload": 12,
+          "pending-record": 88,
+          "published-local-checkpoint": 6,
+          "published-record": 63
+        },
+        "completePhysicalQualified": false,
+        "forceAndNetworkQualified": false,
+        "generationWindows": 58,
+        "joiningExportLifetimes": 4,
+        "learnerRetentionAuthorizationQualified": false,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "recordWindows": 535,
+        "scope": "native-REPLACE-temporal-exports-and-original-record-capabilities",
+        "sourceWindows": 25,
+        "status": "PARTIAL",
+        "unqualifiedSessionCount": 9,
+        "unqualifiedSessions": [
+          {
+            "firstEvent": 10786,
+            "firstKind": "ROOT",
+            "owner": "node-1",
+            "reader": "node-6",
+            "reference": "cfe471d25c59803d0e3315b340557527335838b46a312d77dc32769a16157cf3",
+            "trace": "07325d04-7e73-468e-9948-9f6e39db9059",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 25721,
+            "firstKind": "unframed-record",
+            "owner": "node-1",
+            "reader": "node-6",
+            "reference": "3e2f3b365b0cb715d87f57eef6eb1e14996530ba599103cb65cba8bc52f853c4",
+            "trace": "87541bec-2912-420f-a2b9-91cfc43a33c4",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 25741,
+            "firstKind": "unframed-record",
+            "owner": "node-1",
+            "reader": "node-6",
+            "reference": "3e2f3b365b0cb715d87f57eef6eb1e14996530ba599103cb65cba8bc52f853c4",
+            "trace": "bcda9494-e1c1-494a-91dd-3980a61594ff",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 27923,
+            "firstKind": "unframed-record",
+            "owner": "node-1",
+            "reader": "node-6",
+            "reference": "b6c028de4c130289766619429f964229389da5153702718847ea75733a9e0d8d",
+            "trace": "fd5914cd-1426-49b1-9de0-7d472300bc73",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 27935,
+            "firstKind": "unframed-record",
+            "owner": "node-1",
+            "reader": "node-6",
+            "reference": "a71d721791b188c3a986a8f6ab83a3ca6c349fb8267fe4e8accadb2c188e9660",
+            "trace": "0db73b84-68eb-4e03-9010-220b79b112ac",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 27947,
+            "firstKind": "unframed-record",
+            "owner": "node-2",
+            "reader": "node-6",
+            "reference": "a71d721791b188c3a986a8f6ab83a3ca6c349fb8267fe4e8accadb2c188e9660",
+            "trace": "8fb1c213-8eeb-4817-9747-0a7f865aba91",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 27959,
+            "firstKind": "unframed-record",
+            "owner": "node-3",
+            "reader": "node-6",
+            "reference": "a71d721791b188c3a986a8f6ab83a3ca6c349fb8267fe4e8accadb2c188e9660",
+            "trace": "fd44d6b4-3d8e-4d71-b2b3-6c3f6ed40129",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 28014,
+            "firstKind": "unframed-record",
+            "owner": "node-6",
+            "reader": "node-1",
+            "reference": "a7d29c1731bfd0daaff125bad23f20d796daad1624f4e18c8090b52c9ea698c5",
+            "trace": "f7be1044-979b-4c33-917c-6f5f8f16e0ae",
+            "transfers": 1
+          },
+          {
+            "firstEvent": 29277,
+            "firstKind": "unframed-record",
+            "owner": "node-6",
+            "reader": "node-1",
+            "reference": "a7d29c1731bfd0daaff125bad23f20d796daad1624f4e18c8090b52c9ea698c5",
+            "trace": "d1d88713-bf32-410b-809f-0f71009dbfcf",
+            "transfers": 1
+          }
+        ],
+        "unqualifiedTransfers": 9
+      },
+      "maintenance": {
+        "acquiredRemoteCopies": 105,
+        "boundRetirementEvents": 2949,
+        "completeCopies": 169,
+        "completePhysicalQualified": false,
+        "directFixtureFloors": 3,
+        "discoveryHints": 109,
+        "floorEvents": 5951,
+        "forceAndNetworkQualified": false,
+        "interruptedFloors": 1,
+        "maintenanceForceQualified": true,
+        "networkFloors": 52,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "retiredGenerations": 48,
+        "scope": "one-native-REPLACE-discovery-and-complete-copy-floor-lifetimes",
+        "status": "PASS"
+      },
+      "network": {
+        "boundInstallReplies": 12,
+        "boundPhaseResponses": 132,
+        "boundPromiseReplies": 16,
+        "committedTransfers": 1388,
+        "completeSlotStorageCallbacks": 5100,
+        "deliveredResponses": 4445,
+        "exactTransferRetries": 2,
+        "failedAttempts": 8,
+        "forcedGrants": 25,
+        "forcedSelections": 18,
+        "futureTargets": 22,
+        "ownedSlotTransactions": 33,
+        "proposerLocalInstallations": 6,
+        "receivedRequests": 4453,
+        "rejectedTransferAttempts": 3,
+        "responseLessFailures": 8,
+        "sentRequests": 4453,
+        "slots": 11,
+        "terminalObservations": 16,
+        "transferSessions": 730,
+        "transferredBytes": 8213178,
+        "wireExchanges": 4445
+      },
+      "peerLedgerCompositionQualified": false,
+      "phase3Complete": false,
+      "physical": {
+        "continuation": {
+          "capturedGrantComparisons": 25,
+          "completePhysicalQualified": false,
+          "finalCut": 11,
+          "forceAndNetworkQualified": false,
+          "ownerSnapshotComparisons": 42,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "profile": "5-REPLACE",
+          "recovery": {
+            "adoptionEnd": 36665,
+            "adoptionStart": 36636,
+            "donor": "node-1",
+            "fromCut": 9,
+            "inheritedLocalBridges": 1,
+            "originalTransfers": 3,
+            "promiseAppended": true,
+            "remoteBridges": 0,
+            "requiredParents": 4,
+            "sameViewInstallation": false,
+            "toCut": 11
+          },
+          "scope": "profile-selected-continuation",
+          "sourceRetirementLocalOrderSegments": 21,
+          "status": "PARTIAL"
+        },
+        "governingFloors": 21,
+        "prefix": {
+          "campaigns": 4,
+          "completePhysicalQualified": false,
+          "forceAndNetworkQualified": false,
+          "ownerSnapshotComparisons": 115,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "profile": "5-REPLACE",
+          "scope": "native-REPLACE-bootstrap-through-old-voter-INTENT",
+          "slots": 9,
+          "status": "PASS",
+          "throughIntentPhysicalQualified": true
+        },
+        "sourceRetirementPrefixes": 315,
+        "sourceRetirementTransactions": 21
+      },
+      "preceding": {
+        "freshExchanges": 66,
+        "fullMaintenanceReplayQualified": false,
+        "joiningPlacement": {
+          "comparedFiles": 65,
+          "completePhysicalQualified": false,
+          "forceAndNetworkQualified": false,
+          "joiningPlacementPhysicalQualified": true,
+          "nativeInitializationQualified": false,
+          "oldOwnerSnapshots": 115,
+          "phase3Complete": false,
+          "placedRoots": 8,
+          "processDeathQualified": false,
+          "scope": "native-REPLACE-original-joining-placement",
+          "status": "PASS"
+        },
+        "originalCopies": 4,
+        "originalPrefix": {
+          "campaigns": 4,
+          "completePhysicalQualified": false,
+          "forceAndNetworkQualified": false,
+          "ownerSnapshotComparisons": 115,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "profile": "5-REPLACE",
+          "scope": "native-REPLACE-bootstrap-through-old-voter-INTENT",
+          "slots": 9,
+          "status": "PASS",
+          "throughIntentPhysicalQualified": true
+        },
+        "phase3Complete": false,
+        "physicalImages": 7,
+        "processDeathQualified": false,
+        "profile": "5-REPLACE",
+        "remoteExportForceQualified": false,
+        "retainedSources": 5,
+        "scope": "joint-floor-storage-and-catalog-chain",
+        "semanticChain": {
+          "checkpointObservations": 70,
+          "completePhysicalQualified": false,
+          "controls": [
+            "BARRIER",
+            "RESERVE",
+            "BARRIER",
+            "PREPARE",
+            "BARRIER",
+            "READY",
+            "BARRIER",
+            "SEAL",
+            "INTENT",
+            "FINAL",
+            "BARRIER"
+          ],
+          "forceAndNetworkQualified": false,
+          "internalReadyCuts": [
+            1,
+            3,
+            5,
+            7,
+            11
+          ],
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "profile": "5-REPLACE",
+          "publicReady": false,
+          "scope": "native-REPLACE-catalog-certificate-checkpoint-chain",
+          "selections": 6,
+          "semanticChainQualified": true,
+          "slots": 11,
+          "status": "PASS"
+        },
+        "status": "PASS"
+      },
+      "processDeathQualified": false,
+      "profile": "5-REPLACE",
+      "scope": "whole-interrupted-history-network-exports-maintenance",
+      "status": "PASS",
+      "transientGenerationRetirementPrefixesCaptured": false,
+      "wholeFloorMaintenanceQualified": true,
+      "wholeNetworkExportQualified": true
+    }
+  },
+  "reader": {
+    "path": "target/v53-joint-history-batch/reader-final.json",
+    "sha256": "f8fb42d1e0459489c878e86328ade9409e01346faf4d2be6df6a40ea20884dde"
+  },
+  "remaining": [
+    "Continuous whole-history peer/learner/future ledgers.",
+    "Native partial-body and process-death interruption axes.",
+    "Remaining Phase 3 obligations and final-source whole-history cohort."
+  ],
+  "runtimeChanged": false,
+  "schema": "gse-v53-joint-history-development-v1",
+  "scope": "retained-original-complete-network-export-floor-source-retirement-history",
+  "sourceRetirementPrefixesQualified": true,
+  "status": "PASS",
+  "transientGenerationRetirementPrefixesCaptured": false,
+  "wholeFloorMaintenanceQualified": true,
+  "wholeNetworkExportQualified": true
+}

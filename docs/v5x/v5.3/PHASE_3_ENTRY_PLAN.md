@@ -11,8 +11,11 @@ before FINAL and the stable BARRIER. Independent storage/catalog replay observes
 seven application images and five SOURCE slots. Its additional original replay
 now derives the continuation's 25 captured grants and qualifies the recovered
 floor's six remote sessions, peer-ledger writes and retirement/release order.
-The earlier conditional test covers six SOURCE slots; complete-history force/
-maintenance composition, native partial bodies and process-death cuts remain open.
+The whole-history extension binds all 4,445 exchanges, 727 non-rejected content
+sessions, every floor lifetime and 315 captured source-retirement prefixes;
+eleven exact negatives protect its cold-owner and interrupted-floor boundaries.
+The earlier conditional test covers six SOURCE slots. Continuous whole-history
+ledger composition, native partial bodies and process-death cuts remain open.
 
 [Automatic partial-floor resumption](PHASE_3_AUTOMATIC_FLOOR_RESUME.md) now
 reacquires the exact original proposal one copy at a time, retaining all charges

@@ -101,9 +101,9 @@ def floor_order(events,node,before):
 
 
 class Retirements:
-    def __init__(self,root,events):
+    def __init__(self,root,events,*,voters=c.VOTERS):
         self.events=events;self.rows=observed.collect(root,events);self.positions={};self.transactions=0;self.prefixes=0;self.floors=set()
-        self.by_node={node:[v for v in self.rows if v['node']==node] for node in c.VOTERS}
+        self.by_node={node:[v for v in self.rows if v['node']==node] for node in voters}
         need(sum(map(len,self.by_node.values()))==len(self.rows),'joining retirement foreign transaction owner')
 
     def compare(self,node,files,copies,identifiers):

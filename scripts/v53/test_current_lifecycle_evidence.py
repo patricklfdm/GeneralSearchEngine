@@ -71,6 +71,38 @@ class CurrentLifecycleEvidenceTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'^current lifecycle derived generation timeline$'):
             c.Ownership(events).generations({'node-1':[]},None)
 
+    def test_cold_owner_and_later_generations_keep_distinct_original_intervals(self):
+        cold='original-cold-owner'
+        events=[row('INSTALL_PARENT_FORCED'),*[row(v) for v in OPEN],row('INSTALL_BEFORE_RETURN')]
+        boundary=len(events)
+        events += [*[row(v,scope=cold) for v in OPEN],row('LEARNER_RETENTION_RECOVERY_ACTIVE_FORCED',scope=cold),
+                   row('INSTALL_PARENT_FORCED',scope=cold),*[row(v,scope=cold) for v in OPEN],row('PUBLICATION_BEFORE_RETURN',scope=cold)]
+        steps={'node-1':[('INSTALL_BEFORE_RETURN','a'*64),('PUBLICATION_BEFORE_RETURN','b'*64)]}
+        owner=c.Ownership(events);lifetimes={'node-1':(boundary,cold)}
+        owner.old_reopens(lifetimes);owner.generations(steps,None,old_owner_lifetimes=lifetimes)
+        self.assertEqual(15,owner.finish()['callbacks'])
+        with self.assertRaisesRegex(ValueError,'current lifecycle generation owner interval'):
+            c.Ownership(events).generations(steps,None)
+        for at in (0,len(events)-1):
+            changed=copy.deepcopy(events)
+            if at==0:changed[at]['scope']=cold
+            else:changed[at].pop('scope')
+            with self.subTest(at=at),self.assertRaisesRegex(ValueError,'current lifecycle generation owner interval'):
+                c.Ownership(changed).generations(steps,None,old_owner_lifetimes=lifetimes)
+
+    def test_cold_open_cannot_borrow_another_owner_or_later_force(self):
+        cold='original-cold-owner';events=[*[row(v,scope=cold) for v in OPEN],
+            row('LEARNER_RETENTION_RECOVERY_ACTIVE_FORCED',scope=cold)]
+        for mode,reason in (('start','declared cold boundary'),('scope','complete original interval'),
+                            ('missing','complete original interval'),('reseal','cold reseal boundary')):
+            changed=copy.deepcopy(events);start=0
+            if mode=='start':start=1
+            elif mode=='scope':changed[1]['scope']='other-owner'
+            elif mode=='missing':changed.pop(1)
+            else:changed[-1]['scope']='other-owner'
+            with self.subTest(mode=mode),self.assertRaisesRegex(ValueError,reason):
+                c.Ownership(changed).old_reopens({'node-1':(start,cold)})
+
     def test_each_current_callback_is_consumed_once(self):
         events=[row(v) for v in OPEN];owner=c.Ownership(events);owner.take('node-1',None,-1,5,OPEN,'one')
         with self.assertRaisesRegex(ValueError,'^current lifecycle reused callback$'):owner.take('node-1',None,-1,5,OPEN,'two')

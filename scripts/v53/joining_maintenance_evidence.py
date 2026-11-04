@@ -75,6 +75,7 @@ def retirement_order(events,node,start,end,scope):
 class Replay(c.Replay):
     expected_status_count=55
     expected_floor_counts=(38,2,96,52)
+    joining_status_scopes={'continuation-endpoint':'continuation-owner'}
 
     def governing(self,copies,own):same_cut(copies,own)
 
@@ -100,8 +101,9 @@ class Replay(c.Replay):
             # Historical correlation does not become the responder's current
             # view/ballot, a new PROMISE, READY or a retained-copy observation.
             if own['node']==self.model.joining:
-                need(self.events[row['received']].get('scope')=='continuation-endpoint','joining maintenance discovery endpoint')
-                c.owner_lifetime(self.events,self.model.joining,'continuation-owner',row['received'],row['offered'])
+                scope=self.joining_status_scopes.get(self.events[row['received']].get('scope'))
+                need(scope is not None,'joining maintenance discovery endpoint')
+                c.owner_lifetime(self.events,self.model.joining,scope,row['received'],row['offered'])
             self.status_rows.append(row)
         if self.expected_status_count is not None:
             need(len(self.status_rows)==self.expected_status_count,'joining maintenance complete discovery observations')

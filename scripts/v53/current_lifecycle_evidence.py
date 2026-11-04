@@ -104,18 +104,31 @@ class Ownership:
                 upper = self.one(node, 'JOINING_RETENTION_SEED_RECOVERY_FORCED', scope)
             self.take(node, scope, lower, upper, OPEN, 'joining-open-'+scope)
 
-    def generations(self, expected, joining):
+    def generations(self, expected, joining, *, old_owner_lifetimes=None):
+        lifetimes = {} if old_owner_lifetimes is None else old_owner_lifetimes
         for node, steps in expected.items():
-            scope = 'continuation-owner' if node == joining else None
-            parents = self.points(node, 'INSTALL_PARENT_FORCED', scope)
+            parents = [i for i,v in enumerate(self.events) if v.get('node') == node and v.get('event') == 'INSTALL_PARENT_FORCED']
             returned = [(i, v) for i, v in enumerate(self.events) if v.get('node') == node and v.get('event') in RETURNS]
             need(len(parents) == len(steps) and [v['event'] for _, v in returned] == [kind for kind, _ in steps],
                  'current lifecycle derived generation timeline')
             prior = -1
             for lower, (upper, row), (kind, identity) in zip(parents, returned, steps):
+                scope = 'continuation-owner' if node == joining else (
+                    lifetimes[node][1] if node in lifetimes and lower >= lifetimes[node][0] else None)
+                need(self.events[lower] == dict(node=node,event='INSTALL_PARENT_FORCED',**({'scope':scope} if scope else {})),
+                     'current lifecycle generation owner interval')
                 need(prior < lower < upper and row == dict(node=node, event=kind, **({'scope':scope} if scope else {})),
                      'current lifecycle generation owner interval')
                 self.take(node, scope, lower, upper, OPEN, kind+':'+identity); prior = upper
+
+    def old_reopens(self, lifetimes):
+        for node,(start,scope) in lifetimes.items():
+            need(0 <= start < len(self.events) and self.events[start] == dict(node=node,scope=scope,event='CURRENT_VALIDATED'),
+                 'current lifecycle declared cold boundary')
+            upper = next((i for i in range(start,len(self.events)) if self.events[i].get('node') == node and
+                          self.events[i].get('scope') == scope and self.events[i]['event'] == 'LEARNER_RETENTION_RECOVERY_ACTIVE_FORCED'),None)
+            need(upper is not None,'current lifecycle cold reseal boundary')
+            self.take(node,scope,start-1,upper,OPEN,'original-cold-reopen')
 
     def captures(self, expected):
         found = [(i, v) for i, v in enumerate(self.events) if v.get('event') == CAPTURE]
@@ -131,7 +144,7 @@ class Ownership:
                     chainSha256=digest(f.canonical(self.bindings)))
 
 
-def joining(events, replay, bases, recovery=None):
+def joining(events, replay, bases, recovery=None, *, old_owner_lifetimes=None):
     owners = (*replay.old, replay.joining)
     expected = changes(replay.phases, owners, joining=replay.joining, recovery=recovery)
     captures = Counter((v['node'], None if v['scope'] == 'network-owner' else v['scope']) for v in bases.values())
@@ -139,7 +152,8 @@ def joining(events, replay, bases, recovery=None):
     # does not append another BASIS; local_order validates its exact scope.
     captures[replay.joining, 'repeated-basis-owner'] += 1
     owner = Ownership(events); owner.original_opens(replay.old, False); owner.joining_opens(replay.joining)
-    owner.generations(expected, replay.joining); owner.captures(captures)
+    owner.old_reopens({} if old_owner_lifetimes is None else old_owner_lifetimes)
+    owner.generations(expected, replay.joining, old_owner_lifetimes=old_owner_lifetimes); owner.captures(captures)
     return owner.finish()
 
 

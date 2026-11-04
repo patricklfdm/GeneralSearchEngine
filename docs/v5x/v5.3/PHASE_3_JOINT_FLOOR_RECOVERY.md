@@ -67,15 +67,56 @@ authority are checked. Fourteen targeted evidence mutations must reject for thei
 specified layer and reason after the unmodified original passes. Other physical
 inputs are protected from each mutation.
 
-This qualifies the recovered floor's exports and maintenance, not all other floor
-transactions in the history. Transient retirement-file bytes were not captured
+That focused reader qualifies the recovered floor's exports and maintenance,
+not all other floor transactions in the history. Transient generation-retirement-file bytes were not captured
 at every callback; the reader checks their derived event sequence and exact final
 state, without claiming those unobserved prefixes. Process death, remaining
-partial-body/native interruption axes, complete-history force/maintenance
-composition and final-source cohort execution remain open. The eleven optional
+partial-body/native interruption axes and final-source cohort execution remain
+open. The eleven optional
 hosted subsets and 512 planned histories are unchanged. See the additional
 [maintenance replay receipt](phase3-evidence/joint-floor-maintenance.json) for the
 original producer identity, current reader and retained development diagnostics.
+
+### Complete interrupted-history composition
+
+`scripts.v53.joint_history_evidence` additionally replays the unchanged native
+original through every network, export, control and floor-maintenance lifetime.
+The cold-owner boundary is explicit and checked against the original CURRENT
+force sequence. All 4,445 completed exchanges, 730 transfer sessions, 33 owned
+slot transactions and 5,100 slot-storage callbacks remain bound to original
+bytes and durable ACK ordering. All 727 non-rejected content sessions are
+accounted for by export or control authority. Ordinary readers keep their strict
+default owner scopes.
+
+Floor replay checks 52 network reservations and three direct reservations,
+169 complete copy instances, 105 remote discovery/copy bindings and all 5,951
+mutating floor callbacks. The two reservations for the interrupted floor are
+one continuous recovery: the original writer prefix and the reacquired copies
+must match exactly, both reservations' callbacks are consumed, and only the
+recorded resumed reservation may overlap an active floor. Each of the 2,949
+generation/source retirement callbacks must be protected by an active floor.
+Forty-eight generation retirement sequences are checked. STATUS remains a hint;
+complete original copies establish the governing majorities.
+
+The same physical derivation now compares 21 source-retirement transactions and
+all 315 captured intermediate source-retirement snapshots, including their
+exact floor authority, journal and preserved/deleted members. Pre-grant
+maintenance uses the independently derived first sufficient voter set; later
+initialization uses its actual four-owner cohort. Captures do not select their
+own expected floor. These recorded **source** retirement prefixes are distinct
+from the still-unobserved transient **generation** retirement files above.
+
+Whole-original acceptance precedes eleven targeted negative mutations. Each
+mutation must change only its declared inputs and fail in its designated layer
+for the exact reason; an earlier unrelated rejection cannot count as success.
+The [whole-history receipt](phase3-evidence/joint-history.json) binds original
+producer/build/raw evidence, the current Python reader, relocated optimized
+replay and retained failed development probes. This extends evidence replay;
+it does not rerun Java or change the native workload, runtime or limits.
+
+Continuous whole-history peer/learner/future ledger composition, native
+partial-body/process-death axes, other Phase 3 obligations and final-source
+qualification remain open. Phase 3 is not closed by this one retained original.
 
 See the [development receipt](phase3-evidence/joint-floor-recovery.json) for the
 actual producer source, toolchain, executions, independently replayed results and
@@ -102,6 +143,8 @@ mvn -o -B -ntp -f reactor/pom.xml -pl ../general-search-engine-replication -am \
 python3 -B -m scripts.v53.joint_floor_recovery_evidence \
   general-search-engine-replication/target/v53-native-dispatch/run-<original-id> --qualify
 python3 -B -m scripts.v53.joint_floor_maintenance_evidence \
+  general-search-engine-replication/target/v53-native-dispatch/run-<original-id> --qualify
+python3 -B -m scripts.v53.joint_history_evidence \
   general-search-engine-replication/target/v53-native-dispatch/run-<original-id> --qualify
 ```
 

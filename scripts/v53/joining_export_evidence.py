@@ -198,7 +198,7 @@ def next_promise(events,node,start,end):
     return min([end]+[at for at,row in enumerate(events) if at>start and row.get('node')==node and row['event']=='PROMISE_FORCED'])
 
 
-def record_windows(root,events,model,windows,sources,*,recovery=None,nodes=('node-1','node-2','node-4'),selection_records=None):
+def record_windows(root,events,model,windows,sources,*,recovery=None,nodes=('node-1','node-2','node-4'),selection_records=None,old_owner_lifetimes=None):
     result=[]
     def add(node,start,end,raw,*,reference=None,ballot=None,view=None,family='record'):
         if raw:result.append(dict(node=node,start=start,end=end,raw=raw,reference=reference or sha(raw),
@@ -219,7 +219,7 @@ def record_windows(root,events,model,windows,sources,*,recovery=None,nodes=('nod
         for raw,at in zip(originals,forced):
             value=f.decode(raw,'records','SELECTED');source=next(v for v in sources if v['node']==node and v['value']['ballot']==value['ballot'])
             add(node,at,source['end'],raw,family='journal')
-    phases=n.phase.blocks(events,model)
+    phases=n.phase.blocks(events,model,old_owner_lifetimes=old_owner_lifetimes)
     for (index,node),points in phases.items():
         parts=model.phases[index-1];selected=f.decode(parts['SELECTED'],'records','SELECTED')
         before=current(windows,node,points['ACCEPT_BEFORE_RETURN'],points['ACCEPT_BEFORE_RETURN'])

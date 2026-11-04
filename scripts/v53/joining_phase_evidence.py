@@ -143,7 +143,8 @@ def forced_interval(events, node, lower, upper, names, reason, times=1):
     need(observed == names * times, reason)
 
 
-def phase_replay(events, rows, replay, physical):
+def phase_replay(events, rows, replay, physical, *, old_owner_lifetimes=None):
+    lifetimes = {} if old_owner_lifetimes is None else old_owner_lifetimes
     used = set(); target_count = 0; storage_callbacks = 0
     for index, parts in enumerate(replay.phases, 1):
         cert = f.decode(parts['CERTIFICATE'], 'records', 'CERTIFICATE'); selected = f.decode(parts['SELECTED'], 'records', 'SELECTED')
@@ -208,7 +209,8 @@ def phase_replay(events, rows, replay, physical):
                  'INSTALL_SELECTOR_RENAMED', 'INSTALL_PARENT_FORCED', 'CURRENT_FILES_FORCED', 'CURRENT_GENERATION_FORCED',
                  'CURRENT_SELECTOR_FORCED', 'CURRENT_DIRECTORY_FORCED'], 'joining published generation force sequence')
             storage_callbacks += slot_storage.validate_slot(events, node,
-                'continuation-owner' if node == replay.joining else None, own, ends[node],
+                'continuation-owner' if node == replay.joining else (
+                    lifetimes[node][1] if node in lifetimes and own['ACCEPT_VALIDATED'] >= lifetimes[node][0] else None), own, ends[node],
                 disk.current(pub[node])[1], f.decode(parts['ENTRY'], 'records', 'ENTRY')['kind'])
         for target in targets:
             identity = semantic.catalog.identities(replay.states[index]['identities'])[target]

@@ -107,7 +107,11 @@ def proposer_forces(events,node,scope,selected_at,upper,replies,members):
                      'joining network proposer complete installation order')
 
 
-def installations(root, events, rows, replay, bases, *, recovery=None):
+def installations(root, events, rows, replay, bases, *, recovery=None, old_owner_lifetimes=None):
+    lifetimes = {} if old_owner_lifetimes is None else old_owner_lifetimes
+    def owner_scope(node, at):
+        if node == replay.joining: return 'continuation-owner'
+        return lifetimes[node][1] if node in lifetimes and at >= lifetimes[node][0] else None
     selections = {sha(parts['SELECTED']): f.decode(parts['SELECTED'],'records','SELECTED') for parts in replay.phases}
     recovery_digest = None
     if recovery is not None:
@@ -128,7 +132,7 @@ def installations(root, events, rows, replay, bases, *, recovery=None):
         actual = [(at,v) for at,v in enumerate(events) if v.get('node') == node and v['event'] == 'SELECTED_FORCED']
         need(len(expected) == len(actual),'joining network complete selection forces')
         for (digest,selected),(at,event) in zip(expected,actual):
-            need(event.get('scope') == ('continuation-owner' if node == replay.joining else None),
+            need(event.get('scope') == owner_scope(node, at),
                  'joining network selection lifetime')
             forced[node,digest] = at
             for source in selected['sources']:
@@ -149,7 +153,7 @@ def installations(root, events, rows, replay, bases, *, recovery=None):
              q['sender']['node'] == selected['ballot']['proposer'] and
              q['recipient']['node'] in [v['voter'] for v in selected['sources']] and
              a['payload'] == dict(selection=digest, cut=selected['cut']), 'joining network installation authority')
-        node = q['recipient']['node']; scope = 'continuation-owner' if node == replay.joining else None
+        node = q['recipient']['node']; scope = owner_scope(node, forced[node,digest])
         need((node,digest) not in used and forced[q['sender']['node'],digest] < row['sent'] and
              row['received'] < forced[node,digest] < row['offered'], 'joining network selected propagation order')
         used.add((node,digest))
@@ -172,7 +176,7 @@ def installations(root, events, rows, replay, bases, *, recovery=None):
     local_count=0
     for digest,selected in selections.items():
         if digest==recovery_digest:continue  # separately bounded by cold reopen below
-        node=selected['ballot']['proposer'];scope='continuation-owner' if node==replay.joining else None
+        node=selected['ballot']['proposer'];scope=owner_scope(node, forced[node,digest])
         selected_at=forced[node,digest];cut=selected['cut']['index']
         replies=[v for v in rows if v['kind']=='SELECTED' and v['request']['payload']==dict(selection=digest)]
         boundaries=[at for at,v in enumerate(events) if at>selected_at and v.get('node')==node and v['event']=='ACCEPT_VALIDATED']
@@ -205,7 +209,7 @@ def installations(root, events, rows, replay, bases, *, recovery=None):
     journal_bounds=[]
     for (node,digest),at in forced.items():
         selected=selections[digest]
-        scope='continuation-owner' if node==replay.joining else None
+        scope=owner_scope(node,at)
         replies=[v for v in rows if v['kind']=='SELECTED' and v['request']['payload']==dict(selection=digest)]
         if node==selected['ballot']['proposer']:
             grants=[bases[v['basisDigest']] for v in selected['sources']]
@@ -221,18 +225,19 @@ def installations(root, events, rows, replay, bases, *, recovery=None):
     return result
 
 
-def network(root, *, size=3, kind='ADD', recovery=None):
+def network(root, *, size=3, kind='ADD', recovery=None, old_owner_lifetimes=None):
     """Only called standalone after the original physical precondition passes."""
     root = Path(root); replay = s.Replay(root,size=size,kind=kind)
     for index in range(1,12): replay.step(index)
     events = s.collection.read_json(root,'events.json',s.collection.EVENT_BYTES)
+    phases=phase.blocks(events,replay,old_owner_lifetimes=old_owner_lifetimes)
     wires = s.collection.read_json(root,'wire.json',s.collection.WIRE_BYTES)
     identities = s.catalog.identities(replay.states[-1]['identities'])
     failed=[];rows = causal(events,wires,identities,replay.root,failed=failed)
     result = transfers(rows)
     grant_result,bases = grants(root,events,rows)
-    result.update(grant_result,**installations(root,events,rows,replay,bases,recovery=recovery))
-    result.update(phase.phase_replay(events,rows,replay,phase.blocks(events,replay)))
+    result.update(grant_result,**installations(root,events,rows,replay,bases,recovery=recovery,old_owner_lifetimes=old_owner_lifetimes))
+    result.update(phase.phase_replay(events,rows,replay,phases,old_owner_lifetimes=old_owner_lifetimes))
     result.update(wireExchanges=len(rows),sentRequests=len(rows),receivedRequests=len(rows),deliveredResponses=sum(v['delivered'] is not None for v in rows))
     if failed:
         response_less=[v for v in failed if not v['withheldResponse']]
@@ -243,7 +248,7 @@ def network(root, *, size=3, kind='ADD', recovery=None):
     policy=phase.loss.declaration(events)
     if policy:result.update(sourceFault=policy['kind'],lostReplies=1,recoveredLostReplies=1)
     initial_current.validate(events,replay.old)
-    current_lifecycle.joining(events,replay,bases,recovery)
+    current_lifecycle.joining(events,replay,bases,recovery,old_owner_lifetimes=old_owner_lifetimes)
     return result
 
 
