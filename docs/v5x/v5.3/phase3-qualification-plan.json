@@ -241,7 +241,9 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningProfileTest.java",
         "scripts/v53/test_required_four_evidence.py",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DeferredGrantTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DeferredGrantTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PinnedFloorTest.java",
+        "scripts/v53/test_pinned_floor_evidence.py"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -254,7 +256,8 @@
         "scripts/v53/carried_transition_prefixes.py",
         "scripts/v53/carried_transition_history.py",
         "scripts/v53/carried_transition_history_hosted.py",
-        "scripts/v53/required_four_evidence.py"
+        "scripts/v53/required_four_evidence.py",
+        "scripts/v53/pinned_floor_evidence.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_JOINT_COORDINATION.md",
@@ -268,7 +271,8 @@
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_COHORT.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_HOSTED.md",
         "docs/v5x/v5.3/PHASE_3_REQUIRED_FOUR.md",
-        "docs/v5x/v5.3/PHASE_3_DEFERRED_GRANT.md"
+        "docs/v5x/v5.3/PHASE_3_DEFERRED_GRANT.md",
+        "docs/v5x/v5.3/PHASE_3_PINNED_FLOOR.md"
       ],
       "cohorts": [
         "profiles",
@@ -541,7 +545,9 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationResourceCapture.java",
         "scripts/v53/test_publication_resource_evidence.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RequiredFourCapacityTest.java",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DeferredGrantTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DeferredGrantTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PinnedFloorTest.java",
+        "scripts/v53/test_pinned_floor_evidence.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -564,7 +570,8 @@
         "scripts/v53/process_joint_hosted.py",
         "scripts/v53/transfer_reply_resources.py",
         "scripts/v53/publication_resource_evidence.py",
-        "scripts/v53/publication_resource_negatives.py"
+        "scripts/v53/publication_resource_negatives.py",
+        "scripts/v53/pinned_floor_evidence.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -589,7 +596,8 @@
         "docs/v5x/v5.3/PHASE_3_PUBLICATION_RESOURCES.md",
         "docs/v5x/v5.3/PHASE_3_REQUIRED_FOUR.md",
         "docs/v5x/v5.3/PHASE_3_DEFERRED_GRANT.md",
-        "docs/v5x/v5.3/PHASE_3_DEFERRED_GRANT_PROCESS.md"
+        "docs/v5x/v5.3/PHASE_3_DEFERRED_GRANT_PROCESS.md",
+        "docs/v5x/v5.3/PHASE_3_PINNED_FLOOR.md"
       ],
       "cohorts": [
         "profiles",

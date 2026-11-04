@@ -1,5 +1,11 @@
 # Phase 3 qualification inventory and remaining work
 
+[Pinned local floor originals](PHASE_3_PINNED_FLOOR.md) now resolve the conditional
+installed-generation capacity conflict by keeping the already charged current
+generation and copying three remote originals. Four logical voters and the frozen
+six-source/seven-image bounds remain unchanged. Full native required-four and
+process/resource qualification remain OPEN.
+
 Phase 3 remains **OPEN**. This inventory originated from baseline `867df7c4`;
 the current table also includes the subsequent learner, transfer and round cohorts. It does
 not execute a native history, accept an old receipt as current-source evidence,

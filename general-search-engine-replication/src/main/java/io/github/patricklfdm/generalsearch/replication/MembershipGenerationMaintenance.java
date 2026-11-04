@@ -175,7 +175,7 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
         require(quorum(voters),"native generation maintenance quorum unavailable");
         require(voters.containsAll(joining),"native generation maintenance joining copy unavailable");
         if(pending.isPresent()){owner.resumeFloorCopy(pending.get(),own,this::check);check();}
-        owner.establishFloor(copies,copy->{
+        owner.establishMaintenanceFloor(copies,copy->{
             // Only this exact complete replacement has been forced, including
             // directory parents. Delete its receiving scratch before reserving
             // another copy; never release an original source or image here.

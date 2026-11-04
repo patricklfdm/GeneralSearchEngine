@@ -11,7 +11,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 
 /** One retained governing floor; explicit release relinquishes authority before bounded cleanup. */
 final class MembershipFloorFiles implements AutoCloseable {
-    static final String DIRECTORY="floor-copies", PROPOSAL="proposal.gsr", FLOOR="floor.gsr", RELEASE="release.gsr";
+    static final String DIRECTORY="floor-copies", PROPOSAL="proposal.gsr", FLOOR="floor.gsr", RELEASE="release.gsr", LOCAL="local.gsr";
     private final Path parent,path;
     private final MembershipRoot root;
     private final MembershipIdentity local;
@@ -27,6 +27,7 @@ final class MembershipFloorFiles implements AutoCloseable {
     private Object pathKey;
     private boolean exists;
     private String reserved;
+    private MembershipCurrentGeneration pinned;
 
     MembershipFloorFiles(Path parent,MembershipRoot root,MembershipIdentity local,MembershipResources resources,
             MembershipCurrentGeneration.Verifier verifier) throws IOException {
@@ -42,7 +43,13 @@ final class MembershipFloorFiles implements AutoCloseable {
     }
     private MembershipFloorFiles(Path parent,MembershipRoot root,MembershipIdentity local,MembershipResources resources,
             MembershipCurrentGeneration.Verifier verifier,MembershipGrantJournal.HistoryRead owner,boolean releaseEnabled)throws IOException {
+        this(parent,root,local,resources,verifier,owner,releaseEnabled,null);
+    }
+    MembershipFloorFiles(Path parent,MembershipRoot root,MembershipIdentity local,MembershipResources resources,
+            MembershipCurrentGeneration.Verifier verifier,MembershipGrantJournal.HistoryRead owner,boolean releaseEnabled,
+            MembershipCurrentGeneration selected)throws IOException {
         this.parent=parent;path=parent.resolve(DIRECTORY);this.root=root;this.local=local;this.resources=resources;this.verifier=verifier;this.historyOwner=owner;this.releaseEnabled=releaseEnabled;
+        if(Files.exists(path.resolve(LOCAL),LinkOption.NOFOLLOW_LINKS))pinned=Objects.requireNonNull(selected,"local floor requires original current owner");
         if(owner!=null){owner.check();require(parent.equals(owner.directory()) && root.equals(owner.root()) && local.equals(owner.identity()),"floor history owner binding");}
         try{capture();reserve(null);if(!releasing() && complete()) {
             read();
@@ -55,6 +62,7 @@ final class MembershipFloorFiles implements AutoCloseable {
     boolean releasing(){return files.containsKey(RELEASE);}
     boolean exists(){return exists;}
     private static long limit(String name) {
+        if(name.equals(LOCAL))return 4096;
         if(name.equals(RELEASE))return 65536;
         if(Set.of(PROPOSAL,FLOOR).contains(name))return 16384;
         String[] parts=name.split("/",-1);require(parts.length==2 && parts[0].matches("[0-9a-f]{64}"),"floor retained path");
@@ -65,7 +73,7 @@ final class MembershipFloorFiles implements AutoCloseable {
         long total=0;
         for(String name:children(path,9)) {
             Path member=path.resolve(name);
-            if(Set.of(PROPOSAL,FLOOR).contains(name) || releaseEnabled && name.equals(RELEASE))captureFile(name);
+            if(Set.of(PROPOSAL,FLOOR,LOCAL).contains(name) || releaseEnabled && name.equals(RELEASE))captureFile(name);
             else {
                 require(name.matches("[0-9a-f]{64}") && directories.size()<6,"floor copy directory count/name");directories.put(name,key(member));long metadata=0;
                 for(String file:children(member,32)) {
@@ -81,14 +89,27 @@ final class MembershipFloorFiles implements AutoCloseable {
         byte[] bytes=AdmissionPaths.read(path.resolve(name),Math.toIntExact(limit(name)));var identity=inspect(path.resolve(name),bytes.length,hash(bytes));files.put(name,identity);return identity;
     }
     void check() throws IOException {
+        if(pinned!=null)pinned.check();
         require(exists==Files.exists(path,LinkOption.NOFOLLOW_LINKS),"floor directory changed");if(!exists)return;
-        var expected=new TreeSet<>(directories.keySet());for(String name:List.of(PROPOSAL,FLOOR,RELEASE))if(files.containsKey(name))expected.add(name);
+        var expected=new TreeSet<>(directories.keySet());for(String name:List.of(PROPOSAL,FLOOR,RELEASE,LOCAL))if(files.containsKey(name))expected.add(name);
         require(pathKey.equals(key(path)) && children(path,9).equals(expected),"floor inventory changed");
         for(var directory:directories.entrySet()) {
             String prefix=directory.getKey()+"/";var names=new TreeSet<String>();for(String name:files.keySet())if(name.startsWith(prefix))names.add(name.substring(prefix.length()));
             require(directory.getValue().equals(key(path.resolve(directory.getKey()))) && children(path.resolve(directory.getKey()),32).equals(names),"floor source directory changed");
         }
         for(var file:files.entrySet())require(file.getValue().equals(inspect(path.resolve(file.getKey()),file.getValue().bytes(),file.getValue().digest())),"floor file inode changed");
+        if(files.containsKey(LOCAL)) {
+            require(pinned!=null && prefix(AdmissionPaths.read(path.resolve(LOCAL),4096),pinned.selector.bytes()),"floor local selector changed");
+            require(!directories.containsKey(pinned.manifest.digest()),"floor local original cannot mix with copied directory");
+            if(complete())require(Arrays.equals(AdmissionPaths.read(path.resolve(LOCAL),4096),pinned.selector.bytes()),"complete floor local selector missing bytes");
+        }
+    }
+    boolean pinsCurrent(){return pinned!=null || files.containsKey(LOCAL);}
+    private boolean localCopy(String digest){return pinned!=null && pinned.manifest.digest().equals(digest);}
+    private void checkPinnedCopy(MembershipFloor.Copy copy)throws IOException {
+        require(pinned!=null && copy.owner.equals(local) && copy.generation.digest().equals(pinned.manifest.digest()),"floor pinned original binding");
+        var original=pinned.copyFiles();var offered=copy.copyFiles();
+        require(original.keySet().equals(offered.keySet()) && original.entrySet().stream().allMatch(e->Arrays.equals(e.getValue(),offered.get(e.getKey()))),"floor pinned original bytes changed");
     }
     private void reserve(SortedMap<String,byte[]> plan) {
         if(!exists && plan==null)return;
@@ -138,6 +159,11 @@ final class MembershipFloorFiles implements AutoCloseable {
      * remote force observations and cannot authorize retirement or a grant. */
     Optional<Decoded> pendingProposal(MembershipFloor.Copy current)throws IOException {
         check();if(!pending())return Optional.empty();
+        // Before any proposal or remote copy exists, no quorum has been fixed.
+        // A partial local-selector pin still binds only the unchanged local
+        // generation and cannot attest to a floor or permit deletion.
+        if(!releasing() && !files.containsKey(PROPOSAL) && directories.isEmpty()
+                && (files.isEmpty() || files.keySet().equals(Set.of(LOCAL))))return Optional.empty();
         require(!releasing() && files.containsKey(PROPOSAL),"partial floor requires original complete proposal");
         var proposal=bound(AdmissionPaths.read(path.resolve(PROPOSAL),16384));
         require(proposal.value().get("cut").equals(current.capsule.context.cut),"partial floor local cut changed");
@@ -223,7 +249,9 @@ final class MembershipFloorFiles implements AutoCloseable {
         require(Arrays.equals(original.bytes(),proposal.bytes()),"floor requires exact original proposal");
         MembershipFloor.covers(current.capsule,copy);
         require(list(original.value().get("sources")).contains(copy.reference()),"partial floor requires exact original copy");
-        String id=copy.generation.digest();var plan=new TreeMap<String,byte[]>();
+        String id=copy.generation.digest();
+        if(localCopy(id)){checkPinnedCopy(copy);pinned.sealFloorOriginal();owner.check();return;}
+        var plan=new TreeMap<String,byte[]>();
         for(var file:copy.copyFiles().entrySet())plan.put(id+"/"+file.getKey(),file.getValue());
         for(var file:files.entrySet())if(file.getKey().startsWith(id+"/"))
             require(plan.containsKey(file.getKey()) && prefix(AdmissionPaths.read(path.resolve(file.getKey()),Math.toIntExact(limit(file.getKey()))),plan.get(file.getKey())),
@@ -260,10 +288,14 @@ final class MembershipFloorFiles implements AutoCloseable {
     }
     private Optional<Retained> retainedOriginal(OriginalRead read) throws IOException {
         var floor=bound(AdmissionPaths.read(path.resolve(FLOOR),16384));
-        var copies=new ArrayList<MembershipFloor.Copy>();var expected=new TreeSet<String>(Set.of(PROPOSAL,FLOOR));if(releasing())expected.add(RELEASE);
+        var copies=new ArrayList<MembershipFloor.Copy>();var expected=new TreeSet<String>(Set.of(PROPOSAL,FLOOR));if(releasing())expected.add(RELEASE);if(files.containsKey(LOCAL))expected.add(LOCAL);
         var rootBytes=decode(AdmissionPaths.read(parent.resolve("root.gsr"),16384),"records","ROOT");MembershipFloor.Copy own=null;
         for(Object row:list(floor.value().get("sources"))) {
             var ref=object(row);String id=(String)ref.get("generation");String prefix=id+"/";var members=new TreeMap<String,byte[]>();
+            if(localCopy(id)) {
+                require(files.containsKey(LOCAL) && ref.get("voter").equals(local.nodeId().value()),"floor pinned voter mismatch");
+                members.putAll(pinned.copyFiles());
+            }
             for(String name:files.keySet())if(name.startsWith(prefix)){expected.add(name);members.put(name.substring(prefix.length()),AdmissionPaths.read(path.resolve(name),Math.toIntExact(limit(name))));}
             require(members.containsKey("generation.gsr") && members.containsKey(PACKET),"retained floor copy absent");
             var generation=decode(members.get("generation.gsr"),"records","GENERATION");require(generation.digest().equals(id),"retained floor generation digest");
@@ -282,7 +314,8 @@ final class MembershipFloorFiles implements AutoCloseable {
             var copy=MembershipFloor.Copy.verify(generation,capsule,owner,Set.of(remembered),members);
             require(copy.reference().equals(ref),"retained floor source binding");copies.add(copy);if(voter.equals(local.nodeId().value()))own=copy;
         }
-        require(expected.equals(files.keySet()) && directories.size()==copies.size() && own!=null,"retained floor inventory/owner");
+        require(expected.equals(files.keySet()) && directories.size()+(files.containsKey(LOCAL)?1:0)==copies.size() && own!=null
+                && (!files.containsKey(LOCAL) || localCopy(own.generation.digest())),"retained floor inventory/owner");
         MembershipFloor.verify(floor,root,own,copies);check();
         if(read!=null){read.check(this);historyOwner.check();}
         return Optional.of(new Retained(floor,List.copyOf(copies)));
@@ -322,10 +355,11 @@ final class MembershipFloorFiles implements AutoCloseable {
             MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut,Handoff handoff)throws IOException {
         require(!releasing(),"pending floor release must finish before new floor");var floor=MembershipFloor.create(root,current,offered);require(current.owner.equals(local),"floor publication owner");
         var plan=new TreeMap<String,byte[]>();plan.put(PROPOSAL,floor.bytes());plan.put(FLOOR,floor.bytes());
-        for(var copy:offered)for(var file:copy.copyFiles().entrySet())plan.put(copy.generation.digest()+"/"+file.getKey(),file.getValue());
+        if(pinned!=null){checkPinnedCopy(current);plan.put(LOCAL,pinned.selector.bytes());}
+        for(var copy:offered)if(!localCopy(copy.generation.digest()))for(var file:copy.copyFiles().entrySet())plan.put(copy.generation.digest()+"/"+file.getKey(),file.getValue());
         check();owner.check();require(plan.keySet().containsAll(files.keySet()),"unrelated retained floor files");
         for(var file:files.entrySet())require(prefix(AdmissionPaths.read(path.resolve(file.getKey()),Math.toIntExact(limit(file.getKey()))),plan.get(file.getKey())),"floor requires exact original proposal");
-        var ids=new TreeSet<String>();for(var copy:offered)ids.add(copy.generation.digest());require(ids.containsAll(directories.keySet()),"unrelated retained floor directory");
+        var ids=new TreeSet<String>();for(var copy:offered)if(!localCopy(copy.generation.digest()))ids.add(copy.generation.digest());require(ids.containsAll(directories.keySet()),"unrelated retained floor directory");
         var ordered=new ArrayList<>(ids);
         if(handoff==null) {if(!floor.digest().equals(reserved))reserve(plan);}
         else {
@@ -338,6 +372,11 @@ final class MembershipFloorFiles implements AutoCloseable {
         }
         cut.at("FLOOR_RESERVED");check();owner.check();
         if(!exists){Files.createDirectory(path);capture();}cut.at("FLOOR_DIRECTORY_CREATED");check();owner.check();
+        if(pinned!=null) {
+            pinned.sealFloorOriginal();cut.at("FLOOR_LOCAL_ORIGINAL_FORCED");check();owner.check();
+            completeFile(LOCAL,plan.get(LOCAL),owner,cut,"FLOOR_LOCAL_SELECTOR");
+            AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(parent);cut.at("FLOOR_LOCAL_PARENT_FORCED");check();owner.check();
+        }
         completeFile(PROPOSAL,plan.get(PROPOSAL),owner,cut,"FLOOR_PROPOSAL");
         for(String id:ordered) {
             if(handoff!=null)reserveCopy(plan,id);
@@ -357,9 +396,19 @@ final class MembershipFloorFiles implements AutoCloseable {
         AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(parent);cut.at("FLOOR_PARENT_FORCED");check();owner.check();
         var retained=read().orElseThrow();require(Arrays.equals(retained.bytes(),floor.bytes()),"floor publication bytes changed");cut.at("FLOOR_BEFORE_RETURN");check();owner.check();return floor;
     }
+    /** The complete selected local original remains owned/charged in generations.
+     * Its selector may not change until this floor has been fully released. */
+    Decoded establishPinned(MembershipCurrentGeneration selected,MembershipFloor.Copy current,List<MembershipFloor.Copy> offered,
+            MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut,Handoff handoff)throws IOException {
+        require(pinned==null || pinned==selected,"floor pinned owner changed");
+        require(!exists || files.containsKey(LOCAL) || files.isEmpty() && directories.isEmpty(),"existing copied floor cannot change representation");
+        selected.check();pinned=selected;checkPinnedCopy(current);
+        return establish(current,offered,owner,cut,handoff);
+    }
     /** Re-seal the complete already owned floor before a retirement borrows its exact images. */
     void resealForRetirement(MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
         retained().orElseThrow(()->new IllegalArgumentException("retirement requires complete unreleased floor"));owner.check();
+        if(pinned!=null)pinned.sealFloorOriginal();
         for(String name:files.keySet())if(!name.equals(FLOOR)) {check();owner.check();force(path.resolve(name));}
         for(String name:directories.keySet())AdmissionPaths.forceDirectory(path.resolve(name));
         AdmissionPaths.forceDirectory(path);force(path.resolve(FLOOR));AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(parent);
@@ -403,6 +452,8 @@ final class MembershipFloorFiles implements AutoCloseable {
         require(expected.get(FLOOR).get("sha256").equals(value.get("floor")) && expected.get(PROPOSAL).equals(Map.of("path",DIRECTORY+"/"+PROPOSAL,
                 "size",expected.get(FLOOR).get("size"),"sha256",value.get("floor"))),"floor release original authority binding");
         for(String id:ids)require(expected.containsKey(id+"/generation.gsr") && expected.containsKey(id+"/source.gscp") && expected.containsKey(id+"/promise.gsr"),"floor release complete source inventory");
+        if(expected.containsKey(LOCAL))require(expected.get(LOCAL).get("sha256").equals(current.selector.digest())
+                && number(expected.get(LOCAL).get("size"))==current.selector.bytes().length,"floor release pinned selector binding");
         require(ids.containsAll(directories.keySet()),"floor release unlisted directory");
         for(var file:files.entrySet())if(!file.getKey().equals(RELEASE)) {
             var wanted=expected.get(file.getKey());require(wanted!=null && number(wanted.get("size"))==file.getValue().bytes()
@@ -440,6 +491,7 @@ final class MembershipFloorFiles implements AutoCloseable {
             Files.delete(path.resolve(name));capture();AdmissionPaths.forceDirectory(path);cut.at("FLOOR_RELEASE_COPY_DELETED");validateRelease(record,current);owner.check();
         }
         if(files.containsKey(PROPOSAL))deleteReleased(PROPOSAL,record,current,owner,cut,"FLOOR_RELEASE_PROPOSAL_CLEARED");
+        if(files.containsKey(LOCAL))deleteReleased(LOCAL,record,current,owner,cut,"FLOOR_RELEASE_LOCAL_CLEARED");
         require(files.keySet().equals(Set.of(RELEASE)) && directories.isEmpty(),"floor release authority must clear last");
         validateRelease(record,current);owner.check();Files.delete(path.resolve(RELEASE));capture();AdmissionPaths.forceDirectory(path);
         cut.at("FLOOR_RELEASE_AUTHORITY_CLEARED");check();owner.check();clearReleased(owner,cut);
@@ -466,5 +518,5 @@ final class MembershipFloorFiles implements AutoCloseable {
         AdmissionPaths.exact(file,bytes);capture();
     }
     private static boolean prefix(byte[] actual,byte[] expected){return actual.length<=expected.length && Arrays.equals(actual,Arrays.copyOf(expected,actual.length));}
-    @Override public void close(){leases.forEach(MembershipResources.Lease::close);leases.clear();copyLeases.clear();reserved=null;}
+    @Override public void close(){leases.forEach(MembershipResources.Lease::close);leases.clear();copyLeases.clear();reserved=null;pinned=null;}
 }

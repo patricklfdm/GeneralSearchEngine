@@ -412,8 +412,8 @@ final class MembershipGrantJournal implements AutoCloseable {
             if(journal.learnerRetention!=null)journal.recoverLearnerRetention();
             if(journal.peerRetention!=null)journal.recoverPeerRetention();
             if(withFloors) {
-                journal.floors=ownedHistory?new MembershipFloorFiles(path,root,identity,resources,new HistoryRead(journal),withFloorRelease):
-                        new MembershipFloorFiles(path,root,identity,resources,verifier,withFloorRelease);
+                journal.floors=new MembershipFloorFiles(path,root,identity,resources,ownedHistory?null:verifier,
+                        ownedHistory?new HistoryRead(journal):null,withFloorRelease,journal.current);
                 var parents=new ArrayList<MembershipCapsule.Anchor>();journal.addFloorParent(parents);journal.current.verifyParents(parents);
             }
             if(withRetirement)journal.retirement=new MembershipRetirementFiles(path,resources,journal.floors,journal.sources);
@@ -1503,10 +1503,14 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(publicationImage!=null){publicationImage.close();publicationImage=null;}
     }
     private void reservePublicationPlan(MembershipGenerationPlan plan)throws IOException {
+        generationChangeAllowed();
         inactive.reservePlan(plan,publicationImage);
         // A successful reservation consumes the original handle atomically.
         // On refusal it is still live and remains owned by this journal.
         publicationImage=null;
+    }
+    private void generationChangeAllowed() {
+        require(floors==null || !floors.pinsCurrent(),"governing floor pins current generation until release");
     }
     private boolean coveredVote(MembershipPendingAccept.Vote vote)throws IOException {
         return vote!=null && vote.certificate()!=null && current.publishedCertificate().filter(vote.certificate().digest()::equals).isPresent();
@@ -2618,7 +2622,9 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized List<MembershipFloor.Copy> retainedMaintenanceCopies()throws IOException {
         require(ownedHistory && floors!=null,"native maintenance floor owner required");
         checkOwner();applicationReferencesIdle();rotationIdle();
-        require(!floors.pending() && !retirement.pending(),"native maintenance floor recovery required");
+        require(!retirement.pending(),"native maintenance floor recovery required");
+        if(floors.pending() && floors.pendingProposal(floorCopyCurrent()).isEmpty())return List.of();
+        require(!floors.pending(),"native maintenance floor recovery required");
         var retained=floors.retained();if(retained.isEmpty())return List.of();
         var local=retained.get().copies().stream().filter(copy->copy.owner.equals(identity)).findFirst().orElseThrow();
         require(Arrays.equals(local.generation.bytes(),current.manifest.bytes()) && local.capsule.terminal().equals(current.capsule.terminal()),
@@ -2629,7 +2635,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized boolean nativeGenerationMaintenanceRequired()throws IOException {
         require(ownedHistory && inactive!=null && retirement!=null && floors!=null,"native generation maintenance owner required");
         checkOwner();require(!inactive.pending() && !retirement.pending(),"native maintenance requires recovered storage");
-        if(floors.pending())floors.pendingProposal(floorCopyCurrent()).orElseThrow();
+        if(floors.pending())floors.pendingProposal(floorCopyCurrent());
         return inactive.exists() || floors.exists();
     }
     /** A completed publication can require retirement before another grant adds
@@ -2729,6 +2735,23 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(floors!=null,"floor storage owner required");checkOwner();applicationReferencesIdle();rotationIdle();
         if(retirement!=null)require(!retirement.pending(),"pending retirement must finish before authority changes");var own=floorCopyCurrent();
         return establishFloor(own,offered,handoff);
+    }
+    /** Installed-generation maintenance may pin the already forced local
+     * original, instead of duplicating a fourth floor copy over two generations
+     * and two sources. Every remote copy and the full governing quorum remain
+     * required. Existing copied floors keep their original representation. */
+    synchronized Decoded establishMaintenanceFloor(List<MembershipFloor.Copy> offered,MembershipFloorFiles.Handoff handoff)throws IOException {
+        require(floors!=null,"floor storage owner required");checkOwner();applicationReferencesIdle();rotationIdle();
+        if(retirement!=null)require(!retirement.pending(),"pending retirement must finish before authority changes");
+        var own=floorCopyCurrent();
+        boolean pin=floors.pinsCurrent() || (!floors.exists() || floors.pending() && floors.pendingProposal(own).isEmpty())
+                && inactive.exists() && !inactive.pending() && current.manifest.value().get("selection")!=null
+                && offered.size()>=4 && sources.retainedIdentities().size()>=2;
+        if(!pin)return establishFloor(own,offered,handoff);
+        try {
+            if(replayFiles!=null && pendingAccept.active()!=null){replayFiles.releaseCompletion();appliedEnd.releaseEmptyCompletion();}
+            return floors.establishPinned(current,own,offered,this::checkWithoutFloor,cut,handoff);
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
     synchronized MembershipFloor.Copy contextFloorCopy()throws IOException {
         contextMaintenanceIdle();require(!floors.pending() && !retirement.pending(),"context floor copy requires idle maintenance");
@@ -3434,7 +3457,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         inactive.checkPlan(plan);
         var bound=object(adoptedPromise.value().get("ballot"));
         try {
-            inactive.reservePlan(plan);checkOwner();cut.at("ADOPTION_INSTALL_VALIDATED");checkOwner();
+            generationChangeAllowed();inactive.reservePlan(plan);checkOwner();cut.at("ADOPTION_INSTALL_VALIDATED");checkOwner();
             observed.updateAndGet(prior->prior==null || compareBallot(bound,prior)>0?bound:prior);fence(bound);
             if(promise==null || !Arrays.equals(promise.bytes(),adoptedPromise.bytes())) {
                 append(adoptedPromise,bound);promise=adoptedPromise;basis=null;selection=null;promises.put(promiseKey(promise),promise);

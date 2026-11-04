@@ -197,6 +197,13 @@ final class MembershipCurrentGeneration implements AutoCloseable {
         return reload!=null?reload.claim(unit,name,bytes):incoming!=null?incoming.claim(unit,name,bytes):resources.reserve(unit,name,bytes);
     }
     List<MembershipResources.Lease> reservations(){return List.copyOf(leases);}
+    /** Re-seal this already charged immutable original before a floor pins it.
+     * No duplicate file, storage lease or authority observation is invented. */
+    void sealFloorOriginal()throws IOException {
+        check();for(String name:files.keySet())force(path.resolve(name));
+        force(path.resolve(MANIFEST));AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(directory);
+        force(parent.resolve(SELECTOR));AdmissionPaths.forceDirectory(parent);check();
+    }
     /** Private construction prevents a bare packet or path from asserting local provenance. */
     static final class RetainedCopy implements MembershipCapsule.StoredCopy {
         private final MembershipCurrentGeneration source;

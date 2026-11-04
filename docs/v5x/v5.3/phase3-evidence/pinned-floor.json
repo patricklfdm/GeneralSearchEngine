@@ -1,0 +1,290 @@
+{
+  "baseHead": "3eded1699e1bf8be8e314a66e8adfdf2460acc76",
+  "combinedNativeResourcesQualified": false,
+  "copiedOriginals": 3,
+  "execution": "conditional-pinned-floor",
+  "finalSourceCohortQualified": false,
+  "imageLimit": 7,
+  "implementationAtIndex": [
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCurrentGeneration.java",
+      "sha256": "51996e7130a787a7fe537128cee5f8f59a4175e59f5ffec5e9bca67fc6523c96"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFloorFiles.java",
+      "sha256": "9f70888114a3f212d9f1ce7ede5c071cb76a11c35de0fb28840e3fda6d5e87a9"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "sha256": "801ea0853b9d357534cc0e824f38178efe84116933eca87579f548404c77bcff"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java",
+      "sha256": "2356212f43fca87d5d20976d4afd2d0691c746f1ce28c0bbdaa9583d4d5c2dac"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PinnedFloorTest.java",
+      "sha256": "a1904927a990786ec8959c2e276359dec4437ba1cf997c42776b595b3f8772f5"
+    },
+    {
+      "path": "scripts/v53/pinned_floor_evidence.py",
+      "sha256": "be3000c5d78aaa6c130c7065de42d8cd8ca0e6e6a8fdea98e6b7f050d19ee4ee"
+    },
+    {
+      "path": "scripts/v53/test_pinned_floor_evidence.py",
+      "sha256": "de776a96b8c9adbd37647e2ee2484df3b7b95e4d1630c7be580fb689094174ea"
+    }
+  ],
+  "independentReplay": {
+    "report": {
+      "path": "target/v53-pinned-floor-review/replay-03.json",
+      "sha256": "e08ea4dd48726143f515dc7bb9ed5bc624eee486476a9a244bc8de954757a7fb"
+    },
+    "result": {
+      "negatives": [
+        {
+          "case": "missing-pin",
+          "reason": "pinned exact pinned",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-pin",
+          "reason": "pinned exact pinned",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-original",
+          "reason": "pinned exact pinned",
+          "status": "REJECTED"
+        },
+        {
+          "case": "extra-local-copy",
+          "reason": "pinned exact pinned",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-peer",
+          "reason": "pinned exact pinned",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-force",
+          "reason": "pinned exact floor force order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reordered-force",
+          "reason": "pinned exact floor force order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "capacity",
+          "reason": "pinned observed capacity",
+          "status": "REJECTED"
+        },
+        {
+          "case": "early-source-delete",
+          "reason": "pinned exact pinned",
+          "status": "REJECTED"
+        },
+        {
+          "case": "retained-floor",
+          "reason": "pinned exact released",
+          "status": "REJECTED"
+        },
+        {
+          "case": "invalid-seed",
+          "reason": "pinned original selector",
+          "status": "REJECTED"
+        }
+      ],
+      "result": {
+        "copiedOriginals": 3,
+        "execution": "conditional-pinned-floor",
+        "historicalOwnershipVerified": false,
+        "imagePeak": 7,
+        "logicalOriginals": 4,
+        "nativeHistory": false,
+        "powerLoss": false,
+        "processDeath": false,
+        "sourcePeak": 6,
+        "status": "PASS"
+      }
+    }
+  },
+  "java": [
+    {
+      "log": {
+        "path": "target/v53-pinned-floor-review/component-03.log",
+        "sha256": "6f8b80e340932474065ba52607e4b1991f5b175488abc17ea78434f256d2245e"
+      },
+      "reports": [
+        {
+          "errors": 0,
+          "failures": 0,
+          "path": "target/v53-pinned-floor-review/component-03-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PinnedFloorTest.xml",
+          "seconds": 77.711,
+          "sha256": "c3e3ecc60efed7d178999e7e5aed88ece6174c6966e6882b4e45e5728ac76054",
+          "skipped": 0,
+          "tests": 5
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "path": "target/v53-pinned-floor-review/component-03-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53RequiredFourCapacityTest.xml",
+          "seconds": 3.854,
+          "sha256": "d75ba454d02320fe6989e3252901c8ee5f9b4b937449057b4e1bcf46643b804c",
+          "skipped": 0,
+          "tests": 3
+        }
+      ]
+    },
+    {
+      "log": {
+        "path": "target/v53-pinned-floor-review/component-04.log",
+        "sha256": "7b7116dac1f22f0e3ad1d12ee10c7d2a99fdac56725cb06546df21393eeb1859"
+      },
+      "reports": [
+        {
+          "errors": 0,
+          "failures": 0,
+          "path": "target/v53-pinned-floor-review/component-04-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest.xml",
+          "seconds": 19.49,
+          "sha256": "65edc15d081230d7139309247d42b4c458982107bc3394997b80810e21e78308",
+          "skipped": 0,
+          "tests": 13
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "path": "target/v53-pinned-floor-review/component-04-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53FloorReadValidationTest.xml",
+          "seconds": 62.215,
+          "sha256": "55e2dfe38b58468103ac5ec054f6aca0dd3a4c99e0620384ef3a35cc325532b1",
+          "skipped": 0,
+          "tests": 2
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "path": "target/v53-pinned-floor-review/component-04-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53FloorReleaseTest.xml",
+          "seconds": 26.748,
+          "sha256": "52205cbf9a44c16d1bf333a504c5aad48363c430b39bbfe082b14f235c91df8f",
+          "skipped": 0,
+          "tests": 11
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "path": "target/v53-pinned-floor-review/component-04-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53FloorResumeCopyTest.xml",
+          "seconds": 8.166,
+          "sha256": "af4bdb61ca36be1d75abeb72b6c0eb6f07f31477e82c9501adbca99acbeb24dd",
+          "skipped": 0,
+          "tests": 5
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "path": "target/v53-pinned-floor-review/component-04-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationInstallTest.xml",
+          "seconds": 16.572,
+          "sha256": "019b4772c62e5d45306bb1a3e5ff44680c81c251b091505a766be265f4567ae5",
+          "skipped": 0,
+          "tests": 11
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "path": "target/v53-pinned-floor-review/component-04-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PinnedFloorTest.xml",
+          "seconds": 11.101,
+          "sha256": "bdb1943af2e785a8be9896e63f69c64c11663ae731907ae13bf22fc37eaea8cf",
+          "skipped": 0,
+          "tests": 2
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "path": "target/v53-pinned-floor-review/component-04-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53RetirementImagesTest.xml",
+          "seconds": 40.075,
+          "sha256": "5f43a8ad56fb29b2819d2c8424c8520a99a9969aae83c5acd0996a22f1f5c4cd",
+          "skipped": 0,
+          "tests": 8
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "path": "target/v53-pinned-floor-review/component-04-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceReleaseTest.xml",
+          "seconds": 17.08,
+          "sha256": "dc62a3ec6d143fd6c54b70eb66da93b95dc91cbf88b18559c49b4870cb5659a4",
+          "skipped": 0,
+          "tests": 14
+        }
+      ]
+    },
+    {
+      "log": {
+        "path": "target/v53-pinned-floor-review/component-05.log",
+        "sha256": "bc7f4ddf288e5d1c81d6518a784f26a0a00512ef723ae9f74a0d17043812f00c"
+      },
+      "reports": [
+        {
+          "errors": 0,
+          "failures": 0,
+          "path": "target/v53-pinned-floor-review/component-05-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PinnedFloorTest.xml",
+          "seconds": 8.504,
+          "sha256": "27d50b655196e4fc93628aea87a80657c22aeeff3a5a5a5bcc8857d7d8eb0d85",
+          "skipped": 0,
+          "tests": 1
+        }
+      ]
+    }
+  ],
+  "logicalOriginals": 4,
+  "nativeHistoryQualified": false,
+  "original": "general-search-engine-replication/target/v53-pinned-floor/run-607c9788-32ec-4095-b012-123a6d4338e5",
+  "originalInventory": {
+    "path": "target/v53-pinned-floor-review/raw-inventory.json",
+    "sha256": "7381c6a560df1a5dbae9a97481cf4715e13e073ec2d96217930009fc646e1d24"
+  },
+  "phase3Complete": false,
+  "powerLossQualified": false,
+  "processDeathQualified": false,
+  "python": {
+    "log": {
+      "path": "target/v53-pinned-floor-review/python-02.log",
+      "sha256": "b67e735b9bc6855929aa3ba32ec31220de5cf47714ed66521ef54a7527e44dd6"
+    },
+    "status": "PASS",
+    "tests": 39
+  },
+  "remaining": [
+    "complete corrected-source required-four native history",
+    "native physical/maintenance reader integration",
+    "pinned representation process-death matrix",
+    "combined native maximum and final-source cohorts"
+  ],
+  "retainedFailures": [
+    {
+      "log": {
+        "path": "target/v53-pinned-floor-review/component-01.log",
+        "sha256": "b23980733993b237ee040a25d681f0273dd2f0810c7fe706417ebc58a4536112"
+      },
+      "reason": "initial test compilation: compound var declaration"
+    },
+    {
+      "log": {
+        "path": "target/v53-pinned-floor-review/component-02.log",
+        "sha256": "e3dffdf4d79bc19f6ed57239c43d40b49d860cc1cc3d3f8a4c6680e50c615d92"
+      },
+      "reason": "test cleanup requested retirement after floor-release authority was already cleared"
+    },
+    {
+      "log": {
+        "path": "target/v53-pinned-floor-review/replay-01.log",
+        "sha256": "f80086cc6333ce96c8974fbab56cb985c4199af66b57b77967680d334daf70af"
+      },
+      "reason": "cold observation included the subsequent grant/install; producer recording boundary corrected"
+    }
+  ],
+  "schema": "gse-v53-pinned-floor-component-v1",
+  "sourceLimit": 6,
+  "status": "PASS"
+}

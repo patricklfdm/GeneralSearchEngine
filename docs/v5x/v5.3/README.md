@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Pinned local floor originals](PHASE_3_PINNED_FLOOR.md) now resolve the conditional
+installed-generation capacity conflict by keeping the already charged current
+generation and copying three remote originals. Four logical voters and the frozen
+six-source/seven-image bounds remain unchanged. Full native required-four and
+process/resource qualification remain OPEN.
+
 [Deferred-grant process recovery](PHASE_3_DEFERRED_GRANT_PROCESS.md) now passes
 fourteen real halt/SIGKILL cases and ten exact independent negatives on conditional
 originals. The corrected required-four run passes retention preparation and JOINT
