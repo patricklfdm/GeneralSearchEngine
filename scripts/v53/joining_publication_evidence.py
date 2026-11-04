@@ -28,14 +28,14 @@ class CheckpointReceipts:
     A forced joining ACK may exist without ever being requested by a sufficient
     overlapping majority. Each publisher owns its own successful collection.
     """
-    def __init__(self, root, replay):
+    def __init__(self, root, replay, *, old_owner_lifetimes=None):
         from . import joining_transcript as transcript
         events=semantic.collection.read_json(root,'events.json',semantic.collection.EVENT_BYTES)
         wires=semantic.collection.read_json(root,'wire.json',semantic.collection.WIRE_BYTES)
         identities=semantic.catalog.identities(replay.states[-1]['identities'])
         rows=transcript.causal(events,wires,identities,replay.root,transfer_only=True);contents=[]
         self.transport=transcript.transfers(rows,contents=contents)
-        self.acks={};self.transfers=0;self.bindings=[];blocks=phases.blocks(events,replay)
+        self.acks={};self.transfers=0;self.bindings=[];blocks=phases.blocks(events,replay,old_owner_lifetimes=old_owner_lifetimes)
         for (index,node),block in blocks.items():
             lower,upper=block['APPLY_BEFORE_RETURN'],block['PUBLICATION_VALIDATED']
             local=replay.owner('applied',index,node)

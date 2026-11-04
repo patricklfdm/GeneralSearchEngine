@@ -1,0 +1,415 @@
+{
+  "baseCommit": "c0a425c9f931789e4cbff5c2d4cd68f26a864a3c",
+  "checks": {
+    "contract-final.json": {
+      "path": "target/v53-joint-floor-recovery-batch/contract-final.json",
+      "sha256": "722381fc67928832e48a747f5477497c7a1804e5a569840f84173997839a08b1"
+    },
+    "inspection-final/receipt.json": {
+      "path": "target/v53-joint-floor-recovery-batch/inspection-final/receipt.json",
+      "sha256": "32a66f742faa45fb7fd0064b7c02ad65c74568d77082bf65084f5b53170c3527"
+    },
+    "integrity-final.json": {
+      "path": "target/v53-joint-floor-recovery-batch/integrity-final.json",
+      "sha256": "91bc1b2ebce718948c5c347e1faf5dde5411562be8394b9605c01b21ca05992f"
+    },
+    "producer-java-match.json": {
+      "path": "target/v53-joint-floor-recovery-batch/producer-java-match.json",
+      "sha256": "71e65b6a12b20c6a209fdee30b6d4a5e64a9e3a75598e3dca65f0f3c01d56240"
+    },
+    "python-all-02.log": {
+      "path": "target/v53-joint-floor-recovery-batch/python-all-02.log",
+      "sha256": "7832acf13044fa3c16a25306855bdde47c8c3d1de3b41df2a9d77525a7f2f7d5"
+    },
+    "qualified-final.json": {
+      "path": "target/v53-joint-floor-recovery-batch/qualified-final.json",
+      "sha256": "04871da3533ad5c64c7f29a8e4e16cbce4c688db9e2ae35bbf203b02429b8fc4"
+    },
+    "qualified-final.log": {
+      "path": "target/v53-joint-floor-recovery-batch/qualified-final.log",
+      "sha256": "4e0a7a3a058cad1281ce58dbda259b139361bf509dcdc783b8709b9e1f7ec6ef"
+    },
+    "qualified-relocated-optimized.json": {
+      "path": "target/v53-joint-floor-recovery-batch/qualified-relocated-optimized.json",
+      "sha256": "04871da3533ad5c64c7f29a8e4e16cbce4c688db9e2ae35bbf203b02429b8fc4"
+    },
+    "qualified-relocated-optimized.log": {
+      "path": "target/v53-joint-floor-recovery-batch/qualified-relocated-optimized.log",
+      "sha256": "4e0a7a3a058cad1281ce58dbda259b139361bf509dcdc783b8709b9e1f7ec6ef"
+    },
+    "reader-final.json": {
+      "path": "target/v53-joint-floor-recovery-batch/reader-final.json",
+      "sha256": "6ee4ffa514c473b62fd3071cb01832091532800b0745f46be253eb46478f05c1"
+    }
+  },
+  "developmentAttempts": {
+    "compile": {
+      "execution": {
+        "elapsedSeconds": 13.798,
+        "exit": 0
+      },
+      "files": {
+        "collected-summary.json": {
+          "path": "target/v53-joint-floor-recovery-batch/compile-01/collected-summary.json",
+          "sha256": "147972677d255f56564ca39b50826e491ebe82497eaded60a4ad6e210de61b37"
+        },
+        "collection.json": {
+          "path": "target/v53-joint-floor-recovery-batch/compile-01/collection.json",
+          "sha256": "ce596f90c09593e67dc804c90478277295deeab5dcecac0735387ee53ecf23aa"
+        },
+        "command.json": {
+          "path": "target/v53-joint-floor-recovery-batch/compile-01/command.json",
+          "sha256": "7b4baceebaf6fab78ec54cbf06f1eac5bdd354ebc3c5797925f299dc99b1e8da"
+        },
+        "execution.json": {
+          "path": "target/v53-joint-floor-recovery-batch/compile-01/execution.json",
+          "sha256": "5148a869d2158608fa97cf21012b18b13060d40bbe1063bf908a453f71919330"
+        },
+        "maven.log": {
+          "path": "target/v53-joint-floor-recovery-batch/compile-01/maven.log",
+          "sha256": "0fc9f3dbc8437644f0bbdd42cf5ec25e7ab675cc4e77dd2505de99a577563f0b"
+        },
+        "source.json": {
+          "path": "target/v53-joint-floor-recovery-batch/compile-01/source.json",
+          "sha256": "4d8c9a42e81fd1e2a1f4ccc1c93174fef076151ab3ec28f71f4eb7f457f613a5"
+        },
+        "toolchain.json": {
+          "path": "target/v53-joint-floor-recovery-batch/compile-01/toolchain.json",
+          "sha256": "171fbf9a2c15f3681495c2336dda7133397a444c55ebb8ecd4b729daad1a9e84"
+        }
+      },
+      "junit": {}
+    },
+    "interruptedFixture": {
+      "execution": {
+        "execution": {
+          "elapsedSeconds": 336.496,
+          "exit": 143
+        },
+        "files": {
+          "collected-summary.json": {
+            "path": "target/v53-joint-floor-recovery-batch/native-01/collected-summary.json",
+            "sha256": "833d64f289c1909562c5a5053e09889fc76e354f554979263497f96df42eeb30"
+          },
+          "collection.json": {
+            "path": "target/v53-joint-floor-recovery-batch/native-01/collection.json",
+            "sha256": "df8fbf1f70a36fdb1e4e8737e17918b7c38bc77a5177fd82135d2577268dba5e"
+          },
+          "command.json": {
+            "path": "target/v53-joint-floor-recovery-batch/native-01/command.json",
+            "sha256": "da19b015a1f0e36fa640a6bb8e96d162bc5d955ca855d22778575e1f8e3da8a9"
+          },
+          "execution.json": {
+            "path": "target/v53-joint-floor-recovery-batch/native-01/execution.json",
+            "sha256": "6f922f6e8968a3323d4c1f2e7124203d8173d2f6cbd473d68d3a7e9b6f761708"
+          },
+          "maven.log": {
+            "path": "target/v53-joint-floor-recovery-batch/native-01/maven.log",
+            "sha256": "89ab9a28a6b336917d6d1099e17d0e20ab0211a989fd801e5a8ecc552898cb2e"
+          },
+          "operator-stop.json": {
+            "path": "target/v53-joint-floor-recovery-batch/native-01/operator-stop.json",
+            "sha256": "a439a47c2c4a8a24f945f7a5898fc585129ae49d511f4fd7a3d82e2dc809754f"
+          },
+          "source.json": {
+            "path": "target/v53-joint-floor-recovery-batch/native-01/source.json",
+            "sha256": "4d8c9a42e81fd1e2a1f4ccc1c93174fef076151ab3ec28f71f4eb7f457f613a5"
+          },
+          "toolchain.json": {
+            "path": "target/v53-joint-floor-recovery-batch/native-01/toolchain.json",
+            "sha256": "dec4494eea49792e6ed408b451cc6f8f71ca6122603daae1699a501babb7b90a"
+          }
+        },
+        "junit": {}
+      },
+      "reason": "Stopped after identifying missing originals parent creation; corrected source used in native-02"
+    },
+    "pythonCorrection": {
+      "log": {
+        "path": "target/v53-joint-floor-recovery-batch/python-all.log",
+        "sha256": "ab9af2852a8168b2db5ab07811d20db51032c74de777d466f3e5aa3d3883b89c"
+      },
+      "reason": "Extracted confirmation helper initially assumed owner fields absent from conditional test fixtures; now takes existing replay/voters explicitly"
+    },
+    "readerCorrections": [
+      {
+        "log": {
+          "path": "target/v53-joint-floor-recovery-batch/qualified-01.log",
+          "sha256": "d879741625f52927abbc92ec230250f0542d80061443d8eb675d5dab6ecda046"
+        },
+        "reason": "Reader expected legacy generation route instead of current metadata-only route"
+      },
+      {
+        "log": {
+          "path": "target/v53-joint-floor-recovery-batch/qualified-02.log",
+          "sha256": "e9aa6456a4d75841c6151abe952752ca97fa5ba60fcd79cc1badef1e5a9f8bf3"
+        },
+        "reason": "Reader needed an explicit boundary for the reopened old-owner callback scope"
+      },
+      {
+        "log": {
+          "path": "target/v53-joint-floor-recovery-batch/qualified-03.log",
+          "sha256": "bc84c0ad7c5dec101825596600bf59b9d75a01ad8bf2d58a739eace99bf5ce87"
+        },
+        "reason": "Derive pre-seed original learner-head confirmations before comparing full owner state"
+      }
+    ]
+  },
+  "existingRequiredChanged": false,
+  "finalSourceQualified": false,
+  "freshExchanges": 66,
+  "fullHistoryQualified": false,
+  "fullMaintenanceReplayQualified": false,
+  "hostedExecuted": false,
+  "limitsChanged": false,
+  "nativeExecution": {
+    "execution": {
+      "elapsedSeconds": 1187.62,
+      "exit": 0
+    },
+    "files": {
+      "collected-summary.json": {
+        "path": "target/v53-joint-floor-recovery-batch/native-02/collected-summary.json",
+        "sha256": "ab67881bdb29323c02b02eca5df80a381a73132d06a83eb7bc1b62278b9e953f"
+      },
+      "collection.json": {
+        "path": "target/v53-joint-floor-recovery-batch/native-02/collection.json",
+        "sha256": "beac4665922512429cea5457c70067506c9436f275ee765e3d7fee839ea8ba04"
+      },
+      "command.json": {
+        "path": "target/v53-joint-floor-recovery-batch/native-02/command.json",
+        "sha256": "da19b015a1f0e36fa640a6bb8e96d162bc5d955ca855d22778575e1f8e3da8a9"
+      },
+      "execution.json": {
+        "path": "target/v53-joint-floor-recovery-batch/native-02/execution.json",
+        "sha256": "daf5f7d96934ad0aa3c797b15a76413c6a993b3354387fa138b17f99b13db223"
+      },
+      "maven.log": {
+        "path": "target/v53-joint-floor-recovery-batch/native-02/maven.log",
+        "sha256": "4e9a753314cf55f57ffc654dee569b6071fb7f439a0a784e8aba0f69071d2a3b"
+      },
+      "source.json": {
+        "path": "target/v53-joint-floor-recovery-batch/native-02/source.json",
+        "sha256": "c82bc863abdeeb6d39b0c2b79062652f5c7f993f150334169a344cfcb15c9ff3"
+      },
+      "toolchain.json": {
+        "path": "target/v53-joint-floor-recovery-batch/native-02/toolchain.json",
+        "sha256": "33edd6b7bfe0be565f2591d187910155c510c68a7284561f364848dfd10098d3"
+      }
+    },
+    "junit": {
+      "TEST-io.github.patricklfdm.generalsearch.replication.V53JointFloorRecoveryTest.xml": {
+        "errors": "0",
+        "failures": "0",
+        "flakes": "0",
+        "name": "io.github.patricklfdm.generalsearch.replication.V53JointFloorRecoveryTest",
+        "skipped": "0",
+        "tests": "1",
+        "time": "1173.089",
+        "version": "3.0.2",
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd"
+      }
+    }
+  },
+  "originalCopies": 4,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "physicalImages": 7,
+  "processDeathQualified": false,
+  "producerJavaFiles": 1402,
+  "productionJavaMatchesProducer": true,
+  "pythonTests": {
+    "elapsedSeconds": 120.3,
+    "status": "PASS",
+    "tests": 2648
+  },
+  "remaining": [
+    "incomplete four-copy bodies at full SOURCE occupancy",
+    "complete independent remote export-force and maintenance/retirement replay",
+    "other interrupted cuts and legitimate controller/metadata overlap",
+    "final-source Phase 3 cohort admission"
+  ],
+  "remoteExportForceQualified": false,
+  "replay": {
+    "negatives": [
+      {
+        "case": "scope",
+        "reason": "joint floor bounded scope",
+        "status": "REJECTED"
+      },
+      {
+        "case": "proposal",
+        "reason": "joint floor exact original proposal",
+        "status": "REJECTED"
+      },
+      {
+        "case": "premature-authority",
+        "reason": "joint floor exact interrupted originals: interrupted",
+        "status": "REJECTED"
+      },
+      {
+        "case": "closed-original",
+        "reason": "joint floor exact interrupted originals: after-close",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reopened-original",
+        "reason": "joint floor exact interrupted originals: after-reopen",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lost-original",
+        "reason": "joint floor exact resumed inventory",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lost-authority",
+        "reason": "joint floor exact resumed inventory",
+        "status": "REJECTED"
+      },
+      {
+        "case": "invented-headroom",
+        "reason": "joint floor physical originals remain charged",
+        "status": "REJECTED"
+      },
+      {
+        "case": "resource-overflow",
+        "reason": "joint floor bounded resource observations",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-force",
+        "reason": "joint floor interrupted force order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "event-prefix",
+        "reason": "joint floor native event prefix",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lineage",
+        "reason": "joint floor original lineage",
+        "status": "REJECTED"
+      },
+      {
+        "case": "budget",
+        "reason": "joint floor unchanged maintenance budget and cut",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lost-exchange",
+        "reason": "joint floor complete fresh exchange observations",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-packet",
+        "reason": "joint floor packet exact data",
+        "status": "REJECTED"
+      },
+      {
+        "case": "legacy-generation-route",
+        "reason": "joint floor generation original offer",
+        "status": "REJECTED"
+      },
+      {
+        "case": "consistent-extra-allocation",
+        "reason": "joint floor independently derived interrupted owner",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "freshExchanges": 66,
+      "fullMaintenanceReplayQualified": false,
+      "joiningPlacement": {
+        "comparedFiles": 65,
+        "completePhysicalQualified": false,
+        "forceAndNetworkQualified": false,
+        "joiningPlacementPhysicalQualified": true,
+        "nativeInitializationQualified": false,
+        "oldOwnerSnapshots": 115,
+        "phase3Complete": false,
+        "placedRoots": 8,
+        "processDeathQualified": false,
+        "scope": "native-REPLACE-original-joining-placement",
+        "status": "PASS"
+      },
+      "originalCopies": 4,
+      "originalPrefix": {
+        "campaigns": 4,
+        "completePhysicalQualified": false,
+        "forceAndNetworkQualified": false,
+        "ownerSnapshotComparisons": 115,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "profile": "5-REPLACE",
+        "scope": "native-REPLACE-bootstrap-through-old-voter-INTENT",
+        "slots": 9,
+        "status": "PASS",
+        "throughIntentPhysicalQualified": true
+      },
+      "phase3Complete": false,
+      "physicalImages": 7,
+      "processDeathQualified": false,
+      "profile": "5-REPLACE",
+      "remoteExportForceQualified": false,
+      "retainedSources": 5,
+      "scope": "joint-floor-storage-and-catalog-chain",
+      "semanticChain": {
+        "checkpointObservations": 70,
+        "completePhysicalQualified": false,
+        "controls": [
+          "BARRIER",
+          "RESERVE",
+          "BARRIER",
+          "PREPARE",
+          "BARRIER",
+          "READY",
+          "BARRIER",
+          "SEAL",
+          "INTENT",
+          "FINAL",
+          "BARRIER"
+        ],
+        "forceAndNetworkQualified": false,
+        "internalReadyCuts": [
+          1,
+          3,
+          5,
+          7,
+          11
+        ],
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "profile": "5-REPLACE",
+        "publicReady": false,
+        "scope": "native-REPLACE-catalog-certificate-checkpoint-chain",
+        "selections": 6,
+        "semanticChainQualified": true,
+        "slots": 11,
+        "status": "PASS"
+      },
+      "status": "PASS"
+    }
+  },
+  "runtimeChanged": false,
+  "schema": "gse-v53-joint-floor-recovery-development-v1",
+  "scope": "native-5-REPLACE-exception-close-reopen-original-floor",
+  "scripts": {
+    "collect.py": {
+      "path": "target/v53-joint-floor-recovery-batch/collect.py",
+      "sha256": "21078f73986276d5d6b13d116df27a2aeeb2b0e4d7d1c37807bbb83bb8a8bf41"
+    },
+    "execute.py": {
+      "path": "target/v53-joint-floor-recovery-batch/execute.py",
+      "sha256": "72a7a42f55f9a5cb773f83ef587224773f3b71be5db89609351e95c2cf2fee87"
+    },
+    "finalize.py": {
+      "path": "target/v53-joint-floor-recovery-batch/finalize.py",
+      "sha256": "e49ff8f5ed314993d1fffe59cbed38d1e5ea771408e41633944c8cd4e5d2b227"
+    }
+  },
+  "sourceAndBuild": "Native producer snapshot/class inventories plus separately pinned final Python readers",
+  "sourceSlots": 5,
+  "status": "PASS"
+}

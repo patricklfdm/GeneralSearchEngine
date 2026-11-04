@@ -1,9 +1,11 @@
 # V5.3 — controlled cluster operations
 
-[Full joint-floor byte reuse](PHASE_3_PENDING_FLOOR_BORROW.md) now reacquires
-complete retained originals without a seventh SOURCE. A conditional four-copy
-joint floor completes at six SOURCE slots and seven physical images; native
-5-REPLACE interruption and incomplete-body recovery remain open.
+[Native 5-REPLACE floor recovery](PHASE_3_JOINT_FLOOR_RECOVERY.md) now exercises
+an interrupted four-original floor, same-directory cold reopen and TCP recovery
+before FINAL and the stable BARRIER. Independent storage/catalog replay observes
+seven application images and five SOURCE slots. The earlier conditional test
+covers six SOURCE slots; incomplete bodies and full remote-force/maintenance
+replay remain open.
 
 [Automatic partial-floor resumption](PHASE_3_AUTOMATIC_FLOOR_RESUME.md) now
 reacquires the exact original proposal one copy at a time, retaining all charges

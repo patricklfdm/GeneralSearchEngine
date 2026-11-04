@@ -100,6 +100,32 @@ class JoiningPhaseEvidenceTest(unittest.TestCase):
         events[-1]['scope']='stable-cold-owner'
         with self.assertRaisesRegex(ValueError,'^joining force owner lifetime$'):j.blocks(events,replay)
 
+    def test_cold_old_owner_requires_declared_boundary_and_exact_scope(self):
+        parts,_,_,_=fixture.JoiningCatalogEvidenceTest().phase()
+        replay=SimpleNamespace(phases=[parts,parts],old=('node-1','node-2','node-3'),joining='node-4')
+        events=[dict(node=node,event=event) for node in replay.old[:2] for event in j.force_names()]
+        boundary=len(events)
+        events += [dict(node=node,event=event,**({'scope':'reopened'} if node=='node-2' else {}))
+                   for node in replay.old[:2] for event in j.force_names()]
+        lifetime={'node-2':(boundary,'reopened')}
+        with self.assertRaisesRegex(ValueError,'^joining force event shape$'):j.blocks(events,replay)
+        self.assertEqual(4,len(j.blocks(events,replay,old_owner_lifetimes=lifetime)))
+        with self.assertRaisesRegex(ValueError,'^joining force event shape$'):
+            j.blocks(events,replay,old_owner_lifetimes={'node-2':(0,'reopened')})
+        changed=copy.deepcopy(events);changed[-1]['scope']='other-owner'
+        with self.assertRaisesRegex(ValueError,'^joining force owner lifetime$'):
+            j.blocks(changed,replay,old_owner_lifetimes=lifetime)
+        changed=copy.deepcopy(events);changed[-1].pop('scope')
+        with self.assertRaisesRegex(ValueError,'^joining force event shape$'):
+            j.blocks(changed,replay,old_owner_lifetimes=lifetime)
+
+    def test_invalid_cold_owner_declaration_cannot_relax_existing_profiles(self):
+        replay=SimpleNamespace(old=('node-1','node-2','node-3'),joining='node-4',phases=[])
+        for value in ({'node-4':(0,'reopened')},{'node-2':(True,'reopened')},
+                      {'node-2':(1,'reopened')},{'node-2':(0,'')},[]):
+            with self.subTest(value=value),self.assertRaisesRegex(ValueError,'^joining declared old owner lifetimes$'):
+                j.blocks([dict(node='node-2',event='CURRENT_VALIDATED')],replay,old_owner_lifetimes=value)
+
     def test_original_must_pass_before_mutations(self):
         with patch.object(j,'validate',side_effect=ValueError('original failed')),patch.object(j.shutil,'copytree') as copied:
             with self.assertRaisesRegex(ValueError,'^original failed$'):j.qualify(Path('/original'))

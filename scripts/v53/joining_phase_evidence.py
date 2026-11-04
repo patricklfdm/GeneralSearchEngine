@@ -90,8 +90,12 @@ def force_names():
         'FUTURE_RETENTION_CLEARED', 'PUBLICATION_BEFORE_RETURN']
 
 
-def blocks(events, replay):
+def blocks(events, replay, *, old_owner_lifetimes=None):
     result = {}; critical = force_names()
+    lifetimes = {} if old_owner_lifetimes is None else old_owner_lifetimes
+    need(type(lifetimes) is dict and set(lifetimes) <= set(replay.old) and
+         all(type(value) is tuple and len(value) == 2 and type(value[0]) is int and 0 <= value[0] < len(events) and
+             type(value[1]) is str and value[1] for value in lifetimes.values()), 'joining declared old owner lifetimes')
     nodes=replay.old if replay.joining is None else (*replay.old,replay.joining)
     need(all(v.get('node') in nodes for v in events if v.get('event') in critical), 'joining slot force unknown owner')
     for node in nodes:
@@ -101,9 +105,11 @@ def blocks(events, replay):
         need([v['event'] for _, v in rows] == critical * len(indices), 'joining exact slot force order: ' + node)
         for ordinal, index in enumerate(indices):
             held = rows[ordinal*len(critical):(ordinal+1)*len(critical)]
-            need(all(set(v) == ({'node', 'scope', 'event'} if node == replay.joining else {'node', 'event'}) for _, v in held),
-                 'joining force event shape')
-            if node == replay.joining: need(all(v['scope'] == 'continuation-owner' for _, v in held), 'joining force owner lifetime')
+            for at, value in held:
+                scope = 'continuation-owner' if node == replay.joining else (
+                    lifetimes[node][1] if node in lifetimes and at >= lifetimes[node][0] else None)
+                need(set(value) == ({'node', 'scope', 'event'} if scope is not None else {'node', 'event'}), 'joining force event shape')
+                if scope is not None: need(value['scope'] == scope, 'joining force owner lifetime')
             result[index, node] = {v['event']: at for at, v in held}
     return result
 

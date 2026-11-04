@@ -16,6 +16,16 @@ import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*
  * native checkpoint pulls and the unchanged future-retention quorum. */
 class V53JoiningIntentExportTest {
     @TempDir Path temp;
+    @FunctionalInterface interface SeedMaintenance {
+        void run(V53NativeDispatchTest.Network network,List<MembershipFloor.Copy> copies,
+                MembershipGrantJournal joining,MembershipLearnerPlan plan,MembershipResources resources,
+                MembershipReplicaConfig<Integer,Doc> config,V53JoiningTrace trace)throws Exception;
+    }
+    private SeedMaintenance interruptedSeedMaintenance;
+    void jointFloorRecovery(SeedMaintenance maintenance)throws Exception {
+        assertNull(interruptedSeedMaintenance);interruptedSeedMaintenance=Objects.requireNonNull(maintenance);
+        nativeJoining(true,true,true,true,true,true,true,true,true,V53JoiningProfile.parse("5-REPLACE"),false);
+    }
     static final long BUDGET=TimeUnit.MINUTES.toNanos(12);
     record Input(Decoded entry,byte[] payload) {}
     static Input input(V53NativeDispatchTest.Network n,String kind,Object command)throws Exception {
@@ -420,6 +430,10 @@ class V53JoiningIntentExportTest {
                                                             if(seedJoined) {
                                                                 var copies=joiningFloorCopies(n,journal);
                                                                 for(int i:n.voters) {
+                                                                    if(i==1 && interruptedSeedMaintenance!=null) {
+                                                                        interruptedSeedMaintenance.run(n,copies,journal,plan,pool,config,trace);
+                                                                        continue;
+                                                                    }
                                                                     var old=n.owners.get(i);var seedMaintenance=old.publishedMaintenance(n.resources.get(i));
                                                                     if(i!=0)old.establishFloor(copies);
                                                                     // This is optional maintenance after forcing the complete

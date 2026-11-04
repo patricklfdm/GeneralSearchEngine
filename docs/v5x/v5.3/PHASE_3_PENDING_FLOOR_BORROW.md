@@ -54,6 +54,12 @@ See the [development receipt](phase3-evidence/pending-floor-borrow.json) for exa
 sources, actual toolchain, test executions and retained intermediate failures.
 No resource/time limits, protocol formats, POM, workflow or Required gates change.
 
+A subsequent [native 5-REPLACE entry](PHASE_3_JOINT_FLOOR_RECOVERY.md) now
+qualifies complete originals across an exception/close/reopen cut at the actual
+seed boundary, followed by FINAL/BARRIER. That execution observes five SOURCE
+slots and seven application images; it does not retroactively upgrade this
+conditional six-SOURCE receipt or qualify incomplete bodies.
+
 ## Remaining boundary
 
 A full four-copy proposal with incomplete bodies may still lack a receiving slot;

@@ -158,6 +158,31 @@ def retained_order(events, *, joining):
          'joining initialization original repeated basis order')
 
 
+def confirm_old_learners(root, owner, group, *, replay, voters):
+    """Derive the pre-seed learner ledgers from the original head exchanges."""
+    wire = s.catalog.parse((root/'joining-head-wire.json').read_bytes())
+    need(type(wire) is list and len(wire) == len(voters), 'joining initialization original head exchange count')
+    cap = disk.p.decode(owner.history.sources[8]['source.gscp'])['capsule']; traces = set()
+    for node, row in zip(voters, wire):
+        need(type(row) is dict and set(row) == {'request', 'response'}, 'joining initialization head exchange shape')
+        query = f.decode(base64.b64decode(row['request'], validate=True), 'wire', 'LEARNER_HEAD_QUERY')
+        trace = query['trace']; need(str(uuid.UUID(trace)) == trace and trace not in traces, 'joining initialization original head trace')
+        traces.add(trace)
+        identity = f.decode(group[node]['node.gsr'], 'records', 'NODE')['identity']
+        request = dict(root=replay.root, view=owner.request['expected'],
+            ballot=dict(counter=1, proposer=owner.joining['node'], incarnation=owner.joining['storage']),
+            trace=trace, sequence=1, sender=identity, recipient=owner.joining, payload=dict(request=owner.request))
+        response = dict(request, sender=owner.joining, recipient=identity,
+            payload=dict(request=sha(f.canonical(owner.request)), endpoint=disk.anchor(cap)))
+        proof = dict(query=placement.encoded(f.encode('wire', 'LEARNER_HEAD_QUERY', request)),
+                     ack=placement.encoded(f.encode('wire', 'LEARNER_HEAD_ACK', response)))
+        need(row == dict(request=proof['query'], response=proof['ack']), 'joining initialization exact original head exchange')
+        files = group[node]
+        files[learner.FILE] = confirmed_learner(files[learner.FILE], proof, disk.anchor(cap))
+        need((root/('joining-confirmed-'+node+'.json')).read_bytes() == f.canonical(learner.decode(files[learner.FILE])['plan']),
+             'joining initialization exact confirmed learner plan')
+
+
 class Initialization:
     def __init__(self, root, handoff):
         self.root, self.handoff = Path(root), handoff
@@ -174,27 +199,7 @@ class Initialization:
         self.group = transition.maintenance(self.group, voters=self.voters)
 
     def confirmations(self):
-        wire = s.catalog.parse((self.root/'joining-head-wire.json').read_bytes())
-        need(type(wire) is list and len(wire) == len(self.voters), 'joining initialization original head exchange count')
-        cap = disk.p.decode(self.owner.history.sources[8]['source.gscp'])['capsule']; traces = set()
-        for node, row in zip(self.voters, wire):
-            need(type(row) is dict and set(row) == {'request', 'response'}, 'joining initialization head exchange shape')
-            query = f.decode(base64.b64decode(row['request'], validate=True), 'wire', 'LEARNER_HEAD_QUERY')
-            trace = query['trace']; need(str(uuid.UUID(trace)) == trace and trace not in traces, 'joining initialization original head trace')
-            traces.add(trace)
-            identity = f.decode(self.group[node]['node.gsr'], 'records', 'NODE')['identity']
-            request = dict(root=self.replay.root, view=self.owner.request['expected'],
-                ballot=dict(counter=1, proposer=self.owner.joining['node'], incarnation=self.owner.joining['storage']),
-                trace=trace, sequence=1, sender=identity, recipient=self.owner.joining, payload=dict(request=self.owner.request))
-            response = dict(request, sender=self.owner.joining, recipient=identity,
-                payload=dict(request=sha(f.canonical(self.owner.request)), endpoint=disk.anchor(cap)))
-            proof = dict(query=placement.encoded(f.encode('wire', 'LEARNER_HEAD_QUERY', request)),
-                         ack=placement.encoded(f.encode('wire', 'LEARNER_HEAD_ACK', response)))
-            need(row == dict(request=proof['query'], response=proof['ack']), 'joining initialization exact original head exchange')
-            files = self.group[node]
-            files[learner.FILE] = confirmed_learner(files[learner.FILE], proof, disk.anchor(cap))
-            need((self.root/('joining-confirmed-'+node+'.json')).read_bytes() == f.canonical(learner.decode(files[learner.FILE])['plan']),
-                 'joining initialization exact confirmed learner plan')
+        confirm_old_learners(self.root, self.owner, self.group, replay=self.replay, voters=self.voters)
 
     def old_preparation(self):
         for node in self.voters:
