@@ -104,7 +104,7 @@ class RemoveNetworkEvidenceTest(unittest.TestCase):
         row=dict(kind='STATUS_PROBE',answer='STATUS',received=10,offered=12,
             request=dict(recipient=dict(node='node-1'),payload=dict(nonce='nonce')),
             response=dict(payload=dict(nonce='nonce',ready=False,cut=dict(index=7))))
-        history=SimpleNamespace(root=Path('/unused'),published={(1,'node-1'):{}})
+        history=SimpleNamespace(root=Path('/unused'),phases=[{}, {}, {}],published={(1,'node-1'):{}})
         physical={(1,'node-1'):dict(PUBLICATION_SELECTOR_FORCED=20,PUBLICATION_BEFORE_RETURN=21)}
         with patch.object(n.c,'inventory',return_value={}),patch.object(n.c,'current',side_effect=lambda files:('',{},dict(capsule=dict(cut=dict(index=4))))):
             with self.assertRaisesRegex(ValueError,'original status window'):n.statuses([row],history,physical)

@@ -15,6 +15,9 @@ class V53CarriedTransitionDriverTest {
         var helper=new V53TransitionRoundDriverTest();helper.temp=temp;
         var ordinal=new AtomicInteger();
         try(var n=helper.network("CARRIED_"+kind);var round=helper.driver(n,ordinal,MembershipRoundDriver.Events.NONE)) {
+            // Retain every original send/receive and terminal failure before
+            // the first higher-ballot campaign; replies alone are insufficient.
+            n.observeRequests=true;
             byte[] entry=Files.readAllBytes(n.f.raw.resolve("entry-"+index+".gsr"));
             byte[] payload=Files.readAllBytes(n.f.raw.resolve("payload-"+index+".bin"));
             var completed=round.start();assertEquals("PUBLISH_ACK",completed.kind());

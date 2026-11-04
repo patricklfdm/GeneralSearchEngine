@@ -1,0 +1,255 @@
+{
+  "baseCommit": "a79c6a588bb9a1a1d9677f90d36a7652240b8cc0",
+  "completeExportAuthorityQualified": false,
+  "durableActivationAndSlotACKsQualified": true,
+  "hostedSubsetAdded": false,
+  "maintenanceCompositionQualified": false,
+  "members": [
+    {
+      "execution": {
+        "elapsedSeconds": 320.112,
+        "exit": 0
+      },
+      "junit": {
+        "errors": 0,
+        "failures": 0,
+        "method": "carriedIntentFinishesBeforeFreshStableBarrier",
+        "retries": 0,
+        "tests": 1
+      },
+      "kind": "INTENT",
+      "nativeExecutions": 1,
+      "negatives": 153,
+      "network": {
+        "boundFailedControls": 15,
+        "boundInstallReplies": 5,
+        "boundPhaseResponses": 29,
+        "boundStatusReplies": 22,
+        "committedTransfers": 275,
+        "completeSlotStorageCallbacks": 1120,
+        "deliveredResponses": 886,
+        "exactTransferRetries": 0,
+        "failedAttempts": 15,
+        "futureTargets": 5,
+        "originalGrants": 8,
+        "ownedSlotTransactions": 8,
+        "proposerInstallations": 3,
+        "receivedRequests": 901,
+        "rejectedTransferAttempts": 0,
+        "sentRequests": 901,
+        "slots": 3,
+        "terminalObservations": 30,
+        "transferSessions": 145,
+        "transferredBytes": 1618396,
+        "wireExchanges": 886
+      },
+      "producer": {
+        "bytes": 597767,
+        "path": "target/v53-carried-transition-network/inputs/intent/receipt.json",
+        "sha256": "dbaf924f490e1b1f823403c429ad11795f4d44aaee19616f52129fec8f9d9e61"
+      },
+      "qualification": {
+        "bytes": 19704,
+        "path": "target/v53-carried-transition-network/intent-qualification-02.json",
+        "sha256": "c5e9f22e8b0d2ac088d20dd17bb3d924dc7d55f9e56f9823143393d5d539be17"
+      },
+      "raw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-bf2a3e0a-2e0f-4f58-a314-55544dce1614",
+      "rawBytes": 19070805,
+      "rawFiles": 4331,
+      "retries": 0
+    },
+    {
+      "execution": {
+        "elapsedSeconds": 304.174,
+        "exit": 0
+      },
+      "junit": {
+        "errors": 0,
+        "failures": 0,
+        "method": "carriedFinalFinishesBeforeFreshStableBarrier",
+        "retries": 0,
+        "tests": 1
+      },
+      "kind": "FINAL",
+      "nativeExecutions": 1,
+      "negatives": 153,
+      "network": {
+        "boundFailedControls": 9,
+        "boundInstallReplies": 3,
+        "boundPhaseResponses": 17,
+        "boundStatusReplies": 10,
+        "committedTransfers": 141,
+        "completeSlotStorageCallbacks": 700,
+        "deliveredResponses": 456,
+        "exactTransferRetries": 0,
+        "failedAttempts": 9,
+        "futureTargets": 3,
+        "originalGrants": 5,
+        "ownedSlotTransactions": 5,
+        "proposerInstallations": 2,
+        "receivedRequests": 465,
+        "rejectedTransferAttempts": 0,
+        "sentRequests": 465,
+        "slots": 2,
+        "terminalObservations": 18,
+        "transferSessions": 77,
+        "transferredBytes": 1008980,
+        "wireExchanges": 456
+      },
+      "producer": {
+        "bytes": 701208,
+        "path": "target/v53-carried-transition-network/inputs/final/receipt.json",
+        "sha256": "38054b844794a685b047a82adc0842d066881c98b3cc38350adc85d5cf70e341"
+      },
+      "qualification": {
+        "bytes": 19695,
+        "path": "target/v53-carried-transition-network/final-qualification.json",
+        "sha256": "a330e44f9f7a11f328700ff93bc508e8e9361ce1a9da91a0ead2e2b1b3857878"
+      },
+      "raw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-f77c0f87-4f69-4b4d-9d5f-6970c7910860",
+      "rawBytes": 19724378,
+      "rawFiles": 5029,
+      "retries": 0
+    }
+  ],
+  "nativeHistories": 2,
+  "nativeRetries": 0,
+  "negativeChecks": 306,
+  "observedAttemptsQualified": true,
+  "phase3Complete": false,
+  "pins": {
+    "buildSha256": "a4a51f206c96aa3073f875243d5c74e9d18b946e6db765b542c27ab2bb58a252",
+    "readerSha256": "4c1db04eedd30edf37a6a3c6a4901acd149939aa39df8dbd8b265954486204ee",
+    "sourceSha256": "f0fcef2dad154e7f1e43ff491b9dfd5fdfa7b268e359cd11a54b11fae2a24d61",
+    "toolchainSha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+  },
+  "portable": [
+    {
+      "bytes": 587,
+      "path": "target/v53-carried-transition-network/portable-results/intent-receipt.json",
+      "result": {
+        "archiveSha256": "ca7e9d7851017a2371666ce8646710d211b17576799553cd80ca7e88cf73b870",
+        "elapsedSeconds": 116.03399584599993,
+        "kind": "INTENT",
+        "negatives": 153,
+        "pins": {
+          "buildSha256": "a4a51f206c96aa3073f875243d5c74e9d18b946e6db765b542c27ab2bb58a252",
+          "readerSha256": "4c1db04eedd30edf37a6a3c6a4901acd149939aa39df8dbd8b265954486204ee",
+          "sourceSha256": "f0fcef2dad154e7f1e43ff491b9dfd5fdfa7b268e359cd11a54b11fae2a24d61",
+          "toolchainSha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+        },
+        "pythonOptimized": true,
+        "status": "PASS"
+      },
+      "sha256": "d7ec7f76ff6dfa1106cfbf5f319bf29d43eb2390e0b64571bc858762694b8279"
+    },
+    {
+      "bytes": 584,
+      "path": "target/v53-carried-transition-network/portable-results/final-receipt.json",
+      "result": {
+        "archiveSha256": "0b6368aebc738d77dad37f96a5cf406d0cb3b02096d3541cd025999973cbd8e8",
+        "elapsedSeconds": 87.7486726730001,
+        "kind": "FINAL",
+        "negatives": 153,
+        "pins": {
+          "buildSha256": "a4a51f206c96aa3073f875243d5c74e9d18b946e6db765b542c27ab2bb58a252",
+          "readerSha256": "4c1db04eedd30edf37a6a3c6a4901acd149939aa39df8dbd8b265954486204ee",
+          "sourceSha256": "f0fcef2dad154e7f1e43ff491b9dfd5fdfa7b268e359cd11a54b11fae2a24d61",
+          "toolchainSha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+        },
+        "pythonOptimized": true,
+        "status": "PASS"
+      },
+      "sha256": "99ad688e0993e9820ab1e3f61d03df94844b76ff173468c0350729e3f6e59b81"
+    }
+  ],
+  "processDeathQualified": false,
+  "publicReady": false,
+  "retainedDiagnostics": [
+    {
+      "bytes": 1327,
+      "path": "target/v53-carried-transition-network/intent-qualification.stderr",
+      "sha256": "1ecafb8eddd2c6aec47cde66ae2a626e171f3161961c2ac76a7eab435f4abb9b"
+    },
+    {
+      "bytes": 637,
+      "path": "target/v53-carried-transition-network/probe.log",
+      "sha256": "fe15d01dc0c1fb1e5fdea8c4ec75d405a42521e66ca4bdbd3f56d65f1f475373"
+    },
+    {
+      "bytes": 1275,
+      "path": "target/v53-carried-transition-network/tests-02.log",
+      "sha256": "8ca2d0a3df943e88f6be5498cf222b630d57764699776a06434b437c88a5eb4e"
+    },
+    {
+      "bytes": 1212,
+      "path": "target/v53-carried-transition-network/early-promise-original-regression.log",
+      "sha256": "a92c31e6803a657be5d4d93e637d7e1b398760a0f0476ff2eb3ecfa5c200e1f6"
+    }
+  ],
+  "runtimeChanged": false,
+  "schema": "gse-v53-carried-transition-network-development-v1",
+  "scope": "four-voter REMOVE carried INTENT/FINAL complete attempted transport and durable replies",
+  "sourceNote": "Native captures share the recorded a79c6a58-based source with request observations enabled. Reader development continued after source capture; this is original-preserving development replay, not final-source cohort admission.",
+  "status": "PARTIAL",
+  "validation": {
+    "documentContract": {
+      "bytes": 167,
+      "path": "target/v53-carried-transition-network/document-contract-final.json",
+      "sha256": "3b03bd1b31153eb37801f2084d50953e0aab873744490e11fd8c78f04e8a694b",
+      "status": "PASS"
+    },
+    "focused": {
+      "bytes": 162,
+      "elapsedSeconds": 0.138,
+      "path": "target/v53-carried-transition-network/tests-final.log",
+      "sha256": "ec28812189ac1687deca049ccef0fda83a9af1d8c52da864836de2697937b412",
+      "status": "PASS",
+      "tests": 63
+    },
+    "noncarriedNetwork": {
+      "bytes": 1209,
+      "path": "target/v53-carried-transition-network/remove-regression.json",
+      "sha256": "e55a15d37dc6dbbc857adab56263aef49696847c9845e79cb12c1e5bcfc7c109",
+      "status": "PARTIAL"
+    },
+    "oldObservationRejections": {
+      "bytes": 713,
+      "path": "target/v53-carried-transition-network/old-observation-rejections.json",
+      "sha256": "4b6415e27850e93f56b957984244fe49dc31521aa84b1bef663b865642a8c0fd"
+    },
+    "optimized": {
+      "bytes": 162,
+      "elapsedSeconds": 0.135,
+      "path": "target/v53-carried-transition-network/tests-optimized.log",
+      "sha256": "fe810846e043a1a3497b6726a20d7a74f9465257b74f42cb50a14764e679b47b",
+      "status": "PASS",
+      "tests": 63
+    },
+    "originalMutationRegression": {
+      "bytes": 924,
+      "path": "target/v53-carried-transition-network/early-promise-original-regression-02.log",
+      "sha256": "93b1f27eb2eaf50bbb4c991d3dcd8723fad18531e675e8628e413ecfac65425e"
+    },
+    "productionComparison": {
+      "bytes": 258,
+      "path": "target/v53-carried-transition-network/production-comparison.json",
+      "sha256": "3e23fa5bfe0f71cfd17ad93df2815dfe71081d26ec359789728fcc43681843ac"
+    },
+    "python": {
+      "bytes": 4679,
+      "elapsedSeconds": 136.6,
+      "path": "target/v53-carried-transition-network/python-suite-final.log",
+      "sha256": "f6c19a35dc1f7563f73ab2fd1fabbdb96601be91c140b1fc220cdec67102ab4c",
+      "status": "PASS",
+      "tests": 2456
+    },
+    "sourceInventory": {
+      "bytes": 54027,
+      "path": "target/v53-carried-transition-network/inventory-final/receipt.json",
+      "sha256": "e9e6469d2b314e90ee2222a96f744f99a5705a238c7e633f4c4e3e7db33fd2a0",
+      "status": "PASS"
+    }
+  },
+  "workflowChanged": false
+}

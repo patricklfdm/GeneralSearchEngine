@@ -28,11 +28,12 @@ class History:
     """Only constructed after the original physical/lifecycle gate passes."""
     joining=None
 
-    def __init__(self,root,profile):
+    def __init__(self,root,profile,*,indices=(5,6,7)):
+        need(type(indices) is tuple and indices in ((5,6,7),(6,7)), 'REMOVE network original slot indices')
         self.root=Path(root);self.old=tuple('node-'+str(i+1) for i in range(int(profile[0])))
         self.phases=[];self.states=[None];self.applied={};self.published={};self.installed={}
-        for ordinal in range(1,4):
-            index=ordinal+4;selected=(self.root/f'selected-{ordinal}.gsr').read_bytes()
+        for ordinal,index in enumerate(indices,1):
+            selected=(self.root/f'selected-{ordinal}.gsr').read_bytes()
             selection=f.decode(selected,'records','SELECTED');voters=[v['voter'] for v in selection['sources']]
             for node in voters:
                 self.installed[ordinal,node]=c.inventory(self.root/f'installed-{ordinal}'/node)
@@ -129,7 +130,7 @@ def statuses(rows,history,physical):
         q,a=row['request'],row['response'];node=q['recipient']['node']
         prior=c.current(c.inventory(history.root/'before-network'/node))[2]['capsule']['cut']
         possibilities=[];since=-1
-        for ordinal in range(1,4):
+        for ordinal in range(1,len(history.phases)+1):
             if (ordinal,node) not in physical:continue
             times=physical[ordinal,node]
             if since<=row['offered'] and row['received']<=times['PUBLICATION_BEFORE_RETURN']:possibilities.append(prior)
@@ -190,7 +191,11 @@ def failed_controls(root,events,failed,history,rows=(),physical=None):
 
 
 def network(root,profile):
-    history=History(root,profile)
+    return replay(root,History(root,profile))
+
+
+def replay(root,history):
+    """Require the caller's exact original physical/lifecycle derivation first."""
     identities={n:d.future.identity(c.inventory(Path(root)/'before-network'/n)) for n in history.old}
     root_id=f.decode(history.phases[0]['SELECTED'],'records','SELECTED')['root']
     events=collection.read_json(Path(root),'events.json',collection.EVENT_BYTES)

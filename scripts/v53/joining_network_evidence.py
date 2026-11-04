@@ -355,8 +355,13 @@ def mutate(root, name):
     elif name=='missing-grant-force':events.pop(at('BASIS_FORCED','node-2'))
     elif name=='early-promise':
         row=first('PREPARE');digest=sha(base64.b64decode(row['response']))
+        node=wire(row['request'])[1]['recipient']['node']
         pos=next(i for i,v in enumerate(events) if v['event']=='WIRE_RESPONSE' and v['response']==digest)
-        offered=events.pop(pos);events.insert(at('BASIS_FORCED','node-2'),offered)
+        # Concurrent remote grants may answer in either order. Move this
+        # actual reply before its own grant force, not a different voter's.
+        forces=[i for i,v in enumerate(events[:pos]) if v['node']==node and v['event']=='BASIS_FORCED']
+        need(forces,'joining early promise mutation original receiver force')
+        offered=events.pop(pos);events.insert(forces[-1],offered)
     elif name=='early-selection':
         row=events.pop(at('SELECTED_FORCED','node-1'))
         pos=next(i for i,v in enumerate(events) if v['event']=='NETWORK_RECEIVED' and v['kind']=='PROMISE')

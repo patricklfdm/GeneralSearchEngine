@@ -7,6 +7,13 @@ groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
 
+[Carried transition attempted-network qualification](PHASE_3_CARRIED_TRANSITION_NETWORK.md)
+now binds complete requests, replies, failure terminals and durable ACKs for
+two new INTENT/FINAL originals. The older response-only evidence is explicitly
+refused for this scope. Original-first replay requires 153 exact network negatives
+per history. Temporal export authority, retention/maintenance composition and
+dedicated cohort admission remain open; the hosted subset count is unchanged.
+
 [Carried INTENT / FINAL replay](PHASE_3_CARRIED_TRANSITIONS.md) now derives two
 complete four-voter REMOVE originals through the old vote, unchanged carried
 command, later transitions and fresh stable BARRIER. Both physical/lifecycle

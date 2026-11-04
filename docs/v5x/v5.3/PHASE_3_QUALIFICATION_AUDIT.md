@@ -102,8 +102,12 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    The [carried INTENT/FINAL reader](PHASE_3_CARRIED_TRANSITIONS.md) now independently
    replays two complete four-voter REMOVE originals and 60 exact negatives,
    preserving old entry bytes through fresh stable readiness. This development
-   physical/lifecycle component still needs full network replay and dedicated
-   capture/admission; it does not add a hosted subset.
+   physical/lifecycle component is now complemented by
+   [attempted-network qualification](PHASE_3_CARRIED_TRANSITION_NETWORK.md): two
+   new request-observed originals, complete durable replies and 153 exact network
+   negatives per kind. Older response-only records cannot supply this scope.
+   Temporal export authority, retention/maintenance composition and dedicated
+   capture/admission remain; this does not add a hosted subset.
    Other carried payload/process axes remain; conditional Phase 2 fixtures cannot
    substitute for native originals. Continue competing-owner and transition
    recovery entries and uncovered learner profiles. Reuse existing producers/readers.
