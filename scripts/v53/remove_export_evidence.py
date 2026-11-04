@@ -21,14 +21,15 @@ from . import remove_maintenance_evidence as original_maintenance
 n=network;e=exports;c=n.c;f=n.f;need=n.need;sha=n.sha
 
 
-def generation_windows(root,events,history):
+def generation_windows(root,events,history,*,indices=(5,6,7)):
+    need(type(indices) is tuple and indices in ((5,6,7),(6,7)), 'REMOVE export original slot indices')
     windows=[]
     for node in history.old:
         changes=[]
-        for ordinal in range(1,4):
+        for ordinal,index in enumerate(indices,1):
             if (ordinal,node) not in history.installed:continue
             changes.extend([('INSTALL_BEFORE_RETURN',history.installed[ordinal,node],f'installed-{ordinal}/{node}'),
-                ('PUBLICATION_BEFORE_RETURN',history.published[ordinal,node],f'published-{ordinal+4}/{node}')])
+                ('PUBLICATION_BEFORE_RETURN',history.published[ordinal,node],f'published-{index}/{node}')])
         renames=[i for i,v in enumerate(events) if v['node']==node and v['event']=='INSTALL_SELECTOR_RENAMED']
         returns=[(i,v['event']) for i,v in enumerate(events) if v['node']==node and v['event'] in ('INSTALL_BEFORE_RETURN','PUBLICATION_BEFORE_RETURN')]
         need(len(renames)==len(returns)==len(changes) and [p for _,p in returns]==[p for p,_,_ in changes],

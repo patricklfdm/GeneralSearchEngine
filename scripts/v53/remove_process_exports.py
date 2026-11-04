@@ -76,7 +76,7 @@ def frozen_sources(files,node):
     return result
 
 
-def source_windows(root,events,history,activation):
+def source_windows(root,events,history,activation,*,snapshots=None):
     grants={};prior=-1
     for ordinal,parts in enumerate(activation.phases,1):
         selected=f.decode(parts['SELECTED'],'records','SELECTED');digest=sha(parts['SELECTED'])
@@ -86,7 +86,10 @@ def source_windows(root,events,history,activation):
             need(len(found)==1,'REMOVE process export original source grant')
             grants[row['voter'],row['basisId']]=(found[0],row['basisDigest'])
         prior=end
-    snapshots=[(-1,'before-network')]+[(i,v['value']) for i,v in enumerate(events) if v['event']=='PROCESS_SNAPSHOT']+[(len(events),'after-close')]
+    if snapshots is None:
+        snapshots=[(-1,'before-network')]+[(i,v['value']) for i,v in enumerate(events) if v['event']=='PROCESS_SNAPSHOT']+[(len(events),'after-close')]
+    need(snapshots[0]==(-1,'before-network') and snapshots[-1]==(len(events),'after-close') and
+         all(a[0]<b[0] for a,b in zip(snapshots,snapshots[1:])), 'REMOVE process export source snapshot order')
     windows={};used_grants=set();used_retirements=set()
     for node in history.old:
         before={};lower=-2

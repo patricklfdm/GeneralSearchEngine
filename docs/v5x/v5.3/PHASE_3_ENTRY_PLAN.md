@@ -7,6 +7,13 @@ groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
 
+[Carried transition export/floor qualification](PHASE_3_CARRIED_TRANSITION_EXPORTS.md)
+now authorizes every observed export and all 20 complete-copy floor lifetimes
+across the same two originals, with 44 exact negatives. Old pending sources keep
+their actual later retirement boundary. Peer/future revision composition,
+retirement transactions and source-bound admission remain; no new native execution
+or hosted subset is added.
+
 [Carried transition attempted-network qualification](PHASE_3_CARRIED_TRANSITION_NETWORK.md)
 now binds complete requests, replies, failure terminals and durable ACKs for
 two new INTENT/FINAL originals. The older response-only evidence is explicitly

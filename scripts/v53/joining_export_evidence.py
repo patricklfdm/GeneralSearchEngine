@@ -394,7 +394,16 @@ def mutate(root,name,*,kind='ADD',recovery=None,reader=None):
         contents=[];n.transfers(rows,contents=contents);groups=sessions(contents)
     else:model,rows,groups=reader.model,reader.rows,reader.groups
     if name.startswith('generation-'):values=next(v for v in groups if record_kind(v[0]['raw'])=='GENERATION')
-    elif name.startswith('source-'):values=next(v for v in groups if record_kind(v[0]['raw'])=='BASIS')
+    elif name.startswith('source-'):
+        candidates=[v for v in groups if record_kind(v[0]['raw'])=='BASIS']
+        if name=='source-after-retirement' and reader is not None:
+            # A carried selection can leave the first responding peer's source
+            # retained. Mutate an actually retired original, regardless of reply
+            # arrival order; never invent a retirement for the first response.
+            candidates=[v for v in candidates if any(s['node']==v[0]['offer']['request']['recipient']['node'] and
+                        sha(s['basis'])==v[0]['offer']['request']['payload']['digest'] and s['end']<len(events)
+                        for s in reader.sources)]
+        need(candidates,'export mutation requires actually retired source');values=candidates[0]
     elif name.startswith('receipt-'):values=next(v for v in groups if native_receipt(v[0]['raw']))
     elif name=='record-view':values=next(v for v in groups if record_kind(v[0]['raw'])=='ENTRY')
     elif name=='pending-after-retain':values=next(v for v in groups if v[0]['raw']==pending_ack(model))
