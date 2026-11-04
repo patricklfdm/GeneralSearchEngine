@@ -1,0 +1,1416 @@
+{
+  "baseCommit": "cf32211545fa0a70d21e33d7de3efc28544032c5",
+  "cases": 16,
+  "checks": {
+    "contract.json": {
+      "path": "target/v53-partial-joint-floor-batch/contract.json",
+      "sha256": "ea5af68cf4a94354d62c3c8c00821ca9a652ff582459be7aece222abb2ab1a92"
+    },
+    "inspection/receipt.json": {
+      "path": "target/v53-partial-joint-floor-batch/inspection/receipt.json",
+      "sha256": "d53c743e253c3368420605c2182704984e4964a97322b49f6939d5d89317c332"
+    },
+    "integrity.json": {
+      "path": "target/v53-partial-joint-floor-batch/integrity.json",
+      "sha256": "5270f6d8c2b9b677914e43da7f66e067aa37b4120dea031b609fdab7f334ee84"
+    },
+    "python-focused-final.log": {
+      "path": "target/v53-partial-joint-floor-batch/python-focused-final.log",
+      "sha256": "905a3916c27559e1dd8cb1d5a21fd50068d6d170722181ed91c7d6086a267f63"
+    },
+    "python-optimized-final.log": {
+      "path": "target/v53-partial-joint-floor-batch/python-optimized-final.log",
+      "sha256": "4ddfba7988c1073c785dfbe3ed8078411794b3556913184854f0f33e7972332e"
+    },
+    "qualified-final-02.json": {
+      "path": "target/v53-partial-joint-floor-batch/qualified-final-02.json",
+      "sha256": "3eba6b574468186c5db5b694a1ee22ff000c10fb5642c581118c8a81c848aa94"
+    },
+    "qualified-final-02.log": {
+      "path": "target/v53-partial-joint-floor-batch/qualified-final-02.log",
+      "sha256": "849a665ea876ecd177f48e2455e9f9f384dbbdd01cb1f9d51186265bebe897c6"
+    },
+    "qualified-relocated-optimized-02.json": {
+      "path": "target/v53-partial-joint-floor-batch/qualified-relocated-optimized-02.json",
+      "sha256": "3eba6b574468186c5db5b694a1ee22ff000c10fb5642c581118c8a81c848aa94"
+    },
+    "qualified-relocated-optimized-02.log": {
+      "path": "target/v53-partial-joint-floor-batch/qualified-relocated-optimized-02.log",
+      "sha256": "849a665ea876ecd177f48e2455e9f9f384dbbdd01cb1f9d51186265bebe897c6"
+    },
+    "reader-sealed.json": {
+      "path": "target/v53-partial-joint-floor-batch/reader-sealed.json",
+      "sha256": "aa25f74d8b9916c6e521e9c396df7883db905c07883d11623522002ad07d85fa"
+    }
+  },
+  "completeMaintenanceQualified": false,
+  "existingRequiredChanged": false,
+  "finalExecution": {
+    "execution": {
+      "elapsedSeconds": 81.665,
+      "exit": 0
+    },
+    "files": {
+      "collected-summary.json": {
+        "path": "target/v53-partial-joint-floor-batch/component-final/collected-summary.json",
+        "sha256": "2da13d1bef5db811c407ef46e12941e69cd62b5dbd785a469bdd10d9121866a8"
+      },
+      "collection.json": {
+        "path": "target/v53-partial-joint-floor-batch/component-final/collection.json",
+        "sha256": "1231415c53f45efdf5751d7988b3b66d7794d2e8c550a357a8d34f02912c9cd9"
+      },
+      "command.json": {
+        "path": "target/v53-partial-joint-floor-batch/component-final/command.json",
+        "sha256": "6e9cbfa94d22a2f650cbcc4fc6b378e2e54dedf819184f96f47ec669e4bda747"
+      },
+      "execution.json": {
+        "path": "target/v53-partial-joint-floor-batch/component-final/execution.json",
+        "sha256": "177942359d00ed40d74c8cc48ecbf5009a920839384da3d8877d422ccb6f9e2e"
+      },
+      "maven.log": {
+        "path": "target/v53-partial-joint-floor-batch/component-final/maven.log",
+        "sha256": "5b279018a279f7b1e6a179052893e6bac8a06bf7f7c482419eff3a9cd744fef7"
+      },
+      "source.json": {
+        "path": "target/v53-partial-joint-floor-batch/component-final/source.json",
+        "sha256": "981a3714dba1dbbb843c2ef1aba4b3245401754c552fbdd3a2f2a08cdaab2f2c"
+      },
+      "toolchain.json": {
+        "path": "target/v53-partial-joint-floor-batch/component-final/toolchain.json",
+        "sha256": "7c329b60982ef99ba3e24861e8b05307ea47e29961ef9fe4c114635fc52fbc31"
+      }
+    },
+    "junit": {
+      "TEST-io.github.patricklfdm.generalsearch.replication.V53FloorResumeCopyTest.xml": {
+        "errors": "0",
+        "failures": "0",
+        "flakes": "0",
+        "name": "io.github.patricklfdm.generalsearch.replication.V53FloorResumeCopyTest",
+        "skipped": "0",
+        "tests": "5",
+        "time": "7.198",
+        "version": "3.0.2",
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd"
+      },
+      "TEST-io.github.patricklfdm.generalsearch.replication.V53PartialJointFloorTest.xml": {
+        "errors": "0",
+        "failures": "0",
+        "flakes": "0",
+        "name": "io.github.patricklfdm.generalsearch.replication.V53PartialJointFloorTest",
+        "skipped": "0",
+        "tests": "16",
+        "time": "46.586",
+        "version": "3.0.2",
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd"
+      },
+      "TEST-io.github.patricklfdm.generalsearch.replication.V53PendingFloorBorrowTest.xml": {
+        "errors": "0",
+        "failures": "0",
+        "flakes": "0",
+        "name": "io.github.patricklfdm.generalsearch.replication.V53PendingFloorBorrowTest",
+        "skipped": "0",
+        "tests": "5",
+        "time": "13.383",
+        "version": "3.0.2",
+        "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd"
+      }
+    }
+  },
+  "finalSourceQualified": false,
+  "hostedExecuted": false,
+  "intermediateExecution": {
+    "reason": "Successful first 16-case producer; final fixture closes unused borrow handles and marks PASS after complete close/drain",
+    "result": {
+      "execution": {
+        "elapsedSeconds": 61.618,
+        "exit": 0
+      },
+      "files": {
+        "collected-summary.json": {
+          "path": "target/v53-partial-joint-floor-batch/component-01/collected-summary.json",
+          "sha256": "a335635c1609d5e8b17e179af1641ae72730bf9cda03965fc6de79273f0fecb9"
+        },
+        "collection.json": {
+          "path": "target/v53-partial-joint-floor-batch/component-01/collection.json",
+          "sha256": "d607d829679e879076481accc70e23a5b9770a02e7a2ae1d6adc2cf9ea77c3fc"
+        },
+        "command.json": {
+          "path": "target/v53-partial-joint-floor-batch/component-01/command.json",
+          "sha256": "89933960a548fc1cf0e62e70032055b7efd44bed392392e921ee2ac5af760116"
+        },
+        "execution.json": {
+          "path": "target/v53-partial-joint-floor-batch/component-01/execution.json",
+          "sha256": "c0f46b05c3ab5db37501e747e4e92960e36772e0285abc5dae608b3022d175ba"
+        },
+        "maven.log": {
+          "path": "target/v53-partial-joint-floor-batch/component-01/maven.log",
+          "sha256": "5d7995ffdce4de4b62f2e6712363f33a3b0087f95a5a57d2b01c6737f228fa3c"
+        },
+        "source.json": {
+          "path": "target/v53-partial-joint-floor-batch/component-01/source.json",
+          "sha256": "1cd4cf633406d220c7eb8208cb81c699a7679b0af74294cf30db5ffd37bfa234"
+        },
+        "toolchain.json": {
+          "path": "target/v53-partial-joint-floor-batch/component-01/toolchain.json",
+          "sha256": "41d7e4a2e926fa1a2d0c58c1aea8c8efad59672d5e79114b15fdae48f28bc620"
+        }
+      },
+      "junit": {
+        "TEST-io.github.patricklfdm.generalsearch.replication.V53PartialJointFloorTest.xml": {
+          "errors": "0",
+          "failures": "0",
+          "flakes": "0",
+          "name": "io.github.patricklfdm.generalsearch.replication.V53PartialJointFloorTest",
+          "skipped": "0",
+          "tests": "16",
+          "time": "47.537",
+          "version": "3.0.2",
+          "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd"
+        }
+      }
+    }
+  },
+  "intermediateReports": {
+    "python-focused.log": {
+      "path": "target/v53-partial-joint-floor-batch/python-focused.log",
+      "sha256": "e9e344d048eea510e18fee64bef1c919964ebf9e29802783c02167888714b346"
+    },
+    "python-optimized.log": {
+      "path": "target/v53-partial-joint-floor-batch/python-optimized.log",
+      "sha256": "f128512df2eede66b1e479be5b29d1fc1ac70382bebb9c562f044e3878be629e"
+    },
+    "qualified-01.json": {
+      "path": "target/v53-partial-joint-floor-batch/qualified-01.json",
+      "sha256": "3b6b644895f07b681753687ae904719fe28711db528437963b163ade95a5a5c1"
+    },
+    "qualified-final.json": {
+      "path": "target/v53-partial-joint-floor-batch/qualified-final.json",
+      "sha256": "e7fda2fa8451fb7ef343499177645805d5c8f3ee31d7b64571172ad10e2efc28"
+    },
+    "qualified-relocated-optimized.json": {
+      "path": "target/v53-partial-joint-floor-batch/qualified-relocated-optimized.json",
+      "sha256": "e7fda2fa8451fb7ef343499177645805d5c8f3ee31d7b64571172ad10e2efc28"
+    },
+    "reader-final.json": {
+      "path": "target/v53-partial-joint-floor-batch/reader-final.json",
+      "sha256": "289802d7ba567dc3d10f696786fefae8c304fbd36aa13e8959d8313675b05dd1"
+    }
+  },
+  "limitsChanged": false,
+  "nativeHistoryQualified": false,
+  "negativeRejections": 176,
+  "originalPromiseSources": 2,
+  "paidCloud": false,
+  "peakImages": 7,
+  "peakSources": 6,
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "python": {
+    "elapsedSeconds": 0.413,
+    "optimized": true,
+    "status": "PASS",
+    "tests": 33
+  },
+  "remaining": [
+    "admitted native partial-body recovery",
+    "torn-file and process-death cuts",
+    "complete independent remote export-force and maintenance/retirement replay",
+    "legitimate combined metadata/controller overlap",
+    "final-source Phase 3 cohort admission"
+  ],
+  "remoteExportForceQualified": false,
+  "replay": {
+    "cases": [
+      {
+        "negatives": [
+          {
+            "case": "scope",
+            "reason": "partial joint bounded scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "proposal",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "cold-original",
+            "reason": "partial joint exact original cut: after-reopen",
+            "status": "REJECTED"
+          },
+          {
+            "case": "authority",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-authority",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-promise-source",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "remote-original",
+            "reason": "partial joint exact conditional original: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "image-overflow",
+            "reason": "joint floor bounded resource observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-force",
+            "reason": "partial joint exact recovery force order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "original-cut",
+            "reason": "partial joint original force cut",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-exchange",
+            "reason": "generation request sequence",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "cut": "FLOOR_MANIFEST_FORCED",
+          "exchanges": 27,
+          "incompleteOwner": "node-2",
+          "nativeHistoryQualified": false,
+          "ordinal": 3,
+          "peakImages": 7,
+          "peakSources": 6,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "reopenedSources": 5,
+          "scope": "conditional-joint-writer-cuts",
+          "status": "PASS"
+        }
+      },
+      {
+        "negatives": [
+          {
+            "case": "scope",
+            "reason": "partial joint bounded scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "proposal",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "cold-original",
+            "reason": "partial joint exact original cut: after-reopen",
+            "status": "REJECTED"
+          },
+          {
+            "case": "authority",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-authority",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-promise-source",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "remote-original",
+            "reason": "partial joint exact conditional original: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "image-overflow",
+            "reason": "joint floor bounded resource observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-force",
+            "reason": "partial joint exact recovery force order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "original-cut",
+            "reason": "partial joint original force cut",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-exchange",
+            "reason": "generation request sequence",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "cut": "FLOOR_COPY_CREATED",
+          "exchanges": 27,
+          "incompleteOwner": "node-6",
+          "nativeHistoryQualified": false,
+          "ordinal": 2,
+          "peakImages": 7,
+          "peakSources": 6,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "reopenedSources": 4,
+          "scope": "conditional-joint-writer-cuts",
+          "status": "PASS"
+        }
+      },
+      {
+        "negatives": [
+          {
+            "case": "scope",
+            "reason": "partial joint bounded scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "proposal",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "cold-original",
+            "reason": "partial joint exact original cut: after-reopen",
+            "status": "REJECTED"
+          },
+          {
+            "case": "authority",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-authority",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-promise-source",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "remote-original",
+            "reason": "partial joint exact conditional original: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "image-overflow",
+            "reason": "joint floor bounded resource observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-force",
+            "reason": "partial joint exact recovery force order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "original-cut",
+            "reason": "partial joint original force cut",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-exchange",
+            "reason": "generation request sequence",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "cut": "FLOOR_MANIFEST_FORCED",
+          "exchanges": 27,
+          "incompleteOwner": "node-1",
+          "nativeHistoryQualified": false,
+          "ordinal": 4,
+          "peakImages": 7,
+          "peakSources": 6,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "reopenedSources": 6,
+          "scope": "conditional-joint-writer-cuts",
+          "status": "PASS"
+        }
+      },
+      {
+        "negatives": [
+          {
+            "case": "scope",
+            "reason": "partial joint bounded scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "proposal",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "cold-original",
+            "reason": "partial joint exact original cut: after-reopen",
+            "status": "REJECTED"
+          },
+          {
+            "case": "authority",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-authority",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-promise-source",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "remote-original",
+            "reason": "partial joint exact conditional original: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "image-overflow",
+            "reason": "joint floor bounded resource observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-force",
+            "reason": "partial joint exact recovery force order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "original-cut",
+            "reason": "partial joint original force cut",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-exchange",
+            "reason": "generation request sequence",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "cut": "FLOOR_IMAGE_FORCED",
+          "exchanges": 27,
+          "incompleteOwner": "node-5",
+          "nativeHistoryQualified": false,
+          "ordinal": 1,
+          "peakImages": 7,
+          "peakSources": 6,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "reopenedSources": 3,
+          "scope": "conditional-joint-writer-cuts",
+          "status": "PASS"
+        }
+      },
+      {
+        "negatives": [
+          {
+            "case": "scope",
+            "reason": "partial joint bounded scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "proposal",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "cold-original",
+            "reason": "partial joint exact original cut: after-reopen",
+            "status": "REJECTED"
+          },
+          {
+            "case": "authority",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-authority",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-promise-source",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "remote-original",
+            "reason": "partial joint exact conditional original: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "image-overflow",
+            "reason": "joint floor bounded resource observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-force",
+            "reason": "partial joint exact recovery force order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "original-cut",
+            "reason": "partial joint original force cut",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-exchange",
+            "reason": "generation request sequence",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "cut": "FLOOR_MEMBER_FORCED",
+          "exchanges": 27,
+          "incompleteOwner": "node-2",
+          "nativeHistoryQualified": false,
+          "ordinal": 3,
+          "peakImages": 7,
+          "peakSources": 6,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "reopenedSources": 5,
+          "scope": "conditional-joint-writer-cuts",
+          "status": "PASS"
+        }
+      },
+      {
+        "negatives": [
+          {
+            "case": "scope",
+            "reason": "partial joint bounded scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "proposal",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "cold-original",
+            "reason": "partial joint exact original cut: after-reopen",
+            "status": "REJECTED"
+          },
+          {
+            "case": "authority",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-authority",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-promise-source",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "remote-original",
+            "reason": "partial joint exact conditional original: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "image-overflow",
+            "reason": "joint floor bounded resource observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-force",
+            "reason": "partial joint exact recovery force order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "original-cut",
+            "reason": "partial joint original force cut",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-exchange",
+            "reason": "generation request sequence",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "cut": "FLOOR_IMAGE_FORCED",
+          "exchanges": 27,
+          "incompleteOwner": "node-1",
+          "nativeHistoryQualified": false,
+          "ordinal": 4,
+          "peakImages": 7,
+          "peakSources": 6,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "reopenedSources": 6,
+          "scope": "conditional-joint-writer-cuts",
+          "status": "PASS"
+        }
+      },
+      {
+        "negatives": [
+          {
+            "case": "scope",
+            "reason": "partial joint bounded scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "proposal",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "cold-original",
+            "reason": "partial joint exact original cut: after-reopen",
+            "status": "REJECTED"
+          },
+          {
+            "case": "authority",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-authority",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-promise-source",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "remote-original",
+            "reason": "partial joint exact conditional original: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "image-overflow",
+            "reason": "joint floor bounded resource observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-force",
+            "reason": "partial joint exact recovery force order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "original-cut",
+            "reason": "partial joint original force cut",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-exchange",
+            "reason": "generation request sequence",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "cut": "FLOOR_COPY_CREATED",
+          "exchanges": 27,
+          "incompleteOwner": "node-5",
+          "nativeHistoryQualified": false,
+          "ordinal": 1,
+          "peakImages": 7,
+          "peakSources": 6,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "reopenedSources": 3,
+          "scope": "conditional-joint-writer-cuts",
+          "status": "PASS"
+        }
+      },
+      {
+        "negatives": [
+          {
+            "case": "scope",
+            "reason": "partial joint bounded scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "proposal",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "cold-original",
+            "reason": "partial joint exact original cut: after-reopen",
+            "status": "REJECTED"
+          },
+          {
+            "case": "authority",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-authority",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-promise-source",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "remote-original",
+            "reason": "partial joint exact conditional original: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "image-overflow",
+            "reason": "joint floor bounded resource observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-force",
+            "reason": "partial joint exact recovery force order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "original-cut",
+            "reason": "partial joint original force cut",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-exchange",
+            "reason": "generation request sequence",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "cut": "FLOOR_IMAGE_FORCED",
+          "exchanges": 27,
+          "incompleteOwner": "node-6",
+          "nativeHistoryQualified": false,
+          "ordinal": 2,
+          "peakImages": 7,
+          "peakSources": 6,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "reopenedSources": 4,
+          "scope": "conditional-joint-writer-cuts",
+          "status": "PASS"
+        }
+      },
+      {
+        "negatives": [
+          {
+            "case": "scope",
+            "reason": "partial joint bounded scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "proposal",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "cold-original",
+            "reason": "partial joint exact original cut: after-reopen",
+            "status": "REJECTED"
+          },
+          {
+            "case": "authority",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-authority",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-promise-source",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "remote-original",
+            "reason": "partial joint exact conditional original: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "image-overflow",
+            "reason": "joint floor bounded resource observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-force",
+            "reason": "partial joint exact recovery force order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "original-cut",
+            "reason": "partial joint original force cut",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-exchange",
+            "reason": "generation request sequence",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "cut": "FLOOR_MEMBER_FORCED",
+          "exchanges": 27,
+          "incompleteOwner": "node-6",
+          "nativeHistoryQualified": false,
+          "ordinal": 2,
+          "peakImages": 7,
+          "peakSources": 6,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "reopenedSources": 4,
+          "scope": "conditional-joint-writer-cuts",
+          "status": "PASS"
+        }
+      },
+      {
+        "negatives": [
+          {
+            "case": "scope",
+            "reason": "partial joint bounded scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "proposal",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "cold-original",
+            "reason": "partial joint exact original cut: after-reopen",
+            "status": "REJECTED"
+          },
+          {
+            "case": "authority",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-authority",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-promise-source",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "remote-original",
+            "reason": "partial joint exact conditional original: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "image-overflow",
+            "reason": "joint floor bounded resource observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-force",
+            "reason": "partial joint exact recovery force order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "original-cut",
+            "reason": "partial joint original force cut",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-exchange",
+            "reason": "generation request sequence",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "cut": "FLOOR_MANIFEST_FORCED",
+          "exchanges": 27,
+          "incompleteOwner": "node-5",
+          "nativeHistoryQualified": false,
+          "ordinal": 1,
+          "peakImages": 7,
+          "peakSources": 6,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "reopenedSources": 3,
+          "scope": "conditional-joint-writer-cuts",
+          "status": "PASS"
+        }
+      },
+      {
+        "negatives": [
+          {
+            "case": "scope",
+            "reason": "partial joint bounded scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "proposal",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "cold-original",
+            "reason": "partial joint exact original cut: after-reopen",
+            "status": "REJECTED"
+          },
+          {
+            "case": "authority",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-authority",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-promise-source",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "remote-original",
+            "reason": "partial joint exact conditional original: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "image-overflow",
+            "reason": "joint floor bounded resource observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-force",
+            "reason": "partial joint exact recovery force order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "original-cut",
+            "reason": "partial joint original force cut",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-exchange",
+            "reason": "generation request sequence",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "cut": "FLOOR_MANIFEST_FORCED",
+          "exchanges": 27,
+          "incompleteOwner": "node-6",
+          "nativeHistoryQualified": false,
+          "ordinal": 2,
+          "peakImages": 7,
+          "peakSources": 6,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "reopenedSources": 4,
+          "scope": "conditional-joint-writer-cuts",
+          "status": "PASS"
+        }
+      },
+      {
+        "negatives": [
+          {
+            "case": "scope",
+            "reason": "partial joint bounded scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "proposal",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "cold-original",
+            "reason": "partial joint exact original cut: after-reopen",
+            "status": "REJECTED"
+          },
+          {
+            "case": "authority",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-authority",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-promise-source",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "remote-original",
+            "reason": "partial joint exact conditional original: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "image-overflow",
+            "reason": "joint floor bounded resource observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-force",
+            "reason": "partial joint exact recovery force order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "original-cut",
+            "reason": "partial joint original force cut",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-exchange",
+            "reason": "generation request sequence",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "cut": "FLOOR_COPY_CREATED",
+          "exchanges": 27,
+          "incompleteOwner": "node-1",
+          "nativeHistoryQualified": false,
+          "ordinal": 4,
+          "peakImages": 7,
+          "peakSources": 6,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "reopenedSources": 6,
+          "scope": "conditional-joint-writer-cuts",
+          "status": "PASS"
+        }
+      },
+      {
+        "negatives": [
+          {
+            "case": "scope",
+            "reason": "partial joint bounded scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "proposal",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "cold-original",
+            "reason": "partial joint exact original cut: after-reopen",
+            "status": "REJECTED"
+          },
+          {
+            "case": "authority",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-authority",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-promise-source",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "remote-original",
+            "reason": "partial joint exact conditional original: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "image-overflow",
+            "reason": "joint floor bounded resource observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-force",
+            "reason": "partial joint exact recovery force order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "original-cut",
+            "reason": "partial joint original force cut",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-exchange",
+            "reason": "generation request sequence",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "cut": "FLOOR_MEMBER_FORCED",
+          "exchanges": 27,
+          "incompleteOwner": "node-5",
+          "nativeHistoryQualified": false,
+          "ordinal": 1,
+          "peakImages": 7,
+          "peakSources": 6,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "reopenedSources": 3,
+          "scope": "conditional-joint-writer-cuts",
+          "status": "PASS"
+        }
+      },
+      {
+        "negatives": [
+          {
+            "case": "scope",
+            "reason": "partial joint bounded scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "proposal",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "cold-original",
+            "reason": "partial joint exact original cut: after-reopen",
+            "status": "REJECTED"
+          },
+          {
+            "case": "authority",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-authority",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-promise-source",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "remote-original",
+            "reason": "partial joint exact conditional original: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "image-overflow",
+            "reason": "joint floor bounded resource observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-force",
+            "reason": "partial joint exact recovery force order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "original-cut",
+            "reason": "partial joint original force cut",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-exchange",
+            "reason": "generation request sequence",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "cut": "FLOOR_COPY_CREATED",
+          "exchanges": 27,
+          "incompleteOwner": "node-2",
+          "nativeHistoryQualified": false,
+          "ordinal": 3,
+          "peakImages": 7,
+          "peakSources": 6,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "reopenedSources": 5,
+          "scope": "conditional-joint-writer-cuts",
+          "status": "PASS"
+        }
+      },
+      {
+        "negatives": [
+          {
+            "case": "scope",
+            "reason": "partial joint bounded scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "proposal",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "cold-original",
+            "reason": "partial joint exact original cut: after-reopen",
+            "status": "REJECTED"
+          },
+          {
+            "case": "authority",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-authority",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-promise-source",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "remote-original",
+            "reason": "partial joint exact conditional original: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "image-overflow",
+            "reason": "joint floor bounded resource observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-force",
+            "reason": "partial joint exact recovery force order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "original-cut",
+            "reason": "partial joint original force cut",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-exchange",
+            "reason": "generation request sequence",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "cut": "FLOOR_IMAGE_FORCED",
+          "exchanges": 27,
+          "incompleteOwner": "node-2",
+          "nativeHistoryQualified": false,
+          "ordinal": 3,
+          "peakImages": 7,
+          "peakSources": 6,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "reopenedSources": 5,
+          "scope": "conditional-joint-writer-cuts",
+          "status": "PASS"
+        }
+      },
+      {
+        "negatives": [
+          {
+            "case": "scope",
+            "reason": "partial joint bounded scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "proposal",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "cold-original",
+            "reason": "partial joint exact original cut: after-reopen",
+            "status": "REJECTED"
+          },
+          {
+            "case": "authority",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-authority",
+            "reason": "partial joint exact original cut: interrupted",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-promise-source",
+            "reason": "partial joint exact complete originals: completed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "remote-original",
+            "reason": "partial joint exact conditional original: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "image-overflow",
+            "reason": "joint floor bounded resource observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-force",
+            "reason": "partial joint exact recovery force order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "original-cut",
+            "reason": "partial joint original force cut",
+            "status": "REJECTED"
+          },
+          {
+            "case": "lost-exchange",
+            "reason": "generation request sequence",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "cut": "FLOOR_MEMBER_FORCED",
+          "exchanges": 27,
+          "incompleteOwner": "node-1",
+          "nativeHistoryQualified": false,
+          "ordinal": 4,
+          "peakImages": 7,
+          "peakSources": 6,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "reopenedSources": 6,
+          "scope": "conditional-joint-writer-cuts",
+          "status": "PASS"
+        }
+      }
+    ],
+    "phase3Complete": false,
+    "status": "PASS"
+  },
+  "reportCorrection": "Earlier successful replay reported only the last peer exchange count (9); corrected total is 27. All peers were validated in both versions.",
+  "requestReplyPairsPerHistory": 27,
+  "runtimeChanged": false,
+  "schema": "gse-v53-partial-joint-floor-development-v1",
+  "scope": "conditional-joint-writer-cuts",
+  "scripts": {
+    "collect.py": {
+      "path": "target/v53-partial-joint-floor-batch/collect.py",
+      "sha256": "21078f73986276d5d6b13d116df27a2aeeb2b0e4d7d1c37807bbb83bb8a8bf41"
+    },
+    "execute.py": {
+      "path": "target/v53-partial-joint-floor-batch/execute.py",
+      "sha256": "72a7a42f55f9a5cb773f83ef587224773f3b71be5db89609351e95c2cf2fee87"
+    },
+    "finalize.py": {
+      "path": "target/v53-partial-joint-floor-batch/finalize.py",
+      "sha256": "e33d9b114570d8cd95e27334694a5498bb114bd9fb063756459e72e812e7909c"
+    }
+  },
+  "status": "PASS"
+}

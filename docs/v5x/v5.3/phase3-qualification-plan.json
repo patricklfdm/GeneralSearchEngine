@@ -484,7 +484,9 @@
         "scripts/v53/test_automatic_floor_resume_evidence.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingFloorBorrowTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JointFloorRecoveryTest.java",
-        "scripts/v53/test_joint_floor_recovery_evidence.py"
+        "scripts/v53/test_joint_floor_recovery_evidence.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PartialJointFloorTest.java",
+        "scripts/v53/test_partial_joint_floor_evidence.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -493,7 +495,8 @@
         "scripts/v53/combined_recovery_observations.py",
         "scripts/v53/partial_floor_resume_evidence.py",
         "scripts/v53/automatic_floor_resume_evidence.py",
-        "scripts/v53/joint_floor_recovery_evidence.py"
+        "scripts/v53/joint_floor_recovery_evidence.py",
+        "scripts/v53/partial_joint_floor_evidence.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -504,7 +507,8 @@
         "docs/v5x/v5.3/PHASE_3_PARTIAL_FLOOR_RESUME.md",
         "docs/v5x/v5.3/PHASE_3_AUTOMATIC_FLOOR_RESUME.md",
         "docs/v5x/v5.3/PHASE_3_PENDING_FLOOR_BORROW.md",
-        "docs/v5x/v5.3/PHASE_3_JOINT_FLOOR_RECOVERY.md"
+        "docs/v5x/v5.3/PHASE_3_JOINT_FLOOR_RECOVERY.md",
+        "docs/v5x/v5.3/PHASE_3_PARTIAL_JOINT_FLOOR.md"
       ],
       "cohorts": [
         "profiles",

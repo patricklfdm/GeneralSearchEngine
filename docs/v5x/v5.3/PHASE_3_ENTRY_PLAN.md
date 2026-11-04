@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Partial joint-floor writer coverage](PHASE_3_PARTIAL_JOINT_FLOOR.md) now checks
+sixteen actual handoff-writer cuts with two real PROMISE sources. Independent
+storage/transfer replay confirms recovery within six SOURCE slots and seven
+images. This conditional component does not qualify native process-death recovery.
+
 [Native 5-REPLACE floor recovery](PHASE_3_JOINT_FLOOR_RECOVERY.md) now exercises
 an interrupted four-original floor, same-directory cold reopen and TCP recovery
 before FINAL and the stable BARRIER. Independent storage/catalog replay observes
