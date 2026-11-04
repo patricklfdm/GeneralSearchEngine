@@ -466,7 +466,8 @@
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPublicationCapacity.java",
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFloorFiles.java",
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java",
-        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java"
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java",
+        "scripts/v53/process_joint_hosted.py"
       ],
       "tests": [
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransferTest.java",
@@ -502,7 +503,9 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JointFloorScratch.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JointFloorScratchTest.java",
         "scripts/v53/test_process_joint_scratch.py",
-        "scripts/v53/test_process_joint_cohort.py"
+        "scripts/v53/test_process_joint_cohort.py",
+        "scripts/v53/test_process_joint_hosted.py",
+        "scripts/v53/test_process_joint_workflow.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -521,7 +524,8 @@
         "scripts/v53/old_owner_lifetimes.py",
         "scripts/v53/process_joint_history.py",
         "scripts/v53/process_joint_scratch.py",
-        "scripts/v53/process_joint_cohort.py"
+        "scripts/v53/process_joint_cohort.py",
+        "scripts/v53/process_joint_hosted.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -536,11 +540,13 @@
         "docs/v5x/v5.3/PHASE_3_PARTIAL_JOINT_FLOOR.md",
         "docs/v5x/v5.3/PHASE_3_NATIVE_PARTIAL_JOINT_FLOOR.md",
         "docs/v5x/v5.3/PHASE_3_NATIVE_PROCESS_JOINT_FLOOR.md",
-        "docs/v5x/v5.3/PHASE_3_PROCESS_JOINT_COHORT.md"
+        "docs/v5x/v5.3/PHASE_3_PROCESS_JOINT_COHORT.md",
+        "docs/v5x/v5.3/PHASE_3_PROCESS_JOINT_HOSTED.md"
       ],
       "cohorts": [
         "profiles",
-        "joining-process"
+        "joining-process",
+        "joint-floor-process"
       ],
       "gaps": [
         "combined-resources",
@@ -614,7 +620,8 @@
         "scripts/v53/round_history.py",
         "scripts/v53/round_history_hosted.py",
         "scripts/v53/carried_data_history.py",
-        "scripts/v53/carried_data_history_hosted.py"
+        "scripts/v53/carried_data_history_hosted.py",
+        "scripts/v53/process_joint_hosted.py"
       ],
       "tests": [
         "scripts/v53/test_case_inventory.py",
@@ -637,7 +644,9 @@
         "scripts/v53/test_carried_transition_history_workflow.py",
         "scripts/v53/test_automatic_history_hosted.py",
         "scripts/v53/test_automatic_history_workflow.py",
-        "scripts/v53/test_process_joint_cohort.py"
+        "scripts/v53/test_process_joint_cohort.py",
+        "scripts/v53/test_process_joint_hosted.py",
+        "scripts/v53/test_process_joint_workflow.py"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -656,7 +665,8 @@
         "scripts/v53/carried_transition_history.py",
         "scripts/v53/carried_transition_history_hosted.py",
         "scripts/v53/automatic_history_hosted.py",
-        "scripts/v53/process_joint_cohort.py"
+        "scripts/v53/process_joint_cohort.py",
+        "scripts/v53/process_joint_hosted.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md",
@@ -675,7 +685,8 @@
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_COHORT.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_HOSTED.md",
         "docs/v5x/v5.3/PHASE_3_AUTOMATIC_HISTORY_HOSTED.md",
-        "docs/v5x/v5.3/PHASE_3_PROCESS_JOINT_COHORT.md"
+        "docs/v5x/v5.3/PHASE_3_PROCESS_JOINT_COHORT.md",
+        "docs/v5x/v5.3/PHASE_3_PROCESS_JOINT_HOSTED.md"
       ],
       "cohorts": [
         "profiles",
@@ -688,7 +699,8 @@
         "round-histories",
         "carried-data-histories",
         "carried-transition-histories",
-        "automatic-histories"
+        "automatic-histories",
+        "joint-floor-process"
       ],
       "gaps": [
         "cohort-admission",
@@ -751,6 +763,11 @@
       "members": 50,
       "casesSha256": "bcceae2d685ad4235bf1b2f0323d2c7e8e86eba10841d31f7413c9323793f87b",
       "status": "ENTRY_READY_EXECUTION_PENDING"
+    },
+    "joint-floor-process": {
+      "members": 32,
+      "casesSha256": "1035660f402d9f07ff7f2fa8be066694f94b9f342bfd0dd5250ea457cabcf6d6",
+      "status": "ENTRY_READY_EXECUTION_PENDING"
     }
   },
   "gaps": [
@@ -758,14 +775,14 @@
       "id": "component-cohorts",
       "status": "OPEN",
       "dependsOn": [],
-      "work": "The focused 3-ADD learner pair and complete TCP lifetime/process matrices have source-bound capture, admission and hosted entries. Seven native carried/stable round histories now have source-bound local admission and an independent seven-job hosted entry. Four carried DATA phases now have a source-bound local entry with immutable payload, derived application state and next-BARRIER qualification; its four-member hosted adapter is prepared, with final-source execution pending. Two four-voter REMOVE carried INTENT/FINAL originals now have independent physical/lifecycle replay and 60 exact negatives, including portable optimized replay. Two new request-observed originals now add complete attempted transport, durable activation/slot replies and 153 exact network negatives per kind. Older response-only records are explicitly refused for this scope. The same originals now have temporal export authorization and complete-copy floor lifetime replay (416 transfers, 20 floors, 44 exact negatives). Continuous peer/future revision composition and complete observed retirement callbacks now add 154 exact negatives on those same originals. Two new originals now retain 1176 actual retirement file prefixes with 38 exact negatives and portable replay. The carried transition pair now has source/build/toolchain/reader-bound whole-history capture/admission and a two-job hosted execution/downloaded-replay entry requiring all 602 negative checks. Final-source execution, carried process-death histories and other profiles remain open. Continue other carried payload/process axes, competing owners, transition recovery and uncovered learner profiles. Phase 2 conditional process fixtures cannot substitute for Phase 3 native originals. Final-source execution remains pending; reuse existing producers/readers. Automatic competition, higher-ballot restart and the complete 48-case PROMISE reply-revocation matrix now have a three-group hosted adapter. All 50 original plans must share the seed and source/build/toolchain/reader, with complete downloaded original-first replay and exact shape-dependent negative vectors. Final-source execution and broader lifecycle/export coverage remain pending.",
+      "work": "The focused 3-ADD learner pair and complete TCP lifetime/process matrices have source-bound capture, admission and hosted entries. Seven native carried/stable round histories now have source-bound local admission and an independent seven-job hosted entry. Four carried DATA phases now have a source-bound local entry with immutable payload, derived application state and next-BARRIER qualification; its four-member hosted adapter is prepared, with final-source execution pending. Two four-voter REMOVE carried INTENT/FINAL originals now have independent physical/lifecycle replay and 60 exact negatives, including portable optimized replay. Two new request-observed originals now add complete attempted transport, durable activation/slot replies and 153 exact network negatives per kind. Older response-only records are explicitly refused for this scope. The same originals now have temporal export authorization and complete-copy floor lifetime replay (416 transfers, 20 floors, 44 exact negatives). Continuous peer/future revision composition and complete observed retirement callbacks now add 154 exact negatives on those same originals. Two new originals now retain 1176 actual retirement file prefixes with 38 exact negatives and portable replay. The carried transition pair now has source/build/toolchain/reader-bound whole-history capture/admission and a two-job hosted execution/downloaded-replay entry requiring all 602 negative checks. Final-source execution, carried process-death histories and other profiles remain open. Continue other carried payload/process axes, competing owners, transition recovery and uncovered learner profiles. Phase 2 conditional process fixtures cannot substitute for Phase 3 native originals. Final-source execution remains pending; reuse existing producers/readers. Automatic competition, higher-ballot restart and the complete 48-case PROMISE reply-revocation matrix now have a three-group hosted adapter. All 50 original plans must share the seed and source/build/toolchain/reader, with complete downloaded original-first replay and exact shape-dependent negative vectors. Final-source execution and broader lifecycle/export coverage remain pending. The 32 joint-floor process histories now have a v2 local cohort gate and a hosted adapter with one immutable seed, whole native execution and independent downloaded replay. Their 1544 cut-specific negatives are fixed before mutation; complete final-source execution remains pending.",
       "acceptance": "Exact source/build/toolchain/reader-bound originals and independent original-first replay. Missing observations, unsupported histories or an original deadline failure remain failures. Whole ownership and revision histories stay indivisible."
     },
     {
       "id": "combined-resources",
       "status": "OPEN",
       "dependsOn": [],
-      "work": "Exercise physical simultaneous selected/current/inactive sources, learner staging and completion reservations under the frozen shared owner limits. Review actual lifetime overlap before adding a producer; existing accounting and conditional-prefix tests are prerequisites only. Nine native current/PROMISE and receiving-copy overlap histories now have independent physical accounting, exact/one-byte-short staging boundaries, retained failed-packet charges and post-refusal allocator force. They do not close the full metadata maximum, admitted FINAL/application completion or interrupted rotation obligations. A diagnostic with externally retained receiving copies failed at the seven-image floor-copy bound; establish normal-runtime reachability and legitimate joint quorum overlap before choosing an admission/lifetime correction. The diagnostic is not positive qualification. Subsequent native 5-REPLACE recovery now resumes its exact interrupted four-original floor over TCP and completes FINAL and the stable BARRIER on the same original directories. Independent whole-history storage, network, export, floor/source-retirement, continuous peer/learner/future and ballot replay now qualify that retained original. Its actual peak is seven images and five SOURCE slots; the separate partial-writer component covers six SOURCE slots. This does not close the simultaneous full maximum, native partial-body/process-death axes or final-source cohort. The sixteen native partial-body ordinal/cut histories now have an immutable capture entry and shared whole-history/ledger replay. Its execution and negative qualification are recorded separately from the conditional matrix; the complete native set, process-death cuts and phase-wide admission remain open.",
+      "work": "Exercise physical simultaneous selected/current/inactive sources, learner staging and completion reservations under the frozen shared owner limits. Review actual lifetime overlap before adding a producer; existing accounting and conditional-prefix tests are prerequisites only. Nine native current/PROMISE and receiving-copy overlap histories now have independent physical accounting, exact/one-byte-short staging boundaries, retained failed-packet charges and post-refusal allocator force. They do not close the full metadata maximum, admitted FINAL/application completion or interrupted rotation obligations. A diagnostic with externally retained receiving copies failed at the seven-image floor-copy bound; establish normal-runtime reachability and legitimate joint quorum overlap before choosing an admission/lifetime correction. The diagnostic is not positive qualification. Subsequent native 5-REPLACE recovery now resumes its exact interrupted four-original floor over TCP and completes FINAL and the stable BARRIER on the same original directories. Independent whole-history storage, network, export, floor/source-retirement, continuous peer/learner/future and ballot replay now qualify that retained original. Its actual peak is seven images and five SOURCE slots; the separate partial-writer component covers six SOURCE slots. This does not close the simultaneous full maximum, native partial-body/process-death axes or final-source cohort. The sixteen native partial-body ordinal/cut histories now have an immutable capture entry and shared whole-history/ledger replay. Its execution and negative qualification are recorded separately from the conditional matrix; the complete native set, process-death cuts and phase-wide admission remain open. The v2 process producer now recovers the original incoming/outgoing scratch with the same journal budget. Independent replay derives interrupted/resumed writer and cold cleanup charges; the 32-case source-bound hosted entry is implemented. Transient acquisition/application-publication intervals, full simultaneous physical maximum, remaining native negative/torn-file axes and final-source execution remain open.",
       "acceptance": "Retain actual peak owner/lease/byte observations and independent physical replay at/over the bound, including admitted FINAL/recovery completion and stable DATA after membership exhaustion. Arithmetic alone does not qualify this obligation."
     },
     {

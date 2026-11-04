@@ -44,6 +44,7 @@ COHORTS = {
     'carried-data-histories': ('carried_data_history', 'CASES', 'carried_data_history_hosted'),
     'carried-transition-histories': ('carried_transition_history', 'CASES', 'carried_transition_history_hosted'),
     'automatic-histories': ('automatic_history_hosted', 'HISTORIES', 'automatic_history_hosted'),
+    'joint-floor-process': ('process_joint_cohort', 'CASES', 'process_joint_hosted'),
 }
 GAPS = ('component-cohorts', 'combined-resources', 'frozen-coverage', 'cohort-admission', 'final-source-execution')
 need, encoded, digest = inventory.need, inventory.encoded, inventory.digest

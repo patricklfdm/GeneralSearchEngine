@@ -5,8 +5,9 @@ a separate process-death producer. Four copy ordinals, four callbacks and two
 death modes form **32 complete 5-REPLACE histories**. Their
 [component cohort gate](PHASE_3_PROCESS_JOINT_COHORT.md) now binds one source,
 build, toolchain and reader and requires 1,544 exact negative results.
-These entries are not yet
-part of the existing 512-history hosted plan and do not close Phase 3.
+The [hosted adapter](PHASE_3_PROCESS_JOINT_HOSTED.md) now includes these entries
+in the 544-history hosted plan. They have not executed as a final-source cohort
+and do not close Phase 3.
 
 ## Original ownership and execution
 

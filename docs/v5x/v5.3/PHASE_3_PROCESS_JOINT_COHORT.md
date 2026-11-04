@@ -8,9 +8,10 @@ original-directory recovery, FINAL and the stable BARRIER. The gate does not
 split a death from its recovery or combine successful fragments across attempts.
 
 This is a component admission implementation, not an executed final-source
-cohort or Phase 3 closure. There is no new hosted workflow in this batch;
-the eleven hosted subsets still contain **512 planned histories**. These 32
-local entries are not added to that hosted count.
+cohort or Phase 3 closure. The subsequent
+[hosted adapter](PHASE_3_PROCESS_JOINT_HOSTED.md) adds these 32 local entries to
+the scheduling inventory: twelve hosted subsets, **544 planned histories**.
+No hosted execution is implied by either entry.
 
 ## Common provenance and original-first replay
 
@@ -124,7 +125,7 @@ aggregate keep `processDeathQualified`, `combinedPeakResourcesQualified`,
 `allMembershipProfilesQualified`, `powerLossQualified` and `phase3Complete` false.
 These wider flags include obligations outside this single profile/cut catalogue.
 
-The hosted adapter, all 32 executions on one final source, remaining native
+All 32 executions on one final source, remaining native
 negative axes, transient acquisition/application-publication resource intervals,
 torn-file cases and the simultaneous physical maximum remain open. The complete
 3,310-row public correctness matrix remains owned by Phase 5. Development checks

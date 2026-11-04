@@ -1,11 +1,17 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Hosted joint-floor process qualification](PHASE_3_PROCESS_JOINT_HOSTED.md) now
+prepares one immutable seed, 32 whole-history executions and 32 independent
+downloaded replays, with exact source/run/attempt binding and all 1,544 negatives.
+This adds 32 planned histories to the inventory (12 subsets, 544 histories);
+no hosted execution or final-source qualification is claimed.
+
 [Joint-floor process component admission](PHASE_3_PROCESS_JOINT_COHORT.md) now
 requires all 32 complete v2 originals on one source/build/toolchain/reader, with
 1,544 predeclared exact negative results. Early remote cuts retain their receiver
-checks; the last local cut has an explicit empty-scratch vector. Hosted adaptation,
-final-source matrix execution and remaining resource/fault axes stay open.
-This local gate does not change the 512 planned hosted histories.
+checks; the last local cut has an explicit empty-scratch vector. Final-source
+matrix execution and remaining resource/fault axes stay open. The hosted
+adapter above extends the scheduling inventory without claiming a passing matrix.
 
 [Native joint-floor process execution](PHASE_3_NATIVE_PROCESS_JOINT_FLOOR.md)
 now has 32 whole-history entries with a fresh required-voter JVM, real TCP
@@ -54,8 +60,8 @@ remained fenced and unchanged on that historical source. This observation does n
 automatic recovery or complete Phase 3 acceptance.
 
 [The current qualification audit](PHASE_3_QUALIFICATION_AUDIT.md) reconciles the
-implementation and historical notes into twelve review obligations, eleven
-implemented hosted subsets (512 planned whole histories) and five open work
+implementation and historical notes into twelve review obligations, twelve
+implemented hosted subsets (544 planned whole histories) and five open work
 groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.

@@ -27,8 +27,9 @@ the backlog as a new feature.
 | [Native carried DATA](PHASE_3_CARRIED_DATA_HOSTED.md) | 4 | 4 | Four old DATA phases, carried completion and the next fresh BARRIER |
 | [Native carried INTENT/FINAL](PHASE_3_CARRIED_TRANSITION_HOSTED.md) | 2 | 2 | Complete carried transitions through stable BARRIER, six reader layers and actual retirement bytes |
 | [Automatic lifecycle components](PHASE_3_AUTOMATIC_HISTORY_HOSTED.md) | 50 | 3 | Competition, higher-ballot restart and the complete 48-case PROMISE reply-revocation matrix |
+| [Joint-floor process histories](PHASE_3_PROCESS_JOINT_HOSTED.md) | 32 | 32 | Four copy ordinals, four cut callbacks, halt/SIGKILL, same-scratch recovery and full continuation |
 
-These **512 planned native histories** are complementary subsets. This is neither
+These **544 planned native histories** are complementary subsets. This is neither
 a pass count nor a count of covered rows in the frozen S matrix. The inspector
 reads their actual Python catalogues and checks declared counts and ordered-case
 hashes. Joining groups must partition all 360 whole histories exactly; transfer
@@ -44,8 +45,8 @@ needs integration. No hosted workflow was dispatched for this audit.
 
 The [joint-floor process component gate](PHASE_3_PROCESS_JOINT_COHORT.md) now
 adds local admission of 32 whole v2 histories with 1,544 predeclared exact
-negatives. Its hosted adapter and final-source executions remain open, so this
-local entry does not increase the hosted table's 512 planned histories.
+negatives. Its [hosted adapter](PHASE_3_PROCESS_JOINT_HOSTED.md) now adds the 32
+planned entries above; their final-source executions remain open.
 
 ## Current obligation map
 
@@ -67,7 +68,7 @@ prove its semantics.
 | 3D removal | Departure fencing, retirement and original-disk recovery | Final-source original/negative process matrix |
 | 3E resources | Accounting, bounded transfers, publication refusal, conditional-prefix tests, [nine actual receiving-overlap histories](PHASE_3_COMBINED_RECEIVE_RESOURCES.md), and [one native 5-REPLACE interrupted-floor recovery](PHASE_3_JOINT_FLOOR_RECOVERY.md) through FINAL/BARRIER with continuous authority replay | Full simultaneous physical peak, remaining admitted transition and process-death axes |
 | 3E coverage | Frozen finite inventory and this dependency map | Concrete schedule/evidence/rejection mapping |
-| 3E cohort | Eleven source-bound subset gates | Complete final admission, execution and closure audit |
+| 3E cohort | Twelve source-bound subset gates | Complete final admission, execution and closure audit |
 
 `MembershipStorageOperations` still refuses public learner operations and
 `MembershipSearchEngine` keeps reads disabled. Phase 3 private protocol work does
@@ -194,7 +195,9 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    writer and cold cleanup charges. The component cohort binds those readers
    and the fixed cut-specific negative vectors; remaining native negative axes,
    transient transport/publication resources and the full final-source matrix
-   remain open. The hosted-plan count remains 512.
+   remain open. Its hosted adapter now prepares one common seed, 32 complete
+   originals and 32 downloaded replays. The hosted-plan count is 544; no
+   final-source execution is claimed.
    [Partial joint-floor writer coverage](PHASE_3_PARTIAL_JOINT_FLOOR.md) now checks
    all four copy ordinals at four actual handoff-writer boundaries. With two real
    PROMISE sources, all sixteen conditional cases recover within six SOURCE slots
