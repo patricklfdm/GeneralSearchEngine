@@ -105,8 +105,10 @@ retains execution and reader results separately. Earlier failures remain retaine
 This successful history proves this semantic/publication slice; it does not
 qualify all native floor/retirement bytes, transfer lifetimes or resource maxima.
 
-1. Complete pin-aware native floor, maintenance and retirement replay, composed
-   with the original network/export/control history.
+1. The [required-four physical follow-up](PHASE_3_REQUIRED_FOUR_PHYSICAL.md)
+   derives owner files and all 22 source-retirement transactions. Complete
+   network/export/control composition remains open because the original trace
+   cannot correlate overlapping identical ACCEPT attempts.
 2. Native handoff, interrupted floor and process-death qualification of this
    representation, with original provenance and same-history recovery.
 3. Complete concurrent resource accounting and the already planned final-source

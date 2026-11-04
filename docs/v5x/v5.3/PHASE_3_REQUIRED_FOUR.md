@@ -1,6 +1,8 @@
 # Required-four native replacement topology
 
-Status: **native execution failed; topology qualification remains OPEN**.
+Historical first execution: **failed**. Later [pinned-floor execution and
+physical replay](PHASE_3_REQUIRED_FOUR_PHYSICAL.md) pass the semantic/publication,
+owner-file and slot-force slices; complete topology qualification remains OPEN.
 This batch adds the opt-in regression and reader, preserves the failed original,
 and diagnoses a real source/floor capacity conflict. It does not change production
 Java or claim that the conflict is fixed.

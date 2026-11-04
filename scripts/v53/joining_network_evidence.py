@@ -225,9 +225,9 @@ def installations(root, events, rows, replay, bases, *, recovery=None, old_owner
     return result
 
 
-def network(root, *, size=3, kind='ADD', recovery=None, old_owner_lifetimes=None):
+def network(root, *, size=3, kind='ADD', recovery=None, old_owner_lifetimes=None, required_four=False):
     """Only called standalone after the original physical precondition passes."""
-    root = Path(root); replay = s.Replay(root,size=size,kind=kind)
+    root = Path(root); replay = s.Replay(root,size=size,kind=kind,required_four=required_four)
     for index in range(1,12): replay.step(index)
     events = s.collection.read_json(root,'events.json',s.collection.EVENT_BYTES)
     phases=phase.blocks(events,replay,old_owner_lifetimes=old_owner_lifetimes)

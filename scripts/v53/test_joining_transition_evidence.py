@@ -92,7 +92,7 @@ class JoiningTransitionEvidenceTest(unittest.TestCase):
     def test_applied_end_derives_each_required_statement_and_owned_ack(self):
         parts,parent,identities,root=fixture.JoiningCatalogEvidenceTest().phase()
         states=[dict(cut=dict(parent['cut'],index=i),application='c'*64,identities=list(identities.values())) for i in range(10)]
-        replay=SimpleNamespace(root=root,states=states,phases=[{}]*8+[parts],entries=[],catalogs=[b'catalog']*10,image=b'image')
+        replay=SimpleNamespace(root=root,states=states,phases=[{}]*8+[parts],entries=[dict(kind='BARRIER')]*9,catalogs=[b'catalog']*10,image=b'image')
         def checkpoint(start,end,kind):
             return dict(root=root,scope=kind,start=states[start]['cut'],end=states[end]['cut'],
                 catalogBefore='d'*64,catalogAfter='e'*64,applicationBefore='c'*64,applicationAfter='c'*64)

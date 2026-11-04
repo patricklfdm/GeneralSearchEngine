@@ -1,5 +1,14 @@
 # Phase 3 qualification inventory and remaining work
 
+[Required-four physical replay](PHASE_3_REQUIRED_FOUR_PHYSICAL.md) now derives
+all eleven slots through cold reopen, including three pinned maintenance floors,
+22 source-retirement transactions / 330 prefixes and the departing nonvoting
+FINAL owner. Separate slot-force replay checks 34 transactions and 5,234 callbacks.
+Strict network qualification remains OPEN: identical ACCEPT retries overlap late
+server terminals, and the retained trace lacks unambiguous attempt correlation.
+The original failed network gate is retained; no timeout or acceptance rule is
+relaxed. Complete resource composition and final-source admission remain OPEN.
+
 [Pinned-floor process recovery](PHASE_3_PINNED_FLOOR_PROCESS.md) now passes all
 36 halt/SIGKILL cases, 108 fresh worker executions and eleven exact negative
 replays. Expected crash/reopen/final/cold bytes and force order come from original

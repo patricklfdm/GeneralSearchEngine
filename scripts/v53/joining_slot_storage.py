@@ -23,7 +23,7 @@ def exact(events, node, scope, lower, upper, names, prefixes, reason):
     return len(rows)
 
 
-def applied_members(end):
+def applied_members(end, *, nonvoting=False):
     """Order is part of the writer contract; counts come from the reduced end."""
     files = {n.removeprefix('applied-end/') for n in end if n.startswith('applied-end/')}
     ordered = [('plan.json', 'PLAN'), *[(n+'.gsr', 'METADATA') for n in
@@ -31,7 +31,10 @@ def applied_members(end):
     parents = [('parent-statement.gsr', 'PARENT_STATEMENT')]
     parents += [(f'ancestor-{i}-statement.gsr', f'ANCESTOR_{i}_STATEMENT') for i in range(5)]
     ordered += [(n, p) for n, p in parents if n in files]
-    ordered += [('application.image', 'IMAGE'), ('ack.gsr', 'ACK')]
+    need(type(nonvoting) is bool and (not nonvoting or not any(n in files for n,_ in parents)),
+         'joining slot nonvoting ancestor inventory')
+    ordered += [('application.image', 'IMAGE')]
+    if not nonvoting:ordered += [('ack.gsr', 'ACK')]
     ordered += [(n.replace('statement', 'ack'), p.replace('STATEMENT', 'ACK'))
                 for n, p in parents if n in files]
     need(files == {n for n, _ in ordered}, 'joining slot applied member inventory')
@@ -41,52 +44,53 @@ def applied_members(end):
     return ordered
 
 
-def application(end, kind, *, allow_data=False):
+def application(end, kind, *, allow_data=False, nonvoting=False):
     # Default joining histories contain controls/barriers only. An explicitly
     # admitted DATA projection also materializes output's three core members
     # and directory. Claim/work/root plus each complete four-entry bundle are
     # removed by MembershipReplayFiles; the count never comes from the trace.
     need(kind in CONTROL or allow_data and kind=='DATA', 'joining slot unsupported application history')
+    need(not nonvoting or kind=='FINAL','joining slot nonvoting FINAL required')
     names = ['APPLICATION_AUTHORITY_VALIDATED', 'REPLAY_RESERVED', 'REPLAY_DIRECTORY_CREATED',
              'REPLAY_CLAIM_CREATED', 'REPLAY_CLAIM_PREFIX_WRITTEN', 'REPLAY_CLAIM_WRITTEN',
              'REPLAY_CLAIM_FORCED', 'REPLAY_BEFORE_APPLICATION', 'REPLAY_APPLICATION_FINISHED']
     names += ['REPLAY_BEFORE_DELETE', 'REPLAY_DELETED'] * (11 if kind=='DATA' else 7)
     names += ['REPLAY_BEFORE_RETURN', 'APPLY_VALIDATED', 'APPLY_DIRECTORY_CREATED']
-    for _, label in applied_members(end):
+    for _, label in applied_members(end,nonvoting=nonvoting):
         if label == 'ACK': names.append('APPLY_END_FORCED')
         names += ['APPLY_'+label+'_'+suffix for suffix in ('CREATED', 'PREFIX_WRITTEN', 'WRITTEN', 'FORCED')]
-    return names + ['APPLY_ACK_DIRECTORY_FORCED', 'APPLY_BEFORE_RETURN']
+    return names + (['APPLY_END_FORCED','APPLY_NONVOTING_DIRECTORY_FORCED'] if nonvoting else ['APPLY_ACK_DIRECTORY_FORCED']) + ['APPLY_BEFORE_RETURN']
 
 
 def publication(members):
     return ['PUBLICATION_VALIDATED', *transaction(members)[0], *CURRENT, 'PUBLICATION_SELECTOR_FORCED']
 
 
-def retirement(end):
+def retirement(end, *, nonvoting=False):
     # Every original member, including the plan, has one deletion/parent-force
     # pair. Actual names/remaining bytes are checked by the physical replay;
     # generic callbacks alone cannot prove which file was deleted first.
-    count = len(applied_members(end))
+    count = len(applied_members(end,nonvoting=nonvoting))
     return ['PUBLICATION_COVERAGE_VALIDATED', 'COVERED_END_VALIDATED',
             *(['COVERED_END_BEFORE_DELETE', 'COVERED_END_FILE_DELETED'] * count),
             'COVERED_END_BEFORE_DIRECTORY_DELETE', 'COVERED_END_DIRECTORY_DELETED',
             *['COVERED_VOTE_'+suffix for suffix in VOTE_WRITE], 'PUBLICATION_RETIRED']
 
 
-def validate_slot(events, node, scope, own, end, members, kind, *, allow_data=False):
+def validate_slot(events, node, scope, own, end, members, kind, *, allow_data=False, nonvoting=False):
     count = 0
     for phase in ('ACCEPT', 'PROOF', 'CERTIFICATE'):
         count += exact(events, node, scope, own[phase+'_VALIDATED'], own[phase+'_BEFORE_RETURN'],
                        [phase+'_VALIDATED', *[phase+'_'+s for s in VOTE_WRITE], phase+'_BEFORE_RETURN'],
                        (phase+'_',), 'joining slot complete '+phase.lower()+' storage order')
     count += exact(events, node, scope, own['APPLICATION_AUTHORITY_VALIDATED'], own['APPLY_BEFORE_RETURN'],
-                   application(end, kind, allow_data=allow_data), ('APPLICATION_AUTHORITY_', 'REPLAY_', 'APPLY_'),
+                   application(end, kind, allow_data=allow_data, nonvoting=nonvoting), ('APPLICATION_AUTHORITY_', 'REPLAY_', 'APPLY_'),
                    'joining slot complete application storage order')
     count += exact(events, node, scope, own['PUBLICATION_VALIDATED'], own['PUBLICATION_SELECTOR_FORCED'],
                    publication(members), ('PUBLICATION_', 'INSTALL_', 'CURRENT_'),
                    'joining slot complete publication storage order')
     count += exact(events, node, scope, own['PUBLICATION_COVERAGE_VALIDATED'], own['PUBLICATION_RETIRED'],
-                   retirement(end), ('PUBLICATION_', 'COVERED_END_', 'COVERED_VOTE_'),
+                   retirement(end,nonvoting=nonvoting), ('PUBLICATION_', 'COVERED_END_', 'COVERED_VOTE_'),
                    'joining slot complete covered retirement order')
     return count
 

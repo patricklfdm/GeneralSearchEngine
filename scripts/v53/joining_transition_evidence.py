@@ -79,12 +79,17 @@ def applied_end(replay, files, index, node):
     def acknowledgement(raw):
         return f.encode('records', 'CHECKPOINT_ACK', dict(root=replay.root, voter=node,
             incarnation=identity['storage'], cut=replay.states[index]['cut'], statement=sha(raw)))
-    end = dict(zip(('selector.gsr', 'certificate.gsr', 'catalog.gsr', 'statement.gsr', 'application.image', 'ack.gsr'),
-        (files['selector.gsr'], parts['CERTIFICATE'], replay.catalogs[index], statement, replay.image, acknowledgement(statement))))
+    view=replay.states[index]['cut']['view'];voting=node in set(view['old'])|set(view['new'])
+    end = dict(zip(('selector.gsr', 'certificate.gsr', 'catalog.gsr', 'statement.gsr', 'application.image'),
+        (files['selector.gsr'], parts['CERTIFICATE'], replay.catalogs[index], statement, replay.image)))
+    if voting:end['ack.gsr']=acknowledgement(statement)
+    s.applied_voter(replay.states[index-1],replay.states[index],replay.entries[index-1]['kind'],node,end)
+    need(voting or start==index-1,'joining departing immediate checkpoint')
     required = publication.required_points(replay, files, index)
     labels = {f'ancestor-{ordinal}': at for ordinal, at in enumerate(sorted(at for at in required if start < at < index-1))}
     if start != index-1: labels['parent'] = index-1
     for label, at in labels.items():
+        need(voting,'joining departing ancestor endorsement')
         raw = f.encode('records', 'CHECKPOINT', replay.checkpoint(at, index, 'RANGE'))
         end[label+'-statement.gsr'] = raw; end[label+'-ack.gsr'] = acknowledgement(raw)
     end['plan.json'] = f.canonical(dict(schema='gse-v53-applied-end/1.3', root=replay.root, node=node,

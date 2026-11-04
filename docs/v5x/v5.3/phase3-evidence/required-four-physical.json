@@ -1,0 +1,412 @@
+{
+  "combinedResourceMaximumQualified": false,
+  "completePhysicalQualified": false,
+  "finalSourceCohortQualified": false,
+  "forceAndNetworkQualified": false,
+  "historicalExecution": {
+    "path": "docs/v5x/v5.3/phase3-evidence/required-four-pinned-native.json",
+    "seconds": 1353.704,
+    "sourceAndClassesUnchanged": true
+  },
+  "network": {
+    "lateInboundTerminals": 3,
+    "reason": "joining failure missing caller terminal",
+    "requests": 3,
+    "status": "UNQUALIFIED"
+  },
+  "originalUnchanged": true,
+  "ownerFilesQualified": true,
+  "phase3Complete": false,
+  "physicalQualification": {
+    "negatives": [
+      {
+        "case": "extra-prepared-file",
+        "reason": "joining initialization exact old prepared inventory: node-1",
+        "semanticAndCaptureCollection": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-installed-file",
+        "reason": "joining continuation exact inventory: continuation-installed-9: node-1",
+        "semanticAndCaptureCollection": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "departing-predecessor-deleted",
+        "reason": "joining continuation exact inventory: after-close: node-3",
+        "semanticAndCaptureCollection": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-pinned-original",
+        "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_WRITTEN",
+        "semanticAndCaptureCollection": "PASS",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "completePhysicalQualified": false,
+      "finalSourceCohortQualified": false,
+      "forceAndNetworkQualified": false,
+      "ownerFilesQualified": true,
+      "phase3Complete": false,
+      "physical": {
+        "continuation": {
+          "capturedGrantComparisons": 26,
+          "completePhysicalQualified": false,
+          "finalCut": 11,
+          "forceAndNetworkQualified": false,
+          "ownerSnapshotComparisons": 42,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "profile": "5-REPLACE-required-four",
+          "recovery": null,
+          "scope": "profile-selected-continuation",
+          "sourceRetirementLocalOrderSegments": 22,
+          "status": "PARTIAL"
+        },
+        "governingFloorForceWindows": 22,
+        "history": {
+          "campaigns": 4,
+          "completePhysicalQualified": false,
+          "forceAndNetworkQualified": false,
+          "ownerSnapshotComparisons": 115,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "profile": "5-REPLACE-required-four",
+          "scope": "native-REPLACE-bootstrap-through-old-voter-INTENT",
+          "slots": 9,
+          "status": "PASS",
+          "throughIntentPhysicalQualified": true
+        },
+        "initialization": {
+          "comparedNativeFiles": 33,
+          "completePhysicalQualified": false,
+          "forceAndNetworkQualified": false,
+          "initializedLedgers": 3,
+          "joiningInitializationLocalOrderQualified": true,
+          "joiningInitializationPhysicalQualified": true,
+          "nativeFamilies": 10,
+          "oldOwnerSnapshots": 120,
+          "originalHeadExchanges": 3,
+          "phase3Complete": false,
+          "preparedOldSources": 3,
+          "processDeathQualified": false,
+          "profile": "5-REPLACE-required-four",
+          "scope": "native-REPLACE-original-joining-initialization",
+          "status": "PASS"
+        },
+        "pinnedMaintenanceFloors": 3,
+        "placement": {
+          "comparedFiles": 65,
+          "completePhysicalQualified": false,
+          "forceAndNetworkQualified": false,
+          "joiningPlacementPhysicalQualified": true,
+          "nativeInitializationQualified": false,
+          "oldOwnerSnapshots": 115,
+          "phase3Complete": false,
+          "placedRoots": 8,
+          "processDeathQualified": false,
+          "profile": "5-REPLACE-required-four",
+          "scope": "native-REPLACE-original-joining-placement",
+          "status": "PASS"
+        },
+        "retirement": {
+          "comparedFiles": 24,
+          "completePhysicalQualified": false,
+          "deletedOriginalMembers": 46,
+          "exactSidecarFamilies": 9,
+          "forceAndNetworkQualified": false,
+          "joiningRetirementPhysicalQualified": true,
+          "nativeInitializationQualified": false,
+          "nativeOwnerHandoffPhysicalQualified": true,
+          "nativeReservations": 4,
+          "oldOwnerSnapshots": 115,
+          "phase3Complete": false,
+          "predecessorReservations": 11,
+          "preservedOriginalKeys": 33,
+          "processDeathQualified": false,
+          "profile": "5-REPLACE-required-four",
+          "scope": "native-REPLACE-original-retirement-and-owner",
+          "status": "PASS"
+        },
+        "sourceRetirementPrefixes": 330,
+        "sourceRetirementTransactions": 22
+      },
+      "processDeathQualified": false,
+      "profile": "5-REPLACE-required-four",
+      "scope": "required-four-derived-owner-files",
+      "semantic": {
+        "completePhysicalQualified": false,
+        "departingCheckpointVotes": 0,
+        "finalSourceCohortQualified": false,
+        "forceAndNetworkQualified": false,
+        "jointVoters": [
+          "node-1",
+          "node-2",
+          "node-3",
+          "node-6"
+        ],
+        "original": {
+          "checkpointObservations": 70,
+          "completePhysicalQualified": false,
+          "controls": [
+            "BARRIER",
+            "RESERVE",
+            "BARRIER",
+            "PREPARE",
+            "BARRIER",
+            "READY",
+            "BARRIER",
+            "SEAL",
+            "INTENT",
+            "FINAL",
+            "BARRIER"
+          ],
+          "forceAndNetworkQualified": false,
+          "internalReadyCuts": [
+            1,
+            3,
+            5,
+            7,
+            11
+          ],
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "profile": "5-REPLACE-required-four",
+          "publicReady": false,
+          "scope": "native-REPLACE-catalog-certificate-checkpoint-chain",
+          "selections": 6,
+          "semanticChainQualified": true,
+          "slots": 11,
+          "status": "PASS"
+        },
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "profile": "5-REPLACE-required-four",
+        "publicationPhysicalQualified": true,
+        "publications": {
+          "collectedCheckpointTransfers": 144,
+          "comparedBytes": 6118305,
+          "completePhysicalQualified": false,
+          "forceAndNetworkQualified": false,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "profile": "5-REPLACE-required-four",
+          "publicationPhysicalQualified": true,
+          "publications": 34,
+          "scope": "native-REPLACE-applied-to-published-inventories",
+          "slots": 11,
+          "status": "PASS"
+        },
+        "refusedThreeVoterSubsets": [
+          [
+            "node-1",
+            "node-2",
+            "node-3"
+          ],
+          [
+            "node-1",
+            "node-2",
+            "node-6"
+          ],
+          [
+            "node-1",
+            "node-3",
+            "node-6"
+          ],
+          [
+            "node-2",
+            "node-3",
+            "node-6"
+          ]
+        ],
+        "scope": "required-four-native-semantic-chain",
+        "semanticChainQualified": true,
+        "status": "PASS",
+        "successorVoters": [
+          "node-1",
+          "node-2",
+          "node-6"
+        ]
+      },
+      "sourceRetirementPhysicalQualified": true,
+      "status": "PASS"
+    }
+  },
+  "processDeathQualified": false,
+  "profile": "5-REPLACE-required-four",
+  "raw": "general-search-engine-replication/target/v53-native-dispatch/run-d9b8fe61-4036-416d-b2e4-7f7ed47bd0ad",
+  "readerBaseHead": "1c3783c6c778fccbf9850614fab50040268eb182",
+  "readers": [
+    {
+      "path": "scripts/v53/required_four_physical.py",
+      "sha256": "73a7ef025730858a834f98cfcf4b7a1b7fc73f84242739d9cfdd95d2f3ff35db"
+    },
+    {
+      "path": "scripts/v53/test_required_four_physical.py",
+      "sha256": "6dc71d0ae7c6243b8efdcebefdd93718a6ab923bab5f0f91b51e75609c8b24a9"
+    },
+    {
+      "path": "scripts/v53/joining_transition_evidence.py",
+      "sha256": "31e728b349db8abc950194f9b559789c4f911768485170f99a95e8efcb06b40f"
+    },
+    {
+      "path": "scripts/v53/joining_slot_storage.py",
+      "sha256": "9258baa3bb0d6e6ffdeb8dbafb40131c62dc57ad7657e32c1a90aa3954926e71"
+    },
+    {
+      "path": "scripts/v53/joining_phase_evidence.py",
+      "sha256": "9aa95765d4c46cd5926616d2a64a37e0cfc8670d1d167e39186368a2c4f69db6"
+    },
+    {
+      "path": "scripts/v53/joining_network_evidence.py",
+      "sha256": "2678c567c422680ed295449f3edc72c1fb0144932dc2b26bac373bb507634022"
+    }
+  ],
+  "remaining": [
+    "transport attempt identity for overlapping identical retries",
+    "complete original network/export/control composition",
+    "native interrupted maintenance/process histories",
+    "combined resource maxima",
+    "frozen coverage mapping and final-source cohort qualification"
+  ],
+  "reports": [
+    {
+      "path": "target/v53-required-four-physical/commands.json",
+      "sha256": "2b68591be939cbff39e679034f3aa58612a07c76cae9815876eb14d6f00f7c62"
+    },
+    {
+      "path": "target/v53-required-four-physical/index.py",
+      "sha256": "3dcdd152e8f9e78099e751622909cbd47b389e337ebe0e307713bfebd81fb778"
+    },
+    {
+      "path": "target/v53-required-four-physical/network-01.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-required-four-physical/network-01.log",
+      "sha256": "2c553c63917ccb02ee9f6ae503c7639a0dad2e2d5b1964483e5a684e586626e0"
+    },
+    {
+      "path": "target/v53-required-four-physical/network-gap.json",
+      "sha256": "9249414da3f6a15c3a67c3ef0b34bf8c19efcb9617dab9a3bb297336dc07d972"
+    },
+    {
+      "path": "target/v53-required-four-physical/phase-01.json",
+      "sha256": "59b3116fd9a0af2232d9692a0a370fae22c528ae68cd56b9d0401673ce7ac7e5"
+    },
+    {
+      "path": "target/v53-required-four-physical/phase-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-required-four-physical/phase-02.json",
+      "sha256": "99b609923a094f583bc6627fee10606d1c6ebe5c2a68a5a340309e7d69c5ced3"
+    },
+    {
+      "path": "target/v53-required-four-physical/phase-02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-required-four-physical/python-01.log",
+      "sha256": "9599ac4db2e46c3f5fce7bb9e8dc575572d875cf8a125bf2f1e45156120b5251"
+    },
+    {
+      "path": "target/v53-required-four-physical/python-02.log",
+      "sha256": "01e633419af3aff3550d4632749e4a2dc86b65f9277dfebff60c8a8db3ce75fe"
+    },
+    {
+      "path": "target/v53-required-four-physical/python-03.log",
+      "sha256": "6552d64f19cdad94048d6d451417d977e0b3a8d9be0ffa14853ae2f72865536a"
+    },
+    {
+      "path": "target/v53-required-four-physical/python-04.log",
+      "sha256": "ab071b1985291ae82e48022cdef705eb372a5a5a3d627d81035c5a6ed0087ee6"
+    },
+    {
+      "path": "target/v53-required-four-physical/qualification-01.json",
+      "sha256": "54f7a8c89f8b0ba7ab4165d27c64000c9cd088c9297ccb4ba2667ed4b0b0c37f"
+    },
+    {
+      "path": "target/v53-required-four-physical/qualification-01.log",
+      "sha256": "e6d07a52254b6367b5e98130fccb4a9689da16d80da35fe2deb29efc532dd39f"
+    },
+    {
+      "path": "target/v53-required-four-physical/raw-inventory.json",
+      "sha256": "a518bef3d4e760b5933d72d83ae76b7312902d69ed701395e33bad32a3f081bc"
+    },
+    {
+      "path": "target/v53-required-four-physical/reader-sources.json",
+      "sha256": "7d957d1f2490ac8c3ca2dd5717d8b891477215c5f412aaf380451910dd72a401"
+    },
+    {
+      "path": "target/v53-required-four-physical/replay-01.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-required-four-physical/replay-01.log",
+      "sha256": "0d9c62af9affacc891b3f3a9ab863fb642a4d385a0d10e4275d06ea062afc873"
+    },
+    {
+      "path": "target/v53-required-four-physical/replay-02.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-required-four-physical/replay-02.log",
+      "sha256": "918e187dc64c665839ba6ff305cd42f07786c2a2bd69c7bb8cde8b0da5fb7814"
+    },
+    {
+      "path": "target/v53-required-four-physical/replay-03.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-required-four-physical/replay-03.log",
+      "sha256": "cb8936392fa980fd3469e9a08db7abed3e1ed888f9a04886898c79bc2120d18a"
+    },
+    {
+      "path": "target/v53-required-four-physical/replay-04.json",
+      "sha256": "2eb0d2c2982d4f798ebbd7d4040a71aae313fd5616e0778a7508624be2274a63"
+    },
+    {
+      "path": "target/v53-required-four-physical/replay-04.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-required-four-physical/replay-05.json",
+      "sha256": "a333d46d23c34c7df789aec78117ac0fe4c5b2ea7e1b20e28de180fdc103bd5d"
+    },
+    {
+      "path": "target/v53-required-four-physical/replay-05.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "runtimeHead": "25d80cb3c654289ac3b14aa976016a912a5c445a",
+  "schema": "gse-v53-required-four-physical-v1",
+  "scope": "original-owner-files-source-retirements-and-slot-forces",
+  "slotForceQualified": true,
+  "slotForceReplay": {
+    "boundPhaseResponses": 144,
+    "completePhysicalQualified": false,
+    "completeSlotStorageCallbacks": 5234,
+    "deliveredResponses": 4830,
+    "forceAndNetworkQualified": false,
+    "futureTargets": 23,
+    "ownedSlotTransactions": 34,
+    "phase3Complete": false,
+    "processDeathQualified": false,
+    "profile": "5-REPLACE-required-four",
+    "scope": "native-REPLACE-forced-slot-phases-and-delivered-ACKs",
+    "slots": 11,
+    "status": "PASS",
+    "wireResponses": 4833
+  },
+  "sourceRetirementPhysicalQualified": true,
+  "status": "PARTIAL",
+  "unitTests": {
+    "errors": 0,
+    "executions": 139,
+    "failures": 0,
+    "newPolicyTests": 10
+  }
+}

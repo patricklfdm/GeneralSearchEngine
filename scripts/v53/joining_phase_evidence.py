@@ -155,6 +155,7 @@ def phase_replay(events, rows, replay, physical, *, old_owner_lifetimes=None):
         applied = max(physical[index, node]['APPLY_BEFORE_RETURN'] for node in voters)
         for node in voters:
             own = physical[index, node]
+            nonvoting=(index,node) in getattr(replay,'nonvoting',set())
             # Metadata and parent/ancestor ACKs are named by the independently
             # reduced applied end, never by an event's assertion of completion.
             end = ends[node]
@@ -165,8 +166,9 @@ def phase_replay(events, rows, replay, physical, *, old_owner_lifetimes=None):
                             'joining applied metadata force sequence')
             names = ['APPLY_PARENT_ACK_FORCED'] if 'applied-end/parent-ack.gsr' in end else []
             names += [f'APPLY_ANCESTOR_{i}_ACK_FORCED' for i in range(6) if f'applied-end/ancestor-{i}-ack.gsr' in end]
-            forced_interval(events, node, own['APPLY_ACK_FORCED'], own['APPLY_ACK_DIRECTORY_FORCED'], names,
-                            'joining applied ancestor ACK force sequence')
+            if nonvoting:need(not names,'joining departing ancestor endorsement')
+            else:forced_interval(events, node, own['APPLY_ACK_FORCED'], own['APPLY_ACK_DIRECTORY_FORCED'], names,
+                                 'joining applied ancestor ACK force sequence')
             if node == 'node-1': continue
             for phase, key, next_phase in (('ACCEPT', 'acceptance', 'PROOF'), ('PROOF', 'proof', 'CERTIFICATE')):
                 receipt = next(v['receipt'] for v in cert['accepts' if phase == 'ACCEPT' else 'proofs'] if v['voter'] == node)
@@ -175,7 +177,7 @@ def phase_replay(events, rows, replay, physical, *, old_owner_lifetimes=None):
                 used.update(v['offered'] for v in held)
             payload = dict(certificate=sha(parts['CERTIFICATE']), selection=sha(parts['SELECTED']))
             held = control(rows, 'APPLY', node, payload, dict(payload,
-                statement=sha(ends[node]['applied-end/statement.gsr']), acknowledgement=sha(ends[node]['applied-end/ack.gsr'])),
+                statement=sha(ends[node]['applied-end/statement.gsr']), acknowledgement=None if nonvoting else sha(ends[node]['applied-end/ack.gsr'])),
                 selected, own['APPLY_BEFORE_RETURN'], leader['PUBLICATION_VALIDATED'])
             used.update(v['offered'] for v in held)
             prefix, _, packet = disk.current(pub[node])
@@ -189,7 +191,8 @@ def phase_replay(events, rows, replay, physical, *, old_owner_lifetimes=None):
         originals = {}; metadata = {}; current = {}; peer_points = {n: [] for n in voters}
         for node in voters:
             files = ends[node]; local = disk.current(files)[1]
-            originals[node] = {k: files['applied-end/'+k] for k in ('selector.gsr', 'certificate.gsr', 'catalog.gsr', 'statement.gsr', 'ack.gsr')}
+            originals[node] = {k: files['applied-end/'+k] for k in ('selector.gsr', 'certificate.gsr', 'catalog.gsr', 'statement.gsr')}
+            if (index,node) not in getattr(replay,'nonvoting',set()):originals[node]['ack.gsr']=files['applied-end/ack.gsr']
             originals[node].update({k: local[k] for k in ('promise.gsr', 'selected.gsr')})
             originals[node].update({k.lower()+'.gsr': parts[k] for k in ('ENTRY', 'ACCEPT', 'PROOF')})
             current[node] = files[future.FILE]; metadata[node] = empty_future(current[node], files)
@@ -211,7 +214,8 @@ def phase_replay(events, rows, replay, physical, *, old_owner_lifetimes=None):
                  'CURRENT_SELECTOR_FORCED', 'CURRENT_DIRECTORY_FORCED'], 'joining published generation force sequence')
             storage_callbacks += slot_storage.validate_slot(events, node,
                 'continuation-owner' if node == replay.joining else cold_owners.scope(lifetimes,node,own['ACCEPT_VALIDATED']), own, ends[node],
-                disk.current(pub[node])[1], f.decode(parts['ENTRY'], 'records', 'ENTRY')['kind'])
+                disk.current(pub[node])[1], f.decode(parts['ENTRY'], 'records', 'ENTRY')['kind'],
+                nonvoting=(index,node) in getattr(replay,'nonvoting',set()))
         for target in targets:
             identity = semantic.catalog.identities(replay.states[index]['identities'])[target]
             # A separately derived REMOVE history can retain an older possible
@@ -262,9 +266,9 @@ def phase_replay(events, rows, replay, physical, *, old_owner_lifetimes=None):
                 completeSlotStorageCallbacks=storage_callbacks)
 
 
-def validate(root, *, size=3, kind='ADD'):
-    root = Path(root); inventory = semantic.collection.inventory(root); chain = semantic.validate(root,size=size,kind=kind)
-    replay = semantic.Replay(root,size=size,kind=kind)
+def validate(root, *, size=3, kind='ADD', required_four=False):
+    root = Path(root); inventory = semantic.collection.inventory(root); chain = semantic.validate(root,size=size,kind=kind,required_four=required_four)
+    replay = semantic.Replay(root,size=size,kind=kind,required_four=required_four)
     for index in range(1, chain['slots']+1): replay.step(index)
     events = semantic.collection.read_json(root, 'events.json', semantic.collection.EVENT_BYTES)
     wires = semantic.collection.read_json(root, 'wire.json', semantic.collection.WIRE_BYTES)
@@ -272,7 +276,7 @@ def validate(root, *, size=3, kind='ADD'):
     rows = exchanges(events, wires, identities, replay.root)
     result = phase_replay(events, rows, replay, blocks(events, replay))
     need(semantic.collection.inventory(root) == inventory, 'joining original history changed during phase replay')
-    return dict(status='PASS',scope='native-'+kind+'-forced-slot-phases-and-delivered-ACKs',profile=str(size)+'-'+kind,**result,
+    return dict(status='PASS',scope='native-'+kind+'-forced-slot-phases-and-delivered-ACKs',profile=chain['profile'],**result,
         wireResponses=len(rows),deliveredResponses=sum(v['delivered'] is not None for v in rows),
         completePhysicalQualified=False,forceAndNetworkQualified=False,processDeathQualified=False,phase3Complete=False)
 

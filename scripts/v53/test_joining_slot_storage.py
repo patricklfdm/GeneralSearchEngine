@@ -123,6 +123,20 @@ class JoiningSlotStorageTest(unittest.TestCase):
             else:end['applied-end/unlisted']=b'original'
             with self.assertRaisesRegex(ValueError,'^joining slot applied member inventory$'):s.application(end,'INTENT')
 
+    def test_nonvoting_final_requires_exactly_six_members_and_no_endorsement(self):
+        end=fixture()[1];del end['applied-end/ack.gsr']
+        with self.assertRaisesRegex(ValueError,'member inventory'):s.application(end,'FINAL')
+        names=s.application(end,'FINAL',nonvoting=True)
+        self.assertEqual(['APPLY_IMAGE_FORCED','APPLY_END_FORCED','APPLY_NONVOTING_DIRECTORY_FORCED','APPLY_BEFORE_RETURN'],names[-4:])
+        self.assertFalse(any('ACK' in n for n in names))
+        self.assertEqual(6,s.retirement(end,nonvoting=True).count('COVERED_END_FILE_DELETED'))
+        for kind in ('INTENT','BARRIER','DATA'):
+            with self.subTest(kind=kind),self.assertRaisesRegex(ValueError,'nonvoting FINAL required'):
+                s.application(end,kind,allow_data=True,nonvoting=True)
+        for member in ('ack.gsr','parent-statement.gsr','parent-ack.gsr'):
+            changed=dict(end,**{'applied-end/'+member:b'forged'})
+            with self.subTest(member=member),self.assertRaises(ValueError):s.application(changed,'FINAL',nonvoting=True)
+
     def test_ancestor_holes_or_out_of_bound_positions_cannot_reduce_force_count(self):
         for position in (1,5):
             end=fixture()[1]
