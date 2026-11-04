@@ -18,6 +18,14 @@ class V53TransferReplyLifetimeTest {
     static final List<String> BOUNDARIES=List.of("offer","data","commit","cached-commit");
     static final List<String> FAULTS=List.of("expiry","service-close","owner-close","higher-ballot");
 
+    static void resource(List<Map<String,Object>> rows,String side,String event,Decoded q,Decoded a,MembershipResources budget) {
+        var row=new TreeMap<String,Object>();row.put("side",side);row.put("event",event);row.put("request",encoded(q));
+        if(a!=null)row.put("response",encoded(a));row.put("resources",usage(budget));rows.add(row);
+    }
+    static void wire(Trace trace,List<Map<String,Object>> rows,String side,String event,Decoded q,Decoded a,MembershipResources budget)throws java.io.IOException {
+        synchronized(trace){trace.wire(side,event,q,a);resource(rows,side,event,q,a,budget);}
+    }
+
     static void snapshot(V53BootstrapPublicationTest.Fixture fixture,Path path)throws Exception {
         Files.createDirectory(path);
         for(var target:fixture.request.targets())
@@ -38,13 +46,14 @@ class V53TransferReplyLifetimeTest {
                 System.out.println("v53TransferReplyLifetimeCase="+name+" PASS");
             }
         }finally {
-            Files.write(evidence.resolve("receipt.json"),canonical(Map.of("schema","gse-v53-transfer-reply-lifetime-v1",
+            Files.write(evidence.resolve("receipt.json"),canonical(Map.of("schema","gse-v53-transfer-reply-lifetime-v2",
                     "status",rows.size()==48?"PASS":"INCOMPLETE","cases",rows,"publicRuntime",false,"phase3Complete",false),65536));
         }
     }
     void scenario(Path root,int size,String boundary,String fault)throws Exception {
         var helper=new V53MembershipTransportTest();helper.temp=temp;var trace=new Trace("reply-lifetime");
         var receiving=resources();var ref=new AtomicReference<MembershipTransferService>();var injected=new AtomicBoolean();
+        var resourceRows=new ArrayList<Map<String,Object>>();
         boolean success=false;Path source=Files.createDirectory(root.resolve("source"));
         try(var group=helper.new Group(size,source)) {
             var fixture=group.fixture;fixture.ownedHistory=true;
@@ -65,7 +74,10 @@ class V53TransferReplyLifetimeTest {
                 var service=new MembershipTransferService(owner,ballot,fixture.resources,bounds,
                         ()->owner.checkActivation(original.basis,null,false),()->System.nanoTime()+offset.get(),started,BUDGET,(event,q,a)->{
                     if(!event.equals("TRANSFER_BEFORE_REPLY"))return;
-                    trace.add("MATERIALIZED","request",encoded(q),"response",encoded(a),"usage",V53TransferServiceTest.observed(ref.get().usage()));
+                    synchronized(trace) {
+                        trace.add("MATERIALIZED","request",encoded(q),"response",encoded(a),"usage",V53TransferServiceTest.observed(ref.get().usage()));
+                        resource(resourceRows,"server",event,q,a,fixture.resources);
+                    }
                     boolean at=switch(boundary) {
                         case "offer"->a.kind().equals("SOURCE_OFFER");
                         case "data"->a.kind().equals("CHUNK");
@@ -87,8 +99,8 @@ class V53TransferReplyLifetimeTest {
                     }
                 });ref.set(service);
                 try(service) {
-                    var server=group.start(0,(peer,q)->service.handle(peer,q),(event,q,a)->trace.wire("server",event,q,a),bounds,fixture.resources);
-                    var client=group.start(1,group::status,(event,q,a)->trace.wire("client",event,q,a),bounds,receiving);
+                    var server=group.start(0,(peer,q)->service.handle(peer,q),(event,q,a)->wire(trace,resourceRows,"server",event,q,a,fixture.resources),bounds,fixture.resources);
+                    var client=group.start(1,group::status,(event,q,a)->wire(trace,resourceRows,"client",event,q,a,receiving),bounds,receiving);
                     var reader=group.identities.get(1);UUID id=UUID.randomUUID(),traceId=UUID.randomUUID();
                     var requests=new ArrayList<Decoded>();var answers=new ArrayList<String>();
                     requests.add(request(original,reader,traceId,1,"CHUNK",Map.of("id",id.toString(),"action","REQUEST","offset",0L,"digest",promise.digest(),"bytes","")));answers.add("SOURCE_OFFER");
@@ -122,6 +134,7 @@ class V53TransferReplyLifetimeTest {
             trace.add("CLOSED","resources",usage(fixture.resources),"clientResources",usage(receiving));success=true;
         }finally {
             Files.write(root.resolve("events.json"),canonical(trace.events,1024*1024));
+            Files.write(root.resolve("transport-resources.json"),canonical(Map.of("schema","gse-v53-transfer-reply-resources-v1","rows",resourceRows),1024*1024));
             Files.write(root.resolve("result.json"),canonical(Map.of("size",size,"boundary",boundary,"fault",fault,"status",success?"PASS":"FAIL"),65536));
         }
     }

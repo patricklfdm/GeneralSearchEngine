@@ -72,7 +72,7 @@ def collect(raw,case):
     if case=='reply-revocation':
         names=histories(case)
         need({v.name for v in raw.iterdir()}==set(names)|{'receipt.json'},'automatic complete reply matrix')
-        expected=dict(schema='gse-v53-transfer-reply-lifetime-v1',status='PASS',cases=[dict(case=name,size=n,boundary=b,fault=f)
+        expected=dict(schema=replies.SCHEMA,status='PASS',cases=[dict(case=name,size=n,boundary=b,fault=f)
             for name,(n,b,f) in zip(names,replies.CASES)],publicRuntime=False,phase3Complete=False)
         need(h.snapshot.f.canonical(read(raw/'receipt.json'))==h.snapshot.f.canonical(expected),'automatic complete reply producer')
         for name,(n,b,f) in zip(names,replies.CASES):

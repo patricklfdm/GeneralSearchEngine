@@ -71,7 +71,8 @@
         "scripts/v53/transfer_process_evidence.py",
         "scripts/v53/scratch_recovery_evidence.py",
         "scripts/v53/transfer_history.py",
-        "scripts/v53/transfer_reply_lifetime.py"
+        "scripts/v53/transfer_reply_lifetime.py",
+        "scripts/v53/transfer_reply_resources.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_TRANSFER_FAULTS.md",
@@ -79,7 +80,8 @@
         "docs/v5x/v5.3/PHASE_3_SCRATCH_RECOVERY.md",
         "docs/v5x/v5.3/PHASE_3_TRANSFER_HISTORY_COHORT.md",
         "docs/v5x/v5.3/PHASE_3_TRANSFER_HISTORY_HOSTED.md",
-        "docs/v5x/v5.3/PHASE_3_TRANSFER_REPLY_LIFETIME.md"
+        "docs/v5x/v5.3/PHASE_3_TRANSFER_REPLY_LIFETIME.md",
+        "docs/v5x/v5.3/PHASE_3_TRANSFER_RESOURCE_LIFETIME.md"
       ],
       "cohorts": [
         "joining-reply-loss",
@@ -392,7 +394,8 @@
         "scripts/v53/automatic_restart_current.py",
         "scripts/v53/transfer_reply_lifetime.py",
         "scripts/v53/automatic_history_replay.py",
-        "scripts/v53/automatic_history_hosted.py"
+        "scripts/v53/automatic_history_hosted.py",
+        "scripts/v53/transfer_reply_resources.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_COMPETING_REPLAY.md",
@@ -409,7 +412,8 @@
         "docs/v5x/v5.3/PHASE_3_RESTART_LIFECYCLE.md",
         "docs/v5x/v5.3/PHASE_3_TRANSFER_REPLY_LIFETIME.md",
         "docs/v5x/v5.3/PHASE_3_AUTOMATIC_HISTORY_COHORT.md",
-        "docs/v5x/v5.3/PHASE_3_AUTOMATIC_HISTORY_HOSTED.md"
+        "docs/v5x/v5.3/PHASE_3_AUTOMATIC_HISTORY_HOSTED.md",
+        "docs/v5x/v5.3/PHASE_3_TRANSFER_RESOURCE_LIFETIME.md"
       ],
       "cohorts": [
         "node-renames",
@@ -509,7 +513,9 @@
         "scripts/v53/test_process_joint_hosted.py",
         "scripts/v53/test_process_joint_workflow.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationReservationTest.java",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SourceReservationTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SourceReservationTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransferReplyLifetimeTest.java",
+        "scripts/v53/test_transfer_reply_lifetime.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -529,7 +535,8 @@
         "scripts/v53/process_joint_history.py",
         "scripts/v53/process_joint_scratch.py",
         "scripts/v53/process_joint_cohort.py",
-        "scripts/v53/process_joint_hosted.py"
+        "scripts/v53/process_joint_hosted.py",
+        "scripts/v53/transfer_reply_resources.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -547,7 +554,8 @@
         "docs/v5x/v5.3/PHASE_3_PROCESS_JOINT_COHORT.md",
         "docs/v5x/v5.3/PHASE_3_PROCESS_JOINT_HOSTED.md",
         "docs/v5x/v5.3/PHASE_3_GENERATION_RESERVATION.md",
-        "docs/v5x/v5.3/PHASE_3_SOURCE_RESERVATION.md"
+        "docs/v5x/v5.3/PHASE_3_SOURCE_RESERVATION.md",
+        "docs/v5x/v5.3/PHASE_3_TRANSFER_RESOURCE_LIFETIME.md"
       ],
       "cohorts": [
         "profiles",

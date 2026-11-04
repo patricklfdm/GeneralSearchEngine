@@ -1,5 +1,9 @@
 # Phase 3 native transfer reply revocation
 
+The subsequent [native resource extension](PHASE_3_TRANSFER_RESOURCE_LIFETIME.md)
+adds v2 boundary observations and fourteen further negatives to the same matrix.
+The development results below retain their original v1 scope and source.
+
 This component qualifies a PROMISE record response that has been materialized
 inside `MembershipTransferService` but has not returned from its handler. It
 complements the existing between-request expiry/close/lost-response matrix.

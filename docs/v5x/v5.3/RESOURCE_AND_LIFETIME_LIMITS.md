@@ -82,6 +82,12 @@ verified backup to a new root; old tokens/operation IDs do not cross that bounda
 
 ## Tests and acceptance boundaries
 
+[Native reply resource lifetimes](PHASE_3_TRANSFER_RESOURCE_LIFETIME.md) derive
+storage and control charges at actual TCP boundaries from original files/frames.
+Completed reply caches replace the original export/session; revoked retries may
+own transport buffers but cannot revive those caches. This checks 48 observed
+PROMISE histories, not the whole runtime peak or publication completion reserve.
+
 [Floor and retirement resume](PHASE_3_SOURCE_RESERVATION.md) preserves original
 SOURCE/APPLICATION handles on capacity refusal. Complete non-handoff plans and
 individual handoff copies use atomic expansion; force-before-release and exact

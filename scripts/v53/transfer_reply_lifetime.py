@@ -12,6 +12,7 @@ import shutil
 import tempfile
 import uuid
 from . import transfer_fault_evidence as t
+from . import transfer_reply_resources as resources
 
 need=t.need; f=t.f; e=t.e; c=t.c; h=t.history; load=t.load
 BOUNDARIES=('offer','data','commit','cached-commit')
@@ -19,6 +20,7 @@ FAULTS=('expiry','service-close','owner-close','higher-ballot')
 CASES=tuple((size,boundary,fault) for size in (3,4,5) for boundary in BOUNDARIES for fault in FAULTS)
 CLOSED=dict(traces=0,live=0,calls=0,closed=True)
 EMPTY=dict(leases=0,metadata=0,staging=0,queued=0,counts={})
+SCHEMA='gse-v53-transfer-reply-lifetime-v2'
 
 
 def same(actual,expected,reason):
@@ -110,7 +112,7 @@ def replay_events(events,promise,basis,sender,recipient,boundary,fault):
 
 
 def scenario(root,size,boundary,fault):
-    need({p.name for p in root.iterdir()}=={'source','after','calls.json','events.json','result.json'},'reply lifetime case inventory')
+    need({p.name for p in root.iterdir()}=={'source','after','calls.json','events.json','transport-resources.json','result.json'},'reply lifetime case inventory')
     t.x.case(root/'source',size)
     files=c.inventory(root/'source/captured/node-1');_,_,packet=c.current(files)
     t.source_order(load(root/'calls.json'),len(packet['images']))
@@ -119,7 +121,9 @@ def scenario(root,size,boundary,fault):
     promise,basis=c.journal(files['grants.gsr'],packet['capsule']['root'],'node-1')[-2:]
     sender=f.decode(expected['node-2']['node.gsr'],'records','NODE')['identity']
     recipient=f.decode(files['node.gsr'],'records','NODE')['identity']
-    result=replay_events(load(root/'events.json'),promise,basis,sender,recipient,boundary,fault)
+    events=load(root/'events.json')
+    result=replay_events(events,promise,basis,sender,recipient,boundary,fault)
+    result['resources']=resources.replay(load(root/'transport-resources.json'),events,resources.baseline(files,basis[2]),len(promise[1]),fault)
     same(load(root/'result.json'),dict(size=size,boundary=boundary,fault=fault,status='PASS'),'reply lifetime observed case result')
     return dict(size=size,boundary=boundary,fault=fault,**result)
 
@@ -131,7 +135,7 @@ def validate(directory):
     rows=[];results=[]
     for name,(size,boundary,fault) in zip(names,CASES):
         results.append(scenario(root/name,size,boundary,fault));rows.append(dict(case=name,size=size,boundary=boundary,fault=fault))
-    same(load(root/'receipt.json'),dict(schema='gse-v53-transfer-reply-lifetime-v1',status='PASS',cases=rows,publicRuntime=False,phase3Complete=False),
+    same(load(root/'receipt.json'),dict(schema=SCHEMA,status='PASS',cases=rows,publicRuntime=False,phase3Complete=False),
          'reply lifetime exact matrix receipt')
     return dict(status='PASS',cases=results,caseCount=len(results),scope='native-PROMISE-export-pre-return-revocation',
                 clockInjection='explicit-offset',higherBallotInjection='local-native-owner-observation',
@@ -169,6 +173,20 @@ NEGATIVES={
     'boolean-resource':'transfer fault resource observation shape',
     'wrong-result':'reply lifetime observed case result',
     'extra-event':'reply lifetime extra observations',
+    'resource-missing-file':'reply lifetime case inventory',
+    'resource-schema':'reply resources observation shape',
+    'resource-missing-boundary':'reply resources exact boundary inventory',
+    'resource-foreign-boundary':'reply resources exact boundary inventory',
+    'resource-outgoing-request':'reply resources outgoing request charge',
+    'resource-received-request':'reply resources received request charge',
+    'resource-materialized':'reply resources materialized reply charge',
+    'resource-server-response':'reply resources outgoing reply charge',
+    'resource-client-response':'reply resources incoming reply charge',
+    'resource-cached-double-charge':'reply resources materialized reply charge',
+    'resource-storage-released':'reply resources materialized reply charge',
+    'resource-boolean-count':'reply resources outgoing request charge',
+    'resource-invented-baseline':'reply resources original owner baseline',
+    'resource-closed-owner':'reply resources received request charge',
 }
 
 
@@ -176,6 +194,37 @@ def mutate(root,name):
     need(name in NEGATIVES,'reply lifetime unknown negative');case=root/'3-offer-expiry'
     def edit(path,change):
         value=load(path);change(value);path.write_bytes(f.canonical(value))
+    if name.startswith('resource-'):
+        if name=='resource-missing-file':(case/'transport-resources.json').unlink();return
+        if name=='resource-invented-baseline':
+            rows=load(case/'events.json')
+            for row in rows:
+                if row['event']=='RESOURCES':
+                    row['baseline']['metadata']+=1;row['after']['metadata']+=1
+                elif row['event']=='DRAINED':row['resources']['metadata']+=1
+            (case/'events.json').write_bytes(f.canonical(rows));return
+        if name=='resource-cached-double-charge':case=root/'3-cached-commit-service-close'
+        if name in ('resource-server-response','resource-client-response'):case=root/'3-commit-service-close'
+        if name=='resource-closed-owner':case=root/'3-offer-owner-close'
+        path=case/'transport-resources.json';value=load(path);rows=value['rows']
+        if name=='resource-schema':value['schema']='unknown'
+        elif name=='resource-missing-boundary':rows.pop()
+        elif name=='resource-foreign-boundary':rows[0]['side']='server'
+        else:
+            point={'resource-outgoing-request':'BEFORE_REQUEST_WRITE','resource-received-request':'AFTER_REQUEST_READ',
+                   'resource-materialized':'TRANSFER_BEFORE_REPLY','resource-server-response':'BEFORE_RESPONSE_WRITE',
+                   'resource-client-response':'AFTER_RESPONSE_READ','resource-cached-double-charge':'TRANSFER_BEFORE_REPLY',
+                   'resource-storage-released':'TRANSFER_BEFORE_REPLY','resource-boolean-count':'BEFORE_REQUEST_WRITE',
+                   'resource-closed-owner':'AFTER_REQUEST_READ'}[name]
+            candidates=[row for row in rows if row['event']==point];row=candidates[-1 if name in ('resource-cached-double-charge','resource-closed-owner') else 0]
+            if name=='resource-boolean-count':row['resources']['counts']['CONTROL']=True
+            elif name=='resource-storage-released':row['resources']['metadata']-=1
+            elif name=='resource-cached-double-charge':
+                offer=next(t.exchange.wire(v['response'])[1] for v in rows if 'response' in v and t.exchange.wire(v['response'])[0]=='SOURCE_OFFER')
+                row['resources']['queued']+=32768+offer['payload']['bytes']
+                row['resources']['counts']['CONTROL']+=2;row['resources']['leases']+=2
+            else:row['resources']['queued']+=1
+        path.write_bytes(f.canonical(value));return
     if name=='missing-case':shutil.rmtree(root/'5-cached-commit-higher-ballot');return
     if name=='scope':edit(root/'receipt.json',lambda v:v.update(phase3Complete=True));return
     if name=='changed-source':next((case/'source/exported').iterdir()).write_bytes(b'changed');return

@@ -1,0 +1,97 @@
+{
+  "baseHead": "56ea4b57a561f67bff9406fca8c49276a60fee21",
+  "classesRecordedAfterExecution": {
+    "path": "target/v53-transfer-resource-lifetime/classes-recorded-after-execution.json",
+    "sha256": "77472e822962c62c05d2f9ed8a006fd153cf761c6f6a7736d0896b76cc0c2d6c"
+  },
+  "componentResultCheck": {
+    "receipt": {
+      "path": "target/v53-transfer-resource-lifetime/component-result.json",
+      "sha256": "2aa6c143d43f6df890098b1477642a0d3979b2fa7fa673883991cda1e47e1992"
+    },
+    "scope": "reply group result shape only, not the complete three-group cohort"
+  },
+  "evidenceNegatives": 44,
+  "finalSourceCohortQualified": false,
+  "finalizer": {
+    "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-transfer-resource-lifetime/finalize.py",
+    "sha256": "60e96d0449b2c73881c145fa141f82e54c9a1d64c16fb4756a1b5aefad357c39"
+  },
+  "maximumObservedQueued": {
+    "client": 1943,
+    "server": 70043
+  },
+  "nativeCases": 48,
+  "nativeExecutions": 1,
+  "nativeLog": {
+    "path": "target/v53-transfer-resource-lifetime/native-02.log",
+    "sha256": "c6b1c30904599d8547c8066be0a2593738a5bb8243b2ceda1cccf8d8c2b3be58"
+  },
+  "nativeReport": {
+    "path": "target/v53-transfer-resource-lifetime/native-junit.xml",
+    "sha256": "010b5b3dea6e44ce2116fbea6a9fdb84cedefcfd601f80b987740d57541bb4e1"
+  },
+  "nativeRetries": 0,
+  "nativeSeconds": 232.157,
+  "observations": 696,
+  "observedControlChargesQualified": true,
+  "original": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-transfer-reply-lifetime/run-ef656923-baf0-436e-8c64-ed4c66291763",
+  "originalPreserved": true,
+  "phase3Complete": false,
+  "physicalStorageBaselineDerived": true,
+  "publicationCapacityQualified": false,
+  "pythonChecks": {
+    "normal": {
+      "path": "target/v53-transfer-resource-lifetime/reader-tests-final.log",
+      "sha256": "98fb7ce1ddf1bad8ccb86fb945d7effcdc805ac20255e339a5b7683350f23a84"
+    },
+    "optimized": {
+      "path": "target/v53-transfer-resource-lifetime/reader-tests-final-optimized.log",
+      "sha256": "af38765391b13cf861e2bbaeec6b0b7a7d5e16c8d7b2100cc37589ebfb015ff3"
+    },
+    "tests": 88
+  },
+  "qualification": {
+    "path": "target/v53-transfer-resource-lifetime/qualification.json",
+    "sha256": "704ccf1bb9e4e5b95449ec1161826a9ea7d44044d94743395d470a5bb9c40d3e"
+  },
+  "rawInventory": {
+    "path": "target/v53-transfer-resource-lifetime/raw-inventory.json",
+    "sha256": "1811e87524297b95ad68d3d1e78c65d32b94cf360842d5cf852a389bbc8500c2"
+  },
+  "retainedIntermediateChecks": [
+    {
+      "path": "target/v53-transfer-resource-lifetime/reader-tests-01.log",
+      "sha256": "8d0c3b41fee53d1afe01d6b46e8082a3bac61342c5d710b973ddcbf091429743"
+    },
+    {
+      "path": "target/v53-transfer-resource-lifetime/reader-tests-02.log",
+      "sha256": "c4edd22c4b3060c0510f79f55e3471db69fce4b5835f4fe14ee7a03ce4973579"
+    }
+  ],
+  "sandboxDeniedAttempt": {
+    "log": {
+      "path": "target/v53-transfer-resource-lifetime/native.log",
+      "sha256": "27f8d3ef004632650e91db2c593f7e709cec4628f5104ed17f199c9893d93f40"
+    },
+    "reason": "local TCP bind Operation not permitted",
+    "report": {
+      "path": "target/v53-transfer-resource-lifetime/sandbox-denied.xml",
+      "sha256": "2182bc706a946be8de1d8ea0bc6e2f8af644f6a8b4c8225b63b5bcf08851d9f5"
+    },
+    "status": "FAILED_BEFORE_NATIVE_CASE"
+  },
+  "schema": "gse-v53-transfer-resource-lifetime-development-v1",
+  "scope": "native PROMISE transfer boundary resource accounting",
+  "sourceNote": "Working source/class inventories recorded after execution; no final-source common-seed admission is claimed.",
+  "sourceRecordedAfterExecution": {
+    "path": "target/v53-transfer-resource-lifetime/source-recorded-after-execution.json",
+    "sha256": "42bf3f64f6d378ced8db68432bc77aa76d2a85806d8a9c5c08958066db40ca4f"
+  },
+  "status": "PARTIAL",
+  "toolchain": {
+    "path": "target/v53-transfer-resource-lifetime/toolchain.txt",
+    "sha256": "76491158c17a80a30a3e9a573bf6d349cb0568dc8ddcb348f7c4d5e34b1b87cd"
+  },
+  "wholeRuntimePeakQualified": false
+}

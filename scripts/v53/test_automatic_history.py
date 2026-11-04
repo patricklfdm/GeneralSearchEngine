@@ -16,7 +16,7 @@ def raw_tree(raw,case):
     raw.mkdir(parents=True)
     if case=='reply-revocation':
         names=m.histories(case)
-        m.h.save(raw/'receipt.json',dict(schema='gse-v53-transfer-reply-lifetime-v1',status='PASS',publicRuntime=False,phase3Complete=False,
+        m.h.save(raw/'receipt.json',dict(schema=m.replies.SCHEMA,status='PASS',publicRuntime=False,phase3Complete=False,
             cases=[dict(case=name,size=n,boundary=b,fault=f) for name,(n,b,f) in zip(names,m.replies.CASES)]))
         for name,(n,b,f) in zip(names,m.replies.CASES):
             source=raw/name/'source';source.mkdir(parents=True);(source/'original-plan.gsbp').write_bytes((case+name).encode())
@@ -85,6 +85,12 @@ class AutomaticHistoryTest(unittest.TestCase):
             self.assertFalse(any('retry' in v.lower() or 'timeout' in v.lower() or '.case=' in v for v in args))
         for value in ('other','',False):
             with self.subTest(value=value),self.assertRaisesRegex(ValueError,'exact case'):m.command(value)
+
+    def test_legacy_reply_capture_cannot_supply_new_resource_qualification(self):
+        raw=self.raw(self.paths['reply-revocation']);receipt=m.read(raw/'receipt.json')
+        receipt['schema']='gse-v53-transfer-reply-lifetime-v1';m.h.save(raw/'receipt.json',receipt)
+        with self.assertRaisesRegex(ValueError,'automatic complete reply producer'):
+            m.collect(raw,'reply-revocation')
 
     def test_collection_is_only_bounded_inventory_not_authority_replay(self):
         with patch.object(m,'replay') as validator:result=m.collect(self.raw(),self.case)
@@ -155,7 +161,7 @@ class AutomaticHistoryTest(unittest.TestCase):
     def test_complete_three_groups_replay_once_and_keep_scope(self):
         with patch.object(m,'replay',side_effect=lambda raw,case:replay(case)) as gate:result=self.aggregate(workers=3)
         self.assertEqual(3,gate.call_count);self.assertEqual('PASS',result['status']);self.assertEqual(50,result['wholeOwnershipHistories'])
-        self.assertEqual(142,result['negativeCases']);self.assertEqual(3,result['executionGroups'])
+        self.assertEqual(156,result['negativeCases']);self.assertEqual(3,result['executionGroups'])
         for key in ('phase3Complete','combinedPeakResourcesQualified','fullLifecycleQualified','completeExportLifetimesQualified'):
             self.assertIs(False,result[key])
 

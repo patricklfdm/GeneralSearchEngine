@@ -95,15 +95,15 @@ class AutomaticHistoryHostedTest(unittest.TestCase):
 
     def test_aggregate_requires_fifty_exact_originals_and_all_negative_results(self):
         result=w.aggregate(self.bundle,self.verified(),self.root/'aggregate',self.ctx,'success','success')
-        self.assertEqual('PASS',result['status']);self.assertEqual(50,result['wholeOwnershipHistories']);self.assertEqual(3,result['executionGroups']);self.assertEqual(142,result['negativeCases'])
+        self.assertEqual('PASS',result['status']);self.assertEqual(50,result['wholeOwnershipHistories']);self.assertEqual(3,result['executionGroups']);self.assertEqual(156,result['negativeCases'])
         self.assertTrue(result['declaredMatricesQualified']);self.assertFalse(result['phase3Complete'])
-        self.assertEqual(142,result['rejected']);self.assertEqual(7,result['notApplicable'])
+        self.assertEqual(156,result['rejected']);self.assertEqual(7,result['notApplicable'])
 
     def test_superseded_competition_requires_its_own_complete_vector(self):
         root=self.verified();path=root/w.artifact_name(self.ctx,'verified','competition')/'receipt.json'
         value=w.m.read(path);value['member']['qualification']=fixtures.replay('competition','superseded');w.h.save(path,value)
         result=w.aggregate(self.bundle,root,self.root/'superseded',self.ctx,'success','success')
-        self.assertEqual((207,207,0),(result['negativeCases'],result['rejected'],result['notApplicable']))
+        self.assertEqual((221,221,0),(result['negativeCases'],result['rejected'],result['notApplicable']))
         value['member']['qualification']['negatives']=fixtures.replay('competition')['negatives'];w.h.save(path,value)
         with self.assertRaisesRegex(ValueError,'negative'):
             w.aggregate(self.bundle,root,self.root/'shortened-superseded',self.ctx,'success','success')
@@ -187,7 +187,7 @@ class AutomaticHistoryHostedTest(unittest.TestCase):
             directory=inputs/w.artifact_name(self.ctx,'verified',case);directory.mkdir()
             shutil.copyfile(self.root/('replayed-'+case)/'receipt.json',directory/'receipt.json')
         result=w.aggregate(self.bundle,inputs,self.root/'roundtrip-aggregate',self.ctx,'success','success')
-        self.assertEqual((50,3,142),(result['wholeOwnershipHistories'],result['executionGroups'],result['negativeCases']))
+        self.assertEqual((50,3,156),(result['wholeOwnershipHistories'],result['executionGroups'],result['negativeCases']))
         for field in ('phase3Complete','combinedPeakResourcesQualified','allMembershipProfilesQualified','fullLifecycleQualified','completeExportLifetimesQualified'):
             self.assertIs(False,result[field])
 

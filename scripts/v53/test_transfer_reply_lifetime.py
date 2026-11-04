@@ -79,9 +79,12 @@ class TransferReplyLifetimeTest(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'original changed'):r.qualify(root)
 
     def test_negative_catalogue_covers_authority_and_response_boundaries(self):
-        self.assertEqual(30,len(r.NEGATIVES))
+        self.assertEqual(44,len(r.NEGATIVES))
         self.assertTrue({'changed-source','changed-after','late-response','non-higher-ballot',
-                         'cached-live-export','same-fresh-trace','missing-clock-reset','immediate-leak'}<=set(r.NEGATIVES))
+                         'cached-live-export','same-fresh-trace','missing-clock-reset','immediate-leak',
+                         'resource-invented-baseline','resource-cached-double-charge','resource-storage-released',
+                         'resource-outgoing-request','resource-received-request','resource-server-response',
+                         'resource-client-response','resource-closed-owner'}<=set(r.NEGATIVES))
 
 
 if __name__=='__main__':unittest.main()

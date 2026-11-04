@@ -155,8 +155,11 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    turn that original into a pass.
 2. **Qualify combined resources.** The [partial-generation reservation correction](PHASE_3_GENERATION_RESERVATION.md)
    fixes a reproduced loss of accounting on failed install expansion. It retains
-   original handles and rolls back unsuccessful grouped growth; full native
-   overlap and the floor/retirement refusal paths remain separate work.
+   original handles and rolls back unsuccessful grouped growth. The subsequent
+   [floor/retirement correction](PHASE_3_SOURCE_RESERVATION.md) covers those refusal
+   paths. [Native reply resource replay](PHASE_3_TRANSFER_RESOURCE_LIFETIME.md)
+   now derives the existing PROMISE matrix's actual boundary charges and completed
+   cache lifetimes; full native transition/publication overlap remains open.
    Review actual lifetime overlap, then exercise
    selected/current/inactive sources, learner staging and reserved completion on
    real owners. `V53ResourceTransferTest` reserves the accounting envelope;

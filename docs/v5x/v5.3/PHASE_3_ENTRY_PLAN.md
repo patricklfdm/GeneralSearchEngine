@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Native reply resource lifetimes](PHASE_3_TRANSFER_RESOURCE_LIFETIME.md) now
+extend the existing 48-case TCP revocation matrix with original-byte derivation
+of each observed request, live export/session, cached commit and reply charge.
+The existing cohort requires the v2 observations and all 44 exact negatives;
+full transition/publication overlap and final-source qualification remain open.
+
 [Floor and retirement reservation](PHASE_3_SOURCE_RESERVATION.md) now extends
 the same refusal-lifetime correction to original source files, including atomic
 per-copy handoff admission. Conditional failure/resume checks preserve existing

@@ -114,10 +114,18 @@ def check_result(value,case):
              'automatic reply complete scoped matrix')
         cases=original.get('cases');need(type(cases) is list and len(cases)==48,'automatic reply complete cases')
         for v,(size,boundary,fault) in zip(cases,replies.CASES):
-            need(type(v) is dict and set(v)=={'size','boundary','fault','attempts','materialized','delivered','refused'} and
+            need(type(v) is dict and set(v)=={'size','boundary','fault','attempts','materialized','delivered','refused','resources'} and
                  type(v['size']) is int and (v['size'],v['boundary'],v['fault'])==(size,boundary,fault) and
                  all(type(v[k]) is int for k in ('attempts','materialized','delivered','refused')) and
                  v['refused']==3 and v['attempts']==v['delivered']+3 and v['materialized']==v['delivered']+1>=1,'automatic reply ordered exact outcomes')
+            resources=v['resources'];need(type(resources) is dict and set(resources)=={'observations','maximumObservedQueued',
+                'physicalStorageBaselineDerived','observedControlChargesQualified','wholeRuntimePeakQualified','publicationCapacityQualified'} and
+                resources['physicalStorageBaselineDerived'] is True and resources['observedControlChargesQualified'] is True and
+                resources['wholeRuntimePeakQualified'] is False and resources['publicationCapacityQualified'] is False and
+                type(resources['observations']) is int and resources['observations']==2*v['attempts']+v['materialized']+2*v['delivered'],
+                'automatic reply exact resource coverage')
+            maximum=resources['maximumObservedQueued'];need(type(maximum) is dict and set(maximum)=={'server','client'} and
+                all(type(n) is int and 0<n<=64*1024*1024 for n in maximum.values()),'automatic reply observed queue maximum')
     expected,skipped=vector(case,original)
     same(value['negatives'],expected,'automatic exact negative vectors')
     same(value['notApplicable'],skipped,'automatic explicit inapplicable negatives')

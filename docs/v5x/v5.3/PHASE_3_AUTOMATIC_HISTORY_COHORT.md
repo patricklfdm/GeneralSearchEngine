@@ -47,7 +47,8 @@ captured owner supplies the prefix reader's owner-specific rejection message.
 These paths do not claim arbitrary multiple-round competition coverage.
 
 Restart requires all 51 current physical/network negatives and 22 attached
-lifecycle negatives. Reply revocation requires all 30 original-first negatives.
+lifecycle negatives. Reply revocation now requires all 44 original-first negatives
+and v2 [resource observations](PHASE_3_TRANSFER_RESOURCE_LIFETIME.md).
 The aggregate compares exact ordered case/status/reason vectors, not just counts.
 A stage's unrelated failure cannot satisfy its negative expectation.
 
@@ -72,6 +73,10 @@ least once per minute during long replay. Existing output directories are not
 overwritten. This entry dispatches no workflow and runs no paid cloud experiment.
 
 ## Development validation
+
+The following records the original v1 batch. The subsequent resource extension
+requires 156 or 221 total negatives; these historical replays do not qualify its
+new observations or replace final-source execution.
 
 The new admission/composition guards pass 29 focused tests normally and with
 `python -O`; the complete V5.3 Python suite passes 2,588 tests. The source

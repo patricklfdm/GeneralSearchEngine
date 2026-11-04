@@ -25,7 +25,9 @@ def original(case,branch='pregrant'):
                     phase3Complete=False,state=dict(rounds=2,losses=['HIGHER_BALLOT'],drained=True,started=True,readyCallbacks=[1,2]),precondition=dict(phase3Complete=False))
     return dict(status='PASS',scope='native-PROMISE-export-pre-return-revocation',caseCount=48,remoteElectionQualified=False,
         allExportKindsQualified=False,phase3Complete=False,clockInjection='explicit-offset',higherBallotInjection='local-native-owner-observation',
-        cases=[dict(size=n,boundary=b,fault=f,attempts=3,materialized=1,delivered=0,refused=3) for n,b,f in r.replies.CASES])
+        cases=[dict(size=n,boundary=b,fault=f,attempts=3,materialized=1,delivered=0,refused=3,
+            resources=dict(observations=7,maximumObservedQueued=dict(server=100,client=100),physicalStorageBaselineDerived=True,
+                observedControlChargesQualified=True,wholeRuntimePeakQualified=False,publicationCapacityQualified=False)) for n,b,f in r.replies.CASES])
 
 
 def result(case,branch='pregrant'):
@@ -34,6 +36,14 @@ def result(case,branch='pregrant'):
 
 
 class AutomaticHistoryReplayTest(unittest.TestCase):
+    def test_reply_resource_coverage_and_scope_are_required(self):
+        for mutate in (lambda v:v.pop('resources'),lambda v:v['resources'].update(observations=6),
+                       lambda v:v['resources'].update(observedControlChargesQualified=False),
+                       lambda v:v['resources'].update(wholeRuntimePeakQualified=True),
+                       lambda v:v['resources']['maximumObservedQueued'].update(server=True)):
+            value=result('reply-revocation');mutate(value['original']['cases'][0])
+            with self.assertRaises(ValueError):r.check_result(value,'reply-revocation')
+
     def test_all_declared_vectors_and_explicit_inapplicability(self):
         for case in ('competition','higher-ballot-restart','reply-revocation'):
             r.check_result(result(case),case)
@@ -41,7 +51,7 @@ class AutomaticHistoryReplayTest(unittest.TestCase):
         self.assertEqual(39,len(result('competition')['negatives']))
         self.assertEqual(7,len(result('competition')['notApplicable']))
         self.assertEqual(73,len(result('higher-ballot-restart')['negatives']))
-        self.assertEqual(30,len(result('reply-revocation')['negatives']))
+        self.assertEqual(44,len(result('reply-revocation')['negatives']))
         self.assertEqual({},result('competition','superseded')['notApplicable'])
 
     def test_missing_extra_or_substituted_negatives_refuse(self):
