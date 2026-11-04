@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Publication image handoff](PHASE_3_PUBLICATION_RESERVATION.md) now transfers an
+already-reserved completion image to its candidate generation atomically. Failed
+admission preserves the old handle; full-count admission does not need an extra
+image slot. Generation reload and whole-transition peak qualification remain open.
+
 [Native reply resource lifetimes](PHASE_3_TRANSFER_RESOURCE_LIFETIME.md) now
 extend the existing 48-case TCP revocation matrix with original-byte derivation
 of each observed request, live export/session, cached commit and reply charge.

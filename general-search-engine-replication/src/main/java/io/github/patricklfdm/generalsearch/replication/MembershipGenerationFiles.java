@@ -74,6 +74,9 @@ final class MembershipGenerationFiles implements AutoCloseable {
         if(pending!=null)require(pending.equals(inspect(parent.resolve(PENDING),pending.bytes(),pending.digest())),"pending selector inode changed");
     }
     private void reserve(MembershipGenerationPlan plan) {
+        reserve(plan,null);
+    }
+    private void reserve(MembershipGenerationPlan plan,MembershipResources.Lease publication) {
         if(!exists && plan==null)return;
         long metadata=plan==null?files.entrySet().stream().filter(e->!e.getKey().endsWith(".image")).mapToLong(e->e.getValue().bytes()).sum():plan.metadata;
         var required=new LinkedHashMap<String,MembershipResources.StorageReservation>();
@@ -89,7 +92,13 @@ final class MembershipGenerationFiles implements AutoCloseable {
         var names=new ArrayList<String>();
         required.forEach((name,row)->{var lease=parts.get(name);
             if(lease==null){names.add(name);additions.add(row);}else growth.put(lease,row.bytes());});
-        var acquired=resources.extendGeneration(growth,additions);
+        MembershipResources.StorageReservation image=null;
+        if(publication!=null) {
+            String name=images.keySet().stream().filter(key->!parts.containsKey(key)).findFirst()
+                    .orElseThrow(()->new IllegalArgumentException("generation completion requires a new image"));
+            image=required.get(name);
+        }
+        var acquired=publication==null?resources.extendGeneration(growth,additions):resources.extendGeneration(growth,additions,publication,image);
         for(int n=0;n<names.size();n++){var lease=acquired.get(n);parts.put(names.get(n),lease);leases.add(lease);}
         if(completionImage==null && !images.isEmpty())completionImage=parts.get(images.firstKey());
         reservedPlan=plan==null?null:plan.manifest.digest();
@@ -111,6 +120,10 @@ final class MembershipGenerationFiles implements AutoCloseable {
         if(!plan.manifest.digest().equals(reservedPlan))reserve(plan);
     }
     void reservePlan(MembershipGenerationPlan plan) throws IOException {checkPlan(plan);ensureReserved(plan);}
+    void reservePlan(MembershipGenerationPlan plan,MembershipResources.Lease publication)throws IOException {
+        checkPlan(plan);
+        if(publication==null)ensureReserved(plan);else reserve(plan,publication);
+    }
     void install(MembershipGenerationPlan plan,byte[] previousSelector,Guard owner,Guard oldGeneration,MembershipBallotAllocator.Cut cut) throws IOException {
         checkPlan(plan);owner.check();oldGeneration.check();ensureReserved(plan);cut.at("INSTALL_RESERVED");owner.check();oldGeneration.check();
         if(!exists)Files.createDirectory(path);capture();cut.at("INSTALL_DIRECTORY_CREATED");

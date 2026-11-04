@@ -1,0 +1,176 @@
+{
+  "baseHead": "d300b60dca8810e00ee03445467cd2bc0fabe9b6",
+  "continuation": {
+    "independentReplay": {
+      "path": "target/v53-publication-reservation-review/continuation-replay.json",
+      "sha256": "8e1fa6710ccffc83d57c37369f5c2b0bcc9b371a3dbb4f33de9bfa2f41785245"
+    },
+    "inventory": {
+      "path": "target/v53-publication-reservation-review/continuation-inventory.json",
+      "sha256": "f42a5c0d8718bd8c000841c550e80f64332477c9e112bd85d4db563a6f202cf3"
+    },
+    "log": {
+      "path": "target/v53-publication-reservation-review/continuation.log",
+      "sha256": "a75a942c517d266c7d290a47df81494d85f91ef25fa72422243a0ac33ff51d90"
+    },
+    "original": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-dispatch/run-9244453b-b940-48db-a69d-a2c1c8344366",
+    "replayLog": {
+      "path": "target/v53-publication-reservation-review/continuation-replay.log",
+      "sha256": "dd3dc668fc6d89721d4b322af0f0df61a5b7daa2a53d031b5d5588a32051d69f"
+    },
+    "reports": {
+      "V53JointFloorRecoveryTest": {
+        "path": "target/v53-publication-reservation-review/continuation-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53JointFloorRecoveryTest.xml",
+        "seconds": 1243.267,
+        "sha256": "05e5fd646676bb42d0f7049bf90f2357e37a960edfccb38cac998f36a1333adb",
+        "tests": 1
+      },
+      "V53JournalPublicationTest": {
+        "path": "target/v53-publication-reservation-review/continuation-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53JournalPublicationTest.xml",
+        "seconds": 214.469,
+        "sha256": "230d4b06c3d90d8214fb648a79831bb74c7680e9a2d17384e7507ef54762f735",
+        "tests": 2
+      }
+    },
+    "scope": "one native 5-REPLACE recovery and two existing publication-boundary methods",
+    "tests": 3
+  },
+  "continuationSourceDelta": {
+    "files": [
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationFiles.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationReservationTest.java"
+    ],
+    "scope": "multi-image compatibility generalization and its additional accounting regression; continuation ran the earlier single-image implementation"
+  },
+  "finalSourceBeforeFocusedChecks": {
+    "path": "target/v53-publication-reservation-review/source-final.json",
+    "sha256": "7d467772f507429bf952e0314c27f8d81fe334df75e5d50d4fdeae78d0d5a4fa"
+  },
+  "finalSourceCohortQualified": false,
+  "finalizer": {
+    "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-publication-reservation-review/finalize.py",
+    "sha256": "f800fb9491624d9c23074271464772a9d5fc226b094d783f4e93c6300e6e1ca9"
+  },
+  "focused": {
+    "log": {
+      "path": "target/v53-publication-reservation-review/corrected-02.log",
+      "sha256": "5c817531d86123ee43df2529f5547dbf512392303ff4689177119e5281e45c08"
+    },
+    "reports": {
+      "V53GenerationReservationTest": {
+        "path": "target/v53-publication-reservation-review/final-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationReservationTest.xml",
+        "seconds": 1.299,
+        "sha256": "48f85feb50bf84fbd5571a0e4140a7a761a929cca7e89d338d7234b5442a5a6d",
+        "tests": 5
+      },
+      "V53PublicationReservationTest": {
+        "path": "target/v53-publication-reservation-review/final-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PublicationReservationTest.xml",
+        "seconds": 82.48,
+        "sha256": "72d2731aaa40ffe7f5936d345890cb44f2190502917828412175df6bfd268c41",
+        "tests": 7
+      },
+      "V53ResourceTransferTest": {
+        "path": "target/v53-publication-reservation-review/final-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest.xml",
+        "seconds": 0.112,
+        "sha256": "24fc181436fb285fb1f30b5a91b88d0ddb6e20f4133c882b92f896fbcb340782",
+        "tests": 8
+      },
+      "V53SourceReservationTest": {
+        "path": "target/v53-publication-reservation-review/final-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceReservationTest.xml",
+        "seconds": 3.188,
+        "sha256": "2fe6978f7b3f332ec7cee1d5b1417a8cddc7535bb436ca5b911753df88decafc",
+        "tests": 7
+      }
+    },
+    "tests": 27
+  },
+  "generationReloadDiagnosis": {
+    "diagnosis": {
+      "path": "target/v53-generation-reload-review/serialization-corrected/diagnosis.json",
+      "sha256": "35b5c1647278bf4d1cb7d97e7e4d560df556be20a82da81c8f0a708c4dbb8bc9"
+    },
+    "retainedIndex": {
+      "path": "target/v53-generation-reload-review/retained-index.json",
+      "sha256": "2c72f244cf083e3256659e55ddf7cf2da683cd399c86b054adcb10b415e01ebd"
+    },
+    "scope": "15 observed callbacks with two physical generations but one charged generation; remains unfixed by this batch"
+  },
+  "generationReloadHandoffQualified": false,
+  "initialFocused": {
+    "log": {
+      "path": "target/v53-publication-reservation-review/corrected-01.log",
+      "sha256": "bc8d1d4bdf9d1003f810fb75208145c15462656381d89d3488fd39cde7f6714a"
+    },
+    "reports": [
+      {
+        "path": "target/v53-publication-reservation-review/corrected-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationReservationTest.xml",
+        "sha256": "69132bbc352565c9eb0da3954c523722fc70465462c557e525b6c8dbf8e0e962"
+      },
+      {
+        "path": "target/v53-publication-reservation-review/corrected-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PublicationReservationTest.xml",
+        "sha256": "fd3ad9d21f56868e6e540994475831b98efe5b4bcd376e32897c2e56cb2bf691"
+      },
+      {
+        "path": "target/v53-publication-reservation-review/corrected-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest.xml",
+        "sha256": "59403ab21803a398c7f6278092e11627b729460bc2ee291462167b6c6214298a"
+      },
+      {
+        "path": "target/v53-publication-reservation-review/corrected-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceReservationTest.xml",
+        "sha256": "db286766826b531a65282f9dd0f7e4314af3aae10516799f9ba5b4576cc0213d"
+      }
+    ],
+    "tests": 26
+  },
+  "originalPublicationAndCarriedFailures": {
+    "log": {
+      "path": "target/v53-publication-reservation-review/original.log",
+      "sha256": "01fdf801801820691617200cc58a8bdb0df7f326a4193eeec50bec0fea6e66ed"
+    },
+    "report": {
+      "path": "target/v53-publication-reservation-review/original-junit.xml",
+      "sha256": "d041ce75542c802fd51fcb460ea3eeaada3abb01c4b1cbdcec27c59f97f955fb"
+    },
+    "tests": 2
+  },
+  "originalRefusalFailure": {
+    "driver": {
+      "path": "target/v53-publication-reservation-review/reproduce-refusal.py",
+      "sha256": "19d3ee60cae40c43cb4728d78d5564bbe64fb92fa5e33f509f2c50c0705ef51d"
+    },
+    "execution": {
+      "path": "target/v53-publication-reservation-review/original-refusal-execution.json",
+      "sha256": "5b71f8f9243469499d93ff54471f2fd116cc315ae41aa8941e26f765c4a80dca"
+    },
+    "log": {
+      "path": "target/v53-publication-reservation-review/original-refusal.log",
+      "sha256": "005905ad6f6994a243eb0a026eaef8ecfd8899e3fe53ee7568e5f4ea38890432"
+    },
+    "originalSources": {
+      "MembershipGenerationFiles.java": {
+        "path": "target/v53-publication-reservation-review/original-source/MembershipGenerationFiles.java",
+        "sha256": "6cacca50b241c2d051928c0246b318580c04b7d276b6e7feeae19c47fee492df"
+      },
+      "MembershipGrantJournal.java": {
+        "path": "target/v53-publication-reservation-review/original-source/MembershipGrantJournal.java",
+        "sha256": "5b70cf0af210ad3eb9b49d71ace02bd1caef69c5b4e4da738ba23c0b27fa0697"
+      },
+      "MembershipResources.java": {
+        "path": "target/v53-publication-reservation-review/original-source/MembershipResources.java",
+        "sha256": "0c1e61d3b139735486f9adb37a5ef98e3d8bc607306dd444f7b2916ef3badf57"
+      }
+    },
+    "scope": "one regression method invoked with isolated baseline runtime classes"
+  },
+  "phase3Complete": false,
+  "planChecks": {
+    "path": "target/v53-publication-reservation-review/plan-tests.log",
+    "sha256": "8e538d9204c1bc698dcf380aef2383ebac165cd14af754d86253ed848264d9c4"
+  },
+  "schema": "gse-v53-publication-reservation-development-v1",
+  "sourceRecordedAfterFocusedChecksBeforeContinuation": {
+    "path": "target/v53-publication-reservation-review/source.json",
+    "sha256": "e6538a97f6bd3c8116d57b178748e8d818e99a9609da21e963224f80ab1b95a7"
+  },
+  "status": "PARTIAL",
+  "wholeRuntimePeakQualified": false
+}

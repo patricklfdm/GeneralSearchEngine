@@ -159,7 +159,11 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    [floor/retirement correction](PHASE_3_SOURCE_RESERVATION.md) covers those refusal
    paths. [Native reply resource replay](PHASE_3_TRANSFER_RESOURCE_LIFETIME.md)
    now derives the existing PROMISE matrix's actual boundary charges and completed
-   cache lifetimes; full native transition/publication overlap remains open.
+   cache lifetimes. [Publication reservation handoff](PHASE_3_PUBLICATION_RESERVATION.md)
+   now atomically consumes the already-admitted image for candidate installation;
+   generation reload still closes old reservations before reconstructing them
+   and requires its own handoff/refusal audit. Full native transition/publication
+   overlap remains open.
    Review actual lifetime overlap, then exercise
    selected/current/inactive sources, learner staging and reserved completion on
    real owners. `V53ResourceTransferTest` reserves the accounting envelope;

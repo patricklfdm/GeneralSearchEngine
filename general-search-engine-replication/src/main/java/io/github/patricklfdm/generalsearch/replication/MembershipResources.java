@@ -88,12 +88,32 @@ final class MembershipResources {
     synchronized List<Lease> extendGeneration(Map<Lease,Long> growth,List<StorageReservation> additions) {
         return extendStorage(growth,additions,Unit.GENERATION,8);
     }
+    /** Consume an already-admitted publication slot as one exact candidate image.
+     * The old handle is revoked only after the complete generation reservation
+     * succeeds. The maximum image extent remains charged throughout the handoff. */
+    synchronized List<Lease> extendGeneration(Map<Lease,Long> growth,List<StorageReservation> additions,
+            Lease publication,StorageReservation image) {
+        Objects.requireNonNull(publication);Objects.requireNonNull(image);
+        require(!publication.released && leases.get(publication.key)==publication && publication.key.unit==Unit.APPLICATION
+                && publication.bytes==Unit.APPLICATION.bytes && !growth.containsKey(publication),"generation completion original reservation");
+        require(image.unit==Unit.APPLICATION && image.bytes>0 && image.bytes<=publication.bytes
+                && image.owner!=null && !image.owner.isEmpty() && image.owner.length()<=128
+                && Collections.frequency(additions,image)==1,"generation completion image reservation");
+        var target=new Key(Unit.APPLICATION,image.owner);
+        require(!leases.containsKey(target) && generationClaims.stream().noneMatch(c->c.target.equals(target))
+                && sourceClaims.stream().noneMatch(c->c.target.equals(target)),"generation completion target occupied");
+        return extendStorage(growth,additions,Unit.GENERATION,8,publication,image);
+    }
     /** Extend retained source copies without giving up charges for partial files.
      * A floor handoff calls this per copy, before releasing its receiving owner. */
     synchronized List<Lease> extendSources(Map<Lease,Long> growth,List<StorageReservation> additions) {
         return extendStorage(growth,additions,Unit.SOURCE,Unit.SOURCE.count+Unit.APPLICATION.count);
     }
     private List<Lease> extendStorage(Map<Lease,Long> growth,List<StorageReservation> additions,Unit metadataUnit,int bound) {
+        return extendStorage(growth,additions,metadataUnit,bound,null,null);
+    }
+    private List<Lease> extendStorage(Map<Lease,Long> growth,List<StorageReservation> additions,Unit metadataUnit,int bound,
+            Lease publication,StorageReservation image) {
         require(growth.size()+additions.size()<=bound,"storage reservation group bound");
         var originals=new LinkedHashMap<Lease,Long>();
         for(var row:growth.entrySet()) {
@@ -106,10 +126,23 @@ final class MembershipResources {
         for(var row:additions)require(row.unit==metadataUnit || row.unit==Unit.APPLICATION,"storage reservation category");
         long originalMetadata=metadata,originalStaging=staging;
         var acquired=new ArrayList<Lease>(additions.size());
+        var ordered=new ArrayList<Lease>(additions.size());
+        var successor=publication==null?null:new Lease(new Key(Unit.APPLICATION,image.owner),publication.bytes);
         try {
             for(var row:growth.entrySet())row.getKey().reserveStorage(Math.max(row.getKey().bytes,row.getValue()));
-            for(var row:additions)acquired.add(reserve(row.unit,row.owner,row.bytes));
-            return List.copyOf(acquired);
+            for(var row:additions) {
+                if(row.equals(image))ordered.add(successor);
+                else {var lease=reserve(row.unit,row.owner,row.bytes);acquired.add(lease);ordered.add(lease);}
+            }
+            var result=List.copyOf(ordered);
+            if(publication!=null) {
+                // Allocate the replacement map before revoking the original. Any
+                // refusal or allocation failure above leaves the old slot usable.
+                require(!leases.containsKey(successor.key),"generation completion target occupied");
+                var next=new HashMap<>(leases);next.remove(publication.key);next.put(successor.key,successor);
+                leases=next;publication.released=true;
+            }
+            return result;
         }catch(RuntimeException | Error error) {
             acquired.forEach(Lease::close);
             originals.forEach((lease,bytes)->lease.bytes=bytes);

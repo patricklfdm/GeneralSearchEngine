@@ -1489,6 +1489,12 @@ final class MembershipGrantJournal implements AutoCloseable {
     private void releasePublicationImage() {
         if(publicationImage!=null){publicationImage.close();publicationImage=null;}
     }
+    private void reservePublicationPlan(MembershipGenerationPlan plan)throws IOException {
+        inactive.reservePlan(plan,publicationImage);
+        // A successful reservation consumes the original handle atomically.
+        // On refusal it is still live and remains owned by this journal.
+        publicationImage=null;
+    }
     private boolean coveredVote(MembershipPendingAccept.Vote vote)throws IOException {
         return vote!=null && vote.certificate()!=null && current.publishedCertificate().filter(vote.certificate().digest()::equals).isPresent();
     }
@@ -2476,9 +2482,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         try {
             cut.at("PUBLICATION_VALIDATED");checkOwner();fence(bound);
             if(!installed) {
-                // Transfer the reserved future slot to the actual candidate. Any failure
-                // poisons this owner; reopen counts a written image or reserves the slot again.
-                releasePublicationImage();
+                reservePublicationPlan(plan);
                 inactive.install(plan,current.selector.bytes(),()->{checkBaseOwner();fence(bound);},current::check,cut);
                 reloadGenerations();cut.at("PUBLICATION_SELECTOR_FORCED");checkOwner();fence(bound);
             }
@@ -3696,10 +3700,9 @@ final class MembershipGrantJournal implements AutoCloseable {
         }
         inactive.checkPlan(plan);
         try {
-            // A carried vote already reserves the future generation image. Use that
-            // slot for installation, as publication does, instead of counting it twice.
-            // Any failure poisons this owner; reopen reconstructs all physical leases.
-            releasePublicationImage();
+            // Transfer a carried vote's reserved slot without exposing spare
+            // capacity to concurrent receivers or charging the image twice.
+            reservePublicationPlan(plan);
             inactive.install(plan,current.selector.bytes(),()->{checkBaseOwner();fence(ballot);},current::check,cut);
             reloadGenerations();
             completeSelectedRetention();
