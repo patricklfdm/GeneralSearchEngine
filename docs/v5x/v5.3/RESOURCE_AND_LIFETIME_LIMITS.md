@@ -82,6 +82,14 @@ verified backup to a new root; old tokens/operation IDs do not cross that bounda
 
 ## Tests and acceptance boundaries
 
+The [combined receive histories](PHASE_3_COMBINED_RECEIVE_RESOURCES.md) now measure
+real current/PROMISE and receiving copies sharing one resource owner. Nine
+independent native cases cover seven simultaneous application files, a shared
+staging limit exactly sufficient for those files, and a one-byte-short refusal.
+Physical replay checks every copy, the failed packet's retained charge and
+release after cleanup. Full metadata maximum and admitted FINAL/publication
+completion under combined pressure remain separate, unclosed obligations.
+
 The [Phase 3 local future-retention container](PHASE_3_FUTURE_RETENTION.md) shares
 the existing 32 MiB journal ceiling. Its active and candidate files are each at
 most 3 MiB; before accepting an intention it also reserves the ordinary 64 KiB

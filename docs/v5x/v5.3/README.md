@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Combined receiving resources](PHASE_3_COMBINED_RECEIVE_RESOURCES.md) now bind
+actual current/PROMISE files and source/learner receiving copies to one budget.
+Nine native histories cover the seven-image count and exact/one-byte-short
+staging boundaries, with independent physical accounting and 21 negatives.
+Full simultaneous metadata and transition-completion coverage remain open.
+
 [Automatic lifecycle cohort admission](PHASE_3_AUTOMATIC_HISTORY_COHORT.md) now
 binds ungated competition, higher-ballot restart and the complete reply-revocation
 matrix to one source/build/toolchain/reader. Original-first composition preserves

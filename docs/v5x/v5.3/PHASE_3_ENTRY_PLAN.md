@@ -7,6 +7,12 @@ groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
 
+[Combined receiving resources](PHASE_3_COMBINED_RECEIVE_RESOURCES.md) now exercise
+nine native same-budget histories with actual current/PROMISE and receiving
+files. Original-first replay derives their charges and refusal/cleanup from
+physical snapshots. This covers image count and shared-byte boundaries, not
+the full metadata maximum or FINAL/publication completion; 3E remains open.
+
 [Automatic lifecycle component admission](PHASE_3_AUTOMATIC_HISTORY_COHORT.md)
 now provides three complete execution groups and 50 distinct original plans with
 exact common-source/build/toolchain/reader binding. Known competition shapes

@@ -60,7 +60,7 @@ prove its semantics.
 | 3D rounds | Carried-first publication, two durable phases, round reuse, [seven-history admission](PHASE_3_NATIVE_ROUND_COHORT.md) and [carried INTENT/FINAL physical/lifecycle replay](PHASE_3_CARRIED_TRANSITIONS.md) | Final-source native round execution; carried DATA has a [four-history local entry](PHASE_3_CARRIED_DATA_COHORT.md); the [carried transition pair](PHASE_3_CARRIED_TRANSITION_COHORT.md) has six-layer admission; final-source execution, other payload axes and process faults remain |
 | 3D automatic | Competing owners, heartbeat, original grants, both campaign networks, maintenance, installation/publication, [observed export authority](PHASE_3_COMPETING_EXPORTS.md), [actual lifecycle collection](PHASE_3_AUTOMATIC_LIFECYCLE.md) and [pre-grant-loss whole replay](PHASE_3_PREGRANT_LOSS_REPLAY.md) | All-kind export lifecycle beyond the [PROMISE reply-boundary component](PHASE_3_TRANSFER_REPLY_LIFETIME.md), complete recovery, final-source competition and failure coverage |
 | 3D removal | Departure fencing, retirement and original-disk recovery | Final-source original/negative process matrix |
-| 3E resources | Accounting, bounded transfers, publication refusal and conditional-prefix tests | Simultaneous physical peak and admitted completion |
+| 3E resources | Accounting, bounded transfers, publication refusal, conditional-prefix tests and [nine actual receiving-overlap histories](PHASE_3_COMBINED_RECEIVE_RESOURCES.md) | Full simultaneous physical peak and admitted transition completion |
 | 3E coverage | Frozen finite inventory and this dependency map | Concrete schedule/evidence/rejection mapping |
 | 3E cohort | Eleven source-bound subset gates | Complete final admission, execution and closure audit |
 
@@ -147,6 +147,11 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    real owners. `V53ResourceTransferTest` reserves the accounting envelope;
    `V53PublicationCapacityTest` checks conditional-prefix refusal and stable DATA.
    Neither alone proves a simultaneous native physical maximum.
+   The new same-budget current/PROMISE plus receiving-copy histories now qualify
+   image-count and exact/one-byte-short staging refusal with physical snapshots,
+   including retained failed packet charges and post-refusal allocator force.
+   They do not qualify two generations plus the full selected/learner metadata
+   maximum, admitted FINAL/application completion or interrupted rotation.
 3. **Finish concrete protocol coverage.** Map exact schedules, original evidence
    selectors and rejection reasons; identify uncovered combinations. Inapplicable
    operations still require explicit refusal with unchanged bytes. Keep final

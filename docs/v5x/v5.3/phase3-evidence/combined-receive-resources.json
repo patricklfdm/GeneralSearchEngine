@@ -1,0 +1,243 @@
+{
+  "baseCommit": "eec9a030029d13f3e221ac2c48785430e5feedc6",
+  "checks": {
+    "contract-final.json": {
+      "path": "target/v53-combined-receive-batch/contract-final.json",
+      "sha256": "1e191e95cb98087a6982066645b6f7d288d5fdaf6b31c427c769eef23ef4d037"
+    },
+    "inspection-final/receipt.json": {
+      "path": "target/v53-combined-receive-batch/inspection-final/receipt.json",
+      "sha256": "0175b24936416a0b5da86e5b4aa87fa67a97f78f7e9aedb6917b9d13e2a60d72"
+    },
+    "raw-force-before.json": {
+      "path": "target/v53-combined-receive-batch/raw-force-before.json",
+      "sha256": "999f266a0e7655d49537d45d63b57423ad28e2606854b21369b8b139189496ac"
+    },
+    "replay-force-optimized.json": {
+      "path": "target/v53-combined-receive-batch/replay-force-optimized.json",
+      "sha256": "92c7870dd24a5000d151c17acfee01788b1de844d9a1777280643bdc925eca21"
+    },
+    "replay-force.json": {
+      "path": "target/v53-combined-receive-batch/replay-force.json",
+      "sha256": "92c7870dd24a5000d151c17acfee01788b1de844d9a1777280643bdc925eca21"
+    }
+  },
+  "finalNativeHistories": 9,
+  "finalSourceCohortQualified": false,
+  "focusedTests": {
+    "path": "target/v53-combined-receive-batch/focused-force.log",
+    "seconds": 0.01,
+    "sha256": "a86a150651d34bd22d6f7ab8b6ef734452b614e943f335c3fb44eb4b33c2d5c9",
+    "tests": 12
+  },
+  "measurementRetries": false,
+  "nativeExecuted": true,
+  "nativeExecutions": {
+    "mutant-01": {
+      "collection": {
+        "path": "target/v53-combined-receive-batch/mutant-01/collection.json",
+        "sha256": "2b5628755a4d476bfdb48100f1d1504d484e6b2da0f8b31a9a2832fd1ccf135f"
+      },
+      "command": {
+        "path": "target/v53-combined-receive-batch/mutant-01/command.json",
+        "sha256": "e6446ecf51c6bcec7faabc55f07a1ca23646dc53b404f95111da90cb38f6d76a"
+      },
+      "execution": {
+        "elapsedSeconds": 19.06,
+        "exit": 1
+      },
+      "expectedFailureObserved": true,
+      "failure": [
+        {
+          "message": "Expected java.lang.IllegalArgumentException to be thrown, but nothing was thrown.",
+          "type": "org.opentest4j.AssertionFailedError"
+        }
+      ],
+      "junit": [
+        {
+          "errors": "0",
+          "failures": "1",
+          "name": "io.github.patricklfdm.generalsearch.replication.V53CombinedReceiveResourcesTest",
+          "skipped": "0",
+          "tests": "1",
+          "time": "4.236"
+        }
+      ],
+      "log": {
+        "path": "target/v53-combined-receive-batch/mutant-01/maven.log",
+        "sha256": "202a35bcdb4a67e5c1a06a7388978b01d7ff837b8effb7b9b8184662ab6acf6b"
+      },
+      "mutation": {
+        "path": "target/v53-combined-receive-batch/mutant-01/mutation.json",
+        "sha256": "45198fbcfe7e482a4c29116d74249a7795b98f8349bc3792445bbe9f3e840132"
+      },
+      "nativeOutcome": "FAIL",
+      "raw": "target/v53-combined-receive-batch/mutant-01/workspace/general-search-engine-replication/target/v53-combined-receive/run-827f0f8f-67e2-4262-a2c1-3233f1d14efb",
+      "rawBytes": 280284,
+      "rawFiles": 239,
+      "source": {
+        "path": "target/v53-combined-receive-batch/mutant-01/source.json",
+        "sha256": "ff0c0e569055693c638a603ffd64f90a2a9870e14a62f80b88cbddffa5747c20"
+      },
+      "toolchain": {
+        "path": "target/v53-combined-receive-batch/mutant-01/toolchain.json",
+        "sha256": "fdf22802e48c80b2c2593c9400c5c747f3d38f34476b26cdebcba1e06e6b0e12"
+      },
+      "toolchainIdentitySha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+    },
+    "native-01": {
+      "collection": {
+        "path": "target/v53-combined-receive-batch/native-01/collection.json",
+        "sha256": "2a98d09f53fa35d97449c8ca466346c61f1714f366a9a5b05e3cf71c7cc2fc9a"
+      },
+      "command": {
+        "path": "target/v53-combined-receive-batch/native-01/command.json",
+        "sha256": "71124a94f43eed6d4ad3daffba34745a1d360cbec11b76465b0348678267e8cc"
+      },
+      "execution": {
+        "elapsedSeconds": 63.522,
+        "exit": 0
+      },
+      "expectedFailureObserved": false,
+      "junit": [
+        {
+          "errors": "0",
+          "failures": "0",
+          "name": "io.github.patricklfdm.generalsearch.replication.V53CombinedReceiveResourcesTest",
+          "skipped": "0",
+          "tests": "1",
+          "time": "49.242"
+        },
+        {
+          "errors": "0",
+          "failures": "0",
+          "name": "io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest",
+          "skipped": "0",
+          "tests": "8",
+          "time": "0.018"
+        }
+      ],
+      "log": {
+        "path": "target/v53-combined-receive-batch/native-01/maven.log",
+        "sha256": "10257a2f32d08bcb25b6e6c368794c9b8cc143f0311bfd4c3c5d8942fb83aeee"
+      },
+      "nativeOutcome": "PASS",
+      "raw": "target/v53-combined-receive-batch/native-01/workspace/general-search-engine-replication/target/v53-combined-receive/run-825849a3-6fd4-45fe-81de-29941ceb8a22",
+      "rawBytes": 4778912,
+      "rawFiles": 3913,
+      "source": {
+        "path": "target/v53-combined-receive-batch/native-01/source.json",
+        "sha256": "88b9084bfa16dad65ea83320962018dadf02bada0cdb982198b7ea4a8fd6deea"
+      },
+      "toolchain": {
+        "path": "target/v53-combined-receive-batch/native-01/toolchain.json",
+        "sha256": "0f681374f92aa860c5b56f23228d83aa4475f0283180daa54dd381cd5a536450"
+      },
+      "toolchainIdentitySha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+    },
+    "native-02": {
+      "collection": {
+        "path": "target/v53-combined-receive-batch/native-02/collection.json",
+        "sha256": "93be081266e8edb833590c39f067274f29dfe094e6d4a57a48fe40f5c8f61a3c"
+      },
+      "command": {
+        "path": "target/v53-combined-receive-batch/native-02/command.json",
+        "sha256": "71124a94f43eed6d4ad3daffba34745a1d360cbec11b76465b0348678267e8cc"
+      },
+      "execution": {
+        "elapsedSeconds": 63.824,
+        "exit": 0
+      },
+      "expectedFailureObserved": false,
+      "junit": [
+        {
+          "errors": "0",
+          "failures": "0",
+          "name": "io.github.patricklfdm.generalsearch.replication.V53CombinedReceiveResourcesTest",
+          "skipped": "0",
+          "tests": "1",
+          "time": "49.798"
+        },
+        {
+          "errors": "0",
+          "failures": "0",
+          "name": "io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest",
+          "skipped": "0",
+          "tests": "8",
+          "time": "0.018"
+        }
+      ],
+      "log": {
+        "path": "target/v53-combined-receive-batch/native-02/maven.log",
+        "sha256": "4b29521990589773f281b771973463f9bbca7527f0c57c540236cd4f21490cd3"
+      },
+      "nativeOutcome": "PASS",
+      "raw": "target/v53-combined-receive-batch/native-02/workspace/general-search-engine-replication/target/v53-combined-receive/run-77fe0fc9-471b-45c0-bb14-b507e196fae4",
+      "rawBytes": 4793045,
+      "rawFiles": 3922,
+      "source": {
+        "path": "target/v53-combined-receive-batch/native-02/source.json",
+        "sha256": "c331ddea5aa4022e2fd74c46c0d8c82834a0a2762080eb42e2239fe0c640a087"
+      },
+      "toolchain": {
+        "path": "target/v53-combined-receive-batch/native-02/toolchain.json",
+        "sha256": "6a40e75fd463500c0a4b508338478f9aa3f7f1342f7a938c4f297a543acbe476"
+      },
+      "toolchainIdentitySha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+    }
+  },
+  "network": false,
+  "note": "Native-01 used the initial fixture without allocator callbacks. Native-02 is a fresh source execution after adding those observations; no histories are stitched. The deliberately weakened mutant uses the initial fixture and fails at the unchanged image-count assertion. Force callbacks observe the native path, not power-loss recovery or hardware durability.",
+  "optimizedFocusedTests": {
+    "path": "target/v53-combined-receive-batch/focused-force-optimized.log",
+    "seconds": 0.007,
+    "sha256": "a9a62c93b51eee640410bdd1924c2eb7632ed5f8a5eac2ea425b405c1a8a196c",
+    "tests": 12
+  },
+  "optionalHostedSubsets": 11,
+  "originalsPreserved": true,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "physicalNegatives": 21,
+  "plannedHostedHistories": 512,
+  "preservedEarlierChecks": {
+    "python-suite.log": {
+      "path": "target/v53-combined-receive-batch/python-suite.log",
+      "sha256": "9e53091b18ef436352bd5d754251bfdae87a1e41e431491d7c374755c4085d9a"
+    },
+    "reader-01.json": {
+      "path": "target/v53-combined-receive-batch/reader-01.json",
+      "sha256": "e96014782f127e17501c4eea8e3eecca4dcc3afdea2080e54e40cf5ba8d771b1"
+    },
+    "reader-final.json": {
+      "path": "target/v53-combined-receive-batch/reader-final.json",
+      "sha256": "90f5b3132f4b313b9221acfd889f4e2d6220322f983fc8efa4d695754c909e16"
+    },
+    "replay-01.json": {
+      "path": "target/v53-combined-receive-batch/replay-01.json",
+      "sha256": "5eb709829657a862f9dae6d1c14d5b65bc2b8f5edbcd552ea336698655de75a0"
+    },
+    "replay-optimized.json": {
+      "path": "target/v53-combined-receive-batch/replay-optimized.json",
+      "sha256": "5eb709829657a862f9dae6d1c14d5b65bc2b8f5edbcd552ea336698655de75a0"
+    }
+  },
+  "productionChanged": false,
+  "pythonTests": {
+    "path": "target/v53-combined-receive-batch/python-suite-force.log",
+    "seconds": 121.541,
+    "sha256": "8f24b75b363e51646da0fd38ce5271c331cf9c394b29a5a9537dbd43be5a71f4",
+    "tests": 2618
+  },
+  "reader": {
+    "path": "target/v53-combined-receive-batch/reader-force.json",
+    "sha256": "da8e0c3a350b93d07d81f468c311a1879f468089c47ca0d4b4a19ba1e3eb0213"
+  },
+  "readerSha256": "e4d97efc95e0664f8d20366d6070440fa6191529da473a84721121b2353e80f1",
+  "schema": "gse-v53-combined-receive-development-v1",
+  "scope": "native-current-promise-and-receiving-copy-overlap",
+  "simultaneousMaximumQualified": false,
+  "status": "PASS",
+  "transitionCompletionQualified": false,
+  "workflowChanged": false
+}

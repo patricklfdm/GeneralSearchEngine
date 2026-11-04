@@ -468,14 +468,18 @@
       "tests": [
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransferTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationCapacityTest.java",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AncestorCapacityTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AncestorCapacityTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CombinedReceiveResourcesTest.java",
+        "scripts/v53/test_combined_receive_evidence.py"
       ],
       "readers": [
-        "scripts/v53/publication_capacity_evidence.py"
+        "scripts/v53/publication_capacity_evidence.py",
+        "scripts/v53/combined_receive_evidence.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
-        "docs/v5x/v5.3/PHASE_3_LEARNER_CYCLE_REPLAY.md"
+        "docs/v5x/v5.3/PHASE_3_LEARNER_CYCLE_REPLAY.md",
+        "docs/v5x/v5.3/PHASE_3_COMBINED_RECEIVE_RESOURCES.md"
       ],
       "cohorts": [
         "profiles",
@@ -701,7 +705,7 @@
       "id": "combined-resources",
       "status": "OPEN",
       "dependsOn": [],
-      "work": "Exercise physical simultaneous selected/current/inactive sources, learner staging and completion reservations under the frozen shared owner limits. Review actual lifetime overlap before adding a producer; existing accounting and conditional-prefix tests are prerequisites only.",
+      "work": "Exercise physical simultaneous selected/current/inactive sources, learner staging and completion reservations under the frozen shared owner limits. Review actual lifetime overlap before adding a producer; existing accounting and conditional-prefix tests are prerequisites only. Nine native current/PROMISE and receiving-copy overlap histories now have independent physical accounting, exact/one-byte-short staging boundaries, retained failed-packet charges and post-refusal allocator force. They do not close the full metadata maximum, admitted FINAL/application completion or interrupted rotation obligations.",
       "acceptance": "Retain actual peak owner/lease/byte observations and independent physical replay at/over the bound, including admitted FINAL/recovery completion and stable DATA after membership exhaustion. Arithmetic alone does not qualify this obligation."
     },
     {
