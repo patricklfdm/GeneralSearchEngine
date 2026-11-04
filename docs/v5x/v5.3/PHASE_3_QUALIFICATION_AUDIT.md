@@ -84,7 +84,11 @@ evidence and exact rejection mapping. Related family IDs are not that mapping.
    now includes both choices and the losing incomplete transfer. Observed temporal
    exports are checked; [pre-grant-loss replay](PHASE_3_PREGRANT_LOSS_REPLAY.md) now
    accepts that unchanged zero-retirement original with exact applicable negatives.
-   General lifecycle/fault coverage and competition admission remain open.
+   [Observed automatic restart](PHASE_3_RESTART_LIFECYCLE.md) now binds an actual
+   higher-ballot loss, session replacement and fresh READY to one original's
+   complete current physical/network replay and unchanged deadline. It adds no
+   hosted subset or final-source qualification. General lifecycle/fault coverage
+   and competition admission remain open.
    The [transfer matrix entry](PHASE_3_TRANSFER_HISTORY_COHORT.md) binds the existing
    complete TCP lifetime and two-process recovery matrices to one recorded
    source/build/toolchain/reader and independently replays both originals. It is

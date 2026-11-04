@@ -19,7 +19,12 @@ class V53AutomaticRestartTest {
     static final long BUDGET=TimeUnit.SECONDS.toNanos(300);
     @Test void higherBallotAutomaticallyDrainsAndReactivatesBeforeNewData()throws Exception {
         var nativeHelper=new V53NativeDispatchTest();nativeHelper.temp=temp;
-        try(var n=nativeHelper.new Network(3,ReplicationBounds.defaults(),BUDGET,f->{})) {
+        var n=nativeHelper.new Network(3,ReplicationBounds.defaults(),BUDGET,f->{});
+        V53RestartLifecycleCapture capture=null;MembershipAutomaticOwner observedOwner=null;boolean passed=false;
+        try(n) {
+            if(Boolean.getBoolean("v53.restart.lifecycle.captures")) {
+                synchronized(n.events){capture=new V53RestartLifecycleCapture(n.f.raw,n.events);n.restartLifecycleCapture=capture;}
+            }
             var installed=new AtomicInteger();
             var round=new MembershipRoundDriver<>(n.owners.getFirst(),n.endpoints.getFirst(),n.resources.getFirst(),n.bounds,n.transports.getFirst(),
                 temp.resolve("restart-round"),()->System.nanoTime()+n.offset.get(),BUDGET,2,builder().configuration(),n.f.request.targets().getFirst().materialization(),
@@ -37,7 +42,10 @@ class V53AutomaticRestartTest {
                     catch(Exception error){throw new IOException(error);}
                 });
             long began=System.nanoTime();
-            try(round;var owner=round.automaticOwner(AutomaticLeadershipPolicy.forBounds(n.bounds))) {
+            var collected=capture;
+            try(round;var owner=round.automaticOwner(AutomaticLeadershipPolicy.forBounds(n.bounds),
+                    collected==null?MembershipAutomaticOwner.Events.NONE:event->collected.lifecycle.at("node-1",event))) {
+                observedOwner=owner;if(capture!=null)capture.opened(BUDGET);
                 var first=owner.start().await(300,TimeUnit.SECONDS);assertEquals(1,owner.rounds());n.f.snapshot("first-ready");
                 var proposer=n.owners.get(1);long counter=proposer.reserveCounter();var peer=proposer.activationIdentity();
                 var higher=Map.<String,Object>of("counter",counter,"proposer",peer.nodeId().value(),"incarnation",peer.storageId().toString());
@@ -62,7 +70,11 @@ class V53AutomaticRestartTest {
                 assertEquals(3L,n.owners.getFirst().activationContext().cut.get("index"));owner.close();
                 Files.write(n.f.raw.resolve("restart-result.json"),canonical(Map.of("status","PARTIAL","producerPassed",true,"rounds",2,
                     "barriers",2,"dataCalls",1,"originalBudgetNanos",BUDGET,"physicalReplay",false,"phase3Complete",false),4096));
+                passed=true;
             }
+        }finally {
+            if(capture!=null)capture.save(n.f.raw,passed,observedOwner!=null && observedOwner.drained(),
+                observedOwner==null?Optional.of(new IOException("automatic owner not constructed")):observedOwner.observationFailure(),n.resources);
         }
     }
 }

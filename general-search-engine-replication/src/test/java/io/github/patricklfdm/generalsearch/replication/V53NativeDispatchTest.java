@@ -24,9 +24,11 @@ class V53NativeDispatchTest {
         final List<MembershipTransport> transports=new ArrayList<>();
         final List<AtomicReference<MembershipTransport>> links=new ArrayList<>();
         private V53ProcessTrace processTrace;
+        volatile V53RestartLifecycleCapture restartLifecycleCapture;
         final List<Map<String,Object>> wire=Collections.synchronizedList(new ArrayList<>()),events=Collections.synchronizedList(new ArrayList<>() {
             @Override public boolean add(Map<String,Object> event) {
                 if(processTrace!=null)processTrace.add(event);
+                if(restartLifecycleCapture!=null)restartLifecycleCapture.event(size(),event);
                 return super.add(event);
             }
         });
@@ -118,6 +120,7 @@ class V53NativeDispatchTest {
                         };
                 MembershipTransport.Events transportEvents=V53JoiningTrace.withFailures(owner.activationIdentity().nodeId().value(),null,events,
                         ()->observeRequests,(event,request,response)->{
+                            if(restartLifecycleCapture!=null)restartLifecycleCapture.incoming(owner.activationIdentity().nodeId().value(),event,request);
                             diagnostic(owner.activationIdentity().nodeId().value(),event,request,null);
                             if(event.equals("BEFORE_REQUEST_WRITE"))beforeSend.get().accept(request);
                             if(observeRequests)V53JoiningTrace.requestObservation(events,owner.activationIdentity().nodeId().value(),event,request);

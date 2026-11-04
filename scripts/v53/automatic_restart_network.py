@@ -160,7 +160,8 @@ def frozen(files, ballot):
     return promises[0],bases[0],raw,packet
 
 
-def activate(root, events, entries, start, stop, identities, number):
+def activate(root, events, entries, start, stop, identities, number, *, maintenance_replay=None, unused_source_replay=None):
+    maintain = maintenance_replay or maintenance
     before = group(root,'before-network' if number == 1 else 'after-fence'); installed = group(root,f'installed-{number}')
     chosen = (root/f'selected-{number}.gsr').read_bytes(); selected = f.decode(chosen,'records','SELECTED'); ballot = selected['ballot']
     old = (f.decode(c.current(before['node-1'])[1]['promise.gsr'],'records','PROMISE')['ballot'] if number == 1
@@ -175,13 +176,13 @@ def activate(root, events, entries, start, stop, identities, number):
     previous = start
     for peer in ('node-2','node-3'):
         previous = phase.probe('node-1',peer,old,c.current(before[peer])[2]['capsule']['cut'],previous,discovery_end)
-    if number == 2:maintenance(phase,before,'node-1',old,previous,allocation)
+    if number == 2:maintain(phase,before,'node-1',old,previous,allocation,voters=VOTERS)
     local_promise,_,_,_ = frozen(installed['node-1'],ballot)
     for node in VOTERS:
         phase.ordered(node,['PROMISE_FORCED','SOURCE_DIRECTORY_FORCED','BASIS_FORCED','GRANT_BEFORE_RETURN',
             'SELECTED_FORCED','SELECTED_BEFORE_RETURN','INSTALL_SELECTOR_FORCED','INSTALL_PARENT_FORCED','INSTALL_BEFORE_RETURN'])
     phase.ordered('node-1',['ALLOCATOR_FORCED','ALLOCATOR_DIRECTORY_FORCED','ALLOCATOR_BEFORE_RETURN','PROMISE_FORCED'])
-    if number == 2:maintenance(phase,before,'node-2',ballot,allocation,phase.at('node-2','PROMISE_FORCED'))
+    if number == 2:maintain(phase,before,'node-2',ballot,allocation,phase.at('node-2','PROMISE_FORCED'),voters=VOTERS)
     local_selected = phase.at('node-1','SELECTED_FORCED')
     prepared_peers = [peer for peer in ('node-2','node-3') if ('PREPARE','node-1',peer) in phase.controls]
     need(prepared_peers in (['node-2'],['node-2','node-3']) and (number == 2 or prepared_peers == ['node-2']),
@@ -195,8 +196,12 @@ def activate(root, events, entries, start, stop, identities, number):
             'PROMISE',dict(basis=e.digest(basis)),ballot,phase.at(peer,'GRANT_BEFORE_RETURN'),stop,sequence=ordinal,trace=campaign_trace)
         if campaign_trace is None:campaign_trace = trace
         expected = [(e.digest(basis),basis,'RECORD'),(e.digest(promise),promise,'RECORD'),(e.digest(packet['capsuleBytes']),raw,'CAPSULE')]
-        phase.transfer('node-1',peer,[expected],ballot,max(phase.at(peer,'BASIS_FORCED'),delivery),
-            stop if peer=='node-3' else local_selected,unused_offer=peer=='node-3')
+        lower=max(phase.at(peer,'BASIS_FORCED'),delivery)
+        if peer=='node-3' and unused_source_replay:
+            unused_source_replay(phase,expected,ballot,lower)
+        else:
+            phase.transfer('node-1',peer,[expected],ballot,lower,
+                stop if peer=='node-3' else local_selected,unused_offer=peer=='node-3')
     phase.transfer('node-2','node-1',record(chosen),ballot,local_selected,phase.at('node-2','SELECTED_FORCED'))
     promise,basis,raw,packet = frozen(installed['node-1'],ballot)
     phase.transfer('node-2','node-1',[[(e.digest(basis),basis,'RECORD'),(e.digest(promise),promise,'RECORD'),
@@ -327,8 +332,9 @@ def deliveries(events, entries):
         available[key].popleft()
 
 
-def validate(root):
-    root = Path(root); physical = p.validate(root)
+def validate(root, *, physical_reader=None, maintenance_replay=None, background_replay=None, unused_source_replay=None,
+             rejection_reason=None):
+    root = Path(root); physical = (physical_reader or p.validate)(root)
     events = n.read(root/'events.json'); identities = {node:n.future.identity(files) for node,files in group(root,'before-network').items()}
     wait.lifecycle(n.read(root/'calls.json'),events[:len(wait.REOPEN)*len(identities)],identities)
     entries = x.exchanges(root,events,-1,len(events),identities)
@@ -339,17 +345,22 @@ def validate(root):
     held = [(i,v) for i,v in enumerate(events) if v['event'].startswith('ROUND_')]
     boundaries = [(-1,held[0][0]),(held[0][0],held[2][0]),(held[2][0],held[4][0]),
         (held[4][0],held[6][0]),(held[6][0],held[9][0])]
+    background=background_replay(root,events,entries,boundaries) if background_replay else None
+    active_entries=entries if background is None else [v for v in entries if v['request']['trace'] not in background['_traces']]
     results = []; traces = set(); rejected = []
     for ordinal,(start,stop) in enumerate(boundaries):
-        result = (activate(root,events,entries,start,stop,identities,1 if ordinal==0 else 2) if ordinal in (0,2)
-                  else slot(root,events,entries,start,stop,identities,{1:1,3:2,4:3}[ordinal]))
+        result = (activate(root,events,active_entries,start,stop,identities,1 if ordinal==0 else 2,maintenance_replay=maintenance_replay,
+                           unused_source_replay=unused_source_replay) if ordinal in (0,2)
+                  else slot(root,events,active_entries,start,stop,identities,{1:1,3:2,4:3}[ordinal],maintenance_replay=maintenance_replay,
+                            background_events=background['_events'] if background else ()))
         own = result.pop('_traces')
         need(not traces.intersection(own) and all(str(uuid.UUID(v))==v and uuid.UUID(v).int!=0 for v in own),
              'restart network fresh cross-phase traces')
         traces.update(own)
         if '_rejected' in result:rejected.append(result.pop('_rejected'))
         results.append(result)
-    need(sum(v['exchanges'] for v in results)==len(entries),'restart network full history coverage')
+    need(sum(v['exchanges'] for v in results)==len(active_entries) and
+         (background is None or not traces.intersection(background['_traces'])),'restart network full history coverage')
     # Diagnostic failures are not vote authority. Retain all three finite
     # unselected intent groups, with exact pre-/post-PREPARE error classes.
     failures = n.read(root/'failures.json'); groups = []
@@ -362,13 +373,16 @@ def validate(root):
     need(len(groups)==3 and len({v[0]['request'] for v in groups})==3 and all(1<=len(v)<=3 for v in groups),
          'restart network bounded unused rejections')
     for index,rows in enumerate(groups):
-        reason = ('higher ballot observed; fresh campaign required' if index==0 else 'retention intent installed selection required')
+        reason = (rejection_reason(root,events,entries,index) if rejection_reason else
+                  'higher ballot observed; fresh campaign required' if index==0 else 'retention intent installed selection required')
         need(all(v['failure']=='java.lang.IllegalArgumentException: '+reason and v['request']==rejected[index] for v in rows),
              'restart network original rejection kind')
     transfers=sum(v['transfers'] for v in results); unfinished=sum(v['unusedIncompleteTransfers'] for v in results)
-    return dict(status='PASS',scope='one-native-automatic-two-campaign-history',originalFirst=True,physical=physical,
+    result = dict(status='PASS',scope='one-native-automatic-two-campaign-history',originalFirst=True,physical=physical,
         phases=results,exchanges=len(entries),transfers=transfers,completeTransfers=transfers-unfinished,unusedIncompleteTransfers=unfinished,
         fullWireReplay=True,processRestart=False,publicRuntime=False,phase3Complete=False)
+    if background is not None:result['background']={k:v for k,v in background.items() if not k.startswith('_')}
+    return result
 
 
 NEGATIVES = {

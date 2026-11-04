@@ -161,12 +161,12 @@ def fence(root, before, after, events, held):
         ['ALLOCATOR_FORCED','ALLOCATOR_DIRECTORY_FORCED','ALLOCATOR_BEFORE_RETURN'], 'automatic restart fence allocation')
 
 
-def validate(root):
+def validate(root, *, service_type=Service):
     root = Path(root); inventory(root)
     group = n.s.initialize(b.original(root, 3, False))
     group = {node: dict(files, **{n.future.FILE:n.future.frame(n.future.initial(files), {})}) for node, files in group.items()}
     b.match(root, 'before-network', group)
-    service = Service(root, group); service.campaign(1, 2); service.advance('BARRIER')
+    service = service_type(root, group); service.campaign(1, 2); service.advance('BARRIER')
     b.match(root, 'first-ready', service.group); before = copy.deepcopy(service.group)
     files = service.group['node-2']; allocator = f.decode(files['allocator.gsr'], 'records', 'ALLOCATOR')
     # The peer observed ballot 2 during PREPARE; a real reservation must exceed

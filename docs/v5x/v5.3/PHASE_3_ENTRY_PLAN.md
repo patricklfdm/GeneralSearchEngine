@@ -7,6 +7,13 @@ groups. Its source inspector checks references and catalogue drift, not runtime
 acceptance. Use that map for the remaining queue; chronological entries below
 retain their original-source scope. Phase 3 remains OPEN.
 
+[Observed higher-ballot restart](PHASE_3_RESTART_LIFECYCLE.md) now binds actual
+loss, session drain/replacement, both READY callbacks and final DATA completion
+to one original two-campaign history. Current physical/network replay and 73
+exact negatives cover its original clocks, source prefixes and peer confirmations.
+The optional attachment does not change protocol events; full lifecycle/fault
+coverage, competition admission and final-source execution remain open.
+
 [Carried transition cohort admission](PHASE_3_CARRIED_TRANSITION_COHORT.md) now
 binds both complete INTENT/FINAL originals, their retirement sidecars and all six
 reader layers to one source/build/toolchain/reader. Its

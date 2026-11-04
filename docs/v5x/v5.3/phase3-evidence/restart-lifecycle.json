@@ -1,0 +1,214 @@
+{
+  "actualStateTransitionsQualified": true,
+  "background": {
+    "completeAttemptsQualified": false,
+    "contactOnly": true,
+    "exchanges": 24,
+    "samples": 12
+  },
+  "baseCommit": "ad94c8d57099be3546cfd5184d5314a7b5663b04",
+  "buildSha256": "8688651eda773dcd96a7996d7fd510bb39be395fa955aac2549794dc9a8b7eb7",
+  "checks": {
+    "document-contract-final.json": {
+      "path": "target/v53-restart-lifecycle/document-contract-final.json",
+      "sha256": "e00b68961902c0d718a203fddca02cb06aa02f220bfce1e2ffcdce0e0af0ea20"
+    },
+    "java-focused-01.log": {
+      "path": "target/v53-restart-lifecycle/java-focused-01.log",
+      "sha256": "477d4cae1d0e022f0eda9d205158469910c2bfccba13970ac977a5dfd954a60c"
+    },
+    "python-focused-final.log": {
+      "path": "target/v53-restart-lifecycle/python-focused-final.log",
+      "sha256": "edf57647b6d936174a0d3fd8e65110abd70ba07e0b37a28dfe034767c736ef8f"
+    },
+    "python-focused-optimized-final.log": {
+      "path": "target/v53-restart-lifecycle/python-focused-optimized-final.log",
+      "sha256": "6f26e64ec470200141d9231017eb4100417643bdd85e32a378aa292ecd59cd8f"
+    },
+    "python-suite-final.log": {
+      "path": "target/v53-restart-lifecycle/python-suite-final.log",
+      "sha256": "975ece8f4da5ffe171bec9383184bf8366eeb09d23fa80d1b4b6f0f64e6b29cb"
+    },
+    "python-suite.log": {
+      "path": "target/v53-restart-lifecycle/python-suite.log",
+      "sha256": "176f08e3469f48639fa6d569e99d29fea63a871493ab728e6797fe2ab1c852fb"
+    }
+  },
+  "completeAttemptsQualified": false,
+  "eventClocks": 3305,
+  "finalSourceCohortQualified": false,
+  "fullLifecycleQualified": false,
+  "hostedExecuted": false,
+  "hostedSubsets": 10,
+  "implementationInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AutomaticRestartTest.java": "29d70505a9a6cc302d60d129a11b17d5323ba11bbf6cf8ebdc2d8d942112cce3",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java": "c08936fc96d019c9ba5fd0953db04992baca28b2cababafc9ad053181eef9c48",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RestartLifecycleCapture.java": "f0f28a8b3ec79d7b997b1adf81615ff7381038c5733bf5f0c13d3a6dc28c1043",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RestartLifecycleCaptureTest.java": "9b23451c1073f5114b5c9981bfa4cdfb64be15173dd49f93a3b60de4cb14924b",
+    "scripts/v53/automatic_lifecycle.py": "61a17c9604f0212b02d2289e567df38923217278c8e7e7beb0be473b9531e5ec",
+    "scripts/v53/automatic_restart_current.py": "c091fd4e42138956dd3f2e23bc4558ed14a5f3b4d2d65308ed586b479f47bcf5",
+    "scripts/v53/automatic_restart_evidence.py": "2d1b7a6e9b2171a763d01bd938b5e2e32cad1c41f7a588c81fd2994b0846567f",
+    "scripts/v53/automatic_restart_lifecycle.py": "71039c5a4b44bbbb45a5fb14c39f1c3ce00fc72696ff39609462de39ca65aa6a",
+    "scripts/v53/automatic_restart_network.py": "244cb7d41c343d47fa23ce1e8b33ac72cc0c7570199aa529fe282477935ddc20",
+    "scripts/v53/test_automatic_restart_current.py": "a24a6fcdc1bd821fb75e4450bdaaace1cdb2b9c4400ee70cbebe07126ee2ce8f",
+    "scripts/v53/test_automatic_restart_lifecycle.py": "85a8356ee44a6f5fd374da7fa6f166d25cf31de231221245b3d18d466e20f7d9"
+  },
+  "inventory": {
+    "path": "target/v53-restart-lifecycle/inventory-complete/receipt.json",
+    "sha256": "3321649f405f50351e6cd077d9537b40d8653086587deff5d114000be1701970"
+  },
+  "lifecycleNegatives": 22,
+  "limitation": "The native producer passed once before later Python reader corrections. Development replay never fills a final-source cohort; response-only contact observations do not claim every attempted send.",
+  "lossCauseQualified": true,
+  "nativeExecution": {
+    "elapsedSeconds": 161.959,
+    "exit": 0
+  },
+  "nativeExecutionsThisBatch": 1,
+  "nativeReaderSha256": "5cd0fee4a85984b28b9e12ea145cab367a5c2e8594f1acc723125d74a79157d7",
+  "nativeRetriesThisBatch": 0,
+  "network": {
+    "completeTransfers": 68,
+    "exchanges": 404,
+    "transfers": 69,
+    "unusedIncompleteTransfers": 1
+  },
+  "networkReplay": {
+    "path": "target/v53-restart-lifecycle/current-replay.json",
+    "sha256": "fa0d989f3fbf94f01e9f751cd3190da645abbb9b251c91b611ec25a0c433f84b"
+  },
+  "next": "Complete export expiry/close faults, general competition/lifecycle admission, combined resource bounds, frozen coverage and phase-wide final-source qualification.",
+  "normalReplay": {
+    "path": "target/v53-restart-lifecycle/final-replay-receipt.json",
+    "sha256": "87be234798e44e6dd700b44330a8bc84159e9010a9b64056c081720349754885"
+  },
+  "observations": 15,
+  "original": {
+    "path": "target/v53-restart-lifecycle/input/receipt.json",
+    "sha256": "adcf578f67f76a789879c5bb2cd770775a39abb4c4b31868c03caacf3b74c7c8"
+  },
+  "originalBudgetNanos": 300000000000,
+  "originalDeadlinePreserved": true,
+  "owner": {
+    "drained": true,
+    "losses": [
+      "HIGHER_BALLOT"
+    ],
+    "node": "node-1",
+    "readyCallbacks": [
+      950,
+      2398
+    ],
+    "rounds": 2,
+    "started": true
+  },
+  "paidCloud": false,
+  "phase3Complete": false,
+  "physical": {
+    "campaigns": 2,
+    "fullWireReplay": false,
+    "nativeFence": true,
+    "phase3Complete": false,
+    "physicalReplay": true,
+    "processRestart": false,
+    "publicRuntime": false,
+    "scope": "automatic-two-campaign-physical-replay",
+    "slots": 3,
+    "snapshotGroups": 14,
+    "status": "PARTIAL"
+  },
+  "physicalNetworkNegatives": 51,
+  "physicalNetworkQualified": true,
+  "plannedHostedHistories": 462,
+  "portableArchive": {
+    "path": "target/v53-restart-lifecycle/original-portable.tar.gz",
+    "sha256": "c0c91f09926b1ae1c9e1854016a761c12e4f0d4c8c8b64ea07e43cfded622bb7"
+  },
+  "portableLifecycle": {
+    "path": "target/v53-restart-lifecycle/portable-lifecycle.json",
+    "sha256": "399030032cec53e546ec0420e5cbf5d4f3c8b39ef5d88c676a18806528e3799c"
+  },
+  "portableNetwork": {
+    "path": "target/v53-restart-lifecycle/portable-current.json",
+    "sha256": "85edac07b0d78dc45fc6e46c04eb06cd81a0358a9702ddfafd978ef23635ab15"
+  },
+  "portableReplay": {
+    "path": "target/v53-restart-lifecycle/portable-receipt.json",
+    "sha256": "3ca728e0d4734e6dee4cdaa2b34cc0d3bc27c6cd18d19c0e0de7f836a9ff9484"
+  },
+  "preservedFixtureFailures": [
+    {
+      "path": "target/v53-restart-lifecycle/python-focused-02.log",
+      "sha256": "d0efb08d88574082d6e64dd152039a1ca1845e96d0a444461b2af7621dba2f39"
+    },
+    {
+      "path": "target/v53-restart-lifecycle/python-focused-03.log",
+      "sha256": "b1650e8bd48cf9f6335140ac00a24015a5a7f44adb73f3cecb78f712d8c20d91"
+    }
+  ],
+  "preservedNegativeDriverFailures": [
+    {
+      "path": "target/v53-restart-lifecycle/current-replay-01.log",
+      "sha256": "6b96a32adcce4cce57c81680ee373cde515c1dded8b8d972c14acfa21d329822"
+    },
+    {
+      "path": "target/v53-restart-lifecycle/current-replay-02.log",
+      "sha256": "43ee41e8d2cf44815cdd8ed6cb69cedd2aaf8efc67178e24156e0556bcace3f3"
+    },
+    {
+      "path": "target/v53-restart-lifecycle/current-replay-03.log",
+      "sha256": "4bf72b15f7ce97dbb8565df9b243d9c7842217928f7f3a8426c1c8c99a02d15c"
+    }
+  ],
+  "preservedReaderFailures": [
+    {
+      "path": "target/v53-restart-lifecycle/replay-01.log",
+      "sha256": "7062fc7e050dadc2d1f5137509c114ff7ce941f97d1157dd22e74309c3153c5f"
+    },
+    {
+      "path": "target/v53-restart-lifecycle/replay-02.log",
+      "sha256": "14b67bcb0205420579effbdd068cf45d8b6f456d211f53776c1f1942e67c275c"
+    },
+    {
+      "path": "target/v53-restart-lifecycle/replay-03.log",
+      "sha256": "be1610ef88a5c28e725ac750a63cd11622da15929ebb80aeaf22a08d7bb858d3"
+    },
+    {
+      "path": "target/v53-restart-lifecycle/replay-04.log",
+      "sha256": "c228042e6fc5f9f2b87c6685caa33af309102ace887c44e501cd60b2b2f4afd4"
+    },
+    {
+      "path": "target/v53-restart-lifecycle/replay-05.log",
+      "sha256": "d130e024988117d8ae2997df1e82ace2050be11984e2959ef0894c746807b8c1"
+    },
+    {
+      "path": "target/v53-restart-lifecycle/replay-06.log",
+      "sha256": "05594cb001c526a9cc60675b11c0de30a339a953ec6d361e7baa79622607d0c4"
+    }
+  ],
+  "processRestart": false,
+  "rawInventorySha256": "b8d2471eee108fda1c881518b1a670a27247fe5891cd76cf65e25150cabf3df2",
+  "reader": {
+    "path": "target/v53-restart-lifecycle/final-reader.json",
+    "sha256": "1dff3b0531617c5233d026379f5dc8f48b1d20e3aaf0b4c6c58c773e61a1a080"
+  },
+  "readerSha256": "fb3e71f88dc3d7e1bdae0207e20a002b475b8d13404239e5387a4f20fd7686f0",
+  "requiredChanged": false,
+  "runtimeChanged": false,
+  "schema": "gse-v53-restart-lifecycle-development-v1",
+  "scope": "one actual higher-ballot restart, original current physical/network replay and independently observed lifecycle",
+  "sidecarInventorySha256": "c4061a0972e7e3e026680557708929c590dc8f4730466351970541e9cc1ef1d6",
+  "sourceSha256": "b2f902076a5fc574378fed57cdba824dcbf9b2da921de117d882f24b01613c29",
+  "status": "PARTIAL",
+  "totalNegativeCases": 73,
+  "unchangedCapturedRuntimeFiles": 304,
+  "validationCounts": {
+    "javaFocused": 10,
+    "nativeTests": 1,
+    "python": {
+      "python-focused-final.log": 42,
+      "python-focused-optimized-final.log": 42,
+      "python-suite-final.log": 2546
+    }
+  }
+}

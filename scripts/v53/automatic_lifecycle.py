@@ -39,7 +39,7 @@ def timeline(events,rows,nodes):
     return by_node
 
 
-def owner(events,rows):
+def owner(events,rows,*,opened_after=None):
     node=rows[0]['node'];state='NEW';rounds=0;began=None;session=True;fresh=False;active=False
     lost=False;restart=False;terminated=False;drained=False;ready=[];losses=[];begin=-1
     for row in rows:
@@ -47,8 +47,14 @@ def owner(events,rows):
         need(not drained or event in ('CLOSE','DRAINED'),'automatic lifecycle activity after drain')
         if event=='START':
             need(state=='NEW' and began is None,'automatic lifecycle single start');state='STARTING';began=row['originalStarted']
-            opens=[i for i,v in enumerate(events) if v['node']==node and v['event']=='NODE_OPEN']
-            need(len(opens)==1 and opens[0]<=after,'automatic lifecycle start before node open')
+            if opened_after is None:
+                opens=[i for i,v in enumerate(events) if v['node']==node and v['event']=='NODE_OPEN']
+                need(len(opens)==1 and opens[0]<=after,'automatic lifecycle start before node open')
+            else:
+                # The restart reader binds an actual owner-construction sidecar
+                # before supplying this anchor; no synthetic NODE_OPEN is added.
+                need(type(opened_after) is int and -1<=opened_after<=after<len(events),
+                     'automatic lifecycle start before observed construction')
         elif event=='ROUND_BEGIN':
             need(began is not None and not terminated and state in ('STARTING','RESTARTING','CLOSED') and
                  (state=='CLOSED' or session and (rounds==0 or fresh)), 'automatic lifecycle round without fresh session')
