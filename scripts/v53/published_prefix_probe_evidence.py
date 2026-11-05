@@ -59,7 +59,7 @@ def derive(reader,boundaries):
                  before=points[0],through=points[1],after=points[2])]
 
 
-def replay(traces,closes,reader,boundaries):
-    result=probe.replay(traces,closes,derive(reader,boundaries))
+def replay(traces,closes,reader,boundaries,*,bindings=None):
+    result=probe.replay(traces,closes,derive(reader,boundaries),bindings=bindings)
     return dict(result,scope='required-four-original-published-prefix-probe',originalReferenceInventoryQualified=True,
                 originalPermissionWindowQualified=True,fullBodyReadsQualified=False)

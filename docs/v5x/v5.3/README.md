@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Complete observed export coverage](PHASE_3_EXPORT_ALLOCATION_COVERAGE.md) now
+composes independently validated session/direct/probe bindings into one exact
+allocation inventory. The strict required-four option refuses missing, duplicate
+or reclassified leases. Two retained conditional handlers and eighteen exact
+mutations pass; full current-source native qualification remains OPEN.
+
 [Publication generation custody](PHASE_3_PUBLICATION_GENERATION_CUSTODY.md) now
 binds admitted files to exact generation/image owners and checks every resource
 mutation through atomic completion transfer, reload and retirement. Seventeen

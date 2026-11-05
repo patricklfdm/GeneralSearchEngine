@@ -42,10 +42,11 @@ def bind(traces,closes,associations,*,export_ownership=False):
                 exportOwnership=export_result,wholeRuntimeResourcesQualified=False,phase3Complete=False)
 
 
-def replay(events,wires,traces,boundaries,identities,root,closes,*,export_ownership=False,joining_requests=False,joining_extents=None,session_extents=None):
+def replay(events,wires,traces,boundaries,identities,root,closes,*,export_ownership=False,joining_requests=False,joining_extents=None,session_extents=None,bindings=None):
     need(type(joining_requests) is bool and (not joining_requests or export_ownership),'native close joining requests policy')
     need(joining_extents is None or joining_requests and type(joining_extents) is dict and joining_extents,'native close joining extents policy')
     need(session_extents is None or export_ownership and type(session_extents) is dict and session_extents,'native close session extents policy')
+    need(bindings is None or type(bindings) is dict and session_extents is not None,'native close allocation binding policy')
     associations={};initials={}
     original=source.replay(events,wires,traces,boundaries,identities,root,bindings=associations,initials=initials if joining_requests or session_extents is not None else None)
     result=bind(traces,closes,associations,export_ownership=export_ownership)
@@ -57,5 +58,5 @@ def replay(events,wires,traces,boundaries,identities,root,closes,*,export_owners
         result['joiningMetadataExtents']=joining_metadata_extents.bind(traces,closes,initials,joining_extents)
     if session_extents is not None:
         from . import session_content_extents
-        result['sessionContentExtents']=session_content_extents.bind(traces,closes,initials,session_extents)
+        result['sessionContentExtents']=session_content_extents.bind(traces,closes,initials,session_extents,bindings=bindings)
     return dict(result,precondition=original)

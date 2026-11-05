@@ -52,13 +52,14 @@ def derive(reader):
     return plans
 
 
-def bind(traces,closes,initials,expected):
+def bind(traces,closes,initials,expected,*,bindings=None):
+    from . import export_allocation_coverage as coverage
     inventory=exports.inspect(traces,closes)
     account=exports.close.replay(traces,closes,export_ownership=True)
     sessions={(node,name) for node,owner in account['owners'].items() for name in owner['exportAttachments']}
     need(type(initials) is dict and set(initials)==sessions and type(expected) is dict and expected,
          'session extents complete original sessions')
-    used=set();families=Counter();allocated=0
+    used=set();families=Counter();allocated=0;proofs=[]
     for (node,session),initial in initials.items():
         owner=account['owners'][node];attachment=owner['exportAttachments'][session]
         need(type(initial) is dict and set(initial)=={'bytes','received','offered'} and
@@ -89,9 +90,11 @@ def bind(traces,closes,initials,expected):
             values=[v for v in traces[node]['changes'][life['start']]['added'] if v['owner']==name]
             need(len(values)==1 and values[0]['unit']=='CONTROL' and not values[0]['claimSource'] and values[0]['bytes']==item['bytes'],
                  'session extents original reservation extent')
+            proofs.append(coverage.proof(node,name,'session',item['role'],item['binding'],item['bytes'],life))
             allocated+=1
         families[exports.SHAPES[frozenset(roles)]]+=1
     need(used==set(expected),'session extents complete original content')
+    coverage.publish(bindings,proofs)
     return dict(status=inventory['status'],scope='original-content-to-all-successful-session-export-charges',
                 sessions=len(sessions),ownedAllocations=allocated,families=dict(sorted(families.items())),
                 allObservedSessionContentExtentsQualified=True,exportInventory=inventory,

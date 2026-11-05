@@ -61,6 +61,6 @@ def derive(reader,boundaries):
     return result
 
 
-def replay(traces,closes,reader,boundaries):
-    result=direct.replay(traces,closes,derive(reader,boundaries))
+def replay(traces,closes,reader,boundaries,*,bindings=None):
+    result=direct.replay(traces,closes,derive(reader,boundaries),bindings=bindings)
     return dict(result,scope='required-four-native-direct-export-ownership')

@@ -14,11 +14,12 @@ close=exports.close;need=close.need
 f=requests.source.network.t.f;digest=requests.source.component.physical.e.digest
 
 
-def replay(traces,closes,expected):
+def replay(traces,closes,expected,*,bindings=None):
+    from . import export_allocation_coverage as coverage
     account=close.replay(traces,closes,export_ownership=True)
     groups={(node,name):value for node,owner in account['owners'].items() for name,value in owner['probeExports'].items()}
     need(type(expected) is list and expected and len(expected)==len(groups),'probe export complete observed cohort')
-    used=set();claimed=set();allocations=0;revoked=0
+    used=set();claimed=set();allocations=0;revoked=0;proofs=[]
     for plan in expected:
         need(type(plan) is dict and set(plan)=={'node','role','binding','bytes','children','before','through','after'} and
              plan['role'] in ('prefix-export','joining-intent') and type(plan['children']) is list and
@@ -53,8 +54,10 @@ def replay(traces,closes,expected):
             need(len(changes)==2 and [v[0] for v in changes]==['RESERVE','RELEASE'] and changes[0][1]==changes[1][1] and
                  changes[0][1]['unit']=='CONTROL' and not changes[0][1]['claimSource'],'probe export immutable reservation')
             need(changes[0][1]['bytes']==item['bytes'],'probe export original extent')
+            proofs.append(coverage.proof(node,handle,'probe',item['role'],item['binding'],item['bytes'],life[handle]))
             allocations+=1;revoked+=life[handle]['end']<=begin
     need(used==set(groups),'probe export complete observed cohort')
+    coverage.publish(bindings,proofs)
     return dict(status='PASS',scope='explicit-probe-export-ownership-and-cleanup',probeCalls=len(used),ownedAllocations=allocations,
                 revokedBeforeCleanup=revoked,declaredProbeReleaseQualified=True,allExportAllocationsQualified=False,
                 nativeProbeContentQualified=False,wholeRuntimeResourcesQualified=False,phase3Complete=False)

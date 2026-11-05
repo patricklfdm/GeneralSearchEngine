@@ -672,7 +672,8 @@
         "scripts/v53/test_publication_generation_resources.py",
         "scripts/v53/test_published_prefix_probe_evidence.py",
         "scripts/v53/test_required_four_direct_exports.py",
-        "scripts/v53/test_session_content_extents.py"
+        "scripts/v53/test_session_content_extents.py",
+        "scripts/v53/test_export_allocation_coverage.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -749,7 +750,8 @@
         "scripts/v53/required_four_direct_exports.py",
         "scripts/v53/session_content_extents.py",
         "scripts/v53/session_export_evidence.py",
-        "scripts/v53/session_export_negatives.py"
+        "scripts/v53/session_export_negatives.py",
+        "scripts/v53/export_allocation_coverage.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -825,7 +827,8 @@
         "docs/v5x/v5.3/phase3-evidence/probe-export-ownership.json",
         "docs/v5x/v5.3/phase3-evidence/published-prefix-probe.json",
         "docs/v5x/v5.3/phase3-evidence/required-four-direct-exports.json",
-        "docs/v5x/v5.3/phase3-evidence/session-content-extents.json"
+        "docs/v5x/v5.3/phase3-evidence/session-content-extents.json",
+        "docs/v5x/v5.3/PHASE_3_EXPORT_ALLOCATION_COVERAGE.md"
       ],
       "cohorts": [
         "profiles",

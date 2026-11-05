@@ -1,0 +1,62 @@
+{
+  "baseSource": "21e3b790b899af901ccd28e413d57097219a9431",
+  "completeCurrentNativeExecuted": false,
+  "conditionalCaptures": [
+    {
+      "allocationBindingsSha256": "90aea4a982378d6e7896b741563ca831d2bf9e8faedf16437494bba561b0d796",
+      "allocations": 1,
+      "negativeChecks": 9,
+      "original": "general-search-engine-replication/target/v53-joining-metadata-extents/run-00ea7cf5-7086-4318-8876-2d60477783bb",
+      "scope": "conditional-original-joining-handler-allocation-coverage",
+      "status": "PARTIAL"
+    },
+    {
+      "allocationBindingsSha256": "21a3239db4f80ee7370b7f94c5b00f436eb2b4b41ab3958a4239eca817147cd1",
+      "allocations": 2,
+      "negativeChecks": 9,
+      "original": "general-search-engine-replication/target/v53-joining-metadata-extents/run-46828f6e-3bad-4a1e-b303-ba696ee6b200",
+      "scope": "conditional-original-joining-handler-allocation-coverage",
+      "status": "PARTIAL"
+    }
+  ],
+  "exactNegativeChecks": 18,
+  "newPythonTests": 14,
+  "newRuntimeExecution": false,
+  "phase3Complete": false,
+  "planExecution": "source-inventory-only",
+  "plannedHostedHistories": 544,
+  "pythonTests": 366,
+  "pythonVersion": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]",
+  "readerInputsSha256": "c79e12e5645c63d79689f2743bc61ed00607fca2bf79ea297b6401e2c09be910",
+  "reports": {
+    "target/v53-export-allocation-coverage/components-01.json": "98b37223ef4e3a2b9912e1bcaddf008b54d66535d0d4c976786f2dad938c00e7",
+    "target/v53-export-allocation-coverage/components-01.log": "9ea9a2cf3d7344d9ea19a0ccdb72d61f810ff45b994a925dcebd430b5ec964d2",
+    "target/v53-export-allocation-coverage/components.py": "c3f6d9ed03b89578dacec33b5e9ad85480f77cb49e5b0561032582e8eb184c48",
+    "target/v53-export-allocation-coverage/contract-01.log": "b63c699ad29939ceccf71671146f20828c4fbdd67dad18598a343c0e26e4a21b",
+    "target/v53-export-allocation-coverage/python-broad-01.log": "038986ea6eb8c67cf7e3df78be916f7ccd81f162b4042ea270079bf617eb7d67",
+    "target/v53-export-allocation-coverage/python-coverage-01.log": "0287e0dc49c167bd31644985db578d0e1337a35f3685c5f37fa16594fb86499f",
+    "target/v53-export-allocation-coverage/python-focused-02.log": "0cb88dd2339f77d517758f323a97dbd4c9615b34d11430388f538cb9af037cc3",
+    "target/v53-export-allocation-coverage/python-initial-01.log": "fc08b258432b34c9e6cfa6c72ea176900bf7ab34a99eab2f3741e378b09711f6",
+    "target/v53-export-allocation-coverage/qualification-plan-01.log": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df",
+    "target/v53-export-allocation-coverage/qualification-plan-01/acceptance-plan.json": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717",
+    "target/v53-export-allocation-coverage/qualification-plan-01/plan.json": "43e3910cc7ad763f71e853a63695c7ddfd0f31c5b56b334ce33923bc4d698060",
+    "target/v53-export-allocation-coverage/qualification-plan-01/receipt.json": "9a58ca7f32a2305f7070c27871f6c758b38a87d620c35bfcfecc87af3d7c6c76",
+    "target/v53-export-allocation-coverage/reader-input.json": "c79e12e5645c63d79689f2743bc61ed00607fca2bf79ea297b6401e2c09be910"
+  },
+  "requirements": 12,
+  "schema": "gse-v53-export-allocation-coverage-development-v1",
+  "scope": "composed-original-export-binding-readers",
+  "sourceFiles": {
+    "scripts/v53/direct_export_evidence.py": "e4c981e837f113df82a669937ddedee375cf097c874f7c084613c2a7a513423c",
+    "scripts/v53/export_allocation_coverage.py": "59e337523bd8c977440cef951b04c4d6ea440e3c99ee1246593776068e4f03da",
+    "scripts/v53/native_control_closes.py": "f76bb713cdb76224fe7420a042be06e5a9fa7b29c50f425bdc96a062c69770a5",
+    "scripts/v53/native_resource_evidence.py": "4536e4a42e425e359ed1cce70e62ec9a47e9836263e606a308ae831e0082c4f5",
+    "scripts/v53/probe_export_evidence.py": "08885ca84bbf22b2976730787f663b8d2f2ae81ed3ea5113060e32e1aa11a1ba",
+    "scripts/v53/published_prefix_probe_evidence.py": "0de84621d15eab3c5d4181298d48edfc317c832dae33b9224c49fcc710180354",
+    "scripts/v53/required_four_direct_exports.py": "9a3c5ec57cd2c171bc018b553e68bb6fbe43cc0290092f501a2656c055896802",
+    "scripts/v53/session_content_extents.py": "00c995f344120e33e37d5d4211b459960129d2093ce1afe3f81d209da45eb4b0",
+    "scripts/v53/test_export_allocation_coverage.py": "f7a229545756aacfbd3ae64001549fb98949267bf1bfb8b45507c8feaeb1648b"
+  },
+  "status": "PASS",
+  "wholeRuntimeResourcesQualified": false
+}

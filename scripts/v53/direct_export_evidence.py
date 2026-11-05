@@ -38,7 +38,8 @@ def derive(states,rounds,selection,events,boundaries):
     return expected
 
 
-def replay(traces,closes,expected):
+def replay(traces,closes,expected,*,bindings=None):
+    from . import export_allocation_coverage as coverage
     inventory=exports.replay(traces,closes) # No unattached allocations may disappear.
     account=close.replay(traces,closes,export_ownership=True)
     need(type(expected) is list,'direct export original expectation')
@@ -55,7 +56,7 @@ def replay(traces,closes,expected):
         identity=tuple(sorted(item.items()))
         need(identity not in identifiers,'direct export duplicate original expectation');identifiers.add(identity)
         wanted.setdefault(key,[]).append((ordinal,item))
-    observed=set();kinds=Counter()
+    observed=set();kinds=Counter();proofs=[]
     for node,owner in account['owners'].items():
         for name,call in owner['directExports'].items():
             phase=call['phase'];role=close.DIRECT_ROLES[phase];reference=name[len(role)+1:len(role)+65]
@@ -72,8 +73,10 @@ def replay(traces,closes,expected):
             ordinal,item=matches[0];observed.add(ordinal)
             need(len(reserved)==1 and reserved[0]['owner']==name and reserved[0]['bytes']==item['bytes'],
                  'direct export original content extent')
+            proofs.append(coverage.proof(node,name,'direct',role,item['reference'],item['bytes'],life))
             kinds[phase]+=1
     need(observed==set(range(len(expected))),'direct export missing original local owner')
+    coverage.publish(bindings,proofs)
     return dict(status='PASS',scope='stable-native-direct-export-ownership',directExports=len(observed),
                 phases=dict(sorted(kinds.items())),originalContentBindingsQualified=True,
                 originalOperationIntervalsQualified=True,exportInventory=inventory,
