@@ -37,13 +37,21 @@ final class MembershipLearnerHeadEndpoint implements AutoCloseable {
             voters=Map.copyOf(originalVoters);
             transport=new MembershipTransport(source,observation.learner,bounds,observation.resources(),this::answer,new MembershipTransport.Events() {
                 @Override public void at(String event,Decoded request,Decoded response)throws IOException {
-                    events.at(event,request,response);
+                    events.at(event,request,response);afterObservation(event);
+                }
+                @Override public void at(String event,Decoded request,Decoded response,MembershipTransport.Connection connection)throws IOException {
+                    events.at(event,request,response,connection);afterObservation(event);
+                }
+                private void afterObservation(String event)throws IOException {
                     // External hooks never execute under the lifecycle monitor.
                     // Recheck after hooks, immediately before writing any ACK.
                     if(event.equals("BEFORE_RESPONSE_WRITE"))synchronized(guard){check();}
                 }
                 @Override public void failed(boolean outbound,Decoded request,MembershipTransport.Reason reason)throws IOException {
                     events.failed(outbound,request,reason);
+                }
+                @Override public void failed(boolean outbound,Decoded request,MembershipTransport.Reason reason,MembershipTransport.Connection connection)throws IOException {
+                    events.failed(outbound,request,reason,connection);
                 }
             });
         }catch(IOException|RuntimeException|Error error){observation.close();throw error;}

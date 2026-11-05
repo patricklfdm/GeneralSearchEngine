@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joining connection replay](PHASE_3_JOINING_CONNECTIONS.md) now retains a fresh
+required-four native execution PASS separately from its independent replay
+rejection. Two production endpoint decorators dropped socket observations;
+their callback forwarding is corrected with focused real TCP regressions.
+The failed original is preserved. Corrected-source complete capture/replay,
+maintenance/resource composition and final-source qualification remain OPEN.
+
 [Pinned-floor process recovery](PHASE_3_PINNED_FLOOR_PROCESS.md) now passes all
 36 halt/SIGKILL cases, 108 fresh worker executions and eleven exact negative
 replays. Expected crash/reopen/final/cold bytes and force order come from original

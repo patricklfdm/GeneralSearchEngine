@@ -1,7 +1,7 @@
 # Joining collectors and connection-bound transport replay
 
 Status: **collector/component integration PASS; fresh required-four native
-qualification pending**. This composes the
+execution PASS, independent replay REJECTED for missing endpoint observations**. This composes the
 [connection observation mechanism](PHASE_3_CONNECTION_ATTEMPTS.md) with the old
 and joining owner collectors and shared joining readers. It does not add missing
 identity to a historical trace or declare Phase 3 closed.
@@ -113,8 +113,53 @@ Every negative preserves all non-observation files and must fail for its declare
 reason; unrelated errors or an invalid original cannot count as rejection.
 
 Eight conditional entry tests and 51 related reader tests pass. These prove
-admission/mutation behavior only. The fresh original and its complete negative
-replay are still pending; this entry is not a positive native receipt.
+admission/mutation behavior only. The entry is not a positive whole-history
+qualification receipt.
+
+## Production endpoint follow-up
+
+The fresh native run at runtime source
+`2f5cce27ffd2054011ed04fd7791c75bb9e090f9` completed all eleven slots, FINAL,
+successor BARRIER and cold reopen in 1442.910 seconds. Its Java sources and
+classes remained unchanged across execution. Raw originals are retained at
+`general-search-engine-replication/target/v53-native-dispatch/run-178c7357-83bf-44de-a17b-8b7b3e0c0520`;
+the source/build inventories, JUnit result and failed replay are retained at
+`target/v53-required-four-connections/run-20261104T235253Z`.
+
+The independent reader rejected this original with
+`joining connection complete wire metadata`. Of 4833 original responses, twelve
+lack socket observations: nine pending checkpoint responses and three retained
+head responses. Their 24 corresponding request/offer events also lack them.
+Both actual production listener decorators forwarded only the older three-argument
+callback, losing metadata supplied by the transport. The earlier collector
+component exercised diagnostic decorators, so it did not cover this boundary.
+This is an observation failure; the native execution PASS does not confer a
+physical/network qualification PASS. Original files remain unchanged, and no
+UUID or socket pair is reconstructed from ordering or request hashes.
+
+The correction forwards the same transport `Connection` through both ordinary
+and failure callbacks in `MembershipLearnerCheckpointEndpoint` and
+`MembershipLearnerHeadEndpoint`. The external callback still executes outside
+the lifecycle monitor, followed by the original custody check immediately before
+response writing. The old callback overload remains supported. Protocol bytes,
+quorums, authority, deadlines and capacity bounds are unchanged.
+
+`V53LearnerEndpointConnectionTest` uses both actual TCP endpoints to cover
+checkpoint offer/chunk/commit, head ACK, protocol rejection and owner closure
+at the response hook. It checks object identity within a socket invocation,
+distinct connection IDs across sockets and reversed sender/receiver endpoints.
+The original three-argument rejection/close tests remain separate compatibility
+checks. Corrected-source complete native capture and physical/network/negative
+replay remain pending; short endpoint tests cannot replace those gates.
+
+The [endpoint validation index](phase3-evidence/endpoint-connections.json) retains
+the source hashes, original failures and successful correction: all four new
+regressions fail for missing connection observations before the fix, and sixteen
+selected Java tests plus 51 Python reader/plan tests pass after it. The first
+checkpoint-close test incorrectly expected `PROTOCOL` instead of the existing
+`CLOSED`; its corrected expectation was separately verified against the original
+implementation before applying the forwarding fix. Both diagnostic reports are
+retained, rather than counting the wrong expectation as a product regression.
 
 Its files, source retirements, complete network/phase history and remaining
 export/control/resource lifetime obligations must be replayed independently.

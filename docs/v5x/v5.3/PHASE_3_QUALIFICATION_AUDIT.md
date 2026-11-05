@@ -3,9 +3,13 @@
 [Joining connection integration](PHASE_3_JOINING_CONNECTIONS.md) now threads
 original socket metadata through old-owner and scoped joining collectors and the
 shared phase/network readers. Actual overlapping retries through these collectors
-pass independent replay and eight exact negatives. The fresh complete required-four
-history, remaining lifetime/resource composition and final-source admission remain
-pending; the original ambiguous trace keeps its prior scope.
+pass independent replay and eight exact negatives. A fresh required-four native
+execution passed, but independent replay rejected twelve replies whose production
+endpoint decorators dropped connection observations. Those two decorators are
+corrected with real TCP regressions; corrected-source whole-history qualification,
+remaining lifetime/resource composition and final-source admission remain pending.
+Both the older ambiguous trace and the newer incomplete trace keep their original
+scope and remain unmodified.
 
 [Connection-scoped transport observations](PHASE_3_CONNECTION_ATTEMPTS.md) now
 preserve the actual socket pair and local invocation identity across late failure

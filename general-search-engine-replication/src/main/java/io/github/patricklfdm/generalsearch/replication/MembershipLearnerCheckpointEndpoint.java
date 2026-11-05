@@ -36,11 +36,20 @@ final class MembershipLearnerCheckpointEndpoint implements AutoCloseable {
         try {
             transport=new MembershipTransport(original.source,original.identity,bounds,resources,this::answer,new MembershipTransport.Events() {
                 @Override public void at(String event,Decoded request,Decoded response)throws IOException {
-                    events.at(event,request,response);
+                    events.at(event,request,response);afterObservation(event);
+                }
+                @Override public void at(String event,Decoded request,Decoded response,MembershipTransport.Connection connection)throws IOException {
+                    events.at(event,request,response,connection);afterObservation(event);
+                }
+                private void afterObservation(String event)throws IOException {
+                    // Preserve custody checking after the external hook in both overloads.
                     if(event.equals("BEFORE_RESPONSE_WRITE"))synchronized(guard){check();}
                 }
                 @Override public void failed(boolean outbound,Decoded request,MembershipTransport.Reason reason)throws IOException {
                     events.failed(outbound,request,reason);
+                }
+                @Override public void failed(boolean outbound,Decoded request,MembershipTransport.Reason reason,MembershipTransport.Connection connection)throws IOException {
+                    events.failed(outbound,request,reason,connection);
                 }
             });
         }catch(IOException|RuntimeException|Error error){metadata.close();throw error;}

@@ -263,7 +263,8 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ConnectionTrace.java",
         "scripts/v53/test_connection_transcript.py",
         "scripts/v53/test_joining_connections.py",
-        "scripts/v53/test_required_four_network.py"
+        "scripts/v53/test_required_four_network.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerEndpointConnectionTest.java"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -307,7 +308,8 @@
         "docs/v5x/v5.3/PHASE_3_CONNECTION_ATTEMPTS.md",
         "docs/v5x/v5.3/phase3-evidence/connection-attempts.json",
         "docs/v5x/v5.3/PHASE_3_JOINING_CONNECTIONS.md",
-        "docs/v5x/v5.3/phase3-evidence/joining-connections.json"
+        "docs/v5x/v5.3/phase3-evidence/joining-connections.json",
+        "docs/v5x/v5.3/phase3-evidence/endpoint-connections.json"
       ],
       "cohorts": [
         "profiles",

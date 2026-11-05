@@ -1,0 +1,168 @@
+{
+  "baseHead": "7476633a285084e6fd304df7e40137fa0287b8ad",
+  "baselineNote": "First closure test expected PROTOCOL instead of existing CLOSED. Corrected fixture then independently failed for missing connection; both original reports retained.",
+  "completeNetworkQualified": false,
+  "completePhysicalQualified": false,
+  "correctedSourceNativeQualified": false,
+  "finalSourceCohortQualified": false,
+  "javaSourcesUnchangedDuringValidation": true,
+  "javaTests": [
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53LearnerCheckpointEndpointTest",
+      "seconds": 77.292,
+      "skipped": 0,
+      "tests": 2
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53LearnerEndpointConnectionTest",
+      "seconds": 85.578,
+      "skipped": 0,
+      "tests": 4
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53JoiningTraceTest",
+      "seconds": 0.043,
+      "skipped": 0,
+      "tests": 6
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53TransportConnectionTest",
+      "seconds": 15.633,
+      "skipped": 0,
+      "tests": 2
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53LearnerHeadProtocolTest",
+      "seconds": 9.668,
+      "skipped": 0,
+      "tests": 2
+    }
+  ],
+  "nativeExecution": {
+    "classesUnchanged": true,
+    "completeNetworkQualified": false,
+    "completePhysicalQualified": false,
+    "details": [],
+    "errors": 0,
+    "exit": 0,
+    "failures": 0,
+    "finalSourceCohortQualified": false,
+    "head": "2f5cce27ffd2054011ed04fd7791c75bb9e090f9",
+    "javaSourcesUnchanged": true,
+    "phase3Complete": false,
+    "raw": "general-search-engine-replication/target/v53-native-dispatch/run-178c7357-83bf-44de-a17b-8b7b3e0c0520",
+    "schema": "gse-v53-required-four-native-execution-v1",
+    "seconds": 1442.91,
+    "skipped": 0,
+    "status": "PASS",
+    "tests": 1
+  },
+  "nativeReplay": {
+    "diagnostic": {
+      "path": "target/v53-endpoint-connections/native-gap.json",
+      "sha256": "c2073dcab60d72eacd800c763842c74665dbef598f23950029f16cae20b38226"
+    },
+    "missingByScope": {
+      "pending-listener": 18,
+      "retained-head": 6
+    },
+    "missingEventRows": 24,
+    "missingWireRows": 12,
+    "reason": "joining connection complete wire metadata",
+    "status": "REJECTED"
+  },
+  "originalNativeUnchanged": true,
+  "phase3Complete": false,
+  "pythonTests": {
+    "errors": 0,
+    "failures": 0,
+    "tests": 51
+  },
+  "regressionMethods": [
+    "checkpointConnectionHookStillRevokesReplyAfterOwnerClose",
+    "checkpointRepliesAndProtocolFailuresKeepTheOriginalConnection",
+    "headConnectionHookStillRevokesReplyAfterOwnerClose",
+    "headRepliesAndProtocolFailuresKeepTheOriginalConnection"
+  ],
+  "reports": [
+    {
+      "path": "target/v53-endpoint-connections/TEST-io.github.patricklfdm.generalsearch.replication.V53LearnerCheckpointEndpointTest.xml",
+      "sha256": "273b58b628925346f5e072c0562065fc4d017c75086612c337220becc442a436"
+    },
+    {
+      "path": "target/v53-endpoint-connections/TEST-io.github.patricklfdm.generalsearch.replication.V53LearnerEndpointConnectionTest.xml",
+      "sha256": "21289d77760f1e325dba078efc983330d67c2ac6ae51c1fc329348b060d7e53f"
+    },
+    {
+      "path": "target/v53-endpoint-connections/TEST-io.github.patricklfdm.generalsearch.replication.V53JoiningTraceTest.xml",
+      "sha256": "e5a56af7c1c9fac33163a73462003efb802d679f123cfae63d2cc962e1ff23e2"
+    },
+    {
+      "path": "target/v53-endpoint-connections/TEST-io.github.patricklfdm.generalsearch.replication.V53TransportConnectionTest.xml",
+      "sha256": "29a0f70e6b57482662e58cd27f3b2525c16cd603ea200f42e053b039ad7dda43"
+    },
+    {
+      "path": "target/v53-endpoint-connections/TEST-io.github.patricklfdm.generalsearch.replication.V53LearnerHeadProtocolTest.xml",
+      "sha256": "d394deea6acdf0da38e104b3dad140932c98fd895e76b0d6a35740f815808844"
+    },
+    {
+      "path": "target/v53-endpoint-connections/before-fix.log",
+      "sha256": "0aae0d0240518e9628718ff7a800598e7da0eabc9f20f6c4a4af5467b7fb68f2"
+    },
+    {
+      "path": "target/v53-endpoint-connections/before-fix.xml",
+      "sha256": "14cd33270195da2619fe345a6e39631041314f66871c450e3453405c318f723a"
+    },
+    {
+      "path": "target/v53-endpoint-connections/before-fix-close.log",
+      "sha256": "a2f3ffd38066c287aa8ece94ba29544b72e73d9f5be250d717f50512c5e7ee1b"
+    },
+    {
+      "path": "target/v53-endpoint-connections/before-fix-close.xml",
+      "sha256": "04fe2501eb7aad0e4ff24683bd97b1479b67903d9d99ce608f36a53134e72af1"
+    },
+    {
+      "path": "target/v53-endpoint-connections/after-fix.log",
+      "sha256": "c42b1750e8db6af808049d29609b68be1346d0297560b862a8e7420b94a155f9"
+    },
+    {
+      "path": "target/v53-endpoint-connections/readers-tests.log",
+      "sha256": "3ba3493b7c47e6b0f839621a8983dbe2c2bfbde791bd10b4abbb7b11adc3c614"
+    },
+    {
+      "path": "target/v53-endpoint-connections/java-source-at-validation.json",
+      "sha256": "6058a995829a87c5f39a078a7dff6db0626dd7bd0756aea9b095c30286c87988"
+    },
+    {
+      "path": "target/v53-endpoint-connections/changed-java-at-validation.json",
+      "sha256": "ccd470c908392058a5f02be73cba64b6467f7aba5b6f93cdc349d3f4e91da366"
+    }
+  ],
+  "schema": "gse-v53-learner-endpoint-connections-v1",
+  "scope": "actual-tcp-endpoint-callbacks-with-conditional-authority",
+  "sources": [
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerCheckpointEndpoint.java",
+      "sha256": "9f6d3c99cb2fc650ea3372e2eaf45e4bec749c2fede5d5d05cf735359419ee87"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerHeadEndpoint.java",
+      "sha256": "b7d4af0fbb4b7232d99d4caa606cc920297430018a55590bcdd09774947d3d7d"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerEndpointConnectionTest.java",
+      "sha256": "11d13aaed0a31213bf7af5d8f226a81291dfd1dce3063f5c7e1d24b837c68765"
+    }
+  ],
+  "status": "PASS"
+}
