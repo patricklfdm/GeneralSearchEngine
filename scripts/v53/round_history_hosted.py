@@ -121,10 +121,10 @@ def verify(seed_bundle,raw_bundle,output,case,ctx):
     return receipt
 
 
-def aggregate(seed_bundle,inputs,output,ctx,execute_result,verify_result):
+def aggregate(seed_bundle,inputs,output,ctx,execute_result,verify_result, *, offline_replay=False):
     output=Path(output);output.mkdir(parents=True,exist_ok=False);receipt=dict(schema=SCHEMA,context=ctx,status='FAIL',phase3Complete=False)
     try:
-        need(execute_result==verify_result=='success','round history hosted failed/missing workflow stage')
+        shared.aggregate_precondition(execute_result, verify_result, offline_replay, 'round history hosted failed/missing workflow stage')
         seed_root,manifest=unpack(seed_bundle,output/'seed',ctx,'seed');seed=seed_inputs(seed_root,ctx);inputs=Path(inputs)
         need(inputs.is_dir() and not inputs.is_symlink() and {p.name for p in inputs.iterdir()}==
              {artifact_name(ctx,'verified',p) for p in m.CASES},'round history hosted complete verified inventory')
@@ -158,6 +158,7 @@ def aggregate(seed_bundle,inputs,output,ctx,execute_result,verify_result):
             declaredNativeRoundHistoriesQualified=True,processDeathQualified=False,allMembershipProfilesQualified=False,combinedPeakResourcesQualified=False,
             autonomousCompetitionQualified=False,completePhysicalQualified=False,powerLossQualified=False,
             acceptanceAuthority='all exact-attempt workflow stages plus seven whole-history downloaded original-first verifier receipts')
+        shared.complete_aggregate(receipt, offline_replay)
     except BaseException as error:receipt.update(status='FAIL',failure=dict(type=type(error).__name__,message=str(error)));raise
     finally:h.save(output/'receipt.json',receipt)
     return receipt

@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Offline original-history cohort replay](PHASE_3_HISTORY_COHORT.md) connects all
+twelve declared subsets through original-first owning readers and aggregates.
+It retains exact seed/source/run/attempt checks and separate offline scope;
+complete final-source execution, coverage and resource closure remain OPEN.
+
 [Voting shutdown and cleanup failures](PHASE_3_VOTING_CLOSE_FAILURES.md)
 now drain writer and admitted reply waiters even after transfer cleanup fails.
 Original transfer errors survive failed export cleanup; failed constructor

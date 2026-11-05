@@ -1,0 +1,92 @@
+{
+  "actualCompleteCohortsReplayed": 0,
+  "actualNativeHistoriesExecuted": 0,
+  "baseSource": "1f3cbc0a438b978ae1bbf4c783b41865b4668335",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 2730,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "hostedExecution": false,
+  "limitations": [
+    "Full routing uses synthetic archives and substituted expensive readers; it is not a successful 544-history runtime cohort.",
+    "All twelve actual owning aggregates and seed readers execute on synthetic fixtures; actual REMOVE and three-original joining downloaded verifiers use substituted physical oracles.",
+    "Original failures retain scratch and refuse without outer retries; original archives are unchanged.",
+    "Only explicit offline calls demote aggregate success to PARTIAL; all default workflow-stage requirements remain.",
+    "Final-source hosted originals/attestation, exact coverage, missing protocol axes and simultaneous resource qualification remain OPEN."
+  ],
+  "paidCloud": false,
+  "phase3Complete": false,
+  "planning": {
+    "execution": "source-inventory-only",
+    "phase3Complete": false,
+    "plannedHostedHistories": 544,
+    "requirements": 12,
+    "status": "PASS"
+  },
+  "runtimeQualified": false,
+  "schema": "gse-v53-history-cohort-development-v1",
+  "scope": "offline orchestration and owning verifier/aggregate contracts",
+  "sourceFiles": {
+    "scripts/v53/automatic_history_hosted.py": "cc39f63451d80edc63db3d52f6d9812d00242c8579612842ca76318b79623315",
+    "scripts/v53/carried_data_history_hosted.py": "ce78c9fc7f43c1bfe1f8ac0ff066f0af02751aaed3a715ae7dbb0382d67f9f83",
+    "scripts/v53/carried_transition_history_hosted.py": "c83d7ba3301db334bc3b97888432295b9e9d4f56d15396fa14ed36e472a9d9eb",
+    "scripts/v53/joining_fault_hosted.py": "bc3b25420de86cc6f13d27dc0d13d0d079ad5df9259585b91e449c25b6a69593",
+    "scripts/v53/joining_process_hosted.py": "07ff4667360bcaa0d5d44ab0337f7ec5575aaa29d2f2f44e1c8c594f44aadbaa",
+    "scripts/v53/learner_history_hosted.py": "f48f9064e4703242a861a4454bc620a1aca58a800bf1f537bf48c08ff5a40a98",
+    "scripts/v53/node_rename_hosted.py": "7db22417978fbed0ed42800ed2df09f7b0ed49c7d740b714b21d9ad6e2b9901d",
+    "scripts/v53/phase3_history_cohort.py": "bcd33a18df270ec51822e925157e6a10179610a2d4eae35dceb004e20b2ff611",
+    "scripts/v53/process_joint_hosted.py": "483a53fe82b9763939a086cf86f9638581a12b2f2912d0a8b93b7d53283e7056",
+    "scripts/v53/profile_hosted.py": "9090a6063f7a24312a24897f07d1c71097bd08b02130e1207081651d569547d5",
+    "scripts/v53/remove_process_hosted.py": "fd383eb26141bd14ef917e6d7853519e26f2629221aed19d5396a3182d042346",
+    "scripts/v53/round_history_hosted.py": "c7ba563604c9ccd787c0588dab9c8e2d844b07d539e5c8a3d484a393e3fa82eb",
+    "scripts/v53/test_phase3_history_cohort.py": "680d8c5ffd34f8e4fd32c99a38624967823c269a280945858da047ea5d76cb97",
+    "scripts/v53/transfer_history_hosted.py": "114ecef8ea2161aac817c550f14e3fbf28f92383004ece271d27c6fc5ea71d35"
+  },
+  "status": "PARTIAL",
+  "syntheticRouting": {
+    "declaredWholeHistories": 544,
+    "executionGroups": 238,
+    "rawArchives": 478
+  },
+  "validation": {
+    "distinctPythonTests": 276,
+    "focusedTests": 12,
+    "logs": {
+      "final-python-01.log": {
+        "path": "target/v53-history-cohort/final-python-01.log",
+        "sha256": "366b3d37c686b5205eea421fc5c74c78bd236bd03566ebd2d8d357f765f27e98",
+        "tests": 59
+      },
+      "focused-01.log": {
+        "path": "target/v53-history-cohort/focused-01.log",
+        "sha256": "7e1d963cf6911601b59f4cff48fe036f5ffa80fed8da80a744d09debeb25de91",
+        "tests": 10
+      },
+      "hosted-adjacent-01.log": {
+        "path": "target/v53-history-cohort/hosted-adjacent-01.log",
+        "sha256": "79e692df5e0d97adc2599d6b7b9a9dab40bae182031be81a6d1965a5500b213c",
+        "tests": 227
+      },
+      "original-readers-01.log": {
+        "path": "target/v53-history-cohort/original-readers-01.log",
+        "sha256": "5c8b426489920cb3b47a43554ca1611f6b680f68c430a6e0849df80045bb8f09",
+        "tests": 2
+      },
+      "plan-tests-01.log": {
+        "path": "target/v53-history-cohort/plan-tests-01.log",
+        "sha256": "2d5be6d9c7894d612b113ffd79e921ecb587078105000f1d645163363f6beda2",
+        "tests": 18
+      }
+    },
+    "owningAggregateSuites": 12,
+    "status": "PASS",
+    "workflowSuites": 12
+  },
+  "workflowExecutionAttested": false
+}

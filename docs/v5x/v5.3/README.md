@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Offline original-history cohort replay](PHASE_3_HISTORY_COHORT.md) now connects
+all twelve existing owning readers and aggregates. Complete seed/source binding
+precedes raw replay; offline results remain PARTIAL. The 544-history catalogue
+is an execution plan, with final-source execution and Phase 3 closure still OPEN.
+
 [Voting shutdown and cleanup failures](PHASE_3_VOTING_CLOSE_FAILURES.md)
 now drain writer and admitted reply waiters even after transfer cleanup fails.
 Original transfer errors survive failed export cleanup; failed constructor

@@ -83,6 +83,10 @@ the index establishes that GitHub actually ran a workflow.
 
 ## Remaining admission and validation
 
+The [history-cohort entry](PHASE_3_HISTORY_COHORT.md) now invokes this seed gate
+before replaying all declared original artifacts through their owning readers
+and aggregates. Its offline result also remains PARTIAL.
+
 Final admission still needs every required whole original, independent
 original-first physical/history/network/resource replay, exact negative results,
 workflow execution attestation and explicit coverage. Each original's seed
