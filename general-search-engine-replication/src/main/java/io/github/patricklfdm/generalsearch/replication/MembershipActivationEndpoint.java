@@ -74,6 +74,21 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     private Control control;
     private int waiters;
     private boolean scopeChanging;
+    // Separate from the control registry: an admitted higher PREPARE must
+    // still observe its fence before waiting for an old control's registry.
+    private final Object callers=new Object();
+    private int calls;
+    private final ThreadLocal<Integer> callDepth=new ThreadLocal<>();
+    private volatile Thread controlThread,expiryThread;
+
+    private void beginCall() {
+        synchronized(callers){require(!closed,"activation endpoint closed");int next=Math.incrementExact(calls);
+            Integer depth=callDepth.get();int nested=depth==null?1:Math.incrementExact(depth);callDepth.set(nested);calls=next;}
+    }
+    private void endCall() {
+        int depth=callDepth.get();if(depth==1)callDepth.remove();else callDepth.set(depth-1);
+        synchronized(callers){calls--;callers.notifyAll();}
+    }
 
     Optional<HeartbeatContact> heartbeatContact() {
         var value=heartbeatContact.get();if(closed || value==null || value.isEmpty())return Optional.empty();
@@ -368,6 +383,9 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     /** Register the actual local campaign before any peer may fetch its PROMISE.
      * The original local start/deadline is inherited, never reset by registration. */
     void serve(MembershipActivation campaign)throws IOException {
+        beginCall();try{serveAdmitted(campaign);}finally{endCall();}
+    }
+    private void serveAdmitted(MembershipActivation campaign)throws IOException {
         owner.checkActivation(campaign.ownSource().basis,null,false);
         require(campaign.ownSource().owner.equals(owner.activationIdentity()),"activation endpoint foreign campaign");
         var active=enter(campaign.ownSource().capsule,campaign.ballot(),campaign.started(),Math.min(budget,campaign.budget()));
@@ -382,14 +400,19 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     }
     /** Durable selection alone cannot revive an abandoned/expired serving scope. */
     void checkInstalled()throws IOException {
+        beginCall();try {
         require(slots!=null,"typed native endpoint required");var active=scope;
         require(active!=null,"native round requires active campaign");active.check();
         require(owner.voting(resources).ballot.equals(active.ballot),"native round endpoint ballot changed");active.check();
+        }finally{endCall();}
     }
     /** The serialized outgoing owner uses the same actual maintenance path before
      * creating its own vote. Incoming native slots invoke it automatically. */
     void maintainInstalled()throws IOException {maintainInstalled(()->{});}
     void maintainInstalled(MembershipSourcePull.Guard pulse)throws IOException {
+        beginCall();try{maintainAdmitted(pulse);}finally{endCall();}
+    }
+    private void maintainAdmitted(MembershipSourcePull.Guard pulse)throws IOException {
         Objects.requireNonNull(pulse);
         require(slots!=null,"typed native endpoint required");var active=scope;
         require(active!=null,"native maintenance requires active campaign");active.check();
@@ -399,11 +422,15 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     private void releaseEndedControl() {
         synchronized(registry){if(control!=null && control.finished && control.active.ended){control.close();control=null;}}
     }
-    private void expire(){var active=scope;if(active!=null && active.expired())active.close(ScopeEnd.EXPIRED);var prefix=prefixService;if(prefix!=null)prefix.poll();
-        var preparation=joiningPreparation;if(preparation!=null && !preparation.poll())revokeJoiningPreparation(preparation);releaseEndedControl();}
+    private void expire(){expiryThread=Thread.currentThread();try {
+        var active=scope;if(active!=null && active.expired())active.close(ScopeEnd.EXPIRED);var prefix=prefixService;if(prefix!=null)prefix.poll();
+        var preparation=joiningPreparation;if(preparation!=null && !preparation.poll())revokeJoiningPreparation(preparation);releaseEndedControl();
+        }finally{expiryThread=null;}}
     void publishJoiningPreparation(MembershipJoiningPreparation publication)throws IOException {
+        beginCall();try {
         Objects.requireNonNull(publication).belongsTo(owner,resources);
         synchronized(registry){require(!closed && joiningPreparation==null,"joining preparation endpoint occupied/closed");joiningPreparation=publication;}
+        }finally{endCall();}
     }
     void revokeJoiningPreparation(MembershipJoiningPreparation publication) {
         synchronized(registry){if(joiningPreparation==publication)joiningPreparation=null;}publication.close();
@@ -456,6 +483,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             lease=resources.reserve(MembershipResources.Unit.CONTROL,"activation-control-"+UUID.randomUUID(),request.size());
         }
         void run() {
+            controlThread=Thread.currentThread();
             try {
                 active.check();Decoded response;
                 if(request.kind().equals("PREPARE")) {
@@ -495,11 +523,15 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                 }catch(RuntimeException fencing){error.addSuppressed(fencing);}
                 synchronized(registry){finished=true;result.completeExceptionally(error);}
             }
-            finally {synchronized(registry){finished=true;if(closed || active.ended || control!=this)close();}}
+            finally {try{synchronized(registry){finished=true;if(closed || active.ended || control!=this)close();}}
+                finally{controlThread=null;}}
         }
         @Override public void close(){lease.close();}
     }
     @Override public Decoded handle(MembershipIdentity sender,Decoded request)throws IOException {
+        beginCall();try{return handleAdmitted(sender,request);}finally{endCall();}
+    }
+    private Decoded handleAdmitted(MembershipIdentity sender,Decoded request)throws IOException {
         long received=clock.getAsLong();require(!closed,"activation endpoint closed");String kind=request.kind();Scope active;
         // Preserve lock-free fencing before any stale-reply/storage lookup.
         if(kind.equals("PREPARE"))owner.observeActivation(sender,request);
@@ -580,25 +612,38 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         finally {synchronized(registry){waiters--;}}
     }
     @Override public void close()throws IOException {
-        synchronized(registry){closed=true;if(control!=null)control.result.completeExceptionally(new IOException("activation endpoint closed"));}
+        synchronized(callers){closed=true;}
+        synchronized(registry){if(control!=null)control.result.completeExceptionally(new IOException("activation endpoint closed"));}
         heartbeatContact.set(null);
-        var preparation=joiningPreparation;if(preparation!=null)revokeJoiningPreparation(preparation);
-        expiry.shutdownNow();IOException failure=null;
+        // Revoke immediately, but never interrupt a callback holding original
+        // channels or claim that this same callback has already drained.
+        controls.shutdown();expiry.shutdown();
+        if(callDepth.get()!=null || Thread.currentThread()==controlThread || Thread.currentThread()==expiryThread)
+            throw new IOException("activation close from active callback");
+        callDepth.remove();IOException failure=null;
+        try{var preparation=joiningPreparation;if(preparation!=null)revokeJoiningPreparation(preparation);}
+        catch(RuntimeException error){failure=new IOException("activation preparation close failed",error);}
         try{synchronized(prefixRegistry){if(prefixService!=null)prefixService.close();}}
-        catch(RuntimeException error){failure=new IOException("activation prefix close failed",error);}
+        catch(RuntimeException error){var closing=new IOException("activation prefix close failed",error);if(failure==null)failure=closing;else failure.addSuppressed(closing);}
         try{var active=scope;if(active!=null)active.close(ScopeEnd.ENDPOINT_CLOSED);}
         catch(RuntimeException error){var closing=new IOException("activation scope close failed",error);if(failure==null)failure=closing;else failure.addSuppressed(closing);}
         // Scope closure cancels its exchanges and guards every next operation.
         // Let the control worker release its exact receiving inodes without an
         // interrupt closing their FileChannels while cleanup is still using them.
-        controls.shutdown();
-        try {boolean controlStopped=controls.awaitTermination(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS);
-            boolean expiryStopped=expiry.awaitTermination(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS);
-            if(!controlStopped)controls.shutdownNow();
-            require(controlStopped && expiryStopped,"activation endpoint close timeout");}
-        catch(InterruptedException error){Thread.currentThread().interrupt();var interrupted=new IOException("activation endpoint close interrupted",error);
+        long end=System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(bounds.requestTimeoutMillis());
+        for(var executor:List.of(controls,expiry))try {
+            require(executor.awaitTermination(Math.max(0,end-System.nanoTime()),TimeUnit.NANOSECONDS),"activation endpoint close timeout");
+        }catch(InterruptedException error){Thread.currentThread().interrupt();var interrupted=new IOException("activation endpoint close interrupted",error);
             if(failure==null)failure=interrupted;else failure.addSuppressed(interrupted);}
         catch(RuntimeException error){var timeout=new IOException("activation endpoint close failed",error);if(failure==null)failure=timeout;else failure.addSuppressed(timeout);}
+        // Includes direct status/retention replies, control reply waiters and
+        // local registration/maintenance; executor termination alone is not
+        // permission to release their original incoming scratch ownership.
+        try{synchronized(callers){while(calls!=0){long left=end-System.nanoTime();require(left>0,"activation caller close timeout");
+                    TimeUnit.NANOSECONDS.timedWait(callers,left);}}}
+        catch(InterruptedException error){Thread.currentThread().interrupt();var interrupted=new IOException("activation caller close interrupted",error);
+            if(failure==null)failure=interrupted;else failure.addSuppressed(interrupted);}
+        catch(RuntimeException error){var timeout=new IOException("activation caller close failed",error);if(failure==null)failure=timeout;else failure.addSuppressed(timeout);}
         // A failed drain must retain ownership of storage still reachable by a
         // worker. A later close can finish it after child cleanup and both
         // parent executors have stopped; slot writers are separate executors.

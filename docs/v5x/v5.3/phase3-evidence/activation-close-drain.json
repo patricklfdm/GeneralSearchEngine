@@ -1,0 +1,262 @@
+{
+  "baseSource": "b095f857113a37b024e2e2ecc679e988aa490e51",
+  "classFiles": {
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$ActivationProgress.class": "6ea4c5206aff88c586b64985445862d4347dc9a3a04c80330b31db752c05a135",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$ActivationStage.class": "aea621ddbe9282ac9b19d3f1b4c60f67f0b7ea9e23296080b73c32c45f4069f8",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$Control.class": "49c9a11ee27ad8ccf79350e7798a874772511d5563bad32b189092a7979c9980",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$HeartbeatContact.class": "4cc09adacccd4c7828a462e1c17fc0b373b010d403edfdb1776026728f6d2c2b",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$InactiveScope.class": "7ea64f99194975b487a349b989b293b8345d96db95714aeb9097c5685c926f76",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$Scope.class": "4377b4d36127b3004e161d68cec3e47a98b290d3f2ed4e0edeb976fec4b12c29",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$ScopeEnd.class": "3835657329b9acc37212f4465b36d7c76e2c15a189f235bf280616447004faa3",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$ScopeGuard.class": "c8b281d1d01a195517cc6dfc54a10e1b1b735abb51aaffc3ccbc1653811e3532",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$Slots.class": "2d7d0feff1c893f0af3d7fcc49e0720f60af6c505e83887cde4f41495df9a44a",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$Usage.class": "bab4fe15223713b38e3e0060478874f8fc5da32e31294b10f66abb283c22de64",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.class": "9d3c4f0827ebe586cd77f8e6b49a97fa512b85567680e05a52a2a6ac4e367ab7"
+  },
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 2734,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "finalJavaTests": 43,
+  "finalNewRegressions": 9,
+  "finalSourceCohortQualified": false,
+  "hostedExecution": false,
+  "java": {
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationCloseDrainTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-activation-close-drain/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationCloseDrainTest.xml",
+      "seconds": 31.864,
+      "sha256": "2d3efa3212d6f0675421b2f3feaddee974304e814e084f3cd1f499b16bb09843",
+      "skipped": 0,
+      "tests": 9
+    },
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-activation-close-drain/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest.xml",
+      "seconds": 98.749,
+      "sha256": "09ac6fe404a90668d5754943e03cf29964a4e94ff40853d29a10a7611d9c12c6",
+      "skipped": 0,
+      "tests": 16
+    },
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationProgressTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-activation-close-drain/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationProgressTest.xml",
+      "seconds": 74.612,
+      "sha256": "52dc909362ab740d485b988ebf4879e932380a20a2308094c9e754c29a649299",
+      "skipped": 0,
+      "tests": 10
+    },
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-activation-close-drain/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml",
+      "seconds": 58.732,
+      "sha256": "79804a16cef905a6b906f74a20e08d5f864f7659a08d46848ea06af61f74881e",
+      "skipped": 0,
+      "tests": 1
+    },
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ScratchActivationTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-activation-close-drain/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ScratchActivationTest.xml",
+      "seconds": 9.552,
+      "sha256": "b90149d9fa31286b48a1148ff7075e977538613c6881f35781ef0bc6a251ffa4",
+      "skipped": 0,
+      "tests": 2
+    },
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53SlotCloseDrainTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-activation-close-drain/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotCloseDrainTest.xml",
+      "seconds": 64.305,
+      "sha256": "27f1bc63dcf99114d2693b43e07c9da82fe1efe5992874edaa37888c831941ac",
+      "skipped": 0,
+      "tests": 5
+    }
+  },
+  "limitations": [
+    "Four original implementation failures reproduce premature caller/registration close and interruption of a control-owned FileChannel.",
+    "Deterministic gates use the existing injectable clock/link callbacks and real scope locks/channels; no process crash or disk-fault qualification is inferred.",
+    "After-01 passed all four initial regressions; its adjacent TCP test was refused loopback by the sandbox, not by a protocol assertion.",
+    "After-02 is the intermediate 41-test gate. Final-01 recompiles the separate caller lock and early-fence regression and passes all 42 tests; native-01 adds one fresh original.",
+    "Final caller/control/expiry drain shares the existing request timeout after child cleanup; failure retains ownership. Frozen resource limits, deadlines, wire/storage formats and workload counts are unchanged.",
+    "Full simultaneous physical maxima, exact Phase 3 coverage and the final-source hosted cohort remain OPEN."
+  ],
+  "logs": {
+    "after-01.log": "25902d3a8ab994ac513a72bb3aba8ca07a5ec2f9a1cb70e49024723541122999",
+    "after-02.log": "11586aa3beaec9316e1e8c4da7188da6a51efc502bc9dfc14f022df6dad5034b",
+    "before-01.log": "da01e3d54af51e5260ed0add4632dcd85e2e0f56a5242dd6ec51d94f84dd7601",
+    "final-01.log": "695b2c2091a0446252404bd16fc08a6f2bef0b49c3b839229e2025ca4aab45e5",
+    "native-01.log": "985a06d559d71a964a616d10b19167178cfe65ca605e078fce750869f71dedb3",
+    "native-replay.log": "4db5c323f284b064646bc0bc3e7f2822de61cd903ed31fb8ad717ec5faa77c52",
+    "planning-tests.log": "5c2459ddec51115c6cb2141d0b88bf2d92a70a176ac9dd91c9e9020a1e30aa40"
+  },
+  "native": {
+    "negativeCases": [
+      {
+        "case": "delivery-short",
+        "reason": "slot resources original delivery extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "delivery-long",
+        "reason": "slot resources original delivery extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "handoff-after-copy",
+        "reason": "slot resources unique request handoff",
+        "status": "REJECTED"
+      },
+      {
+        "case": "ack-after-release",
+        "reason": "slot resources delivery released before acknowledgement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "delivery-binding",
+        "reason": "slot resources unique request handoff",
+        "status": "REJECTED"
+      },
+      {
+        "case": "delivery-omitted",
+        "reason": "slot resources unique request handoff",
+        "status": "REJECTED"
+      },
+      {
+        "case": "waiter-binding",
+        "reason": "slot resources original waiter binding/extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "local-waiter-omitted",
+        "reason": "slot resources missing local waiter",
+        "status": "REJECTED"
+      },
+      {
+        "case": "voting-waiter-omitted",
+        "reason": "slot resources voting child waiter custody",
+        "status": "REJECTED"
+      },
+      {
+        "case": "legacy-binding",
+        "reason": "slot resources original bindings required",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-delivery",
+        "reason": "slot resources incomplete allocation coverage",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-waiter",
+        "reason": "slot resources waiter call interval",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reused-allocation",
+        "reason": "slot resources reused allocation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "waiter-released-before-child",
+        "reason": "slot resources voting child waiter custody",
+        "status": "REJECTED"
+      },
+      {
+        "case": "publication-after-release",
+        "reason": "slot resources publication waiter custody",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-local-request",
+        "reason": "slot resources local publication response",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-local-response",
+        "reason": "slot resources local publication request",
+        "status": "REJECTED"
+      },
+      {
+        "case": "local-request-hash",
+        "reason": "slot resources local original bytes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "local-response-payload",
+        "reason": "slot resources local original acknowledgement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "local-response-trace",
+        "reason": "slot resources local original acknowledgement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "swap-local-publications",
+        "reason": "slot resources publication waiter custody",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-publication",
+        "reason": "slot resources local publication not observed",
+        "status": "REJECTED"
+      }
+    ],
+    "original": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-dispatch/run-4a18760a-b245-4809-b8ef-7732763236ff",
+    "originalInventorySha256": "fd8c91af0e8b138b35e76761a1a62c8fb6110c3a5a1c63a66fec29f8c76eacc3",
+    "path": "target/v53-activation-close-drain/native-replay.json",
+    "result": {
+      "boundReservations": 16,
+      "deliveryAttempts": 7,
+      "deliveryReservations": 6,
+      "interruptedHandlersQualified": false,
+      "localWaiters": 2,
+      "networkWaiters": 8,
+      "phase3Complete": false,
+      "publicationTransactions": 4,
+      "slotResourcesQualified": true,
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    },
+    "sha256": "e606691ae72e44b9563ff6f1f8b498f458556f8a54f10f41b4a3ddc467b95b42"
+  },
+  "originalFailingRegressions": 4,
+  "originalImplementation": {
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationCloseDrainTest.xml": {
+      "errors": 0,
+      "failures": 4,
+      "path": "target/v53-activation-close-drain/before-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationCloseDrainTest.xml",
+      "seconds": 17.04,
+      "sha256": "92f0b05bae62f25d614222d847bf4d46e12aa4247ea568258ffdb11a775d5d3f",
+      "skipped": 0,
+      "tests": 4
+    }
+  },
+  "paidCloud": false,
+  "phase3Complete": false,
+  "physicalPeakQualified": false,
+  "python": {
+    "path": "target/v53-activation-close-drain/planning-tests.log",
+    "sha256": "5c2459ddec51115c6cb2141d0b88bf2d92a70a176ac9dd91c9e9020a1e30aa40",
+    "tests": 18
+  },
+  "schema": "gse-v53-development-evidence-v1",
+  "scope": "activation-endpoint-caller-and-executor-drain",
+  "sourceSha256": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java": "44d2874f07410ea44073b0bb00fac594e1d1ac1ab45caa6c8633c68027ebe92e",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationCloseDrainTest.java": "2d99fd698d103520e752ecf98c9369e411a2fe63df5de2a07cfe7187f86dae83"
+  },
+  "status": "PASS",
+  "wholeRuntimeResourcesQualified": false
+}

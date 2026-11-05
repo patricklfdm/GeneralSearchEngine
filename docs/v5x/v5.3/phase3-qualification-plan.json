@@ -16,7 +16,8 @@
       "implementation": [
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivation.java",
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSelectedSources.java",
-        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationDriver.java"
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationDriver.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java"
       ],
       "tests": [
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationTest.java",
@@ -26,7 +27,8 @@
         "scripts/v53/test_native_activation.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DeferredGrantProcessTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DeferredGrantProcessWorker.java",
-        "scripts/v53/test_deferred_grant_process_evidence.py"
+        "scripts/v53/test_deferred_grant_process_evidence.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationCloseDrainTest.java"
       ],
       "readers": [
         "scripts/v53/activation_evidence.py",
@@ -38,7 +40,9 @@
         "docs/v5x/v5.3/PHASE_3_ACTIVATION.md",
         "docs/v5x/v5.3/PHASE_3_ACTIVATION_DRIVER.md",
         "docs/v5x/v5.3/PHASE_3_DEFERRED_GRANT.md",
-        "docs/v5x/v5.3/PHASE_3_DEFERRED_GRANT_PROCESS.md"
+        "docs/v5x/v5.3/PHASE_3_DEFERRED_GRANT_PROCESS.md",
+        "docs/v5x/v5.3/PHASE_3_ACTIVATION_CLOSE_DRAIN.md",
+        "docs/v5x/v5.3/phase3-evidence/activation-close-drain.json"
       ],
       "cohorts": [
         "profiles",
@@ -681,7 +685,8 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransferCloseDrainTest.java",
         "scripts/v53/test_voting_control_resources.py",
         "scripts/v53/test_slot_control_resources.py",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53VotingCloseFailureTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53VotingCloseFailureTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationCloseDrainTest.java"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -846,7 +851,9 @@
         "docs/v5x/v5.3/PHASE_3_SLOT_CONTROL_RESOURCES.md",
         "docs/v5x/v5.3/phase3-evidence/slot-control-resources.json",
         "docs/v5x/v5.3/PHASE_3_VOTING_CLOSE_FAILURES.md",
-        "docs/v5x/v5.3/phase3-evidence/voting-close-failures.json"
+        "docs/v5x/v5.3/phase3-evidence/voting-close-failures.json",
+        "docs/v5x/v5.3/PHASE_3_ACTIVATION_CLOSE_DRAIN.md",
+        "docs/v5x/v5.3/phase3-evidence/activation-close-drain.json"
       ],
       "cohorts": [
         "profiles",

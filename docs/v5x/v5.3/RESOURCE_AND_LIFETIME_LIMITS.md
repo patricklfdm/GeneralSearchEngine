@@ -1,5 +1,10 @@
 # V5.3 bounded resources and lifetime
 
+[Activation caller drain](PHASE_3_ACTIVATION_CLOSE_DRAIN.md) preserves original
+incoming scratch until synchronous calls and local registration/maintenance
+return. Revocation and cooperative executor shutdown precede bounded drain;
+failed or self-invoked close retains ownership for an external retry.
+
 [Voting shutdown and cleanup failures](PHASE_3_VOTING_CLOSE_FAILURES.md)
 now drain writer and admitted reply waiters even after transfer cleanup fails.
 Original transfer errors survive failed export cleanup; failed constructor

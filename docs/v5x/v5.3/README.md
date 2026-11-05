@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Activation caller drain](PHASE_3_ACTIVATION_CLOSE_DRAIN.md) now keeps incoming
+scratch owned through synchronous replies and local registration/maintenance.
+Timeout and self-close retain ownership for an external drain; higher-ballot
+fencing remains independent of the old control registry. Phase 3 remains OPEN.
+
 [Offline original-history cohort replay](PHASE_3_HISTORY_COHORT.md) now connects
 all twelve existing owning readers and aggregates. Complete seed/source binding
 precedes raw replay; offline results remain PARTIAL. The 544-history catalogue

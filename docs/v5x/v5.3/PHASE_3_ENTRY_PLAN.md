@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Activation caller drain](PHASE_3_ACTIVATION_CLOSE_DRAIN.md) closes a reproduced
+scratch-release race and removes timeout interruption of original control I/O.
+Synchronous calls and local registration/maintenance must finish before a
+successful endpoint close. This does not close the broader resource obligation.
+
 [Offline original-history cohort replay](PHASE_3_HISTORY_COHORT.md) connects all
 twelve declared subsets through original-first owning readers and aggregates.
 It retains exact seed/source/run/attempt checks and separate offline scope;
