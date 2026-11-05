@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Exact candidate witnesses](PHASE_3_COVERAGE_WITNESSES.md) now bind twelve
+Phase 3 requirements to nineteen specific archive/reader/rejection selectors.
+The complete 544-history source catalogue preserves 478 archives and 238
+execution groups. This source audit does not grant native or phase acceptance.
+
 [Outgoing activation drain](PHASE_3_ACTIVATION_DRIVER_DRAIN.md) now retains
 original task/export/campaign ownership until every worker exits. Cancellation
 no longer interrupts file owners; self-close requires an external drain.

@@ -1,0 +1,436 @@
+{
+  "schema": "gse-v53-phase3-coverage-witnesses-v1",
+  "status": "PLANNED",
+  "phase3Complete": false,
+  "acceptancePlanSha256": "cdb67a09eb2acc2b2f7d7348204d4a2e4cebc7996aaeacdec6145864f5f846f1",
+  "sourceCatalogueSha256": "62bace8fc4eb6c220327579f8341294f4f5715462d084bae60afb152c68e5343",
+  "requirements": [
+    {
+      "id": "3A-activation",
+      "witnesses": [
+        {
+          "id": "activation-ballot",
+          "cohort": "profiles",
+          "unit": "3-ADD",
+          "histories": [
+            "3-ADD"
+          ],
+          "selector": {
+            "suite": "ballot",
+            "case": "force-missing",
+            "variant": "default"
+          },
+          "reason": "joining ballot exact allocator force order",
+          "condition": "always",
+          "scope": "Ordinary 3-ADD allocator force order; not all PREPARE/SELECTED schedules."
+        },
+        {
+          "id": "activation-adoption",
+          "cohort": "profiles",
+          "unit": "3-ADD",
+          "histories": [
+            "3-ADD"
+          ],
+          "selector": {
+            "suite": "ballot",
+            "case": "adoption-fence-missing",
+            "variant": "default"
+          },
+          "reason": "joining ballot exact adoption boundary order",
+          "condition": "original-adoption-transaction",
+          "scope": "Conditional adoption transaction, applicable only when present in the unchanged original."
+        }
+      ],
+      "openWork": "Activation ownership and complete basis installation still require the final-source native cohort, competing owners and all profile/resource axes."
+    },
+    {
+      "id": "3B-transfer",
+      "witnesses": [
+        {
+          "id": "lost-source-offer",
+          "cohort": "joining-reply-loss",
+          "unit": "SOURCE_OFFER",
+          "histories": [
+            "SOURCE_OFFER"
+          ],
+          "selector": {
+            "suite": "fault",
+            "case": "missing-completion",
+            "variant": "default"
+          },
+          "reason": "joining source loss declaration order",
+          "condition": "always",
+          "scope": "One original 3-ADD lost SOURCE_OFFER reply and its completed recovery."
+        },
+        {
+          "id": "tcp-lifetimes",
+          "cohort": "transfer-histories",
+          "unit": "tcp-lifetimes",
+          "histories": [
+            "tcp-lifetimes/stable-3",
+            "tcp-lifetimes/stable-4",
+            "tcp-lifetimes/stable-5"
+          ],
+          "selector": {
+            "suite": "physical",
+            "case": "missing-profile",
+            "variant": "default"
+          },
+          "reason": "transfer fault complete profile inventory",
+          "condition": "always",
+          "scope": "One indivisible TCP matrix across stable sizes 3, 4 and 5; not separate negative qualification per child."
+        }
+      ],
+      "openWork": "Complete stable-size TCP groups and reply-loss groups must replay at final source; remaining transition/recovery/resource overlaps stay open."
+    },
+    {
+      "id": "3B-recovery",
+      "witnesses": [
+        {
+          "id": "accept-rename-recovery",
+          "cohort": "node-renames",
+          "unit": "ACCEPT_RENAMED,kill",
+          "histories": [
+            "ACCEPT_RENAMED,kill"
+          ],
+          "selector": {
+            "suite": "physical",
+            "case": "drop-selected-tail",
+            "variant": "default"
+          },
+          "reason": "inflight original selected tail",
+          "condition": "always",
+          "scope": "Actual process restart after ACCEPT rename, preserving the selected original tail."
+        },
+        {
+          "id": "late-unused-prepare",
+          "cohort": "node-renames",
+          "unit": "ACCEPT_RENAMED,kill",
+          "histories": [
+            "ACCEPT_RENAMED,kill"
+          ],
+          "selector": {
+            "suite": "physical",
+            "case": "late-prepare-invented-delivery",
+            "variant": "default"
+          },
+          "reason": "node late prepare exact undelivered original grant",
+          "condition": "original-late-unused-prepare",
+          "scope": "Only applicable when the original records a late unused PREPARE; absence is not rejection."
+        }
+      ],
+      "openWork": "Native carried-process halt/SIGKILL is not supplied by the Phase 2 conditional carried_process_evidence fixture; retained-directory recovery and unavailable authority still need the full Phase 3 matrix."
+    },
+    {
+      "id": "3C-learner",
+      "witnesses": [
+        {
+          "id": "six-learner-revisions",
+          "cohort": "learner-histories",
+          "unit": "alternating-slots",
+          "histories": [
+            "alternating-slots"
+          ],
+          "selector": {
+            "suite": "physical",
+            "case": "original-published",
+            "variant": "default"
+          },
+          "reason": "admitted exact published-6: node-1",
+          "condition": "always",
+          "scope": "One six-revision history across alternating learner slots."
+        },
+        {
+          "id": "cancelled-learner-retention",
+          "cohort": "learner-histories",
+          "unit": "retained-cancellation",
+          "histories": [
+            "retained-cancellation"
+          ],
+          "selector": {
+            "suite": "physical",
+            "case": "retention-terminal-erase",
+            "variant": "default"
+          },
+          "reason": "admitted exact after-close: node-1",
+          "condition": "always",
+          "scope": "Original cancelled learner retention through owner close."
+        }
+      ],
+      "openWork": "The two learner histories are focused 3-ADD cases; other learner profiles and simultaneous runtime resources are not established by them."
+    },
+    {
+      "id": "3C-initialization",
+      "witnesses": [
+        {
+          "id": "joining-seed-transaction",
+          "cohort": "joining-process",
+          "unit": "3-ADD,JOINING_RETENTION_SEED_CREATED,kill",
+          "histories": [
+            "3-ADD,JOINING_RETENTION_SEED_CREATED,kill"
+          ],
+          "selector": {
+            "suite": "authority",
+            "case": "exports/generation-bytes",
+            "variant": "default"
+          },
+          "reason": "joining export exact current generation",
+          "condition": "original-authority-applicability",
+          "scope": "Exact original generation bytes in one killed initialization history; applicability comes from the original reader."
+        }
+      ],
+      "openWork": "All 360 whole joining-process originals must be replayed with original-derived applicability, plus the final-source profile and fault cohorts."
+    },
+    {
+      "id": "3C-joint",
+      "witnesses": [
+        {
+          "id": "carried-intent",
+          "cohort": "carried-transition-histories",
+          "unit": "intent",
+          "histories": [
+            "intent"
+          ],
+          "selector": {
+            "suite": "physical",
+            "case": "original-entry",
+            "variant": "default"
+          },
+          "reason": "carried transition original command",
+          "condition": "always",
+          "scope": "Same original INTENT completed before the fresh stable barrier."
+        },
+        {
+          "id": "carried-final",
+          "cohort": "carried-transition-histories",
+          "unit": "final",
+          "histories": [
+            "final"
+          ],
+          "selector": {
+            "suite": "physical",
+            "case": "original-entry",
+            "variant": "default"
+          },
+          "reason": "carried transition original command",
+          "condition": "always",
+          "scope": "Same original FINAL completed before the fresh stable barrier."
+        }
+      ],
+      "openWork": "Both carried transitions retain original INTENT/FINAL commands; native process deaths during carried completion and other transition recovery/profile axes remain open."
+    },
+    {
+      "id": "3D-rounds",
+      "witnesses": [
+        {
+          "id": "round-publication",
+          "cohort": "round-histories",
+          "unit": "round-stable",
+          "histories": [
+            "round-stable"
+          ],
+          "selector": {
+            "suite": "physical",
+            "case": "precommand-forged-completion",
+            "variant": "default"
+          },
+          "reason": "round original publication acknowledgement",
+          "condition": "always",
+          "scope": "Serialized ordinary publication acknowledgement before the next command."
+        },
+        {
+          "id": "carried-data-once",
+          "cohort": "carried-data-histories",
+          "unit": "data-applied",
+          "histories": [
+            "data-applied"
+          ],
+          "selector": {
+            "suite": "physical",
+            "case": "fresh-barrier",
+            "variant": "default"
+          },
+          "reason": "admitted exact applied-2: node-2",
+          "condition": "always",
+          "scope": "Applied original DATA completes before a distinct fresh barrier; no replayed client mutation."
+        }
+      ],
+      "openWork": "The seven round histories and four DATA histories are component cases, not all stable-size/process/network combinations or public operations."
+    },
+    {
+      "id": "3D-automatic",
+      "witnesses": [
+        {
+          "id": "automatic-fence",
+          "cohort": "automatic-histories",
+          "unit": "higher-ballot-restart",
+          "histories": [
+            "higher-ballot-restart/higher-ballot-restart"
+          ],
+          "selector": {
+            "suite": "current",
+            "case": "missing-fence-reply",
+            "variant": "default"
+          },
+          "reason": "automatic restart exact fence reply",
+          "condition": "always",
+          "scope": "Original higher-ballot delivery between the two automatic rounds."
+        },
+        {
+          "id": "reply-resources",
+          "cohort": "automatic-histories",
+          "unit": "reply-revocation",
+          "histories": [
+            "reply-revocation/3-offer-expiry",
+            "reply-revocation/3-offer-service-close",
+            "reply-revocation/3-offer-owner-close",
+            "reply-revocation/3-offer-higher-ballot",
+            "reply-revocation/3-data-expiry",
+            "reply-revocation/3-data-service-close",
+            "reply-revocation/3-data-owner-close",
+            "reply-revocation/3-data-higher-ballot",
+            "reply-revocation/3-commit-expiry",
+            "reply-revocation/3-commit-service-close",
+            "reply-revocation/3-commit-owner-close",
+            "reply-revocation/3-commit-higher-ballot",
+            "reply-revocation/3-cached-commit-expiry",
+            "reply-revocation/3-cached-commit-service-close",
+            "reply-revocation/3-cached-commit-owner-close",
+            "reply-revocation/3-cached-commit-higher-ballot",
+            "reply-revocation/4-offer-expiry",
+            "reply-revocation/4-offer-service-close",
+            "reply-revocation/4-offer-owner-close",
+            "reply-revocation/4-offer-higher-ballot",
+            "reply-revocation/4-data-expiry",
+            "reply-revocation/4-data-service-close",
+            "reply-revocation/4-data-owner-close",
+            "reply-revocation/4-data-higher-ballot",
+            "reply-revocation/4-commit-expiry",
+            "reply-revocation/4-commit-service-close",
+            "reply-revocation/4-commit-owner-close",
+            "reply-revocation/4-commit-higher-ballot",
+            "reply-revocation/4-cached-commit-expiry",
+            "reply-revocation/4-cached-commit-service-close",
+            "reply-revocation/4-cached-commit-owner-close",
+            "reply-revocation/4-cached-commit-higher-ballot",
+            "reply-revocation/5-offer-expiry",
+            "reply-revocation/5-offer-service-close",
+            "reply-revocation/5-offer-owner-close",
+            "reply-revocation/5-offer-higher-ballot",
+            "reply-revocation/5-data-expiry",
+            "reply-revocation/5-data-service-close",
+            "reply-revocation/5-data-owner-close",
+            "reply-revocation/5-data-higher-ballot",
+            "reply-revocation/5-commit-expiry",
+            "reply-revocation/5-commit-service-close",
+            "reply-revocation/5-commit-owner-close",
+            "reply-revocation/5-commit-higher-ballot",
+            "reply-revocation/5-cached-commit-expiry",
+            "reply-revocation/5-cached-commit-service-close",
+            "reply-revocation/5-cached-commit-owner-close",
+            "reply-revocation/5-cached-commit-higher-ballot"
+          ],
+          "selector": {
+            "suite": "replies",
+            "case": "resource-materialized",
+            "variant": "default"
+          },
+          "reason": "reply resources materialized reply charge",
+          "condition": "always",
+          "scope": "All 48 pre-return reply revocations remain one archive; observed reply charges are not the whole runtime peak."
+        }
+      ],
+      "openWork": "Competition shape and capture owner must be derived from the original. Automatic restart/reply groups do not qualify all autonomous membership or process faults."
+    },
+    {
+      "id": "3D-removal",
+      "witnesses": [
+        {
+          "id": "remove-process-ballot",
+          "cohort": "remove-process",
+          "unit": "4-REMOVE,RETIREMENT_BORROW_PREFIX_WRITTEN,kill",
+          "histories": [
+            "4-REMOVE,RETIREMENT_BORROW_PREFIX_WRITTEN,kill"
+          ],
+          "selector": {
+            "suite": "ballot",
+            "case": "force-missing",
+            "variant": "default"
+          },
+          "reason": "joining ballot exact allocator force order",
+          "condition": "always",
+          "scope": "Allocator force order in one original REMOVE process interruption and continuation."
+        }
+      ],
+      "openWork": "The two ordinary REMOVE profiles and 52 process histories require final-source replay; their ballot composition is not full native carried-process or public removal coverage."
+    },
+    {
+      "id": "3E-resources",
+      "witnesses": [
+        {
+          "id": "joint-floor-resource-observations",
+          "cohort": "joint-floor-process",
+          "unit": "1,FLOOR_COPY_CREATED,kill",
+          "histories": [
+            "1,FLOOR_COPY_CREATED,kill"
+          ],
+          "selector": {
+            "suite": "process",
+            "case": "resource-omission",
+            "variant": "default"
+          },
+          "reason": "joint process original resource observations",
+          "condition": "always",
+          "scope": "Actual process resource observations across the same lease, crash, recovery and continuation; not a combined peak claim."
+        }
+      ],
+      "openWork": "The full simultaneous runtime maximum, admitted FINAL/recovery, stable DATA after exhaustion and remaining missing/torn resource mutations are still open."
+    },
+    {
+      "id": "3E-coverage",
+      "witnesses": [
+        {
+          "id": "profile-selector-applicability",
+          "cohort": "profiles",
+          "unit": "3-ADD",
+          "histories": [
+            "3-ADD"
+          ],
+          "selector": {
+            "suite": "ballot",
+            "case": "adoption-promise-missing",
+            "variant": "default"
+          },
+          "reason": "joining ballot exact promise force order",
+          "condition": "original-adoption-transaction",
+          "scope": "Demonstrates that an original-absent adoption promise cannot be counted as a passing negative."
+        }
+      ],
+      "openWork": "This map records candidate requirement witnesses only. Exact complete Phase 3 schedule/N-family coverage and final-source original replay remain required; all 3310 frozen S rows remain Phase 5."
+    },
+    {
+      "id": "3E-cohort",
+      "witnesses": [
+        {
+          "id": "transfer-whole-matrix",
+          "cohort": "transfer-histories",
+          "unit": "tcp-lifetimes",
+          "histories": [
+            "tcp-lifetimes/stable-3",
+            "tcp-lifetimes/stable-4",
+            "tcp-lifetimes/stable-5"
+          ],
+          "selector": {
+            "suite": "physical",
+            "case": "missing-case",
+            "variant": "default"
+          },
+          "reason": "transfer fault complete case inventory",
+          "condition": "always",
+          "scope": "A complete declared TCP matrix must be present before any negative is accepted."
+        }
+      ],
+      "openWork": "The 12-seed, 478-archive, 544-history replay must actually run at final source. Exact-attempt workflow attestation, complete coverage and combined resources are separate requirements."
+    }
+  ]
+}

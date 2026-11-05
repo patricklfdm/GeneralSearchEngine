@@ -909,19 +909,25 @@
       ],
       "implementation": [
         "scripts/v53/case_inventory.py",
-        "scripts/v53/phase3_qualification_plan.py"
+        "scripts/v53/phase3_qualification_plan.py",
+        "scripts/v53/phase3_coverage.py"
       ],
       "tests": [
         "scripts/v53/test_case_inventory.py",
-        "scripts/v53/test_phase3_qualification_plan.py"
+        "scripts/v53/test_phase3_qualification_plan.py",
+        "scripts/v53/test_phase3_coverage.py"
       ],
       "readers": [
         "scripts/v53/case_inventory.py",
-        "scripts/v53/phase3_qualification_plan.py"
+        "scripts/v53/phase3_qualification_plan.py",
+        "scripts/v53/phase3_coverage.py"
       ],
       "docs": [
         "docs/v5x/v5.3/ACCEPTANCE_REGISTER.md",
-        "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md"
+        "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+        "docs/v5x/v5.3/PHASE_3_COVERAGE_WITNESSES.md",
+        "docs/v5x/v5.3/phase3-coverage-witnesses.json",
+        "docs/v5x/v5.3/phase3-evidence/coverage-witnesses.json"
       ],
       "cohorts": [
         "profiles",
@@ -1142,7 +1148,7 @@
         "component-cohorts",
         "combined-resources"
       ],
-      "work": "Map concrete Phase 3 protocol schedules and exact rejection families to original evidence selectors; identify uncovered axes. Keep the final 3310-row Phase 5 inventory unchanged and explicitly defer public API/read/maintenance acceptance to its owning phase.",
+      "work": "The exact source-selector audit now binds nineteen candidate witnesses for all twelve Phase 3 requirements and pins the complete 478-archive catalogue. Complete Phase 3 schedule and rejection-family coverage still require original selectors, applicability and final-source replay; no coverage is inferred from substrings or counts. The frozen 3310 S rows remain Phase 5 requirements.",
       "acceptance": "No family closes from substring matches, aggregate pass counts or a related profile. Explicit refusal evidence for inapplicable rows, expected negative reasons and owner-phase boundaries must remain reviewable."
     },
     {

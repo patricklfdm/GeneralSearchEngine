@@ -1,0 +1,57 @@
+{
+  "auditPath": "target/v53-phase3-coverage/audit-final/receipt.json",
+  "baseSource": "19c644fc68cefc4dc0586281a913b8f14c432245",
+  "candidateWitnesses": 19,
+  "conditionalWitnesses": 4,
+  "contract": {
+    "path": "target/v53-phase3-coverage/contract-01.json",
+    "result": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 2756,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "sha256": "ef81592558e74cbbcc51ecfa38998d4624ad00717a196c17b288ab9ccc53b5e2"
+  },
+  "frozenScenarioCoverageQualified": false,
+  "hostedExecution": false,
+  "nativeHistoriesExecuted": 0,
+  "notExecuted": [
+    "Maven",
+    "native producer",
+    "native evidence replay",
+    "hosted workflow",
+    "paid cloud"
+  ],
+  "paidCloud": false,
+  "phase3Complete": false,
+  "plannedExecutionGroups": 238,
+  "plannedHostedHistories": 544,
+  "python": {
+    "path": "target/v53-phase3-coverage/python-01.log",
+    "scope": "source/adapter regression tests; no native execution",
+    "sha256": "c6b914fa718353bcf8ba40c17e26e13a8e70149a60a1654db35d4a303546dbfc",
+    "tests": 268
+  },
+  "remaining": [
+    "native carried-process and missing protocol/profile axes",
+    "simultaneous runtime resource maximum",
+    "complete Phase 3 schedule/rejection coverage",
+    "final-source original replay and exact-attempt attestation"
+  ],
+  "runtimeQualified": false,
+  "schema": "gse-v53-development-evidence-v1",
+  "scope": "phase3-source-selector-audit",
+  "sourceArchiveUnits": 478,
+  "sourceCatalogueSha256": "62bace8fc4eb6c220327579f8341294f4f5715462d084bae60afb152c68e5343",
+  "sourceSha256": {
+    "docs/v5x/v5.3/phase3-coverage-witnesses.json": "e143e844df9c7ede98f4fedf9673637c08dab91bc768179b6a68178f369412bd",
+    "scripts/v53/phase3_coverage.py": "64549c92c211b26331a9b8b18cdc3eb069adb47ae7bab8950bfd4b2e385ca3f4",
+    "scripts/v53/test_phase3_coverage.py": "bcc133ac246c5f2d7c36aae16e32c82859eefd793514e1f4803494d00bb6a271"
+  },
+  "status": "PASS"
+}
