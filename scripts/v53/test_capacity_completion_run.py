@@ -28,7 +28,18 @@ def replay(profile):
     first=7*m.gate.PROFILES[profile]-1
     return dict(status='PASS',profile=profile,slots=5,owners=3,campaigns=2,callObservations=93,ownedObservations=54,
                 conditionalPrefix=True,originalFirst=True,capacityBoundary=profile=='capacity-231',freshProcesses=False,nativeNetwork=False,
-                phase3Complete=False,portableReplay='PASS',negativeCases=[dict(case=n,status='REJECTED',reason=r.format(first=first)) for n,r in m.gate.VARIANTS.items()])
+                phase3Complete=False,portableReplay='PASS',resources=resource_summary(profile),
+                resourceNegatives=[dict(case=n,status='REJECTED',reason=r) for n,r in m.gate.resources.VARIANTS.items()],negativeCases=[dict(case=n,status='REJECTED',reason=r.format(first=first)) for n,r in m.gate.VARIANTS.items()])
+
+
+def resource_summary(profile):
+    return dict(status='PASS',scope='conditional-owner-accounting-and-publication-storage',ownerLifetimes=len(m.gate.resources.schedule(profile)),
+                mutations=1000,eventCheckpoints=2000,publications=15,publicationBoundaries=165,
+                maximumObservedReservations=dict(metadata=36*1024**2,staging=256*1024**2,queued=0,leases=7),
+                maximumObservedCounts=dict(GENERATION=2,SOURCE=3,APPLICATION=7),
+                maximumPublicationStorage=dict(metadata=36*1024**2,staging=256*1024**2,applications=7,sources=3),
+                observedAccountingQualified=True,publicationStorageQualified=True,closeIntervalsQualified=False,
+                wholeRuntimeResourcesQualified=False,phase3Complete=False)
 
 
 class CapacityCompletionRunTest(unittest.TestCase):

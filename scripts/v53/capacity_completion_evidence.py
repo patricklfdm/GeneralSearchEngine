@@ -14,6 +14,7 @@ from . import admitted_cross_view_evidence as cross
 from . import publication_capacity_evidence as refusal
 from .offline_fixture_image import application
 from .selected_sources_evidence import cuts
+from . import capacity_completion_resources as resources
 
 e,c,b,selection=cross.e,cross.c,cross.b,cross.selection
 read,same=cross.read,cross.same
@@ -36,14 +37,14 @@ CRITICAL={
 
 def receipt(profile):
     e.need(profile in PROFILES,'completion explicit profile');number=PROFILES[profile]
-    return dict(schema='gse-v53-capacity-completion-v2',status='PASS',profile=profile,completedOperation=number,
+    return dict(schema='gse-v53-capacity-completion-v3',status='PASS',profile=profile,completedOperation=number,
                 nextOperationRefused=number+1 if number==231 else None,applicationSequence=42,nodes=3,
                 conditionalPrefix=True,freshProcesses=False,nativeNetwork=False,phase3Complete=False)
 
 
 class Walk(cross.Walk):
     def __init__(self,root,profile):
-        self.root=Path(root);self.number=PROFILES[profile];self.required={'sealed','stopped','calls.json','observations.json','receipt.json'}
+        self.root=Path(root);self.number=PROFILES[profile];self.required={'sealed','stopped','calls.json','observations.json','receipt.json','completion-resources','publication-resource-captures'}
         selection.layout(self.root/'sealed',set(NODES),'completion conditional owners')
         self.group={n:c.inventory(self.root/'sealed'/n) for n in NODES}
         self.active=NODES;self.slot=7*self.number-2;self.counter=3;self.first=None;self.observed=set();self.phases={}
@@ -125,8 +126,9 @@ def validate(root,profile):
     e.need(len(observed)==len(w.observed) and {e.f.canonical(v) for v in observed}==w.observed,'completion exact observations')
     calls=read(root/'calls.json');validate_calls(calls,w.phases)
     selection.layout(root,w.required,'completion history')
+    qualified_resources=resources.validate(root,profile,w.state()[2]['root'],calls)
     return dict(status='PASS',profile=profile,slots=5,owners=3,campaigns=2,callObservations=len(calls),ownedObservations=len(observed),
-                conditionalPrefix=True,originalFirst=True,capacityBoundary=profile=='capacity-231',freshProcesses=False,nativeNetwork=False,phase3Complete=False)
+                conditionalPrefix=True,originalFirst=True,capacityBoundary=profile=='capacity-231',freshProcesses=False,nativeNetwork=False,phase3Complete=False,resources=qualified_resources)
 
 
 def validate_calls(calls,phases):
@@ -189,9 +191,17 @@ def qualify(root,profile):
             except ValueError as error:e.need(str(error)==reason.format(first=first),'completion wrong negative: '+name+': '+str(error))
             else:raise ValueError('completion mutation accepted: '+name)
         rows.append(dict(case=name,status='REJECTED',reason=reason.format(first=first)))
+    resource_rows=[]
+    for name,reason in resources.VARIANTS.items():
+        with tempfile.TemporaryDirectory(prefix='v53-completion-resource-negative-') as temp:
+            copy=Path(temp)/'raw';shutil.copytree(root,copy);resources.mutate(copy,name)
+            try:validate(copy,profile)
+            except ValueError as error:e.need(str(error)==reason,'completion wrong resource negative: '+name+': '+str(error))
+            else:raise ValueError('completion resource mutation accepted: '+name)
+        resource_rows.append(dict(case=name,status='REJECTED',reason=reason))
     with tempfile.TemporaryDirectory(prefix='v53-completion-portable-') as temp:
         copy=Path(temp)/'raw';shutil.copytree(root,copy);same(validate(copy,profile),result,'completion portable replay')
-    return dict(**result,negativeCases=rows,portableReplay='PASS')
+    return dict(**result,negativeCases=rows,resourceNegatives=resource_rows,portableReplay='PASS')
 
 
 if __name__=='__main__':

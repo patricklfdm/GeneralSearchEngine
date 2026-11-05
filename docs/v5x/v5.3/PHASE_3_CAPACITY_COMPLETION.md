@@ -182,6 +182,11 @@ source snapshot is not a final-commit or hosted execution attestation.
 
 ## Complete hosted boundary entry
 
+The version-3 producer/reader additionally requires the original resource
+observations described below. Earlier version-2 originals keep their recorded
+scope and reader; they cannot be supplemented with reconstructed observations
+or admitted as a version-3 run.
+
 The opt-in [capacity workflow](../../../.github/workflows/v53-capacity-completion.yml)
 and [hosted adapter](../../../scripts/v53/capacity_completion_hosted.py) now prepare
 the longer operation-231 qualification. They are supplemental to the twelve
@@ -197,6 +202,9 @@ downloads the seed and complete original from the exact source/run/attempt,
 checks successful execution, and performs original-first physical replay, all
 sixteen exact negatives and unchanged portable replay. Failed originals and
 diagnostics are retained; neither retries nor the short smoke can substitute.
+The version-3 entry also requires all nine resource negatives and the complete
+publication-storage and owner-accounting result. Dropping that result or using
+the smoke's owner count for the full boundary is rejected.
 
 The seed retains the shared 1 GiB transport limit. Only this workflow's raw bundle
 uses 6 GiB for source, classes, logs and repeated snapshots. The underlying raw
@@ -219,6 +227,55 @@ native process/network and Phase 3 completion false. Development checks and the
 unchanged real-smoke archive transport are recorded in the
 [hosted entry receipt](phase3-evidence/capacity-completion-hosted.json); synthetic
 orchestration tests and smoke transport cannot replace the pending full history.
+
+## Observed continuation resource headroom
+
+The [resource reader](../../../scripts/v53/capacity_completion_resources.py) now
+follows every real storage-owner budget created after the conditional SEALED
+prefix. The producer registers each fresh budget before opening its original
+directory, records every charge mutation and binds each writer callback to the
+current resource sequence. This covers the maintenance, allocator and final-read
+opens as well as the 93 voting/application/campaign calls. It retains 157 exact
+lifetimes for the short profile; operation 231 additionally requires the six
+initial/reopened refusal lifetimes, for 163. Missing or reordered opens cannot
+be replaced by a producer-supplied total.
+
+Original physical continuation replay runs first. The resource layer then
+reconstructs every budget delta, requires the frozen 384 MiB metadata, 512 MiB
+shared staging and 64 MiB queue limits, checks callback checkpoints and requires
+all recorded budgets to drain. It separately reuses the publication physical
+oracle: for each of the 15 original publications, all eleven captured file and
+reservation boundaries must match the already-derived before/after generations.
+Expected completion image reserves come from the independent protocol model,
+not from observed counters. The collector deduplicates equal captured bytes;
+it does not keep extra receiving copies alive in the runtime.
+
+The new short original passed in approximately 90 seconds of JUnit execution.
+Replay checked 3,622 mutations, 7,897 callback/open checkpoints, 157 lifetimes and
+165 publication boundaries. The largest observed reservations were 36,000,334
+metadata bytes and 268,465,542 staging bytes. Per-category observed maxima included
+two generations, six sources and seven application slots. These are charged
+maxima from this history, not a measurement of the full runtime's physical peak.
+The independently derived publication snapshots reached six application slots
+and one source; the larger accounting observations are outside that physical
+publication scope.
+
+The original sixteen negatives still pass. Nine additional coherent mutations
+reject missing owners, a foreign root, changed limits, forged checkpoints,
+missing open return, unfinished resource release, incorrect publication charges,
+missing publication captures and a stale-but-valid resource checkpoint at a
+publication callback. Resource manifest hashes are updated where
+appropriate so these cases reach their intended semantic check. Portable replay
+and original replay with Python assertions disabled agree.
+
+Final zero accounting establishes only the observed budget result. This fixture
+does not claim the exact close-call interval, every control-message lifetime,
+historical-prefix authority or simultaneous full physical maxima. The complete
+operation-231 version-3 execution remains pending for hosted acceptance. The
+[resource development receipt](phase3-evidence/capacity-completion-resources.json)
+separates the actual Java source and original, current independent reader, test
+results and retained development failures. No production code or frozen bound
+changes in this batch.
 
 The test deliberately verifies a large immutable prefix on every owner reopen;
 its duration is not a failover or throughput measurement. Longer final-source

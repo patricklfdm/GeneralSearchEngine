@@ -3,8 +3,10 @@
 [Membership capacity completion](PHASE_3_CAPACITY_COMPLETION.md) adds a
 conditional-prefix owner continuation at the last admissible fixed-history
 change. It retains same-directory INTENT/FINAL, stable continuation, refusal and
-post-refusal DATA. Independent whole-history/resource qualification and the
-final-source cohort remain OPEN; this adds no hosted subset.
+post-refusal DATA. Version-3 replay binds every observed budget and 165 physical
+publication boundaries in the short continuation. Full-boundary execution,
+simultaneous physical maxima and the final-source cohort remain OPEN; the native
+subset inventory is unchanged.
 
 [Outgoing activation drain](PHASE_3_ACTIVATION_DRIVER_DRAIN.md) now retains
 original task/export/campaign ownership until every worker exits. Cancellation

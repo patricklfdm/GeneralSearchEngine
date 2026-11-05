@@ -170,7 +170,12 @@ def check_result(value,profile):
                   conditionalPrefix=True,originalFirst=True,capacityBoundary=profile=='capacity-231',freshProcesses=False,nativeNetwork=False,
                   phase3Complete=False,portableReplay='PASS',negativeCases=[dict(case=name,status='REJECTED',reason=reason.format(first=first))
                                                                         for name,reason in gate.VARIANTS.items()])
-    need(h.snapshot.f.canonical(value)==h.snapshot.f.canonical(expected),'completion admission complete original/negative replay')
+    need(type(value) is dict and 'resources' in value and 'resourceNegatives' in value,'completion admission complete resource replay')
+    gate.resources.check_summary(value['resources'],profile)
+    need(value['resourceNegatives']==[dict(case=n,status='REJECTED',reason=r) for n,r in gate.resources.VARIANTS.items()],
+         'completion admission complete resource negatives')
+    need(h.snapshot.f.canonical({k:v for k,v in value.items() if k not in ('resources','resourceNegatives')})==h.snapshot.f.canonical(expected),
+         'completion admission complete original/negative replay')
 
 
 def qualify(path,profile,pins):

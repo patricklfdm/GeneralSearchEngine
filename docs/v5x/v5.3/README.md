@@ -10,7 +10,9 @@ no hosted subset and does not promote the smoke to capacity qualification. A sep
 recorded-source execution/admission entry now binds the complete original,
 compiled classes, tools and reader. Its dedicated hosted workflow now preserves
 one full operation-231 history and downloads the original for independent replay;
-full-boundary execution remains pending. The twelve native subsets are unchanged.
+full-boundary execution remains pending. Version 3 additionally binds every
+observed owner budget and all 15 physical publications, with nine exact resource
+negatives; the twelve native subsets are unchanged.
 
 [Native carried DATA recovery](PHASE_3_NATIVE_CARRIED_RECOVERY.md) now covers
 cold local reacceptance, empty completion headroom and exact-vote maintenance

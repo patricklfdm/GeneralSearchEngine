@@ -1,0 +1,151 @@
+{
+  "base": "3036656f5defb755734acd89efdc53e01cb9d9bb",
+  "capacityBoundaryQualified": false,
+  "classes": {
+    "path": "target/v53-capacity-resources/producer/build.json",
+    "sha256": "274ad9c2b37d575d957909b80e8b9ca6883bd66b944865154d497f6380b63b86"
+  },
+  "execution": {
+    "path": "target/v53-capacity-resources/producer/execution.json",
+    "sha256": "f8f72c1bb7a7611b1732065fd7758ca311eef168750f064a074ddd25493dfcf9"
+  },
+  "hostedExecuted": false,
+  "javaImplementationUnchangedSinceExecution": true,
+  "javaRegressions": {
+    "errors": 0,
+    "execution": {
+      "path": "target/v53-capacity-resources/regressions/execution.json",
+      "sha256": "589198592dd86d516d466917b83accdb1d416910d9606bbf4780b1d9ce8fa376"
+    },
+    "failures": 0,
+    "reports": [
+      {
+        "path": "target/v53-capacity-resources/regressions/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PublicationCapacityTest.xml",
+        "sha256": "6941c4359deac4cbc0a1d39c5da7503f9942c24f2e4ef89c3be5175ecdd83df5"
+      },
+      {
+        "path": "target/v53-capacity-resources/regressions/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PublicationReservationTest.xml",
+        "sha256": "01f4bb3253825fd512d191a58bd4df33d2eb049a490a1d6228bbf6fb56c3ed51"
+      },
+      {
+        "path": "target/v53-capacity-resources/regressions/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ResourceTransitionCaptureTest.xml",
+        "sha256": "f020d8afbdf9a6954d9468ab5756f8858727036fb7f8b0bfd019eea48ed95fc7"
+      }
+    ],
+    "skipped": 0,
+    "source": {
+      "path": "target/v53-capacity-resources/regressions/source.json",
+      "sha256": "8643082464236bce698083a2ebf0d076eff2200bbf8d6b5a83bc4cfc563fcc77"
+    },
+    "tests": 16
+  },
+  "junit": {
+    "path": "target/v53-capacity-resources/producer/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53CapacityCompletionReplayTest.xml",
+    "seconds": 90.15,
+    "sha256": "07125e99852963d6dc4f82268d0a8554f1a4279e5396bed0ee9774a56e2fc980",
+    "tests": 1
+  },
+  "limitations": [
+    "Operation-231 version-3 full-boundary execution remains pending.",
+    "Historical prefix and learner authority remain conditional.",
+    "No exact close-call interval or whole-runtime simultaneous physical maximum qualification."
+  ],
+  "optimizedOriginalReplay": {
+    "path": "target/v53-capacity-resources/optimized-replay-final.json",
+    "sha256": "3dd6927582bf379b9da6cb09cc23fd144b970137b91dd1342f4d8e30046e60da"
+  },
+  "optimizedTests": {
+    "log": {
+      "path": "target/v53-capacity-resources/optimized-tests-final.log",
+      "sha256": "85a78e875997afba49a342041f33e0a7345bab2d263d7fa4f6452fedc41ab2f5"
+    },
+    "tests": 4
+  },
+  "originalNegatives": 16,
+  "originalPreserved": true,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "producerSource": {
+    "path": "target/v53-capacity-resources/producer/source.json",
+    "sha256": "556bea7cb90adfd555dd70d76fb57c97555194d12a90669dcf6b939bd715fbe1"
+  },
+  "profile": "replay-smoke-1",
+  "pushed": false,
+  "python": {
+    "log": {
+      "path": "target/v53-capacity-resources/python-complete.log",
+      "sha256": "873f0d83211376802eeb9fb78962f14135c9c7f52ec4d1fb1c4c3f18ffb0d560"
+    },
+    "tests": 100
+  },
+  "qualification": {
+    "path": "target/v53-capacity-resources/qualification-final.json",
+    "sha256": "40d49b6f55cc422ec36d7589d6cbd3bd6a764bbf2029f6e1f5907eaa537eccad"
+  },
+  "raw": "target/v53-capacity-resources/producer/workspace/general-search-engine-replication/target/v53-capacity-completion/run-47d18336-09b7-4d27-89c0-00fcbcb48d99-smoke",
+  "rawInventory": {
+    "path": "target/v53-capacity-resources/raw-inventory.json",
+    "sha256": "ba5d49fa2823ea8052c89827b829ce3f1cc935c838c8e991ecb7d9778d9add9d"
+  },
+  "reader": {
+    "path": "target/v53-capacity-resources/reader.json",
+    "sha256": "3b42eaa36813dcc86eedd115af10b5f8936c592a1effb424bc07b0e8a66fda30"
+  },
+  "resourceNegatives": 9,
+  "resourceResult": {
+    "closeIntervalsQualified": false,
+    "eventCheckpoints": 7897,
+    "maximumObservedCounts": {
+      "APPLICATION": 7,
+      "GENERATION": 2,
+      "JOURNAL": 1,
+      "MISC": 1,
+      "SOURCE": 6
+    },
+    "maximumObservedReservations": {
+      "leases": 17,
+      "metadata": 36000334,
+      "queued": 0,
+      "staging": 268465542
+    },
+    "maximumPublicationStorage": {
+      "applications": 6,
+      "metadata": 35784752,
+      "sources": 1,
+      "staging": 268465542
+    },
+    "mutations": 3622,
+    "observedAccountingQualified": true,
+    "ownerLifetimes": 157,
+    "phase3Complete": false,
+    "publicationBoundaries": 165,
+    "publicationStorageQualified": true,
+    "publications": 15,
+    "scope": "conditional-owner-accounting-and-publication-storage",
+    "status": "PASS",
+    "wholeRuntimeResourcesQualified": false
+  },
+  "retainedDevelopmentFailures": [
+    {
+      "log": {
+        "path": "target/v53-capacity-resources/unit-first.log",
+        "sha256": "2c8c0b04586f4cf74fab1a9fe859b8c9c53803411a92668a81f5b06f156de88d"
+      },
+      "reason": "The new resource-profile rejection occurs before the older generic rejection; updated the stale test expectation."
+    },
+    {
+      "log": {
+        "path": "target/v53-capacity-resources/python-final.log",
+        "sha256": "e5c956a127dcdf5ebc82bb4a7edd4159ed727f6ee4907129cdf7018cdb373e3e"
+      },
+      "reason": "Documentation audit ran before its new evidence reference existed; final complete audit rerun after recording the evidence."
+    }
+  ],
+  "schema": "gse-v53-capacity-completion-resources-development-v1",
+  "scope": "Original Java development execution with recorded source/classes and separately recorded current Python reader. Not an immutable hosted seed or final-source cohort.",
+  "status": "PARTIAL",
+  "toolchain": {
+    "path": "target/v53-capacity-resources/producer/toolchain.json",
+    "sha256": "d44e4681de2ae4f4ea88cda3bb823681b8a188c1b85c4667211f91cb47edf6d4"
+  }
+}

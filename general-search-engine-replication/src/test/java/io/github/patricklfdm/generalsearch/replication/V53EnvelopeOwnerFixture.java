@@ -12,6 +12,7 @@ final class V53EnvelopeOwnerFixture {
     final Set<Owned> owned=new HashSet<>();final MembershipRoot root;Map<String,Object> ballot;
     MembershipCapsule current;
     final List<Integer> voters=List.of(1,2,3);Path evidence;
+    V53EnvelopeResourceCapture resourceCapture;
     Path trace;final List<Map<String,Object>> calls=new ArrayList<>();String operation;
     V53EnvelopeOwnerFixture(Path directory,V53EnvelopeHistoryFixture history,MembershipCapsule initial)throws Exception {
         this.directory=directory;this.history=history;this.initial=initial;this.current=initial;Files.createDirectories(directory);
@@ -43,18 +44,27 @@ final class V53EnvelopeOwnerFixture {
     MembershipGrantJournal open(int n)throws Exception {
         var events=new ArrayList<String>();
         if(trace!=null && operation!=null)calls.add(Map.of("operation",operation,"node","node-"+n,"events",events));
-        return open(n,new MembershipResources(512*MembershipResources.MIB),events);
+        return open(n,resources(),events);
     }
-    void trace(Path output)throws Exception {trace=output;snapshot(output.resolve("sealed"));}
+    MembershipResources resources() {
+        return resourceCapture==null?new MembershipResources(512*MembershipResources.MIB):
+            new MembershipResources(MembershipResources.METADATA_LIMIT,512*MembershipResources.MIB,
+                MembershipResources.QUEUE_LIMIT,MembershipResourceObservations.MAXIMUM);
+    }
+    void trace(Path output)throws Exception {trace=output;snapshot(output.resolve("sealed"));resourceCapture=new V53EnvelopeResourceCapture(output,root.manifestDigest());}
     void capture(String stage)throws Exception {operation=null;if(trace!=null)snapshot(trace.resolve(stage));}
     void finishTrace()throws Exception {
         operation=null;if(trace==null)return;
-        snapshot(trace.resolve("stopped"));
+        snapshot(trace.resolve("stopped"));resourceCapture.save();
         Files.write(trace.resolve("calls.json"),canonical(calls,8*1024*1024));
         Files.write(trace.resolve("observations.json"),canonical(V53JournalApplicationTest.observations(owned),1024*1024));
     }
     MembershipGrantJournal open(int n,MembershipResources resources,List<String> events)throws Exception {
-        return MembershipGrantJournal.openApplying(node(n),root,V53DeclarationsTest.node(n),resources,(r,p,i)->initial.verifyExtension(p,i,owned),events::add);
+        if(resourceCapture==null)return MembershipGrantJournal.openApplying(node(n),root,V53DeclarationsTest.node(n),resources,(r,p,i)->initial.verifyExtension(p,i,owned),events::add);
+        String scope=resourceCapture.register("node-"+n,operation,resources);resourceCapture.event(scope,"OWNER_OPEN_BEGIN",node(n));
+        var owner=MembershipGrantJournal.openApplying(node(n),root,V53DeclarationsTest.node(n),resources,(r,p,i)->initial.verifyExtension(p,i,owned),
+            point->{events.add(point);resourceCapture.event(scope,point,node(n));});
+        resourceCapture.event(scope,"OWNER_OPEN_RETURNED",node(n));return owner;
     }
     Decoded entry(String kind,byte[] payload) {
         return decode(encode("records","ENTRY",Map.of("root",root.manifestDigest(),"authority",current.context.authority(),"index",number(current.context.cut.get("index"))+1,
@@ -65,7 +75,7 @@ final class V53EnvelopeOwnerFixture {
         for(int n:voters) {
             var before=V53ReplayFilesTest.files(node(n));
             if(evidence!=null) {Files.createDirectories(evidence.resolve("node-"+n));V53JournalApplicationTest.copy(node(n),evidence.resolve("node-"+n+"/before"));}
-            var resources=new MembershipResources(512*MembershipResources.MIB);var events=new ArrayList<String>();
+            var resources=resources();var events=new ArrayList<String>();
             try(var s=open(n,resources,events)) {
                 // Inspect the current published cut before delimiting the
                 // admission call; FLOOR_COPY is an observation, not its write.
@@ -77,7 +87,7 @@ final class V53EnvelopeOwnerFixture {
                 assertEquals(before,V53ReplayFilesTest.files(node(n)));
             }
             assertEquals(0,resources.usage().leases());assertEquals(before,V53ReplayFilesTest.files(node(n)));
-            var reopenedResources=new MembershipResources(512*MembershipResources.MIB);var reopenedEvents=new ArrayList<String>();
+            var reopenedResources=resources();var reopenedEvents=new ArrayList<String>();
             try(var s=open(n,reopenedResources,reopenedEvents)) {
                 reopenedEvents.clear();var usage=reopenedResources.usage();
                 var error=assertThrows(MembershipOperationException.class,()->s.acceptCurrent(proposed,payload));

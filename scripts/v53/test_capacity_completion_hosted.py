@@ -130,7 +130,7 @@ class CapacityCompletionHostedTest(unittest.TestCase):
         with patch.object(w.m.gate,'qualify',side_effect=ValueError('original invalid')):
             with self.assertRaisesRegex(ValueError,'original invalid'):self.verify(bundle,'original')
         for i,value in enumerate((fixtures.replay('replay-smoke-1'),dict(fixtures.replay(w.PROFILE),negativeCases=[]))):
-            with patch.object(w.m.gate,'qualify',return_value=value),self.assertRaisesRegex(ValueError,'original/negative replay'):
+            with patch.object(w.m.gate,'qualify',return_value=value),self.assertRaisesRegex(ValueError,'original/negative replay|resources qualification scope'):
                 self.verify(bundle,'incomplete-'+str(i))
         self.assertEqual('FAIL',w.m.read(self.root/'original/receipt.json')['status'])
 

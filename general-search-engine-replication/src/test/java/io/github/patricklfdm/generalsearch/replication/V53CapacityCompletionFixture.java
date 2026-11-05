@@ -44,7 +44,7 @@ final class V53CapacityCompletionFixture {
                 assertTrue(loaded.documents().contains(new io.github.patricklfdm.generalsearch.admission.OfflineApplication.Doc(21,"admitted-completion")));
             }
         } finally {f.finishTrace();}
-        var receipt=new TreeMap<String,Object>();receipt.put("schema","gse-v53-capacity-completion-v2");receipt.put("status","PASS");
+        var receipt=new TreeMap<String,Object>();receipt.put("schema","gse-v53-capacity-completion-v3");receipt.put("status","PASS");
         receipt.put("profile",boundary?"capacity-231":"replay-smoke-1");receipt.put("completedOperation",change);
         receipt.put("nextOperationRefused",boundary?change+1:null);receipt.put("applicationSequence",42);receipt.put("nodes",3);
         receipt.put("conditionalPrefix",true);receipt.put("freshProcesses",false);receipt.put("nativeNetwork",false);receipt.put("phase3Complete",false);
