@@ -21,6 +21,7 @@ class V53NativeDispatchTest {
         final List<MembershipGrantJournal> owners=new ArrayList<>();
         final List<MembershipResources> resources=new ArrayList<>();
         final List<MembershipActivationEndpoint> endpoints=new ArrayList<>();
+        final List<Path> incomingScratch=new ArrayList<>();
         final List<MembershipTransport> transports=new ArrayList<>();
         final List<AtomicReference<MembershipTransport>> links=new ArrayList<>();
         V53PublicationResourceCapture publicationResources;
@@ -57,6 +58,7 @@ class V53NativeDispatchTest {
             diagnostics.add(row);
         }
         final AtomicLong offset=new AtomicLong();
+        final AtomicReference<Runnable> beforeClock=new AtomicReference<>(()->{});
         final AtomicReference<String> drop=new AtomicReference<>("");
         final AtomicReference<java.util.function.BiFunction<Decoded,Decoded,Decoded>> response=new AtomicReference<>((request,reply)->reply);
         final AtomicReference<java.util.function.Consumer<Decoded>> beforeSend=new AtomicReference<>(request->{});
@@ -126,6 +128,7 @@ class V53NativeDispatchTest {
             }
             for(int i=0;i<f.request.targets().size();i++) {
                 int index=i;var owner=owners.get(i);
+                var incoming=temp.resolve("incoming-"+UUID.randomUUID());incomingScratch.add(incoming);
                 var endpoint=new MembershipActivationEndpoint(owner,resources.get(i),bounds,
                         (peer,request,kind,deadline)->{
                             if(index==1 && request.kind().equals("STATUS_PROBE") && holdNextQuery.compareAndSet(true,false)) {
@@ -137,7 +140,7 @@ class V53NativeDispatchTest {
                             });
                             return pending;
                         },List.of(),List.of(),
-                        temp.resolve("incoming-"+UUID.randomUUID()),()->System.nanoTime()+offset.get(),endpointBudget,
+                        incoming,()->{beforeClock.get().run();return System.nanoTime()+offset.get();},endpointBudget,
                         builder().configuration(),f.request.targets().get(i).materialization());endpoints.add(endpoint);
                 MembershipTransport.Handler handler=(sender,request)->{
                             try{return response.get().apply(request,endpoint.handle(sender,request));}catch(IOException|RuntimeException error){

@@ -35,6 +35,7 @@ class V53SlotEndpointTest {
         final AtomicReference<CountDownLatch> holdCheckpoints=new AtomicReference<>();
         final List<CompletableFuture<Decoded>> heldCheckpoints=Collections.synchronizedList(new ArrayList<>());
         final AtomicReference<Runnable> beforeWrite=new AtomicReference<>(()->{});
+        final AtomicReference<Runnable> beforeClock=new AtomicReference<>(()->{});
         final AtomicLong offset=new AtomicLong();
         final Decoded entry,accept;
         final byte[] payload;
@@ -70,7 +71,7 @@ class V53SlotEndpointTest {
                         }
                     }
                     return links.get(index).get().exchange(peer,request,kind,deadline);
-                },()->System.nanoTime()+offset.get(),System.nanoTime(),BUDGET,builder().configuration(),f.request.targets().get(i).materialization(),
+                },()->{beforeClock.get().run();return System.nanoTime()+offset.get();},System.nanoTime(),BUDGET,builder().configuration(),f.request.targets().get(i).materialization(),
                 (event,statement,ack)->checkpointReceipts.add(Map.of("node",owner.activationIdentity().nodeId().value(),"event",event,"statement",HexFormat.of().formatHex(statement.bytes()),"ack",HexFormat.of().formatHex(ack.bytes()))));endpoints.add(endpoint);
                 var transport=new MembershipTransport(owner.activationCapsule(),owner.activationIdentity(),bounds,resources.get(i),(sender,request)->{
                     if(index==size-1 && request.kind().equals("ACCEPT") && !incomingFailure.get().isEmpty()) {

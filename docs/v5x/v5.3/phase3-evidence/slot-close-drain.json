@@ -1,0 +1,92 @@
+{
+  "baseSource": "10ed75522c4c075f47dc075d4341d80761185a3f",
+  "completeCurrentNativeExecuted": false,
+  "diagnosticNotes": [
+    "original-01 blocked inside the journal callback; not the decisive parent-drain reproduction",
+    "original-02 used the injectable clock boundary against unchanged base runtime",
+    "adjacent-01 preceded the final waiter admission/release adjustment and scratch-lock assertions",
+    "final-01 verifies the final source bytes; intermediate results are not relabeled final-source results"
+  ],
+  "finalSourceFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java": "2f08e3920f265e9e74cabb03848ea78bda25d0edc7dc20aaddf8a6d84f894a74",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSlotEndpoint.java": "1daa5240caf79eac0d4d22ff291b9730465f48d1c54fe5c419ef7820f3abef11",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java": "e3bd3b8024545ed1aaf00acae5210e3fe6ed946b91b39de2ac131229b5ea8199",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SlotCloseDrainTest.java": "732e0c5f51b2e717a0a879237ce381638f9b17cded3b78e5ae4efc17cb68f144",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SlotEndpointTest.java": "af0dfbcff616471f9cfacae55dd32c26402c7b5298e7b7879c3b216284ef3bf9"
+  },
+  "finalSourceTests": {
+    "errors": 0,
+    "failures": 0,
+    "reports": {
+      "target/v53-slot-close-drain/final-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest.xml": "e35f49792c1bf2e9ace60b464920e9c1011c52f1f86f130a45abf7b5112391bc",
+      "target/v53-slot-close-drain/final-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml": "af9322b8f3ee1b01762075a7201e952bbac8478a5c606027137b0dd6147b231c",
+      "target/v53-slot-close-drain/final-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotCloseDrainTest.xml": "dcc0bb71bfbf69ee941a50dc577220be54318f507a079e78b6b65048332da458",
+      "target/v53-slot-close-drain/final-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotEndpointTest.xml": "d9c3251faea8af28dd9209d0e42b545af2bac7c7b509f33ba4f14ff44453d3c4"
+    },
+    "seconds": 202.249,
+    "skipped": 0,
+    "tests": 11
+  },
+  "hostedExecution": false,
+  "intermediateAdjacentTests": {
+    "errors": 0,
+    "failures": 0,
+    "reports": {
+      "target/v53-slot-close-drain/adjacent-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest.xml": "23294155685337e8f4f1e76d03f8b62c915e35c6c39e7a6dfaf8c3929f45f650",
+      "target/v53-slot-close-drain/adjacent-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml": "9442f157d2b0fc8a06e49b574ea6dfc8fa0f28eec08405f8bda314e68ff50289",
+      "target/v53-slot-close-drain/adjacent-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotCloseDrainTest.xml": "76dabd5f322f501950462391299ad527f4a45f7a05928daa38d94b20c2672aa2",
+      "target/v53-slot-close-drain/adjacent-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotEndpointTest.xml": "2beb78ac852f850ea50e78ba3561403b32dfc99ed5d5a464fb6fc01dae79d019"
+    },
+    "seconds": 363.488,
+    "skipped": 0,
+    "tests": 31
+  },
+  "originalReproduction": {
+    "errors": 0,
+    "failures": 3,
+    "reports": {
+      "target/v53-slot-close-drain/original-02.xml": "67c191c6dc70546fc4d9534e34ad996fb0719876fffdb95aad6de4122da3bff1"
+    },
+    "seconds": 57.603,
+    "skipped": 0,
+    "tests": 3
+  },
+  "paidCloud": false,
+  "phase3Complete": false,
+  "plannedHostedHistories": 544,
+  "planningTests": 18,
+  "reports": {
+    "target/v53-slot-close-drain/__pycache__/finalize.cpython-310.pyc": "d5fdfbdcded997368c85b4a1102f47a2a71621e77c0531c30be92899f993345f",
+    "target/v53-slot-close-drain/adjacent-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest.xml": "23294155685337e8f4f1e76d03f8b62c915e35c6c39e7a6dfaf8c3929f45f650",
+    "target/v53-slot-close-drain/adjacent-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml": "9442f157d2b0fc8a06e49b574ea6dfc8fa0f28eec08405f8bda314e68ff50289",
+    "target/v53-slot-close-drain/adjacent-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotCloseDrainTest.xml": "76dabd5f322f501950462391299ad527f4a45f7a05928daa38d94b20c2672aa2",
+    "target/v53-slot-close-drain/adjacent-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotEndpointTest.xml": "2beb78ac852f850ea50e78ba3561403b32dfc99ed5d5a464fb6fc01dae79d019",
+    "target/v53-slot-close-drain/adjacent-01.log": "d02104974260d55221fc1bcdb5dea6c4ba5405850d0d9b9771eef1a8619bbf4c",
+    "target/v53-slot-close-drain/base-source.txt": "98c7c3b1bb3f0c68ae8e09dce6d84afd21c861aa44b8782dba67d7dbc9565977",
+    "target/v53-slot-close-drain/contract-01.log": "c85c800ee9b47e448463b272afd6e9aa53f2156cc4cfac619ec37d518d0ce83b",
+    "target/v53-slot-close-drain/final-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest.xml": "e35f49792c1bf2e9ace60b464920e9c1011c52f1f86f130a45abf7b5112391bc",
+    "target/v53-slot-close-drain/final-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml": "af9322b8f3ee1b01762075a7201e952bbac8478a5c606027137b0dd6147b231c",
+    "target/v53-slot-close-drain/final-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotCloseDrainTest.xml": "dcc0bb71bfbf69ee941a50dc577220be54318f507a079e78b6b65048332da458",
+    "target/v53-slot-close-drain/final-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotEndpointTest.xml": "d9c3251faea8af28dd9209d0e42b545af2bac7c7b509f33ba4f14ff44453d3c4",
+    "target/v53-slot-close-drain/final-01.log": "f9a757c323a530b1a72602a21ab78482004360d579c4e4f78b9a9ed572bd2a77",
+    "target/v53-slot-close-drain/final-source.json": "49eed2d63641d963b4aea4ae43fdc1a47cf4af408299c133767ee2f7afa4dad7",
+    "target/v53-slot-close-drain/finalize.py": "9c6ee4e2dfaff0cc7fecc8747fd97820b9162ad0990cb406bf3a7b4ba271f6a9",
+    "target/v53-slot-close-drain/original-01.log": "d819cc5e0ff2576790051443002b0cfb788d80d79b5861618823a98df291b417",
+    "target/v53-slot-close-drain/original-01.xml": "9af02c75418c7b9a052f3b6584be5721fe1554fffe6fa6c0f32d7d5eb48fa08d",
+    "target/v53-slot-close-drain/original-02.log": "704955d5f70510e8b3d88f0d9413cf15dbe60d896ae6d784b82eaeb77787d9ce",
+    "target/v53-slot-close-drain/original-02.xml": "67c191c6dc70546fc4d9534e34ad996fb0719876fffdb95aad6de4122da3bff1",
+    "target/v53-slot-close-drain/original-threads.json": "f51773ff35147d51709ede7940c700869efde2be43346cfad2acb6faf15b9329",
+    "target/v53-slot-close-drain/python-plan-01.log": "31cea36362bd0ec9b21955a5d25893e1cd8c2d479ee92efa122c1a3d1bd6c845",
+    "target/v53-slot-close-drain/qualification-plan-01.log": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df",
+    "target/v53-slot-close-drain/qualification-plan-01/acceptance-plan.json": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717",
+    "target/v53-slot-close-drain/qualification-plan-01/plan.json": "1a8ecc32b60beb6c345513441d952a64e8d33bdb00f6fd622e1e3bfbb0b4e130",
+    "target/v53-slot-close-drain/qualification-plan-01/receipt.json": "6a8a48b9d9b49106bf8503051f5f50a01e770fa2fa72b345b288fbedc35df20b",
+    "target/v53-slot-close-drain/repaired-01.log": "c87fa44f98e2ed0caf5de3c70267189f8c3577d97ee0cd4854b88fd4156f5e91",
+    "target/v53-slot-close-drain/repaired-01.xml": "504a33b2d0336311e6262bb8f2ddfdc8780c3ef36ef4869c71c0b1838e236bd9"
+  },
+  "requirements": 12,
+  "schema": "gse-v53-slot-close-drain-development-v1",
+  "scope": "native-slot-writer-and-parent-drain-regressions",
+  "status": "PASS",
+  "wholeRuntimeResourcesQualified": false
+}

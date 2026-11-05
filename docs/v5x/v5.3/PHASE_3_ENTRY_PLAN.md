@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Native slot drain retries](PHASE_3_SLOT_CLOSE_DRAIN.md) preserve failed children
+across interruption, timeout and parent closure. Successful close now requires
+the original writer/call drain; parent scratch remains owned after failed drain.
+This is a scoped runtime correction, not complete resource or Phase 3 acceptance.
+
 [Vote and learner ROOT export bindings](PHASE_3_SPECIAL_EXPORT_RESOURCES.md)
 add four native histories and 22 direct allocations, with 72 exact resource
 negatives. Receipt lookup identity stays distinct from content identity; ROOT

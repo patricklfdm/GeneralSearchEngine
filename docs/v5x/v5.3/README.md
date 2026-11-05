@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Native slot drain retries](PHASE_3_SLOT_CLOSE_DRAIN.md) fix repeated/concurrent
+close returning while a writer remains active. Parent scopes retain failed
+children and scratch ownership; admitted waiter release precedes zero calls.
+Original regression failures are retained. Whole-runtime resource qualification
+and final-source hosted execution remain OPEN.
+
 [Complete observed export coverage](PHASE_3_EXPORT_ALLOCATION_COVERAGE.md) now
 composes independently validated session/direct/probe bindings into one exact
 allocation inventory. The strict required-four option refuses missing, duplicate

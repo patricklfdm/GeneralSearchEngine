@@ -70,31 +70,35 @@ final class MembershipSlotEndpoint implements MembershipTransport.Handler,AutoCl
         // Do not try another registry on failure: an old trace must stay failed.
         if(kind.equals("CHUNK") || kind.equals("TRANSFER_COMMIT"))return transfers.handle(sender,request);
         require(Set.of("ACCEPT","PROOF","APPLY","PUBLISH","FUTURE_RETENTION_INTENT","RETENTION_INTENT").contains(kind),"slot endpoint control kind");
-        try(var waiter=resources.reserve(MembershipResources.Unit.WAITER,"slot-waiter-"+UUID.randomUUID(),0)) {
-            synchronized(registry) {
-                time();if(calls!=0 && !request.digest().equals(control))
-                    throw new MembershipTransport.Failure(MembershipTransport.Reason.CAPACITY,"slot control already in flight",null);
-                control=request.digest();calls++;
-            }
-            try {
-                Decoded result=switch(kind) {
-                    case "PUBLISH" -> publication().handle(sender,request);
-                    case "FUTURE_RETENTION_INTENT" -> {check();var reply=owner.recordFutureRetention(sender,request);check();yield reply;}
-                    case "RETENTION_INTENT" -> {check();var reply=owner.recordPeerRetention(sender,request);check();yield reply;}
-                    default -> voting.handle(sender,request);
-                };
-                // Voting/publication own their durable scope checks. Transfers
-                // invoke this scope's guard at their original read boundaries.
-                // The dispatcher adds cancellation/time checks, not another
-                // complete disk traversal around each already-checked child.
-                time();return result;
-            }finally{synchronized(registry){calls--;registry.notifyAll();}}
+        MembershipResources.Lease waiter;
+        synchronized(registry) {
+            time();if(calls!=0 && !request.digest().equals(control))
+                throw new MembershipTransport.Failure(MembershipTransport.Reason.CAPACITY,"slot control already in flight",null);
+            // Admit the waiter atomically with revocation. Close cannot observe
+            // zero calls while an admitted handler still owns a waiter lease.
+            waiter=resources.reserve(MembershipResources.Unit.WAITER,"slot-waiter-"+UUID.randomUUID(),0);
+            control=request.digest();calls++;
         }
+        try(waiter) {
+            Decoded result=switch(kind) {
+                case "PUBLISH" -> publication().handle(sender,request);
+                case "FUTURE_RETENTION_INTENT" -> {check();var reply=owner.recordFutureRetention(sender,request);check();yield reply;}
+                case "RETENTION_INTENT" -> {check();var reply=owner.recordPeerRetention(sender,request);check();yield reply;}
+                default -> voting.handle(sender,request);
+            };
+            // Voting/publication own their durable scope checks. Transfers
+            // invoke this scope's guard at their original read boundaries.
+            // The dispatcher adds cancellation/time checks, not another
+            // complete disk traversal around each already-checked child.
+            time();return result;
+        }finally{synchronized(registry){calls--;registry.notifyAll();}}
     }
     boolean poll(){long elapsed=clock.getAsLong()-started;if(elapsed<0 || elapsed>=budget)close();return !closed;}
     @Override public void close() {
         MembershipPublicationEndpoint old;
-        synchronized(registry){if(closed)return;closed=true;old=publication;}
+        // Revocation is permanent, but a failed/interrupted drain is retryable.
+        // A concurrent closer must also wait for the original children/calls.
+        synchronized(registry){closed=true;old=publication;}
         // Never wait for a writer or transfer while holding a journal/registry monitor.
         RuntimeException failure=null;
         try{voting.close();}catch(RuntimeException error){failure=error;}

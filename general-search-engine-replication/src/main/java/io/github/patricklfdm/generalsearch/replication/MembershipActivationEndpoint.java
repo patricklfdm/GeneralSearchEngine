@@ -270,18 +270,26 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                 replace=slot==null || !installed.before.context.cut.equals(slotCut);
                 if(replace) {
                     if(slotCalls!=0)throw new MembershipTransport.Failure(MembershipTransport.Reason.CAPACITY,"previous native slot still in flight",null);
-                    slotChanging=true;old=slot;slot=null;slotCut=null;chosen=null;
+                    slotChanging=true;old=slot;chosen=null;
                 }else{chosen=slot;slotCalls++;}
             }
             if(replace) {
                 MembershipSlotEndpoint made=null;
                 try {
-                    if(old!=null)old.close();check();installed.check();
+                    if(old!=null)old.close();
+                    synchronized(slotRegistry){slot=null;slotCut=null;}
+                    check();installed.check();
                     if(!installed.carriedSlot())maintain();made=slots.open(started,limit);check();
                     synchronized(slotRegistry){require(!ended && !closed,"native dispatch replaced/closed");
                         slot=chosen=made;slotCut=installed.before.context.cut;slotCalls++;made=null;}
                 }finally {
-                    try{if(made!=null)made.close();}
+                    try{if(made!=null) {
+                        // Even a scope revoked during construction must retain
+                        // its one unpublished child if cleanup fails.
+                        synchronized(slotRegistry){slot=made;slotCut=null;}
+                        made.close();
+                        synchronized(slotRegistry){slot=null;}
+                    }}
                     finally{synchronized(slotRegistry){slotChanging=false;slotRegistry.notifyAll();}}
                 }
             }
@@ -296,13 +304,31 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             finally{synchronized(slotRegistry){slotCalls--;slotRegistry.notifyAll();}}
         }
         void close(ScopeEnd reason) {
-            MembershipTransferService old;MembershipSlotEndpoint oldSlot;MembershipGenerationMaintenance cleanup;
-            synchronized(this){if(!ended)firstEnd=reason;ended=true;old=service;service=null;cleanup=maintenance;}
-            synchronized(slotRegistry){oldSlot=slot;slot=null;}
+            synchronized(this){if(!ended)firstEnd=reason;ended=true;}
             for(var future:pending) {
                 if(revoked!=null)future.completeExceptionally(new MembershipCampaignLost.Cancelled(revoked));
                 else future.cancel(true);
             }
+            RuntimeException failure=null;
+            try{closeChildren();}catch(RuntimeException error){failure=error;}
+            long end=System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(bounds.requestTimeoutMillis());
+            try{synchronized(slotRegistry){while(slotChanging || slotCalls!=0){long left=end-System.nanoTime();
+                require(left>0,"native dispatch close timeout");TimeUnit.NANOSECONDS.timedWait(slotRegistry,left);}}}
+            catch(InterruptedException error){Thread.currentThread().interrupt();var interrupted=new IllegalStateException("native dispatch close interrupted",error);
+                if(failure==null)failure=interrupted;else failure.addSuppressed(interrupted);}
+            catch(RuntimeException error){if(failure==null)failure=error;else failure.addSuppressed(error);}
+            if(failure!=null)throw failure;
+            // A handoff already creating a child when revocation arrived may
+            // have retained it after the first snapshot. No new work can enter;
+            // after handoff/calls drain, close that final stable child set too.
+            closeChildren();
+        }
+        private void closeChildren() {
+            MembershipTransferService old;MembershipSlotEndpoint oldSlot;MembershipGenerationMaintenance cleanup;
+            synchronized(this){old=service;cleanup=maintenance;}
+            synchronized(slotRegistry){oldSlot=slot;}
+            // Keep these bounded references through failure. Revocation is not
+            // successful cleanup; the next closer must find the same children.
             // Never hold registry, scope or journal monitors while releasing exports.
             RuntimeException failure=null;
             for(Runnable action:List.<Runnable>of(
@@ -310,12 +336,6 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                     ()->{if(oldSlot!=null)oldSlot.close();},()->{if(old!=null)old.close();})) {
                 try{action.run();}catch(RuntimeException error){if(failure==null)failure=error;else failure.addSuppressed(error);}
             }
-            long end=System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(bounds.requestTimeoutMillis());
-            try{synchronized(slotRegistry){while(slotChanging || slotCalls!=0){long left=end-System.nanoTime();
-                require(left>0,"native dispatch close timeout");TimeUnit.NANOSECONDS.timedWait(slotRegistry,left);}}}
-            catch(InterruptedException error){Thread.currentThread().interrupt();var interrupted=new IllegalStateException("native dispatch close interrupted",error);
-                if(failure==null)failure=interrupted;else failure.addSuppressed(interrupted);}
-            catch(RuntimeException error){if(failure==null)failure=error;else failure.addSuppressed(error);}
             if(failure!=null)throw failure;
         }
     }
@@ -580,8 +600,9 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             if(failure==null)failure=interrupted;else failure.addSuppressed(interrupted);}
         catch(RuntimeException error){var timeout=new IOException("activation endpoint close failed",error);if(failure==null)failure=timeout;else failure.addSuppressed(timeout);}
         // A failed drain must retain ownership of storage still reachable by a
-        // worker. A later close can finish it once both executors have stopped.
-        if(controls.isTerminated() && expiry.isTerminated()) {
+        // worker. A later close can finish it after child cleanup and both
+        // parent executors have stopped; slot writers are separate executors.
+        if(failure==null && controls.isTerminated() && expiry.isTerminated()) {
             synchronized(registry){if(control!=null){control.close();control=null;}}
             try{scratchOwner.close();}catch(IOException error){if(failure==null)failure=error;else failure.addSuppressed(error);}
         }
