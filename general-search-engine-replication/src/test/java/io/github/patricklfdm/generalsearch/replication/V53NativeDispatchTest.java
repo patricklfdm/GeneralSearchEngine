@@ -96,6 +96,11 @@ class V53NativeDispatchTest {
             this.bounds=bounds;f=retained;openActors(endpointBudget,false);
         }
         private void openActors(long endpointBudget,boolean liveDirectory)throws Exception {
+            if(Boolean.getBoolean("v53.resource.source.control")) {
+                assertTrue(Boolean.getBoolean("v53.resource.transitions") && Boolean.getBoolean("v53.transport.connections"),
+                        "source control requires original resource and connection traces");
+                observeRequests=true;
+            }
             if(Boolean.getBoolean("v53.resource.owner.close"))assertTrue(Boolean.getBoolean("v53.resource.transitions"),"owner close requires original resource trace");
             if(Boolean.getBoolean("v53.publication.resources"))publicationResources=new V53PublicationResourceCapture(f.raw);
             if(Boolean.getBoolean("v53.resource.transitions"))resourceTransitions=new V53ResourceTransitionCapture(f.raw,f.result.root().manifestDigest(),

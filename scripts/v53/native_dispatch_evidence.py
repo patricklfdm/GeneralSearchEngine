@@ -23,6 +23,20 @@ read = slot.read
 VOTERS = ('node-1', 'node-2')
 
 
+def successful_wire_observations(events,rows,identities,root):
+    """Preserve old successful-response semantics after exact socket replay.
+
+    Connection metadata is optional only for a wholly legacy collection. Never
+    discard partial/new metadata before validating all original attempts.
+    """
+    from . import joining_connections
+    if joining_connections.present(events,rows):
+        joining_connections.replay(events,rows,identities,root)
+        return ([{k:v for k,v in event.items() if k!='connection'} if event.get('event') in joining_connections.TRANSPORT else event for event in events],
+                [{k:v for k,v in row.items() if k!='connection'} for row in rows])
+    return events,rows
+
+
 def prefix_transfers(reference, members, packet, local_members):
     """Only identical original current image bytes may replace an image download.
 
@@ -274,6 +288,7 @@ def network(root, states, rounds, selection, identities, *, carried_first=False,
             for value in round['originals']: add(node, value)
         for (node, _), value in round['receipts'].items():
             add(node, value, reference=e.digest(f.canonical(dict(schema='gse-v53-vote-observation/1.3', receipt=e.digest(value)))))
+    events,rows=successful_wire_observations(events,rows,identities,selection['root'])
     traces = defaultdict(list); controls = defaultdict(list); response_positions = defaultdict(list); probes = []
     for i, event in enumerate(events):
         if event['event'] == 'WIRE_RESPONSE': response_positions[event['request'], event['response']].append(i)

@@ -1,0 +1,180 @@
+{
+  "schema": "gse-v53-native-source-resources-development-v1",
+  "status": "PASS",
+  "phase3Complete": false,
+  "scope": "original-multi-session-source-buffers-at-native-transport-boundaries",
+  "baseSource": "6293e1a17f61a8384f8702374620bdc147622d8d",
+  "nativeRaw": "general-search-engine-replication/target/v53-native-dispatch/run-448ebea9-d827-4548-bf02-3efe25ac4bdb",
+  "javaTests": 4,
+  "pythonTests": 194,
+  "newConditionalTests": 13,
+  "nativeNegatives": 17,
+  "nativeResult": {
+    "status": "PASS",
+    "boundReservations": 444,
+    "logicalRequests": 183,
+    "responseBuffers": 183,
+    "sessions": 39,
+    "traces": 39,
+    "completedCaches": 37,
+    "originalSourceAttempts": 183,
+    "peakConcurrentSessions": {
+      "node-1": 2,
+      "node-2": 2,
+      "node-3": 0
+    },
+    "logicalReleaseBeforeTransportTerminal": 0,
+    "boundaryChecks": 1059,
+    "legacyReservations": 0,
+    "unobservedReservations": [],
+    "otherControlReservations": 1003,
+    "allObservedSourceBuffersBound": true,
+    "serviceCloseIntervalsQualified": false,
+    "wholeRuntimeResourcesQualified": false,
+    "phase3Complete": false
+  },
+  "changedAfterNativeCapture": [
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerCheckpointEndpoint.java"
+  ],
+  "separateCheckpointTests": 3,
+  "newNativeRequiredFourQualified": false,
+  "serviceCloseIntervalsQualified": false,
+  "wholeRuntimeResourcesQualified": false,
+  "finalSourceCohortQualified": false,
+  "remaining": [
+    "exact service close intervals",
+    "other export/task/control lifetimes",
+    "physical post-handoff custody",
+    "combined maxima/headroom",
+    "remaining negatives and final-source hosted qualification"
+  ],
+  "sources": [
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerCheckpointEndpoint.java",
+      "sha256": "46f55034fd35b4da9b301e99d6e9b4f13d099511c5095e31cf2bd8039e1ea80c"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java",
+      "sha256": "c3e88b0c1d32cde01fc47a7c2fd063f7b10b0f9824f85eee597609df045ee114"
+    },
+    {
+      "path": "scripts/v53/native_dispatch_evidence.py",
+      "sha256": "61e74baad265325a19a3678cce4d6cee1b855f23964f5be35e994858de7f015a"
+    },
+    {
+      "path": "scripts/v53/native_resource_evidence.py",
+      "sha256": "315f09ff1c5867ec482abfbb1a7020b7ed24a3a612ada123d9c6801b0e8ee245"
+    },
+    {
+      "path": "scripts/v53/native_source_resource_negatives.py",
+      "sha256": "2e40df9c74c5de09d6e046d0f7122fba9823d6c35897c30e64b8d289a6281ade"
+    },
+    {
+      "path": "scripts/v53/native_source_resources.py",
+      "sha256": "d059bdb2ff07572b4c9e8683c082503d82d4708c36dcb2cdca660381b2d9c055"
+    },
+    {
+      "path": "scripts/v53/test_native_source_resources.py",
+      "sha256": "57beb1cd25a9663538e0eed6faa019fe8452e0530a1b40da4bf9b47c8e3d1a53"
+    }
+  ],
+  "reports": [
+    {
+      "path": "target/v53-native-source-resources/native-original.json",
+      "sha256": "654edd471a1f3d60a16190d8f9516f5fc75febc2b57b18e5576acffd6a9ffa8b"
+    },
+    {
+      "path": "target/v53-native-source-resources/source-resources.json",
+      "sha256": "4ea754d43edff39778133b24d5b2ae5cd0e7c42c912be411dffd8e40f329ec52"
+    },
+    {
+      "path": "target/v53-native-source-resources/native-negatives.json",
+      "sha256": "c68e4d397aca7cb7538636feaeb72d0214fb22456b563e5a95472dad9d863d12"
+    },
+    {
+      "path": "target/v53-native-source-resources/historical-compatibility.json",
+      "sha256": "4bd0ddd31163b6444f1114823378bc408f364ff8375235b14fb6fbf874132f73"
+    },
+    {
+      "path": "target/v53-native-source-resources/java-input.json",
+      "sha256": "e75ec0a684fa195c1b8c4342639c0bcfec6e3d2d8961661a7b6e898069bd5430"
+    },
+    {
+      "path": "target/v53-native-source-resources/checkpoint-java-input.json",
+      "sha256": "ca79498d818fee75974936425eee924e333c63775786094ee6467f1a0ec99ac2"
+    },
+    {
+      "path": "target/v53-native-source-resources/original-inventory.json",
+      "sha256": "8b1d096c32c94aa8c175ad7316ba74ec20b41d0414a6033d2348a8be363f041d"
+    },
+    {
+      "path": "target/v53-native-source-resources/maven-01.log",
+      "sha256": "cd26f1423744cff78b5be550cd285dd2c27c6bb02b499c3ad37cf1740d4449dd"
+    },
+    {
+      "path": "target/v53-native-source-resources/maven-02.log",
+      "sha256": "bbaeec4d1bc14d4a6232cc3e52a5652dcb9708c87fd1d0087599adf07dfc7d56"
+    },
+    {
+      "path": "target/v53-native-source-resources/python-01.log",
+      "sha256": "104b99069975deb5762194570c8ee304e8c1ef68b475063b66ba3e3c02cb8323"
+    },
+    {
+      "path": "target/v53-native-source-resources/python-final-01.log",
+      "sha256": "5fbe4932b38a070be411eb1ae4a5ced411d8d6e30667453dd90274af352ac8fd"
+    },
+    {
+      "path": "target/v53-native-source-resources/replay-01.log",
+      "sha256": "16438b326d8dd7637060c4ff4e6ac95bf670b9d427d7b37e79c3375dbef61f7c"
+    },
+    {
+      "path": "target/v53-native-source-resources/replay-02.log",
+      "sha256": "67b98938f43033420ba51c14f27338ea917b9e71c0300725fbc2ea8a32b486ef"
+    },
+    {
+      "path": "target/v53-native-source-resources/replay-03.log",
+      "sha256": "8c377e6374c8c802539300b21d08fb2004a350e720d3eff9cc3b50a83d32330d"
+    },
+    {
+      "path": "target/v53-native-source-resources/replay-04.log",
+      "sha256": "18ac416fc2fc26690bcfa46ab2729354af8d051d38c275af7859a2a7350e4532"
+    },
+    {
+      "path": "target/v53-native-source-resources/qualify.py",
+      "sha256": "d945c5af673cd825ecbc57c4e37e1f4faf40ccbeaaa6c0ecac27670d8ff612e0"
+    },
+    {
+      "path": "target/v53-native-source-resources/TEST-io.github.patricklfdm.generalsearch.replication.V53LearnerCheckpointEndpointTest.xml",
+      "sha256": "949ab1413ea1587cee2b2059682aec72a0ec9f15e6be6f9a9c8f97fd15ea522d"
+    },
+    {
+      "path": "target/v53-native-source-resources/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml",
+      "sha256": "66d8b0a7a9bd213c55e0eafded97b8a0fdcda5c78cb683631d9a43526fcc1a57"
+    },
+    {
+      "path": "target/v53-native-source-resources/python-final-02.log",
+      "sha256": "7b15f0bb87c8a2904107d530cf845ddc27208de543461994e16f1e34a302033b"
+    },
+    {
+      "path": "target/v53-native-source-resources/python-final-03.log",
+      "sha256": "f44a743474179cfc66811f61703966a6c1ee10ec1c6be02ffe0193af3a2272c9"
+    },
+    {
+      "path": "target/v53-native-source-resources/replay-05.log",
+      "sha256": "60cb1bb0d6f700d9ea03f2e0d758fbad8065d6f57929b37b53501cfd7c63475e"
+    },
+    {
+      "path": "target/v53-native-source-resources/contract.log",
+      "sha256": "81d8803cd56ffddf177975e985eabb2933a5d7300567dcd59eb6178780c3a34f"
+    },
+    {
+      "path": "target/v53-native-source-resources/plan.log",
+      "sha256": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df"
+    },
+    {
+      "path": "target/v53-native-source-resources/finalize.py",
+      "sha256": "fc2ea2caddf2000e594d814aa7ab841002e6638d51f44e1b24e1f4e8fccfe3bd"
+    }
+  ],
+  "primaryReplay": "target/v53-native-source-resources/replay-05.log"
+}

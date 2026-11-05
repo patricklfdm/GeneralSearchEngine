@@ -109,7 +109,8 @@ final class MembershipLearnerCheckpointEndpoint implements AutoCloseable {
         Decoded completed;
         String requestDigest;
         boolean dead;
-        Entry(Key key){this.key=key;marker=resources.reserve(MembershipResources.Unit.CONTROL,"joining-checkpoint-trace-"+UUID.randomUUID(),1024);}
+        Entry(Key key){this.key=key;marker=resources.reserve(MembershipResources.Unit.CONTROL,
+                MembershipSourceResources.session("joining-checkpoint-trace",original.source.context.root,original.identity,key.reader,key.trace),1024);}
         Decoded answer(Decoded request)throws IOException {
             require(!dead,"joining checkpoint trace ended");
             try {

@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Native source resources](PHASE_3_NATIVE_SOURCE_RESOURCES.md) now bind multiple
+original sessions in the complete short native physical/accounting pipeline.
+The retained two-slot history covers 444 source CONTROL reservations and 17
+exact negatives. Strict replay refuses missing/legacy bindings; compatibility
+mode explicitly reports them unobserved. Service-close intervals, other resource
+categories and final-source qualification remain OPEN.
+
 [Source control resources](PHASE_3_SOURCE_CONTROL_RESOURCES.md) now bind logical
 requests, cached responses, session metadata and completed trace caches to exact
 original request/session identities. Short TCP loss/retry histories and coherent
