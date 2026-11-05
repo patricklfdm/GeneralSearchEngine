@@ -70,6 +70,7 @@ class V53NativeDispatchTest {
         final CompletableFuture<Decoded> heldQuery=new CompletableFuture<>();
         MembershipActivationDriver driver;
         final ReplicationBounds bounds;
+        boolean observeExportResources;
         Decoded selected;
         Map<String,Object> ballot;
         List<Integer> voters;
@@ -83,7 +84,11 @@ class V53NativeDispatchTest {
             this(size,bounds,endpointBudget,preparation,false);
         }
         Network(int size,ReplicationBounds bounds,long endpointBudget,Preparation preparation,boolean liveDirectory)throws Exception {
+            this(size,bounds,endpointBudget,preparation,liveDirectory,false);
+        }
+        Network(int size,ReplicationBounds bounds,long endpointBudget,Preparation preparation,boolean liveDirectory,boolean observeExports)throws Exception {
             this.bounds=bounds;
+            observeExportResources=observeExports;
             Path raw=Files.createDirectories(Path.of("target/v53-native-dispatch/run-"+UUID.randomUUID()));
             System.out.println("v53NativeDispatchEvidence="+raw.toAbsolutePath());
             f=new V53BootstrapPublicationTest.Fixture(raw,V53OwnedCrossViewTest.networkRequest(Files.createDirectory(temp.resolve(UUID.randomUUID().toString())),size,false));
@@ -161,7 +166,8 @@ class V53NativeDispatchTest {
         }
         MembershipResources resourceBudget(MembershipIdentity identity) {
             synchronized(events) {
-                return resourceTransitions==null?new MembershipResources(512*MembershipResources.MIB):resourceTransitions.create(identity,events.size());
+                return resourceTransitions==null?(observeExportResources?V53SpecialExportResources.budget():new MembershipResources(512*MembershipResources.MIB)):
+                        resourceTransitions.create(identity,events.size());
             }
         }
         void activate()throws Exception {

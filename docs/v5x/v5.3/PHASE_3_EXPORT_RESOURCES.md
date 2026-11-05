@@ -70,7 +70,8 @@ native fault executions.
 
 The clock behavior and successful reads are exercised by Java. These accounting
 records do not independently qualify a real-time deadline or all read-return
-boundaries. The reader reports those limits explicitly. Vote and learner-specific
-exports, direct-versus-session ownership composition, complete native network
-integration, physical peaks and final-source qualification remain pending.
+boundaries. The reader reports those limits explicitly. The [vote and ROOT follow-up](PHASE_3_SPECIAL_EXPORT_RESOURCES.md) adds those
+direct families. Joining-specific exports, direct-versus-session ownership
+composition, complete native network integration, physical peaks and final-source
+qualification remain pending.
 The 12 Phase 3 requirements and 544 planned hosted histories are unchanged.

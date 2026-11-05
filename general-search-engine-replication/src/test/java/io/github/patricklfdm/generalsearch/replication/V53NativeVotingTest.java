@@ -33,12 +33,16 @@ class V53NativeVotingTest {
             this(size,data,false);
         }
         Network(int size,boolean data,boolean applicationEnabled)throws Exception {
+            this(size,data,applicationEnabled,false);
+        }
+        Network(int size,boolean data,boolean applicationEnabled,boolean observeExports)throws Exception {
             this.applicationEnabled=applicationEnabled;
             Path raw=Files.createDirectories(Path.of("target/"+(applicationEnabled?"v53-native-application-ingress":"v53-native-voting")+"/run-"+UUID.randomUUID()));System.out.println("v53NativeVotingEvidence="+raw.toAbsolutePath());
             f=new V53BootstrapPublicationTest.Fixture(raw,V53OwnedCrossViewTest.networkRequest(Files.createDirectory(temp.resolve(UUID.randomUUID().toString())),size,false));
             f.ownedHistory=true;f.nativeApplication=true;f.campaign(1);if(data)f.publish(1,false);f.snapshot("before-voting");
             for(var target:f.request.targets()) {
-                var resources=new MembershipResources(512*MembershipResources.MIB);budgets.add(resources);var hook=new AtomicReference<MembershipBallotAllocator.Cut>(event->{});hooks.add(hook);
+                var resources=observeExports?V53SpecialExportResources.budget():new MembershipResources(512*MembershipResources.MIB);
+                budgets.add(resources);var hook=new AtomicReference<MembershipBallotAllocator.Cut>(event->{});hooks.add(hook);
                 owners.add(MembershipGrantJournal.openBootstrapped(target.replicaDirectory(),target.materialization().directory(),f.result.root(),target.identity(),resources,
                         MembershipGrantJournal.MAXIMUM,event->{events.add(Map.of("node",target.identity().nodeId().value(),"event",event));hook.get().at(event);}));links.add(new AtomicReference<>());
             }

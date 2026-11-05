@@ -14,9 +14,18 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*
 class V53LearnerRootNetworkTest {
     @TempDir Path temp;
     @Test void firstContactUsesTheForcedReservationAndNeverOpensALearnerListenerOrStore()throws Exception {
+        discovery(false);
+    }
+    @Test void rootMetadataAndOriginalPrefixBorrowReleaseTogether()throws Exception {
+        discovery(true);
+    }
+    private void discovery(boolean captureExports)throws Exception {
         var helper=new V53RoundDriverTest();helper.temp=temp;
         var nativeHelper=new V53NativeDispatchTest();nativeHelper.temp=temp;
-        try(var n=nativeHelper.new Network(3,helper.controlBounds(),V53NativeDispatchTest.BUDGET,f->{},true)) {
+        var n=nativeHelper.new Network(3,helper.controlBounds(),V53NativeDispatchTest.BUDGET,f->{},true,captureExports);
+        List<Map<String,Object>> cases=List.of();boolean passed=false;
+        if(captureExports)System.out.println("v53LearnerExportResources="+n.f.raw.toAbsolutePath());
+        try(n) {
             try(var round=helper.driver(n,MembershipRoundDriver.Events.NONE)) {
                 round.start();var original=n.owners.getFirst().activationContext();int port;
                 try(var s=new ServerSocket(0,1,InetAddress.getByName("127.0.0.1"))){port=s.getLocalPort();}
@@ -35,6 +44,11 @@ class V53LearnerRootNetworkTest {
                 // exact delta of this test's six live exports.
                 try(var prime=new MembershipLearnerRootExport(originalOwner,joining,rootRequest,ownerBudget,
                         System::nanoTime,System.nanoTime(),TimeUnit.SECONDS.toNanos(60))) {prime.references();}
+                if(captureExports) {
+                    byte[] originalRoot=originalOwner.activationCapsule().packet.objectBytes(originalOwner.activationContext().recordRootDigest());
+                    cases=V53SpecialExportResources.probe(ownerBudget,List.of(clock->new MembershipLearnerRootExport(originalOwner,joining,
+                            rootRequest,ownerBudget,clock::get,0,V53SpecialExportResources.BUDGET)),Map.of(hash(originalRoot),originalRoot));
+                }
                 // ROOT and complete-prefix reads share the original six-export
                 // registry; rejection must release its attempted reservation.
                 var borrows=new ArrayList<MembershipTransferExport>();
@@ -98,8 +112,10 @@ class V53LearnerRootNetworkTest {
                 Files.write(n.f.raw.resolve("learner-root-wire.json"),canonical(wires,1024*1024));
                 Files.write(n.f.raw.resolve("learner-root-result.json"),canonical(Map.of("status","PASS","scope","native-reservation-root-discovery", 
                         "voter",false,"materialized",false,"publicReady",false,"phase3Complete",false),4096));
+                passed=true;
             }
-        }
+        }catch(Throwable failure){passed=false;throw failure;}
+        finally{if(captureExports)V53SpecialExportResources.save(n.f.raw,"learner-root",cases,n.resources.getFirst(),passed);}
     }
     private static Decoded initial(MembershipLearnerRequest learner,MembershipIdentity peer) {
         return decode(encode("wire","CHUNK",Map.of("root",learner.root().manifestDigest(),"view",learner.change().expectedConfigurationDigest(),

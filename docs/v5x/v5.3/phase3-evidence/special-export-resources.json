@@ -1,0 +1,483 @@
+{
+  "schema": "gse-v53-special-export-resources-development-v1",
+  "status": "PASS",
+  "phase3Complete": false,
+  "baseSource": "3694c68f700011c854d86bb43c6be42bda8e5112",
+  "javaTests": 11,
+  "newJavaTests": 4,
+  "pythonTests": 77,
+  "newPythonTests": 11,
+  "exportReservations": 22,
+  "resourceNegatives": 72,
+  "learnerPhysicalNegatives": 13,
+  "initialCompileFailure": "test attempted to subclass a final fixture; corrected with an explicit observation option",
+  "initialReaderFailures": "historical ROOT reader lacked confirmed retention, second activation and retained hidden endpoints; explicit current profile added",
+  "finalTestSourceChange": "teardown failures are retained as FAIL; all four native tests reran with final test bytes",
+  "runtimeChange": "local CONTROL observation names bind pending vote lookup references and original ROOT digest",
+  "cases": [
+    {
+      "path": "general-search-engine-replication/target/v53-native-voting/run-5636e90b-323a-4afc-8406-09a78c38ce88",
+      "result": {
+        "status": "PASS",
+        "scope": "native-vote-or-root-direct-export-accounting",
+        "family": "vote",
+        "exportReservations": 6,
+        "resourceTransitions": 483,
+        "exportReservationBindingsQualified": true,
+        "networkReservationCompositionQualified": false,
+        "expiryClockIndependentlyQualified": false,
+        "allExportFamiliesQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false,
+        "physical": {
+          "status": "PASS",
+          "size": 3,
+          "kind": "DATA",
+          "acknowledgements": 4,
+          "transfers": 18,
+          "publicRuntime": false,
+          "autonomous": false
+        }
+      },
+      "negativeCases": 18
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-native-voting/run-0d7efe7b-72f8-4a6e-9cd5-30b013984075",
+      "result": {
+        "status": "PASS",
+        "scope": "native-vote-or-root-direct-export-accounting",
+        "family": "vote",
+        "exportReservations": 6,
+        "resourceTransitions": 707,
+        "exportReservationBindingsQualified": true,
+        "networkReservationCompositionQualified": false,
+        "expiryClockIndependentlyQualified": false,
+        "allExportFamiliesQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false,
+        "physical": {
+          "status": "PASS",
+          "size": 4,
+          "kind": "DATA",
+          "acknowledgements": 6,
+          "transfers": 30,
+          "publicRuntime": false,
+          "autonomous": false
+        }
+      },
+      "negativeCases": 18
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-native-voting/run-a3e396f6-d729-4287-99b8-dcb023fb6f5a",
+      "result": {
+        "status": "PASS",
+        "scope": "native-vote-or-root-direct-export-accounting",
+        "family": "vote",
+        "exportReservations": 6,
+        "resourceTransitions": 931,
+        "exportReservationBindingsQualified": true,
+        "networkReservationCompositionQualified": false,
+        "expiryClockIndependentlyQualified": false,
+        "allExportFamiliesQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false,
+        "physical": {
+          "status": "PASS",
+          "size": 5,
+          "kind": "DATA",
+          "acknowledgements": 8,
+          "transfers": 44,
+          "publicRuntime": false,
+          "autonomous": false
+        }
+      },
+      "negativeCases": 18
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-native-dispatch/run-12c36b04-df9f-4dc9-99bf-0cf99e603cd0",
+      "result": {
+        "status": "PASS",
+        "scope": "native-vote-or-root-direct-export-accounting",
+        "family": "learner-root",
+        "exportReservations": 4,
+        "resourceTransitions": 4343,
+        "exportReservationBindingsQualified": true,
+        "networkReservationCompositionQualified": false,
+        "expiryClockIndependentlyQualified": false,
+        "allExportFamiliesQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false,
+        "physical": {
+          "status": "PASS",
+          "scope": "native-reservation-root-discovery",
+          "peers": [
+            "node-1",
+            "node-2"
+          ],
+          "receivedExchanges": 6,
+          "lostReplies": 2,
+          "physicalQualification": true,
+          "fullNetworkQualification": false,
+          "learnerAdmissionQualified": false,
+          "phase3Complete": false,
+          "retentionSemantics": "original-copy-confirmation",
+          "activations": 2,
+          "publishedSlots": 4
+        }
+      },
+      "negativeCases": 18
+    }
+  ],
+  "previousExportRegression": [
+    {
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-export-resources/run-11deba7e-1309-408e-844a-d5d29fb427b0",
+      "original": {
+        "status": "PASS",
+        "scope": "native-source-record-prefix-export-accounting",
+        "size": 3,
+        "exportReservations": 6,
+        "originalCases": 2,
+        "resourceTransitions": 25,
+        "exportReservationBindingsQualified": true,
+        "networkSessionQualified": false,
+        "expiryClockIndependentlyQualified": false,
+        "allExportFamiliesQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false,
+        "physicalPrecondition": {
+          "size": 3,
+          "contents": 4
+        }
+      }
+    },
+    {
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-export-resources/run-2c359dcf-2ed1-4fc8-9189-3935dacaff1a",
+      "original": {
+        "status": "PASS",
+        "scope": "native-source-record-prefix-export-accounting",
+        "size": 4,
+        "exportReservations": 6,
+        "originalCases": 2,
+        "resourceTransitions": 25,
+        "exportReservationBindingsQualified": true,
+        "networkSessionQualified": false,
+        "expiryClockIndependentlyQualified": false,
+        "allExportFamiliesQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false,
+        "physicalPrecondition": {
+          "size": 4,
+          "contents": 4
+        }
+      }
+    },
+    {
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-export-resources/run-d8657f7e-03dc-4e1d-989d-c7fdff8f07af",
+      "original": {
+        "status": "PASS",
+        "scope": "native-source-record-prefix-export-accounting",
+        "size": 5,
+        "exportReservations": 6,
+        "originalCases": 2,
+        "resourceTransitions": 25,
+        "exportReservationBindingsQualified": true,
+        "networkSessionQualified": false,
+        "expiryClockIndependentlyQualified": false,
+        "allExportFamiliesQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false,
+        "physicalPrecondition": {
+          "size": 5,
+          "contents": 4
+        }
+      }
+    }
+  ],
+  "networkReservationCompositionQualified": false,
+  "expiryClockIndependentlyQualified": false,
+  "allExportFamiliesQualified": false,
+  "wholeRuntimeResourcesQualified": false,
+  "finalSourceCohortQualified": false,
+  "remaining": [
+    "joining-specific export resource binding",
+    "native session and direct export composition",
+    "whole-runtime physical peak",
+    "phase-wide admission and final-source hosted execution"
+  ],
+  "sources": [
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerRootExport.java",
+      "sha256": "6e7671b38faba04fbf3d20035cd70f2441d003c2deb62cd618741ba43889a8ad"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipVoteExport.java",
+      "sha256": "b39bd6ad2f737eb7d1d688eaf61e2eb8f35d7832bf07380b53de87ebab65f3e0"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerRootNetworkTest.java",
+      "sha256": "de5a5b3ea74f5f044b18ed18cef85a13d2e386957e7d292a6909365ebd41151e"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java",
+      "sha256": "4017dd55e4df13e37eb6d8626ffcaab84190e7ccdcef5681cf333fc174451529"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeVotingTest.java",
+      "sha256": "8dd4bf550955666b8996039a2dab20a72860b56466e8e9f2e45f40392c9b4167"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SpecialExportResources.java",
+      "sha256": "8031054630914e3b36bc8b5582f455b7cb57da0c2b902bb4db70e9a367591415"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53VoteExportResourcesTest.java",
+      "sha256": "69bdaf77f9e269d7543e49e019890359930439582bdbcdc06fd7a8e665be7396"
+    },
+    {
+      "path": "scripts/v53/learner_root_evidence.py",
+      "sha256": "e2beafab1e61120ae822f2d2cf293f5773f744756d73a2cbce32c39f0dab969b"
+    },
+    {
+      "path": "scripts/v53/special_export_resource_evidence.py",
+      "sha256": "163763181fd79548f016c955ca130b7bd6466286197c46b47e9f19f8adbddaa7"
+    },
+    {
+      "path": "scripts/v53/special_export_resource_negatives.py",
+      "sha256": "794c1c5c18d6943b1c8228fc80d7e203718e8af147aeb248072383a0b08fb0e8"
+    },
+    {
+      "path": "scripts/v53/test_special_export_resource_evidence.py",
+      "sha256": "407623321bb2731da333fb093e1e725a315727b4b62c1c2505fdb0caacbf7d7f"
+    }
+  ],
+  "reports": [
+    {
+      "path": "target/v53-special-export-resources/TEST-io.github.patricklfdm.generalsearch.replication.V53LearnerRootNetworkTest.xml",
+      "sha256": "a6198318f413475b5f8c4c6edcee0a9c13086c4f287a3b1d025317aca5bb7a18"
+    },
+    {
+      "path": "target/v53-special-export-resources/TEST-io.github.patricklfdm.generalsearch.replication.V53VoteExportResourcesTest.xml",
+      "sha256": "b28c714e64ab6d048cd751a301b21ab75986f15904349075afe50686f1f01882"
+    },
+    {
+      "path": "target/v53-special-export-resources/__pycache__/finalize.cpython-310.pyc",
+      "sha256": "ac12b316f69e2e14a3961099d4c7d0f84981193b4e853b4e039a0906bc78a748"
+    },
+    {
+      "path": "target/v53-special-export-resources/contract-final.log",
+      "sha256": "21c32b66dd968fa607fc0749d7ae9ec4ff9d6b06177d25f680a24acaf7df33ad"
+    },
+    {
+      "path": "target/v53-special-export-resources/finalize.log",
+      "sha256": "26b25fb5ca3186806906aad938e024005d32c4d25e7f6ccc2e0ec6b6e5691aca"
+    },
+    {
+      "path": "target/v53-special-export-resources/finalize.py",
+      "sha256": "b1b5c51ce38f0fe0a7f67c63419c130d682a0e21d7b5bcf6a39ee6c1f0b145db"
+    },
+    {
+      "path": "target/v53-special-export-resources/java-input-01.json",
+      "sha256": "75ab2eea61bf6e260a2069e931aedd054c4745905b29dfb169b27ccc6d25a67e"
+    },
+    {
+      "path": "target/v53-special-export-resources/java-input-02.json",
+      "sha256": "73d0ccadb020817769f7141198d5680e12ac5ad5d77f58ce6adaff272b004d2f"
+    },
+    {
+      "path": "target/v53-special-export-resources/java-input-03.json",
+      "sha256": "dfc8933ab9f6d8a26aa950b52dbc88d01087c96db2afeb294c0badd55e95ec85"
+    },
+    {
+      "path": "target/v53-special-export-resources/junit-final/TEST-io.github.patricklfdm.generalsearch.replication.V53ExportResourceBindingsTest.xml",
+      "sha256": "aba70c08af38a9b915738ae5aa81d2cdb4b533435e7a935033faf9cafd4ff8b9"
+    },
+    {
+      "path": "target/v53-special-export-resources/junit-final/TEST-io.github.patricklfdm.generalsearch.replication.V53LearnerRootNetworkTest.xml",
+      "sha256": "d9ca6c674e299822f2f0713af8b05f62e0aa917f6b0ffd87550bb7f121bac6b1"
+    },
+    {
+      "path": "target/v53-special-export-resources/junit-final/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeVotingLimitsTest.xml",
+      "sha256": "944315fae3da42520bfe916ebbb0bc6ad8b1e2866b2f824c2e94406279f19337"
+    },
+    {
+      "path": "target/v53-special-export-resources/junit-final/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeVotingTest.xml",
+      "sha256": "b18b81f0ff40a5f8162f4d6375f2457b005f16f4bc48b5d276dbcc5717e5bccf"
+    },
+    {
+      "path": "target/v53-special-export-resources/junit-final/TEST-io.github.patricklfdm.generalsearch.replication.V53VoteExportResourcesTest.xml",
+      "sha256": "340be2bc3a9158882dd8d7a19ec39b524345407eda28b388135abd47eae76732"
+    },
+    {
+      "path": "target/v53-special-export-resources/learner-physical-final.json",
+      "sha256": "e2fe342ea5cfd343beb301afb70b5a4c295b545099f4e0072f6628d3b5c3cffb"
+    },
+    {
+      "path": "target/v53-special-export-resources/learner-physical-negatives.json",
+      "sha256": "2717f1578f0e87ec58201644ba144460cfdbfd78742d93f022299f8105bc9f08"
+    },
+    {
+      "path": "target/v53-special-export-resources/learner-replay-01.log",
+      "sha256": "daa891e8987d3a7fdd998629c758b35aa11729c1b23da98d4e90e54f6f374fdb"
+    },
+    {
+      "path": "target/v53-special-export-resources/learner-replay-02.log",
+      "sha256": "d1f6817be72949400b4636130619389bc249cf6c4dbb9f48f2728d5353389667"
+    },
+    {
+      "path": "target/v53-special-export-resources/learner-replay-03.log",
+      "sha256": "48ffa236080429f6da119745e2d31e8280d326b813fa2562e97d710d161fc164"
+    },
+    {
+      "path": "target/v53-special-export-resources/learner-replay-04.log",
+      "sha256": "61596d0f035e3043dbdec2f62499a62b4f9c5a748ad1cf2be5fc60db4352237d"
+    },
+    {
+      "path": "target/v53-special-export-resources/learner-replay-05.log",
+      "sha256": "643daae4ba040e2bc9754427a29249a2ffa2473a3e5f26ab02d1a50d9333f410"
+    },
+    {
+      "path": "target/v53-special-export-resources/learner-replay-06.log",
+      "sha256": "dda23e4ee0a2b8e42f5af3ede1e1bac0b87554176cb096f59971e281e95d2849"
+    },
+    {
+      "path": "target/v53-special-export-resources/learner-root-final.json",
+      "sha256": "2c72cf9e04ddf6321f2dc9aa1e8e1782020ccbd02da7832cbf9a7de1f007b30a"
+    },
+    {
+      "path": "target/v53-special-export-resources/maven-01.log",
+      "sha256": "2baa563de07a33eb80d22e15d13490ae54341e9f09dcaa7461470c2b04a58fa3"
+    },
+    {
+      "path": "target/v53-special-export-resources/maven-02.log",
+      "sha256": "49b76c64e7274cb847f1c21dd6dd6bbc0be42b9c15056f9df412fed9d8dbb2b4"
+    },
+    {
+      "path": "target/v53-special-export-resources/maven-03.log",
+      "sha256": "a534bacc6066803465074d9685161a62a6c3b12b57ec1d6062a02f5cdd32dfb1"
+    },
+    {
+      "path": "target/v53-special-export-resources/maven-regression-01.log",
+      "sha256": "b4e6e9da8e6d08e88a741b7c03cc9da9496c43514de697cc5eab61d1f29e01bf"
+    },
+    {
+      "path": "target/v53-special-export-resources/physical-diff-01/actual/generations/a/ancestry.gsr",
+      "sha256": "a6f50003324e7555afcbec92ce5375fb3b6409afec5d658a4f773a956d388a18"
+    },
+    {
+      "path": "target/v53-special-export-resources/physical-diff-01/actual/generations/a/generation.gsr",
+      "sha256": "21d447557430893755a680e6473d4fe2e680074a0e0ed91d061cd30e95c579ac"
+    },
+    {
+      "path": "target/v53-special-export-resources/physical-diff-01/actual/selector.gsr",
+      "sha256": "e04d5edb3f69fd6f9449fab92d0ee4a2742d224396c92431a62f193dd2051a17"
+    },
+    {
+      "path": "target/v53-special-export-resources/physical-diff-01/expected/generations/a/generation.gsr",
+      "sha256": "0dabf834b33000a5330720498cd0610f6e7894bbd59f60f7af00f05dfd6a823b"
+    },
+    {
+      "path": "target/v53-special-export-resources/physical-diff-01/expected/selector.gsr",
+      "sha256": "cc224000e572f78526b91b55d6ca2db7337451c0a1841732e282682f00bbd0a8"
+    },
+    {
+      "path": "target/v53-special-export-resources/physical-diff-02/actual/generations/a/ancestry.gsr",
+      "sha256": "a6f50003324e7555afcbec92ce5375fb3b6409afec5d658a4f773a956d388a18"
+    },
+    {
+      "path": "target/v53-special-export-resources/physical-diff-02/actual/generations/a/generation.gsr",
+      "sha256": "21d447557430893755a680e6473d4fe2e680074a0e0ed91d061cd30e95c579ac"
+    },
+    {
+      "path": "target/v53-special-export-resources/physical-diff-02/actual/selector.gsr",
+      "sha256": "e04d5edb3f69fd6f9449fab92d0ee4a2742d224396c92431a62f193dd2051a17"
+    },
+    {
+      "path": "target/v53-special-export-resources/physical-diff-02/expected/generations/a/generation.gsr",
+      "sha256": "0dabf834b33000a5330720498cd0610f6e7894bbd59f60f7af00f05dfd6a823b"
+    },
+    {
+      "path": "target/v53-special-export-resources/physical-diff-02/expected/selector.gsr",
+      "sha256": "cc224000e572f78526b91b55d6ca2db7337451c0a1841732e282682f00bbd0a8"
+    },
+    {
+      "path": "target/v53-special-export-resources/physical-diff-03/actual/applied-end/ancestor-0-ack.gsr",
+      "sha256": "b3fc75fdee197231a8f6d56e3b9c58fa57579faeb589e593af0d39c6536be18c"
+    },
+    {
+      "path": "target/v53-special-export-resources/physical-diff-03/actual/applied-end/ancestor-0-statement.gsr",
+      "sha256": "0df909d783ee654da03a689f59424b20c3961add405e51246e6944d8eaff9104"
+    },
+    {
+      "path": "target/v53-special-export-resources/physical-diff-03/actual/applied-end/plan.json",
+      "sha256": "6e27b7dfacb20723546b8d461bd90917eabc4938070a63643037ca8f3b1494dd"
+    },
+    {
+      "path": "target/v53-special-export-resources/physical-diff-03/expected/applied-end/plan.json",
+      "sha256": "3982b04142db213565730b67a40d68d21a29933cc19df4d4dff32e2cf84de5dc"
+    },
+    {
+      "path": "target/v53-special-export-resources/plan-final.log",
+      "sha256": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df"
+    },
+    {
+      "path": "target/v53-special-export-resources/plan-final/acceptance-plan.json",
+      "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+    },
+    {
+      "path": "target/v53-special-export-resources/plan-final/plan.json",
+      "sha256": "811d5dedd9f3965d1927fd1072d36c23b8a7fb6dcf8b158172e4b4d48e57c005"
+    },
+    {
+      "path": "target/v53-special-export-resources/plan-final/receipt.json",
+      "sha256": "791a1d087c004a6b5af116cfeb8235e3d3c0ca96a98fa2bd84092ffd9689a3d3"
+    },
+    {
+      "path": "target/v53-special-export-resources/previous-export-regression.json",
+      "sha256": "cfa78d3bf1ec8535f2fc16083c589f5ffa120bf8e8bdd6c44beca7912a3f9660"
+    },
+    {
+      "path": "target/v53-special-export-resources/python-01.log",
+      "sha256": "9620dbd3336de5f425a9243681b70da76d44d781948f6fe9530efa7a3b57144a"
+    },
+    {
+      "path": "target/v53-special-export-resources/python-02.log",
+      "sha256": "3e7d71fff2f1bf74e2b03a36387f489615f8dd49875d137157de37f84892fb82"
+    },
+    {
+      "path": "target/v53-special-export-resources/python-03.log",
+      "sha256": "8c17f438e76008a0d68ba20caa7d06f978593a36825e546b2fcb28fcd73567a4"
+    },
+    {
+      "path": "target/v53-special-export-resources/python-final.log",
+      "sha256": "5ca3a71ca650c7d58375be7967c9808aef4a9f3869b1c027bbf3f2f8808fd659"
+    },
+    {
+      "path": "target/v53-special-export-resources/raw-inventories.json",
+      "sha256": "70e3ae78b10ee86978d0c63596244969844e47161bf199b2c1d38ae75a17238b"
+    },
+    {
+      "path": "target/v53-special-export-resources/vote-3-final.json",
+      "sha256": "e60716cc1673e8c34866f24b3f4780596eeafb9b41083f24a88c3aa9f6425eea"
+    },
+    {
+      "path": "target/v53-special-export-resources/vote-3-replay.json",
+      "sha256": "e60716cc1673e8c34866f24b3f4780596eeafb9b41083f24a88c3aa9f6425eea"
+    },
+    {
+      "path": "target/v53-special-export-resources/vote-4-final.json",
+      "sha256": "b1f6c2b9374ca421a3b7708d8e3ee617dc751af85800087df0adeab50223de3d"
+    },
+    {
+      "path": "target/v53-special-export-resources/vote-4-replay.json",
+      "sha256": "b1f6c2b9374ca421a3b7708d8e3ee617dc751af85800087df0adeab50223de3d"
+    },
+    {
+      "path": "target/v53-special-export-resources/vote-5-final.json",
+      "sha256": "d23ec7bf67b141146cf3971b3179ebb4d166bffd2565c1cc1d1b1cac328f893b"
+    },
+    {
+      "path": "target/v53-special-export-resources/vote-5-replay.json",
+      "sha256": "d23ec7bf67b141146cf3971b3179ebb4d166bffd2565c1cc1d1b1cac328f893b"
+    }
+  ]
+}

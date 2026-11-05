@@ -35,7 +35,8 @@ final class MembershipLearnerRootExport implements MembershipTransferExport {
             MembershipLearnerDiscovery.reservation(original.context,reader,request);
             int size=original.packet.objectSize(original.context.recordRootDigest());
             require(size>HEADER && size<=MembershipLearnerDiscovery.ROOT_MAXIMUM,"learner original ROOT capacity");
-            lease=resources.reserve(MembershipResources.Unit.CONTROL,"learner-root-export-"+UUID.randomUUID(),size*2L+4096);
+            lease=resources.reserve(MembershipResources.Unit.CONTROL,
+                    MembershipSourceResources.export("learner-root-export",original.context.recordRootDigest()),size*2L+4096);
             MembershipPrefixExport acquired=null;
             try {
                 // Share the native owner's six-export registry. A small ROOT read

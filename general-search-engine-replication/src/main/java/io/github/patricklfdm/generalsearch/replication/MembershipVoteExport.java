@@ -21,7 +21,7 @@ final class MembershipVoteExport implements MembershipTransferExport {
             String record,int size,java.util.function.Supplier<byte[]> copy,MembershipResources resources,LongSupplier clock,long started,long budget) {
         this.owner=owner;this.voting=voting;this.reference=reference;this.phase=phase;this.record=record;
         this.clock=clock;this.started=started;this.budget=budget;
-        lease=resources.reserve(MembershipResources.Unit.CONTROL,"vote-export-"+UUID.randomUUID(),size);
+        lease=resources.reserve(MembershipResources.Unit.CONTROL,MembershipSourceResources.export("vote-export",reference),size);
         try{bytes=copy.get();digest=MembershipFormat.hash(bytes);require(bytes.length==size
                 && (digest.equals(reference) || MembershipVoteReceipt.reference(bytes).equals(reference)),"original vote export bytes");}
         catch(RuntimeException|Error error){lease.close();throw error;}

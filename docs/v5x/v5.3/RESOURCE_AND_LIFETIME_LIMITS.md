@@ -1,11 +1,20 @@
 # V5.3 bounded resources and lifetime
 
+[Vote and learner ROOT export bindings](PHASE_3_SPECIAL_EXPORT_RESOURCES.md)
+add four native histories and 22 direct allocations, with 72 exact resource
+negatives. Receipt lookup identity stays distinct from content identity; ROOT
+metadata and its nested prefix borrow release under their separate contracts.
+Current ROOT replay now covers confirmed retention, both campaigns and all four
+published slots. Joining-specific exports, session composition, physical peaks
+and final-source qualification remain OPEN.
+
 [Original export resource bindings](PHASE_3_EXPORT_RESOURCES.md) now tie native
 source, record and prefix CONTROL reservations to original content digests and
 exact extents. Three stable-size histories cover 18 overlapping allocations;
 48 resource negatives reject missing ownership, wrong bytes and premature
-release. Vote/learner export families, session integration, physical peaks and
-final-source qualification remain OPEN.
+release. The later vote/ROOT follow-up above narrows those export gaps;
+joining-specific families, session integration, physical peaks and final-source
+qualification remain OPEN.
 
 [Recovery after completed release](PHASE_3_RECOVERY_RELEASE_GUARD.md) separates
 immediate revocation from permission to replace an old disposition. Two original
