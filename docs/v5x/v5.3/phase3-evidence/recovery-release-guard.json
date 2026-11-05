@@ -1,0 +1,209 @@
+{
+  "schema": "gse-v53-recovery-release-guard-development-v1",
+  "status": "PASS",
+  "phase3Complete": false,
+  "baseSource": "25392351472a93c84775b21eb9a81f443165701d",
+  "runtimeChanged": true,
+  "javaTests": 12,
+  "newJavaRegressions": 2,
+  "originalFailures": 2,
+  "originalFailure": "owner guard admitted recovery; duplicate reservation still rejected it",
+  "sameTestSourceAcrossRedAndGreen": true,
+  "pythonTests": 105,
+  "cases": [
+    {
+      "path": "general-search-engine-replication/target/v53-pending-drain/run-8fe01e6d-13ac-40c1-8fba-21050055cf6d",
+      "result": {
+        "status": "PASS",
+        "scope": "conditional-retained-owner-failed-close",
+        "listener": "checkpoint",
+        "mode": "interrupt",
+        "retainedStorageLeases": 3,
+        "baselineStorageLeases": 4,
+        "fileObservations": 10,
+        "resourceTransitions": 323,
+        "failedCloseStorageContinuityQualified": true,
+        "physicalStorageQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false
+      },
+      "negativeCases": 12
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-pending-drain/run-0b32afef-edc2-4732-9f9c-ee3662af2652",
+      "result": {
+        "status": "PASS",
+        "scope": "conditional-retained-owner-failed-close",
+        "listener": "head",
+        "mode": "interrupt",
+        "retainedStorageLeases": 3,
+        "baselineStorageLeases": 4,
+        "fileObservations": 11,
+        "resourceTransitions": 317,
+        "failedCloseStorageContinuityQualified": true,
+        "physicalStorageQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false
+      },
+      "negativeCases": 12
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-pending-drain/run-6d882af2-535d-4e68-8fb2-6751894e768f",
+      "result": {
+        "status": "PASS",
+        "scope": "conditional-retained-owner-failed-close",
+        "listener": "checkpoint",
+        "mode": "callback",
+        "retainedStorageLeases": 3,
+        "baselineStorageLeases": 4,
+        "fileObservations": 10,
+        "resourceTransitions": 323,
+        "failedCloseStorageContinuityQualified": true,
+        "physicalStorageQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false
+      },
+      "negativeCases": 12
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-pending-drain/run-4c944868-5785-424f-a34b-34135f934d19",
+      "result": {
+        "status": "PASS",
+        "scope": "conditional-retained-owner-failed-close",
+        "listener": "head",
+        "mode": "callback",
+        "retainedStorageLeases": 3,
+        "baselineStorageLeases": 4,
+        "fileObservations": 11,
+        "resourceTransitions": 317,
+        "failedCloseStorageContinuityQualified": true,
+        "physicalStorageQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false
+      },
+      "negativeCases": 12
+    }
+  ],
+  "negativeCases": 48,
+  "physicalStorageQualified": false,
+  "wholeRuntimeResourcesQualified": false,
+  "finalSourceCohortQualified": false,
+  "remaining": [
+    "other constructor/export/task paths",
+    "arbitrary descendant filesystem close failures",
+    "combined maxima/headroom",
+    "new-source required-four/joining and final-source hosted qualification"
+  ],
+  "sources": [
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDisposition.java",
+      "sha256": "19544263459bec97078c497d4514b8b03f440578f183ba134b6145dfe956e5f2"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerStore.java",
+      "sha256": "f5f21b1540e0345f9450821d3a5f2d0d5b17b2e8d29109013221570b06e52a60"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DispositionRecoveryGuardTest.java",
+      "sha256": "46b652dc8d46b5681eb33306764bf5e9903faaa928762cb4e64793ef1387d056"
+    }
+  ],
+  "reports": [
+    {
+      "path": "target/v53-recovery-release-guard/TEST-io.github.patricklfdm.generalsearch.replication.V53DispositionRecoveryGuardTest.xml",
+      "sha256": "26c16a59d98f032867e988ec0966c5c1587fef1ca157ce6816c2353bf6a9fb56"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/TEST-io.github.patricklfdm.generalsearch.replication.V53LearnerCancellationTest.xml",
+      "sha256": "4118ad9e8aac2e0e27f0801abda2cf77f5665a2041c4c65171218bff2afcb915"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/TEST-io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest.xml",
+      "sha256": "873b5bdb9e044cf103aaad816fc43ac187377250923291f91890124f37427d09"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/TEST-io.github.patricklfdm.generalsearch.replication.V53LearnerStoreCloseRaceTest.xml",
+      "sha256": "7e269e3c13d041cd0693445b90c5481492eea43531720973c2836f20d5d00201"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/TEST-io.github.patricklfdm.generalsearch.replication.V53PendingListenerDrainTest.xml",
+      "sha256": "802e3ecfc872fb3c74d0e86211d2b2469ad2aaeadbc99b6e25bc9a3fe365c690"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/TEST-io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRecoveryTest.xml",
+      "sha256": "38add141c358faf1bc93a73d71762c9421d8e84fffee46f9f1412e7710e00a7e"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/__pycache__/finalize.cpython-310.pyc",
+      "sha256": "b59d419c3f1030f9ad282222dbd54f1c65ce37899727e82b86630ce7a5ad416a"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/contract.log",
+      "sha256": "603893556010c32bdece2a16b2ed8b27f0c90a9cc138e3dd3db054fa5d843da3"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/finalize.py",
+      "sha256": "28587b7d1b13888d8b830eb29889ff0bc6babe3e23178f42e1707a4f646643c6"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/green-java-input.json",
+      "sha256": "4404b94e2479c498a8dc55e7f97b205392e9bac629f15a1f53054357c5d3de85"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/maven-green-01.log",
+      "sha256": "3fe9962d4223440153bea00d0ee1331752df133c4ce211f489e14705e30c9ff1"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/maven-red-01.log",
+      "sha256": "8186a82fb4c9c6dc37a53ac141c84957df45aca62a4ae351b26ba497be3db521"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/plan.log",
+      "sha256": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/python-01.log",
+      "sha256": "f9149caa97e64abc35706671bed12ac3ccf6bfa26c1bfb9cfb4272a2febf7924"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/qualification-plan/acceptance-plan.json",
+      "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/qualification-plan/plan.json",
+      "sha256": "2d48add81a9ef758b4d516a8d8f9723fdf239e731ea73ab9ccfc410cbf3ecfeb"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/qualification-plan/receipt.json",
+      "sha256": "affebf8448a16a164ef7f55275c2d53a0856c945bd762f6d5dc1d616140fac70"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/raw-inventories.json",
+      "sha256": "69f15aa04ad782678253d2276b345809c9985adc74ca1c0d66b50383c4c29eb4"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/red-TEST-io.github.patricklfdm.generalsearch.replication.V53DispositionRecoveryGuardTest.xml",
+      "sha256": "dcb20aca0b0c26032d3007784f7ebad61897ef2c48754344ed54228c75f15984"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/red-java-input.json",
+      "sha256": "765939c81586f7a1be957fd9c99b9ef10360dd90cd52f331f64cab6723f04894"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/run-0b32afef-edc2-4732-9f9c-ee3662af2652-replay.json",
+      "sha256": "51707cade65bb12a1f8be5a81fcfcdd204685d2b604a78ba0f434d026d176097"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/run-4c944868-5785-424f-a34b-34135f934d19-replay.json",
+      "sha256": "434192d68791180af1825c97969d2689bdd05d073585859c86c98bc425a003a9"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/run-6d882af2-535d-4e68-8fb2-6751894e768f-replay.json",
+      "sha256": "6f0c20ed2235ac4f72c0057f9808d1c334b5ee752c530ba0189953c9223c3bd9"
+    },
+    {
+      "path": "target/v53-recovery-release-guard/run-8fe01e6d-13ac-40c1-8fba-21050055cf6d-replay.json",
+      "sha256": "ab23952258734869ad5fb3655a174d9d0770a6b3c1d0d722b16df9289f305fa1"
+    }
+  ]
+}

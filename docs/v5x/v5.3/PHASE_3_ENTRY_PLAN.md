@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Recovery after completed release](PHASE_3_RECOVERY_RELEASE_GUARD.md) separates
+immediate revocation from permission to replace an old disposition. Two original
+TCP regressions showed recovery passing the owner guard and then being rejected
+by capacity. The corrected guard requires successful drain and child cleanup;
+serving still stops immediately. Full native resource and final-source
+qualification remain OPEN.
+
 [Conditional constructor rollback](PHASE_3_CONSTRUCTION_ROLLBACK.md) now
 qualifies seven existing listener/service failure paths: occupied endpoints,
 CONTROL exhaustion, guard rejection and post-reservation expiry. Three original

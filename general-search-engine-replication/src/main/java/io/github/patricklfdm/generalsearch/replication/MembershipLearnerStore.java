@@ -359,24 +359,24 @@ final class MembershipLearnerStore implements AutoCloseable {
         for(var kind:MembershipLearnerDisposition.Kind.values())if(kind!=value.kind)
             MembershipLearnerDisposition.requireAbsent(MembershipLearnerDisposition.directory(plan.summary(),kind),kind);
         if(value.kind==MembershipLearnerDisposition.Kind.CANCEL) {
-            require(cancellation==null || cancellation.closed(),"learner cancellation already owned");
+            require(cancellation==null || cancellation.released(),"learner cancellation already owned");
             MembershipLearnerDisposition.requireAbsent(MembershipLearnerIntent.directory(plan.summary()),MembershipLearnerDisposition.Kind.INTENT);cancellation=value;
         }else if(value.kind==MembershipLearnerDisposition.Kind.INTENT) {
-            require(intent==null || intent.closed(),"learner INTENT already owned");
+            require(intent==null || intent.released(),"learner INTENT already owned");
             MembershipLearnerDisposition.requireAbsent(MembershipLearnerCancellation.directory(plan.summary()),MembershipLearnerDisposition.Kind.CANCEL);intent=value;
         }else {
-            require(pendingIntent==null || pendingIntent.closed(),"learner pending INTENT already owned");pendingIntent=value;
+            require(pendingIntent==null || pendingIntent.released(),"learner pending INTENT already owned");pendingIntent=value;
         }
     }
     void attachPublishedDisposition(MembershipLearnerDisposition value,MembershipLearnerDisposition parent)throws IOException {
         check();require(parent==pendingIntent && parent!=null && !parent.closed(),"linked INTENT requires actual store pending owner");
         value.requireLinkedParent(parent);
         MembershipLearnerDisposition.requireAbsent(MembershipLearnerCancellation.directory(plan.summary()),MembershipLearnerDisposition.Kind.CANCEL);
-        require(intent==null || intent.closed(),"learner INTENT already owned");intent=value;
+        require(intent==null || intent.released(),"learner INTENT already owned");intent=value;
     }
     void requirePublishedRecovery(MembershipLearnerPlacement.Recovery recovery)throws IOException {
         check();require(recovery==null?!recoveringPlacement():placementRecovery()==recovery,"linked pair foreign placement recovery");
-        require((pendingIntent==null || pendingIntent.closed()) && (intent==null || intent.closed()),"linked recovery has a live original owner");
+        require((pendingIntent==null || pendingIntent.released()) && (intent==null || intent.released()),"linked recovery has a live original owner");
         MembershipLearnerDisposition.requireAbsent(MembershipLearnerCancellation.directory(plan.summary()),MembershipLearnerDisposition.Kind.CANCEL);
     }
     void attachRecoveredPublished(MembershipLearnerDisposition parent,MembershipLearnerDisposition value,MembershipLearnerPlacement.Recovery recovery)throws IOException {

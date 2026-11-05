@@ -595,6 +595,9 @@ final class MembershipLearnerDisposition implements AutoCloseable {
         for(var value:retained.values())value.collectCustody(result);
     }
     boolean closed(){return closed;}
+    /** Revocation stops serving immediately; replacement additionally needs
+     * successful listener drain and complete child resource cleanup. */
+    synchronized boolean released(){return released;}
     void revokeAndDrainListeners()throws IOException {
         MembershipLearnerCheckpointEndpoint endpoint;MembershipLearnerHeadEndpoint progress;
         synchronized(this){closed=true;endpoint=checkpointEndpoint;progress=headEndpoint;}
@@ -605,10 +608,11 @@ final class MembershipLearnerDisposition implements AutoCloseable {
     }
     @Override public void close()throws IOException {
         revokeAndDrainListeners();
-        var children=new ArrayList<AutoCloseable>();
         synchronized(this) {
-            if(released)return;released=true;if(voterStage!=null)children.add(voterStage);children.addAll(retained.values());children.addAll(leases);
+            if(released)return;
+            var children=new ArrayList<AutoCloseable>();
+            if(voterStage!=null)children.add(voterStage);children.addAll(retained.values());children.addAll(leases);
+            MembershipLearnerSource.closeChildren(children.toArray(AutoCloseable[]::new));released=true;
         }
-        MembershipLearnerSource.closeChildren(children.toArray(AutoCloseable[]::new));
     }
 }
