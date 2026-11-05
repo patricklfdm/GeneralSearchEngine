@@ -59,7 +59,7 @@ final class MembershipJoiningCompletion implements MembershipTransferExport {
         this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;
         synchronized(owner){owner.joiningEndpointReady(resources);var current=owner.discoveryState(resources);context=current.context();fence=current.ballot();
             initial(context,owner.activationIdentity(),reader,request);check();}
-        metadata=resources.reserve(MembershipResources.Unit.CONTROL,"joining-completion-export-"+UUID.randomUUID(),2L*MAXIMUM);
+        metadata=resources.reserve(MembershipResources.Unit.CONTROL,MembershipSourceResources.request("joining-completion-export",request),2L*MAXIMUM);
         try{bytes=bytes(context,owner.activationIdentity());digest=hash(bytes);alias=reference(context,owner.activationIdentity());
             require(!digest.equals(alias),"joining completion alias collision");check();}
         catch(IOException|RuntimeException|Error error){metadata.close();throw error;}

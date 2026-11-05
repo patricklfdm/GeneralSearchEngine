@@ -78,10 +78,10 @@ final class MembershipLearnerCheckpointEndpoint implements AutoCloseable {
         final Map<String,MembershipSourceExport.Content> contents;
         final Map<String,Object> ballot;
         boolean stopped;
-        Export(Map<String,Object> ballot)throws IOException {
-            this.ballot=Map.copyOf(ballot);
+        Export(Decoded request)throws IOException {
+            this.ballot=Map.copyOf(object(request.value().get("ballot")));
             check();require(exports<MembershipResources.Unit.SOURCE.count,"joining checkpoint export capacity");
-            lease=resources.reserve(MembershipResources.Unit.CONTROL,"joining-checkpoint-export-"+UUID.randomUUID(),original.acknowledgement.size());
+            lease=resources.reserve(MembershipResources.Unit.CONTROL,MembershipSourceResources.request("joining-checkpoint-export",request),original.acknowledgement.size());
             try {
                 bytes=original.acknowledgement.bytes();contents=Map.of(original.acknowledgement.digest(),
                         new MembershipSourceExport.Content(original.acknowledgement.digest(),bytes.length,MembershipTransfer.Kind.RECORD));exports++;
@@ -117,7 +117,7 @@ final class MembershipLearnerCheckpointEndpoint implements AutoCloseable {
             try {
                 if(completed!=null){require(request.digest().equals(requestDigest),"joining checkpoint exact completion retry");return completed;}
                 if(session==null) {
-                    initial(request);var export=new Export(object(request.value().get("ballot")));
+                    initial(request);var export=new Export(request);
                     try{session=new MembershipSourceSession(export,key.reader,key.trace,resources,chunkLimit,frameLimit,clock,started,budget);}
                     catch(IOException|RuntimeException|Error error){export.close();throw error;}
                 }

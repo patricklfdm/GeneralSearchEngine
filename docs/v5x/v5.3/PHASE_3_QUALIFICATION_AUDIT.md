@@ -1,5 +1,12 @@
 # Phase 3 qualification inventory and remaining work
 
+[Joining export request bindings](PHASE_3_JOINING_EXPORT_REQUESTS.md) now name
+all five metadata families by their exact initial request. Independent replay
+checks original session/route/digest and construction order. Two conditional
+handler captures and 20 exact negatives pass; their outer receipts remain
+PARTIAL. Complete joining/required-four resource composition and final-source
+qualification remain OPEN.
+
 [Direct local export ownership](PHASE_3_DIRECT_EXPORT_OWNERSHIP.md) binds proposer,
 SELECTED receiver and maintenance borrows to original bytes and operation
 intervals. A new stable TCP history accounts for all 45 exports (39 session-owned,

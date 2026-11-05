@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Joining export request bindings](PHASE_3_JOINING_EXPORT_REQUESTS.md) now name
+all five metadata families by their exact initial request. Independent replay
+checks original session/route/digest and construction order. Two conditional
+handler captures and 20 exact negatives pass; their outer receipts remain
+PARTIAL. Complete joining/required-four resource composition and final-source
+qualification remain OPEN.
+
 [Direct local export ownership](PHASE_3_DIRECT_EXPORT_OWNERSHIP.md) now covers
 the six local activation/SELECTED/maintenance borrows on a new stable history.
 All 45 exports in that history have observed owners and matched cleanup calls;

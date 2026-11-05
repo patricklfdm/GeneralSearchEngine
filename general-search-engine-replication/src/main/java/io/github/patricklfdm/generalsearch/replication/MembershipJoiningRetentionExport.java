@@ -40,7 +40,7 @@ final class MembershipJoiningRetentionExport implements MembershipTransferExport
             require(request.kind().equals("CHUNK") && number(request.value().get("sequence"))==1
                     && request.value().get("view").equals(context.authority()) && payload.get("action").equals("REQUEST")
                     && number(payload.get("offset"))==0 && payload.get("bytes").equals(""),"joining retention initial request");
-            metadata=resources.reserve(MembershipResources.Unit.CONTROL,"joining-retention-export-"+UUID.randomUUID(),3L*MembershipJoiningRetentionSeed.FRAGMENT_MAXIMUM);
+            metadata=resources.reserve(MembershipResources.Unit.CONTROL,MembershipSourceResources.request("joining-retention-export",request),3L*MembershipJoiningRetentionSeed.FRAGMENT_MAXIMUM);
             MembershipPrefixExport acquired=null;
             try {
                 acquired=owner.exportPrefix(MembershipContext.cutDigest(context.cut),object(request.value().get("ballot")),

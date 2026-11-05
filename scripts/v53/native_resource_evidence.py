@@ -90,7 +90,9 @@ def bind_publications(transactions,boundaries):
     return count
 
 
-def validate(directory,profile='stable',progress=None,*,source_control=False,control_closes=False,export_ownership=False,direct_exports=False):
+def validate(directory,profile='stable',progress=None,*,source_control=False,control_closes=False,export_ownership=False,direct_exports=False,joining_requests=False):
+    need(type(joining_requests) is bool and (not joining_requests or export_ownership and control_closes and profile=='5-REPLACE-required-four'),
+         'native resources joining requests policy')
     need(type(source_control) is bool and type(control_closes) is bool,'native resources source-control policy')
     need(type(export_ownership) is bool and (not export_ownership or control_closes),'native resources export-ownership policy')
     need(type(direct_exports) is bool and (not direct_exports or export_ownership and profile=='stable'),
@@ -120,7 +122,7 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
     if control_closes:
         from . import control_close_evidence,native_control_closes
         cleanup=native_control_closes.replay(events,wires,traces,boundaries,identities,authority,control_close_evidence.load(root,index),
-                                           export_ownership=export_ownership)
+                                           export_ownership=export_ownership,joining_requests=joining_requests)
         source_result=cleanup['precondition']
     else:source_result=native_source_resources.replay(events,wires,traces,boundaries,identities,authority,require_complete=source_control)
     direct=None
@@ -152,5 +154,5 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('root')
     p.add_argument('--profile',choices=('stable','5-REPLACE-required-four'),default='stable')
     p.add_argument('--source-control',action='store_true');p.add_argument('--control-closes',action='store_true')
-    p.add_argument('--export-ownership',action='store_true');p.add_argument('--direct-exports',action='store_true');a=p.parse_args()
-    print(json.dumps(validate(a.root,a.profile,source_control=a.source_control,control_closes=a.control_closes,export_ownership=a.export_ownership,direct_exports=a.direct_exports),sort_keys=True))
+    p.add_argument('--export-ownership',action='store_true');p.add_argument('--direct-exports',action='store_true');p.add_argument('--joining-requests',action='store_true');a=p.parse_args()
+    print(json.dumps(validate(a.root,a.profile,source_control=a.source_control,control_closes=a.control_closes,export_ownership=a.export_ownership,direct_exports=a.direct_exports,joining_requests=a.joining_requests),sort_keys=True))

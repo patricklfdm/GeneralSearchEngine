@@ -65,9 +65,10 @@ def scan(traces):
     return leases,legacy,other
 
 
-def replay(events,wires,traces,boundaries,identities,root,*,require_complete=True,bindings=None):
+def replay(events,wires,traces,boundaries,identities,root,*,require_complete=True,bindings=None,initials=None):
     need(type(require_complete) is bool,'native source resources completeness policy')
     need(bindings is None or type(bindings) is dict and not bindings,'native source resources empty binding output')
+    need(initials is None or type(initials) is dict and not initials,'native source resources empty initial output')
     leases,legacy,other=scan(traces)
     if not leases:
         need(not require_complete,'native source resources required original bindings absent')
@@ -152,11 +153,16 @@ def replay(events,wires,traces,boundaries,identities,root,*,require_complete=Tru
         used.update((key,mk,tk));meta_responses[mk].add(key);trace_meta[tk].add(mk);response_rows[key].append(row)
     # SourceSession is serial even when different original sessions overlap.
     # Only its last exact response can survive until close/cache handoff.
+    first_requests={}
     for mk,keys in meta_responses.items():
         ordered=sorted(keys,key=lambda k:leases[k]['start']);previous=None
         for key in ordered:
             first=response_rows[key][0];q=first['request'];sequence=q['sequence'];life=leases[key]
-            if previous is None:need(sequence==1,'native source resources missing first session response')
+            if previous is None:
+                need(sequence==1,'native source resources missing first session response')
+                if initials is not None:
+                    first_requests[mk]=dict(bytes=wire_by_id[first['serverConnection']]['request'],
+                                            received=point(first['received'],mk[0]),offered=point(first['offered'],mk[0]))
             else:
                 old=leases[previous];old_sequence=response_rows[previous][0]['request']['sequence']
                 need(sequence==old_sequence+1 and old['start']<=point(first['received'],life['node'])<old['end']<life['start'],
@@ -181,6 +187,7 @@ def replay(events,wires,traces,boundaries,identities,root,*,require_complete=Tru
     # Downstream close checks must not infer ownership from equal byte sizes or
     # overlapping sessions. Keys include both original node and allocation UUID.
     if bindings is not None:bindings.update(associations)
+    if initials is not None:initials.update(first_requests)
     return dict(status='PASS',boundReservations=len(used),logicalRequests=len(requests),responseBuffers=len(response_rows),sessions=len(meta_responses),
                 traces=len(trace_meta),completedCaches=len(completed),originalSourceAttempts=sum(len(v) for v in requests.values()),
                 peakConcurrentSessions=peaks,

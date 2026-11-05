@@ -1,5 +1,9 @@
 # Phase 3 session-owned export handles
 
+[Joining request binding follow-up](PHASE_3_JOINING_EXPORT_REQUESTS.md) adds a
+separate first-request check. UUID-only historical joining handles retain this
+earlier ownership scope and are rejected by that new gate.
+
 The later [direct-owner follow-up](PHASE_3_DIRECT_EXPORT_OWNERSHIP.md) qualifies
 the six local borrows on a new original. The original described here remains
 PARTIAL; its missing observations are not backfilled.

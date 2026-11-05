@@ -53,7 +53,7 @@ final class MembershipJoiningIntentExport implements MembershipTransferExport {
                     && request.value().get("ballot").equals(MembershipLearnerDiscovery.correlation(reader))
                     && payload.get("action").equals("REQUEST") && number(payload.get("offset"))==0 && payload.get("bytes").equals("")
                     && reference(context,reader,alias),"joining metadata original request");
-            metadata=resources.reserve(MembershipResources.Unit.CONTROL,"joining-intent-"+UUID.randomUUID(),original.reservationBytes());
+            metadata=resources.reserve(MembershipResources.Unit.CONTROL,MembershipSourceResources.request("joining-intent",request),original.reservationBytes());
             MembershipPrefixExport acquired=null;
             try {
                 // Share the six-borrow registry and its replacement/deadline

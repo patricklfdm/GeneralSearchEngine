@@ -10,9 +10,9 @@ from . import control_close_evidence as close
 
 need=close.need
 BOUND=('source-export','record-export','vote-export','prefix-export','learner-root-export')
-UNBOUND=('joining-retention-export','joining-intent','joining-preparation-export',
+REQUEST_BOUND=('joining-retention-export','joining-intent','joining-preparation-export',
          'joining-completion-export','joining-checkpoint-export')
-ROLES=BOUND+UNBOUND
+ROLES=BOUND+REQUEST_BOUND
 SHAPES={frozenset((role,)):role for role in ROLES if role not in
         ('learner-root-export','joining-retention-export','joining-intent')}
 SHAPES.update({frozenset((role,'prefix-export')):role for role in
@@ -23,7 +23,9 @@ def kind(name):
     role=next((v for v in ROLES if name.startswith(v+'-')),None)
     if role is None:return None
     suffix=name[len(role)+1:]
-    if role in BOUND:
+    # UUID-only joining handles remain readable solely in the historical
+    # handle-ownership scope. The separate request reader refuses that shape.
+    if role in BOUND or role in REQUEST_BOUND and len(suffix)!=36:
         need(re.fullmatch(r'[0-9a-f]{64}-[0-9a-f-]{36}',suffix) is not None,
              'session export original content binding')
         suffix=suffix[65:]
@@ -75,7 +77,7 @@ def inspect(traces,closes):
                 directOwnedAllocations=direct_allocations,directFamilies=dict(sorted(direct_families.items())),
                 revokedBeforeAttachment=revoked,families=dict(sorted(families.items())),
                 declaredSessionExportReleaseQualified=True,unattachedExports=unattached,
-                completeExportAllocationInventory=not unattached,exportContentExtentsQualified=False,
+                completeExportAllocationInventory=not unattached,joiningExportRequestsQualified=False,exportContentExtentsQualified=False,
                 allExportFamiliesQualified=False,failedConstructorExportsQualified=False,
                 wholeRuntimeResourcesQualified=False,phase3Complete=False)
 
