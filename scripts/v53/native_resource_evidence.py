@@ -120,7 +120,10 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
     result=replay(index,traces,boundaries,events,identities,authority)
     from . import owner_close_evidence
     closed=owner_close_evidence.replay(index,traces,boundaries,events,closing)
-    count=bind_publications(publication.collect(root,events),boundaries)
+    transactions=publication.collect(root,events)
+    count=bind_publications(transactions,boundaries)
+    from . import publication_generation_resources
+    generations=publication_generation_resources.replay(transactions,traces,boundaries)
     from . import native_source_resources
     wires=collection.read_json(root,'wire.json',collection.WIRE_BYTES)
     cleanup=None
@@ -167,7 +170,7 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
             published=published_prefix_probe_evidence.replay(traces,control_close_evidence.load(root,index),controls,boundaries)
     need(collection.inventory(root)==before,'native resources original changed')
     return dict(result,status=cleanup['status'] if cleanup else result['status'],scope='native-owner-accounting-with-original-publication-boundaries',profile=profile,
-                precondition=preceding,publicationResources=physical,publicationBoundaries=count,transportResources=transport,
+                precondition=preceding,publicationResources=physical,publicationBoundaries=count,publicationGenerationResources=generations,transportResources=transport,
                 floorResources=floors,receivingResources=receiving,basisResources=bases,ownerCloseResources=closed,
                 sourceControlResources=source_result,sourceCleanupIntervals=cleanup,directExportOwnership=direct,publishedPrefixProbe=published,
                 physicalPeakQualified=False,controlLifetimesQualified=False,finalSourceCohortQualified=False)

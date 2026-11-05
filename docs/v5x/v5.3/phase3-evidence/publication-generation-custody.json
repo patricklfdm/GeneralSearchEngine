@@ -1,0 +1,120 @@
+{
+  "baseSource": "d5032fb3e709289f6338977790f9c74abd1bf601",
+  "checks": [
+    {
+      "currentSourceCohortQualified": false,
+      "elapsedSeconds": 3.283,
+      "generationResources": {
+        "completionTransferDerived": true,
+        "finalSourceCohortQualified": false,
+        "generationIdentitiesDerived": true,
+        "mutationStates": 34,
+        "phase3Complete": false,
+        "physicalBoundaries": 44,
+        "physicalPeakQualified": false,
+        "publications": 4,
+        "scope": "admitted-publication-generation-custody",
+        "status": "PASS",
+        "wholeRuntimePhysicalCustodyQualified": false
+      },
+      "negativeCases": 10,
+      "negativeReport": "target/v53-publication-generation-custody/stable-03-negatives-01.json",
+      "newRuntimeExecution": false,
+      "original": "general-search-engine-replication/target/v53-native-dispatch/run-0087a370-431d-43f0-949b-ccdf4e762e10",
+      "originalInventorySha256": "ef8841d243c4597d6e1dd66182906eb9387f260ee2fc741c4b31c36606cf2bd1",
+      "phase3Complete": false,
+      "profile": "stable",
+      "scope": "retained-original-publication-generation-custody",
+      "status": "PASS"
+    },
+    {
+      "currentSourceCohortQualified": false,
+      "elapsedSeconds": 312.729,
+      "generationResources": {
+        "completionTransferDerived": true,
+        "finalSourceCohortQualified": false,
+        "generationIdentitiesDerived": true,
+        "mutationStates": 272,
+        "phase3Complete": false,
+        "physicalBoundaries": 374,
+        "physicalPeakQualified": false,
+        "publications": 34,
+        "scope": "admitted-publication-generation-custody",
+        "status": "PASS",
+        "wholeRuntimePhysicalCustodyQualified": false
+      },
+      "negativeCases": 10,
+      "negativeReport": "target/v53-publication-generation-custody/required-four-negatives-01.json",
+      "newRuntimeExecution": false,
+      "original": "general-search-engine-replication/target/v53-native-dispatch/run-bc82bb01-127a-40e0-9332-dd2f2bc8a1d3",
+      "originalInventorySha256": "ae90efd59c79d7db184eb54adfd32e3684b8200a6130e814910b54643120bd84",
+      "phase3Complete": false,
+      "profile": "5-REPLACE-required-four",
+      "scope": "retained-original-publication-generation-custody",
+      "status": "PASS"
+    }
+  ],
+  "currentSourceCohortQualified": false,
+  "exactNegativeChecks": 20,
+  "execution": "historical-original-replay-and-reader-tests",
+  "newPythonTests": 17,
+  "newRuntimeExecution": false,
+  "phase3Complete": false,
+  "physicalPeakQualified": false,
+  "plannedHostedHistories": 544,
+  "pythonTests": 352,
+  "readerInputsSha256": "fe236891c746c26b80fc41f7201f4f8d144e8652474d80f6358a8f545084533c",
+  "reports": {
+    "target/v53-publication-generation-custody/contract-final-01.log": "74d8483befd038a98aeb30107b923e10e9b89be381b0a554348d9cba4376b8f9",
+    "target/v53-publication-generation-custody/contract-initial-01.log": "63cc0c750e0788466fae3044643b73e121bdd26e94fd6bfcbe1ce5f9de393a52",
+    "target/v53-publication-generation-custody/negatives.py": "8fe511c30cc2a6995290371fcfbc000b8d6eaac5632d7d180ebf143fc1b668e3",
+    "target/v53-publication-generation-custody/python-broad-01.log": "cd1eca64445e9f680c26fda88488d976c21fb6d15578285a373b9ee966441478",
+    "target/v53-publication-generation-custody/python-focused-01.log": "36e668922903e3769161f37cfa28b11794b7a92cf701983eb4ab2f9a9bcd6bd3",
+    "target/v53-publication-generation-custody/python-initial-01.log": "193cf24bdc946b24c0bbba3e76c5fe16792f1df35384079d31670dc237eff819",
+    "target/v53-publication-generation-custody/qualification-plan-01.log": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df",
+    "target/v53-publication-generation-custody/qualification-plan-01/acceptance-plan.json": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717",
+    "target/v53-publication-generation-custody/qualification-plan-01/plan.json": "ad613acf4d50ae234a25df330f72381021baac6854c0041479dbb70b7674eaf3",
+    "target/v53-publication-generation-custody/qualification-plan-01/receipt.json": "3b1a041b34eeb327520c76ea0bcd8b29a836530d95ba77bce26ad23e285811ef",
+    "target/v53-publication-generation-custody/qualification-plan-tests-01.log": "9b1d502d97b7749fa1fcd0324381ada49c83a8bed9ed31687b95b202696043b2",
+    "target/v53-publication-generation-custody/reader-input-01.json": "9dedd9052efe064acdfbbade0281f567ad798e98e1c1c2a88e7520871d1081f7",
+    "target/v53-publication-generation-custody/reader-input-final.json": "fe236891c746c26b80fc41f7201f4f8d144e8652474d80f6358a8f545084533c",
+    "target/v53-publication-generation-custody/replay.py": "6a070f1ab6b1d82c52fa1bdc25d8ef30ab30ef63b74f9204f1b0851d7ec106e3",
+    "target/v53-publication-generation-custody/required-four-complete-01.json": "0b5ea08d7e3c2d4cf388f7dff8a8c5922ae948fe1c997852d12953fc34d14bad",
+    "target/v53-publication-generation-custody/required-four-negatives-01.json": "8cfefa93f70b121f50c5dabd4ec19da2b8b78bd8c9f645fa399b2a4eed4f60ca",
+    "target/v53-publication-generation-custody/required-four-negatives-01.log": "013a4d4335b42d15a296a73cc104acaae3849f51cd2bc6d7fb313a1aad381482",
+    "target/v53-publication-generation-custody/required-four-replay-01.log": "59fe5c2f45531489bf4a7b9124556b87280338f4cc91cf8f4e8c45f9602000b4",
+    "target/v53-publication-generation-custody/required-four-summary-01.json": "d5d0fa8cea60d95625172e7ee37dc0a44fc342db8da915fccdf8eb6549e5f467",
+    "target/v53-publication-generation-custody/stable-03-complete-01.json": "b49edc5b65183dbdf45c026339a23b15970552592afec823e81ddb08007e4df1",
+    "target/v53-publication-generation-custody/stable-03-negatives-01.json": "431c0248f0e0d14a39038867a6ee02ab5357dc755062e4aabc0c29813f6481e4",
+    "target/v53-publication-generation-custody/stable-03-summary-01.json": "c8dd71d2347beba3701d0dfe3497a98916caf67bc7496fad0d909070fcc68565",
+    "target/v53-publication-generation-custody/stable-negatives-01.log": "91c6cb9cce5740b99f0f658612636d6b0420c9e543d22db9cd594c6fddc6cedd",
+    "target/v53-publication-generation-custody/stable-replay-01.log": "0b0e083650d98d019cea9e20add5ecda243c1565743136f748abfb7fecfc00d2",
+    "target/v53-publication-generation-custody/stable-replay-02.log": "aaf2983db1d3ef01d78c3cf8e5f2252f2f0a081bc0cd8f8d746da9c4e73584dd",
+    "target/v53-publication-generation-custody/stable-replay-03.log": "2b83471d888ea1731d6e682628035840129fb97e6f33afdab06de9abec128e5f"
+  },
+  "requirements": 12,
+  "retainedFailures": [
+    {
+      "path": "target/v53-publication-generation-custody/stable-replay-01.log",
+      "reason": "existing cleanup collection opt-in omitted"
+    },
+    {
+      "path": "target/v53-publication-generation-custody/stable-replay-02.log",
+      "reason": "existing export ownership opt-in omitted"
+    },
+    {
+      "path": "target/v53-publication-generation-custody/contract-initial-01.log",
+      "reason": "new development index not yet written"
+    }
+  ],
+  "schema": "gse-v53-publication-generation-development-v1",
+  "sourceFiles": {
+    "scripts/v53/native_resource_evidence.py": "eae597fa76373a46202432f569cb530bb75ba4721ebbd969500a7670d9d29c1d",
+    "scripts/v53/publication_generation_negatives.py": "d85d011ec7e30dd1526823ba0b9e1f15cd1ca02f6417b8eb7e6b596c6a4ac9ae",
+    "scripts/v53/publication_generation_resources.py": "d381eec9d94ff7c0051913a53a97949dd283c163bc34dfd766991cdc4d67039c",
+    "scripts/v53/test_publication_generation_resources.py": "cd4909359220204d70881800c38ad4889cf8b1f44489e982d9c33c5e191d74ef"
+  },
+  "sourceInventoryQualified": true,
+  "status": "PASS",
+  "wholeRuntimePhysicalCustodyQualified": false
+}

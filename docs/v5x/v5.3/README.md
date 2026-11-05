@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Publication generation custody](PHASE_3_PUBLICATION_GENERATION_CUSTODY.md) now
+binds admitted files to exact generation/image owners and checks every resource
+mutation through atomic completion transfer, reload and retirement. Seventeen
+new tests and adjacent suites total 352 passing checks. Complete runtime physical
+custody, resource maxima and final-source qualification remain OPEN.
+
 [Successful-session content extents](PHASE_3_SESSION_CONTENT_EXTENTS.md) now
 derive all ten export families from original contents and bind every session's
 exact charges and nested prefixes. Historical required-four yields 786 sessions
