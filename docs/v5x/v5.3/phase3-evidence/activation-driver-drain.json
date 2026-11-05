@@ -1,0 +1,338 @@
+{
+  "activation": {
+    "original": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-activation-driver/run-5bb833f1-abdf-4834-9f46-9a1a1875638b",
+    "path": "target/v53-activation-driver-drain/activation-replay.json",
+    "result": {
+      "negatives": [
+        {
+          "case": "scope",
+          "reason": "driver scope/receipt",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-profile",
+          "reason": "driver complete inventory",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-ack",
+          "reason": "activation exchange inventory",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-install",
+          "reason": "activation exact installed bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "control-delivery",
+          "reason": "endpoint original control delivery",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-source",
+          "reason": "endpoint missing source transfer",
+          "status": "REJECTED"
+        },
+        {
+          "case": "duplicate-source",
+          "reason": "endpoint unexpected/duplicate source transfer",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-source",
+          "reason": "endpoint source correlation",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-data",
+          "reason": "endpoint source exact data",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-force",
+          "reason": "activation force order",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "automaticCampaign": true,
+        "cases": [
+          {
+            "installed": 2,
+            "selected": 2,
+            "size": 3
+          },
+          {
+            "installed": 3,
+            "selected": 3,
+            "size": 4
+          },
+          {
+            "installed": 3,
+            "selected": 3,
+            "size": 5
+          }
+        ],
+        "network": true,
+        "publicRuntime": false,
+        "schema": "gse-v53-activation-driver-v1",
+        "status": "PASS"
+      },
+      "sourceExchanges": 156
+    },
+    "sha256": "f13d7b3f9d99aa17e3ac59c09b2ec4ad31027573d15468f8bdd8825abe70c376"
+  },
+  "baseSource": "71f84a99f0968d6cb11b78c1e2a27056a1bb77e2",
+  "classFiles": {
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationDriver$PeerUnavailable.class": "c9df209b4afa0ff9fcb9ff81d82820a4b4e171cc98e5c117dc34e95a925edcbd",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationDriver$Round$Task.class": "567e2baa4a93809366c5b7ffd266f5dec0899ed1baecfe49a126e772f6cf729f",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationDriver$Round.class": "0c8e1f7a3f877f572839eab7a8534d3d0d2f475cd3be9f3daff88c78fed03f15",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationDriver.class": "2029713b2ca573f770f17dbe812afaeb8c1259cd05c1590629d5d037d6ec4a21"
+  },
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 2751,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "finalJavaTests": 33,
+  "finalSourceCohortQualified": false,
+  "hostedExecution": false,
+  "java": {
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationDriverDrainTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-activation-driver-drain/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationDriverDrainTest.xml",
+      "seconds": 17.031,
+      "sha256": "ce0205810cdd27ac0cc787fe7c33f2b36793c9f32c55b3576e3013044666dc53",
+      "skipped": 0,
+      "tests": 5
+    },
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationDriverTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-activation-driver-drain/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationDriverTest.xml",
+      "seconds": 135.933,
+      "sha256": "fe6d98096a6d5942413a0145788d44b62e1a934438a5a5c36f299ea752803f33",
+      "skipped": 0,
+      "tests": 23
+    },
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53MaintenanceDrainTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-activation-driver-drain/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53MaintenanceDrainTest.xml",
+      "seconds": 17.439,
+      "sha256": "c3ec286083e2df02da42beba9c49f29f9bd075309000092593af37c8752ea0b8",
+      "skipped": 0,
+      "tests": 4
+    },
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-activation-driver-drain/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml",
+      "seconds": 55.492,
+      "sha256": "1fe7f0aeb1f54d1853fd073eee2fa6851d8c81111817a6d761c5e7fceb9c773e",
+      "skipped": 0,
+      "tests": 1
+    }
+  },
+  "limitations": [
+    "All five final regressions fail against the exact base implementation, then pass on the final corrected source. Original/intermediate failures remain retained.",
+    "Tests hold actual original bootstrap/journal/scratch ownership and a writable file channel. Only the existing callbacks are gated; no replacement executor or storage implementation establishes the result.",
+    "Resource assertions track the exact original local source export, campaign request and peer-task leases. Legitimate unused transfer-service cleanup is not counted as premature ownership release.",
+    "The initial sandbox-only execution failed before test setup due to loopback permissions; it is not a runtime failure or positive evidence.",
+    "A failed peer drain keeps the original bounded round for an external cleanup retry, with no thread interruption, new retry queue, protocol budget extension or resource-limit increase.",
+    "Existing actual TCP stable-3/4/5 activation histories and one fresh two-slot native history qualify through their original-first readers, twenty exact accounting negatives and ten activation negatives.",
+    "Complete interrupted/process coverage, simultaneous physical maxima and final-source 544-history cohort execution remain OPEN."
+  ],
+  "logs": {
+    "activation-replay.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "after-01.log": "ce76164d726d1df926a9224f58803acad5de2a23e2c7ad35f1830cc5562199b6",
+    "before-01.log": "9e9c3da9d452de0590693dcf05639dac90aa63eaf447467b33848a8a745108cc",
+    "before-02.log": "ad6a1cadf8ecc8dc812fccf8cc80ad03f63449712d8e0a3fb97140c5549e6967",
+    "before-03.log": "c4e912b0b7e736326224b20862e50b210bc708ba9e54ce2ecec9cfaa17d45473",
+    "final-01.log": "cb5f13811220ba2d43e601647eba75f75ea61e63924c085b1d0f915f2ba7b24d",
+    "native-replay.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "planning-tests.log": "5b02c633a6f054e1c5f43f7d04c7b1d49620fadb5fe254324a4791e64d2dcde2",
+    "python-01.log": "7d497ad4cedfaa1cf26ea997ae18915b9a0d958c9e29f35c9b22982119bbb013"
+  },
+  "native": {
+    "negativeCases": [
+      {
+        "case": "request-short",
+        "reason": "activation resources original request extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "request-long",
+        "reason": "activation resources original request extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cache-short",
+        "reason": "activation resources original cached extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cache-long",
+        "reason": "activation resources original cached extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "control-binding",
+        "reason": "activation resources unobserved allocation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "waiter-binding",
+        "reason": "activation resources unobserved allocation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-control",
+        "reason": "activation resources one cache and callers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-waiter",
+        "reason": "activation resources one cache and callers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "legacy-control",
+        "reason": "activation resources original bindings required",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-control",
+        "reason": "activation resources one cache and callers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-waiter",
+        "reason": "activation resources unmatched waiter",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reused-control",
+        "reason": "activation resources reused allocation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-growth",
+        "reason": "activation resources original reply growth",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-growth",
+        "reason": "activation resources single cache growth",
+        "status": "REJECTED"
+      },
+      {
+        "case": "growth-before-durability",
+        "reason": "activation resources original durable boundary",
+        "status": "REJECTED"
+      },
+      {
+        "case": "release-before-caller",
+        "reason": "activation resources cached reply caller custody",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-grant-boundary",
+        "reason": "activation resources original durable boundary",
+        "status": "REJECTED"
+      },
+      {
+        "case": "fast-publication-witness-omitted",
+        "reason": "activation resources missing mandatory caller",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-child-binding",
+        "reason": "activation resources slot child custody",
+        "status": "REJECTED"
+      },
+      {
+        "case": "publication-control-omitted",
+        "reason": "activation resources publication caller custody",
+        "status": "REJECTED"
+      }
+    ],
+    "original": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-dispatch/run-88474389-61e2-479e-a0f3-ee1f469928cb",
+    "originalInventorySha256": "e085f6206ade36dcf4bc883482f2ef3c51c807a85fb5a3b68f6841b3395bb673",
+    "path": "target/v53-activation-driver-drain/native-replay.json",
+    "result": {
+      "activationResourcesQualified": true,
+      "boundReservations": 25,
+      "cachedControls": 12,
+      "calls": 14,
+      "durableBoundaryChecks": 5,
+      "fastPublicationReplies": 1,
+      "interruptedHandlersQualified": false,
+      "kinds": {
+        "ACCEPT": 2,
+        "APPLY": 2,
+        "PREPARE": 1,
+        "PROOF": 2,
+        "PUBLISH": 4,
+        "SELECTED": 1
+      },
+      "localCallers": 2,
+      "phase3Complete": false,
+      "publicationTransactions": 4,
+      "slotChildWaiters": 10,
+      "status": "PASS",
+      "waiterReservations": 13,
+      "wholeRuntimeResourcesQualified": false
+    },
+    "sha256": "c03bbd40ea2b089ba0d763f98f46274bd96d8de99b2dee6b994f914626bb4d67"
+  },
+  "originalFailingRegressions": 5,
+  "originalImplementation": {
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationDriverDrainTest.xml": {
+      "errors": 0,
+      "failures": 5,
+      "path": "target/v53-activation-driver-drain/final-before-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationDriverDrainTest.xml",
+      "seconds": 16.626,
+      "sha256": "df59b84a2f4e335a3ae9d41bf4572c8c78cdc7d3b0f259d2ff060f20f857eb62",
+      "skipped": 0,
+      "tests": 5
+    }
+  },
+  "originalSourceSha256": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationDriver.java": "96924d128b56d79588013d3953ddc9ddd8f3498869323c9a2969f32c71f00704"
+  },
+  "paidCloud": false,
+  "phase3Complete": false,
+  "physicalPeakQualified": false,
+  "python": {
+    "suites": [
+      {
+        "path": "target/v53-activation-driver-drain/python-01.log",
+        "sha256": "7d497ad4cedfaa1cf26ea997ae18915b9a0d958c9e29f35c9b22982119bbb013",
+        "tests": 120
+      },
+      {
+        "path": "target/v53-activation-driver-drain/planning-tests.log",
+        "sha256": "5b02c633a6f054e1c5f43f7d04c7b1d49620fadb5fe254324a4791e64d2dcde2",
+        "tests": 18
+      }
+    ],
+    "tests": 138
+  },
+  "schema": "gse-v53-development-evidence-v1",
+  "scope": "outgoing-activation-peer-and-caller-drain",
+  "sourceSha256": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationDriver.java": "91b735197a6c00a401844351245c5878ea065032a0bc1dfeb663b1c98b566d6a",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationDriverDrainTest.java": "2109a640bdfcab985ae199bfa5a5b885aad4f0eef050bbc7046ab736cefac64b",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationDriverTest.java": "07db1b4b45af35b05e96d0dd755e299da73e06797d187512330320b1007e0275"
+  },
+  "status": "PASS",
+  "wholeRuntimeResourcesQualified": false
+}

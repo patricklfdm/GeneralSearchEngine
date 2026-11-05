@@ -267,16 +267,24 @@ final class MembershipActivationDriver implements AutoCloseable {
             }
         }
         List<Task> snapshot(){synchronized(tasks){return List.copyOf(tasks);}}
+        boolean worker(){return snapshot().stream().anyMatch(task->task.thread==Thread.currentThread());}
         void stop(){ended=true;for(var task:snapshot())task.stop();}
-        @Override public void close()throws IOException {
-            stop();IOException failure=null;
+        @Override public synchronized void close()throws IOException {
+            stop();IOException failure=null;boolean released=false;
             try {
+                // Cancellation is not drain. Keep the campaign, original local
+                // export and every receiving owner reachable if any peer still
+                // uses them; the same round is retried by the external closer.
+                for(var task:snapshot())try{task.drain();}catch(IOException|RuntimeException error){
+                    if(failure==null)failure=new IOException("activation peer drain failed",error);else failure.addSuppressed(error);}
+                if(failure!=null)throw failure;
                 if(history!=null)try{history.close();}catch(IOException|RuntimeException error){failure=new IOException("activation ancestry cleanup failed",error);}
-                for(var task:snapshot())try{task.drain();task.release();}catch(IOException|RuntimeException error){if(failure==null)failure=new IOException("activation peer drain/cleanup failed",error);else failure.addSuppressed(error);}
+                for(var task:snapshot())try{task.release();}catch(IOException|RuntimeException error){if(failure==null)failure=new IOException("activation peer cleanup failed",error);else failure.addSuppressed(error);}
+                if(failure!=null)throw failure;
+                localImagesCleanup.close();campaign.close();released=true;
             }finally {
-                localImagesCleanup.close();campaign.close();if(!success || failure!=null)endpoint.abandon(object(own.basis.value().get("ballot")));
+                if(!success || !released)endpoint.abandon(object(own.basis.value().get("ballot")));
             }
-            if(failure!=null)throw failure;
         }
         private final class Task {
             final MembershipIdentity peer;
@@ -347,7 +355,10 @@ final class MembershipActivationDriver implements AutoCloseable {
                 }catch(Throwable failure){error=failure;}
                 finally {completions.add(this);done.countDown();}
             }
-            void stop(){stopped=true;for(var future:pending)future.cancel(true);thread.interrupt();}
+            // Interrupting a peer in FileChannel I/O can close its owned writer
+            // before cleanup. Cancel waits cooperatively and retain ownership
+            // across the unchanged bounded drain if the task cannot yet exit.
+            void stop(){stopped=true;for(var future:pending)future.cancel(true);}
             void drain()throws IOException {
                 // Drain is cleanup only: it never grants protocol work more time.
                 boolean interrupted=Thread.interrupted();
@@ -359,11 +370,14 @@ final class MembershipActivationDriver implements AutoCloseable {
         }
     }
     @Override public void close()throws IOException {
-        boolean running;
-        synchronized(lifecycle){closed=true;running=used && finished.getCount()!=0;}
+        boolean running,self;
+        synchronized(lifecycle){closed=true;running=used && finished.getCount()!=0;self=running && Thread.currentThread()==runner;}
         var round=active;if(round!=null)round.stop();
+        // A run/peer callback cannot wait for itself or release scratch that
+        // its own stack still uses. Revocation stands; an external close drains.
+        if(self || round!=null && round.worker())throw new IOException("activation driver close from active callback");
         var cleaning=maintenance;if(cleaning!=null)cleaning.close();
-        if(running && Thread.currentThread()!=runner) {
+        if(running) {
             try{require(finished.await(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS),"activation driver close timeout");}
             catch(InterruptedException error){Thread.currentThread().interrupt();throw new IOException("activation driver close interrupted",error);}
         }

@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Outgoing activation drain](PHASE_3_ACTIVATION_DRIVER_DRAIN.md) now retains
+original task/export/campaign ownership until every worker exits. Cancellation
+no longer interrupts file owners; self-close requires an external drain.
+Full Phase 3 resource and cohort qualification remain OPEN.
+
 [Original activation resource bindings](PHASE_3_ACTIVATION_CONTROL_RESOURCES.md)
 now qualify stable control request/reply extents, duplicate waiter intervals and
 physical publication custody. Fast published replies require original physical

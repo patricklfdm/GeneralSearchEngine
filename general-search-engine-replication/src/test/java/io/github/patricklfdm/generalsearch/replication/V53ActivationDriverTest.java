@@ -32,10 +32,13 @@ class V53ActivationDriverTest {
         final boolean tcp;
         Path driverScratch;
         Local(int size,boolean tcp,Path raw,LongSupplier clock,int requestMillis)throws Exception {
+            this(size,tcp,raw,clock,requestMillis,V53SourceExchangeTest::resources);
+        }
+        Local(int size,boolean tcp,Path raw,LongSupplier clock,int requestMillis,java.util.function.Supplier<MembershipResources> pools)throws Exception {
             this.clock=clock;this.tcp=tcp;bound=V53MembershipTransportTest.bounds(2,requestMillis,FRAME);
             var helper=new V53MembershipTransportTest();helper.temp=temp;group=helper.new Group(size,raw);
             for(int i=0;i<size;i++) {
-                var target=group.fixture.request.targets().get(i);var budget=resources();budgets.add(budget);
+                var target=group.fixture.request.targets().get(i);var budget=pools.get();budgets.add(budget);
                 var steps=Collections.synchronizedList(new ArrayList<String>());events.put(target.identity().nodeId().value(),steps);
                 owners.add(MembershipGrantJournal.openBootstrapped(target.replicaDirectory(),target.materialization().directory(),group.fixture.result.root(),target.identity(),budget,V53ActivationEndpointTest.verifier(),MembershipGrantJournal.MAXIMUM,steps::add));
                 transports.add(new AtomicReference<>());
