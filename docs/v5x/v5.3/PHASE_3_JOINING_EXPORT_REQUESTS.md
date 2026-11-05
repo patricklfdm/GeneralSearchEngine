@@ -1,5 +1,9 @@
 # Phase 3 joining export request bindings
 
+[Constructor rollback follow-up](PHASE_3_EXPORT_CONSTRUCTOR_ROLLBACK.md) adds
+separate failed-constructor cleanup observations. These do not convert the
+successful-session request scope below into complete native qualification.
+
 This follows [session export ownership](PHASE_3_SESSION_EXPORT_OWNERSHIP.md)
 and [direct local export ownership](PHASE_3_DIRECT_EXPORT_OWNERSHIP.md).
 The [development index](phase3-evidence/joining-export-requests.json) records

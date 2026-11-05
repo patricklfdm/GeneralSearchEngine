@@ -62,7 +62,10 @@ final class MembershipJoiningCompletion implements MembershipTransferExport {
         metadata=resources.reserve(MembershipResources.Unit.CONTROL,MembershipSourceResources.request("joining-completion-export",request),2L*MAXIMUM);
         try{bytes=bytes(context,owner.activationIdentity());digest=hash(bytes);alias=reference(context,owner.activationIdentity());
             require(!digest.equals(alias),"joining completion alias collision");check();}
-        catch(IOException|RuntimeException|Error error){metadata.close();throw error;}
+        catch(IOException|RuntimeException|Error error){
+            long rollback=metadata.observeExportRollbackBegin(null);
+            metadata.close();metadata.observeExportRollbackReturned(rollback);throw error;
+        }
     }
     private void check()throws IOException {
         long elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"joining completion closed/original deadline");

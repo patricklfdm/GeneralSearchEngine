@@ -90,7 +90,10 @@ final class MembershipJoiningPreparation implements AutoCloseable {
         check();require(joining.equals(reader) && reference(context,reader,(String)object(request.value().get("payload")).get("digest")),"joining preparation exact joining reader/reference");
         initial(context,owner.activationIdentity(),reader,request);
         var charge=resources.reserve(MembershipResources.Unit.CONTROL,MembershipSourceResources.request("joining-preparation-export",request),2L*MAXIMUM);
-        try{check();return new Export(reader,request,charge);}catch(IOException|RuntimeException|Error error){charge.close();throw error;}
+        try{check();return new Export(reader,request,charge);}catch(IOException|RuntimeException|Error error){
+            long rollback=charge.observeExportRollbackBegin(null);
+            charge.close();charge.observeExportRollbackReturned(rollback);throw error;
+        }
     }
     private final class Export implements MembershipTransferExport {
         private final MembershipIdentity reader;

@@ -1,7 +1,7 @@
 """Original source-component cleanup calls, distinct from final zero accounting.
 
-The annotations run inside existing monitors without calling outside code. They
-identify the cleanup-performing invocation, not concurrent no-op close callers.
+Rows are emitted under the resource monitor. Export descriptors are inspected
+outside that monitor before recording exact handles. The rows identify the cleanup-performing invocation, not concurrent no-op close callers.
 Joining endpoints, export internals and whole-runtime shutdown remain separate.
 """
 import argparse
@@ -16,9 +16,12 @@ ROLES=('transfer-service','transfer-trace','source-session','joining-checkpoint-
 SERVICES={'transfer-service':'transfer-trace','joining-checkpoint-service':'joining-checkpoint-trace'}
 MAXIMUM=65536
 CHILDREN_MAXIMUM=262144
+ROLLBACK_ROLES=('joining-retention-export','joining-intent','joining-preparation-export','joining-completion-export','joining-checkpoint-export')
+ROLLBACK_EVENTS={'EXPORT_ROLLBACK_BEGIN','EXPORT_ROLLBACK_RETURNED'}
 DIRECT_ROLES={'ACTIVATION':'source-export','SELECTED':'source-export','MAINTENANCE':'prefix-export'}
 DIRECT_EVENTS={phase+'_BORROW_'+event:(phase,event) for phase in DIRECT_ROLES
                for event in ('ACQUIRED','CLOSE_BEGIN','RETURNED')}
+EXPORT_EVENTS=frozenset(DIRECT_EVENTS)|ROLLBACK_EVENTS
 
 
 def role(owner):
@@ -62,7 +65,7 @@ def allocations(trace):
 def replay(traces,closes,*,export_ownership=False):
     need(type(export_ownership) is bool,'control close export policy')
     need(type(closes) is dict and set(closes)==set(traces) and traces,'control close complete original budgets')
-    owners={};total=0;children_total=0
+    owners={};total=0;children_total=0;rollback_total=0
     for node,trace in traces.items():
         life=allocations(trace);value=closes[node]
         need(type(value) is dict and set(value)=={'schema','maximum','observations','truncated','failed','rows'} and
@@ -70,20 +73,39 @@ def replay(traces,closes,*,export_ownership=False):
              0<value['maximum']<=MAXIMUM and value['truncated'] is False and value['failed'] is False and
              type(value['observations']) is int and type(value['rows']) is list and
              value['observations']==len(value['rows'])<=value['maximum'],'control close complete bounded recorder')
-        pairs={};calls={};attachments={};direct={};cursor=0;child_count=0
+        pairs={};calls={};attachments={};direct={};rollbacks={};cursor=0;child_count=0
         for seq,row in enumerate(value['rows']):
             need(type(row) is dict and set(row)=={'sequence','event','call','resourceSequence','owner','children'} and
                  type(row['sequence']) is int and row['sequence']==seq and type(row['call']) is int and
                  type(row['event']) is str and
                  type(row['resourceSequence']) is int and cursor<=row['resourceSequence']<len(trace['changes']) and
                  type(row['owner']) is str and row['owner'] in life and
-                 (role(row['owner']) is not None or export_ownership and row['event'] in DIRECT_EVENTS) and
+                 (role(row['owner']) is not None or export_ownership and row['event'] in EXPORT_EVENTS) and
                  type(row['children']) is list and all(type(v) is str for v in row['children']) and
                  row['children']==sorted(set(row['children'])) and len(row['children'])<=256,
                  'control close exact ordered row')
             cursor=row['resourceSequence'];name=row['owner'];owned=life[name]
             child_count+=len(row['children']);need(child_count<=CHILDREN_MAXIMUM,'control close child capacity')
-            if row['event'] in DIRECT_EVENTS:
+            if row['event'] in ROLLBACK_EVENTS:
+                kind=next((v for v in ROLLBACK_ROLES if name.startswith(v+'-')),None)
+                need(export_ownership and kind is not None,'control close rollback metadata scope')
+                if row['event']=='EXPORT_ROLLBACK_BEGIN':
+                    need(name not in rollbacks and row['call']==seq and owned['end'] is not None and
+                         owned['start']<=cursor<owned['end'],'control close original rollback invocation')
+                    need(len(row['children'])<=1 and (not row['children'] or kind in ('joining-retention-export','joining-intent')) and
+                         all(child!=name and child in life and child.startswith('prefix-export-') and life[child]['end'] is not None and
+                             owned['start']<life[child]['start']<=cursor for child in row['children']),
+                         'control close rollback original children')
+                    rollbacks[name]=dict(begin=row,returned=None)
+                else:
+                    need(name in rollbacks and rollbacks[name]['returned'] is None and not row['children'] and
+                         row['call']==rollbacks[name]['begin']['sequence'],'control close original rollback return')
+                    need(owned['end']<=cursor and all(life[child]['end']<=cursor for child in rollbacks[name]['begin']['children']),
+                         'control close rollback release before return')
+                    need(all(life[child]['end']<=owned['end'] for child in rollbacks[name]['begin']['children']),
+                         'control close rollback child release order')
+                    rollbacks[name]['returned']=row
+            elif row['event'] in DIRECT_EVENTS:
                 phase,event=DIRECT_EVENTS[row['event']]
                 need(export_ownership and not row['children'] and name.startswith(DIRECT_ROLES[phase]+'-'),
                      'control close direct export scope')
@@ -129,6 +151,7 @@ def replay(traces,closes,*,export_ownership=False):
              'control close complete cleanup intervals')
         need(all(v['begin'] is not None and v['returned'] is not None for v in direct.values()),
              'control close incomplete direct cleanup')
+        need(all(v['returned'] is not None for v in rollbacks.values()),'control close incomplete rollback')
         parent={};session_parent={}
         for name,pair in pairs.items():
             kind=role(name);start=pair['begin'];end=pair['returned'];owned=life[name]
@@ -159,10 +182,10 @@ def replay(traces,closes,*,export_ownership=False):
                       'control close completed session order')
         if export_ownership:
             need(set(attachments)==set(session_parent),'control close complete export attachments')
-        owners[node]=dict(pairs=pairs,lifetimes=life,sessionParents=session_parent,exportAttachments=attachments,directExports=direct)
-        total+=len(pairs);children_total+=child_count
-    need(total>0,'control close unobserved cleanup')
-    return dict(status='PASS',cleanupIntervals=total,childReferences=children_total,owners=owners,
+        owners[node]=dict(pairs=pairs,lifetimes=life,sessionParents=session_parent,exportAttachments=attachments,directExports=direct,exportRollbacks=rollbacks)
+        total+=len(pairs);children_total+=child_count;rollback_total+=len(rollbacks)
+    need(total>0 or rollback_total>0,'control close unobserved cleanup')
+    return dict(status='PASS',cleanupIntervals=total,rollbackIntervals=rollback_total,childReferences=children_total,owners=owners,
                 wholeRuntimeResourcesQualified=False,phase3Complete=False)
 
 

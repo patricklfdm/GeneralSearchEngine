@@ -1,0 +1,724 @@
+{
+  "allExportConstructorsQualified": false,
+  "baseSource": "778c4ff9d7fefdb67b6f350655c72b98c29daf94",
+  "components": [
+    {
+      "allExportConstructorsQualified": false,
+      "case": "preparation-guard",
+      "component": {
+        "negatives": [
+          {
+            "case": "missing-begin",
+            "reason": "control close original rollback return",
+            "status": "REJECTED"
+          },
+          {
+            "case": "duplicate-begin",
+            "reason": "control close original rollback invocation",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-return",
+            "reason": "control close incomplete rollback",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-call",
+            "reason": "control close original rollback return",
+            "status": "REJECTED"
+          },
+          {
+            "case": "return-before-release",
+            "reason": "control close rollback release before return",
+            "status": "REJECTED"
+          },
+          {
+            "case": "foreign-request",
+            "reason": "export rollback original request allocation",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-extent",
+            "reason": "export rollback original metadata extent",
+            "status": "REJECTED"
+          },
+          {
+            "case": "late-call-start",
+            "reason": "export rollback original operation interval",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-call-end",
+            "reason": "export rollback original operation interval",
+            "status": "REJECTED"
+          },
+          {
+            "case": "boolean-boundary",
+            "reason": "export rollback original operation boundaries",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unobserved-pair",
+            "reason": "export rollback complete observed calls",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "allExportConstructorsQualified": false,
+          "declaredRollbackReleaseQualified": true,
+          "ownedAllocations": 1,
+          "phase3Complete": false,
+          "revokedChildrenBeforeCleanup": 0,
+          "rollbackCalls": 1,
+          "scope": "original-failed-export-cleanup-invocations",
+          "status": "PASS",
+          "wholeRuntimeResourcesQualified": false
+        }
+      },
+      "inventory": {
+        "bytes": 7894,
+        "directories": [],
+        "files": {
+          "case.json": "6bcb10631218e24a2b4ea635da0354f64d33b37c97bb6665ceff263b9c81c9de",
+          "closes.json": "18720322cecb3ac485283090578ed07c306f0b40c078c126859ea0553c445576",
+          "resources.json": "e6885cc19b4d29331bebe81b08bafa25b0b8065e791da82eb6ce073c3e7f276f"
+        }
+      },
+      "nativeJoiningQualified": false,
+      "phase3Complete": false,
+      "scope": "conditional-original-constructor-rollback",
+      "status": "PARTIAL"
+    },
+    {
+      "allExportConstructorsQualified": false,
+      "case": "retention-capacity",
+      "component": {
+        "negatives": [
+          {
+            "case": "missing-begin",
+            "reason": "control close original rollback return",
+            "status": "REJECTED"
+          },
+          {
+            "case": "duplicate-begin",
+            "reason": "control close original rollback invocation",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-return",
+            "reason": "control close incomplete rollback",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-call",
+            "reason": "control close original rollback return",
+            "status": "REJECTED"
+          },
+          {
+            "case": "return-before-release",
+            "reason": "control close rollback release before return",
+            "status": "REJECTED"
+          },
+          {
+            "case": "foreign-request",
+            "reason": "export rollback original request allocation",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-extent",
+            "reason": "export rollback original metadata extent",
+            "status": "REJECTED"
+          },
+          {
+            "case": "late-call-start",
+            "reason": "export rollback original operation interval",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-call-end",
+            "reason": "export rollback original operation interval",
+            "status": "REJECTED"
+          },
+          {
+            "case": "boolean-boundary",
+            "reason": "export rollback original operation boundaries",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unobserved-pair",
+            "reason": "export rollback complete observed calls",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "allExportConstructorsQualified": false,
+          "declaredRollbackReleaseQualified": true,
+          "ownedAllocations": 1,
+          "phase3Complete": false,
+          "revokedChildrenBeforeCleanup": 0,
+          "rollbackCalls": 1,
+          "scope": "original-failed-export-cleanup-invocations",
+          "status": "PASS",
+          "wholeRuntimeResourcesQualified": false
+        }
+      },
+      "inventory": {
+        "bytes": 12590,
+        "directories": [],
+        "files": {
+          "case.json": "6cd7ac064f7fa6e10e7e92da53662e5b7c36e1e4901f66a246a544f877d1b3e8",
+          "closes.json": "3b898e22759b2e45267ae990643828352b693d2c2f38090b0433e87a3f1883ea",
+          "resources.json": "ab11b110bf13471a81f389bfe29549dd699324bc2d6add335b947e8821f77975"
+        }
+      },
+      "nativeJoiningQualified": false,
+      "phase3Complete": false,
+      "scope": "conditional-original-constructor-rollback",
+      "status": "PARTIAL"
+    },
+    {
+      "allExportConstructorsQualified": false,
+      "case": "retention-expiry",
+      "component": {
+        "negatives": [
+          {
+            "case": "missing-begin",
+            "reason": "control close original rollback return",
+            "status": "REJECTED"
+          },
+          {
+            "case": "duplicate-begin",
+            "reason": "control close original rollback invocation",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-return",
+            "reason": "control close incomplete rollback",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-call",
+            "reason": "control close original rollback return",
+            "status": "REJECTED"
+          },
+          {
+            "case": "return-before-release",
+            "reason": "control close rollback release before return",
+            "status": "REJECTED"
+          },
+          {
+            "case": "foreign-request",
+            "reason": "export rollback original request allocation",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-extent",
+            "reason": "export rollback original metadata extent",
+            "status": "REJECTED"
+          },
+          {
+            "case": "late-call-start",
+            "reason": "export rollback original operation interval",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-call-end",
+            "reason": "export rollback original operation interval",
+            "status": "REJECTED"
+          },
+          {
+            "case": "boolean-boundary",
+            "reason": "export rollback original operation boundaries",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unobserved-pair",
+            "reason": "export rollback complete observed calls",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-child",
+            "reason": "export rollback exact owned group",
+            "status": "REJECTED"
+          },
+          {
+            "case": "child-after-parent",
+            "reason": "control close rollback child release order",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "allExportConstructorsQualified": false,
+          "declaredRollbackReleaseQualified": true,
+          "ownedAllocations": 2,
+          "phase3Complete": false,
+          "revokedChildrenBeforeCleanup": 1,
+          "rollbackCalls": 1,
+          "scope": "original-failed-export-cleanup-invocations",
+          "status": "PASS",
+          "wholeRuntimeResourcesQualified": false
+        }
+      },
+      "inventory": {
+        "bytes": 8807,
+        "directories": [],
+        "files": {
+          "case.json": "0f3faa76015d3a6631acf1317bccbb1492af9aa0c47304692ff75a42a95cad4f",
+          "closes.json": "66f1cccfd056339ebfbf9e140151e3145a7487f6031bc5e9b31656ee715b1ac3",
+          "resources.json": "3b6a1258defad7a00d1201ef3a244ced0db7d576dbda45bbdcab2a4dc862f00d"
+        }
+      },
+      "nativeJoiningQualified": false,
+      "phase3Complete": false,
+      "scope": "conditional-original-constructor-rollback",
+      "status": "PARTIAL"
+    }
+  ],
+  "conditionalCases": 3,
+  "correctedJavaExecutions": 2,
+  "earlierCorrectedComponentReplay": {
+    "cases": 3,
+    "negativeChecks": 35,
+    "reports": [
+      "target/v53-export-constructor-rollback/qualified-earlier-1.json",
+      "target/v53-export-constructor-rollback/qualified-earlier-2.json",
+      "target/v53-export-constructor-rollback/qualified-earlier-3.json"
+    ],
+    "status": "PASS"
+  },
+  "finalNegativeChecks": 35,
+  "finalSourceCohortQualified": false,
+  "historicalStableReplay": {
+    "exports": 45,
+    "newRuntimeExecution": false,
+    "original": "general-search-engine-replication/target/v53-native-dispatch/run-0087a370-431d-43f0-949b-ccdf4e762e10",
+    "rollbackCases": 0,
+    "status": "PASS"
+  },
+  "javaTests": 54,
+  "nativeJoiningQualified": false,
+  "newJavaTests": 9,
+  "newPythonTests": 14,
+  "originalConstructorFailures": 3,
+  "phase3Complete": false,
+  "pythonTests": 167,
+  "remaining": [
+    "successful direct probe export ownership",
+    "other constructor and abnormal cleanup cases",
+    "complete native joining/required-four resource and physical-custody composition",
+    "final-source cohort admission and hosted execution"
+  ],
+  "reports": [
+    {
+      "path": "target/v53-export-constructor-rollback/check-original.py",
+      "sha256": "b4a11ffbe62b23c3c992089785d4763a2a7255d50446c5ca6b9d827552e5c906"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/component-1.json",
+      "sha256": "74eff34025f27d1d4f6e7858d280b2422b56a858252b0b03feef12bee53447c8"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/component-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/component-2.json",
+      "sha256": "affafd75f7ce478b05f935ddab780964acb840c92a5a1147b0759cfc2b9246d8"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/component-2.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/component-3.json",
+      "sha256": "dca7c599acdbcf5f667dad677d6030b58fc4cf0049533874eb7970b25ca2e662"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/component-3.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/component-final-1.json",
+      "sha256": "74eff34025f27d1d4f6e7858d280b2422b56a858252b0b03feef12bee53447c8"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/component-final-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/component-final-2.json",
+      "sha256": "affafd75f7ce478b05f935ddab780964acb840c92a5a1147b0759cfc2b9246d8"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/component-final-2.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/component-final-3.json",
+      "sha256": "dca7c599acdbcf5f667dad677d6030b58fc4cf0049533874eb7970b25ca2e662"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/component-final-3.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/contract-final.json",
+      "sha256": "42ab80d6e3190a261f640e72059124b711f9533f7d2c8de4653568df1c074fff"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/contract-final.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/finalize.py",
+      "sha256": "33e406d771c615aa373b746ea1e7227695f787c28f56c3bb02df39d0353d771c"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/historical-stable.json",
+      "sha256": "f79d2486471b93c0f87bf41fccecd4473ecf72ea0af5695e42e0ba92b9f0416e"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/historical-stable.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/java-01.log",
+      "sha256": "d10ec092c1c7a2f3c1d73e0261feda2c043e24d424770598e9584de472a76591"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/java-02.log",
+      "sha256": "75a0e68582770ecadf6bbcd95cf5b265cbc0e31aba3d5bdb43871dc414626416"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/java-input-02.json",
+      "sha256": "7f5a168a5518dcc96079fa38798e74cea66256f8a5ef250ff53e3fc69ea336b7"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/java-input.json",
+      "sha256": "73ed442fc4d9782e796e638858651905a5d2218d7a54a2017593ba1bc1292099"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ControlCloseObservationsTest.xml",
+      "sha256": "aafef13518a1e10393371f349058406a474a7c8e99949b47e9951142bb15955d"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53DirectExportOwnershipTest.xml",
+      "sha256": "08e232de0baf6e3a2841beb6d4f67121f4e0e6d62cb42e550992d7f3567c6583"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ExportRollbackTest.xml",
+      "sha256": "d638ee094d394047a0c52b22f16fe3e40c84c02467fe4cbdaae72a42ce1f982d"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53JoiningCompletionTest.xml",
+      "sha256": "474c59a7359b41755214307f1cadfccfdb8180c6f450d0c7c4f34bc2f0ccc116"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53JoiningExportRequestTest.xml",
+      "sha256": "db910eeb59cb749ca8926cc5e8c018221d9b8fd3fdc5e6cabbcb7e826140a3ed"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53JoiningPreparationTest.xml",
+      "sha256": "a4d424eefcb37b7e30cdbe29b29f3884871bc7ba2a949e2d62eae58f9ff3f0be"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionNetworkTest.xml",
+      "sha256": "ec9329a2038de65ef0a9fc1bdfb565b92a9c8a7fd70472c3c93ec1685627544d"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53SessionExportOwnershipTest.xml",
+      "sha256": "438d21df311237c1a2c46c8974b2b3b318807d5e48e4edcb30eaa4ca884fdf32"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit/io.github.patricklfdm.generalsearch.replication.V53ControlCloseObservationsTest.txt",
+      "sha256": "ff5faa58c7a9c25fc7bf62f848866c422a0d7b78c6edf8235f5ff33cf2504569"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit/io.github.patricklfdm.generalsearch.replication.V53DirectExportOwnershipTest.txt",
+      "sha256": "9478bcb7f7e3f223997c4148c1ea14011d70fe4f0432462f1016de14e5ef9e84"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit/io.github.patricklfdm.generalsearch.replication.V53ExportRollbackTest.txt",
+      "sha256": "01fd34e6d08dbf786bb86f60e005e5798bfa07d7bc53f80261bfd1c98ca45675"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit/io.github.patricklfdm.generalsearch.replication.V53JoiningCompletionTest.txt",
+      "sha256": "5f13ee589ab66b5edf3af2ba4a164034202b45e2cfd33b27e3e1cd5a5d93a1f6"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit/io.github.patricklfdm.generalsearch.replication.V53JoiningExportRequestTest.txt",
+      "sha256": "ba1d88d7b2670254e3a6bdcd4ab1e149c25cfa16cc5ebe68abffe677e950b3df"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit/io.github.patricklfdm.generalsearch.replication.V53JoiningPreparationTest.txt",
+      "sha256": "07506b97c485db6b6d8e57c565cf75c7a71fbe5236393386a148b328903b34f2"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit/io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionNetworkTest.txt",
+      "sha256": "4938a090b48d10a6160b46e981c69154e2b7aa5dc8f2d1d999db5cfbd2eacaf0"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit/io.github.patricklfdm.generalsearch.replication.V53SessionExportOwnershipTest.txt",
+      "sha256": "f2a7c9c0c54e0cfb01f5751652b34e0c18ebfe7d08cf2fbb426e524817b9b26a"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit-final/TEST-io.github.patricklfdm.generalsearch.replication.V53ControlCloseObservationsTest.xml",
+      "sha256": "967325468cbb63c6c4ef09ac96d22130dcdd49fdc3729950422346fc4b557abc"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit-final/TEST-io.github.patricklfdm.generalsearch.replication.V53DirectExportOwnershipTest.xml",
+      "sha256": "e20e1b4ae11731032fe5f9db74972621a5ba088ccb90dff38c4e4a567358648a"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit-final/TEST-io.github.patricklfdm.generalsearch.replication.V53ExportRollbackTest.xml",
+      "sha256": "fcd790273f007f59665bb0a66adaf22acd460ec20ec7c7e9739165eaddf55af5"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit-final/TEST-io.github.patricklfdm.generalsearch.replication.V53JoiningCompletionTest.xml",
+      "sha256": "2eafb42eb3d1a5b230f74308b9c2590535ca6c69f7aca6a2c1bd4854e3a23f83"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit-final/TEST-io.github.patricklfdm.generalsearch.replication.V53JoiningExportRequestTest.xml",
+      "sha256": "935367b4ddfece56a1b60cdf4d52fe1bd5f99429c9715befab73d709e03d1de1"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit-final/TEST-io.github.patricklfdm.generalsearch.replication.V53JoiningPreparationTest.xml",
+      "sha256": "3de4d6b68c634423b1ef7850916844d9cc8339ac8e108f457e795984b0db45c4"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit-final/TEST-io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionNetworkTest.xml",
+      "sha256": "5bba48a8fbb80ac9706574d77f143f6fd00bd7f8b105d8f36e324f8bad02e163"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit-final/TEST-io.github.patricklfdm.generalsearch.replication.V53SessionExportOwnershipTest.xml",
+      "sha256": "0246446c2476cebf7cc2cfcc65c6867595ceb60aca9fc226a3343a632c5c2678"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit-final/io.github.patricklfdm.generalsearch.replication.V53ControlCloseObservationsTest.txt",
+      "sha256": "cb9ec000cc6470e982b722212d8573638249c02e585f51a7372202ad3b8b39b4"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit-final/io.github.patricklfdm.generalsearch.replication.V53DirectExportOwnershipTest.txt",
+      "sha256": "a478fb5d4e147322b794f74bc63869e682575575a5cef472734a4e73386b8ee9"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit-final/io.github.patricklfdm.generalsearch.replication.V53ExportRollbackTest.txt",
+      "sha256": "de645b8404dc8ea1e3b37cdc953d211536e2c2632877ebe5a3b0a532a13f9a6b"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit-final/io.github.patricklfdm.generalsearch.replication.V53JoiningCompletionTest.txt",
+      "sha256": "787513b3b9c2d03147cc11f4504c4736426168aff3483e61cc81f331bd1a8cf5"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit-final/io.github.patricklfdm.generalsearch.replication.V53JoiningExportRequestTest.txt",
+      "sha256": "7fa48ae4cf597eb1df8f0b955fdcb1db261c782618dd3520efd34c1af746c355"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit-final/io.github.patricklfdm.generalsearch.replication.V53JoiningPreparationTest.txt",
+      "sha256": "82cd4492a0665322bf7920725ce30921bc3aced29099814aa47457a88e81ac8e"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit-final/io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionNetworkTest.txt",
+      "sha256": "b6b0ad1ecbea5baf56a963dc305d504858587bb0da144f92d2b55bab0864871e"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/junit-final/io.github.patricklfdm.generalsearch.replication.V53SessionExportOwnershipTest.txt",
+      "sha256": "d783fefbdbac317357897680ae7cdb403ed41cfb2657564e97cac33f739e885a"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/original-java-01.json",
+      "sha256": "3fcf365c70bf262b9592ec1998f4c4609c36c75d846b67c5e86d7c9f03f07176"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/original-java-01.log",
+      "sha256": "5163ce8681f7ccb047d98ec9d5816eecc1a26ed763d92c29c7adc21f05db9532"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/original-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ExportRollbackTest.xml",
+      "sha256": "a1da25ce16fa47fcf93b0cd75de8a8e80ce1d15c9740d97cc2e8cf627b9bf28a"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/original-junit/io.github.patricklfdm.generalsearch.replication.V53ExportRollbackTest.txt",
+      "sha256": "6ed71b7b49ae948735e46eff64508e87456408469807178a0aeb00254642b757"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/plan-final/acceptance-plan.json",
+      "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/plan-final/plan.json",
+      "sha256": "811d5dedd9f3965d1927fd1072d36c23b8a7fb6dcf8b158172e4b4d48e57c005"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/plan-final/receipt.json",
+      "sha256": "74ff4bda9999baaf2fa1f98a90261da242febd948f09395d53a0414c2cf712b6"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/plan-final.log",
+      "sha256": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/python-existing-01.log",
+      "sha256": "88bb0c4cd9e5faaef3d3036f3df6620ff213c6e42c95baf81579543006fb0353"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/python-existing-02.log",
+      "sha256": "daea434faeaf80d8751a62413136ce3db41fc6b0cbb9f0dcd90a64d08846e536"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/python-final-02.log",
+      "sha256": "64d8334c6f0392b4ec3608eb09944af3e9f54fb70e2181d02ddd99aa5badd55b"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/python-final.log",
+      "sha256": "b3d21400069ff8921d593944159cdf10bebc147e89b7b47596aa9401268ad2bc"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/python-new-01.log",
+      "sha256": "6bdb84c5e8b8e23883283909a09f72be7f4017d29ee10e86a13f711c6ad09935"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/python-new-02.log",
+      "sha256": "6009f5b2f49fac2b061c165dc846394f5aac0ac4d6b20653331aa7c86f9bf954"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/python-new-03.log",
+      "sha256": "4f7a2495e403a5e3dd05938a5be7b6b814336f4c0c2840d412d97936846ed86e"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/qualified-earlier-1.json",
+      "sha256": "74eff34025f27d1d4f6e7858d280b2422b56a858252b0b03feef12bee53447c8"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/qualified-earlier-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/qualified-earlier-2.json",
+      "sha256": "affafd75f7ce478b05f935ddab780964acb840c92a5a1147b0759cfc2b9246d8"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/qualified-earlier-2.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/qualified-earlier-3.json",
+      "sha256": "bd94960bb7e4742853533061e8aaf79ff843745b7c388df875670a44ca0be9c3"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/qualified-earlier-3.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/qualified-final-1.json",
+      "sha256": "94c6bc3eb556de7876e517cbd5816ead54e1e8b3725fcc62cac909e507523054"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/qualified-final-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/qualified-final-2.json",
+      "sha256": "51a833fdc54d217d95c89f8dcc0fa2f925c780bd6cd78afd194a74d6d55af5a9"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/qualified-final-2.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/qualified-final-3.json",
+      "sha256": "8a3f4574724f2c22b06af344e95dfd794beb3431cb27605305b3d60e124c44d0"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/qualified-final-3.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/raw-paths-02.json",
+      "sha256": "6f20da6f76e8b58b6001073c9639b03121467970371a13449f4d5c57241e485b"
+    },
+    {
+      "path": "target/v53-export-constructor-rollback/raw-paths.json",
+      "sha256": "e55f825868f27e9b0e579e748614ccff53c83381fadefd7337c624f3b5a3dd4a"
+    }
+  ],
+  "runtimeChange": "opt-in exact rollback handle/cleanup observations at five joining metadata constructors; original cleanup order/exceptions retained",
+  "schema": "gse-v53-export-constructor-rollback-development-v1",
+  "scope": "conditional-original-failed-export-cleanup",
+  "sources": [
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_EXPORT_CONSTRUCTOR_ROLLBACK.md",
+      "sha256": "0e0991ecea12e70b3280f9bd68e8aaf2e3d665acf377c7b87ed18ed2e3559f47"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_JOINING_EXPORT_REQUESTS.md",
+      "sha256": "38bd83a774c4614830aa0dcff553a5a67531c71a8cc9dcbc2c6a1830595edaf6"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_QUALIFICATION_AUDIT.md",
+      "sha256": "9edc27897830b38b2a7e51d0d3433386fd2af82809a1c6b6fd5ceb4b011f85af"
+    },
+    {
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "584f88be62e01b27811c9b94ab39d68a3670a4fd423034a20d3bcd96ee9bcc27"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningCompletion.java",
+      "sha256": "5ed4f2ff3b2abf3faa5c308963f6c721afe616807bd74c7340feb1e6e6493a4e"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningIntentExport.java",
+      "sha256": "983cfcbcb5cd43681ef08399944ac7f8ac078ace13604c5611ae8217a9162531"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningPreparation.java",
+      "sha256": "0fe150ae955065bf1e1369efe9379b92175904e535daa4846deab0dc2239b52b"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningRetentionExport.java",
+      "sha256": "99061415672e3c4f9a2654035697c7f0d04f4d89a01b3207947eeb15b7fe8a63"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerCheckpointEndpoint.java",
+      "sha256": "342eaf5cc9e24ad3a4c0d541b2424ade1e305358ca0402a7967dd5b87628cfeb"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java",
+      "sha256": "e424934a7091fbcd11b06bb4ea2b21f0173bbe5a24565b807a092d6863446daf"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ExportRollbackTest.java",
+      "sha256": "063a801caa54d16c6fe9320bf9fb0a54279156af5a7b0bdc31c2c6d489eef12e"
+    },
+    {
+      "path": "scripts/v53/control_close_evidence.py",
+      "sha256": "e3bab0699243ecdf049d5ed907b1d7658e70a09c3bd757d3e1abc9d861e3c040"
+    },
+    {
+      "path": "scripts/v53/direct_export_negatives.py",
+      "sha256": "10565b6a0f84174b3676cff239ae31bd53a3afa6cec853818d58e4b5cecdac95"
+    },
+    {
+      "path": "scripts/v53/export_rollback_evidence.py",
+      "sha256": "d49e4c939ad9cce40312886c3071d28f6eb5422bc280a4258d1b089b6f6c91f0"
+    },
+    {
+      "path": "scripts/v53/export_rollback_negatives.py",
+      "sha256": "9b0c49e97682f011c9f74c93321d27f36fdecbbbe4acd562ecdf0887a138d370"
+    },
+    {
+      "path": "scripts/v53/session_export_evidence.py",
+      "sha256": "6529d17ededdbda8786e3de13f44a989825fb2e240c3dc33ef9f24a8c89c1e73"
+    },
+    {
+      "path": "scripts/v53/session_export_negatives.py",
+      "sha256": "2974df9db85a885532e7b8421d53accb64ad844b3a96faead22c1e029e95966d"
+    },
+    {
+      "path": "scripts/v53/test_export_rollback_evidence.py",
+      "sha256": "b8c3bb9ed703cfcf3b3b45332832ec166618f24ff9119e9e636ecf3fdbc103be"
+    }
+  ],
+  "status": "PASS",
+  "wholeRuntimeResourcesQualified": false
+}

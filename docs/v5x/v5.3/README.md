@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Export constructor rollback ownership](PHASE_3_EXPORT_CONSTRUCTOR_ROLLBACK.md)
+now records actual failed-constructor cleanup handles and return boundaries.
+Three conditional failure paths pass independent replay and 35 exact negatives;
+outer receipts remain PARTIAL. Successful direct probes, full joining/required-four
+composition and final-source qualification remain OPEN.
+
 [Joining export request bindings](PHASE_3_JOINING_EXPORT_REQUESTS.md) now name
 all five metadata families by their exact initial request. Independent replay
 checks original session/route/digest and construction order. Two conditional

@@ -405,6 +405,40 @@ final class MembershipResources {
                 }catch(RuntimeException|OutOfMemoryError error){controlCloses.failed();}
             }
         }
+        /** Original failed-constructor cleanup, not a successful session.
+         * Descriptors run outside the resource monitor. Observation failure
+         * must never replace the constructor's original failure/cleanup. */
+        long observeExportRollbackBegin(MembershipTransferExport nested) {
+            if(!exportOwnership)return -1;
+            try {
+                var children=nested==null?List.<Lease>of():nested.closeReservations();
+                synchronized(MembershipResources.this) {
+                    require(!released && leases.get(key)==this && key.unit==Unit.CONTROL &&
+                            List.of("joining-retention-export-","joining-intent-","joining-preparation-export-",
+                                    "joining-completion-export-","joining-checkpoint-export-").stream().anyMatch(key.owner::startsWith),
+                            "export rollback original metadata");
+                    require(children.size()<=1 && (children.isEmpty() || key.owner.startsWith("joining-retention-export-")
+                            || key.owner.startsWith("joining-intent-")),"export rollback nested scope");
+                    var names=new TreeSet<String>();
+                    for(var child:children) {
+                        require(child!=this && child.pool()==MembershipResources.this && child.key.unit==Unit.CONTROL &&
+                                child.key.owner.startsWith("prefix-export-") && (child.released || leases.get(child.key)==child) &&
+                                names.add(child.key.owner),"export rollback original child");
+                    }
+                    var point=observations.checkpoint(usage());require(point.complete(),"export rollback incomplete resources");
+                    return controlCloses.record("EXPORT_ROLLBACK_BEGIN",-1,point.sequence(),key.owner,List.copyOf(names));
+                }
+            }catch(RuntimeException|OutOfMemoryError error){closeObservationFailed();return -1;}
+        }
+        void observeExportRollbackReturned(long call) {
+            if(!exportOwnership)return;
+            synchronized(MembershipResources.this) {
+                try {
+                    var point=observations.checkpoint(usage());require(point.complete() && released && call>=0,"export rollback normal return");
+                    controlCloses.record("EXPORT_ROLLBACK_RETURNED",call,point.sequence(),key.owner,List.of());
+                }catch(RuntimeException|OutOfMemoryError error){controlCloses.failed();}
+            }
+        }
         boolean observesClose(){return controlCloses!=null;}
         void closeObservationFailed(){synchronized(MembershipResources.this){if(controlCloses!=null)controlCloses.failed();}}
         long observeCloseBegin(Lease child) {

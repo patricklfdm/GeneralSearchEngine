@@ -28,7 +28,7 @@ def renumber(value):
     for seq,row in enumerate(value['rows']):
         row['sequence']=seq
         if row['event']=='ATTACHED':row['call']=seq
-        elif row['event']=='BEGIN' or row['event'] in close.DIRECT_EVENTS and close.DIRECT_EVENTS[row['event']][1]=='ACQUIRED':
+        elif row['event'] in ('BEGIN','EXPORT_ROLLBACK_BEGIN') or row['event'] in close.DIRECT_EVENTS and close.DIRECT_EVENTS[row['event']][1]=='ACQUIRED':
             calls[row['owner']]=seq;row['call']=seq
         else:row['call']=calls[row['owner']]
     value['observations']=len(value['rows'])

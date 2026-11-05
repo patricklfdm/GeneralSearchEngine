@@ -51,7 +51,10 @@ final class MembershipJoiningRetentionExport implements MembershipTransferExport
                 bytes=MembershipJoiningRetentionSeed.fragment(source);digest=hash(bytes);
                 var content=new MembershipSourceExport.Content(digest,bytes.length,MembershipTransfer.Kind.RECORD);
                 require(!alias.equals(digest),"joining retention alias collision");contents=Map.of(alias,content,digest,content);check();
-            }catch(IOException|RuntimeException|Error error){if(acquired!=null)acquired.close();metadata.close();throw error;}
+            }catch(IOException|RuntimeException|Error error){
+                long rollback=metadata.observeExportRollbackBegin(acquired);
+                if(acquired!=null)acquired.close();metadata.close();metadata.observeExportRollbackReturned(rollback);throw error;
+            }
         }
     }
     private void check()throws IOException {require(!closed,"joining retention export closed");borrow.references();owner.checkActivation(basis,null,false);}
