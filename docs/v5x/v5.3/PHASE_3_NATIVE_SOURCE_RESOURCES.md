@@ -1,5 +1,9 @@
 # Phase 3 native source/control resource binding
 
+Follow-up: [native cleanup binding and listener drain](PHASE_3_NATIVE_CONTROL_CLOSE.md)
+adds source-bound multi-session cleanup replay and corrects the learner endpoint
+closed predicate. The results below retain their original batch scope.
+
 The [source component qualification](PHASE_3_SOURCE_CONTROL_RESOURCES.md) now has
 a multi-session reader in `scripts/v53/native_source_resources.py`, integrated
 into the original native accounting/physical pipeline. Exact input and report

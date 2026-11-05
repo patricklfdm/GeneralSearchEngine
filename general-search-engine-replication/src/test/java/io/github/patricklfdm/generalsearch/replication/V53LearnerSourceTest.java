@@ -15,9 +15,14 @@ import static io.github.patricklfdm.generalsearch.replication.V53SourceExchangeT
 /** Real transfer/storage mechanisms with explicitly conditional historical forces. */
 class V53LearnerSourceTest {
     @TempDir Path temp;
+    static MembershipResources clientResources() {
+        return Boolean.getBoolean("v53.resource.learner.control.close")?
+                new MembershipResources(MembershipResources.METADATA_LIMIT,512*MembershipResources.MIB,MembershipResources.QUEUE_LIMIT,
+                        MembershipResourceObservations.MAXIMUM,MembershipControlCloseObservations.MAXIMUM):resources();
+    }
     final class Fixture implements AutoCloseable {
         final V53CurrentGenerationFixture fixture;
-        final MembershipResources server=resources(),client=resources();
+        final MembershipResources server=resources(),client=clientResources();
         final MembershipGrantJournal owner;
         final MembershipTransferService service;
         final MembershipLearnerRequest request;

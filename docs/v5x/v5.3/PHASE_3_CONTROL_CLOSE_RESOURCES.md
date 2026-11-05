@@ -1,5 +1,9 @@
 # Phase 3 source-component cleanup intervals
 
+Follow-up: [native cleanup binding and listener drain](PHASE_3_NATIVE_CONTROL_CLOSE.md)
+adds source-bound multi-session cleanup replay and corrects the learner endpoint
+closed predicate. The results below retain their original batch scope.
+
 The [native source buffer reader](PHASE_3_NATIVE_SOURCE_RESOURCES.md) already
 binds original source requests, sessions and cached replies to transport and
 resource lifetimes. This batch adds a separate observation of the cleanup call

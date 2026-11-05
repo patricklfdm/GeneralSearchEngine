@@ -73,7 +73,7 @@ final class MembershipLearnerHeadEndpoint implements AutoCloseable {
             var answer=decode(encode("wire","LEARNER_HEAD_ACK",reply),"wire","LEARNER_HEAD_ACK");check();return answer;
         }
     }
-    boolean closed(){return released;}
+    boolean closed(){return released && transport.drained();}
     @Override public void close()throws IOException {
         synchronized(guard){closed=true;}
         // Do not hold guard while draining transport workers that may need it.

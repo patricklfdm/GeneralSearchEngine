@@ -90,10 +90,11 @@ def bind_publications(transactions,boundaries):
     return count
 
 
-def validate(directory,profile='stable',progress=None,*,source_control=False):
-    need(type(source_control) is bool,'native resources source-control policy')
+def validate(directory,profile='stable',progress=None,*,source_control=False,control_closes=False):
+    need(type(source_control) is bool and type(control_closes) is bool,'native resources source-control policy')
     root=Path(directory);before=collection.inventory(root)
-    physical=publication.validate(root,profile,progress,resource_transitions=True)
+    if control_closes:need((root/'control-close-captures').is_dir(),'native resources missing control close observations')
+    physical=publication.validate(root,profile,progress,resource_transitions=True,control_closes=control_closes)
     if profile=='stable':
         _,_,selection,identities=publication.native.physical(root,confirmed_retention=True)
         authority=selection['root'];preceding=physical;closing=set(identities)
@@ -112,7 +113,12 @@ def validate(directory,profile='stable',progress=None,*,source_control=False):
     count=bind_publications(publication.collect(root,events),boundaries)
     from . import native_source_resources
     wires=collection.read_json(root,'wire.json',collection.WIRE_BYTES)
-    source_result=native_source_resources.replay(events,wires,traces,boundaries,identities,authority,require_complete=source_control)
+    cleanup=None
+    if control_closes:
+        from . import control_close_evidence,native_control_closes
+        cleanup=native_control_closes.replay(events,wires,traces,boundaries,identities,authority,control_close_evidence.load(root,index))
+        source_result=cleanup['precondition']
+    else:source_result=native_source_resources.replay(events,wires,traces,boundaries,identities,authority,require_complete=source_control)
     transport=None;floors=None;receiving=None;bases=None
     if profile=='5-REPLACE-required-four':
         from . import transport_resource_evidence
@@ -129,12 +135,12 @@ def validate(directory,profile='stable',progress=None,*,source_control=False):
     return dict(result,scope='native-owner-accounting-with-original-publication-boundaries',profile=profile,
                 precondition=preceding,publicationResources=physical,publicationBoundaries=count,transportResources=transport,
                 floorResources=floors,receivingResources=receiving,basisResources=bases,ownerCloseResources=closed,
-                sourceControlResources=source_result,
+                sourceControlResources=source_result,sourceCleanupIntervals=cleanup,
                 physicalPeakQualified=False,controlLifetimesQualified=False,finalSourceCohortQualified=False)
 
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('root')
     p.add_argument('--profile',choices=('stable','5-REPLACE-required-four'),default='stable')
-    p.add_argument('--source-control',action='store_true');a=p.parse_args()
-    print(json.dumps(validate(a.root,a.profile,source_control=a.source_control),sort_keys=True))
+    p.add_argument('--source-control',action='store_true');p.add_argument('--control-closes',action='store_true');a=p.parse_args()
+    print(json.dumps(validate(a.root,a.profile,source_control=a.source_control,control_closes=a.control_closes),sort_keys=True))

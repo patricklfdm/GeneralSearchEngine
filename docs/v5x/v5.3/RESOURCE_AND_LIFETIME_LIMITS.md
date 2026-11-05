@@ -1,5 +1,12 @@
 # V5.3 bounded resources and lifetime
 
+[Native cleanup binding and listener drain](PHASE_3_NATIVE_CONTROL_CLOSE.md)
+now qualify 96 cleanup intervals against original multi-session source ownership.
+Two deterministic TCP regressions also correct checkpoint/head endpoints reporting
+closed before their cancelled I/O workers drain. Thirteen native close negatives
+pass. These scoped results do not close Phase 3; full joining/required-four,
+remaining resource/custody and final-source qualifications remain OPEN.
+
 [Source-component cleanup intervals](PHASE_3_CONTROL_CLOSE_RESOURCES.md) now
 bind the cleanup-performing service, trace and session calls to original resource
 sequences and child leases. Four TCP histories pass 12 intervals, 64 close

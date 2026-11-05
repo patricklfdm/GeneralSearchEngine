@@ -129,7 +129,10 @@ final class MembershipLearnerCheckpointEndpoint implements AutoCloseable {
             }catch(IOException|RuntimeException|Error error){abort();throw error;}
         }
         void abort(){dead=true;completed=null;requestDigest=null;if(session!=null){session.close();session=null;}}
-        void close(){abort();marker.close();}
+        void close(){
+            long observation=marker.observesClose()?marker.observeCloseBegin(session==null?null:session.closeReservation()):-1;
+            abort();marker.close();marker.observeCloseReturned(observation);
+        }
     }
     Decoded answer(MembershipIdentity reader,Decoded request)throws IOException {
         try {
@@ -149,13 +152,19 @@ final class MembershipLearnerCheckpointEndpoint implements AutoCloseable {
     boolean poll(){if(expired())close();return !closed;}
     Usage usage(){synchronized(guard){return new Usage(traces.size(),exports,closed);}}
     /** A closing listener cannot be replaced until its workers and leases drain. */
-    boolean closed(){return released;}
+    boolean closed(){return released && transport.drained();}
     @Override public void close() {
         synchronized(guard){closed=true;}
         transport.close();
         synchronized(guard) {
             if(released)return;
+            long observation=-1;
+            if(metadata.observesClose())try{observation=metadata.observeCloseBegin(traces.values().stream().map(e->e.marker).toList());}
+            catch(RuntimeException|OutOfMemoryError error){metadata.closeObservationFailed();}
             for(var entry:traces.values())entry.close();traces.clear();metadata.close();released=true;
+            // This marks the cleanup-performing scope, not transport drain.
+            // A callback closer may return while its own worker is still live.
+            metadata.observeCloseReturned(observation);
         }
     }
 }

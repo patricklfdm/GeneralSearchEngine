@@ -188,9 +188,9 @@ class V53LearnerCheckpointEndpointTest {
                 var requests=new ArrayList<Decoded>();f.fetch((p,r,k,d)->{requests.add(r);return contact.exchange(p,r,k,d);});
                 var commit=requests.getLast();assertEquals("TRANSFER_COMMIT",commit.kind());
                 assertThrows(ExecutionException.class,()->contact.exchange(f.local,commit,"TRANSFER_COMMIT",System.nanoTime()+BUDGET).get(15,TimeUnit.SECONDS));
-                assertTrue(hit.get());assertTrue(endpoint.closed());assertThrows(IllegalArgumentException.class,()->endpoint.answer(f.reader,commit));
+                assertTrue(hit.get());assertThrows(IllegalArgumentException.class,()->endpoint.answer(f.reader,commit));
                 long until=System.nanoTime()+TimeUnit.SECONDS.toNanos(10);
-                while(!f.baseline.equals(f.fixture.f.local.source.client.usage())) {assertTrue(System.nanoTime()<until,"closed pending transport drain");Thread.sleep(10);}
+                while(!endpoint.closed() || !f.baseline.equals(f.fixture.f.local.source.client.usage())) {assertTrue(System.nanoTime()<until,"closed pending transport drain");Thread.sleep(10);}
             }
         }
     }

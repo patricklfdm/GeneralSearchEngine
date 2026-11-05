@@ -1,0 +1,208 @@
+{
+  "schema": "gse-v53-native-control-close-development-v1",
+  "status": "PASS",
+  "phase3Complete": false,
+  "baseSource": "ac91c727fc21c088e15e7cd087ac9e33c04a9aab",
+  "nativeRaw": "general-search-engine-replication/target/v53-native-dispatch/run-3540d6b8-fc04-478c-a03f-a7d3a72e3c01",
+  "joiningConditionalRaw": "general-search-engine-replication/target/v53-joining-close/run-b306e0bb-97a5-4bfb-8494-c6139dcf948a",
+  "javaTests": 5,
+  "newJavaRegressions": 2,
+  "originalJavaFailures": 2,
+  "pythonTests": 103,
+  "newPythonTests": 11,
+  "nativeCleanup": {
+    "status": "PASS",
+    "scope": "native-source-cleanup-performing-invocations",
+    "cleanupIntervals": 96,
+    "childReferences": 80,
+    "services": 18,
+    "sessions": 39,
+    "responsesAtClose": 39,
+    "joiningCheckpointServices": 0,
+    "nativeServiceCleanupIntervalsQualified": true,
+    "listenerDrainQualified": false,
+    "wholeRuntimeResourcesQualified": false,
+    "phase3Complete": false
+  },
+  "nativeCloseNegatives": 13,
+  "sourceBufferBindings": 444,
+  "peakConcurrentSessions": {
+    "node-1": 2,
+    "node-2": 2,
+    "node-3": 0
+  },
+  "joiningConditionalCleanupIntervals": 6,
+  "closedPredicateCorrection": "require released and existing transport.drained; callback close remains nonblocking",
+  "redTestsPreCaptureInstrumentation": true,
+  "nativeJoiningCloseQualified": false,
+  "wholeRuntimeResourcesQualified": false,
+  "finalSourceCohortQualified": false,
+  "remaining": [
+    "complete new-source required-four/joining histories",
+    "failed-construction and abnormal-close resource lifetimes",
+    "export/task/control ownership",
+    "post-handoff physical custody",
+    "combined maxima/headroom",
+    "final-source hosted qualification"
+  ],
+  "sources": [
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerEndpointDrainTest.java",
+      "sha256": "2f733a13ff7fa55dcb770613e20582c921322961581af8f78f45ccfdafd5527a"
+    },
+    {
+      "path": "scripts/v53/native_control_close_negatives.py",
+      "sha256": "a90bf8d88faf228c1192747a0704ebf997324edb8ded8de46af827a2f8558009"
+    },
+    {
+      "path": "scripts/v53/native_control_closes.py",
+      "sha256": "a45985496ee5399e3da4b61bc5a715677505cce95f30c4a21ac16f819b7c1a0c"
+    },
+    {
+      "path": "scripts/v53/test_native_control_closes.py",
+      "sha256": "4c33389b716447f099dd10aa3bbfe4c1cc362f75fba4cd8b5f3faef7acda458b"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerCheckpointEndpoint.java",
+      "sha256": "3ba5fc239d7244c6539a6219d45b3db148b49b1bdaf96f71ad72908dd3b37194"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerHeadEndpoint.java",
+      "sha256": "b8fe8460bb40bb432393ed11832fcfd628d6f4166b166f90313b6a41aa4af38a"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerCheckpointEndpointTest.java",
+      "sha256": "b50baf5fb0a37e56ff3e11d27e846b39bdc7c1ea66f29b1b11d11e344db46551"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerSourceTest.java",
+      "sha256": "e9bc0e6ab6c39bea8b46c399a2d9e03041f90ab8d5cd617b91caad2b14171dd8"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java",
+      "sha256": "00c35151caa44eb34dfbfd9ac3a711133bf350a76b65078eff3b0f32c3ff298d"
+    },
+    {
+      "path": "scripts/v53/control_close_evidence.py",
+      "sha256": "2f01ca76055651d75d9148ea6913684866330f16765ec5781cde0961ae8cd8aa"
+    },
+    {
+      "path": "scripts/v53/native_dispatch_evidence.py",
+      "sha256": "7c1ae4ee43245703973bb1bfef0231b3a679a3ae26b139b129d817facee3bfde"
+    },
+    {
+      "path": "scripts/v53/native_resource_evidence.py",
+      "sha256": "ab24bf497d853d4b4cc443b06760a56adca71137119d0b402355182a7aeb875a"
+    },
+    {
+      "path": "scripts/v53/native_source_resources.py",
+      "sha256": "f4c32d854335526f9b91ee6c90a9374e94c1758ec2d7dea7e7536134e2525c1e"
+    },
+    {
+      "path": "scripts/v53/publication_resource_evidence.py",
+      "sha256": "6dd661d80d08277be504a80ee2b09154819aa85d97c67f958c0933a872cdbffe"
+    }
+  ],
+  "reports": [
+    {
+      "path": "target/v53-native-control-close/red-java-input.json",
+      "sha256": "9702cdd74c901e11344429f313e19e9ab38adf6b3cc2289ef014e8232443bb80"
+    },
+    {
+      "path": "target/v53-native-control-close/java-input.json",
+      "sha256": "fb8b8cdaab12f403ca5f6acafa399b259c9d506eef684f8eda67571a916f756d"
+    },
+    {
+      "path": "target/v53-native-control-close/red-drain.xml",
+      "sha256": "fca997feb83c077e9dd892c7c0de13276acca6bab26d088de84688524ba9b3b2"
+    },
+    {
+      "path": "target/v53-native-control-close/maven-red-01.log",
+      "sha256": "0b373b27b1502806549a134b34b52f2977557a5fb768ae911cf175f2cfacafe3"
+    },
+    {
+      "path": "target/v53-native-control-close/maven-green-01.log",
+      "sha256": "585a49930f25abbbb7a53295fe8a79137c1d228cea9aac10055a3af2d7cdf792"
+    },
+    {
+      "path": "target/v53-native-control-close/python-01.log",
+      "sha256": "800d4ad16d74e87b2899f9d634179873bc7ff14e256d6bb03a57179b01338259"
+    },
+    {
+      "path": "target/v53-native-control-close/python-02.log",
+      "sha256": "9825f72b57d4b1f5b42b377a58d5a10a3b120d8fc78129daac881f391f32116c"
+    },
+    {
+      "path": "target/v53-native-control-close/replay-01.log",
+      "sha256": "ec6d95295530bb03d6a897e61c38e6cc4c71bc04c3686298c3271a06297fdfb7"
+    },
+    {
+      "path": "target/v53-native-control-close/replay-02.log",
+      "sha256": "ca4545ad57778925e4dcc1d8e39e1815f49f1d6888df2fdcbc3432d5bde82778"
+    },
+    {
+      "path": "target/v53-native-control-close/compatibility.log",
+      "sha256": "27025ae783e622c5a907772a9296b0f12e3f43f01e0aa94a3a93d63ce1f02c1a"
+    },
+    {
+      "path": "target/v53-native-control-close/historical-compatibility.json",
+      "sha256": "f02475be8ed13683b4e725166e156cb892da7c2b8976e6ba3bdc83e25e1ba0b1"
+    },
+    {
+      "path": "target/v53-native-control-close/component-compatibility.json",
+      "sha256": "693293975ec13340e7fd1df710bc4dd3a27a0f7c38ec8bd2d093e4d157cdd02a"
+    },
+    {
+      "path": "target/v53-native-control-close/qualify.py",
+      "sha256": "049489fc55508fd65dc8b27e7c64821eee56004fcc055e844e61097c7a5ada5f"
+    },
+    {
+      "path": "target/v53-native-control-close/TEST-io.github.patricklfdm.generalsearch.replication.V53LearnerCheckpointEndpointTest.xml",
+      "sha256": "bad53c6012edeae828d78c8f7923fad0e9e6f1a56d805981cebd55d95bc28de5"
+    },
+    {
+      "path": "target/v53-native-control-close/TEST-io.github.patricklfdm.generalsearch.replication.V53LearnerEndpointDrainTest.xml",
+      "sha256": "cd05a509aa04ba6492be7b1aa1a69efc0ad35372fceadb10be45ca2c7d88b1b6"
+    },
+    {
+      "path": "target/v53-native-control-close/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml",
+      "sha256": "f52e836c5b66101e3834fa73457b47111232a0b1a0092da2ea386a0f7fccf780"
+    },
+    {
+      "path": "target/v53-native-control-close/replay-02/joining-conditional.json",
+      "sha256": "ae84ac7b881b40312d926169cc232fa13c421ae930124009b68b63fdbcf60990"
+    },
+    {
+      "path": "target/v53-native-control-close/replay-02/joining-inventory.json",
+      "sha256": "425c1b0e40bcf028a1e40fbe0a37fd5a5d3f381112e2e2a2776314d84eec6920"
+    },
+    {
+      "path": "target/v53-native-control-close/replay-02/native-negatives.json",
+      "sha256": "8a041db31e7d3df94218d6e561edf0ad62c52d00f3e4aecdf97bbbcae8fe9105"
+    },
+    {
+      "path": "target/v53-native-control-close/replay-02/original-inventory.json",
+      "sha256": "cc20521bb7ac5ede47c8c644893fc7dd024a044b617fd2e1c6903afad0a9fbcd"
+    },
+    {
+      "path": "target/v53-native-control-close/replay-02/summary.json",
+      "sha256": "e53293039344f6d5fc0775e58876c021808f88bc92fefd1d559d6ebdbdd66a08"
+    },
+    {
+      "path": "target/v53-native-control-close/python-final-01.log",
+      "sha256": "1a549ba3c3786eb71239c0a3a701fc7c2da7fd39541b35217a7bc44042f07cc3"
+    },
+    {
+      "path": "target/v53-native-control-close/contract.log",
+      "sha256": "4c4b16958693275d4a8f6832322931a3973519f107a2546e71a1f79537959d02"
+    },
+    {
+      "path": "target/v53-native-control-close/plan.log",
+      "sha256": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df"
+    },
+    {
+      "path": "target/v53-native-control-close/finalize.py",
+      "sha256": "9f9f978d8c6260490a6247df342282ae025496b61b9dadd0d8aa2e1419faf83e"
+    }
+  ]
+}

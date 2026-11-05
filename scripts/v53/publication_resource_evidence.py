@@ -178,10 +178,10 @@ def compare(transactions, plans):
     return dict(publications=len(transactions),observedBoundaries=sum(map(len,transactions)),maximumObservedStorage=maxima)
 
 
-def original(root, profile, progress=None, *, resource_transitions=False):
+def original(root, profile, progress=None, *, resource_transitions=False, control_closes=False):
     plans = {}
     if profile == 'stable':
-        receipt = native.validate(root,confirmed_retention=True,publication_resources=True,resource_transitions=resource_transitions)
+        receipt = native.validate(root,confirmed_retention=True,publication_resources=True,resource_transitions=resource_transitions,control_closes=control_closes)
         _,rounds,_,_ = native.physical(root,confirmed_retention=True)
         for row in rounds:
             for node in native.VOTERS: plans[node,row['index']] = row['recorded'][node],row['published'][node]
@@ -200,9 +200,9 @@ def original(root, profile, progress=None, *, resource_transitions=False):
     return receipt,plans
 
 
-def validate(directory, profile='stable', progress=None, *, resource_transitions=False):
+def validate(directory, profile='stable', progress=None, *, resource_transitions=False, control_closes=False):
     root = Path(directory); before = history.inventory(root)
-    receipt,plans = original(root,profile,progress,resource_transitions=resource_transitions)
+    receipt,plans = original(root,profile,progress,resource_transitions=resource_transitions,control_closes=control_closes)
     transactions = collect(root,events(root))
     result = compare(transactions,plans)
     need(history.inventory(root) == before, 'publication resources original changed')

@@ -449,12 +449,13 @@ def unselected_rejections(failures):
 
 
 def validate(root, *, discovery=False, rejection_check=None, confirmed_retention=False, precommand_maintenance=False,
-             publication_resources=False, resource_transitions=False):
+             publication_resources=False, resource_transitions=False, control_closes=False):
     root = Path(root)
     b.selection.layout(root, {'initial','original-plan.gsbp','original-application.image','before-network','installed',
         'applied-1','published-1','applied-2','published-2','after-close','calls.json','events.json','wire.json','failures.json','result.json','selected.gsr'} |
         ({'publication-resource-captures'} if publication_resources else set()) |
-        ({'resource-transition-captures'} if resource_transitions else set()), 'native dispatch case inventory')
+        ({'resource-transition-captures'} if resource_transitions else set()) |
+        ({'control-close-captures'} if control_closes else set()), 'native dispatch case inventory')
     states, rounds, selected, identities = physical(root, confirmed_retention=confirmed_retention)
     calls = read(root/'calls.json')
     need([(row['node'], row['operation']) for row in calls] == [(n,'initialize-retention') for n in sorted(identities)], 'native dispatch bootstrap owner calls')

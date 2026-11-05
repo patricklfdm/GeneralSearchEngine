@@ -552,7 +552,9 @@
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceResources.java",
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipControlCloseObservations.java",
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceSession.java",
-        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransferService.java"
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransferService.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerCheckpointEndpoint.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerHeadEndpoint.java"
       ],
       "tests": [
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransferTest.java",
@@ -626,7 +628,11 @@
         "scripts/v53/test_source_control_resource_evidence.py",
         "scripts/v53/test_native_source_resources.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ControlCloseObservationsTest.java",
-        "scripts/v53/test_control_close_evidence.py"
+        "scripts/v53/test_control_close_evidence.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerEndpointDrainTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerCheckpointEndpointTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerSourceTest.java",
+        "scripts/v53/test_native_control_closes.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -673,7 +679,9 @@
         "scripts/v53/native_source_resources.py",
         "scripts/v53/native_source_resource_negatives.py",
         "scripts/v53/control_close_evidence.py",
-        "scripts/v53/control_close_negatives.py"
+        "scripts/v53/control_close_negatives.py",
+        "scripts/v53/native_control_closes.py",
+        "scripts/v53/native_control_close_negatives.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -726,7 +734,8 @@
         "docs/v5x/v5.3/phase3-evidence/source-control-resources.json",
         "docs/v5x/v5.3/PHASE_3_NATIVE_SOURCE_RESOURCES.md",
         "docs/v5x/v5.3/phase3-evidence/native-source-resources.json",
-        "docs/v5x/v5.3/PHASE_3_CONTROL_CLOSE_RESOURCES.md"
+        "docs/v5x/v5.3/PHASE_3_CONTROL_CLOSE_RESOURCES.md",
+        "docs/v5x/v5.3/PHASE_3_NATIVE_CONTROL_CLOSE.md"
       ],
       "cohorts": [
         "profiles",

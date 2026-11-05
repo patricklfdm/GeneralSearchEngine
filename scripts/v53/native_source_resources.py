@@ -65,8 +65,9 @@ def scan(traces):
     return leases,legacy,other
 
 
-def replay(events,wires,traces,boundaries,identities,root,*,require_complete=True):
+def replay(events,wires,traces,boundaries,identities,root,*,require_complete=True,bindings=None):
     need(type(require_complete) is bool,'native source resources completeness policy')
+    need(bindings is None or type(bindings) is dict and not bindings,'native source resources empty binding output')
     leases,legacy,other=scan(traces)
     if not leases:
         need(not require_complete,'native source resources required original bindings absent')
@@ -176,6 +177,10 @@ def replay(events,wires,traces,boundaries,identities,root,*,require_complete=Tru
         live=peak=0
         for _,delta in sorted(changes):live+=delta;peak=max(peak,live)
         peaks[node]=peak
+    # Emit associations only after the complete original replay has succeeded.
+    # Downstream close checks must not infer ownership from equal byte sizes or
+    # overlapping sessions. Keys include both original node and allocation UUID.
+    if bindings is not None:bindings.update(associations)
     return dict(status='PASS',boundReservations=len(used),logicalRequests=len(requests),responseBuffers=len(response_rows),sessions=len(meta_responses),
                 traces=len(trace_meta),completedCaches=len(completed),originalSourceAttempts=sum(len(v) for v in requests.values()),
                 peakConcurrentSessions=peaks,

@@ -12,7 +12,8 @@ from . import source_control_resource_evidence as source
 a=source.a
 need=a.need
 DIRECTORY='control-close-captures'
-ROLES=('transfer-service','transfer-trace','source-session')
+ROLES=('transfer-service','transfer-trace','source-session','joining-checkpoint-service','joining-checkpoint-trace')
+SERVICES={'transfer-service':'transfer-trace','joining-checkpoint-service':'joining-checkpoint-trace'}
 MAXIMUM=65536
 CHILDREN_MAXIMUM=262144
 
@@ -101,7 +102,7 @@ def replay(traces,closes):
                     need(len(start['children'])==1 and child.startswith('source-response-'),
                          'control close session response child')
                 else:
-                    wanted='transfer-trace' if kind=='transfer-service' else 'source-session'
+                    wanted=SERVICES.get(kind,'source-session')
                     need(role(child)==wanted and child in pairs and child not in parent,
                          'control close child scope')
                     need(owned['start']<life[child]['start'],'control close parent allocation order')
@@ -110,10 +111,10 @@ def replay(traces,closes):
                     parent[child]=name
         for name in expected:
             kind=role(name)
-            if kind=='transfer-trace':need(name in parent,'control close trace missing service')
+            if kind in SERVICES.values():need(name in parent,'control close trace missing service')
             if kind!='source-session':continue
             binding=name[len('source-session-'):len('source-session-')+64]
-            candidates=[p for p in expected if role(p)=='transfer-trace' and p.startswith('transfer-trace-'+binding+'-') and
+            candidates=[p for p in expected if role(p) in SERVICES.values() and p.startswith(role(p)+'-'+binding+'-') and
                         life[p]['start']<life[name]['start']<life[name]['end']<life[p]['end']]
             need(len(candidates)==1,'control close original trace session');p=candidates[0];session_parent[name]=p
             if life[name]['end']>pairs[p]['begin']['resourceSequence']:
@@ -129,7 +130,7 @@ def replay(traces,closes):
 
 def component(traces,closes,events,boundaries):
     result=replay(traces,closes);all_pairs=[(node,name,pair) for node,owner in result['owners'].items() for name,pair in owner['pairs'].items()]
-    need(len(all_pairs)==3 and {role(name) for _,name,_ in all_pairs}==set(ROLES) and
+    need(len(all_pairs)==3 and {role(name) for _,name,_ in all_pairs}==set(ROLES[:3]) and
          all(node=='node-1' for node,_,_ in all_pairs),'control close exact component scope')
     owner=result['owners']['node-1'];pairs=owner['pairs'];life=owner['lifetimes']
     for name,pair in pairs.items():
