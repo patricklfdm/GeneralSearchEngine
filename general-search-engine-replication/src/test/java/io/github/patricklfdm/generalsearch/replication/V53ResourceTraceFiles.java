@@ -42,6 +42,25 @@ final class V53ResourceTraceFiles {
             out.punctuation('}');return out.digest();
         }
     }
+    static String writeCloses(Path path,MembershipControlCloseObservations.Snapshot value)throws IOException {
+        try(var out=new Writer(path)) {
+            var header=new TreeMap<String,Object>(Map.of("schema","gse-v53-control-close-observations-v1",
+                    "maximum",value.maximum(),"observations",value.observations(),"truncated",value.truncated(),"failed",value.failed()));
+            header.put("rows",true);out.punctuation('{');boolean fieldFirst=true;
+            for(var field:header.entrySet()) {
+                if(!fieldFirst)out.punctuation(',');fieldFirst=false;out.bytes(canonical(field.getKey(),256));out.punctuation(':');
+                if(!field.getKey().equals("rows")){out.bytes(canonical(field.getValue(),4096));continue;}
+                out.punctuation('[');boolean first=true;
+                for(var row:value.rows()) {
+                    if(!first)out.punctuation(',');first=false;
+                    out.bytes(canonical(Map.of("sequence",row.sequence(),"event",row.event(),"call",row.call(),"resourceSequence",row.resourceSequence(),
+                            "owner",row.owner(),"children",row.children()),65536));
+                }
+                out.punctuation(']');
+            }
+            out.punctuation('}');return out.digest();
+        }
+    }
     private static final class Writer implements AutoCloseable {
         final OutputStream output;final MessageDigest digest;int bytes;
         Writer(Path path)throws IOException {

@@ -1,0 +1,166 @@
+"""Original source-component cleanup calls, distinct from final zero accounting.
+
+The annotations run inside existing monitors without calling outside code. They
+identify the cleanup-performing invocation, not concurrent no-op close callers.
+Joining endpoints, export internals and whole-runtime shutdown remain separate.
+"""
+import argparse
+import json
+from pathlib import Path
+from . import source_control_resource_evidence as source
+
+a=source.a
+need=a.need
+DIRECTORY='control-close-captures'
+ROLES=('transfer-service','transfer-trace','source-session')
+MAXIMUM=65536
+CHILDREN_MAXIMUM=262144
+
+
+def role(owner):
+    return next((v for v in ROLES if owner.startswith(v+'-')),None)
+
+
+def load(root,index):
+    directory=Path(root)/DIRECTORY
+    need(directory.is_dir() and not directory.is_symlink(),'control close missing original capture')
+    captured=a.collection.read_json(directory,'index.json',16384)
+    need(type(captured) is dict and set(captured)=={'schema','root','eventsSha256','owners'} and
+         captured['schema']=='gse-v53-control-close-capture-v1' and captured['root']==index['root'] and
+         captured['eventsSha256']==index['eventsSha256'] and type(captured['owners']) is list and
+         len(captured['owners'])==len(index['owners']),'control close original index')
+    traces={};names={'index.json'};total=0
+    for ref,original in zip(captured['owners'],index['owners']):
+        need(type(ref) is dict and set(ref)=={'identity','path','sha256','resourceSha256'} and
+             ref['identity']==original['identity'] and ref['path']==original['path'] and
+             ref['resourceSha256']==original['sha256'],'control close original resource binding')
+        raw=a.collection.snapshot.s.regular(directory/ref['path'],64*a.transitions.MIB);total+=len(raw)
+        need(total<=256*a.transitions.MIB and a.collection.digest(raw)==ref['sha256'],'control close capture digest/capacity')
+        traces[ref['identity']['node']]=a.collection.read_json(directory,ref['path'],64*a.transitions.MIB);names.add(ref['path'])
+    need({p.name for p in directory.iterdir()}==names,'control close capture inventory')
+    return traces
+
+
+def allocations(trace):
+    a.transitions.replay(trace);result={}
+    for row in trace['changes']:
+        if row['event']=='RESERVE':
+            for value in row['added']:
+                if value['unit']!='CONTROL':continue
+                name=value['owner'];need(name not in result,'control close reused allocation')
+                result[name]=dict(start=row['sequence'],end=None)
+        elif row['event']=='RELEASE':
+            for value in row['removed']:
+                if value['unit']=='CONTROL':result[value['owner']]['end']=row['sequence']
+    return result
+
+
+def replay(traces,closes):
+    need(type(closes) is dict and set(closes)==set(traces) and traces,'control close complete original budgets')
+    owners={};total=0;children_total=0
+    for node,trace in traces.items():
+        life=allocations(trace);value=closes[node]
+        need(type(value) is dict and set(value)=={'schema','maximum','observations','truncated','failed','rows'} and
+             value['schema']=='gse-v53-control-close-observations-v1' and type(value['maximum']) is int and
+             0<value['maximum']<=MAXIMUM and value['truncated'] is False and value['failed'] is False and
+             type(value['observations']) is int and type(value['rows']) is list and
+             value['observations']==len(value['rows'])<=value['maximum'],'control close complete bounded recorder')
+        pairs={};calls={};cursor=0;child_count=0
+        for seq,row in enumerate(value['rows']):
+            need(type(row) is dict and set(row)=={'sequence','event','call','resourceSequence','owner','children'} and
+                 type(row['sequence']) is int and row['sequence']==seq and type(row['call']) is int and
+                 type(row['resourceSequence']) is int and cursor<=row['resourceSequence']<len(trace['changes']) and
+                 type(row['owner']) is str and row['owner'] in life and role(row['owner']) is not None and
+                 type(row['children']) is list and all(type(v) is str for v in row['children']) and
+                 row['children']==sorted(set(row['children'])) and len(row['children'])<=256,
+                 'control close exact ordered row')
+            cursor=row['resourceSequence'];name=row['owner'];owned=life[name]
+            child_count+=len(row['children']);need(child_count<=CHILDREN_MAXIMUM,'control close child capacity')
+            if row['event']=='BEGIN':
+                need(row['call']==seq and name not in pairs and owned['end'] is not None and
+                     owned['start']<=cursor<owned['end'],'control close original live invocation')
+                need(all(child!=name and child in life and life[child]['end'] is not None and
+                         life[child]['start']<=cursor<life[child]['end'] for child in row['children']),
+                     'control close original live children')
+                calls[seq]=name;pairs[name]=dict(begin=row,returned=None)
+            else:
+                need(row['event']=='RETURNED' and not row['children'] and calls.get(row['call'])==name and
+                     pairs[name]['returned'] is None,'control close matched normal return')
+                pair=pairs[name];need(owned['end']<=cursor and pair['begin']['resourceSequence']<owned['end'],
+                                      'control close release before normal return')
+                pair['returned']=row
+        expected={name for name in life if role(name)}
+        need(set(pairs)==expected and all(v['returned'] is not None for v in pairs.values()),
+             'control close complete cleanup intervals')
+        parent={};session_parent={}
+        for name,pair in pairs.items():
+            kind=role(name);start=pair['begin'];end=pair['returned'];owned=life[name]
+            for child in start['children']:
+                need(life[child]['end']<=owned['end'],'control close child release order')
+                if kind=='source-session':
+                    need(len(start['children'])==1 and child.startswith('source-response-'),
+                         'control close session response child')
+                else:
+                    wanted='transfer-trace' if kind=='transfer-service' else 'source-session'
+                    need(role(child)==wanted and child in pairs and child not in parent,
+                         'control close child scope')
+                    need(owned['start']<life[child]['start'],'control close parent allocation order')
+                    nested=pairs[child];need(start['sequence']<nested['begin']['sequence']<nested['returned']['sequence']<end['sequence'],
+                                            'control close nested invocation order')
+                    parent[child]=name
+        for name in expected:
+            kind=role(name)
+            if kind=='transfer-trace':need(name in parent,'control close trace missing service')
+            if kind!='source-session':continue
+            binding=name[len('source-session-'):len('source-session-')+64]
+            candidates=[p for p in expected if role(p)=='transfer-trace' and p.startswith('transfer-trace-'+binding+'-') and
+                        life[p]['start']<life[name]['start']<life[name]['end']<life[p]['end']]
+            need(len(candidates)==1,'control close original trace session');p=candidates[0];session_parent[name]=p
+            if life[name]['end']>pairs[p]['begin']['resourceSequence']:
+                need(parent.get(name)==p,'control close active session omitted')
+            else:need(name not in parent and pairs[name]['returned']['sequence']<pairs[p]['begin']['sequence'],
+                      'control close completed session order')
+        owners[node]=dict(pairs=pairs,lifetimes=life,sessionParents=session_parent)
+        total+=len(pairs);children_total+=child_count
+    need(total>0,'control close unobserved cleanup')
+    return dict(status='PASS',cleanupIntervals=total,childReferences=children_total,owners=owners,
+                wholeRuntimeResourcesQualified=False,phase3Complete=False)
+
+
+def component(traces,closes,events,boundaries):
+    result=replay(traces,closes);all_pairs=[(node,name,pair) for node,owner in result['owners'].items() for name,pair in owner['pairs'].items()]
+    need(len(all_pairs)==3 and {role(name) for _,name,_ in all_pairs}==set(ROLES) and
+         all(node=='node-1' for node,_,_ in all_pairs),'control close exact component scope')
+    owner=result['owners']['node-1'];pairs=owner['pairs'];life=owner['lifetimes']
+    for name,pair in pairs.items():
+        if role(name)=='source-session':
+            at=pair['begin']['resourceSequence']
+            response=sorted(p for p,v in life.items() if p.startswith('source-response-') and v['start']<=at<v['end'])
+            need(pair['begin']['children']==response,'control close complete response inventory')
+        elif role(name)=='transfer-service':
+            positions={event['event']:i for i,event in enumerate(events) if event['event'].startswith('SOURCE_SERVICE_CLOSE_')}
+            need(set(positions)=={'SOURCE_SERVICE_CLOSE_BEGIN','SOURCE_SERVICE_CLOSE_RETURNED'},'control close external call pair')
+            first,last=(boundaries[positions['SOURCE_SERVICE_CLOSE_'+v]]['sequence'] for v in ('BEGIN','RETURNED'))
+            need(first<=pair['begin']['resourceSequence']<life[name]['end']<=pair['returned']['resourceSequence']<=last,
+                 'control close external call interval')
+    return dict(status='PASS',scope='original-source-component-cleanup-performing-invocations',
+                cleanupIntervals=result['cleanupIntervals'],childReferences=result['childReferences'],
+                sourceComponentCloseIntervalsQualified=True,wholeRuntimeResourcesQualified=False,phase3Complete=False)
+
+
+def case(root,name):
+    original,data=source.case(root,name) # Original physical and transport evidence must pass first.
+    index,traces,boundaries,events=a.load(root);closes=load(root,index)
+    return dict(precondition=original,**component(traces,closes,events,boundaries)),(traces,closes,events,boundaries)
+
+
+def validate(root):
+    root=Path(root);before=a.collection.inventory(root);source.validate(root)
+    result=[dict(case=name,close=case(root/name,name)[0]) for name in source.CASES]
+    need(a.collection.inventory(root)==before,'control close original changed')
+    return dict(status='PASS',cases=result,wholeRuntimeResourcesQualified=False,phase3Complete=False)
+
+
+if __name__=='__main__':
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('root');args=p.parse_args()
+    print(json.dumps(validate(args.root),sort_keys=True))

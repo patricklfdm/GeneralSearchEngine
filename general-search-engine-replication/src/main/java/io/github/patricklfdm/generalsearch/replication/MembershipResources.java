@@ -25,17 +25,24 @@ final class MembershipResources {
     private final long metadataLimit, stagingLimit, queueLimit;
     private long metadata, staging, queued, protectedUsed;
     private final MembershipResourceObservations observations;
+    private final MembershipControlCloseObservations controlCloses;
 
     MembershipResources(long stagingLimit) { this(METADATA_LIMIT,stagingLimit,QUEUE_LIMIT); }
     MembershipResources(long metadataLimit,long stagingLimit,long queueLimit) {
         this(metadataLimit,stagingLimit,queueLimit,0);
     }
     MembershipResources(long metadataLimit,long stagingLimit,long queueLimit,int observationLimit) {
+        this(metadataLimit,stagingLimit,queueLimit,observationLimit,0);
+    }
+    MembershipResources(long metadataLimit,long stagingLimit,long queueLimit,int observationLimit,int closeLimit) {
         require(metadataLimit>=HEADROOM && metadataLimit<=METADATA_LIMIT && stagingLimit>0
                 && queueLimit>0 && queueLimit<=QUEUE_LIMIT,"resource limit");
         this.metadataLimit=metadataLimit;this.stagingLimit=stagingLimit;this.queueLimit=queueLimit;
         require(observationLimit>=0 && observationLimit<=MembershipResourceObservations.MAXIMUM,"resource observation bound");
         observations=observationLimit==0?null:new MembershipResourceObservations(observationLimit,metadataLimit,stagingLimit,queueLimit);
+        require(closeLimit>=0 && closeLimit<=MembershipControlCloseObservations.MAXIMUM && (closeLimit==0 || observations!=null),
+                "control close requires resource observations");
+        controlCloses=closeLimit==0?null:new MembershipControlCloseObservations(closeLimit);
         observe("START");
     }
     private void observe(String event) {
@@ -58,6 +65,9 @@ final class MembershipResources {
     }
     synchronized MembershipResourceObservations.Checkpoint observationCheckpoint() {
         require(observations!=null,"resource observations disabled");return observations.checkpoint(usage());
+    }
+    synchronized MembershipControlCloseObservations.Snapshot controlCloseObservations() {
+        require(controlCloses!=null,"control close observations disabled");return controlCloses.snapshot();
     }
     synchronized Lease reserve(Unit unit,String owner,long bytes) {
         Objects.requireNonNull(unit,"unit");Objects.requireNonNull(owner,"owner");
@@ -322,6 +332,37 @@ final class MembershipResources {
         private Key key; private long bytes; private boolean released;
         private GenerationReload reload;
         private Lease(Key key,long bytes) { this.key=key;this.bytes=bytes; }
+        boolean observesClose(){return controlCloses!=null;}
+        void closeObservationFailed(){synchronized(MembershipResources.this){if(controlCloses!=null)controlCloses.failed();}}
+        long observeCloseBegin(Lease child) {
+            if(controlCloses==null)return -1;
+            try{return observeCloseBegin(child==null?List.of():List.of(child));}
+            catch(RuntimeException|OutOfMemoryError error){closeObservationFailed();return -1;}
+        }
+        long observeCloseBegin(Collection<Lease> children) {
+            if(controlCloses==null)return -1;
+            synchronized(MembershipResources.this) {
+                try {
+                    require(!released && leases.get(key)==this && key.unit==Unit.CONTROL,"control close original owner");
+                    var names=new TreeSet<String>();
+                    for(var child:children) {
+                        require(child!=this && !child.released && leases.get(child.key)==child && child.key.unit==Unit.CONTROL
+                                && names.add(child.key.owner),"control close original child");
+                    }
+                    var point=observations.checkpoint(usage());require(point.complete(),"control close incomplete resources");
+                    return controlCloses.record("BEGIN",-1,point.sequence(),key.owner,List.copyOf(names));
+                } catch(RuntimeException|OutOfMemoryError error){controlCloses.failed();return -1;}
+            }
+        }
+        void observeCloseReturned(long call) {
+            if(controlCloses==null)return;
+            synchronized(MembershipResources.this) {
+                try {
+                    var point=observations.checkpoint(usage());require(point.complete() && released && call>=0,"control close normal return");
+                    controlCloses.record("RETURNED",call,point.sequence(),key.owner,List.of());
+                } catch(RuntimeException|OutOfMemoryError error){controlCloses.failed();}
+            }
+        }
         /** Account a declared control body before allocating it, without releasing its header slot. */
         void reserveControl(long total) {
             synchronized(MembershipResources.this) {

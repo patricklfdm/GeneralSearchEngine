@@ -209,6 +209,9 @@ def replay(events,wires,traces,boundaries,identities,root,record,mode):
 
 def case(root,mode):
     extra=['wire.json','events.json',a.DIRECTORY]+([] if mode=='exhausted-offer' else ['record.gsr'])
+    # The independent close reader requires and validates this optional sidecar.
+    # Its presence does not upgrade the original source-buffer qualification.
+    if (root/'control-close-captures').exists():extra.append('control-close-captures')
     physical.case(root,3,additional=extra)
     captured=physical.c.inventory(root/'captured/node-1');cap=physical.c.current(captured)[2]['capsule'];root_id=cap['root']
     record=physical.c.journal(captured['grants.gsr'],root_id,'node-1')[-2][1]

@@ -1,0 +1,172 @@
+{
+  "schema": "gse-v53-control-close-resources-development-v1",
+  "status": "PASS",
+  "baseSource": "d83d6feb7683de54da7542baba2aacc911554308",
+  "scope": "source-component-cleanup-performing-invocations",
+  "raw": "general-search-engine-replication/target/v53-source-control-resources/run-59f9bb78-e3b3-4222-8c57-87b1a44d5eaa",
+  "javaTests": 32,
+  "newJavaTests": 9,
+  "pythonTests": 92,
+  "newPythonTests": 10,
+  "closeIntervals": 12,
+  "closeNegatives": 64,
+  "existingSourceNegatives": 76,
+  "sources": [
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipControlCloseObservations.java",
+      "sha256": "693ba44607a69c135e438d49f0966a76ac3d057cef2e8e92990e89401e9e89ce"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ControlCloseObservationsTest.java",
+      "sha256": "e4829103febea46f30547219da7355e88a9d683b6b44024d14e73e5d164228c3"
+    },
+    {
+      "path": "scripts/v53/control_close_evidence.py",
+      "sha256": "3e69a94db960fb42793def6b722086b227f56be060a11365a9cba0e32156e9ba"
+    },
+    {
+      "path": "scripts/v53/control_close_negatives.py",
+      "sha256": "19c842a1a96a7f570993e8a86255b0d2c5ece499cbb67eae3a49b3ddd260ce1c"
+    },
+    {
+      "path": "scripts/v53/test_control_close_evidence.py",
+      "sha256": "4455beceb2fc6b823fd6e0c3fe649d3f6ea93b6088d4159b55b5272a1598be8b"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java",
+      "sha256": "1df36815dd1d9120f7afb52a3feb67e986c2361c4033b27df34f9c91ea275e2c"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceSession.java",
+      "sha256": "e5eacdee5b3f0912b839111028c76216b9599652d221c4157dff95b2c3a88af1"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransferService.java",
+      "sha256": "a85ed54f654976c51cf3729e1b8a0d7f173bba331f49407529ff549149e1ed9a"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTraceFiles.java",
+      "sha256": "59d5929dbae1809d9d17e11f67653a4af8e17c3b65074efd477b239cd9d945c0"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransitionCapture.java",
+      "sha256": "15ffc9d94a6c7014c81bfd2ee8a17f452a9efbd114f46783796f5b09a4d8509c"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SourceControlResourcesTest.java",
+      "sha256": "8f5a86e4d4f459535749b2f17a6ff48113a70bf67d16e9b8b53dedc8ef3b5319"
+    },
+    {
+      "path": "scripts/v53/source_control_resource_evidence.py",
+      "sha256": "1d4fbda7ff2e6a637f31f2169ace8401c38d13a2f34484e5239c0f0d44e62e72"
+    }
+  ],
+  "reports": [
+    {
+      "path": "target/v53-control-close/java-input.json",
+      "sha256": "01412b5d88e8828bc2a9beab1742ac4b888f40dcc67994f9c3102002d4c8c40a"
+    },
+    {
+      "path": "target/v53-control-close/maven-01.log",
+      "sha256": "0c7a4c91281925b76e9b2e75e1044e7c67cf1f4465327aec9e4a4a04e4c24d44"
+    },
+    {
+      "path": "target/v53-control-close/maven-02.log",
+      "sha256": "0bbf185d78815481012ddcdaa09ce5683880a2380ce042eb2bfac088a19eb314"
+    },
+    {
+      "path": "target/v53-control-close/maven-03.log",
+      "sha256": "e2849388b9f9cab5568985845def463f706393dca7a1bfe2018dc91054b7a2d9"
+    },
+    {
+      "path": "target/v53-control-close/python-01.log",
+      "sha256": "78bc9daf66722e336a328f3edca742db0f1def68487ec2269a035c0bd2d985a8"
+    },
+    {
+      "path": "target/v53-control-close/python-02.log",
+      "sha256": "e747a4b35ef5bf8cd4b127d2780154984efe9740b9e055c1eb786d74a83bc078"
+    },
+    {
+      "path": "target/v53-control-close/replay-01.log",
+      "sha256": "ee4c26d341aaafdb883aef0e3749d5538889a2945991e4e29f565ba6f197c400"
+    },
+    {
+      "path": "target/v53-control-close/replay-02.log",
+      "sha256": "6b41d8fca799f79799035b8f61e750f2773153cb3ef174a2f1d47127a847a48e"
+    },
+    {
+      "path": "target/v53-control-close/qualify.py",
+      "sha256": "a66fc86993ffa22bdf6b1b1b10328b741810a1bae378539ee85769dd9f1fd8ff"
+    },
+    {
+      "path": "target/v53-control-close/TEST-io.github.patricklfdm.generalsearch.replication.V53ControlCloseObservationsTest.xml",
+      "sha256": "d31d5d0f05c5eae0474f1abf8399603d77b683a233bbf27b6860367bc2d04046"
+    },
+    {
+      "path": "target/v53-control-close/TEST-io.github.patricklfdm.generalsearch.replication.V53ResourceObservationsTest.xml",
+      "sha256": "a7205be12e9eb5b8c326807e76bfd77d750075889ff435d0681c82805177b208"
+    },
+    {
+      "path": "target/v53-control-close/TEST-io.github.patricklfdm.generalsearch.replication.V53ResourceTransitionCaptureTest.xml",
+      "sha256": "80c481dc337d7a7137590e1376f5f365fbf465bed5dbbdc4f3a851f2f2fbadfe"
+    },
+    {
+      "path": "target/v53-control-close/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceControlResourcesTest.xml",
+      "sha256": "0ce834d699f45619132d8ef637a1c81aaa7ea4975b397359ccac3c468e565dd7"
+    },
+    {
+      "path": "target/v53-control-close/TEST-io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest.xml",
+      "sha256": "2eb71cf16985787aabd96fb3b26058d994917ff59f4e825a30684491196a6223"
+    },
+    {
+      "path": "target/v53-control-close/replay-02/close-negatives.json",
+      "sha256": "693293975ec13340e7fd1df710bc4dd3a27a0f7c38ec8bd2d093e4d157cdd02a"
+    },
+    {
+      "path": "target/v53-control-close/replay-02/historical-compatibility.json",
+      "sha256": "615ca309b1624a3ae656e3af8a642c7e02ca845f78aa15947abe67b68d7db55b"
+    },
+    {
+      "path": "target/v53-control-close/replay-02/original-inventory.json",
+      "sha256": "5b31082755e82c334ade73680697ddbd6887bc1807d50a9f45e1e22507a4b26b"
+    },
+    {
+      "path": "target/v53-control-close/replay-02/source-negatives.json",
+      "sha256": "9a4bf566892ee92406816bcda3d128ae06bc894750217ea1c7b45d064555ff1c"
+    },
+    {
+      "path": "target/v53-control-close/replay-02/summary.json",
+      "sha256": "95f3f07b3c0b9de2380bdc4407c53ba333c7508f2a97bea6fcb7dd78724fb024"
+    },
+    {
+      "path": "target/v53-control-close/python-final-01.log",
+      "sha256": "b4edf0fbcee0f57d7249ae9d0712de06823332796b54e45304c265e3cd00b05a"
+    },
+    {
+      "path": "target/v53-control-close/contract.log",
+      "sha256": "c376805c1fa742ec48e7c30ddb225bda51aac46afaecf61e2a9634d71c89a9f0"
+    },
+    {
+      "path": "target/v53-control-close/plan.log",
+      "sha256": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df"
+    },
+    {
+      "path": "target/v53-control-close/finalize.py",
+      "sha256": "39f42d27e78b150f822108556df8d1a0dce209e96717f89a24b79806d31dca42"
+    }
+  ],
+  "sourceComponentCloseIntervalsQualified": true,
+  "nativeServiceCloseIntervalsQualified": false,
+  "joiningEndpointCloseQualified": false,
+  "wholeRuntimeResourcesQualified": false,
+  "finalSourceCohortQualified": false,
+  "phase3Complete": false,
+  "remaining": [
+    "joining endpoint listener/drain close",
+    "multi-session native close integration",
+    "other export/task/control lifetimes",
+    "post-handoff physical custody",
+    "combined maxima/headroom",
+    "final-source hosted qualification"
+  ]
+}

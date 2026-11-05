@@ -28,7 +28,7 @@ class V53SourceControlResourcesTest {
             var wire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());var drops=new AtomicInteger();
             try(var group=helper.new Group(3,raw)) {
                 var f=group.fixture;f.ownedHistory=true;
-                capture.set(new V53ResourceTransitionCapture(raw,group.capsule.context.root));
+                capture.set(new V53ResourceTransitionCapture(raw,group.capsule.context.root,List.of(),true));
                 var serverBudget=capture.get().create(group.identities.get(0),0);
                 var clientBudget=capture.get().create(group.identities.get(1),0);
                 try(var owner=f.open(f.request.targets().getFirst(),"source-control")) {
@@ -92,6 +92,8 @@ class V53SourceControlResourcesTest {
                         events.add(Map.of("node","node-1","event","SOURCE_SERVICE_CLOSE_BEGIN"));
                     }
                     events.add(Map.of("node","node-1","event","SOURCE_SERVICE_CLOSE_RETURNED"));
+                    int closeRows=serverBudget.controlCloseObservations().rows().size();service.close();
+                    assertEquals(closeRows,serverBudget.controlCloseObservations().rows().size());
                     assertEquals(0,serverBudget.usage().leases());assertEquals(mode.equals("exhausted-offer")?3:1,drops.get());
                 }
                 f.snapshot("after");

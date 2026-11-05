@@ -158,7 +158,11 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
         }
         boolean liveSession(){return session!=null && !dead && !released;}
         synchronized void abort(){dead=true;completedRequest=null;completedReply=null;if(session!=null){session.close();session=null;}}
-        synchronized void close(){abort();if(!released){released=true;marker.close();}}
+        synchronized void close(){
+            if(released){abort();return;}
+            long observation=marker.observesClose()?marker.observeCloseBegin(session==null?null:session.closeReservation()):-1;
+            abort();released=true;marker.close();marker.observeCloseReturned(observation);
+        }
     }
     private static void initial(Decoded request) {
         var payload=object(request.value().get("payload"));
@@ -200,12 +204,16 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
         return new Usage(entries.size(),(int)entries.stream().filter(Entry::liveSession).count(),active,stopped);
     }
     @Override public void close() {
-        List<Entry> entries;
-        synchronized(this){if(closed)return;closed=true;entries=List.copyOf(traces.values());traces.clear();}
+        List<Entry> entries;long observation;
+        synchronized(this){if(closed)return;closed=true;entries=List.copyOf(traces.values());traces.clear();
+            observation=-1;
+            if(metadata.observesClose())try{observation=metadata.observeCloseBegin(entries.stream().map(e->e.marker).toList());}
+            catch(RuntimeException|OutOfMemoryError error){metadata.closeObservationFailed();}}
         // The protocol must call close outside the journal monitor; reads serialize on that owner.
         // Cancel the shared quorum before acquiring entry monitors: their first
         // requests may still be waiting for that quorum while holding the entry.
         if(learnerServing!=null)learnerServing.close();
         try{for(var entry:entries)entry.close();}finally{metadata.close();}
+        metadata.observeCloseReturned(observation);
     }
 }

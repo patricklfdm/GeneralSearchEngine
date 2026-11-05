@@ -13,6 +13,7 @@ final class V53ResourceTransitionCapture {
     private record Owner(MembershipIdentity identity,MembershipResources budget,int registeredAt) {}
     private final String root;
     private final Path directory;
+    private final boolean controlCloses;
     private final Map<String,Owner> owners=new TreeMap<>();
     private final List<Map<String,Object>> boundaries=new ArrayList<>();
     private final List<String> closingOwners;
@@ -22,9 +23,13 @@ final class V53ResourceTransitionCapture {
         this(raw,root,List.of());
     }
     V53ResourceTransitionCapture(Path raw,String root,List<String> closingOwners)throws IOException {
+        this(raw,root,closingOwners,false);
+    }
+    V53ResourceTransitionCapture(Path raw,String root,List<String> closingOwners,boolean controlCloses)throws IOException {
         require(closingOwners.size()<=6 && closingOwners.equals(closingOwners.stream().distinct().sorted().toList()) &&
                 closingOwners.stream().allMatch(n->n.matches("node-[1-6]")),"resource close original owners");
         this.closingOwners=List.copyOf(closingOwners);
+        this.controlCloses=controlCloses;
         MembershipValidation.digest(root);this.root=root;directory=Files.createDirectory(raw.resolve(DIRECTORY));
     }
     void closeOwner(MembershipGrantJournal journal,List<Map<String,Object>> events)throws IOException {
@@ -47,7 +52,8 @@ final class V53ResourceTransitionCapture {
         require(!saved && node.matches("node-[1-9][0-9]*") && !owners.containsKey(node) && owners.size()<6 && eventIndex==boundaries.size(),
                 "resource capture owner registration");
         var budget=new MembershipResources(MembershipResources.METADATA_LIMIT,512*MembershipResources.MIB,
-                MembershipResources.QUEUE_LIMIT,MembershipResourceObservations.MAXIMUM);
+                MembershipResources.QUEUE_LIMIT,MembershipResourceObservations.MAXIMUM,
+                controlCloses?MembershipControlCloseObservations.MAXIMUM:0);
         owners.put(node,new Owner(identity,budget,eventIndex));return budget;
     }
     synchronized void event(int index,Map<String,Object> event) {
@@ -73,5 +79,16 @@ final class V53ResourceTransitionCapture {
                 "eventsSha256",hash(events),"boundariesSha256",hash(data),"owners",refs));
         if(!closingOwners.isEmpty())index.put("closingOwners",closingOwners);
         Files.write(directory.resolve("index.json"),canonical(index,16384),StandardOpenOption.CREATE_NEW);
+        if(controlCloses) {
+            Path closeDirectory=Files.createDirectory(directory.getParent().resolve("control-close-captures"));
+            var closeRefs=new ArrayList<Map<String,Object>>();
+            for(var ref:refs) {
+                String name=(String)ref.get("path");var identity=object(ref.get("identity"));
+                String digest=V53ResourceTraceFiles.writeCloses(closeDirectory.resolve(name),owners.get(identity.get("node")).budget.controlCloseObservations());
+                closeRefs.add(Map.of("identity",identity,"path",name,"sha256",digest,"resourceSha256",ref.get("sha256")));
+            }
+            Files.write(closeDirectory.resolve("index.json"),canonical(Map.of("schema","gse-v53-control-close-capture-v1","root",root,
+                    "eventsSha256",hash(events),"owners",closeRefs),16384),StandardOpenOption.CREATE_NEW);
+        }
     }
 }

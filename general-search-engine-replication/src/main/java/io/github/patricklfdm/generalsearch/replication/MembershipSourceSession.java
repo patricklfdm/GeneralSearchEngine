@@ -102,5 +102,11 @@ final class MembershipSourceSession implements MembershipTransport.Handler,AutoC
             check();lastRequest=digest;lastResponse=result;sequence=next;return result;
         }catch(IOException|RuntimeException error){close();throw error;}
     }
-    @Override public synchronized void close(){if(!closed){closed=true;releaseResponse();metadata.close();export.close();}}
+    synchronized MembershipResources.Lease closeReservation(){return closed?null:metadata;}
+    @Override public synchronized void close(){if(!closed){
+        long observation=metadata.observeCloseBegin(responseLease);
+        closed=true;releaseResponse();metadata.close();export.close();
+        // Deliberately absent when the exporter throws after releasing metadata.
+        metadata.observeCloseReturned(observation);
+    }}
 }

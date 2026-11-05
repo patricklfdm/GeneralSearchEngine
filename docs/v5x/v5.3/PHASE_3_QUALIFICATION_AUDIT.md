@@ -1,5 +1,12 @@
 # Phase 3 qualification inventory and remaining work
 
+[Source-component cleanup intervals](PHASE_3_CONTROL_CLOSE_RESOURCES.md) now
+bind the cleanup-performing service, trace and session calls to original resource
+sequences and child leases. Four TCP histories pass 12 intervals, 64 close
+mutations and 76 existing source mutations. Joining endpoint and native close
+integration, other resource categories and final-source qualification remain
+OPEN; final zero accounting alone is not successful close evidence.
+
 [Native source resources](PHASE_3_NATIVE_SOURCE_RESOURCES.md) now bind multiple
 original sessions in the complete short native physical/accounting pipeline.
 The retained two-slot history covers 444 source CONTROL reservations and 17
