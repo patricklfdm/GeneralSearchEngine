@@ -90,7 +90,9 @@ def bind_publications(transactions,boundaries):
     return count
 
 
-def validate(directory,profile='stable',progress=None,*,source_control=False,control_closes=False,export_ownership=False,direct_exports=False,joining_requests=False,joining_extents=False):
+def validate(directory,profile='stable',progress=None,*,source_control=False,control_closes=False,export_ownership=False,direct_exports=False,joining_requests=False,joining_extents=False,published_probe=False):
+    need(type(published_probe) is bool and (not published_probe or export_ownership and control_closes and profile=='5-REPLACE-required-four'),
+         'native resources published probe policy')
     need(type(joining_extents) is bool and (not joining_extents or joining_requests),'native resources joining extents policy')
     need(type(joining_requests) is bool and (not joining_requests or export_ownership and control_closes and profile=='5-REPLACE-required-four'),
          'native resources joining requests policy')
@@ -135,7 +137,7 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
         from . import direct_export_evidence
         direct=direct_export_evidence.replay(traces,control_close_evidence.load(root,index),
                 direct_export_evidence.derive(states,rounds,selection,events,boundaries))
-    transport=None;floors=None;receiving=None;bases=None
+    transport=None;floors=None;receiving=None;bases=None;published=None
     if profile=='5-REPLACE-required-four':
         from . import transport_resource_evidence
         # Attempts that never reached a connected wire boundary must remain
@@ -150,11 +152,18 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
         if direct_exports:
             from . import required_four_direct_exports
             direct=required_four_direct_exports.replay(traces,control_close_evidence.load(root,index),reader,boundaries)
+        if published_probe:
+            from . import published_prefix_probe_evidence
+            # Derive the permit from the original quorum/head confirmations.
+            # Local probe markers never synthesize a network exchange or permit.
+            controls.run(ledgers.maintenance.exports.content(root))
+            need(controls.events==events,'native resources original published probe event input')
+            published=published_prefix_probe_evidence.replay(traces,control_close_evidence.load(root,index),controls,boundaries)
     need(collection.inventory(root)==before,'native resources original changed')
     return dict(result,status=cleanup['status'] if cleanup else result['status'],scope='native-owner-accounting-with-original-publication-boundaries',profile=profile,
                 precondition=preceding,publicationResources=physical,publicationBoundaries=count,transportResources=transport,
                 floorResources=floors,receivingResources=receiving,basisResources=bases,ownerCloseResources=closed,
-                sourceControlResources=source_result,sourceCleanupIntervals=cleanup,directExportOwnership=direct,
+                sourceControlResources=source_result,sourceCleanupIntervals=cleanup,directExportOwnership=direct,publishedPrefixProbe=published,
                 physicalPeakQualified=False,controlLifetimesQualified=False,finalSourceCohortQualified=False)
 
 
@@ -163,5 +172,5 @@ if __name__=='__main__':
     p.add_argument('--profile',choices=('stable','5-REPLACE-required-four'),default='stable')
     p.add_argument('--source-control',action='store_true');p.add_argument('--control-closes',action='store_true')
     p.add_argument('--export-ownership',action='store_true');p.add_argument('--direct-exports',action='store_true');p.add_argument('--joining-requests',action='store_true')
-    p.add_argument('--joining-extents',action='store_true');a=p.parse_args()
-    print(json.dumps(validate(a.root,a.profile,source_control=a.source_control,control_closes=a.control_closes,export_ownership=a.export_ownership,direct_exports=a.direct_exports,joining_requests=a.joining_requests,joining_extents=a.joining_extents),sort_keys=True))
+    p.add_argument('--joining-extents',action='store_true');p.add_argument('--published-probe',action='store_true');a=p.parse_args()
+    print(json.dumps(validate(a.root,a.profile,source_control=a.source_control,control_closes=a.control_closes,export_ownership=a.export_ownership,direct_exports=a.direct_exports,joining_requests=a.joining_requests,joining_extents=a.joining_extents,published_probe=a.published_probe),sort_keys=True))

@@ -1,5 +1,10 @@
 # Phase 3 qualification inventory and remaining work
 
+[Published learner-prefix probe](PHASE_3_PUBLISHED_PREFIX_PROBE.md) now binds
+the actual local call and cleanup interval to original references, generation
+and confirmed learner permission. Twenty Java and 307 Python checks pass;
+current-source complete native execution and full body reads are not claimed.
+
 [Required-four direct exports](PHASE_3_REQUIRED_FOUR_DIRECT_EXPORTS.md) now derive
 activation/SELECTED and network-maintenance borrow intervals from the complete
 original history. The retained original yields 72 intervals, including repeated

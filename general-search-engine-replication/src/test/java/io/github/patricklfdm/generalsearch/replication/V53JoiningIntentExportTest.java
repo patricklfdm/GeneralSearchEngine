@@ -387,10 +387,10 @@ class V53JoiningIntentExportTest {
                                                     "action","REQUEST","offset",0L,"bytes","","digest",MembershipLearnerProgressAccess.reference(request,owner.activationContext().cut,"prefix")));
                                             assertThrows(IllegalArgumentException.class,()->new MembershipLearnerPrefixExport(owner,joining,readRequest,resources,
                                                     System::nanoTime,System.nanoTime(),BUDGET,true));
-                                            try(var export=resources.observeProbeExport(new MembershipLearnerPrefixExport(owner,joining,readRequest,resources,
-                                                    System::nanoTime,System.nanoTime(),BUDGET,true,null,permit))) {
-                                                assertFalse(export.references().isEmpty());
-                                            }
+                                            V53PublishedPrefixProbe.run(Boolean.getBoolean("v53.resource.export.ownership"),n.events,
+                                                    owner.activationIdentity().nodeId().value(),readRequest,resources,
+                                                    ()->new MembershipLearnerPrefixExport(owner,joining,readRequest,resources,
+                                                            System::nanoTime,System.nanoTime(),BUDGET,true,null,permit));
                                             assertEquals(originalLedger,owner.learnerRetentionState());
                                             Files.write(n.f.raw.resolve("joining-head-wire.json"),canonical(confirmationWire,1024*1024));
                                             assertEquals(profile.majority(),confirmationWire.size());

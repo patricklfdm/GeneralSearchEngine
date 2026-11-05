@@ -1,0 +1,180 @@
+{
+  "baseSource": "6164a1ce7aac39fe347e1ab1d03cad4a65103319",
+  "currentNativePublishedProbeQualified": false,
+  "finalSourceCohortQualified": false,
+  "fullBodyReadsQualified": false,
+  "historicalRequiredFour": {
+    "currentPublishedProbeQualified": false,
+    "elapsedSeconds": 235.656,
+    "expectedRejection": "published probe complete original observations",
+    "newRuntimeExecution": false,
+    "original": "general-search-engine-replication/target/v53-native-dispatch/run-bc82bb01-127a-40e0-9332-dd2f2bc8a1d3",
+    "phase3Complete": false,
+    "scope": "historical-original-control-compatibility-and-missing-marker-rejection",
+    "status": "PASS"
+  },
+  "javaTests": 20,
+  "newJavaTests": 7,
+  "newPythonTests": 13,
+  "phase3Complete": false,
+  "productionJavaChanged": false,
+  "pythonTests": 307,
+  "remaining": [
+    "current-source complete required-four probe execution",
+    "constructor rollback original interval binding",
+    "remaining resource content extents and physical custody",
+    "simultaneous maxima/headroom and final-source hosted qualification"
+  ],
+  "reports": [
+    {
+      "path": "target/v53-published-prefix-probe/contract.json",
+      "sha256": "4e9976dae8c8f6dc29d47a761649acd88e80da20a59a814e0800b5d005c5c907"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/contract.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/finalize.py",
+      "sha256": "d2b0d4b04bf0e5f4a811d994fddf5051855331531d855608eeca92bb4cb57e87"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/historical-01.log",
+      "sha256": "317a3dc27fa49d93c4fe3ebbaf1fac4c707f870195b3cf704e62e95f3872b5aa"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/historical-check.py",
+      "sha256": "ac9abc342cf8d2c448d49483f4b6dbe23adb6406b40cf98e094ceda5a5be0042"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/historical-original.json",
+      "sha256": "72ad63f02303611add436d11e9f72bc0ea27dbaed146687f62fe382bf8ecaf23"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/historical-result.json",
+      "sha256": "284bd284a89441f0bf2d4f076b6d8d9cc99c179428ac4ccfc14b62ab0b4b5c29"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/java-01.log",
+      "sha256": "075ed6e3a73b513ca96cbbfa06489f5b7cd2bf480c481b7790cad25188394c9c"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/java-input-01.json",
+      "sha256": "9cfcfa121ed8e0b8d149c848aeb363697c33ff3b516df9d512abe27ea56c8988"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53JoiningExportRequestTest.xml",
+      "sha256": "09be4ca95a15d49b5ed5867f930d5276ddaca249bf58b6080b3895e6d9207ebb"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ProbeExportOwnershipTest.xml",
+      "sha256": "1934025e67246c9f6a49d73d13c432864aa1e3f0b1347ddb1a4e3cbf2878fb87"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53PublishedPrefixProbeTest.xml",
+      "sha256": "10ea05cff85f562d49cb0651627a8c8e88eb54dbd8738abb13b8510e70aa55f4"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/junit/io.github.patricklfdm.generalsearch.replication.V53JoiningExportRequestTest.txt",
+      "sha256": "5ad88d4a968d5c89f6a1a98a7bd64e9c23382c8a633d002a37bcac4d00889108"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/junit/io.github.patricklfdm.generalsearch.replication.V53ProbeExportOwnershipTest.txt",
+      "sha256": "4ff5a25431d6f2ded957b04b62b7dfde2cf8c5f1fa99b7b9d95ef6b83898f533"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/junit/io.github.patricklfdm.generalsearch.replication.V53PublishedPrefixProbeTest.txt",
+      "sha256": "adeaf625bc4400577b141d2b1b81c47976108eaebe6b5d41b0489b8e153b39ae"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/permission-existing-01.log",
+      "sha256": "d1ef7b296f5a47c9dab64e2875f6a28eb6d08bb7b9ef98ea1cbd985b4258ebd9"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/plan/acceptance-plan.json",
+      "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/plan/plan.json",
+      "sha256": "811d5dedd9f3965d1927fd1072d36c23b8a7fb6dcf8b158172e4b4d48e57c005"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/plan/receipt.json",
+      "sha256": "be9445ce5dc4ef8ae09346f3f60d8518a9d7a6bd16e73f7be9d869da5c1e239c"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/plan.log",
+      "sha256": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/python-final-01.log",
+      "sha256": "e6e4e1d1f9f667a50504eea5886683eb4e58660fca2a8909b080883dc7e900b2"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/python-final-02.log",
+      "sha256": "b9badf384845721ac18980fc2fe30ce8a2bd32fa4594232ac76c784f32b39c90"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/python-new-01.log",
+      "sha256": "919cfef5d5909e8f17c41146ee142e65465931520e43b3dfc20f1b38bdc03dbf"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/python-new-02.log",
+      "sha256": "4261eb6672831c6fcb5236506f2d2cbafa67df5b3b97d53e27da2f82d46f793c"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/python-short-01.log",
+      "sha256": "2d4bd203d178cdfb0101dce9019f39221323b87c3b99a5b17f8db8926ca61bc4"
+    },
+    {
+      "path": "target/v53-published-prefix-probe/reader-input.json",
+      "sha256": "14c630163592dbef267ef4797c5ddcc7e661aa95e19f195b43b6c7ff3f0e98e3"
+    }
+  ],
+  "schema": "gse-v53-published-prefix-probe-development-v1",
+  "scope": "published-prefix-probe-reader-and-call-observations",
+  "sources": [
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_PUBLISHED_PREFIX_PROBE.md",
+      "sha256": "a55d6cda0c0937636ffafb7960f5071ca9d9a0f9a4176f485728766aea966e11"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_QUALIFICATION_AUDIT.md",
+      "sha256": "c292f7b215a00fcd8870d4cd75178e15ac14f25ae2355673ae0ab4d1f845fc96"
+    },
+    {
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "ec7e84d59082e65d25abd34a4f081f9bbfcdb944cd90dbecfef94e7a79eb4948"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java",
+      "sha256": "b5568110940263da46f44b913810457bd3f4bba6b4ae459dfa037007cb7db75a"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublishedPrefixProbe.java",
+      "sha256": "a3ac10d25f2aa6f019d3b35747f9f2c4c5746ef682b1ad590b64527ce619d648"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublishedPrefixProbeTest.java",
+      "sha256": "ff0551dc32a16c5ca1d88a4dcdd0f5088ed4a2eb48d9a9edcd37e93eb949a256"
+    },
+    {
+      "path": "scripts/v53/joining_control_evidence.py",
+      "sha256": "83c2fedf9f32409053cfe4bc35ed254bb9ce4fbd00efcf960bdeef67041fcc87"
+    },
+    {
+      "path": "scripts/v53/native_resource_evidence.py",
+      "sha256": "e13c73fb734d47efb6280c303fb431594e22d48086db86dc427ed394191337b4"
+    },
+    {
+      "path": "scripts/v53/published_prefix_probe_evidence.py",
+      "sha256": "8e99c55dbd93b55e92af7c5f21ba406b3275d531a77885d4860ebd72b2cfc279"
+    },
+    {
+      "path": "scripts/v53/test_published_prefix_probe_evidence.py",
+      "sha256": "5e9e476cdf6a3e80553a8acabd2dbc16cfafc5d8833c434cb5f00e7c247edd04"
+    }
+  ],
+  "status": "PASS",
+  "wholeRuntimeResourcesQualified": false
+}

@@ -239,14 +239,19 @@ class Replay:
         need(set(self.confirmations)==self.expected_confirmations,'joining control complete original head confirmations')
 
     def learner_content(self,values,own):
-        first=values[0]['offer'];q=first['request'];last=values[-1]['commit']['offered'];cap=own['packet']['capsule']
+        first=values[0]['offer'];last=values[-1]['commit']['offered']
+        return self.learner_permission(own,first['request'],first['received'],first['offered'],last)
+
+    def learner_permission(self,own,q,received,offered,last):
+        """Same original permit window for an admitted transfer or local call."""
+        cap=own['packet']['capsule']
         progress=reservation(own,q['sender'],progress=cap['cut']['view']['operation'] is not None);request=progress['request']
         if cap['cut']['view']['operation'] is None:
             permits=[v for v in self.recordings if v['node']==own['node'] and v['cut']==cap['cut'] and v['request']==request and v['learner']==q['sender'] and
-                     v['start']<first['offered']<=last<v['end']]
+                     v['start']<offered<=last<v['end']]
             need(len(permits)==1,'joining control learner export without live recording');return 'recorded'
         joint(own,q['sender']);permit=self.confirmations.get(own['node'])
-        need(permit is not None and permit['start']<first['received']<=last<permit['end'] and permit['request']==request and permit['learner']==q['sender'],
+        need(permit is not None and permit['start']<received<=last<permit['end'] and permit['request']==request and permit['learner']==q['sender'],
              'joining control published learner original retention');return 'published'
 
     def run(self,prior):
