@@ -1,7 +1,7 @@
 """Local export ownership tied to original native activation/maintenance bytes.
 
-The caller must admit the complete physical and network history first. Current
-derivation covers the existing stable native activation/two-slot profile only.
+The caller must admit the complete physical and network history first. The
+stable derivation below and the required-four adapter share interval matching.
 """
 from collections import Counter
 from . import native_dispatch_evidence as native
@@ -41,28 +41,39 @@ def derive(states,rounds,selection,events,boundaries):
 def replay(traces,closes,expected):
     inventory=exports.replay(traces,closes) # No unattached allocations may disappear.
     account=close.replay(traces,closes,export_ownership=True)
-    wanted={}
-    for item in expected:
+    need(type(expected) is list,'direct export original expectation')
+    wanted={};identifiers=set()
+    for ordinal,item in enumerate(expected):
+        need(type(item) is dict and type(item.get('phase')) is str and item['phase'] in close.DIRECT_ROLES,'direct export original expectation')
+        boundary='before' if item['phase']=='MAINTENANCE' else 'after'
+        need(set(item)=={'node','phase','reference','bytes',boundary,'through'} and
+             type(item['node']) is str and item['node'] in traces and type(item['reference']) is str and
+             len(item['reference'])==64 and all(c in '0123456789abcdef' for c in item['reference']) and
+             type(item['bytes']) is int and item['bytes']>0 and type(item[boundary]) is int and type(item['through']) is int and
+             0<=item[boundary]<item['through']<len(traces[item['node']]['changes']),'direct export original expectation')
         key=item['node'],item['phase'],item['reference']
-        need(key not in wanted,'direct export duplicate original expectation');wanted[key]=item
+        identity=tuple(sorted(item.items()))
+        need(identity not in identifiers,'direct export duplicate original expectation');identifiers.add(identity)
+        wanted.setdefault(key,[]).append((ordinal,item))
     observed=set();kinds=Counter()
     for node,owner in account['owners'].items():
         for name,call in owner['directExports'].items():
             phase=call['phase'];role=close.DIRECT_ROLES[phase];reference=name[len(role)+1:len(role)+65]
             key=node,phase,reference
-            need(key in wanted and key not in observed,'direct export original content/cohort');observed.add(key);item=wanted[key]
+            need(key in wanted,'direct export original content/cohort')
             life=owner['lifetimes'][name];reserved=traces[node]['changes'][life['start']]['added']
+            acquired=call['acquired']['resourceSequence'];begin=call['begin']['resourceSequence']
+            def covers(item):
+                if phase=='MAINTENANCE':return life['start']<=acquired<=item['before']<item['through']<=begin and item['through']<life['end']
+                return item['after']<life['start']<=acquired<item['through']<=begin and item['through']<life['end']
+            matches=[(ordinal,item) for ordinal,item in wanted[key] if ordinal not in observed and covers(item)]
+            need(matches,'direct export original '+('maintenance' if phase=='MAINTENANCE' else 'activation')+' lifetime')
+            need(len(matches)==1,'direct export ambiguous original interval')
+            ordinal,item=matches[0];observed.add(ordinal)
             need(len(reserved)==1 and reserved[0]['owner']==name and reserved[0]['bytes']==item['bytes'],
                  'direct export original content extent')
-            acquired=call['acquired']['resourceSequence'];begin=call['begin']['resourceSequence']
-            if phase=='MAINTENANCE':
-                need(life['start']<=acquired<=item['before']<item['through']<=begin and item['through']<life['end'],
-                     'direct export original maintenance lifetime')
-            else:
-                need(item['after']<life['start']<=acquired<item['through']<=begin and item['through']<life['end'],
-                     'direct export original activation lifetime')
             kinds[phase]+=1
-    need(observed==set(wanted),'direct export missing original local owner')
+    need(observed==set(range(len(expected))),'direct export missing original local owner')
     return dict(status='PASS',scope='stable-native-direct-export-ownership',directExports=len(observed),
                 phases=dict(sorted(kinds.items())),originalContentBindingsQualified=True,
                 originalOperationIntervalsQualified=True,exportInventory=inventory,

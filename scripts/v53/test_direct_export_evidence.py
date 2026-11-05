@@ -59,16 +59,17 @@ class DirectExportEvidenceTest(unittest.TestCase):
         for field in ('before','through'):
             data=fixture('MAINTENANCE');expected=data[2][0]
             expected[field]=0 if field=='before' else 999
-            with self.assertRaisesRegex(ValueError,'original maintenance lifetime'):r.replay(*data)
+            reason='original maintenance lifetime' if field=='before' else 'original expectation'
+            with self.assertRaisesRegex(ValueError,reason):r.replay(*data)
 
     def test_source_must_follow_forced_grant_and_span_installation(self):
         for field in ('after','through'):
             data=fixture();data[2][0][field]=999
-            with self.assertRaisesRegex(ValueError,'original activation lifetime'):r.replay(*data)
+            with self.assertRaisesRegex(ValueError,'original expectation'):r.replay(*data)
 
     def test_extra_and_missing_local_owners_cannot_be_inferred(self):
         data=fixture();extra=copy.deepcopy(data[2][0]);extra['node']='node-2';data[2].append(extra)
-        with self.assertRaisesRegex(ValueError,'missing original local owner'):r.replay(*data)
+        with self.assertRaisesRegex(ValueError,'original expectation'):r.replay(*data)
         data=fixture();data[2].clear()
         with self.assertRaisesRegex(ValueError,'original content/cohort'):r.replay(*data)
 

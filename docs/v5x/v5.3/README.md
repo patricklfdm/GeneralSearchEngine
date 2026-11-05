@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Required-four direct exports](PHASE_3_REQUIRED_FOUR_DIRECT_EXPORTS.md) now derive
+activation/SELECTED and network-maintenance borrow intervals from the complete
+original history. The retained original yields 72 intervals, including repeated
+borrows of three generations. Current-source allocation composition and final
+hosted qualification remain OPEN.
+
 [Joining metadata extents](PHASE_3_JOINING_METADATA_EXTENTS.md) now bind all five
 metadata families to original content sizes and exact first requests, including
 the separate nested prefix charge. Two actual conditional handlers pass 16

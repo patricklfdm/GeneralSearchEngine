@@ -1,0 +1,209 @@
+{
+  "baseSource": "f71238cb97d34dc7612f9735361c6e3397703ad4",
+  "finalSourceCohortQualified": false,
+  "historicalRequiredFourReplay": {
+    "directAllocationsQualified": false,
+    "elapsedSeconds": 170.822,
+    "intervals": 72,
+    "newRuntimeExecution": false,
+    "original": "general-search-engine-replication/target/v53-native-dispatch/run-bc82bb01-127a-40e0-9332-dd2f2bc8a1d3",
+    "phases": {
+      "ACTIVATION": 6,
+      "MAINTENANCE": 53,
+      "SELECTED": 13
+    },
+    "repeatedGenerationKeys": 3,
+    "status": "PASS"
+  },
+  "historicalStableReplay": {
+    "directExports": 6,
+    "exports": 45,
+    "negativeChecks": 12,
+    "newRuntimeExecution": false,
+    "original": "general-search-engine-replication/target/v53-native-dispatch/run-0087a370-431d-43f0-949b-ccdf4e762e10",
+    "status": "PASS"
+  },
+  "newPythonTests": 13,
+  "originalRepeatedContentFailures": [
+    {
+      "phase": "ACTIVATION",
+      "reason": "direct export duplicate original expectation",
+      "status": "EXPECTED_FAILURE"
+    },
+    {
+      "phase": "SELECTED",
+      "reason": "direct export duplicate original expectation",
+      "status": "EXPECTED_FAILURE"
+    },
+    {
+      "phase": "MAINTENANCE",
+      "reason": "direct export duplicate original expectation",
+      "status": "EXPECTED_FAILURE"
+    }
+  ],
+  "phase3Complete": false,
+  "productionJavaChanged": false,
+  "pythonTests": 259,
+  "remaining": [
+    "current-source complete joining resource composition",
+    "independent probe and rollback intervals",
+    "whole-runtime physical custody and simultaneous maxima/headroom",
+    "final-source cohort admission and hosted execution"
+  ],
+  "reports": [
+    {
+      "path": "target/v53-required-four-direct-exports/contract.json",
+      "sha256": "0529f7eec12a0cd42d0afa19c71de421450091b31c600ba6fbec5c34cc04ed6b"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/contract.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/derive-historical.py",
+      "sha256": "cd82154bcf9291e12421d574f19bbc743883fd2bb39ebd7393226bff6430cc8a"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/finalize.py",
+      "sha256": "1fccca458050c1afff91e9b3f71b2a5d5af19e69e5cc6485cbd5354ede515e3e"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/historical-01.log",
+      "sha256": "6c1d0fd05c501a83535ec063a8bd805723cabacaf66f01952057d1cfc10cf246"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/historical-02.log",
+      "sha256": "fe014d707529726daee8fc8c43cc9cd55f43808df31e36e7b6d5ea484e8f4feb"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/historical-derived.json",
+      "sha256": "397ca4d1aeef62a627da3507693383fbab0877bd50eb03d08d5956c25c5256aa"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/historical-precondition-01.json",
+      "sha256": "d77a67ac48e2bd658d7fe400d2eadde45698137bfd18f3a55a89efc33cad31bd"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/historical-precondition.json",
+      "sha256": "d77a67ac48e2bd658d7fe400d2eadde45698137bfd18f3a55a89efc33cad31bd"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/original-regressions.json",
+      "sha256": "3a4cd7cff31d28af5e922f3cb406d6cd31c8f5dcf50268b5cd1bf6f6960b9105"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/plan/acceptance-plan.json",
+      "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/plan/plan.json",
+      "sha256": "811d5dedd9f3965d1927fd1072d36c23b8a7fb6dcf8b158172e4b4d48e57c005"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/plan/receipt.json",
+      "sha256": "b3486c48111f05a6a3464dd597cc1415ce428c8aa1eb556883a208f36e71f1d4"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/plan.log",
+      "sha256": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/python-existing-01.log",
+      "sha256": "4644d01c7c09e00be5fd792dbf0f5356ca8623e86d10a989a1ad5e4ae6b8159d"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/python-final-01.log",
+      "sha256": "bca05de78c564b6b15260a98cbf83bfe8bbedf656ac5622fbaaaa98f19b5ae64"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/python-final-02.log",
+      "sha256": "dbc466f3a0afd8ae739ad3a05a021c462576f78e5ef1f6729bafe039b1f2c088"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/python-new-01.log",
+      "sha256": "9b19a83bd8caf836a6b6b184f4ea45f74cfe4f347852aa4dc05d8aa27852cc10"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/python-new-02.log",
+      "sha256": "a87bb13e9054beecaf6752fac885b6e8e533ff349765059e61af906de545c555"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/python-new-03.log",
+      "sha256": "68813d3df4b9d3a2d04330b46692411038466ac57a1cc332a48b7050ce94b35d"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/python-new-04.log",
+      "sha256": "e03f50f82d2ec0683906770a2cbc0923a7e2eb3770e6e0d80ae564e2cf9ecfa3"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/python-new-05.log",
+      "sha256": "e03f50f82d2ec0683906770a2cbc0923a7e2eb3770e6e0d80ae564e2cf9ecfa3"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/reader-input.json",
+      "sha256": "401397bf8f2a0ec427edd3e34cdec420abb1eefb86bf762f533edfb8932ae6fa"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/stable-qualified-final.json",
+      "sha256": "8243b01a98f971e85a00e7713437da8a49c1c22738cf4e12ec124c9fc6c7a808"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/stable-qualified-final.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/stable-qualified.json",
+      "sha256": "9480e19fda91400ab33532d489f8ea6cb57507333986834af94e4139ae03b67f"
+    },
+    {
+      "path": "target/v53-required-four-direct-exports/stable-qualified.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "schema": "gse-v53-required-four-direct-exports-development-v1",
+  "scope": "original-required-four-direct-export-composition-reader",
+  "sources": [
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_QUALIFICATION_AUDIT.md",
+      "sha256": "d8568aa5fe7d9d6f9ae5058df924fab9ae9bac054c9dc59a76b41838a305b8c7"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_REQUIRED_FOUR_DIRECT_EXPORTS.md",
+      "sha256": "5cb1d4baf5b090a7a84f145216b7fbcc2bda9c1cb7355c48daf57a7775d72ea5"
+    },
+    {
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "fe87d3b422159f68cd4f0a506d70efb09831a31bc086553aa10128b7647521d8"
+    },
+    {
+      "path": "scripts/v53/direct_export_evidence.py",
+      "sha256": "6d05b7e2d6e9ad69f1c09fb2e3d2cb560d32cf209455e25abc9b0a45e4174205"
+    },
+    {
+      "path": "scripts/v53/direct_export_negatives.py",
+      "sha256": "7ac1d4c92e29249657785575a5cdc57084b7a827892bc9df3cff98b83652312f"
+    },
+    {
+      "path": "scripts/v53/joining_export_evidence.py",
+      "sha256": "897f42758b4457369d7e28538772e2bfbd2deba0aa384f942569bfb599c81bfc"
+    },
+    {
+      "path": "scripts/v53/native_resource_evidence.py",
+      "sha256": "e27741b58625f32f3a7dac8678175aec6db7ad77fe3d6bcd65e36be163a49592"
+    },
+    {
+      "path": "scripts/v53/required_four_direct_exports.py",
+      "sha256": "5b622af072bc9e534797b1894ce685539e9813e4cdca9e84961d4dc51725c0cc"
+    },
+    {
+      "path": "scripts/v53/test_direct_export_evidence.py",
+      "sha256": "9745f87df90a19b722496f1eef8753cdea71f2ac4b2031ea5f18e3839b084af8"
+    },
+    {
+      "path": "scripts/v53/test_required_four_direct_exports.py",
+      "sha256": "0b08df292dd7a09353682b5714af2e6d04b3cc6ba31bb102c4de473171cf2366"
+    }
+  ],
+  "status": "PASS",
+  "wholeRuntimeResourcesQualified": false
+}

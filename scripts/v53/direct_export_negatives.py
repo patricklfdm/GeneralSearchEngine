@@ -89,16 +89,25 @@ def replay(traces,closes,expected):
     return dict(original=original,negatives=results)
 
 
-def validate(root):
+def validate(root,profile='stable'):
+    r.need(profile in ('stable','5-REPLACE-required-four'),'direct export original profile')
     root=Path(root);before=a.collection.inventory(root)
-    original=a.validate(root,control_closes=True,export_ownership=True,direct_exports=True)
+    original=a.validate(root,profile,control_closes=True,export_ownership=True,direct_exports=True)
     index,traces,boundaries,events=a.load(root);closes=r.close.load(root,index)
-    states,rounds,selection,_=r.native.physical(root,confirmed_retention=True)
-    result=replay(traces,closes,r.derive(states,rounds,selection,events,boundaries))
+    if profile=='stable':
+        states,rounds,selection,_=r.native.physical(root,confirmed_retention=True)
+        expected=r.derive(states,rounds,selection,events,boundaries)
+    else:
+        from . import required_four_direct_exports as required
+        reader=required.floors.maintenance.Replay(root);reader.run()
+        r.need(reader.events==events,'direct export original event input')
+        expected=required.derive(reader,boundaries)
+    result=replay(traces,closes,expected)
+    if profile!='stable':result['original']['scope']='required-four-native-direct-export-ownership'
     r.need(a.collection.inventory(root)==before,'direct export original changed')
-    return dict(status='PASS',precondition=original,**result,phase3Complete=False)
+    return dict(status='PASS',profile=profile,precondition=original,**result,phase3Complete=False)
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('root');args=p.parse_args()
-    print(json.dumps(validate(args.root),sort_keys=True))
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('root');p.add_argument('--profile',choices=('stable','5-REPLACE-required-four'),default='stable');args=p.parse_args()
+    print(json.dumps(validate(args.root,args.profile),sort_keys=True))

@@ -105,7 +105,7 @@ def source_windows(root,events):
         journal=disk.journal(files['grants.gsr'],capture['root'],node);promise,basis=journal[-2][1],journal[-1][1]
         value=f.decode(basis,'records','BASIS');prefix='sources/'+capture['basisId']+'/'
         packet=disk.p.decode(files[prefix+'source.gscp'])
-        result.append(dict(node=node,start=capture['capturedEvent'],end=ends.get((node,capture['basisId']),len(events)),
+        result.append(dict(node=node,start=capture['capturedEvent'],returnEvent=capture['returnEvent'],end=ends.get((node,capture['basisId']),len(events)),
             basis=basis,promise=promise,value=value,packet=packet,members={k.removeprefix(prefix):v for k,v in files.items() if k.startswith(prefix)}))
     need(set(ends)<={(v['node'],v['value']['basisId']) for v in result},'joining export retirement without original grant')
     return result

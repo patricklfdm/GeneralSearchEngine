@@ -96,7 +96,7 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
          'native resources joining requests policy')
     need(type(source_control) is bool and type(control_closes) is bool,'native resources source-control policy')
     need(type(export_ownership) is bool and (not export_ownership or control_closes),'native resources export-ownership policy')
-    need(type(direct_exports) is bool and (not direct_exports or export_ownership and profile=='stable'),
+    need(type(direct_exports) is bool and (not direct_exports or export_ownership and profile in ('stable','5-REPLACE-required-four')),
          'native resources direct-export policy')
     root=Path(directory);before=collection.inventory(root)
     if control_closes:need((root/'control-close-captures').is_dir(),'native resources missing control close observations')
@@ -131,7 +131,7 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
         source_result=cleanup['precondition']
     else:source_result=native_source_resources.replay(events,wires,traces,boundaries,identities,authority,require_complete=source_control)
     direct=None
-    if direct_exports:
+    if direct_exports and profile=='stable':
         from . import direct_export_evidence
         direct=direct_export_evidence.replay(traces,control_close_evidence.load(root,index),
                 direct_export_evidence.derive(states,rounds,selection,events,boundaries))
@@ -147,6 +147,9 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
         floors=floor_resource_evidence.replay(floor_resource_evidence.plans(reader),events,traces,boundaries)
         receiving=receive_resource_evidence.replay(receive_resource_evidence.derive(reader),events,traces,boundaries)
         bases=basis_resource_evidence.replay(basis_resource_evidence.derive(reader),events,traces,boundaries)
+        if direct_exports:
+            from . import required_four_direct_exports
+            direct=required_four_direct_exports.replay(traces,control_close_evidence.load(root,index),reader,boundaries)
     need(collection.inventory(root)==before,'native resources original changed')
     return dict(result,status=cleanup['status'] if cleanup else result['status'],scope='native-owner-accounting-with-original-publication-boundaries',profile=profile,
                 precondition=preceding,publicationResources=physical,publicationBoundaries=count,transportResources=transport,
