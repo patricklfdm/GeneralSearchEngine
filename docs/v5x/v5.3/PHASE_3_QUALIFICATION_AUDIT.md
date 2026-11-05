@@ -1,10 +1,18 @@
 # Phase 3 qualification inventory and remaining work
 
+[Native resource accounting](PHASE_3_NATIVE_RESOURCE_ACCOUNTING.md) now binds
+the actual old/joining budgets to original identities and every observed event.
+A short TCP history independently passes 3576 mutations, 1788 event boundaries,
+44 publication boundaries and 15 exact negatives. Complete required-four native
+qualification and non-publication physical/control lifetime derivation remain
+pending; no final-source or whole-runtime physical peak is claimed.
+
 [Resource transitions](PHASE_3_RESOURCE_TRANSITIONS.md) now observe accounting
 mutations between existing publication/transport callbacks. Six component traces
 cover all 19 event kinds and 210 transitions; two incomplete traces are rejected.
 Per-owner accounting peaks do not qualify whole-runtime physical maxima. The
-complete native producer/boundary integration remains pending.
+native producer/event integration is covered above; complete required-four
+execution and physical/control lifetime qualification remain pending.
 
 [Required-four continuous ledgers](PHASE_3_REQUIRED_FOUR_LEDGERS.md) now connect
 the four existing chain readers to the required-four original and pinned-floor

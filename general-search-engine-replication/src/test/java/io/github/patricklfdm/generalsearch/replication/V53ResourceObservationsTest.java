@@ -16,21 +16,8 @@ class V53ResourceObservationsTest {
     }
     static MembershipResources budget(long staging){return new MembershipResources(METADATA_LIMIT,staging,QUEUE_LIMIT,4096);}
     static MembershipResources.StorageReservation reservation(Unit unit,String owner,long bytes){return new MembershipResources.StorageReservation(unit,owner,bytes);}
-    static Map<String,Object> usage(Usage value) {
-        var counts=new TreeMap<String,Object>();value.counts().forEach((unit,count)->counts.put(unit.name(),count));
-        return Map.of("metadata",value.metadata(),"staging",value.staging(),"queued",value.queued(),"leases",value.leases(),"counts",counts);
-    }
-    static Map<String,Object> charge(MembershipResourceObservations.Charge value) {
-        return Map.of("unit",value.unit().name(),"owner",value.owner(),"bytes",value.bytes(),"claimSource",value.claimSource());
-    }
     static MembershipResourceObservations.Snapshot save(String name,MembershipResources budget)throws Exception {
-        var value=budget.observations();var changes=new ArrayList<Map<String,Object>>();
-        for(var row:value.changes())changes.add(Map.of("sequence",row.sequence(),"event",row.event(),"removed",row.removed().stream().map(V53ResourceObservationsTest::charge).toList(),
-                "added",row.added().stream().map(V53ResourceObservationsTest::charge).toList(),"usage",usage(row.usage())));
-        Files.write(evidence.resolve(name+".json"),MembershipFormat.canonical(Map.of("schema","gse-v53-resource-transitions-v1",
-                "metadataLimit",value.metadataLimit(),"stagingLimit",value.stagingLimit(),"queueLimit",value.queueLimit(),
-                "transitions",value.transitions(),"truncated",value.truncated(),"failed",value.failed(),"changes",changes,"current",usage(value.current())),8*1024*1024));
-        return value;
+        var value=budget.observations();V53ResourceTraceFiles.write(evidence.resolve(name+".json"),value);return value;
     }
     static List<String> events(MembershipResources budget){return budget.observations().changes().stream().map(MembershipResourceObservations.Change::event).toList();}
     static void closed(MembershipResources budget) {

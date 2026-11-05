@@ -1,10 +1,17 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Native resource accounting](PHASE_3_NATIVE_RESOURCE_ACCOUNTING.md) now connects
+actual old/joining budgets to every original event and publication storage
+boundary. A short real TCP history passes independent replay with 3576 resource
+changes, 1788 event checkpoints, 44 publication boundaries and 15 exact negatives.
+Complete required-four replay, non-publication physical/control lifetime
+derivation and final-source qualification remain OPEN.
+
 [Resource transition observation](PHASE_3_RESOURCE_TRANSITIONS.md) now records
 transient reservation changes and exact expansion rollback under the resource
 monitor. Six native component traces replay independently; overflow/failure
-traces are rejected. Complete producer ownership/boundary binding and native
-combined peak qualification remain OPEN.
+traces are rejected. The native integration above covers original owner/event
+binding; complete combined physical peak qualification remains OPEN.
 
 [Required-four continuous ledgers](PHASE_3_REQUIRED_FOUR_LEDGERS.md) now compose
 peer/learner/future/ballot derivation over the same original history, preserve all

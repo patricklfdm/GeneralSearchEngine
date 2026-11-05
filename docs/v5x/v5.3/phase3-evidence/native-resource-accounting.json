@@ -1,0 +1,266 @@
+{
+  "baseHead": "9c394758e334e3d073c34ef226a59ed62ef27a8c",
+  "componentOriginals": [
+    {
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-resource-capture/run-5d406a30-9d7a-4a73-84c6-c2f8f36a9f57/long.json",
+      "sha256": "c33d6b224ec9f88c85e61e58f281a9525bc982d31620bb495d0ecd98f9eb227c"
+    },
+    {
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-resource-capture/run-5d406a30-9d7a-4a73-84c6-c2f8f36a9f57/owners/events.json",
+      "sha256": "10f21c3a3205628b94ca5781142e1fbe57393b85fd1d74944a7a2bcb77656fac"
+    },
+    {
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-resource-capture/run-5d406a30-9d7a-4a73-84c6-c2f8f36a9f57/owners/resource-transition-captures/boundaries.json",
+      "sha256": "7ecdacac59abd917d8fc81d1eea15e3f16fc365e0c3fb89d6da302ab13da976b"
+    },
+    {
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-resource-capture/run-5d406a30-9d7a-4a73-84c6-c2f8f36a9f57/owners/resource-transition-captures/index.json",
+      "sha256": "c0f5eeb3dc4ede8b631503607e8af92ba49f9a3fa8acfba8aea47013ceaa8fb1"
+    },
+    {
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-resource-capture/run-5d406a30-9d7a-4a73-84c6-c2f8f36a9f57/owners/resource-transition-captures/node-1.json",
+      "sha256": "7bebc32431b5eaa2cb4c99a90c85d54178636b708243518d79aff7f1fee3eac7"
+    },
+    {
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-resource-capture/run-5d406a30-9d7a-4a73-84c6-c2f8f36a9f57/owners/resource-transition-captures/node-2.json",
+      "sha256": "fd909776fb0ed0ffaefc6a856b1e977bd3d9343edb0698f34b06888d46831705"
+    },
+    {
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-resource-capture/run-5d406a30-9d7a-4a73-84c6-c2f8f36a9f57/unclosed/events.json",
+      "sha256": "ad3d946f3675e5a967e8c96162ce118d7e63fe899b1bf43a30737f09b90f4977"
+    },
+    {
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-resource-capture/run-5d406a30-9d7a-4a73-84c6-c2f8f36a9f57/unclosed/resource-transition-captures/boundaries.json",
+      "sha256": "a431b7b0009cb8d2e90d0b3c9282ec1dbd526804c6c350a10e6916548139ab59"
+    },
+    {
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-resource-capture/run-5d406a30-9d7a-4a73-84c6-c2f8f36a9f57/unclosed/resource-transition-captures/index.json",
+      "sha256": "6cdc0801bb2088bc642b2cb3a69be844e8bc2e4f4b74eeaef309160185a485b5"
+    },
+    {
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-resource-capture/run-5d406a30-9d7a-4a73-84c6-c2f8f36a9f57/unclosed/resource-transition-captures/node-1.json",
+      "sha256": "df0dbc9a4fe95717b09d640043fe2c79673f965cc2f69096a95f86fc4859653d"
+    }
+  ],
+  "finalSourceCohortQualified": false,
+  "javaComponentTests": 48,
+  "javaNativeTests": 1,
+  "longComponentTransitions": 6001,
+  "nativeEventBoundaries": 1788,
+  "nativeTestSeconds": 55.92,
+  "nativeTransitions": 3576,
+  "negativeCases": 15,
+  "newJavaTests": 5,
+  "newPythonTests": 17,
+  "notes": [
+    "The first Python test invocation failed solely because its expected parser-budget error text used token instead of depth/node; the corrected assertion passed. Original failure log retained.",
+    "Source inventory was recorded after local tests; this development run is not a frozen final-source cohort.",
+    "Complete required-four replay, physical/control lifetime derivation and final-source admission/execution remain pending. Existing original failures are unchanged."
+  ],
+  "owners": {
+    "node-1": {
+      "closed": true,
+      "events": {
+        "CONTROL_GROW": 229,
+        "EXTEND_BEGIN": 11,
+        "EXTEND_COMMIT": 11,
+        "GENERATION_RELOAD": 3,
+        "RELEASE": 776,
+        "RESERVE": 776,
+        "START": 1,
+        "STORAGE_GROW": 4
+      },
+      "maximumObservedCounts": {
+        "APPLICATION": 6,
+        "CONTROL": 45,
+        "GENERATION": 2,
+        "JOURNAL": 1,
+        "MISC": 1,
+        "SOURCE": 4,
+        "WAITER": 1
+      },
+      "maximumObservedReservations": {
+        "leases": 55,
+        "metadata": 35739555,
+        "queued": 1163567,
+        "staging": 268442795
+      },
+      "observedAccountingQualified": true,
+      "phase3Complete": false,
+      "physicalStorageQualified": false,
+      "scope": "one-observed-resource-accounting-lifetime",
+      "status": "PASS",
+      "transitions": 1811,
+      "wholeRuntimeResourcesQualified": false
+    },
+    "node-2": {
+      "closed": true,
+      "events": {
+        "CONTROL_GROW": 222,
+        "EXTEND_BEGIN": 11,
+        "EXTEND_COMMIT": 11,
+        "GENERATION_RELOAD": 3,
+        "RELEASE": 742,
+        "RESERVE": 742,
+        "START": 1,
+        "STORAGE_GROW": 4
+      },
+      "maximumObservedCounts": {
+        "APPLICATION": 6,
+        "CONTROL": 25,
+        "GENERATION": 2,
+        "JOURNAL": 1,
+        "MISC": 1,
+        "SOURCE": 4,
+        "WAITER": 2
+      },
+      "maximumObservedReservations": {
+        "leases": 36,
+        "metadata": 35739555,
+        "queued": 569947,
+        "staging": 268442795
+      },
+      "observedAccountingQualified": true,
+      "phase3Complete": false,
+      "physicalStorageQualified": false,
+      "scope": "one-observed-resource-accounting-lifetime",
+      "status": "PASS",
+      "transitions": 1736,
+      "wholeRuntimeResourcesQualified": false
+    },
+    "node-3": {
+      "closed": true,
+      "events": {
+        "CONTROL_GROW": 6,
+        "RELEASE": 11,
+        "RESERVE": 11,
+        "START": 1
+      },
+      "maximumObservedCounts": {
+        "APPLICATION": 1,
+        "CONTROL": 2,
+        "GENERATION": 1,
+        "JOURNAL": 1,
+        "MISC": 1
+      },
+      "maximumObservedReservations": {
+        "leases": 6,
+        "metadata": 35656261,
+        "queued": 34735,
+        "staging": 837
+      },
+      "observedAccountingQualified": true,
+      "phase3Complete": false,
+      "physicalStorageQualified": false,
+      "scope": "one-observed-resource-accounting-lifetime",
+      "status": "PASS",
+      "transitions": 29,
+      "wholeRuntimeResourcesQualified": false
+    }
+  },
+  "phase3Complete": false,
+  "planAndContractTests": 19,
+  "publicationBoundaries": 44,
+  "raw": "general-search-engine-replication/target/v53-native-dispatch/run-7674c6ed-74d1-45ff-b315-a233c94af402",
+  "relatedPythonTests": 92,
+  "reports": [
+    {
+      "path": "target/v53-native-resource-binding/changed-files.txt",
+      "sha256": "308ad738df06a6acbd53bf64a6b6ea771ec216674132dcda77859c10d0a956e2"
+    },
+    {
+      "path": "target/v53-native-resource-binding/component-replay.json",
+      "sha256": "c7dfdb9680ca51899de4543f7012f148df5f453c464980dc51cd107abf9d466e"
+    },
+    {
+      "path": "target/v53-native-resource-binding/final-checks.json",
+      "sha256": "c9b765fb691cba720ad252c53774df6d05e4429e0a5c69396e24d0eea41f24a5"
+    },
+    {
+      "path": "target/v53-native-resource-binding/maven-components-01.log",
+      "sha256": "bb2518020d902ff913946efc8b0b663add01a2315907b31557f5cb18e542c492"
+    },
+    {
+      "path": "target/v53-native-resource-binding/maven-native-01.log",
+      "sha256": "cccf4633469236f77c762ea8a9a6a3ccbfa99ed55fbc83b0c3969f2241343ea3"
+    },
+    {
+      "path": "target/v53-native-resource-binding/native-inventory.json",
+      "sha256": "d5447baaa8a4e352fa12f4637041a0decd94d17ff2e91f711c0a2249dbe8e42a"
+    },
+    {
+      "path": "target/v53-native-resource-binding/native-qualification-01.json",
+      "sha256": "0e203b4e2cd9bcf8dbc65541e8be725cc5b4782bc7f4b096949c74c042b616d8"
+    },
+    {
+      "path": "target/v53-native-resource-binding/native-qualification-01.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-native-resource-binding/python-components-01.log",
+      "sha256": "b182398561e5abb26aa6c45b6f607e2d8ad168dd6a0f6c34fbcafbe1874ac57b"
+    },
+    {
+      "path": "target/v53-native-resource-binding/python-components-02.log",
+      "sha256": "3f513f6c2532ce9c92260715ec5a08dbb90ebcda12b9163a186802a1346eeb67"
+    },
+    {
+      "path": "target/v53-native-resource-binding/python-components-03.log",
+      "sha256": "d796810e127eb6ff0c0e4149ad1ff4e32f7fc424a43ef7e557fa011412117f6d"
+    },
+    {
+      "path": "target/v53-native-resource-binding/python-contract-01.log",
+      "sha256": "177b73837c6062386214dd7b68dd01ce87bca6ec254adde245738027ccda4ad8"
+    },
+    {
+      "path": "target/v53-native-resource-binding/python-related-01.log",
+      "sha256": "9c6b66151350bb56cf56b71986f43c2e6f402c70397defa7344a9578627570db"
+    },
+    {
+      "path": "target/v53-native-resource-binding/python-related-02.log",
+      "sha256": "d57499e6b8832612cc4e590de8b7619a23dc4d77459a3056606b71ae0e8df05c"
+    },
+    {
+      "path": "target/v53-native-resource-binding/source-inventory.json",
+      "sha256": "32ae22c3dd0152059ce6721ec3dae86cecaa04e9f594237a1520879d5d4937d1"
+    },
+    {
+      "path": "target/v53-native-resource-binding/surefire/TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationReloadTest.xml",
+      "sha256": "cc43f153b92627a5d3c7bd7fac8015284acb1085bb9b3ef80f7b8691fbae0ab4"
+    },
+    {
+      "path": "target/v53-native-resource-binding/surefire/TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationReservationTest.xml",
+      "sha256": "06f6bc7119c4a7073e0b9d5e3e00c47899635e383bc4c2c07f88b66eab54b788"
+    },
+    {
+      "path": "target/v53-native-resource-binding/surefire/TEST-io.github.patricklfdm.generalsearch.replication.V53LearnerResourceOwnerTest.xml",
+      "sha256": "9f9728e70100106e6edd4db3667c20b119111ad641bee528cf385feb1a3c6c21"
+    },
+    {
+      "path": "target/v53-native-resource-binding/surefire/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml",
+      "sha256": "7ce5616cd7bd6da7bef99bd96b49ed441f91069931ee68b449f685f4bb896461"
+    },
+    {
+      "path": "target/v53-native-resource-binding/surefire/TEST-io.github.patricklfdm.generalsearch.replication.V53PublicationReservationTest.xml",
+      "sha256": "39f868318d124c77c009ef38d192201e39a311e0160ecefb334dad22835b0d79"
+    },
+    {
+      "path": "target/v53-native-resource-binding/surefire/TEST-io.github.patricklfdm.generalsearch.replication.V53ResourceObservationsTest.xml",
+      "sha256": "205f647f88c5e435b7e9cfc125465908514d46b32cf02840598099bfc034efe1"
+    },
+    {
+      "path": "target/v53-native-resource-binding/surefire/TEST-io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest.xml",
+      "sha256": "724290d69179cf46c4d53a577f2ce84b3dcffe9d23ffd6a2e472cab42c741d95"
+    },
+    {
+      "path": "target/v53-native-resource-binding/surefire/TEST-io.github.patricklfdm.generalsearch.replication.V53ResourceTransitionCaptureTest.xml",
+      "sha256": "fa084429da7cc01876f227d314b4c831b75cc1d85239574ff198aa813400060f"
+    },
+    {
+      "path": "target/v53-native-resource-binding/surefire/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceReservationTest.xml",
+      "sha256": "582a5554fd3457fa0f24c74263bef6391cef66ab8e1dd56d49995f7916a9f092"
+    }
+  ],
+  "schema": "gse-v53-native-resource-accounting-development-v1",
+  "wholeRuntimeResourcesQualified": false
+}

@@ -56,6 +56,9 @@ final class MembershipResources {
     synchronized MembershipResourceObservations.Snapshot observations() {
         require(observations!=null,"resource observations disabled");return observations.snapshot(usage());
     }
+    synchronized MembershipResourceObservations.Checkpoint observationCheckpoint() {
+        require(observations!=null,"resource observations disabled");return observations.checkpoint(usage());
+    }
     synchronized Lease reserve(Unit unit,String owner,long bytes) {
         Objects.requireNonNull(unit,"unit");Objects.requireNonNull(owner,"owner");
         require(!owner.isEmpty() && owner.length()<=128 && bytes>=0 && bytes<=unit.bytes,"reservation shape");

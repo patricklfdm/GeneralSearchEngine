@@ -10,6 +10,7 @@ final class MembershipResourceObservations {
     record Change(long sequence,String event,List<Charge> removed,List<Charge> added,MembershipResources.Usage usage) {}
     record Snapshot(long metadataLimit,long stagingLimit,long queueLimit,long transitions,boolean truncated,boolean failed,
                     List<Change> changes,MembershipResources.Usage current) {}
+    record Checkpoint(long sequence,boolean complete,MembershipResources.Usage usage) {}
     private record Key(MembershipResources.Unit unit,String owner) {}
     private final int maximum;
     private final long metadataLimit,stagingLimit,queueLimit;
@@ -37,6 +38,9 @@ final class MembershipResourceObservations {
     boolean accepting(){return !truncated && !failed;}
     void skipped(){transitions++;}
     void failed(){failed=true;}
+    Checkpoint checkpoint(MembershipResources.Usage usage) {
+        return new Checkpoint(transitions-1,!truncated && !failed,usage);
+    }
     Snapshot snapshot(MembershipResources.Usage usage) {
         return new Snapshot(metadataLimit,stagingLimit,queueLimit,transitions,truncated,failed,List.copyOf(changes),usage);
     }

@@ -219,7 +219,7 @@ class V53JoiningIntentExportTest {
             round.submit("PREPARE",canonical(Map.of("number",1L,"revision",1L),8192));
             long preparedIndex=number(owner.activationContext().cut.get("index"));
             System.out.println("v53JoiningIntentStage=prepared");
-            var pool=new MembershipResources(512*MembershipResources.MIB);
+            var pool=n.resourceBudget(joining);
             var config=new MembershipReplicaConfig<>(request.root(),joining,List.of(),request.replicaDirectory(),storage(temp.resolve("core"),2),
                     n.bounds,AutomaticLeadershipPolicy.forBounds(n.bounds));
             trace.retainPublicationResources(n.publicationResources,config.replicaDirectory(),pool);

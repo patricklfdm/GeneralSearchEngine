@@ -603,7 +603,11 @@
         "scripts/v53/test_pinned_floor_process_evidence.py",
         "scripts/v53/test_required_four_physical.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceObservationsTest.java",
-        "scripts/v53/test_resource_transitions.py"
+        "scripts/v53/test_resource_transitions.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTraceFiles.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransitionCapture.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransitionCaptureTest.java",
+        "scripts/v53/test_native_resource_evidence.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -630,7 +634,9 @@
         "scripts/v53/pinned_floor_evidence.py",
         "scripts/v53/pinned_floor_process_evidence.py",
         "scripts/v53/required_four_physical.py",
-        "scripts/v53/resource_transitions.py"
+        "scripts/v53/resource_transitions.py",
+        "scripts/v53/native_resource_evidence.py",
+        "scripts/v53/native_resource_negatives.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -664,7 +670,9 @@
         "docs/v5x/v5.3/phase3-evidence/required-four-physical.json",
         "docs/v5x/v5.3/phase3-evidence/required-four-publication-resources.json",
         "docs/v5x/v5.3/PHASE_3_RESOURCE_TRANSITIONS.md",
-        "docs/v5x/v5.3/phase3-evidence/resource-transitions.json"
+        "docs/v5x/v5.3/phase3-evidence/resource-transitions.json",
+        "docs/v5x/v5.3/PHASE_3_NATIVE_RESOURCE_ACCOUNTING.md",
+        "docs/v5x/v5.3/phase3-evidence/native-resource-accounting.json"
       ],
       "cohorts": [
         "profiles",

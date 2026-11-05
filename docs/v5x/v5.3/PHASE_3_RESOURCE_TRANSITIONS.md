@@ -63,10 +63,11 @@ hashes in the [development index](phase3-evidence/resource-transitions.json).
 The initial test-fixture aliasing failures and an initial diagnostic invocation
 without `PYTHONPATH` are recorded, not counted as production defects or successes.
 
-The next integration must attach these journals to every actual old/joining
-budget in the required-four producer, bind them to original owner lifetimes and
-physical/transport boundaries, and reject omitted budgets. Neither that complete
-native run nor its physical peak qualification is claimed here. The complete
+[Native accounting integration](PHASE_3_NATIVE_RESOURCE_ACCOUNTING.md) now
+attaches journals to actual old/joining budgets, binds every event to its original
+identity/sequence and compares publication storage boundaries. The short stable
+native check passes; the complete required-four run and non-publication physical/
+control lifetime qualification remain pending. The complete
 required-four network/export/maintenance/ledger entry, whole-runtime resources,
 frozen coverage and final-source admission/execution remain open. The twelve
 hosted subsets / 544 planned histories are unchanged. No workflow, push or paid

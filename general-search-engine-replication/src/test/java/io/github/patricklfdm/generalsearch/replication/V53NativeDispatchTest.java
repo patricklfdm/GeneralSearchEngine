@@ -24,12 +24,14 @@ class V53NativeDispatchTest {
         final List<MembershipTransport> transports=new ArrayList<>();
         final List<AtomicReference<MembershipTransport>> links=new ArrayList<>();
         V53PublicationResourceCapture publicationResources;
+        private V53ResourceTransitionCapture resourceTransitions;
         private V53ProcessTrace processTrace;
         volatile V53RestartLifecycleCapture restartLifecycleCapture;
         final List<Map<String,Object>> wire=Collections.synchronizedList(new ArrayList<>()),events=Collections.synchronizedList(new ArrayList<>() {
             @Override public boolean add(Map<String,Object> event) {
                 if(processTrace!=null)processTrace.add(event);
                 if(restartLifecycleCapture!=null)restartLifecycleCapture.event(size(),event);
+                if(resourceTransitions!=null)resourceTransitions.event(size(),event);
                 return super.add(event);
             }
         });
@@ -95,9 +97,10 @@ class V53NativeDispatchTest {
         }
         private void openActors(long endpointBudget,boolean liveDirectory)throws Exception {
             if(Boolean.getBoolean("v53.publication.resources"))publicationResources=new V53PublicationResourceCapture(f.raw);
+            if(Boolean.getBoolean("v53.resource.transitions"))resourceTransitions=new V53ResourceTransitionCapture(f.raw,f.result.root().manifestDigest());
             f.snapshot("before-network");
             for(var target:f.request.targets()) {
-                var budget=new MembershipResources(512*MembershipResources.MIB);resources.add(budget);links.add(new AtomicReference<>());
+                var budget=resourceBudget(target.identity());resources.add(budget);links.add(new AtomicReference<>());
                 owners.add(MembershipGrantJournal.openRetainingFuturePeers(target.replicaDirectory(),target.materialization().directory(),f.result.root(),target.identity(),budget,
                         MembershipGrantJournal.MAXIMUM,event->{
                             int eventIndex;synchronized(events){eventIndex=events.size();events.add(Map.of("node",target.identity().nodeId().value(),"event",event));}
@@ -145,6 +148,11 @@ class V53NativeDispatchTest {
                 var transport=liveDirectory?new MembershipTransport(owner,bounds,resources.get(i),handler,transportEvents):
                         new MembershipTransport(owner.activationCapsule(),owner.activationIdentity(),bounds,resources.get(i),handler,transportEvents);
                 transports.add(transport);links.get(i).set(transport);
+            }
+        }
+        MembershipResources resourceBudget(MembershipIdentity identity) {
+            synchronized(events) {
+                return resourceTransitions==null?new MembershipResources(512*MembershipResources.MIB):resourceTransitions.create(identity,events.size());
             }
         }
         void activate()throws Exception {
@@ -217,10 +225,12 @@ class V53NativeDispatchTest {
         @Override public void close()throws Exception {
             hook.set(event->{});if(driver!=null)driver.close();for(var endpoint:endpoints)endpoint.close();for(var transport:transports)transport.close();
             for(var owner:owners)owner.close();for(var budget:resources)assertEquals(0,budget.usage().leases());
-            Files.write(f.raw.resolve("wire.json"),V53EvidenceArray.encode(wire,V53EvidenceArray.WIRE_BYTES));Files.write(f.raw.resolve("events.json"),V53EvidenceArray.encode(events,V53EvidenceArray.EVENT_BYTES));
+            byte[] eventBytes=V53EvidenceArray.encode(events,V53EvidenceArray.EVENT_BYTES);
+            Files.write(f.raw.resolve("wire.json"),V53EvidenceArray.encode(wire,V53EvidenceArray.WIRE_BYTES));Files.write(f.raw.resolve("events.json"),eventBytes);
             Files.write(f.raw.resolve("failures.json"),V53EvidenceArray.encode(failures,1024*1024));
             f.snapshot("after-close");V53NativeApplicationTest.save(f);
             if(publicationResources!=null)publicationResources.save();
+            if(resourceTransitions!=null)resourceTransitions.save(eventBytes);
             if(diagnose)try(var writer=Files.newBufferedWriter(Files.createDirectories(Path.of("target/v53-native-dispatch-diagnostics")).resolve(f.raw.getFileName()+".jsonl"))) {
                 for(var row:diagnostics){writer.write(new String(canonical(row,65536),java.nio.charset.StandardCharsets.UTF_8));writer.newLine();}
             }

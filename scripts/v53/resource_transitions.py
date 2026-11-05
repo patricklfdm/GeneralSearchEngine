@@ -152,9 +152,25 @@ def replay(value,*,require_closed=True):
                 observedAccountingQualified=True,physicalStorageQualified=False,wholeRuntimeResourcesQualified=False,phase3Complete=False)
 
 
-def validate(path):
-    path=Path(path);value=collection.read_json(path.parent,path.name,128*MIB)
-    return replay(value)
+def read(path):
+    # A complete journal is many independently bounded changes, not one wire
+    # message. Applying the protocol token limit to the whole journal rejects
+    # valid long native histories well before their declared row/byte limits.
+    raw=collection.snapshot.s.regular(Path(path),128*MIB)
+    def unique(rows):
+        need(len(rows)==len(dict(rows)),'resource transitions duplicate JSON key');return dict(rows)
+    value=json.loads(raw,object_pairs_hook=unique)
+    need(type(value) is dict and type(value.get('changes')) is list and len(value['changes'])<=262144,
+         'resource transitions encoded collection')
+    need(collection.snapshot.f.canonical(value)==raw,'resource transitions noncanonical JSON')
+    for row in [dict(value,changes=[]),*value['changes']]:
+        encoded=collection.snapshot.f.canonical(row)
+        need(len(encoded)<=512*1024,'resource transitions individual row capacity')
+        collection.snapshot.f.parse_budget(encoded)
+    return raw,value
+
+
+def validate(path):return replay(read(path)[1])
 
 
 if __name__=='__main__':
