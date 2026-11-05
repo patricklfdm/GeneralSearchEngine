@@ -23,6 +23,7 @@ class V53LearnerCheckpointEndpointTest {
         final V53LearnerPendingIntentTest.Fixture fixture;
         final MembershipLearnerPendingIntent pending;
         final MembershipResources.Usage baseline;
+        final MembershipResourceObservations.Checkpoint baselineObservation;
         final AtomicLong clock=new AtomicLong(System.nanoTime());
         final long started=clock.get();
         final MembershipCapsule source;
@@ -31,7 +32,9 @@ class V53LearnerCheckpointEndpointTest {
         Fixture()throws Exception {this(e->{});}
         Fixture(MembershipBallotAllocator.Cut cut)throws Exception {
             var helper=new V53LearnerPendingIntentTest();helper.temp=temp;fixture=helper.new Fixture();
-            baseline=fixture.f.local.source.client.usage();pending=fixture.retain(cut);fixture.server.close();
+            baseline=fixture.f.local.source.client.usage();
+            baselineObservation=Boolean.getBoolean("v53.resource.learner.control.close")?fixture.f.local.source.client.observationCheckpoint():null;
+            pending=fixture.retain(cut);fixture.server.close();
             source=pending.source();local=fixture.f.head.request().identity();reader=fixture.f.peer.owner.activationIdentity();
             ballot=object(pending.originals().record("CERTIFICATE").value().get("ballot"));
         }
@@ -189,6 +192,7 @@ class V53LearnerCheckpointEndpointTest {
                 var commit=requests.getLast();assertEquals("TRANSFER_COMMIT",commit.kind());
                 assertThrows(ExecutionException.class,()->contact.exchange(f.local,commit,"TRANSFER_COMMIT",System.nanoTime()+BUDGET).get(15,TimeUnit.SECONDS));
                 assertTrue(hit.get());assertThrows(IllegalArgumentException.class,()->endpoint.answer(f.reader,commit));
+                f.pending.close(); // Retry outside the cancelled callback before releasing retained storage.
                 long until=System.nanoTime()+TimeUnit.SECONDS.toNanos(10);
                 while(!endpoint.closed() || !f.baseline.equals(f.fixture.f.local.source.client.usage())) {assertTrue(System.nanoTime()<until,"closed pending transport drain");Thread.sleep(10);}
             }

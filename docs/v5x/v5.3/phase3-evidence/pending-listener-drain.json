@@ -1,0 +1,253 @@
+{
+  "schema": "gse-v53-pending-listener-drain-development-v1",
+  "status": "PASS",
+  "phase3Complete": false,
+  "baseSource": "9f85f573f48685f363c60f351c7498a47a4579b0",
+  "javaTests": 10,
+  "newJavaCases": 4,
+  "originalRegressions": 2,
+  "pythonTests": 83,
+  "newPythonTests": 11,
+  "negativeCases": 48,
+  "cases": [
+    {
+      "path": "general-search-engine-replication/target/v53-pending-drain/run-0926fb8b-9b78-46a2-a191-cf4ccb5e11a2",
+      "result": {
+        "status": "PASS",
+        "scope": "conditional-retained-owner-failed-close",
+        "listener": "checkpoint",
+        "mode": "interrupt",
+        "retainedStorageLeases": 3,
+        "baselineStorageLeases": 4,
+        "fileObservations": 10,
+        "resourceTransitions": 323,
+        "failedCloseStorageContinuityQualified": true,
+        "physicalStorageQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false
+      },
+      "negativeCases": 12
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-pending-drain/run-51b49fbe-7161-429a-bc5b-d6f774c7adb9",
+      "result": {
+        "status": "PASS",
+        "scope": "conditional-retained-owner-failed-close",
+        "listener": "head",
+        "mode": "interrupt",
+        "retainedStorageLeases": 3,
+        "baselineStorageLeases": 4,
+        "fileObservations": 11,
+        "resourceTransitions": 317,
+        "failedCloseStorageContinuityQualified": true,
+        "physicalStorageQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false
+      },
+      "negativeCases": 12
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-pending-drain/run-62633507-f3e6-4511-a46e-2632e4ac039b",
+      "result": {
+        "status": "PASS",
+        "scope": "conditional-retained-owner-failed-close",
+        "listener": "checkpoint",
+        "mode": "callback",
+        "retainedStorageLeases": 3,
+        "baselineStorageLeases": 4,
+        "fileObservations": 10,
+        "resourceTransitions": 323,
+        "failedCloseStorageContinuityQualified": true,
+        "physicalStorageQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false
+      },
+      "negativeCases": 12
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-pending-drain/run-11e38911-f3dd-4c65-b460-58970d19c341",
+      "result": {
+        "status": "PASS",
+        "scope": "conditional-retained-owner-failed-close",
+        "listener": "head",
+        "mode": "callback",
+        "retainedStorageLeases": 3,
+        "baselineStorageLeases": 4,
+        "fileObservations": 11,
+        "resourceTransitions": 317,
+        "failedCloseStorageContinuityQualified": true,
+        "physicalStorageQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false
+      },
+      "negativeCases": 12
+    }
+  ],
+  "initialCaptureFailure": "red-01 JSON path-as-object-key error retained; corrected instrumentation in red-02 reproduces two original close failures",
+  "physicalStorageQualified": false,
+  "wholeRuntimeResourcesQualified": false,
+  "finalSourceCohortQualified": false,
+  "remaining": [
+    "enclosing store close failure propagation and retry",
+    "constructor rollback",
+    "remaining export/task/control owners",
+    "combined maxima/headroom",
+    "new-source required-four/joining and final-source hosted qualification"
+  ],
+  "sources": [
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDisposition.java",
+      "sha256": "d25a5dbdb08e792fd3fe373b505be2dbf6d21d5796a4a0290e5de4454ea60a1a"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerCheckpointEndpointTest.java",
+      "sha256": "12ea169e3ed2949dd08ba24a5481728133ac8bd0cd35d9215a8077cf3489a2ea"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerEndpointConnectionTest.java",
+      "sha256": "88ee5a8860d436e2d8e3a4a4ae5e00f49402bd8035b84a8ca1e6b58257731276"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingListenerDrainTest.java",
+      "sha256": "dc969c5e413f5ac993f8d90780586f6db9319107078afd2655c45ecf64d2fe79"
+    },
+    {
+      "path": "scripts/v53/pending_drain_evidence.py",
+      "sha256": "189531ed0858686916cbae31cacbf254950f0518255319ed5c2a87fce241bb89"
+    },
+    {
+      "path": "scripts/v53/pending_drain_negatives.py",
+      "sha256": "f68c7c76659ad9385abe12f9acf30691e5d5fa8ce5b6a11f6d622870c0a67fb7"
+    },
+    {
+      "path": "scripts/v53/test_pending_drain_evidence.py",
+      "sha256": "c3c7116cdf281f41cddf1d6cca6d75285c208dce847d6e12b513f2814d3c26be"
+    }
+  ],
+  "reports": [
+    {
+      "path": "target/v53-pending-drain/TEST-io.github.patricklfdm.generalsearch.replication.V53LearnerCheckpointEndpointTest.xml",
+      "sha256": "4b0343b66d835f1573f66477035f4f04492568cf15134b0a288259a5e44ce987"
+    },
+    {
+      "path": "target/v53-pending-drain/TEST-io.github.patricklfdm.generalsearch.replication.V53LearnerEndpointConnectionTest.xml",
+      "sha256": "9bdf7b0b4de8e2959e599b4ae4ed4f3b84dcc350c542a9e5f3fc926d20d1d607"
+    },
+    {
+      "path": "target/v53-pending-drain/TEST-io.github.patricklfdm.generalsearch.replication.V53LearnerEndpointDrainTest.xml",
+      "sha256": "de848ad2d7447e1340aba6823f9930da4d0bad4f15fb8e8ffae80e9eab4844ba"
+    },
+    {
+      "path": "target/v53-pending-drain/TEST-io.github.patricklfdm.generalsearch.replication.V53PendingHeadConfirmationTest.xml",
+      "sha256": "e5d12fe5e1afeed1cce50ecd7d9a0317977cf0e01a4ace247fcef1c2072e989d"
+    },
+    {
+      "path": "target/v53-pending-drain/TEST-io.github.patricklfdm.generalsearch.replication.V53PendingListenerDrainTest.xml",
+      "sha256": "07dab3dd310e46c1cca8d09828db8ccc9c4829ddbf60b861dd9056365548696c"
+    },
+    {
+      "path": "target/v53-pending-drain/contract.log",
+      "sha256": "38d406b578c17e3ce808805a46a6f14ad0817af9c2d6df1c0f0ba885f1b8d36c"
+    },
+    {
+      "path": "target/v53-pending-drain/enclosing-store-audit.txt",
+      "sha256": "3e39789d04d054eca4a6de0342ea8535c3e46375961bd82a414594fa5aa20fc1"
+    },
+    {
+      "path": "target/v53-pending-drain/finalize.py",
+      "sha256": "de51e5dc9e3c1f488471b781f05b3afc5c8f95567b8d6b9e8c1d5ed0fdba4074"
+    },
+    {
+      "path": "target/v53-pending-drain/green-java-input.json",
+      "sha256": "94122c13de106af21c9cd6776ed4b58388aed130dd4f7675787b94b6ff20c549"
+    },
+    {
+      "path": "target/v53-pending-drain/maven-green-01.log",
+      "sha256": "a754d23c8aa15ae234439de36e921702d4266d4d61ff5a624b2fe8da75a5b5e8"
+    },
+    {
+      "path": "target/v53-pending-drain/maven-handoff.log",
+      "sha256": "a7ead9ebd26196680e29930e20be5ae9f557106d7c2be1f3b03c1c763ce92760"
+    },
+    {
+      "path": "target/v53-pending-drain/maven-red-01.log",
+      "sha256": "8695606a66a2a28302f2736e6094c1e554876f750bd503f94aae258e54fe151f"
+    },
+    {
+      "path": "target/v53-pending-drain/maven-red-02.log",
+      "sha256": "27d535192a2dc267d0517c9e81eb98d8440f0e4132365d3881aead1612be164f"
+    },
+    {
+      "path": "target/v53-pending-drain/plan-01/acceptance-plan.json",
+      "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+    },
+    {
+      "path": "target/v53-pending-drain/plan-01/plan.json",
+      "sha256": "bb35ba125b50a2d4236ca5b9fa5e9800802b71c54d22258c9594b34d47bbf273"
+    },
+    {
+      "path": "target/v53-pending-drain/plan-01/receipt.json",
+      "sha256": "9a9f218bee6d0d067e474e952c666c18bb90ee3a08fc69ba8ed10ee24c462524"
+    },
+    {
+      "path": "target/v53-pending-drain/plan.log",
+      "sha256": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df"
+    },
+    {
+      "path": "target/v53-pending-drain/python-01.log",
+      "sha256": "039285a02e89d424569abf4caa1882cf4cb7cf577912ccc53ef08fae5f78aa3f"
+    },
+    {
+      "path": "target/v53-pending-drain/python-02.log",
+      "sha256": "cc7cec0e8eaedb102b489f9fc2d726d9762d3cebc1519cc037fc7724bad3b17d"
+    },
+    {
+      "path": "target/v53-pending-drain/python-03.log",
+      "sha256": "8883b937bc89137408da15b555efde69ab85925d21314f1ae7ed6f4e8fab31b4"
+    },
+    {
+      "path": "target/v53-pending-drain/python-final.log",
+      "sha256": "9d7af08b7f030c607f6383ac3caf1fd8a0f8fb7c5944d0bb322229000fa1a515"
+    },
+    {
+      "path": "target/v53-pending-drain/raw-inventories.json",
+      "sha256": "424b0c43173997614a7ed2c90b70393c17b0fb5ac1e6ad511c6a5393b2edb94d"
+    },
+    {
+      "path": "target/v53-pending-drain/red-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PendingListenerDrainTest.xml",
+      "sha256": "5b363979ef3b732d48fba1f570eec2ae403d3abf2071d1c20d6e2b8b53f7f8b4"
+    },
+    {
+      "path": "target/v53-pending-drain/red-01-reports/io.github.patricklfdm.generalsearch.replication.V53PendingListenerDrainTest.txt",
+      "sha256": "26cee2781ab1c2cd6bc9207f0de49800a1cdb28763565061c5b80ebf640a985d"
+    },
+    {
+      "path": "target/v53-pending-drain/red-02-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PendingListenerDrainTest.xml",
+      "sha256": "8be6bdf7bc250887fa9f04612fa15b99d78b2910cba5a06ead453aea3142d47d"
+    },
+    {
+      "path": "target/v53-pending-drain/red-02-reports/io.github.patricklfdm.generalsearch.replication.V53PendingListenerDrainTest.txt",
+      "sha256": "ac53885104d412be697b86bacaa4478a54cd508f6ec3cf013776338331a8cad9"
+    },
+    {
+      "path": "target/v53-pending-drain/red-java-input.json",
+      "sha256": "5067849fc75bbaec16a714ee3c0832c9cd08fb98bc6d0d025c21788f8ca3a609"
+    },
+    {
+      "path": "target/v53-pending-drain/run-0926fb8b-9b78-46a2-a191-cf4ccb5e11a2-replay.json",
+      "sha256": "ab23952258734869ad5fb3655a174d9d0770a6b3c1d0d722b16df9289f305fa1"
+    },
+    {
+      "path": "target/v53-pending-drain/run-11e38911-f3dd-4c65-b460-58970d19c341-replay.json",
+      "sha256": "434192d68791180af1825c97969d2689bdd05d073585859c86c98bc425a003a9"
+    },
+    {
+      "path": "target/v53-pending-drain/run-51b49fbe-7161-429a-bc5b-d6f774c7adb9-replay.json",
+      "sha256": "51707cade65bb12a1f8be5a81fcfcdd204685d2b604a78ba0f434d026d176097"
+    },
+    {
+      "path": "target/v53-pending-drain/run-62633507-f3e6-4511-a46e-2632e4ac039b-replay.json",
+      "sha256": "6f0c20ed2235ac4f72c0057f9808d1c334b5ee752c530ba0189953c9223c3bd9"
+    }
+  ]
+}

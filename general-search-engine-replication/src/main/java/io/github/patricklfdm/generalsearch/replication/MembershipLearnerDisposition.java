@@ -550,7 +550,13 @@ final class MembershipLearnerDisposition implements AutoCloseable {
     private void drainListeners()throws IOException {
         MembershipLearnerCheckpointEndpoint endpoint;MembershipLearnerHeadEndpoint progress;
         synchronized(this){check();endpoint=checkpointEndpoint;progress=headEndpoint;}
-        if(endpoint!=null)endpoint.close();if(progress!=null)progress.close();check();
+        closeListeners(endpoint,progress);check();
+    }
+    private static void closeListeners(MembershipLearnerCheckpointEndpoint endpoint,MembershipLearnerHeadEndpoint progress)throws IOException {
+        // A close from an I/O callback only cancels its own transport. Neither
+        // storage release nor voter handoff may mistake that return for drain.
+        if(endpoint!=null) {endpoint.close();if(!endpoint.closed())throw new IOException("joining checkpoint listener not drained");}
+        if(progress!=null) {progress.close();if(!progress.closed())throw new IOException("joining progress listener not drained");}
     }
     Optional<Map<String,Object>> intentPendingLink()throws IOException {
         guardIntent();return pendingParent==null?Optional.empty():Optional.of(pendingParent.pendingLink());
@@ -595,7 +601,7 @@ final class MembershipLearnerDisposition implements AutoCloseable {
         // Readers take the original owner monitor. Revoke first, but never
         // drain transport workers while holding that monitor. Keep reservations
         // for a retry if transport draining itself fails.
-        if(endpoint!=null)endpoint.close();if(progress!=null)progress.close();
+        closeListeners(endpoint,progress);
         var children=new ArrayList<AutoCloseable>();
         synchronized(this) {
             if(released)return;released=true;if(voterStage!=null)children.add(voterStage);children.addAll(retained.values());children.addAll(leases);

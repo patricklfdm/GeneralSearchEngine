@@ -73,6 +73,7 @@ class V53LearnerEndpointConnectionTest {
             try(var endpoint=f.listen(server);var contact=f.contact()) {
                 var request=f.first();rejected(contact,f.local,request,"SOURCE_OFFER",server,MembershipTransport.Reason.CLOSED);
                 server.invocation(request,"AFTER_REQUEST_READ","BEFORE_RESPONSE_WRITE","INBOUND_FAILURE");
+                f.pending.close();
                 assertTrue(endpoint.closed());
             }
         }

@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Retained-owner failed close](PHASE_3_PENDING_LISTENER_DRAIN.md) now requires
+listener drain before storage release or voter handoff. Checkpoint/head callback
+and interrupted-close cases retain original storage for an external retry, with
+independent continuous-lease replay. This conditional scope does not qualify
+enclosing store cleanup, constructor rollback or full native joining; Phase 3
+and final-source qualification remain OPEN.
+
 [Native cleanup binding and listener drain](PHASE_3_NATIVE_CONTROL_CLOSE.md)
 now qualify 96 cleanup intervals against original multi-session source ownership.
 Two deterministic TCP regressions also correct checkpoint/head endpoints reporting
