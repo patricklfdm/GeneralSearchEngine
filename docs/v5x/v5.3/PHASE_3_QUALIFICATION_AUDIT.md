@@ -1,10 +1,19 @@
 # Phase 3 qualification inventory and remaining work
 
+[Explicit probe export ownership](PHASE_3_PROBE_EXPORT_OWNERSHIP.md) now records
+successful prefix/INTENT probe handles separately from sessions and rollback.
+Two actual conditional prefix captures pass normal-close/expiry replay and 24
+exact negative checks; outer receipts remain PARTIAL. Full required-four has a
+published prefix probe, while INTENT guard probes run only without joint
+publication. Complete native composition and final-source qualification remain
+open.
+
 [Export constructor rollback ownership](PHASE_3_EXPORT_CONSTRUCTOR_ROLLBACK.md)
 now records actual failed-constructor cleanup handles and return boundaries.
 Three conditional failure paths pass independent replay and 35 exact negatives;
-outer receipts remain PARTIAL. Successful direct probes, full joining/required-four
-composition and final-source qualification remain OPEN.
+outer receipts remain PARTIAL. Full joining/required-four composition and
+final-source qualification remain OPEN. Successful probes are covered separately
+by the ownership work above.
 
 [Joining export request bindings](PHASE_3_JOINING_EXPORT_REQUESTS.md) now name
 all five metadata families by their exact initial request. Independent replay

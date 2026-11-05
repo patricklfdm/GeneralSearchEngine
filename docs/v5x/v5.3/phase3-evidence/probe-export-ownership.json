@@ -1,0 +1,401 @@
+{
+  "allProbeFamiliesQualified": false,
+  "baseSource": "275ca0a746476d2a3abe502ccd26349ea765b16c",
+  "captures": [
+    {
+      "mode": "expiry",
+      "negatives": 12,
+      "path": "general-search-engine-replication/target/v53-probe-export-ownership/run-784353bb-e8cb-4c34-aacf-64032f4fa683",
+      "status": "PARTIAL"
+    },
+    {
+      "mode": "close",
+      "negatives": 12,
+      "path": "general-search-engine-replication/target/v53-probe-export-ownership/run-64084a76-8839-41bb-a680-6c71f0a94fee",
+      "status": "PARTIAL"
+    }
+  ],
+  "components": [
+    {
+      "allProbeFamiliesQualified": false,
+      "component": {
+        "negatives": [
+          {
+            "case": "missing-acquisition",
+            "reason": "control close original probe call",
+            "status": "REJECTED"
+          },
+          {
+            "case": "duplicate-acquisition",
+            "reason": "control close original probe acquisition",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-close-begin",
+            "reason": "control close probe release before return",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-return",
+            "reason": "control close incomplete probe cleanup",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-call",
+            "reason": "control close original probe call",
+            "status": "REJECTED"
+          },
+          {
+            "case": "return-before-release",
+            "reason": "control close probe release before return",
+            "status": "REJECTED"
+          },
+          {
+            "case": "foreign-binding",
+            "reason": "probe export original allocation binding",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-extent",
+            "reason": "probe export original extent",
+            "status": "REJECTED"
+          },
+          {
+            "case": "late-acquisition",
+            "reason": "probe export original body interval",
+            "status": "REJECTED"
+          },
+          {
+            "case": "late-call-start",
+            "reason": "probe export original allocation binding",
+            "status": "REJECTED"
+          },
+          {
+            "case": "boolean-boundary",
+            "reason": "probe export original operation boundaries",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unobserved-probe",
+            "reason": "probe export complete observed cohort",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "allExportAllocationsQualified": false,
+          "declaredProbeReleaseQualified": true,
+          "nativeProbeContentQualified": false,
+          "ownedAllocations": 1,
+          "phase3Complete": false,
+          "probeCalls": 1,
+          "revokedBeforeCleanup": 0,
+          "scope": "explicit-probe-export-ownership-and-cleanup",
+          "status": "PASS",
+          "wholeRuntimeResourcesQualified": false
+        }
+      },
+      "inventory": {
+        "bytes": 7691,
+        "directories": [],
+        "files": {
+          "case.json": "95feea5649f5b06144c0350200b362e5ee2c3718163bf2f7219c36a0b72f7e76",
+          "closes.json": "cb29766a83fa1cb4de567428179fe764776a57f0a85f7a420e5efeb7ede93b3b",
+          "generation.gsr": "0845afc0abd787afb27dde1404a2cf96093b63e7f645732bc9d63094280c8cc2",
+          "resources.json": "2fc230afe5a692c1d26d8a1be13e51289a473d7667d0c4e557f48069eda73a0d",
+          "selector.gsr": "38380a47de402d95af1aec94588e7a4aca35aea2a5a41faa7638d74a4305860c"
+        }
+      },
+      "mode": "close",
+      "nativeMembershipQualified": false,
+      "phase3Complete": false,
+      "scope": "conditional-original-prefix-probe",
+      "status": "PARTIAL"
+    },
+    {
+      "allProbeFamiliesQualified": false,
+      "component": {
+        "negatives": [
+          {
+            "case": "missing-acquisition",
+            "reason": "control close original probe call",
+            "status": "REJECTED"
+          },
+          {
+            "case": "duplicate-acquisition",
+            "reason": "control close original probe acquisition",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-close-begin",
+            "reason": "control close probe release before return",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-return",
+            "reason": "control close incomplete probe cleanup",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-call",
+            "reason": "control close original probe call",
+            "status": "REJECTED"
+          },
+          {
+            "case": "return-before-release",
+            "reason": "control close probe release before return",
+            "status": "REJECTED"
+          },
+          {
+            "case": "foreign-binding",
+            "reason": "probe export original allocation binding",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-extent",
+            "reason": "probe export original extent",
+            "status": "REJECTED"
+          },
+          {
+            "case": "late-acquisition",
+            "reason": "probe export original body interval",
+            "status": "REJECTED"
+          },
+          {
+            "case": "late-call-start",
+            "reason": "probe export original allocation binding",
+            "status": "REJECTED"
+          },
+          {
+            "case": "boolean-boundary",
+            "reason": "probe export original operation boundaries",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unobserved-probe",
+            "reason": "probe export complete observed cohort",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "allExportAllocationsQualified": false,
+          "declaredProbeReleaseQualified": true,
+          "nativeProbeContentQualified": false,
+          "ownedAllocations": 1,
+          "phase3Complete": false,
+          "probeCalls": 1,
+          "revokedBeforeCleanup": 1,
+          "scope": "explicit-probe-export-ownership-and-cleanup",
+          "status": "PASS",
+          "wholeRuntimeResourcesQualified": false
+        }
+      },
+      "inventory": {
+        "bytes": 7692,
+        "directories": [],
+        "files": {
+          "case.json": "3e56f24554301ab4cc77e6a9bbc02f60cd403ee47f6a1c52c0a32d632f8d238f",
+          "closes.json": "de3c9a9f6ab3cae7eaabaea3273a005376557fb74d4b0a0d4e3e5724086686df",
+          "generation.gsr": "0845afc0abd787afb27dde1404a2cf96093b63e7f645732bc9d63094280c8cc2",
+          "resources.json": "b243b6cc38284a66f5bb87eb6143003543f4695a2c66f94575ce50f13470eb31",
+          "selector.gsr": "38380a47de402d95af1aec94588e7a4aca35aea2a5a41faa7638d74a4305860c"
+        }
+      },
+      "mode": "expiry",
+      "nativeMembershipQualified": false,
+      "phase3Complete": false,
+      "scope": "conditional-original-prefix-probe",
+      "status": "PARTIAL"
+    }
+  ],
+  "conditionalCases": 2,
+  "finalSourceCohortQualified": false,
+  "historicalStableReplay": {
+    "exports": 45,
+    "newRuntimeExecution": false,
+    "original": "general-search-engine-replication/target/v53-native-dispatch/run-0087a370-431d-43f0-949b-ccdf4e762e10",
+    "probeCalls": 0,
+    "status": "PASS"
+  },
+  "javaTests": 46,
+  "nativeMembershipQualified": false,
+  "negativeChecks": 24,
+  "newJavaTests": 10,
+  "newPythonTests": 11,
+  "phase3Complete": false,
+  "pythonTests": 178,
+  "remaining": [
+    "complete native joining/required-four resource and physical-custody composition",
+    "independent joining content/extent qualification",
+    "additional failure/abnormal cleanup cases",
+    "final-source cohort admission and hosted execution"
+  ],
+  "reports": [
+    {
+      "path": "target/v53-probe-export-ownership/WORK.md",
+      "sha256": "7cf3e5f8c5fc231c87a903b23052b0800ea38cb8ac413105311c4fca701012ac"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/component-close.json",
+      "sha256": "970ae94f3f759e854f26392918eb8a810d376aacdbd69bfe2a0035a0024e9f8f"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/component-expiry.json",
+      "sha256": "4d7cba4ba1447ea789b659deb534ff20894b2a46d38dfbd28468432ef5b5c487"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/component-replay.log",
+      "sha256": "b1c9f15a98cf7bf99e3da7c93a525b8eb69574ede13ecf6633e4669327393766"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/component-results.json",
+      "sha256": "ee20c417468ad99468041617b7191bb13dfde7fba930316b7e6ee31855f47064"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/contract.json",
+      "sha256": "68864cc2317ee798fe3286968d779024645141ff80f4461c46bed2955c01ecb9"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/contract.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/finalize.py",
+      "sha256": "ac83808e32d3563fb8a0c02e47b994d47f94c2c4fe858834b7eb9bba0975764c"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/java-01.log",
+      "sha256": "a21c8ccedb7adbb1369637d3735a1e1e8f919bbefc80892ec75b84e4e8c20707"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/java-input.json",
+      "sha256": "c01846543770131af8b93e20c02d07487f6d3805df5eb117080ae4dcb84d017d"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/java-results.json",
+      "sha256": "71eb58ebc78eb835fc96d3af7ab30eb755062a0672fa4b8430bfccdf759a8d56"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ControlCloseObservationsTest.xml",
+      "sha256": "c5e724c3f632e9d5d4133f0dcb3a92c5be783edfc100a0dd7a90504239175202"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53DirectExportOwnershipTest.xml",
+      "sha256": "951dc155fd16f86513ec05a35103f91358f850958d48b7809b926517adebf4fd"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ExportRollbackTest.xml",
+      "sha256": "0f6bd562d7e6cf6886cd82707936df8306030c5eb681803dce0c849edea15d81"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53JoiningExportRequestTest.xml",
+      "sha256": "8489c2eec94fec13352baf9f66b8bb6512d8e289486d8d5adefd21face825cfd"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ProbeExportOwnershipTest.xml",
+      "sha256": "edf16a338e7c1aa3dd94b3fbcfd4557604abe840c318f553bdc9a11e1a44c109"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53SessionExportOwnershipTest.xml",
+      "sha256": "464da53dcc49207fc68d5753b4ecd841fcfbd241725d30a3e5a82c665383e006"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/plan/acceptance-plan.json",
+      "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/plan/plan.json",
+      "sha256": "811d5dedd9f3965d1927fd1072d36c23b8a7fb6dcf8b158172e4b4d48e57c005"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/plan/receipt.json",
+      "sha256": "eb7e8958e6d20d65090607336e0d0eb5f315e96afbc6122035e8cabed183b0cf"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/plan.log",
+      "sha256": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/python-existing-01.log",
+      "sha256": "1b55fc7a3f4ca16ccb541e538dcad7e9fc0f0aa9ddda5e0d9644431d46521287"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/python-final.log",
+      "sha256": "bfd47ed8f8b15e617ac8d3a1773e7e6d0eb149ffbee90e0610b9368b574b7230"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/python-new-01.log",
+      "sha256": "61988d78c60ae612493a548ef74fdce802e5c3da8bc271acf721571288d8621b"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/stable-replay.json",
+      "sha256": "1b5d4856c145670dc1d41d6538069051a813194e4fefe0620e408f26642997de"
+    },
+    {
+      "path": "target/v53-probe-export-ownership/stable-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "runtimeChange": "opt-in original single/nested probe handles and cleanup observations; all original close calls and exceptions preserved",
+  "schema": "gse-v53-probe-export-ownership-development-v1",
+  "scope": "conditional-original-probe-ownership",
+  "sources": [
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_PROBE_EXPORT_OWNERSHIP.md",
+      "sha256": "1f65719b420e0f1b9ab075918f0920ae6bfd23ee20a255a66abdba5c1f8c0258"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_QUALIFICATION_AUDIT.md",
+      "sha256": "d0f5b332459abb347eb2ddeb81a74312d1b7ba57b283accf13aec81613faf144"
+    },
+    {
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "3eae6b6e7d1adb4f41f0cee949288cac1aa72f637026122576f935b4546d8ba2"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java",
+      "sha256": "0ba20ed98573ff20e92a8298310911e4355926681693152f5bf0d7bdb01378b9"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java",
+      "sha256": "e0a3ca06bb553e2076f99abeacd0c13dd9c7c4e43c5c6da16d6797497dd91344"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ProbeExportOwnershipTest.java",
+      "sha256": "d68ef0f0dfa79d3191fbe7f08e06fcd63e6234f8623a06c94f741dc70cec109a"
+    },
+    {
+      "path": "scripts/v53/control_close_evidence.py",
+      "sha256": "d93575a21a05592da4970f3813ae57b1e3ada1ca74ba715ca835cdd3235d3874"
+    },
+    {
+      "path": "scripts/v53/direct_export_negatives.py",
+      "sha256": "5729b3ae3d2245f1411657e7001f34e3ff4aea647164ac7197d117e78bd0ff75"
+    },
+    {
+      "path": "scripts/v53/export_rollback_evidence.py",
+      "sha256": "752e800df346ff01db3add844cf2d636f78a98805d93bfc87a774e37ac905926"
+    },
+    {
+      "path": "scripts/v53/probe_export_evidence.py",
+      "sha256": "f6129df392f7729eb1ab9cc7a15bd2ebb8db87f2137ab13d5c969d8425c7acef"
+    },
+    {
+      "path": "scripts/v53/probe_export_negatives.py",
+      "sha256": "b1646c5d953a6d17dba9a9f4b3af0ba19f68e987f6dd53991261c263053ffc8c"
+    },
+    {
+      "path": "scripts/v53/session_export_evidence.py",
+      "sha256": "fd80c38d4d0b49fe0c5cdb6eaca9ee3e3e7ba1eb21552a89864666553ae80ca6"
+    },
+    {
+      "path": "scripts/v53/session_export_negatives.py",
+      "sha256": "96c96cc040ecb2a1cf90cef02a1b1287078a13512a8af9f98af967f870555df8"
+    },
+    {
+      "path": "scripts/v53/test_probe_export_evidence.py",
+      "sha256": "e38da613f88fdf37b956251529ebc1669d3a4632d0433e46c514d21e5c7f7b3d"
+    }
+  ],
+  "status": "PASS",
+  "wholeRuntimeResourcesQualified": false
+}

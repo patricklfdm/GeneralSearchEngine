@@ -37,7 +37,7 @@ def kind(name):
 
 def inspect(traces,closes):
     account=close.replay(traces,closes,export_ownership=True)
-    allocations=0;sessions=0;families=Counter();revoked=0;unattached=[];direct_families=Counter();direct_allocations=0;rollback_allocations=0;rollback_families=Counter()
+    allocations=0;sessions=0;families=Counter();revoked=0;unattached=[];direct_families=Counter();direct_allocations=0;rollback_allocations=0;rollback_families=Counter();probe_allocations=0;probe_families=Counter()
     for node,owner in account['owners'].items():
         life=owner['lifetimes'];claimed={};exports={}
         for name in life:
@@ -67,6 +67,14 @@ def inspect(traces,closes):
                 need(child not in claimed,'session export multiply owned handle')
                 claimed[child]='rollback:'+name;rollback_allocations+=1
             rollback_families[primary]+=1
+        for name,observed in owner['probeExports'].items():
+            group=[name,*observed['acquired']['children']];primary=kind(name)
+            need(primary=='prefix-export' and len(group)==1 or
+                 primary=='joining-intent' and len(group)==2 and kind(group[1])=='prefix-export','session export exact probe group')
+            for child in group:
+                need(child not in claimed,'session export multiply owned handle')
+                claimed[child]='probe:'+name;probe_allocations+=1
+            probe_families[primary]+=1
         for name in sorted(set(exports)-set(claimed)):
             unattached.append(dict(node=node,owner=name,role=exports[name],**life[name]))
         # Each handle is an immutable export reservation. Size is checked by
@@ -82,9 +90,10 @@ def inspect(traces,closes):
         allocations+=len(claimed)
     need(sessions>0,'session export unobserved ownership')
     return dict(status='PARTIAL' if unattached else 'PASS',scope='observed-session-and-local-export-handles',sessions=sessions,
-                ownedAllocations=allocations,sessionOwnedAllocations=allocations-direct_allocations-rollback_allocations,
+                ownedAllocations=allocations,sessionOwnedAllocations=allocations-direct_allocations-rollback_allocations-probe_allocations,
                 directOwnedAllocations=direct_allocations,directFamilies=dict(sorted(direct_families.items())),
                 rollbackOwnedAllocations=rollback_allocations,rollbackFamilies=dict(sorted(rollback_families.items())),
+                probeOwnedAllocations=probe_allocations,probeFamilies=dict(sorted(probe_families.items())),
                 revokedBeforeAttachment=revoked,families=dict(sorted(families.items())),
                 declaredSessionExportReleaseQualified=True,unattachedExports=unattached,
                 completeExportAllocationInventory=not unattached,joiningExportRequestsQualified=False,exportContentExtentsQualified=False,

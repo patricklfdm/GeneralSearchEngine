@@ -387,8 +387,8 @@ class V53JoiningIntentExportTest {
                                                     "action","REQUEST","offset",0L,"bytes","","digest",MembershipLearnerProgressAccess.reference(request,owner.activationContext().cut,"prefix")));
                                             assertThrows(IllegalArgumentException.class,()->new MembershipLearnerPrefixExport(owner,joining,readRequest,resources,
                                                     System::nanoTime,System.nanoTime(),BUDGET,true));
-                                            try(var export=new MembershipLearnerPrefixExport(owner,joining,readRequest,resources,
-                                                    System::nanoTime,System.nanoTime(),BUDGET,true,null,permit)) {
+                                            try(var export=resources.observeProbeExport(new MembershipLearnerPrefixExport(owner,joining,readRequest,resources,
+                                                    System::nanoTime,System.nanoTime(),BUDGET,true,null,permit))) {
                                                 assertFalse(export.references().isEmpty());
                                             }
                                             assertEquals(originalLedger,owner.learnerRetentionState());
@@ -901,16 +901,16 @@ class V53JoiningIntentExportTest {
         assertThrows(IllegalArgumentException.class,()->new MembershipJoiningIntentExport(owner,joining,decode(encode("wire","CHUNK",changed),"wire","CHUNK"),
                 resources,System::nanoTime,System.nanoTime(),BUDGET));
         var expired=new AtomicLong(0);
-        try(var export=new MembershipJoiningIntentExport(owner,joining,first,resources,expired::get,0,10)) {
+        try(var export=resources.observeProbeExport(new MembershipJoiningIntentExport(owner,joining,first,resources,expired::get,0,10))) {
             expired.set(10);assertThrows(IllegalArgumentException.class,export::references);
         }
-        var exports=new ArrayList<MembershipJoiningIntentExport>();
+        var exports=new ArrayList<MembershipTransferExport>();
         try {
             // The real maintenance service may still own current-generation
             // borrows. Fill the remaining shared capacity, not six new slots.
             for(int i=0;i<6;i++) {
                 var at=resources.usage();
-                try {exports.add(new MembershipJoiningIntentExport(owner,joining,first,resources,System::nanoTime,System.nanoTime(),BUDGET));}
+                try {exports.add(resources.observeProbeExport(new MembershipJoiningIntentExport(owner,joining,first,resources,System::nanoTime,System.nanoTime(),BUDGET)));}
                 catch(IllegalArgumentException full) {
                     assertEquals("prefix export owner capacity",full.getMessage());assertEquals(at,resources.usage());break;
                 }
@@ -921,7 +921,7 @@ class V53JoiningIntentExportTest {
             assertEquals(full,resources.usage());
         }finally{for(var export:exports)export.close();}
         assertEquals(before,resources.usage());
-        try(var export=new MembershipJoiningIntentExport(owner,joining,first,resources,System::nanoTime,System.nanoTime(),BUDGET)) {
+        try(var export=resources.observeProbeExport(new MembershipJoiningIntentExport(owner,joining,first,resources,System::nanoTime,System.nanoTime(),BUDGET))) {
             var content=export.references().values().iterator().next();
             assertThrows(IllegalArgumentException.class,()->export.read("0".repeat(64),0,1));
             assertThrows(IllegalArgumentException.class,()->export.read(content.digest(),content.bytes(),1));

@@ -53,6 +53,7 @@ def replay(traces,closes,cases):
         children=value['begin']['children'];need(len(children)==plan['children'],'export rollback exact owned group')
         actual=[name,*children]
         foreign={n for attachment in owner['exportAttachments'].values() for n in attachment['children']}|set(owner['directExports'])
+        foreign|={n for primary,probe in owner['probeExports'].items() for n in (primary,*probe['acquired']['children'])}
         for item in actual:
             need((node,item) not in claimed and item not in foreign,'export rollback exclusive original ownership');claimed.add((node,item))
             changes=[(row['event'],charge) for row in traces[node]['changes'] for charge in row['added']+row['removed'] if charge['owner']==item]

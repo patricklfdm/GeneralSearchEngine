@@ -88,17 +88,39 @@ final class MembershipResources {
                         && (lease.released || leases.get(lease.key)==lease),"direct export original handle");
                 var point=observations.checkpoint(usage());require(point.complete(),"direct export incomplete resources");
                 long call=controlCloses.record(phase+"_BORROW_ACQUIRED",-1,point.sequence(),lease.key.owner,List.of());
-                return new ObservedExport(export,lease,phase,call);
+                return new ObservedExport(export,List.of(lease),phase,call);
+            }
+        }catch(RuntimeException|OutOfMemoryError error){synchronized(this){controlCloses.failed();}return export;}
+    }
+    /** Qualification probes own actual returned exports, including a nested
+     * prefix. Their labels are not activation, maintenance or session authority. */
+    MembershipTransferExport observeProbeExport(MembershipTransferExport export) {
+        if(!exportOwnership)return export;
+        try {
+            var owned=List.copyOf(export.closeReservations());
+            synchronized(this) {
+                require(owned.size()>=1 && owned.size()<=2,"probe export bounded handles");var first=owned.getFirst();
+                require(owned.size()==1 && first.key.owner.startsWith("prefix-export-") ||
+                        owned.size()==2 && first.key.owner.startsWith("joining-intent-") && owned.get(1).key.owner.startsWith("prefix-export-"),
+                        "probe export original group");
+                var names=new TreeSet<String>();
+                for(var lease:owned)require(lease.pool()==this && lease.key.unit==Unit.CONTROL &&
+                        (lease.released || leases.get(lease.key)==lease) && names.add(lease.key.owner),"probe export original handle");
+                var point=observations.checkpoint(usage());require(point.complete(),"probe export incomplete resources");
+                long call=controlCloses.record("PROBE_BORROW_ACQUIRED",-1,point.sequence(),first.key.owner,
+                        owned.stream().skip(1).map(lease->lease.key.owner).sorted().toList());
+                return new ObservedExport(export,owned,"PROBE",call);
             }
         }catch(RuntimeException|OutOfMemoryError error){synchronized(this){controlCloses.failed();}return export;}
     }
     private final class ObservedExport implements MembershipTransferExport {
         final MembershipTransferExport original;
+        final List<Lease> owned;
         final Lease lease;
         final String phase;
         final long call;
         boolean invoked;
-        ObservedExport(MembershipTransferExport original,Lease lease,String phase,long call){this.original=original;this.lease=lease;this.phase=phase;this.call=call;}
+        ObservedExport(MembershipTransferExport original,List<Lease> owned,String phase,long call){this.original=original;this.owned=owned;this.lease=owned.getFirst();this.phase=phase;this.call=call;}
         public MembershipContext context(){return original.context();}
         public MembershipIdentity identity(){return original.identity();}
         public Map<String,Object> ballot(){return original.ballot();}
@@ -108,7 +130,7 @@ final class MembershipResources {
         public byte[] read(String digest,long offset,int maximum)throws java.io.IOException{return original.read(digest,offset,maximum);}
         private void record(String event,boolean returned) {
             try {
-                var point=observations.checkpoint(usage());require(point.complete() && call>=0 && (!returned || lease.released),"direct export close observation");
+                var point=observations.checkpoint(usage());require(point.complete() && call>=0 && (!returned || owned.stream().allMatch(value->value.released)),"direct export close observation");
                 controlCloses.record(phase+"_BORROW_"+event,call,point.sequence(),lease.key.owner,List.of());
             }catch(RuntimeException|OutOfMemoryError error){controlCloses.failed();}
         }

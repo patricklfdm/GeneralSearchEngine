@@ -21,7 +21,8 @@ ROLLBACK_EVENTS={'EXPORT_ROLLBACK_BEGIN','EXPORT_ROLLBACK_RETURNED'}
 DIRECT_ROLES={'ACTIVATION':'source-export','SELECTED':'source-export','MAINTENANCE':'prefix-export'}
 DIRECT_EVENTS={phase+'_BORROW_'+event:(phase,event) for phase in DIRECT_ROLES
                for event in ('ACQUIRED','CLOSE_BEGIN','RETURNED')}
-EXPORT_EVENTS=frozenset(DIRECT_EVENTS)|ROLLBACK_EVENTS
+PROBE_EVENTS={'PROBE_BORROW_ACQUIRED','PROBE_BORROW_CLOSE_BEGIN','PROBE_BORROW_RETURNED'}
+EXPORT_EVENTS=frozenset(DIRECT_EVENTS)|ROLLBACK_EVENTS|PROBE_EVENTS
 
 
 def role(owner):
@@ -65,7 +66,7 @@ def allocations(trace):
 def replay(traces,closes,*,export_ownership=False):
     need(type(export_ownership) is bool,'control close export policy')
     need(type(closes) is dict and set(closes)==set(traces) and traces,'control close complete original budgets')
-    owners={};total=0;children_total=0;rollback_total=0
+    owners={};total=0;children_total=0;rollback_total=0;probe_total=0
     for node,trace in traces.items():
         life=allocations(trace);value=closes[node]
         need(type(value) is dict and set(value)=={'schema','maximum','observations','truncated','failed','rows'} and
@@ -73,7 +74,7 @@ def replay(traces,closes,*,export_ownership=False):
              0<value['maximum']<=MAXIMUM and value['truncated'] is False and value['failed'] is False and
              type(value['observations']) is int and type(value['rows']) is list and
              value['observations']==len(value['rows'])<=value['maximum'],'control close complete bounded recorder')
-        pairs={};calls={};attachments={};direct={};rollbacks={};cursor=0;child_count=0
+        pairs={};calls={};attachments={};direct={};rollbacks={};probes={};cursor=0;child_count=0
         for seq,row in enumerate(value['rows']):
             need(type(row) is dict and set(row)=={'sequence','event','call','resourceSequence','owner','children'} and
                  type(row['sequence']) is int and row['sequence']==seq and type(row['call']) is int and
@@ -86,7 +87,32 @@ def replay(traces,closes,*,export_ownership=False):
                  'control close exact ordered row')
             cursor=row['resourceSequence'];name=row['owner'];owned=life[name]
             child_count+=len(row['children']);need(child_count<=CHILDREN_MAXIMUM,'control close child capacity')
-            if row['event'] in ROLLBACK_EVENTS:
+            if row['event'] in PROBE_EVENTS:
+                need(export_ownership,'control close probe ownership policy')
+                if row['event']=='PROBE_BORROW_ACQUIRED':
+                    need(name not in probes and row['call']==seq and owned['end'] is not None and owned['start']<=cursor,
+                         'control close original probe acquisition')
+                    need(name.startswith('prefix-export-') and not row['children'] or
+                         name.startswith('joining-intent-') and len(row['children'])==1 and row['children'][0].startswith('prefix-export-'),
+                         'control close original probe group')
+                    need(all(child!=name and child in life and life[child]['end'] is not None and owned['start']<life[child]['start']<=cursor
+                             for child in row['children']),'control close original probe child')
+                    probes[name]=dict(acquired=row,begin=None,returned=None)
+                else:
+                    need(name in probes and not row['children'] and row['call']==probes[name]['acquired']['sequence'],
+                         'control close original probe call')
+                    observed=probes[name]
+                    if row['event']=='PROBE_BORROW_CLOSE_BEGIN':
+                        need(observed['begin'] is None and observed['returned'] is None,'control close unique probe cleanup')
+                        observed['begin']=row
+                    else:
+                        need(observed['begin'] is not None and observed['returned'] is None and owned['end']<=cursor and
+                             all(life[child]['end']<=cursor for child in observed['acquired']['children']),
+                             'control close probe release before return')
+                        need(all(life[child]['end']<=owned['end'] for child in observed['acquired']['children']),
+                             'control close probe child release order')
+                        observed['returned']=row
+            elif row['event'] in ROLLBACK_EVENTS:
                 kind=next((v for v in ROLLBACK_ROLES if name.startswith(v+'-')),None)
                 need(export_ownership and kind is not None,'control close rollback metadata scope')
                 if row['event']=='EXPORT_ROLLBACK_BEGIN':
@@ -152,6 +178,7 @@ def replay(traces,closes,*,export_ownership=False):
         need(all(v['begin'] is not None and v['returned'] is not None for v in direct.values()),
              'control close incomplete direct cleanup')
         need(all(v['returned'] is not None for v in rollbacks.values()),'control close incomplete rollback')
+        need(all(v['begin'] is not None and v['returned'] is not None for v in probes.values()),'control close incomplete probe cleanup')
         parent={};session_parent={}
         for name,pair in pairs.items():
             kind=role(name);start=pair['begin'];end=pair['returned'];owned=life[name]
@@ -182,10 +209,10 @@ def replay(traces,closes,*,export_ownership=False):
                       'control close completed session order')
         if export_ownership:
             need(set(attachments)==set(session_parent),'control close complete export attachments')
-        owners[node]=dict(pairs=pairs,lifetimes=life,sessionParents=session_parent,exportAttachments=attachments,directExports=direct,exportRollbacks=rollbacks)
-        total+=len(pairs);children_total+=child_count;rollback_total+=len(rollbacks)
-    need(total>0 or rollback_total>0,'control close unobserved cleanup')
-    return dict(status='PASS',cleanupIntervals=total,rollbackIntervals=rollback_total,childReferences=children_total,owners=owners,
+        owners[node]=dict(pairs=pairs,lifetimes=life,sessionParents=session_parent,exportAttachments=attachments,directExports=direct,exportRollbacks=rollbacks,probeExports=probes)
+        total+=len(pairs);children_total+=child_count;rollback_total+=len(rollbacks);probe_total+=len(probes)
+    need(total>0 or rollback_total>0 or probe_total>0,'control close unobserved cleanup')
+    return dict(status='PASS',cleanupIntervals=total,rollbackIntervals=rollback_total,probeIntervals=probe_total,childReferences=children_total,owners=owners,
                 wholeRuntimeResourcesQualified=False,phase3Complete=False)
 
 
