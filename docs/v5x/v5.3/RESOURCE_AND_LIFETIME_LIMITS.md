@@ -1,5 +1,10 @@
 # V5.3 bounded resources and lifetime
 
+[Explicit owner close observations](PHASE_3_OWNER_CLOSE_RESOURCES.md) bind
+quiescent storage release to the real close call and its return. Historical
+collections without those markers remain unobserved; final zero usage alone
+does not prove the shutdown interval. No resource limits change.
+
 The [persistent BASIS reader](PHASE_3_BASIS_RESOURCE_BINDING.md) additionally binds
 immutable original packet/image charges through forced retirement and original
 owner reopen intervals. It does not treat generation reloads as owner restarts;

@@ -19,8 +19,11 @@ def load(root):
     root=Path(root);directory=root/DIRECTORY
     need(directory.is_dir() and not directory.is_symlink(),'native resources missing collection')
     index=collection.read_json(directory,'index.json',16384)
-    need(type(index) is dict and set(index)=={'schema','root','eventsSha256','boundariesSha256','owners'} and
-         index['schema']=='gse-v53-resource-capture-index-v1' and type(index['owners']) is list and
+    fields={'schema','root','eventsSha256','boundariesSha256','owners'}
+    need(type(index) is dict and index.get('schema') in ('gse-v53-resource-capture-index-v1','gse-v53-resource-capture-index-v2'),
+         'native resources index schema')
+    if index['schema']=='gse-v53-resource-capture-index-v2':fields.add('closingOwners')
+    need(set(index)==fields and type(index['owners']) is list and
          1<=len(index['owners'])<=6,'native resources index')
     event_raw=collection.snapshot.s.regular(root/'events.json',collection.EVENT_BYTES)
     boundary_raw=collection.snapshot.s.regular(directory/'boundaries.json',collection.EVENT_BYTES)
@@ -92,16 +95,19 @@ def validate(directory,profile='stable',progress=None):
     physical=publication.validate(root,profile,progress,resource_transitions=True)
     if profile=='stable':
         _,_,selection,identities=publication.native.physical(root,confirmed_retention=True)
-        authority=selection['root'];preceding=physical
+        authority=selection['root'];preceding=physical;closing=set(identities)
     elif profile=='5-REPLACE-required-four':
         from . import required_four_ledgers as ledgers
         preceding=ledgers.validate(root,progress)
         model=ledgers.maintenance.exports.control_reader(root).model
         network=ledgers.maintenance.exports.network.network
         identities=network.s.catalog.identities(model.states[-1]['identities']);authority=model.root
+        closing=set(identities)-{model.joining}
     else:raise ValueError('native resources unknown profile')
     index,traces,boundaries,events=load(root)
     result=replay(index,traces,boundaries,events,identities,authority)
+    from . import owner_close_evidence
+    closed=owner_close_evidence.replay(index,traces,boundaries,events,closing)
     count=bind_publications(publication.collect(root,events),boundaries)
     transport=None;floors=None;receiving=None;bases=None
     if profile=='5-REPLACE-required-four':
@@ -119,7 +125,7 @@ def validate(directory,profile='stable',progress=None):
     need(collection.inventory(root)==before,'native resources original changed')
     return dict(result,scope='native-owner-accounting-with-original-publication-boundaries',profile=profile,
                 precondition=preceding,publicationResources=physical,publicationBoundaries=count,transportResources=transport,
-                floorResources=floors,receivingResources=receiving,basisResources=bases,
+                floorResources=floors,receivingResources=receiving,basisResources=bases,ownerCloseResources=closed,
                 physicalPeakQualified=False,controlLifetimesQualified=False,finalSourceCohortQualified=False)
 
 

@@ -7,7 +7,7 @@ in the journal. Unmarked old-owner shutdown ordering is explicitly not qualified
 from collections import Counter
 from uuid import UUID
 
-from . import receive_resource_evidence as receiving
+from . import receive_resource_evidence as receiving, owner_close_evidence as closing
 
 t,need,maintenance,e=receiving.t,receiving.need,receiving.maintenance,receiving.e
 REOPEN={'repeated-basis-owner':'joining-originals-native/replica',
@@ -27,7 +27,7 @@ def extents(source):
 
 
 def derive(reader):
-    events=reader.events;result=[];used_starts=set();used_retirements=set();cold={}
+    events=reader.events;result=[];used_starts=set();used_retirements=set();cold={};closes=closing.intervals(events)
     # CURRENT_VALIDATED also occurs when one still-live owner loads a newly
     # published generation. Only the first opening of each independently
     # admitted joining-owner scope permits a close/reopen reservation interval.
@@ -81,6 +81,10 @@ def derive(reader):
             at=reopens[-1];opened=one(node,'FIXTURE_OPEN_RETURNED',at,len(events),'stable-cold-owner')
             closed=one(node,'FIXTURE_CLOSE_RETURNED',opened,len(events),'stable-cold-owner')
             segments[-1].update(liveThrough=opened,releaseBy=closed)
+        elif node in closes:
+            begun,returned=closes[node]
+            need(start<begun<returned,'basis resources final owner close interval')
+            segments[-1].update(liveThrough=begun,releaseBy=returned,closeKind='network-owner')
         else:
             # Old owners have no final close callback in this original. Require
             # continuous charging through their last event; do not invent one.
@@ -155,6 +159,7 @@ def replay(plans,events,traces,boundaries):
                 reopenedLifetimes=sum(v['kind']=='reopen' for p in plans for v in p['segments']),
                 units=dict(Counter(unit for v in plans for unit,_ in v['extents'])),checkedBoundaries=checks,
                 unmarkedFinalCloseLeases=unmarked,persistentBasisChargesQualified=True,
+                observedOwnerCloseLeases=sum(len(v['extents']) for v in plans if v['segments'][-1].get('closeKind')=='network-owner'),
                 forcedRetirementReleaseQualified=True,unmarkedShutdownPhysicalOrderQualified=False,
                 otherStorageLifetimesQualified=False,physicalPeakQualified=False,
                 wholeRuntimeResourcesQualified=False,phase3Complete=False)

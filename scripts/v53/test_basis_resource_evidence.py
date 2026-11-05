@@ -52,6 +52,19 @@ class BasisResourceEvidenceTest(unittest.TestCase):
         data=fixture();before=copy.deepcopy(data);result=negatives.replay(data)
         self.assertEqual(list(negatives.NEGATIVES),[v['case'] for v in result]);self.assertEqual(data,before)
 
+    def test_observed_shutdown_requires_source_held_at_begin_and_released_by_return(self):
+        for mode in ('original','early','late'):
+            data=fixture(reopen=False,retired=False);segment=data[0][0]['segments'][-1];segment['closeKind']='network-owner'
+            data[1][segment['liveThrough']]['event']=r.closing.BEGIN
+            data[1][segment['releaseBy']]['event']=r.closing.RETURNED
+            if mode=='early':data[3][segment['liveThrough']]['sequence']=3
+            if mode=='late':data[3][segment['releaseBy']]['sequence']=3
+            negatives.recount(data[2],data[3])
+            if mode=='original':self.assertEqual(2,r.replay(*data)['observedOwnerCloseLeases'])
+            else:
+                reason='continuous original owner lifetime' if mode=='early' else 'exact release interval'
+                with self.subTest(mode=mode),self.assertRaisesRegex(ValueError,reason):r.replay(*data)
+
     def test_invalid_original_is_rejected_before_any_mutation(self):
         data=fixture();data[2]['node-1']['failed']=True
         with patch.object(negatives,'mutate') as mutate,self.assertRaisesRegex(ValueError,'incomplete observation'):negatives.replay(data)
@@ -146,6 +159,18 @@ class BasisResourceDerivationTest(unittest.TestCase):
         result=self.derive(reader,packet,files);segments=result[0]['segments']
         self.assertEqual(1,len(segments));self.assertEqual(20,segments[0]['liveThrough'])
         self.assertEqual(21,segments[0]['releaseBy'])
+
+    def test_explicit_network_close_binds_unretired_source_to_actual_invocation(self):
+        reader,packet,files=self.model();reader.events=reader.events[:6]
+        for event in reader.events:event['node']='node-1';event.pop('scope',None)
+        reader.events.extend(dict(node='node-1',event=name) for name in (r.closing.BEGIN,r.closing.RETURNED))
+        reader.sources[0].update(node='node-1',end=len(reader.events));reader.capture_transactions.clear()
+        result=self.derive(reader,packet,files);segment=result[0]['segments'][-1]
+        self.assertEqual(6,segment['liveThrough']);self.assertEqual(7,segment['releaseBy']);self.assertEqual('network-owner',segment['closeKind'])
+        # The last event is RETURNED, after release. It must never be used as
+        # a boundary through which storage is still required to be charged.
+        reader.events[-1]['event']='MISSING'
+        with self.assertRaisesRegex(ValueError,'owner close complete pair'):self.derive(reader,packet,files)
 
     def test_reopen_must_preserve_original_source_inventory_and_bytes(self):
         for mode in ('missing','changed','extra'):

@@ -1,5 +1,12 @@
 # Phase 3 qualification inventory and remaining work
 
+[Owner close observations](PHASE_3_OWNER_CLOSE_RESOURCES.md) now bind resource
+release to an actual close invocation and successful return. One new short TCP
+history qualifies three owners / 20 released leases with twelve close negatives
+and fifteen existing accounting negatives. Historical collections explicitly
+remain unobserved for this scope; new required-four close qualification and the
+remaining combined resource/final-source obligations are still OPEN.
+
 [Persistent BASIS resource binding](PHASE_3_BASIS_RESOURCE_BINDING.md) now derives
 packet/image charges from original grants and requires continuous ownership
 through retirement or a proven owner transition. The unchanged complete native

@@ -96,8 +96,10 @@ class V53NativeDispatchTest {
             this.bounds=bounds;f=retained;openActors(endpointBudget,false);
         }
         private void openActors(long endpointBudget,boolean liveDirectory)throws Exception {
+            if(Boolean.getBoolean("v53.resource.owner.close"))assertTrue(Boolean.getBoolean("v53.resource.transitions"),"owner close requires original resource trace");
             if(Boolean.getBoolean("v53.publication.resources"))publicationResources=new V53PublicationResourceCapture(f.raw);
-            if(Boolean.getBoolean("v53.resource.transitions"))resourceTransitions=new V53ResourceTransitionCapture(f.raw,f.result.root().manifestDigest());
+            if(Boolean.getBoolean("v53.resource.transitions"))resourceTransitions=new V53ResourceTransitionCapture(f.raw,f.result.root().manifestDigest(),
+                    Boolean.getBoolean("v53.resource.owner.close")?f.request.targets().stream().map(t->t.identity().nodeId().value()).sorted().toList():List.of());
             f.snapshot("before-network");
             for(var target:f.request.targets()) {
                 var budget=resourceBudget(target.identity());resources.add(budget);links.add(new AtomicReference<>());
@@ -224,7 +226,10 @@ class V53NativeDispatchTest {
         }
         @Override public void close()throws Exception {
             hook.set(event->{});if(driver!=null)driver.close();for(var endpoint:endpoints)endpoint.close();for(var transport:transports)transport.close();
-            for(var owner:owners)owner.close();for(var budget:resources)assertEquals(0,budget.usage().leases());
+            for(var owner:owners) {
+                if(resourceTransitions==null)owner.close();else resourceTransitions.closeOwner(owner,events);
+            }
+            for(var budget:resources)assertEquals(0,budget.usage().leases());
             byte[] eventBytes=V53EvidenceArray.encode(events,V53EvidenceArray.EVENT_BYTES);
             Files.write(f.raw.resolve("wire.json"),V53EvidenceArray.encode(wire,V53EvidenceArray.WIRE_BYTES));Files.write(f.raw.resolve("events.json"),eventBytes);
             Files.write(f.raw.resolve("failures.json"),V53EvidenceArray.encode(failures,1024*1024));

@@ -15,9 +15,32 @@ final class V53ResourceTransitionCapture {
     private final Path directory;
     private final Map<String,Owner> owners=new TreeMap<>();
     private final List<Map<String,Object>> boundaries=new ArrayList<>();
+    private final List<String> closingOwners;
+    private final Set<String> closing=new HashSet<>();
     private boolean saved;
     V53ResourceTransitionCapture(Path raw,String root)throws IOException {
+        this(raw,root,List.of());
+    }
+    V53ResourceTransitionCapture(Path raw,String root,List<String> closingOwners)throws IOException {
+        require(closingOwners.size()<=6 && closingOwners.equals(closingOwners.stream().distinct().sorted().toList()) &&
+                closingOwners.stream().allMatch(n->n.matches("node-[1-6]")),"resource close original owners");
+        this.closingOwners=List.copyOf(closingOwners);
         MembershipValidation.digest(root);this.root=root;directory=Files.createDirectory(raw.resolve(DIRECTORY));
+    }
+    void closeOwner(MembershipGrantJournal journal,List<Map<String,Object>> events)throws IOException {
+        String node=journal.activationIdentity().nodeId().value();
+        if(closingOwners.isEmpty()){journal.close();return;}
+        // Opt-in whole-owner fixtures call this only after endpoint/transport
+        // shutdown. Never label a second close as the original owner lifetime.
+        synchronized(events) {
+            synchronized(this) {
+                require(!saved && closingOwners.contains(node) && owners.containsKey(node) && closing.add(node),"resource close owner invocation");
+            }
+            journal.activationContext(); // A previously closed owner must fail before BEGIN.
+            events.add(Map.of("node",node,"event","RESOURCE_OWNER_CLOSE_BEGIN"));
+        }
+        journal.close(); // An exception deliberately leaves no successful RETURNED marker.
+        synchronized(events) {events.add(Map.of("node",node,"event","RESOURCE_OWNER_CLOSE_RETURNED"));}
     }
     synchronized MembershipResources create(MembershipIdentity identity,int eventIndex) {
         String node=identity.nodeId().value();
@@ -46,7 +69,9 @@ final class V53ResourceTransitionCapture {
         }
         byte[] data=V53EvidenceArray.encode(boundaries,32*1024*1024);
         Files.write(directory.resolve("boundaries.json"),data,StandardOpenOption.CREATE_NEW);
-        Files.write(directory.resolve("index.json"),canonical(Map.of("schema","gse-v53-resource-capture-index-v1","root",root,
-                "eventsSha256",hash(events),"boundariesSha256",hash(data),"owners",refs),16384),StandardOpenOption.CREATE_NEW);
+        var index=new TreeMap<String,Object>(Map.of("schema",closingOwners.isEmpty()?"gse-v53-resource-capture-index-v1":"gse-v53-resource-capture-index-v2","root",root,
+                "eventsSha256",hash(events),"boundariesSha256",hash(data),"owners",refs));
+        if(!closingOwners.isEmpty())index.put("closingOwners",closingOwners);
+        Files.write(directory.resolve("index.json"),canonical(index,16384),StandardOpenOption.CREATE_NEW);
     }
 }

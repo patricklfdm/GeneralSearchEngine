@@ -1,0 +1,206 @@
+{
+  "accountingNegatives": 15,
+  "baseSource": "e28378454c942b263b7ccdc058c7699dc4e17fd2",
+  "closure": {
+    "checkedChanges": 20,
+    "ownerCloseIntervalsQualified": true,
+    "owners": {
+      "node-1": {
+        "begin": 1788,
+        "beginSequence": 1802,
+        "released": 8,
+        "returned": 1789,
+        "returnedSequence": 1810
+      },
+      "node-2": {
+        "begin": 1790,
+        "beginSequence": 1727,
+        "released": 8,
+        "returned": 1791,
+        "returnedSequence": 1735
+      },
+      "node-3": {
+        "begin": 1792,
+        "beginSequence": 24,
+        "released": 4,
+        "returned": 1793,
+        "returnedSequence": 28
+      }
+    },
+    "phase3Complete": false,
+    "physicalShutdownOrderQualified": false,
+    "releasedLeases": 20,
+    "scope": "quiescent-original-network-owner-close-accounting",
+    "status": "PASS",
+    "wholeRuntimeResourcesQualified": false
+  },
+  "eventBoundaries": 1794,
+  "finalSourceCohortQualified": false,
+  "historicalCompatibility": {
+    "bases": {
+      "checkedBoundaries": 284,
+      "forcedRetirementReleaseQualified": true,
+      "leases": 58,
+      "observedOwnerCloseLeases": 0,
+      "otherStorageLifetimesQualified": false,
+      "persistentBasisChargesQualified": true,
+      "phase3Complete": false,
+      "physicalPeakQualified": false,
+      "reopenedLifetimes": 3,
+      "retiredSources": 22,
+      "scope": "original-persistent-basis-charges-through-observed-owner-lifetimes",
+      "sourceOwnerLifetimes": 29,
+      "sources": 26,
+      "status": "PASS",
+      "units": {
+        "APPLICATION": 26,
+        "SOURCE": 26
+      },
+      "unmarkedFinalCloseLeases": 6,
+      "unmarkedShutdownPhysicalOrderQualified": false,
+      "wholeRuntimeResourcesQualified": false
+    },
+    "elapsedSeconds": 33.646,
+    "fullNativeReplayRepeated": false,
+    "ownerClose": {
+      "ownerCloseIntervalsQualified": false,
+      "owners": 0,
+      "phase3Complete": false,
+      "physicalShutdownOrderQualified": false,
+      "status": "NOT_OBSERVED",
+      "wholeRuntimeResourcesQualified": false
+    },
+    "phase3Complete": false,
+    "raw": "general-search-engine-replication/target/v53-native-dispatch/run-bc82bb01-127a-40e0-9332-dd2f2bc8a1d3",
+    "scope": "historical-accounting-only-compatibility",
+    "status": "PASS"
+  },
+  "javaTests": 9,
+  "nativeJavaInputFiles": 1128,
+  "nativeRaw": "general-search-engine-replication/target/v53-native-dispatch/run-9bb60698-f6bf-4daa-8010-e31ba458eb3b",
+  "nativeReplayElapsedSeconds": 7.153,
+  "nativeTestSeconds": 57.589,
+  "newConditionalTests": 12,
+  "ownerCloseNegatives": 12,
+  "phase3Complete": false,
+  "physicalPeakQualified": false,
+  "physicalShutdownOrderQualified": false,
+  "publicationBoundaries": 44,
+  "pythonTests": 156,
+  "remaining": [
+    "new required-four source-bound owner-close observation",
+    "post-handoff learner file custody",
+    "direct receiving physical captures",
+    "pre-connection and other CONTROL lifetimes",
+    "complete native export/maintenance/ledger negative matrices",
+    "combined physical maxima and completion headroom",
+    "frozen coverage and final-source hosted qualification"
+  ],
+  "reports": [
+    {
+      "path": "target/v53-owner-close-resources/native-summary.json",
+      "sha256": "ad64ca0e5993db86818c43df3200e641c39ae30ea2e0aa58ce64fc30e79dd32b"
+    },
+    {
+      "path": "target/v53-owner-close-resources/native-original.json",
+      "sha256": "db780d1472a55fde39b3d842944157faf4e84a2391e2709cf376943f13c9ee81"
+    },
+    {
+      "path": "target/v53-owner-close-resources/owner-close-negatives.json",
+      "sha256": "f096f0af575fb338bc5b2320be6b03f41a54561fb9da4573fb1d18e99c768875"
+    },
+    {
+      "path": "target/v53-owner-close-resources/accounting-negatives.json",
+      "sha256": "8089888a5c1eafab113024d53fe502f16456f1ff7a240aaf33c786566cf84947"
+    },
+    {
+      "path": "target/v53-owner-close-resources/historical-compatibility.json",
+      "sha256": "e241bd687e00ec3360ae39da2a13843231e67c3e1de0dfcd1892107ad9f4b6f4"
+    },
+    {
+      "path": "target/v53-owner-close-resources/java-input.json",
+      "sha256": "53f45ea596f51c31860ed9e1807b2c9810fa1356d5ff7976292fd0ba7355ebf1"
+    },
+    {
+      "path": "target/v53-owner-close-resources/original-inventory.json",
+      "sha256": "c24feb248e987a44664005dbc98d9d774d35be21354892a0d3729122d7f16581"
+    },
+    {
+      "path": "target/v53-owner-close-resources/maven-01.log",
+      "sha256": "ab6fb8c4e1772e5371a7db7e29192a1e847a4d7e76e6b1fe3bef3d89a31e9e97"
+    },
+    {
+      "path": "target/v53-owner-close-resources/maven-02.log",
+      "sha256": "7a2cf9c42274d1435a88859bdfb8da543bc2ad8b79d99d85594c40a868578363"
+    },
+    {
+      "path": "target/v53-owner-close-resources/python-01.log",
+      "sha256": "7440da729f4a1e95bc6055c12cb0c989e4560532481d77f15262c8daf2a7696e"
+    },
+    {
+      "path": "target/v53-owner-close-resources/python-final.log",
+      "sha256": "e287018e9a569f2c548261d44e46c10a23b74525299e69fabbba8dbf6b6e22c2"
+    },
+    {
+      "path": "target/v53-owner-close-resources/native-replay-01.log",
+      "sha256": "60791fab2b4e04d44684892be06a6bfa45bfca76a25936d1defc8ddd3523b623"
+    },
+    {
+      "path": "target/v53-owner-close-resources/historical-01.log",
+      "sha256": "dd92735a8301e38de53720589a73f7370628ee4f049ef28ab0bc5da542431d57"
+    },
+    {
+      "path": "target/v53-owner-close-resources/qualify_native.py",
+      "sha256": "48444178bd2f1a100b5d4b61c8e804c1ce7ad7d86353d77527e053915359f139"
+    },
+    {
+      "path": "target/v53-owner-close-resources/replay_historical.py",
+      "sha256": "46b199a1b5944e1ecbc79a7f5bc3c326539e5be2a048aca0d0185a8eff99ef6b"
+    }
+  ],
+  "requiredFourCloseQualified": false,
+  "resourceChanges": 3576,
+  "sandboxAttempt": "eight collector tests passed; loopback test denied before execution; original failure retained",
+  "schema": "gse-v53-owner-close-resources-development-v1",
+  "scope": "short-native-original-network-owner-close-accounting",
+  "sources": [
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransitionCapture.java",
+      "sha256": "1735162ec9fa0453360eaebbeaf9d1e17bcb5440fd155e6905f7663264432794"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransitionCaptureTest.java",
+      "sha256": "eeabe1001148197a1ce43dc2161d7fbab2c4a7eba9711d2c8ba59f33b5b771fb"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java",
+      "sha256": "b8122442b5115160e8388ea9101f64c672a5ae091ce9ba171a3464bbb7c0941e"
+    },
+    {
+      "path": "scripts/v53/owner_close_evidence.py",
+      "sha256": "6ebadfd1a9704398d47a7eea5da8c3ecfc6f2d7fd0a601d827e2702895aabd6c"
+    },
+    {
+      "path": "scripts/v53/owner_close_negatives.py",
+      "sha256": "34b8d5ba61ff650a625d3e3a288720b73586b30e5281925d6cc6ba22d7bc6d37"
+    },
+    {
+      "path": "scripts/v53/test_owner_close_evidence.py",
+      "sha256": "27e3c2493954561f4c0aa0f70270d21bcb152ef82a4f84077941c360dcf098d3"
+    },
+    {
+      "path": "scripts/v53/basis_resource_evidence.py",
+      "sha256": "f8c6a08b247955e29a40d2c79c14d11ae67779cfbfc173ce978dcbf81db13ed7"
+    },
+    {
+      "path": "scripts/v53/test_basis_resource_evidence.py",
+      "sha256": "60248afbef5a83e147c99f425c065140a97553e2ca5e658fdadb422054024ac9"
+    },
+    {
+      "path": "scripts/v53/native_resource_evidence.py",
+      "sha256": "81c5f3e17e4058373861a2483f2c93bde403d54cbf98e8a40ade55b3074ca190"
+    }
+  ],
+  "status": "PASS",
+  "wholeRuntimeResourcesQualified": false
+}

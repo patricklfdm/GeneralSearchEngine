@@ -74,4 +74,43 @@ class V53ResourceTransitionCaptureTest {
         byte[] events=V53EvidenceArray.encode(List.of(row),8192);Files.write(root.resolve("events.json"),events);capture.save(events);
         assertEquals(1,budget.observations().current().leases());lease.close();
     }
+    @Test void originalJournalCloseHasTwoBoundariesAndAllowsExclusiveReopen()throws Exception {
+        var raw=Files.createDirectory(evidence.resolve("original-close"));
+        var fixture=new V53BootstrapPublicationTest.Fixture(temp,raw,3,false);var target=fixture.request.targets().getFirst();
+        var capture=new V53ResourceTransitionCapture(raw,fixture.result.root().manifestDigest(),List.of("node-1"));
+        var budget=capture.create(target.identity(),0);
+        var events=new ArrayList<Map<String,Object>>() {
+            @Override public boolean add(Map<String,Object> row){capture.event(size(),row);return super.add(row);}
+        };
+        try(var journal=MembershipGrantJournal.openBootstrapped(target.replicaDirectory(),target.materialization().directory(),
+                fixture.result.root(),target.identity(),budget,MembershipGrantJournal.MAXIMUM,
+                event->events.add(Map.of("node","node-1","event",event)))) {
+            int before=budget.usage().leases();assertTrue(before>0);
+            capture.closeOwner(journal,events);assertEquals(0,budget.usage().leases());
+            assertEquals("RESOURCE_OWNER_CLOSE_BEGIN",events.get(events.size()-2).get("event"));
+            assertEquals("RESOURCE_OWNER_CLOSE_RETURNED",events.getLast().get("event"));
+            assertThrows(Exception.class,journal::activationContext);
+            assertThrows(IllegalArgumentException.class,()->capture.closeOwner(journal,events));
+        }
+        byte[] bytes=V53EvidenceArray.encode(events,1024*1024);Files.write(raw.resolve("events.json"),bytes);capture.save(bytes);
+        var index=object(parse(Files.readAllBytes(raw.resolve(V53ResourceTransitionCapture.DIRECTORY+"/index.json")),16384));
+        assertEquals("gse-v53-resource-capture-index-v2",index.get("schema"));assertEquals(List.of("node-1"),index.get("closingOwners"));
+        try(var reopened=MembershipGrantJournal.openBootstrapped(target.replicaDirectory(),target.materialization().directory(),fixture.result.root(),
+                target.identity(),new MembershipResources(512*MIB),MembershipGrantJournal.MAXIMUM,event->{})) {
+            assertEquals(target.identity(),reopened.activationIdentity());
+        }
+    }
+    @Test void alreadyClosedJournalCannotMasqueradeAsOriginalClose()throws Exception {
+        var raw=Files.createDirectory(evidence.resolve("second-close"));
+        var fixture=new V53BootstrapPublicationTest.Fixture(temp,raw,3,false);var target=fixture.request.targets().getFirst();
+        var capture=new V53ResourceTransitionCapture(raw,fixture.result.root().manifestDigest(),List.of("node-1"));
+        var budget=capture.create(target.identity(),0);var events=new ArrayList<Map<String,Object>>();
+        var journal=MembershipGrantJournal.openBootstrapped(target.replicaDirectory(),target.materialization().directory(),fixture.result.root(),
+                target.identity(),budget,MembershipGrantJournal.MAXIMUM,event->{});
+        journal.close();assertThrows(Exception.class,()->capture.closeOwner(journal,events));assertTrue(events.isEmpty());
+    }
+    @Test void closeOwnerDeclarationCannotHideDuplicatesOrForeignNodes()throws Exception {
+        for(var nodes:List.of(List.of("node-1","node-1"),List.of("node-2","node-1"),List.of("foreign")))
+            assertThrows(IllegalArgumentException.class,()->new V53ResourceTransitionCapture(temp,ROOT,nodes));
+    }
 }

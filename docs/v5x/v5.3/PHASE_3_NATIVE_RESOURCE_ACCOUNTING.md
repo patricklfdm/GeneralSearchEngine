@@ -1,5 +1,10 @@
 # Native resource accounting and original event binding
 
+The opt-in [owner close layer](PHASE_3_OWNER_CLOSE_RESOURCES.md) adds version-2
+observation indexes with a declared original closing-owner set and exact
+close-call checkpoints. Version-1 collections keep their historical accounting
+scope and explicitly report that close intervals were not observed.
+
 The optional `v53.resource.transitions` fixture flag creates the actual old-owner
 and joining-owner budgets with mutation observation enabled before their first
 reservation. The joining budget remains the same object across initialization,
