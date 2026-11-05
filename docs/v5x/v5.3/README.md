@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Slot delivery and dispatcher lifetimes](PHASE_3_SLOT_CONTROL_RESOURCES.md)
+now bind outgoing request copies, incoming voting children and direct local
+publication calls to original CONTROL/WAITER intervals. Stable native replay
+keeps socket attempts separate from local calls; other resource scopes and
+Phase 3 closure remain OPEN.
+
 [Incoming voting resource lifetimes](PHASE_3_VOTING_CONTROL_RESOURCES.md) now
 bind writer CONTROL and handler WAITER charges to original requests and durable
 force/return intervals. One native two-slot history distinguishes eight connected

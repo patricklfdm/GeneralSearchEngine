@@ -76,7 +76,7 @@ final class MembershipSlotEndpoint implements MembershipTransport.Handler,AutoCl
                 throw new MembershipTransport.Failure(MembershipTransport.Reason.CAPACITY,"slot control already in flight",null);
             // Admit the waiter atomically with revocation. Close cannot observe
             // zero calls while an admitted handler still owns a waiter lease.
-            waiter=resources.reserve(MembershipResources.Unit.WAITER,"slot-waiter-"+UUID.randomUUID(),0);
+            waiter=resources.reserve(MembershipResources.Unit.WAITER,MembershipSourceResources.request("slot-waiter",request),0);
             control=request.digest();calls++;
         }
         try(waiter) {

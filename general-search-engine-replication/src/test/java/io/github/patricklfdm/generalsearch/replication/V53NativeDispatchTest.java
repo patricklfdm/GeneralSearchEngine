@@ -235,7 +235,12 @@ class V53NativeDispatchTest {
                 }
                 for(var recorded:ready)assertEquals("PUBLISH_ACK",recorded.dispatch(transports.getFirst()).kind());
             }finally{for(var recording:recordings)recording.close();}
-            assertEquals("PUBLISH_ACK",endpoints.getFirst().handle(own.activationIdentity(),request(0,"PUBLISH",Map.of("certificate",certificate.digest()))).kind());
+            var local=request(0,"PUBLISH",Map.of("certificate",certificate.digest()));
+            boolean capture=Boolean.getBoolean("v53.resource.slot.control");
+            if(capture)events.add(Map.of("node","node-1","event","LOCAL_SLOT_REQUEST","record",local.digest(),"bytes",Base64.getEncoder().encodeToString(local.bytes())));
+            var published=endpoints.getFirst().handle(own.activationIdentity(),local);
+            if(capture)events.add(Map.of("node","node-1","event","LOCAL_SLOT_RESPONSE","record",published.digest(),"bytes",Base64.getEncoder().encodeToString(published.bytes())));
+            assertEquals("PUBLISH_ACK",published.kind());
             for(int i:voters)assertEquals(certificate.value().get("index"),owners.get(i).activationContext().cut.get("index"));
             f.snapshot("published-"+certificate.value().get("index"));
             System.out.println("v53NativeDispatchStage=published-"+certificate.value().get("index"));

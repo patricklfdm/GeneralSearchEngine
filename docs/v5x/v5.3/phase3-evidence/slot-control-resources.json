@@ -1,0 +1,227 @@
+{
+  "baseSource": "6399b1e3c60f371b926ffb771567d27ea97e0bcd",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 2720,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "finalSourceCohortQualified": false,
+  "hostedExecution": false,
+  "java": {
+    "V53NativeDispatchTest": {
+      "report": "target/v53-slot-control-resources/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml",
+      "seconds": 56.038,
+      "sha256": "74fbcf033433f223f02dff43f0451b2f775f613e4303775a46798be28081a6b9",
+      "tests": 1
+    },
+    "V53SlotCloseDrainTest": {
+      "report": "target/v53-slot-control-resources/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotCloseDrainTest.xml",
+      "seconds": 63.838,
+      "sha256": "864265af23fc2cd42d66c6b2ad27631f1534fa326b1b893498d0b02600867b49",
+      "tests": 5
+    },
+    "V53SlotDriverTest": {
+      "report": "target/v53-slot-control-resources/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotDriverTest.xml",
+      "seconds": 29.747,
+      "sha256": "12b2914be4b31302e18674777728a10170b82ffcae867fb7038f4c5fd024adc0",
+      "tests": 2
+    }
+  },
+  "limitations": [
+    "Successful stable slot deliveries and observed dispatcher waiters only; interrupted handlers and other roles remain OPEN.",
+    "Other native producers require original local-call captures; historical evidence is not backfilled.",
+    "Unobserved transport frames remain explicit gaps; no physical maxima or final-source cohort claim.",
+    "adjacent-python-02 exposed shared synthetic charge objects in the new swap mutation; unique-object mutation fixes that driver, with original native bytes unaffected.",
+    "native-01 predates optional local-call capture; focused-python-01 contains a synthetic test-fixture schema failure, corrected without changing production or frozen formats."
+  ],
+  "logs": {
+    "adjacent-java-01.log": "ac939c9d217eaa15cd1889aaa5c6823dbc41baf40637fce11675a4360ed54162",
+    "adjacent-python-01.log": "46bc20c469dd74aa25370f08e703bc75859b4ad013f5fee763a35c6b6d9ae875",
+    "adjacent-python-02.log": "53fcc3cb4e7b3192e342999117fec501df178bee3ebd252e02b89632764680ce",
+    "adjacent-python-03.log": "a286832b60f849fd2ff50d821cf53519e989110fe97eeb24b1dac30fb09d2a44",
+    "adjacent-python-final.log": "476e4e8002e5f4974f31795473a75c1ca1e555f0f9c476dc9045f9ec03798e41",
+    "cross-publication-before-fix.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cross-publication-regression.log": "83eb7b315b979260b35eaad539adaf0f4c3be055cbed8bb3d6266272cbc55ee9",
+    "focused-python-01.log": "c3e3fcee12fbd41166369ffdd3ee1bcaef3bb8cf365d4de2ca950da094937a2d",
+    "focused-python-02.log": "440f4ba263c00780f334655c09a479866db9b79e2de674b134f3c4ff879ada76",
+    "native-01.log": "75b81d6708eb36f74f8255aafe3ce8fb5b559a8902e6f37a88c80bc4b78f881a",
+    "native-02.log": "644240b17a980b63b2836a1fa78981010bb085885a586d3282682bc922543563",
+    "negatives-01.log": "f70f400fd80c5bd4b16a08ce4fcdc7e7efc75f2f5bd74fa7008d2a37f83c4fc8",
+    "negatives-02.log": "97e871e75eb101d62ec0e8e8c48f9aeeddeff135d126364e77817fa8f96d2f18",
+    "negatives-03.log": "240b8af13d5d9ecadff82f45246dc0d405a52384e4acdf0da7e4fa035862f6fd",
+    "negatives-final.log": "b7c1840a7d1406bc6216b5eb651b2b161daec0e9c93c4c2116ecf0d146b237bb",
+    "original-replay-01.log": "045f2c4c7916e7bbf89245288107425f6f8c8cffbcb1ffc5cc83bcdde983d5f9",
+    "plan-final.log": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df",
+    "plan.log": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df",
+    "planning-tests-final.log": "a0995abb2b3cdaba2f14da494b3dc9c1678d1e03773906c1a9f604b7b733134a",
+    "planning-tests.log": "cc14d4e6e02f95d2fa23536744a8f41f753dcbb7fa16ed100817aad77e70cf46"
+  },
+  "native": {
+    "negativeCases": [
+      {
+        "case": "delivery-short",
+        "reason": "slot resources original delivery extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "delivery-long",
+        "reason": "slot resources original delivery extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "handoff-after-copy",
+        "reason": "slot resources unique request handoff",
+        "status": "REJECTED"
+      },
+      {
+        "case": "ack-after-release",
+        "reason": "slot resources delivery released before acknowledgement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "delivery-binding",
+        "reason": "slot resources unique request handoff",
+        "status": "REJECTED"
+      },
+      {
+        "case": "delivery-omitted",
+        "reason": "slot resources unique request handoff",
+        "status": "REJECTED"
+      },
+      {
+        "case": "waiter-binding",
+        "reason": "slot resources original waiter binding/extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "local-waiter-omitted",
+        "reason": "slot resources missing local waiter",
+        "status": "REJECTED"
+      },
+      {
+        "case": "voting-waiter-omitted",
+        "reason": "slot resources voting child waiter custody",
+        "status": "REJECTED"
+      },
+      {
+        "case": "legacy-binding",
+        "reason": "slot resources original bindings required",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-delivery",
+        "reason": "slot resources incomplete allocation coverage",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-waiter",
+        "reason": "slot resources waiter call interval",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reused-allocation",
+        "reason": "slot resources reused allocation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "waiter-released-before-child",
+        "reason": "slot resources voting child waiter custody",
+        "status": "REJECTED"
+      },
+      {
+        "case": "publication-after-release",
+        "reason": "slot resources publication waiter custody",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-local-request",
+        "reason": "slot resources local publication response",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-local-response",
+        "reason": "slot resources local publication request",
+        "status": "REJECTED"
+      },
+      {
+        "case": "local-request-hash",
+        "reason": "slot resources local original bytes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "local-response-payload",
+        "reason": "slot resources local original acknowledgement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "local-response-trace",
+        "reason": "slot resources local original acknowledgement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "swap-local-publications",
+        "reason": "slot resources publication waiter custody",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-publication",
+        "reason": "slot resources local publication not observed",
+        "status": "REJECTED"
+      }
+    ],
+    "original": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-dispatch/run-dfe8aca9-6ec6-4b49-a5ea-2c98d1234209",
+    "originalInventorySha256": "920f8693622d6cc96daa35a5fecd8d8f2909d9d2abba7b110e66e5c76ddacc2e",
+    "replay": "target/v53-slot-control-resources/negatives-final.json",
+    "replaySha256": "edb012b7bf2f749789f3094d2023a3b3a5597e43eca0c1b15e69235f1358ca26",
+    "result": {
+      "boundReservations": 16,
+      "deliveryAttempts": 7,
+      "deliveryReservations": 6,
+      "interruptedHandlersQualified": false,
+      "localWaiters": 2,
+      "networkWaiters": 8,
+      "phase3Complete": false,
+      "publicationTransactions": 4,
+      "slotResourcesQualified": true,
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    }
+  },
+  "phase3Complete": false,
+  "physicalPeakQualified": false,
+  "plan": {
+    "execution": "source-inventory-only",
+    "phase3Complete": false,
+    "plannedHostedHistories": 544,
+    "requirements": 12,
+    "status": "PASS"
+  },
+  "planning": {
+    "log": "target/v53-slot-control-resources/planning-tests-final.log",
+    "sha256": "a0995abb2b3cdaba2f14da494b3dc9c1678d1e03773906c1a9f604b7b733134a",
+    "tests": 18
+  },
+  "python": {
+    "log": "target/v53-slot-control-resources/adjacent-python-final.log",
+    "sha256": "476e4e8002e5f4974f31795473a75c1ca1e555f0f9c476dc9045f9ec03798e41",
+    "tests": 178
+  },
+  "schema": "gse-v53-development-evidence-v1",
+  "scope": "stable-native-slot-control-and-waiter-lifetimes",
+  "sourceSha256": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSlotDelivery.java": "e72299ea9211fa62df04444d84ed1901d6b4e4ef9603bc24c92bb216d7827fe7",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSlotEndpoint.java": "a4a641d4d32639dde67c39f374e469c3d90fd1854fce4536592a13fa5c0833be",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java": "16f4bd9579350c296c86774622f0e3422e3410acd4ec5f112eed7eaa9136d13c",
+    "scripts/v53/native_resource_evidence.py": "0c8b2980f8d6271a32501dc24f974e0b216e16a421481a8cc400b08e6bca486d",
+    "scripts/v53/slot_control_resource_negatives.py": "200742b0bccb46c320d49ad60c889b355e41031e8ded80f9efc076da9bc0d60d",
+    "scripts/v53/slot_control_resources.py": "7c298cf163682f2ba5ab0fc2288431105cfc61f105f922a6b8a0af17691b4ea8",
+    "scripts/v53/test_slot_control_resources.py": "11bdae910502759652cb49d41f9eddce212a9a915693e05c04a6461d7994a604"
+  },
+  "status": "PASS",
+  "wholeRuntimeResourcesQualified": false
+}

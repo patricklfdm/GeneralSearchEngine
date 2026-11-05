@@ -50,7 +50,7 @@ final class MembershipSlotDelivery {
         }
         MembershipSourcePull.Guard guard=()->{parent.check();long elapsed=clock.getAsLong()-started;require(elapsed>=0 && elapsed<budget,"slot delivery original deadline");original.check();parent.check();};
         var retry=new MembershipExchange(request.digest(),started,budget);
-        try(var lease=resources.reserve(MembershipResources.Unit.CONTROL,"slot-delivery-"+UUID.randomUUID(),request.size())) {
+        try(var lease=resources.reserve(MembershipResources.Unit.CONTROL,MembershipSourceResources.request("slot-delivery",request),request.size())) {
             for(;;) {
                 guard.check();retry.attempt(request.digest(),clock.getAsLong());
                 var response=transport.exchange(peer,request,kind+"_ACK",started+budget,guard);
