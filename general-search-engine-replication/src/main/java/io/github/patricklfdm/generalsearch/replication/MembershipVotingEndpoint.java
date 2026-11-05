@@ -120,13 +120,13 @@ final class MembershipVotingEndpoint implements MembershipTransport.Handler,Auto
         check();require(request.size()<=Math.min(FRAME,bounds.maxFrameBytes()),"voting endpoint frame capacity");
         if(request.kind().equals("CHUNK") || request.kind().equals("TRANSFER_COMMIT"))return transfers.handle(sender,request);
         voting.request(sender,request);var duplicate=voting.acknowledge(sender,request);if(duplicate.isPresent()){check();return duplicate.get();}
-        try(var waiter=resources.reserve(MembershipResources.Unit.WAITER,"voting-waiter-"+UUID.randomUUID(),0)) {
+        try(var waiter=resources.reserve(MembershipResources.Unit.WAITER,MembershipSourceResources.request("voting-waiter",request),0)) {
         CompletableFuture<Void> work;
         synchronized(this){check();
             if(completion!=null && !completion.isDone() && !request.digest().equals(control))
                 throw new MembershipTransport.Failure(MembershipTransport.Reason.CAPACITY,"voting control already in flight",null);
             if(completion==null || !request.digest().equals(control)) {
-                var lease=resources.reserve(MembershipResources.Unit.CONTROL,"voting-control-"+UUID.randomUUID(),request.size());
+                var lease=resources.reserve(MembershipResources.Unit.CONTROL,MembershipSourceResources.request("voting-control",request),request.size());
                 completion=new CompletableFuture<>();control=request.digest();var result=completion;
                 try{writer.execute(()->{Throwable failure=null;try{execute(sender,request);}catch(Throwable error){failure=error;}finally{lease.close();}
                     if(failure==null)result.complete(null);else result.completeExceptionally(failure);});}

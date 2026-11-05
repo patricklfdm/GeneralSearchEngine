@@ -1,5 +1,11 @@
 # V5.3 bounded resources and lifetime
 
+[Incoming voting resource lifetimes](PHASE_3_VOTING_CONTROL_RESOURCES.md) add
+strict original request/force/return binding for voting CONTROL and WAITER
+allocations. A fresh two-slot history and sixteen evidence mutations qualify
+these roles; complete control lifetimes and simultaneous physical maxima remain
+OPEN. Limits and original retry/deadline contracts are unchanged.
+
 [Vote and learner ROOT export bindings](PHASE_3_SPECIAL_EXPORT_RESOURCES.md)
 add four native histories and 22 direct allocations, with 72 exact resource
 negatives. Receipt lookup identity stays distinct from content identity; ROOT

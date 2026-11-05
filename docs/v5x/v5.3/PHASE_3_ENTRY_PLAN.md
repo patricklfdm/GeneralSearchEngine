@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Incoming voting resource lifetimes](PHASE_3_VOTING_CONTROL_RESOURCES.md)
+qualify the stable native ACCEPT/PROOF/APPLY writer and waiter charges against
+original network bytes and durable force/return observations. Lost ACK retries
+share their original writer. Full CONTROL/WAITER, joining/failure, physical-peak
+and final-source qualifications remain OPEN.
+
 [Hosted seed reconciliation](PHASE_3_SEED_COHORT.md) adds a prerequisite for
 phase-wide admission: all twelve original preparations must share complete Git
 source, classes, tools and dependencies, with each exact workflow/run/attempt

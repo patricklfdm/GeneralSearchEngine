@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Incoming voting resource lifetimes](PHASE_3_VOTING_CONTROL_RESOURCES.md) now
+bind writer CONTROL and handler WAITER charges to original requests and durable
+force/return intervals. One native two-slot history distinguishes eight connected
+attempts from six original writers; sixteen evidence mutations reject. Other
+resource roles, physical maxima and Phase 3 closure remain OPEN.
+
 [Hosted seed reconciliation](PHASE_3_SEED_COHORT.md) verifies all twelve
 independent preparations against complete Git source, class bytes, tools and
 dependencies while allowing the existing different reader sets. Its PARTIAL

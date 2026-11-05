@@ -1,0 +1,180 @@
+{
+  "baseSource": "aec1334fac34b293f2456168c197ef30a4fbf0c4",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 2716,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "finalSourceCohortQualified": false,
+  "hostedExecution": false,
+  "java": {
+    "V53NativeDispatchTest": {
+      "report": "target/v53-voting-control-resources/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml",
+      "seconds": 58.714,
+      "sha256": "7e14ccfae883526c3ca7698acc21d66deee9b68b231192fef53637f763bb1815",
+      "tests": 1
+    },
+    "V53NativeVotingLimitsTest": {
+      "report": "target/v53-voting-control-resources/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeVotingLimitsTest.xml",
+      "seconds": 64.632,
+      "sha256": "5af259703de789f0eb3baa2bc3fa7c6895ef1b572d99f5de7830b92ea230ed10",
+      "tests": 6
+    },
+    "V53SlotCloseDrainTest": {
+      "report": "target/v53-voting-control-resources/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotCloseDrainTest.xml",
+      "seconds": 62.714,
+      "sha256": "16b47c6f1198b2186e49a4dc1ac766a623dabf3430d2fb91129374090efe7100",
+      "tests": 5
+    }
+  },
+  "limitations": [
+    "Successful observed incoming voting only; interrupted/failed handlers remain outside this scope.",
+    "Stable profile only; joining, required-four and full peak proofs remain OPEN.",
+    "Other CONTROL/WAITER roles and final-source cohorts remain OPEN."
+  ],
+  "native": {
+    "negativeCases": [
+      {
+        "case": "control-short",
+        "reason": "voting resources original control extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "control-long",
+        "reason": "voting resources original control extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "control-binding",
+        "reason": "voting resources unobserved allocation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "waiter-binding",
+        "reason": "voting resources unobserved allocation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "control-omitted",
+        "reason": "voting resources forced work lacks unique control",
+        "status": "REJECTED"
+      },
+      {
+        "case": "waiter-omitted",
+        "reason": "voting resources one writer and admitted waiters",
+        "status": "REJECTED"
+      },
+      {
+        "case": "legacy-binding",
+        "reason": "voting resources original bindings required",
+        "status": "REJECTED"
+      },
+      {
+        "case": "control-after-read",
+        "reason": "voting resources control request interval",
+        "status": "REJECTED"
+      },
+      {
+        "case": "force-after-release",
+        "reason": "voting resources forced work lacks unique control",
+        "status": "REJECTED"
+      },
+      {
+        "case": "return-after-release",
+        "reason": "voting resources control released before durable return",
+        "status": "REJECTED"
+      },
+      {
+        "case": "waiter-released-first",
+        "reason": "voting resources writer not held by original waiter",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-waiter",
+        "reason": "voting resources waiter request interval",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-writer",
+        "reason": "voting resources one writer and admitted waiters",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reused-allocation",
+        "reason": "voting resources reused allocation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-force",
+        "reason": "voting resources exact original force",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-return",
+        "reason": "voting resources original durable return",
+        "status": "REJECTED"
+      }
+    ],
+    "originalInventorySha256": "7b5e3e4e3a42a9263f0c6516daca8b72ded162ee590be586f0014dd045015046",
+    "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-dispatch/run-32397b94-1fb1-4d72-9a4c-bb1aa2094f05",
+    "preconditionStatus": "PASS",
+    "report": "target/v53-voting-control-resources/negatives-02.json",
+    "seconds": 17.506,
+    "sha256": "be13139ba48d628efeb82d163380f9376fbd4e213c50eb176882abc9f8335f4f",
+    "voting": {
+      "boundReservations": 12,
+      "connectedAttempts": 8,
+      "durableBoundaryChecks": 12,
+      "incomingVotingResourcesQualified": true,
+      "interruptedHandlersQualified": false,
+      "kinds": {
+        "ACCEPT": 2,
+        "APPLY": 2,
+        "PROOF": 2
+      },
+      "phase3Complete": false,
+      "repeatedIdenticalAttempts": 2,
+      "separatelyTracedFastAcks": 0,
+      "status": "PASS",
+      "waiterReservations": 6,
+      "wholeRuntimeResourcesQualified": false,
+      "writerControls": 6
+    }
+  },
+  "paidCloud": false,
+  "phase3Complete": false,
+  "physicalPeakQualified": false,
+  "planning": {
+    "execution": "source-inventory-only",
+    "plannedHostedHistories": 544,
+    "requirements": 12,
+    "status": "PASS"
+  },
+  "planningTests": {
+    "log": "target/v53-voting-control-resources/planning-tests.log",
+    "sha256": "24c053f0fe054047e8ad73a992395faee2c96a17409141bc25595cf77a129885",
+    "tests": 18
+  },
+  "python": {
+    "focusedTests": 13,
+    "log": "target/v53-voting-control-resources/adjacent-python-01.log",
+    "sha256": "01a14320c287e859a06da0f9e11d96c5976fbfda8679a1d45d0cac2dbe160f52",
+    "tests": 176
+  },
+  "runtimeChange": "request digest plus allocation nonce in voting CONTROL/WAITER observation names only",
+  "schema": "gse-v53-voting-control-resource-development-v1",
+  "sourceFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipVotingEndpoint.java": "a4d7411e9a63f9fb40e9fe4efc8c4d5100f90a27223ac3828e9b7b8e8d38ce8a",
+    "scripts/v53/native_resource_evidence.py": "2596887d349c3500d20149006d780c607aaf22f7926afe7c45f2015d0e40c89c",
+    "scripts/v53/test_voting_control_resources.py": "a8e2a73abef14bd5af5ba8784661ec650ff819d8844f774ce5019a2e296985aa",
+    "scripts/v53/voting_control_resource_negatives.py": "91b41e5dd567ca6f6272c7726e9f966354ab51587380a52fefacb50fb0b57c27",
+    "scripts/v53/voting_control_resources.py": "ee454a1dd9de03afcc2c2fba9b36b71f55af168b9a030caa74feba94a16d880e"
+  },
+  "status": "PARTIAL",
+  "wholeRuntimeResourcesQualified": false
+}
