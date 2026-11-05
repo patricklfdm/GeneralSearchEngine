@@ -1,0 +1,174 @@
+{
+  "schema": "gse-v53-construction-rollback-development-v1",
+  "status": "PASS",
+  "phase3Complete": false,
+  "baseSource": "340a18915774b40eca2c247d397fac62339cdc1d",
+  "runtimeChanged": false,
+  "javaTests": 3,
+  "failedConstructionCases": 7,
+  "pythonTests": 105,
+  "newPythonTests": 12,
+  "cases": [
+    {
+      "path": "general-search-engine-replication/target/v53-construction-rollback/run-fffcbb6c-9939-43d6-843b-21b0cf89cc97",
+      "result": {
+        "status": "PASS",
+        "scope": "conditional-checkpoint-constructor-rollback",
+        "cases": 2,
+        "rolledBackReservations": 1,
+        "resourceTransitions": 852,
+        "failedConstructionRollbackQualified": true,
+        "serviceRecoveryQualified": false,
+        "physicalStorageQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false
+      },
+      "negativeCases": 14
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-construction-rollback/run-a6b75b1e-24a4-4828-86d7-187ac301beb2",
+      "result": {
+        "status": "PASS",
+        "scope": "conditional-head-constructor-rollback",
+        "cases": 2,
+        "rolledBackReservations": 1,
+        "resourceTransitions": 838,
+        "failedConstructionRollbackQualified": true,
+        "serviceRecoveryQualified": false,
+        "physicalStorageQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false
+      },
+      "negativeCases": 14
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-construction-rollback/run-f4d7a0c6-db16-4bed-970b-9c5c077c47cc",
+      "result": {
+        "status": "PASS",
+        "scope": "conditional-source-service-constructor-rollback",
+        "cases": 3,
+        "rolledBackReservations": 1,
+        "resourceTransitions": 523,
+        "failedConstructionRollbackQualified": true,
+        "serviceRecoveryQualified": false,
+        "physicalStorageQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false
+      },
+      "negativeCases": 14
+    }
+  ],
+  "negativeCases": 42,
+  "rolledBackReservations": 3,
+  "serviceRecoveryCheckedByJava": true,
+  "serviceRecoveryIndependentlyQualified": false,
+  "physicalStorageQualified": false,
+  "wholeRuntimeResourcesQualified": false,
+  "finalSourceCohortQualified": false,
+  "remaining": [
+    "other constructor/export/task paths",
+    "replacement/recovery guards distinguish revoked from fully released owners",
+    "combined maxima/headroom",
+    "new-source required-four/joining and final-source hosted qualification"
+  ],
+  "sources": [
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ConstructionRollbackTest.java",
+      "sha256": "0cc952b9d84e4da09eb008027581c0d348a6de35975f74b99e1785271ab8e345"
+    },
+    {
+      "path": "scripts/v53/construction_rollback_evidence.py",
+      "sha256": "e2461f60a885e65621444221936c1029bed3151c45a635d0d374d056dbf71e2d"
+    },
+    {
+      "path": "scripts/v53/construction_rollback_negatives.py",
+      "sha256": "945c979ea6463b06c881d775d02ae835c2ec7683449d0968f99e29ee962231de"
+    },
+    {
+      "path": "scripts/v53/test_construction_rollback_evidence.py",
+      "sha256": "1e6e5afe0dfe4e835e78561ebc63e0d3e0dfb932973d3c5bbdb3dc2c17354f68"
+    }
+  ],
+  "reports": [
+    {
+      "path": "target/v53-construction-rollback/TEST-io.github.patricklfdm.generalsearch.replication.V53ConstructionRollbackTest.xml",
+      "sha256": "92bd3ba071ffde824293d42182a3a578d82297ecc919d0d4dfe8ad40d9bbef1d"
+    },
+    {
+      "path": "target/v53-construction-rollback/__pycache__/finalize.cpython-310.pyc",
+      "sha256": "e2bff760a241c9b3732f62a65e7e788c7c39f0d3367d6ff3ca5990832faf0b79"
+    },
+    {
+      "path": "target/v53-construction-rollback/contract.log",
+      "sha256": "755b20543c838441eff4020ad72f634ecdee5b91e198c28f593583961d8b7f55"
+    },
+    {
+      "path": "target/v53-construction-rollback/finalize.py",
+      "sha256": "5b6ce52cf152696f08b21b7a8419a84fadf9c44609c3c3d853cd3f20463f53ff"
+    },
+    {
+      "path": "target/v53-construction-rollback/java-input.json",
+      "sha256": "76792e87326db09028d5c477676307ccea6370e143b2dd553b6376aa41408267"
+    },
+    {
+      "path": "target/v53-construction-rollback/maven-01.log",
+      "sha256": "145a9cd06a2d07300d056984b112935fc75eb930dab8bcf2f3633b6cc5172a38"
+    },
+    {
+      "path": "target/v53-construction-rollback/plan-tests.log",
+      "sha256": "cc14d4e6e02f95d2fa23536744a8f41f753dcbb7fa16ed100817aad77e70cf46"
+    },
+    {
+      "path": "target/v53-construction-rollback/plan.log",
+      "sha256": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df"
+    },
+    {
+      "path": "target/v53-construction-rollback/python-final.log",
+      "sha256": "1ff90df2b08cb3884377c24b583b8189017365bd1c158e06e4b834b8a5ba0280"
+    },
+    {
+      "path": "target/v53-construction-rollback/python-new-01.log",
+      "sha256": "cbc56da2ba7dfbce34a5bad61271289d8d1aebbde47941d3d22e2a96f2ef5099"
+    },
+    {
+      "path": "target/v53-construction-rollback/qualification-plan/acceptance-plan.json",
+      "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+    },
+    {
+      "path": "target/v53-construction-rollback/qualification-plan/plan.json",
+      "sha256": "8d9594e310895b086c97a00e4c5ac9e781da4b145cd6ed94e550a4a191406b1a"
+    },
+    {
+      "path": "target/v53-construction-rollback/qualification-plan/receipt.json",
+      "sha256": "ba0b6112b394fe1c0c0cfcbde493f81834ba150a8973de1a7e9838e85b21e91c"
+    },
+    {
+      "path": "target/v53-construction-rollback/raw-inventories.json",
+      "sha256": "44affe4cd038477d96f98bff410914e9aab8e264a6027358f05488720cf6d161"
+    },
+    {
+      "path": "target/v53-construction-rollback/run-a6b75b1e-24a4-4828-86d7-187ac301beb2-final-replay.json",
+      "sha256": "09f39bfe128580318fb1066ff3d806df870702d120fd648a0bc6fa5c4071786f"
+    },
+    {
+      "path": "target/v53-construction-rollback/run-a6b75b1e-24a4-4828-86d7-187ac301beb2-replay.json",
+      "sha256": "09f39bfe128580318fb1066ff3d806df870702d120fd648a0bc6fa5c4071786f"
+    },
+    {
+      "path": "target/v53-construction-rollback/run-f4d7a0c6-db16-4bed-970b-9c5c077c47cc-final-replay.json",
+      "sha256": "172e2056701e5fc45a80ea549463be9662ab5ff40ef626e03792ef49623c6460"
+    },
+    {
+      "path": "target/v53-construction-rollback/run-f4d7a0c6-db16-4bed-970b-9c5c077c47cc-replay.json",
+      "sha256": "172e2056701e5fc45a80ea549463be9662ab5ff40ef626e03792ef49623c6460"
+    },
+    {
+      "path": "target/v53-construction-rollback/run-fffcbb6c-9939-43d6-843b-21b0cf89cc97-final-replay.json",
+      "sha256": "93fb376a3906ccab974e3c4eca6d45153fc28af769624f1d4e3126014d424c13"
+    },
+    {
+      "path": "target/v53-construction-rollback/run-fffcbb6c-9939-43d6-843b-21b0cf89cc97-replay.json",
+      "sha256": "93fb376a3906ccab974e3c4eca6d45153fc28af769624f1d4e3126014d424c13"
+    }
+  ]
+}

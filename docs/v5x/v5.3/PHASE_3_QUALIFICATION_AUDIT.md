@@ -1,5 +1,13 @@
 # Phase 3 qualification inventory and remaining work
 
+[Conditional constructor rollback](PHASE_3_CONSTRUCTION_ROLLBACK.md) now
+qualifies seven existing listener/service failure paths: occupied endpoints,
+CONTROL exhaustion, guard rejection and post-reservation expiry. Three original
+collections and 42 exact negatives preserve original ownership and require
+rollback before failure return. Runtime code is unchanged; other constructors,
+replacement/recovery, full native custody and final-source qualification remain
+OPEN.
+
 [Store ownership across failed drain](PHASE_3_STORE_LISTENER_DRAIN.md) now
 separates revocation/drain from parent storage and lock release. Original
 checkpoint/head callback and interrupted-close failures exposed three prematurely

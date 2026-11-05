@@ -639,7 +639,9 @@
         "scripts/v53/test_pending_drain_evidence.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerStoreDrainTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerStoreCloseRaceTest.java",
-        "scripts/v53/test_store_drain_evidence.py"
+        "scripts/v53/test_store_drain_evidence.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ConstructionRollbackTest.java",
+        "scripts/v53/test_construction_rollback_evidence.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -691,7 +693,9 @@
         "scripts/v53/native_control_close_negatives.py",
         "scripts/v53/pending_drain_evidence.py",
         "scripts/v53/pending_drain_negatives.py",
-        "scripts/v53/store_drain_negatives.py"
+        "scripts/v53/store_drain_negatives.py",
+        "scripts/v53/construction_rollback_evidence.py",
+        "scripts/v53/construction_rollback_negatives.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -747,7 +751,8 @@
         "docs/v5x/v5.3/PHASE_3_CONTROL_CLOSE_RESOURCES.md",
         "docs/v5x/v5.3/PHASE_3_NATIVE_CONTROL_CLOSE.md",
         "docs/v5x/v5.3/PHASE_3_PENDING_LISTENER_DRAIN.md",
-        "docs/v5x/v5.3/PHASE_3_STORE_LISTENER_DRAIN.md"
+        "docs/v5x/v5.3/PHASE_3_STORE_LISTENER_DRAIN.md",
+        "docs/v5x/v5.3/PHASE_3_CONSTRUCTION_ROLLBACK.md"
       ],
       "cohorts": [
         "profiles",
