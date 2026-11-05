@@ -28,6 +28,9 @@ final class MembershipVotingEndpoint implements MembershipTransport.Handler,Auto
     private final Set<MembershipSourcePull> pulls=new HashSet<>();
     private CompletableFuture<Void> completion;
     private String control;
+    private int calls;
+    private final ThreadLocal<Integer> handlerDepth=new ThreadLocal<>();
+    private volatile Thread activeWriter;
     private volatile boolean closed;
     MembershipVotingEndpoint(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,MembershipSourcePull.Link link,
             LongSupplier clock,long started,long budget)throws IOException {
@@ -120,7 +123,10 @@ final class MembershipVotingEndpoint implements MembershipTransport.Handler,Auto
         check();require(request.size()<=Math.min(FRAME,bounds.maxFrameBytes()),"voting endpoint frame capacity");
         if(request.kind().equals("CHUNK") || request.kind().equals("TRANSFER_COMMIT"))return transfers.handle(sender,request);
         voting.request(sender,request);var duplicate=voting.acknowledge(sender,request);if(duplicate.isPresent()){check();return duplicate.get();}
-        try(var waiter=resources.reserve(MembershipResources.Unit.WAITER,MembershipSourceResources.request("voting-waiter",request),0)) {
+        MembershipResources.Lease waiter;
+        synchronized(this){check();waiter=resources.reserve(MembershipResources.Unit.WAITER,MembershipSourceResources.request("voting-waiter",request),0);calls++;}
+        Integer outer=handlerDepth.get();handlerDepth.set(outer==null?1:outer+1);
+        try(waiter) {
         CompletableFuture<Void> work;
         synchronized(this){check();
             if(completion!=null && !completion.isDone() && !request.digest().equals(control))
@@ -128,7 +134,7 @@ final class MembershipVotingEndpoint implements MembershipTransport.Handler,Auto
             if(completion==null || !request.digest().equals(control)) {
                 var lease=resources.reserve(MembershipResources.Unit.CONTROL,MembershipSourceResources.request("voting-control",request),request.size());
                 completion=new CompletableFuture<>();control=request.digest();var result=completion;
-                try{writer.execute(()->{Throwable failure=null;try{execute(sender,request);}catch(Throwable error){failure=error;}finally{lease.close();}
+                try{writer.execute(()->{Throwable failure=null;activeWriter=Thread.currentThread();try{execute(sender,request);}catch(Throwable error){failure=error;}finally{activeWriter=null;lease.close();}
                     if(failure==null)result.complete(null);else result.completeExceptionally(failure);});}
                 catch(RuntimeException|Error error){lease.close();result.completeExceptionally(error);throw error;}
             }
@@ -146,14 +152,44 @@ final class MembershipVotingEndpoint implements MembershipTransport.Handler,Auto
             }
             if(cause instanceof IOException io)throw io;if(cause instanceof RuntimeException runtime)throw runtime;if(cause instanceof Error fatal)throw fatal;
             throw new IOException("incoming voting failed",cause);}
+        }finally {
+            // The admitted caller releases its waiter before close can observe
+            // zero calls. Cancelling completion does not drain these callers.
+            synchronized(this){calls--;notifyAll();}
+            if(outer==null)handlerDepth.remove();else handlerDepth.set(outer);
         }
     }
     boolean poll(){long elapsed=clock.getAsLong()-started;if(elapsed<0 || elapsed>=budget)close();return !closed;}
     @Override public void close(){List<MembershipSourcePull> closing;
         synchronized(this){closed=true;closing=List.copyOf(pulls);if(completion!=null)completion.cancel(true);}
-        IOException failure=null;for(var pull:closing)try{pull.close();}catch(IOException error){if(failure==null)failure=error;else failure.addSuppressed(error);}
-        transfers.close();writer.shutdown();try{require(writer.awaitTermination(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS),"voting writer close timeout");}
-        catch(InterruptedException error){Thread.currentThread().interrupt();throw new IllegalStateException("voting close interrupted",error);}
-        if(failure!=null)throw new java.io.UncheckedIOException(failure);
+        // Stop admission to the executor even when a child refuses cleanup.
+        // Do not interrupt a writer inside durable I/O or call shutdownNow().
+        writer.shutdown();
+        if(Thread.currentThread()==activeWriter)throw new IllegalStateException("voting close from active writer");
+        if(handlerDepth.get()!=null)throw new IllegalStateException("voting close from active handler");
+        handlerDepth.remove();var failures=new ArrayList<Throwable>();
+        for(var pull:closing)try{pull.close();}catch(IOException|RuntimeException|Error error){failures.add(error);}
+        try{transfers.close();}catch(RuntimeException|Error error){failures.add(error);}
+        long end=System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(bounds.requestTimeoutMillis());
+        try{require(writer.awaitTermination(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS),"voting writer close timeout");}
+        catch(InterruptedException error){Thread.currentThread().interrupt();failures.add(new IllegalStateException("voting close interrupted",error));}
+        catch(RuntimeException|Error error){failures.add(error);}
+        // Writer and caller drain share this existing request timeout. Retry
+        // close must still wait for both after an earlier timeout/interruption.
+        try{synchronized(this){while(calls!=0){long left=end-System.nanoTime();require(left>0,"voting caller close timeout");TimeUnit.NANOSECONDS.timedWait(this,left);}}}
+        catch(InterruptedException error){Thread.currentThread().interrupt();failures.add(new IllegalStateException("voting caller close interrupted",error));}
+        catch(RuntimeException|Error error){failures.add(error);}
+        if(failures.size()>1){
+            // Do not add new failures to a child's cached exception on every
+            // close retry; retain it unchanged beneath a per-call aggregate.
+            var combined=new IllegalStateException(failures.getFirst().getMessage(),failures.getFirst());
+            failures.stream().skip(1).filter(error->error!=failures.getFirst()).forEach(combined::addSuppressed);throw combined;
+        }
+        if(!failures.isEmpty()) {
+            var failure=failures.getFirst();
+            if(failure instanceof IOException error)throw new java.io.UncheckedIOException(error);
+            if(failure instanceof RuntimeException error)throw error;
+            if(failure instanceof Error error)throw error;
+        }
     }
 }

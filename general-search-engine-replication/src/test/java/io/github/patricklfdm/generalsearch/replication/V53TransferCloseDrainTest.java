@@ -136,4 +136,40 @@ class V53TransferCloseDrainTest {
             assertThrows(IllegalArgumentException.class,()->service.handle(reader,first.get()));
         }
     }
+    @ParameterizedTest @ValueSource(booleans={false,true})
+    void originalTransferFailureSurvivesFailingExportCleanup(boolean constructor)throws Exception {
+        var helper=new V53JoiningPreparationTest();helper.temp=temp;
+        try(var l=helper.local();var publication=helper.publication(l)) {
+            var budget=V53ControlCloseObservationsTest.budget(32);var first=new AtomicReference<Decoded>();
+            try(var pull=l.pull((p,q,k,d)->{first.set(q);return CompletableFuture.failedFuture(
+                    new MembershipTransport.Failure(MembershipTransport.Reason.PROTOCOL,"capture request",null));})) {
+                assertThrows(MembershipTransport.Failure.class,()->pull.fetchPrefixMetadata(
+                        MembershipJoiningPreparation.reference(l.reader.activationContext(),l.reader.activationIdentity()),MembershipJoiningPreparation.MAXIMUM));
+            }
+            var primary=new IOException("original transfer failure");var cleanup=new IllegalStateException("export cleanup failure");var closes=new AtomicInteger();
+            var service=MembershipTransferService.prefix(l.source,budget,V53SourceExchangeTest.bounds(),()->{},l.clock::get,0,BUDGET,
+                    (p,q,k,d)->{throw new AssertionError("no outgoing quorum");},(reader,request)->{
+                var original=publication.open(reader,request);var references=new AtomicInteger();
+                return new MembershipTransferExport() {
+                    public List<MembershipResources.Lease> closeReservations(){return original.closeReservations();}
+                    public MembershipContext context(){return original.context();}
+                    public MembershipIdentity identity(){return original.identity();}
+                    public Map<String,Object> ballot(){return original.ballot();}
+                    public Map<String,MembershipSourceExport.Content> references()throws IOException {if(constructor || references.incrementAndGet()>1)throw primary;return original.references();}
+                    public byte[] read(String digest,long offset,int maximum)throws IOException {return original.read(digest,offset,maximum);}
+                    public void close(){closes.incrementAndGet();original.close();throw cleanup;}
+                };
+            });
+            var before=l.a.usage();
+            var error=assertThrows(Exception.class,()->service.handle(l.reader.activationIdentity(),first.get()));
+            // Always inspect the complete failed scope, even when the assertion
+            // about the primary error fails on the original implementation.
+            var close=assertThrows(IllegalStateException.class,service::close);
+            assertSame(primary,error);assertTrue(V53SlotCloseDrainTest.contains(error,cleanup.getMessage()));
+            assertSame(cleanup,close);assertSame(cleanup,assertThrows(IllegalStateException.class,service::close));
+            assertEquals(1,closes.get());assertTrue(service.usage().closed());assertEquals(before,l.a.usage());
+            assertEquals(2,budget.usage().leases(),"failed trace and parent remain charged");
+        }
+    }
+
 }

@@ -91,6 +91,8 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
         final Key key;
         final MembershipResources.Lease marker;
         volatile MembershipSourceSession session;
+        private MembershipTransferExport opening;
+        private Throwable openingCloseFailure;
         volatile MembershipLearnerRetentionQuorum.Recording recording;
         volatile MembershipGrantJournal.PublishedLearnerSource publishedLearner;
         String completedRequest;
@@ -140,12 +142,17 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
                             (String)request.value().get("view"),resources,clock,started,budget):
                             publication!=null && publication.published()?owner.exportPublishedCheckpoint(publication,digest,clock,started,budget):
                             owner.exportTransfer(digest,context.authority(),ballot,clock,started,budget);
+                    opening=export;
                     try {
                         require(export.identity().equals(identity) && export.context().root.equals(context.root)
                                 && export.context().authority().equals(context.authority())
                                 && (prefix?export.context().cut.equals(context.cut):export.ballot().equals(ballot)),"transfer export scope changed");
                         session=new MembershipSourceSession(export,key.reader,key.trace,resources,chunkLimit,frameLimit,clock,started,budget);
-                    }catch(IOException|RuntimeException|Error error){export.close();throw error;}
+                        opening=null; // The constructed session now owns the original export.
+                    }catch(IOException|RuntimeException|Error error){
+                        try{closeOpening();}catch(RuntimeException|Error cleanup){if(cleanup!=error)error.addSuppressed(cleanup);}
+                        throw error;
+                    }
                 }
                 var reply=session.handle(key.reader,request);time();
                 if(session.exhausted()) {
@@ -158,14 +165,23 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
                     session.close();session=null;
                 }
                 return reply;
-            }catch(IOException|RuntimeException|Error error){abort();throw error;}
+            }catch(IOException|RuntimeException|Error error){
+                try{abort();}catch(RuntimeException|Error cleanup){if(cleanup!=error)error.addSuppressed(cleanup);}
+                throw error;
+            }
         }
         void checkRecording()throws IOException {
             var active=recording;if(active!=null)active.checkExport(owner,key.reader,resources);
             var published=publishedLearner;if(published!=null)published.checkExport(owner,key.reader,resources);
         }
         boolean liveSession(){return session!=null && !dead && !released;}
-        synchronized void abort(){dead=true;completedRequest=null;completedReply=null;if(session!=null){session.close();session=null;}}
+        private void closeOpening() {
+            if(openingCloseFailure instanceof RuntimeException error)throw error;
+            if(openingCloseFailure instanceof Error error)throw error;
+            if(opening!=null)try{opening.close();opening=null;}
+            catch(RuntimeException|Error error){openingCloseFailure=error;throw error;}
+        }
+        synchronized void abort(){dead=true;completedRequest=null;completedReply=null;closeOpening();if(session!=null){session.close();session=null;}}
         synchronized void close(){
             if(released){abort();return;}
             long observation=marker.observesClose()?marker.observeCloseBegin(session==null?null:session.closeReservation()):-1;

@@ -1,0 +1,245 @@
+{
+  "baseSource": "d9c737839174af5caa6b993d8939e8197905d8a0",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 2724,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "finalSourceCohortQualified": false,
+  "hostedExecution": false,
+  "java": {
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-voting-close-failures/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml",
+      "seconds": 55.995,
+      "sha256": "347fcb0f4de59c8ca76a8b90bebf0aefc4e146cbc0327deab5ecf7fd27d29d46",
+      "skipped": 0,
+      "tests": 1
+    },
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53SlotCloseDrainTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-voting-close-failures/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotCloseDrainTest.xml",
+      "seconds": 63.81,
+      "sha256": "ee0b00225d139d95482f4c279b5bfed552304b4b6aa6a3c929aa259fc1a934e9",
+      "skipped": 0,
+      "tests": 5
+    },
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53TransferCloseDrainTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-voting-close-failures/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53TransferCloseDrainTest.xml",
+      "seconds": 18.853,
+      "sha256": "55f6ae2a05d465403c4be924f70c679e71a57e90604589a4784c0994de255e4b",
+      "skipped": 0,
+      "tests": 9
+    },
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53VotingCloseFailureTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-voting-close-failures/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53VotingCloseFailureTest.xml",
+      "seconds": 52.679,
+      "sha256": "053f5b14880938d209b3f4ae10b3b60a5f2937c9fa98390568521f291ec8a09e",
+      "skipped": 0,
+      "tests": 5
+    }
+  },
+  "limitations": [
+    "Original regression report covers four failing cases; final tests additionally cover self-close and interrupted caller drain.",
+    "Constructor/session cleanup faults use wrappers around real original joining-preparation exports, not disk or process-crash injection.",
+    "Before-01 is a test-fixture signature compilation failure; before-02 is the four-case original runtime reproduction.",
+    "After-01 retained one overbroad fixture assertion: a durable ACCEPT keeps application staging until owner close. Final tests separately require CONTROL/WAITER cleanup and complete owner-budget close.",
+    "All resource limits, campaign deadlines, wire/storage formats and frozen histories are unchanged; whole-runtime maxima and final-source hosted qualification remain OPEN."
+  ],
+  "logs": {
+    "after-01.log": "2bc80b66b074b619e04e1a1715d2a93227b2a7f8572ca2c2681746be5e5b4108",
+    "after-02.log": "cf4579e18dc0a251eb46eede64d9004d30ce79dfce58c9b7980aa5fe37d4e83a",
+    "before-01.log": "80b7ca87639c4faace7cd837b8a016cd4f55cc074e84800482ae5b990ad8e93a",
+    "before-02.log": "c5f0c5fe7b24dd42121cc07bf5f9fd71eb81ab319111aa50fc22254abb4163d9",
+    "native-01.log": "6f289805ce64e2567e4c3289c183ddb6f7683436f9e39b502e50c64f516dc5a0",
+    "native-replay.log": "2e99dd48c3036f74980ea409471baa95e0652a6416385efa0ec4087c5819d248",
+    "plan.log": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df",
+    "planning-tests.log": "421fc07c52146909c071ca39b3660f311cc5fa196355a105a05ba41fed6abfc8"
+  },
+  "native": {
+    "negativeCases": [
+      {
+        "case": "delivery-short",
+        "reason": "slot resources original delivery extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "delivery-long",
+        "reason": "slot resources original delivery extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "handoff-after-copy",
+        "reason": "slot resources unique request handoff",
+        "status": "REJECTED"
+      },
+      {
+        "case": "ack-after-release",
+        "reason": "slot resources delivery released before acknowledgement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "delivery-binding",
+        "reason": "slot resources unique request handoff",
+        "status": "REJECTED"
+      },
+      {
+        "case": "delivery-omitted",
+        "reason": "slot resources unique request handoff",
+        "status": "REJECTED"
+      },
+      {
+        "case": "waiter-binding",
+        "reason": "slot resources original waiter binding/extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "local-waiter-omitted",
+        "reason": "slot resources missing local waiter",
+        "status": "REJECTED"
+      },
+      {
+        "case": "voting-waiter-omitted",
+        "reason": "slot resources voting child waiter custody",
+        "status": "REJECTED"
+      },
+      {
+        "case": "legacy-binding",
+        "reason": "slot resources original bindings required",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-delivery",
+        "reason": "slot resources incomplete allocation coverage",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-waiter",
+        "reason": "slot resources waiter call interval",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reused-allocation",
+        "reason": "slot resources reused allocation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "waiter-released-before-child",
+        "reason": "slot resources voting child waiter custody",
+        "status": "REJECTED"
+      },
+      {
+        "case": "publication-after-release",
+        "reason": "slot resources publication waiter custody",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-local-request",
+        "reason": "slot resources local publication response",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-local-response",
+        "reason": "slot resources local publication request",
+        "status": "REJECTED"
+      },
+      {
+        "case": "local-request-hash",
+        "reason": "slot resources local original bytes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "local-response-payload",
+        "reason": "slot resources local original acknowledgement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "local-response-trace",
+        "reason": "slot resources local original acknowledgement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "swap-local-publications",
+        "reason": "slot resources publication waiter custody",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-publication",
+        "reason": "slot resources local publication not observed",
+        "status": "REJECTED"
+      }
+    ],
+    "original": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-dispatch/run-cd7dfe7b-c2eb-434e-8d41-fbb53c86743a",
+    "originalInventorySha256": "fd0881ca4802844cef1f14ee9f781efc605fb2073583368e7f0b5b0f22f268a7",
+    "path": "target/v53-voting-close-failures/native-replay.json",
+    "result": {
+      "boundReservations": 16,
+      "deliveryAttempts": 7,
+      "deliveryReservations": 6,
+      "interruptedHandlersQualified": false,
+      "localWaiters": 2,
+      "networkWaiters": 8,
+      "phase3Complete": false,
+      "publicationTransactions": 4,
+      "slotResourcesQualified": true,
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    },
+    "sha256": "9cb1f4fc6b2a4a8c722443cd3d9822a2800b0e2d9ed7cf76df71ae89df336272"
+  },
+  "originalImplementation": {
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53TransferCloseDrainTest.xml": {
+      "errors": 0,
+      "failures": 2,
+      "path": "target/v53-voting-close-failures/before-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53TransferCloseDrainTest.xml",
+      "seconds": 0.498,
+      "sha256": "83e68e19a4306f02cfec56450940387303704a7f5e39c6dcf3a679bb66de102c",
+      "skipped": 0,
+      "tests": 2
+    },
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53VotingCloseFailureTest.xml": {
+      "errors": 0,
+      "failures": 2,
+      "path": "target/v53-voting-close-failures/before-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53VotingCloseFailureTest.xml",
+      "seconds": 18.405,
+      "sha256": "b59a2e5328786e5ade81851b16d60502f66d5d43f732c6392134a1786cb0e657",
+      "skipped": 0,
+      "tests": 2
+    }
+  },
+  "phase3Complete": false,
+  "physicalPeakQualified": false,
+  "plan": {
+    "execution": "source-inventory-only",
+    "phase3Complete": false,
+    "plannedHostedHistories": 544,
+    "requirements": 12,
+    "status": "PASS"
+  },
+  "python": {
+    "path": "target/v53-voting-close-failures/planning-tests.log",
+    "sha256": "421fc07c52146909c071ca39b3660f311cc5fa196355a105a05ba41fed6abfc8",
+    "tests": 18
+  },
+  "schema": "gse-v53-development-evidence-v1",
+  "scope": "voting-and-transfer-close-failure-lifetimes",
+  "sourceSha256": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransferService.java": "56f22a65ad21d6c54f8521d7df621ff7c1545bca8de4af6687afb69ba9aae455",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipVotingEndpoint.java": "813c7499015aa155f7aa9e0679957915f12b599b9a3d9894c0e9731f80150661",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransferCloseDrainTest.java": "7eb83ec331c67b830792ebbecfc5a17ca82088b6c412e66ed23d55dd94166bac",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53VotingCloseFailureTest.java": "2fb8ac5e8d1b27ce07e9d7f216c6ae80dfa3d8266e70b9c0e4adf3de6951cc8e"
+  },
+  "status": "PASS",
+  "wholeRuntimeResourcesQualified": false
+}

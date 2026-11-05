@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Voting shutdown and cleanup failures](PHASE_3_VOTING_CLOSE_FAILURES.md)
+now drain writer and admitted reply waiters even after transfer cleanup fails.
+Original transfer errors survive failed export cleanup; failed constructor
+exports remain owned and cannot become successful on repeated close. Scoped
+regressions remain separate from complete Phase 3 qualification.
+
 [Slot delivery and dispatcher lifetimes](PHASE_3_SLOT_CONTROL_RESOURCES.md)
 now bind outgoing request copies, incoming voting children and direct local
 publication calls to original CONTROL/WAITER intervals. Stable native replay

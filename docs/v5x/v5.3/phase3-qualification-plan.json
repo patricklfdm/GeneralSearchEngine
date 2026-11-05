@@ -680,7 +680,8 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SlotCloseDrainTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransferCloseDrainTest.java",
         "scripts/v53/test_voting_control_resources.py",
-        "scripts/v53/test_slot_control_resources.py"
+        "scripts/v53/test_slot_control_resources.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53VotingCloseFailureTest.java"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -843,7 +844,9 @@
         "docs/v5x/v5.3/PHASE_3_VOTING_CONTROL_RESOURCES.md",
         "docs/v5x/v5.3/phase3-evidence/voting-control-resources.json",
         "docs/v5x/v5.3/PHASE_3_SLOT_CONTROL_RESOURCES.md",
-        "docs/v5x/v5.3/phase3-evidence/slot-control-resources.json"
+        "docs/v5x/v5.3/phase3-evidence/slot-control-resources.json",
+        "docs/v5x/v5.3/PHASE_3_VOTING_CLOSE_FAILURES.md",
+        "docs/v5x/v5.3/phase3-evidence/voting-close-failures.json"
       ],
       "cohorts": [
         "profiles",
