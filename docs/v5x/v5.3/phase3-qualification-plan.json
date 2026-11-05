@@ -28,7 +28,8 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DeferredGrantProcessTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DeferredGrantProcessWorker.java",
         "scripts/v53/test_deferred_grant_process_evidence.py",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationCloseDrainTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationCloseDrainTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationWaiterCapacityTest.java"
       ],
       "readers": [
         "scripts/v53/activation_evidence.py",
@@ -42,7 +43,9 @@
         "docs/v5x/v5.3/PHASE_3_DEFERRED_GRANT.md",
         "docs/v5x/v5.3/PHASE_3_DEFERRED_GRANT_PROCESS.md",
         "docs/v5x/v5.3/PHASE_3_ACTIVATION_CLOSE_DRAIN.md",
-        "docs/v5x/v5.3/phase3-evidence/activation-close-drain.json"
+        "docs/v5x/v5.3/phase3-evidence/activation-close-drain.json",
+        "docs/v5x/v5.3/PHASE_3_ACTIVATION_WAITER_CAPACITY.md",
+        "docs/v5x/v5.3/phase3-evidence/activation-waiter-capacity.json"
       ],
       "cohorts": [
         "profiles",
@@ -686,7 +689,8 @@
         "scripts/v53/test_voting_control_resources.py",
         "scripts/v53/test_slot_control_resources.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53VotingCloseFailureTest.java",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationCloseDrainTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationCloseDrainTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationWaiterCapacityTest.java"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -853,7 +857,9 @@
         "docs/v5x/v5.3/PHASE_3_VOTING_CLOSE_FAILURES.md",
         "docs/v5x/v5.3/phase3-evidence/voting-close-failures.json",
         "docs/v5x/v5.3/PHASE_3_ACTIVATION_CLOSE_DRAIN.md",
-        "docs/v5x/v5.3/phase3-evidence/activation-close-drain.json"
+        "docs/v5x/v5.3/phase3-evidence/activation-close-drain.json",
+        "docs/v5x/v5.3/PHASE_3_ACTIVATION_WAITER_CAPACITY.md",
+        "docs/v5x/v5.3/phase3-evidence/activation-waiter-capacity.json"
       ],
       "cohorts": [
         "profiles",

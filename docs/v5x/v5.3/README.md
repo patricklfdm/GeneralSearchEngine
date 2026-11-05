@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Activation waiter admission](PHASE_3_ACTIVATION_WAITER_CAPACITY.md) now charges
+all control reply callers, including duplicates, against the shared 64-waiter
+pool and inherited pending-call bound before dispatch. Capacity refusal retains
+early fencing; caller exit releases the lease. Full Phase 3 closure remains OPEN.
+
 [Activation caller drain](PHASE_3_ACTIVATION_CLOSE_DRAIN.md) now keeps incoming
 scratch owned through synchronous replies and local registration/maintenance.
 Timeout and self-close retain ownership for an external drain; higher-ballot

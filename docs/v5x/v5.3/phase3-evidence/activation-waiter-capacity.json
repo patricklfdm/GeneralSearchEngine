@@ -1,0 +1,272 @@
+{
+  "baseSource": "6c7967d9d59fe853a15d333219da81346d3c5a4f",
+  "classFiles": {
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$ActivationProgress.class": "6ea4c5206aff88c586b64985445862d4347dc9a3a04c80330b31db752c05a135",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$ActivationStage.class": "aea621ddbe9282ac9b19d3f1b4c60f67f0b7ea9e23296080b73c32c45f4069f8",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$Control.class": "49c9a11ee27ad8ccf79350e7798a874772511d5563bad32b189092a7979c9980",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$HeartbeatContact.class": "4cc09adacccd4c7828a462e1c17fc0b373b010d403edfdb1776026728f6d2c2b",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$InactiveScope.class": "7ea64f99194975b487a349b989b293b8345d96db95714aeb9097c5685c926f76",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$Scope.class": "4377b4d36127b3004e161d68cec3e47a98b290d3f2ed4e0edeb976fec4b12c29",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$ScopeEnd.class": "3835657329b9acc37212f4465b36d7c76e2c15a189f235bf280616447004faa3",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$ScopeGuard.class": "c8b281d1d01a195517cc6dfc54a10e1b1b735abb51aaffc3ccbc1653811e3532",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$Slots.class": "2d7d0feff1c893f0af3d7fcc49e0720f60af6c505e83887cde4f41495df9a44a",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$Usage.class": "bab4fe15223713b38e3e0060478874f8fc5da32e31294b10f66abb283c22de64",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.class": "fa849d2b045bb3fed5f257b956c91d6c742f09993466b8b7c57d9471ffab6855"
+  },
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 2738,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "finalJavaTests": 49,
+  "finalNewRegressions": 6,
+  "finalSourceCohortQualified": false,
+  "hostedExecution": false,
+  "java": {
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationCloseDrainTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-activation-waiter-capacity/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationCloseDrainTest.xml",
+      "seconds": 31.494,
+      "sha256": "caef59224450a3cdb9a572bf82b129ad3caf63436204950559419270c74dd3fe",
+      "skipped": 0,
+      "tests": 9
+    },
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-activation-waiter-capacity/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest.xml",
+      "seconds": 132.046,
+      "sha256": "70defc905375173c0b2e31f83e8f57b5d339af253ec6c4fa3a042494bb842229",
+      "skipped": 0,
+      "tests": 16
+    },
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationProgressTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-activation-waiter-capacity/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationProgressTest.xml",
+      "seconds": 53.876,
+      "sha256": "a1d4d7237140d7991ef2299f634eeae9687995e28b836f9eee0fab4f4a6222be",
+      "skipped": 0,
+      "tests": 10
+    },
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationWaiterCapacityTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-activation-waiter-capacity/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationWaiterCapacityTest.xml",
+      "seconds": 21.227,
+      "sha256": "2adf8b9e0fe81aa840287f17a0f06e412a2e8c3c7249085cd8c441b2258b17a8",
+      "skipped": 0,
+      "tests": 6
+    },
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-activation-waiter-capacity/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml",
+      "seconds": 58.982,
+      "sha256": "74acc3b345d090b2021ea7dc87a8c90d3664e8f3032b739b8c6cba80d1f3f538",
+      "skipped": 0,
+      "tests": 1
+    },
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ScratchActivationTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-activation-waiter-capacity/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ScratchActivationTest.xml",
+      "seconds": 9.808,
+      "sha256": "711dc2e2c097e42a0a1e34eb7a200134aa0ff11038d42c025f54034b179338c8",
+      "skipped": 0,
+      "tests": 2
+    },
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53SlotCloseDrainTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-activation-waiter-capacity/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotCloseDrainTest.xml",
+      "seconds": 64.454,
+      "sha256": "26af4f6aa919862beeb06b333db7388295c322dc1a8e03d1ab9d99be3cd87826",
+      "skipped": 0,
+      "tests": 5
+    }
+  },
+  "limitations": [
+    "Six original implementation failures reproduce missing shared waiter charges and excess duplicate admission; all six pass after correction.",
+    "The new deterministic cases use original bootstrap, journal and transfer owners with a held source exchange. They do not establish every native saturation or process-crash schedule.",
+    "The inherited endpoint pending bound and shared 64 WAITER pool both apply before control dispatch; authentic higher PREPARE observes its fence first.",
+    "Original CONTROL allocation failures still propagate; waiter admission is rolled back. Frozen quotas, deadlines, retries and wire/storage formats are unchanged.",
+    "The fresh two-slot native smoke replays existing network/source/voting/slot/publication authority and 22 exact negatives. It is not independent complete activation waiter lifetime coverage.",
+    "Full simultaneous physical maxima, precise Phase 3 coverage and final-source hosted execution remain OPEN."
+  ],
+  "logs": {
+    "after-01.log": "52a296e403bce020be94c4b629865673768d69a932b211b1ee1dc8d34bb3292b",
+    "before-01.log": "8ce3af52461c3d3608a3036366531120a9cb3d509115b3eb9b41b381922e4b06",
+    "native-01.log": "dbad2a4ec3b3337cf8497a866b95c86a998fa236228e06e965f3db8804ea443f",
+    "native-replay.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "planning-tests.log": "2b9d530f212ba44f7fa4f9999fe242b8285489f7947342881d7a06aeeb1cb51d"
+  },
+  "native": {
+    "negativeCases": [
+      {
+        "case": "delivery-short",
+        "reason": "slot resources original delivery extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "delivery-long",
+        "reason": "slot resources original delivery extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "handoff-after-copy",
+        "reason": "slot resources unique request handoff",
+        "status": "REJECTED"
+      },
+      {
+        "case": "ack-after-release",
+        "reason": "slot resources delivery released before acknowledgement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "delivery-binding",
+        "reason": "slot resources unique request handoff",
+        "status": "REJECTED"
+      },
+      {
+        "case": "delivery-omitted",
+        "reason": "slot resources unique request handoff",
+        "status": "REJECTED"
+      },
+      {
+        "case": "waiter-binding",
+        "reason": "slot resources original waiter binding/extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "local-waiter-omitted",
+        "reason": "slot resources missing local waiter",
+        "status": "REJECTED"
+      },
+      {
+        "case": "voting-waiter-omitted",
+        "reason": "slot resources voting child waiter custody",
+        "status": "REJECTED"
+      },
+      {
+        "case": "legacy-binding",
+        "reason": "slot resources original bindings required",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-delivery",
+        "reason": "slot resources incomplete allocation coverage",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-waiter",
+        "reason": "slot resources waiter call interval",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reused-allocation",
+        "reason": "slot resources reused allocation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "waiter-released-before-child",
+        "reason": "slot resources voting child waiter custody",
+        "status": "REJECTED"
+      },
+      {
+        "case": "publication-after-release",
+        "reason": "slot resources publication waiter custody",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-local-request",
+        "reason": "slot resources local publication response",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-local-response",
+        "reason": "slot resources local publication request",
+        "status": "REJECTED"
+      },
+      {
+        "case": "local-request-hash",
+        "reason": "slot resources local original bytes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "local-response-payload",
+        "reason": "slot resources local original acknowledgement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "local-response-trace",
+        "reason": "slot resources local original acknowledgement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "swap-local-publications",
+        "reason": "slot resources publication waiter custody",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-publication",
+        "reason": "slot resources local publication not observed",
+        "status": "REJECTED"
+      }
+    ],
+    "original": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-dispatch/run-563f53e1-f42b-491f-b394-e7328537a370",
+    "originalInventorySha256": "05208b981bd6613b3e0433eba2640fc16400674f889634d38d822bf66a56b6da",
+    "path": "target/v53-activation-waiter-capacity/native-replay.json",
+    "result": {
+      "boundReservations": 16,
+      "deliveryAttempts": 7,
+      "deliveryReservations": 6,
+      "interruptedHandlersQualified": false,
+      "localWaiters": 2,
+      "networkWaiters": 8,
+      "phase3Complete": false,
+      "publicationTransactions": 4,
+      "slotResourcesQualified": true,
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    },
+    "sha256": "1dd4c20541b9fde2f40f817d2ed45641d18490ec630bb21a7eeac43280c68d1d"
+  },
+  "originalFailingRegressions": 6,
+  "originalImplementation": {
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationWaiterCapacityTest.xml": {
+      "errors": 0,
+      "failures": 6,
+      "path": "target/v53-activation-waiter-capacity/before-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationWaiterCapacityTest.xml",
+      "seconds": 32.331,
+      "sha256": "fb2f525a9e8704857a50af1ff165d45b9dd293437125bd87a0c8dd75ebea400a",
+      "skipped": 0,
+      "tests": 6
+    }
+  },
+  "originalSourceSha256": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java": "44d2874f07410ea44073b0bb00fac594e1d1ac1ab45caa6c8633c68027ebe92e"
+  },
+  "paidCloud": false,
+  "phase3Complete": false,
+  "physicalPeakQualified": false,
+  "python": {
+    "path": "target/v53-activation-waiter-capacity/planning-tests.log",
+    "sha256": "2b9d530f212ba44f7fa4f9999fe242b8285489f7947342881d7a06aeeb1cb51d",
+    "tests": 18
+  },
+  "schema": "gse-v53-development-evidence-v1",
+  "scope": "activation-reply-waiter-admission-and-release",
+  "sourceSha256": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java": "4ada645f1a968e3f203fe3b5274b50d2788735eefdc1ba9efc94ba6b2852aad6",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationWaiterCapacityTest.java": "31568f2dda4c91f2ab1301d2ebbcffc3bc65497cdb5182ab7fe8250eab249599"
+  },
+  "status": "PASS",
+  "wholeRuntimeResourcesQualified": false
+}

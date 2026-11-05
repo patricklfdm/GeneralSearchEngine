@@ -590,26 +590,40 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         if(kind.equals("CHUNK") || kind.equals("TRANSFER_COMMIT"))return active.transfer(sender,request);
         active.check();
         require(kind.equals("PREPARE") || kind.equals("SELECTED") || nativeSlot,"activation endpoint control kind");
-        MembershipActivation.incoming(owner,sender,request,kind);Control task;
+        MembershipActivation.incoming(owner,sender,request,kind);Control task;MembershipResources.Lease waiter;
         synchronized(registry) {
             require(!closed && active==scope && !active.ended,"activation endpoint replaced/closed");task=control;
-            if(task==null || task.active!=active || !Arrays.equals(task.request.bytes(),request.bytes())) {
-                if(task!=null && !task.finished) {
-                    var values=new TreeMap<>(request.value());values.put("sender",request.value().get("recipient"));values.put("recipient",request.value().get("sender"));
-                    values.put("payload",Map.of("promised",active.ballot,"reason","CAPACITY_EXCEEDED"));return decode(encode("wire","REJECT",values),"wire","REJECT");
-                }
-                if(task!=null)task.close();control=task=new Control(active,sender,request);
-                try{controls.execute(task::run);}catch(RuntimeException error){task.close();control=null;throw error;}
+            boolean replace=task==null || task.active!=active || !Arrays.equals(task.request.bytes(),request.bytes());
+            if(waiters>=bounds.maxPendingClientOperations() || replace && task!=null && !task.finished)
+                return capacityReply(active,request);
+            // Each reply caller, including exact duplicates, owns its shared
+            // waiter before dispatch. Higher PREPARE observation above still
+            // fences when this admission is refused. No deadline is renewed.
+            try{waiter=resources.reserve(MembershipResources.Unit.WAITER,MembershipSourceResources.request("activation-waiter",request),0);}
+            catch(IllegalArgumentException error){
+                if("resource ownership/count".equals(error.getMessage()))return capacityReply(active,request);
+                throw error;
             }
-            waiters++;
+            try {
+                if(replace) {
+                    if(task!=null){task.close();control=null;}
+                    control=task=new Control(active,sender,request);
+                    try{controls.execute(task::run);}catch(RuntimeException|Error error){task.close();control=null;throw error;}
+                }
+                waiters++;
+            }catch(RuntimeException|Error error){waiter.close();throw error;}
         }
-        try {
+        try(waiter) {
             long left=active.limit-(clock.getAsLong()-active.started);require(left>0,"original activation endpoint deadline");
             var response=task.result.get(left,TimeUnit.NANOSECONDS);active.completed(sender,request,response);return response;
         }catch(InterruptedException error){Thread.currentThread().interrupt();throw new IOException("activation endpoint interrupted",error);}
         catch(TimeoutException error){active.close(ScopeEnd.CONTROL_TIMEOUT);throw new IOException("activation endpoint deadline",error);}
         catch(ExecutionException error){if(error.getCause() instanceof IOException io)throw io;if(error.getCause() instanceof RuntimeException r)throw r;throw new IOException("activation endpoint control failed",error.getCause());}
         finally {synchronized(registry){waiters--;}}
+    }
+    private Decoded capacityReply(Scope active,Decoded request) {
+        var values=new TreeMap<>(request.value());values.put("sender",request.value().get("recipient"));values.put("recipient",request.value().get("sender"));
+        values.put("payload",Map.of("promised",active.ballot,"reason","CAPACITY_EXCEEDED"));return decode(encode("wire","REJECT",values),"wire","REJECT");
     }
     @Override public void close()throws IOException {
         synchronized(callers){closed=true;}
