@@ -1,5 +1,11 @@
 # Phase 3 qualification inventory and remaining work
 
+[Transport frame lifetimes](PHASE_3_TRANSPORT_RESOURCE_BINDING.md) now bind
+original invocation IDs to exact request/reply leases. Two real TCP retry/failure
+histories qualify 15 frame lifetimes and 32 exact negatives. This covers connected
+frame buffers, not pre-connection failures or service/export/cache CONTROL
+lifetimes; the required-four resource entry retains those remaining gaps.
+
 [Native resource accounting](PHASE_3_NATIVE_RESOURCE_ACCOUNTING.md) now binds
 the actual old/joining budgets to original identities and every observed event.
 A short TCP history independently passes 3576 mutations, 1788 event boundaries,

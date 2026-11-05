@@ -36,8 +36,8 @@ final class MembershipTransport implements AutoCloseable {
     record Connection(UUID id,InetSocketAddress local,InetSocketAddress remote) {
         Connection {Objects.requireNonNull(id);Objects.requireNonNull(local);Objects.requireNonNull(remote);}
     }
-    private static Connection connection(SocketChannel channel)throws IOException {
-        return new Connection(UUID.randomUUID(),(InetSocketAddress)channel.getLocalAddress(),(InetSocketAddress)channel.getRemoteAddress());
+    private static Connection connection(SocketChannel channel,UUID invocation)throws IOException {
+        return new Connection(invocation,(InetSocketAddress)channel.getLocalAddress(),(InetSocketAddress)channel.getRemoteAddress());
     }
     private static final class Attempt {boolean observed;Connection connection;}
     private record Peer(MembershipIdentity identity,InetSocketAddress endpoint,Set<InetAddress> addresses,
@@ -177,8 +177,9 @@ final class MembershipTransport implements AutoCloseable {
             require(allowed,"learner contact reservation reference");
         }
     }
-    private MembershipResources.Lease reserve(long size)throws Failure {
-        try{return resources.reserve(MembershipResources.Unit.CONTROL,UUID.randomUUID().toString(),size);}
+    private MembershipResources.Lease reserve(String role,UUID invocation,long size)throws Failure {
+        // Local accounting identity only; never sent, persisted or used as authority.
+        try{return resources.reserve(MembershipResources.Unit.CONTROL,"transport-"+role+"-"+invocation,size);}
         catch(IllegalArgumentException error){throw new Failure(Reason.CAPACITY,"membership control capacity",error);}
     }
     private void execute(Runnable task) {
@@ -203,12 +204,12 @@ final class MembershipTransport implements AutoCloseable {
             MembershipWire.envelope(request,root,local,recipient);contactRequest(request,responseKind);
             require(object(CATALOG.get("wire")).containsKey(responseKind) && request.size()<=maximum,"transport request kind/size");
             if(!peer.outgoing.tryAcquire())throw new Failure(Reason.CAPACITY,"membership peer in-flight capacity",null);
-            acquired=true;lease=reserve(request.size());byte[] bytes=request.bytes(); // reserve before the copied send buffer
+            acquired=true;var invocation=UUID.randomUUID();lease=reserve("request-send",invocation,request.size());byte[] bytes=request.bytes(); // reserve before the copied send buffer
             var owned=lease;var target=peer;outboundCount.incrementAndGet();
             try {
                 execute(()->{
                     Decoded reply=null;Throwable failure=null;var attempt=new Attempt();
-                    try{reply=send(target,request,bytes,responseKind,deadline,result::isCancelled,beforeWrite,attempt);}
+                    try{reply=send(target,request,bytes,responseKind,deadline,result::isCancelled,beforeWrite,attempt,invocation);}
                     catch(Throwable error){failure=classify(error);}
                     finally{owned.close();target.outgoing.release();outboundCount.decrementAndGet();}
                     if(failure!=null && attempt.observed)observeFailure(true,request,failure,attempt.connection);
@@ -236,16 +237,16 @@ final class MembershipTransport implements AutoCloseable {
         catch(Throwable observer){if(observer!=failure)failure.addSuppressed(observer);}
     }
     private Decoded send(Peer peer,Decoded request,byte[] bytes,String kind,long deadline,BooleanSupplier cancelled,
-            MembershipSourcePull.Guard beforeWrite,Attempt attempt)throws IOException {
+            MembershipSourcePull.Guard beforeWrite,Attempt attempt,UUID invocation)throws IOException {
         try(var channel=SocketChannel.open();var selector=Selector.open()) {
             channels.add(channel);
             try {
                 check(deadline,cancelled);channel.configureBlocking(false);channel.register(selector,SelectionKey.OP_CONNECT);
                 channel.connect(peer.endpoint);while(!channel.finishConnect())ready(selector,SelectionKey.OP_CONNECT,deadline,cancelled);
-                attempt.connection=connection(channel);attempt.observed=true;
+                attempt.connection=connection(channel,invocation);attempt.observed=true;
                 events.at("BEFORE_REQUEST_WRITE",request,null,attempt.connection);beforeWrite.check();check(deadline,cancelled);
                 transfer(channel,selector,ByteBuffer.wrap(bytes),true,deadline,cancelled);
-                try(var response=read(channel,selector,deadline,cancelled)) {
+                try(var response=read(channel,selector,deadline,cancelled,"response-read",invocation)) {
                     MembershipWire.envelope(response.frame,root,peer.identity,local);MembershipWire.correlated(request,response.frame,kind);
                     events.at("AFTER_RESPONSE_READ",request,response.frame,attempt.connection);check(deadline,cancelled);return response.frame;
                 }
@@ -271,18 +272,19 @@ final class MembershipTransport implements AutoCloseable {
         Peer admitted=null;
         try(channel;var selector=Selector.open()) {
             channel.configureBlocking(false);channel.register(selector,SelectionKey.OP_READ);
-            try(var received=read(channel,selector,deadline,()->false)) {
+            var invocation=UUID.randomUUID();
+            try(var received=read(channel,selector,deadline,()->false,"request-read",invocation)) {
                 var request=received.frame;var sender=identity(object(request.value().get("sender")));var peer=peer(sender);
                 MembershipWire.envelope(request,root,sender,local);
                 require(peer.addresses.contains(((InetSocketAddress)channel.getRemoteAddress()).getAddress()),"transport sender address binding");
                 if(!peer.incoming.tryAcquire())throw new Failure(Reason.CAPACITY,"membership inbound peer capacity",null);admitted=peer;
-                var connection=connection(channel);
+                var connection=connection(channel,invocation);
                 try {
                     events.at("AFTER_REQUEST_READ",request,null,connection);check(deadline,()->false);
                     var response=Objects.requireNonNull(handler.handle(sender,request),"membership handler response");
                     MembershipWire.envelope(response,root,local,sender);MembershipWire.correlated(request,response,response.kind());
                     require(response.size()<=maximum,"transport response frame size");
-                    try(var lease=reserve(response.size())) {
+                    try(var lease=reserve("response-send",invocation,response.size())) {
                         events.at("BEFORE_RESPONSE_WRITE",request,response,connection);
                         transfer(channel,selector,ByteBuffer.wrap(response.bytes()),true,deadline,()->false);
                     }
@@ -297,8 +299,8 @@ final class MembershipTransport implements AutoCloseable {
             // malformed frames, I/O failures and thrown handlers close this attempt.
         }finally{if(admitted!=null)admitted.incoming.release();channels.remove(channel);inboundCount.decrementAndGet();incoming.release();}
     }
-    private Received read(SocketChannel channel,Selector selector,long deadline,BooleanSupplier cancelled)throws IOException {
-        var lease=reserve(HEADER);
+    private Received read(SocketChannel channel,Selector selector,long deadline,BooleanSupplier cancelled,String role,UUID invocation)throws IOException {
+        var lease=reserve(role,invocation,HEADER);
         try {
             byte[] header=new byte[HEADER];transfer(channel,selector,ByteBuffer.wrap(header),false,deadline,cancelled);
             int length=MembershipWire.bodyLength(header,maximum);

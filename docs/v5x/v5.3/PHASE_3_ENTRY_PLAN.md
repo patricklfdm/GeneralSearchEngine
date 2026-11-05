@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Exact transport resource binding](PHASE_3_TRANSPORT_RESOURCE_BINDING.md) now
+derives frame charges and nested release order from original socket attempts,
+wire bytes and resource sequences. Both actual late-retry histories and 32 exact
+negative mutations pass. Required-four uses the same reader and reports unmatched
+pre-connection allocations explicitly; complete control/storage coverage and
+final-source qualification remain OPEN.
+
 [Native resource accounting](PHASE_3_NATIVE_RESOURCE_ACCOUNTING.md) now connects
 actual old/joining budgets to every original event and publication storage
 boundary. A short real TCP history passes independent replay with 3576 resource

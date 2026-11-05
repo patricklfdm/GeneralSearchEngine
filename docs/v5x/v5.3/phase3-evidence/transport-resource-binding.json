@@ -1,0 +1,130 @@
+{
+  "baseHead": "8e20cf646a2296f96bb62e21a805629b9f80b539",
+  "existingNativeNegatives": 26,
+  "finalSourceCohortQualified": false,
+  "javaTests": 29,
+  "nativeCases": [
+    {
+      "allTransportFramesQualified": true,
+      "attempts": 2,
+      "boundFrameLifetimes": 7,
+      "case": "late-handler",
+      "checkedFrameBoundaries": 13,
+      "controlLifetimesQualified": false,
+      "failedAttempts": 1,
+      "observedTransportFramesQualified": true,
+      "otherControlReservations": 0,
+      "phase3Complete": false,
+      "status": "PASS",
+      "unobservedFrameLifetimes": [],
+      "wholeRuntimeResourcesQualified": false
+    },
+    {
+      "allTransportFramesQualified": true,
+      "attempts": 2,
+      "boundFrameLifetimes": 8,
+      "case": "late-response",
+      "checkedFrameBoundaries": 17,
+      "controlLifetimesQualified": false,
+      "failedAttempts": 1,
+      "observedTransportFramesQualified": true,
+      "otherControlReservations": 0,
+      "phase3Complete": false,
+      "status": "PASS",
+      "unobservedFrameLifetimes": [],
+      "wholeRuntimeResourcesQualified": false
+    }
+  ],
+  "nativeNegatives": 32,
+  "newJavaTests": 1,
+  "newPythonTests": 13,
+  "notes": [
+    "First Python conditional fixtures assumed receiver node-2; the reused original transcript uses node-4. Fixtures corrected; initial errors retained. Native originals were not rewritten or rerun.",
+    "Exact wire, connection and physical checks precede frame-resource qualification. Unobserved pre-connection allocations and other service/control reservations remain explicit gaps.",
+    "Source inventory recorded after local tests; this is development evidence, not final-source cohort admission."
+  ],
+  "phase3Complete": false,
+  "planAndContractTests": 19,
+  "raw": "general-search-engine-replication/target/v53-transport-resources/run-84f1dc32-42f4-41e4-9423-547996a620b3",
+  "relatedPythonTests": 100,
+  "reports": [
+    {
+      "path": "target/v53-transport-resource-lifetimes/changed-files.txt",
+      "sha256": "2f6af49feb1540c45189716c302116ccf8b22e6ec1de73a34116cdb73e1473a2"
+    },
+    {
+      "path": "target/v53-transport-resource-lifetimes/existing-native-qualification.json",
+      "sha256": "f0aab8ba21ac6a987b74f6e63895019d18e1f222a850877f2c944aeba005134a"
+    },
+    {
+      "path": "target/v53-transport-resource-lifetimes/final-checks.json",
+      "sha256": "5e3b0f69edca531c8d91f0106eb109b4b7d87526c7b12df5a88baa9db9eddc1c"
+    },
+    {
+      "path": "target/v53-transport-resource-lifetimes/maven-01.log",
+      "sha256": "1d97d3f78d507bcdf03ed3b824e6166b30e1bc13e96b9271bba2ce9fa54ea886"
+    },
+    {
+      "path": "target/v53-transport-resource-lifetimes/native-inventory.json",
+      "sha256": "2728721855d02037c6e6cc961fb6e42981e98449de8b69dc2c80185debd9b564"
+    },
+    {
+      "path": "target/v53-transport-resource-lifetimes/native-qualification-01.json",
+      "sha256": "506a4398653be4d39957948f82b3635035cd1f61af606f130d9eaada022511aa"
+    },
+    {
+      "path": "target/v53-transport-resource-lifetimes/native-qualification-01.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-transport-resource-lifetimes/native-replay-01.json",
+      "sha256": "c70b55e017a67880d600c6e19c73dd5e98cc876bc8274e6edcf794e9e899e426"
+    },
+    {
+      "path": "target/v53-transport-resource-lifetimes/native-replay-01.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-transport-resource-lifetimes/python-01.log",
+      "sha256": "abb571174c58302afbe0f16a2c8f467b0db395b606fc93fd6fc589b2f247a227"
+    },
+    {
+      "path": "target/v53-transport-resource-lifetimes/python-02.log",
+      "sha256": "67c1880014375678bc3d0c53cd3a40a31957dfb3e8960fa9cb0e846769de6798"
+    },
+    {
+      "path": "target/v53-transport-resource-lifetimes/python-03.log",
+      "sha256": "c07f43eb2f5e6fe3dd56fa8e0da78256d8484dd66f7ebeeeb45154f9e965eeff"
+    },
+    {
+      "path": "target/v53-transport-resource-lifetimes/python-contract-01.log",
+      "sha256": "6a69caa9f476f54783ab0a4d52a3af1b10de11a70027d43a7c861567819ae8d0"
+    },
+    {
+      "path": "target/v53-transport-resource-lifetimes/python-related-01.log",
+      "sha256": "6eccc42ce0ffdbca8c57898b36630c2ce50771281c2e540cd54b9b54159c3e92"
+    },
+    {
+      "path": "target/v53-transport-resource-lifetimes/source-inventory.json",
+      "sha256": "b53c9e0fe3aded70396c44c71dcf995e5bac79e4bb387237120201a499f5eabd"
+    },
+    {
+      "path": "target/v53-transport-resource-lifetimes/surefire/TEST-io.github.patricklfdm.generalsearch.replication.V53MembershipTransportTest.xml",
+      "sha256": "8c57f0d94f1e71e3cff4ba5acaf2aa4554c2ad381cec3eab9fb43c2d8fa26c12"
+    },
+    {
+      "path": "target/v53-transport-resource-lifetimes/surefire/TEST-io.github.patricklfdm.generalsearch.replication.V53ResourceObservationsTest.xml",
+      "sha256": "9e1d8eac4eadc790f04d05cd42f3c5455fd09ebd03180ed1f6f811d4735cd190"
+    },
+    {
+      "path": "target/v53-transport-resource-lifetimes/surefire/TEST-io.github.patricklfdm.generalsearch.replication.V53ResourceTransitionCaptureTest.xml",
+      "sha256": "1ecec41c1e0692725250188eeab2be8bc8754b4e38f63009cc0a0611921f28fa"
+    },
+    {
+      "path": "target/v53-transport-resource-lifetimes/surefire/TEST-io.github.patricklfdm.generalsearch.replication.V53TransportConnectionTest.xml",
+      "sha256": "cc423a1e1ba76de2d843d19024eea7476e7840912227af2cd375a99ff2a371bc"
+    }
+  ],
+  "schema": "gse-v53-transport-resource-binding-development-v1",
+  "wholeRuntimeResourcesQualified": false
+}

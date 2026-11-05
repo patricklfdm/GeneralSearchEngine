@@ -91,6 +91,11 @@ actual budgets to original owner identities and event/publication boundaries;
 whole-runtime physical/control lifetime and peak qualification remain separate
 obligations.
 
+[Transport resource binding](PHASE_3_TRANSPORT_RESOURCE_BINDING.md) derives
+connected request/reply buffer extents and nested release from original socket
+attempts and wire bytes. It does not count an unobserved pre-connection allocation
+or service/cache reservation as a qualified frame lifetime.
+
 [Publication reservation handoff](PHASE_3_PUBLICATION_RESERVATION.md) keeps the
 original image maximum charged until the complete candidate reservation succeeds.
 Publication and carried installation consume its exact successor handle without

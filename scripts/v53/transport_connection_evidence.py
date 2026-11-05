@@ -10,8 +10,9 @@ n=t.native;need,f,sha=n.need,n.f,n.sha
 CASES=('late-handler','late-response')
 
 
-def case(root,name,reader=None):
-    need({p.name for p in root.iterdir()}=={'original-plan.gsbp','original-application.image','initial','after','wire.json','events.json'},
+def case(root,name,reader=None,*,resource_transitions=False):
+    need({p.name for p in root.iterdir()}=={'original-plan.gsbp','original-application.image','initial','after','wire.json','events.json'} |
+         ({'resource-transition-captures'} if resource_transitions else set()),
          'connection case inventory')
     before=n.b.original(root,3,False);n.b.match(root,'after',before)
     cap=n.b.c.current(before['node-1'])[2]['capsule']
@@ -38,9 +39,9 @@ def case(root,name,reader=None):
     return dict(case=name,attempts=2,callerFailures=1,serverFailures=1,deliveredReplies=1,storageUnchanged=True)
 
 
-def validate(directory,*,reader=None):
+def validate(directory,*,reader=None,resource_transitions=False):
     root=Path(directory);need(root.is_dir() and not root.is_symlink() and {v.name for v in root.iterdir()}=={'receipt.json',*CASES},'connection complete cases')
-    before=n.collection.inventory(root);results=[case(root/name,name,reader) for name in CASES]
+    before=n.collection.inventory(root);results=[case(root/name,name,reader,resource_transitions=resource_transitions) for name in CASES]
     expected=dict(schema='gse-v53-transport-connections-v1',status='PASS',cases=results,execution='loopback-tcp-component',completeMembershipHistory=False,phase3Complete=False)
     need(n.transport.load(root/'receipt.json')==expected,'connection receipt scope')
     need(n.collection.inventory(root)==before,'connection original changed');return expected

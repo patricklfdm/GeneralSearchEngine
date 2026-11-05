@@ -16,17 +16,27 @@ class V53TransportConnectionTest {
     @TempDir Path temp;
     @Test void lateOriginalTerminalCannotBeAssignedToSuccessfulIdenticalRetry()throws Exception {run(false);}
     @Test void joiningCollectorsRetainIdentitiesThroughDecoratorsAndOldCallbacks()throws Exception {run(true);}
-    private void run(boolean joining)throws Exception {
-        Path evidence=Files.createDirectories(Path.of((joining?"target/v53-joining-connections/run-":"target/v53-transport-connections/run-")+UUID.randomUUID()));
-        System.out.println((joining?"v53JoiningConnectionEvidence=":"v53TransportConnectionEvidence=")+evidence.toAbsolutePath());var cases=new ArrayList<Map<String,Object>>();
+    @Test void identicalRetriesRetainTheirOwnFrameLeasesThroughLateOriginalFailure()throws Exception {run(true,true);}
+    private void run(boolean joining)throws Exception {run(joining,false);}
+    private void run(boolean joining,boolean observedResources)throws Exception {
+        Path evidence=Files.createDirectories(Path.of((observedResources?"target/v53-transport-resources/run-":joining?"target/v53-joining-connections/run-":"target/v53-transport-connections/run-")+UUID.randomUUID()));
+        System.out.println((observedResources?"v53TransportResourceEvidence=":joining?"v53JoiningConnectionEvidence=":"v53TransportConnectionEvidence=")+evidence.toAbsolutePath());var cases=new ArrayList<Map<String,Object>>();
         for(String mode:List.of("late-handler","late-response")) {
             Path raw=Files.createDirectory(evidence.resolve(mode));var helper=new V53MembershipTransportTest();helper.temp=temp;
-            var events=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
+            var capture=new AtomicReference<V53ResourceTransitionCapture>();
+            var events=Collections.synchronizedList(new ArrayList<Map<String,Object>>() {
+                @Override public boolean add(Map<String,Object> event) {
+                    if(capture.get()!=null)capture.get().event(size(),event);return super.add(event);
+                }
+            });
             var wire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
             var firstEntered=new CountDownLatch(1);var secondEntered=new CountDownLatch(1);
             var releaseFirst=new CountDownLatch(1);var releaseSecond=new CountDownLatch(1);var firstFailed=new CountDownLatch(1);
             var calls=new AtomicInteger();var firstConnection=new AtomicReference<UUID>();
             try(var group=helper.new Group(3,raw)) {
+                if(observedResources)capture.set(new V53ResourceTransitionCapture(raw,group.fixture.result.root().manifestDigest()));
+                var clientResources=observedResources?capture.get().create(group.identities.get(0),0):resources(MembershipResources.QUEUE_LIMIT);
+                var serverResources=observedResources?capture.get().create(group.identities.get(1),0):resources(MembershipResources.QUEUE_LIMIT);
                 MembershipTransport.Events receiver=joining?new V53JoiningTrace("node-2",events,wire,true).transport("connection-test",(point,q,a)->{}):
                         new V53ConnectionTrace("node-2",events,wire);
                 var observation=new MembershipTransport.Events() {
@@ -48,8 +58,8 @@ class V53TransportConnectionTest {
                         if(mode.equals("late-handler"))throw new IOException("declared late original handler failure");
                     }else {secondEntered.countDown();await(releaseSecond);}
                     return group.status(peer,request);
-                },observation,bounds(2,2000,FRAME),resources(MembershipResources.QUEUE_LIMIT));
-                var client=group.start(0,group::status,joining?oldCollector("node-1",events,wire):new V53ConnectionTrace("node-1",events,wire),bounds(2,5000,FRAME),resources(MembershipResources.QUEUE_LIMIT));
+                },observation,bounds(2,2000,FRAME),serverResources);
+                var client=group.start(0,group::status,joining?oldCollector("node-1",events,wire):new V53ConnectionTrace("node-1",events,wire),bounds(2,5000,FRAME),clientResources);
                 var request=group.request(0,1);long firstStart=System.nanoTime();
                 var first=client.exchange(group.identities.get(1),request,"STATUS",firstStart+TimeUnit.SECONDS.toNanos(1));
                 try {
@@ -70,7 +80,9 @@ class V53TransportConnectionTest {
                 assertEquals(2,sends.size());assertEquals(sends.getFirst().get("request"),sends.getLast().get("request"));
                 assertNotEquals(sends.getFirst().get("connection"),sends.getLast().get("connection"));
             }
-            Files.write(raw.resolve("events.json"),canonical(events,1024*1024));Files.write(raw.resolve("wire.json"),canonical(wire,1024*1024));
+            byte[] eventBytes=canonical(events,1024*1024);
+            Files.write(raw.resolve("events.json"),eventBytes);Files.write(raw.resolve("wire.json"),canonical(wire,1024*1024));
+            if(capture.get()!=null)capture.get().save(eventBytes);
             cases.add(Map.of("case",mode,"attempts",2,"callerFailures",1,"serverFailures",1,"deliveredReplies",1,"storageUnchanged",true));
         }
         Files.write(evidence.resolve("receipt.json"),canonical(Map.of("schema","gse-v53-transport-connections-v1","status","PASS","cases",cases,

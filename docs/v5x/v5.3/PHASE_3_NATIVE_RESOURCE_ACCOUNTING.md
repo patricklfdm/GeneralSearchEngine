@@ -43,6 +43,11 @@ and compares publication storage counters to independently derived original file
 captures. Concurrent CONTROL/WAITER changes do not falsely become storage changes.
 Default stable readers still reject the extra collection unless explicitly opted in.
 
+The required-four entry additionally invokes
+[exact transport resource binding](PHASE_3_TRANSPORT_RESOURCE_BINDING.md) for
+connected frame buffers. Pre-connection allocations remain explicit unmatched
+lifetimes, and service/export/cache CONTROL ownership remains unqualified.
+
 `scripts.v53.native_resource_negatives` validates the untouched original before
 15 exact-reason mutations. They cover missing/foreign owners, foreign root,
 missing/duplicated/misattributed boundaries, sequence/usage forgery, late
