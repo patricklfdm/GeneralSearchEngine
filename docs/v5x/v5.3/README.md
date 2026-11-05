@@ -4,6 +4,8 @@
 Phase 3 requirements to nineteen specific archive/reader/rejection selectors.
 The complete 544-history source catalogue preserves 478 archives and 238
 execution groups. This source audit does not grant native or phase acceptance.
+The offline cohort records these witnesses only after owning original replay,
+keeping conditional absence separate from actual rejection.
 
 [Outgoing activation drain](PHASE_3_ACTIVATION_DRIVER_DRAIN.md) now retains
 original task/export/campaign ownership until every worker exits. Cancellation

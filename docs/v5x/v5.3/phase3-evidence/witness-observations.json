@@ -1,0 +1,66 @@
+{
+  "baseSource": "b2499023f27a6f2fa27db093824a4183cec51406",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 2760,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "developmentFailures": [
+    {
+      "path": "target/v53-phase3-witness-replay/python-initial.log",
+      "reason": "The initial isolation test changed an unselected joining child. The final test changes the exact selected child and rejects it. Repeated source-catalogue scans in the synthetic fixture were cached; production replay is unchanged.",
+      "result": "interrupted after a test failure"
+    }
+  ],
+  "frozenScenarioCoverageQualified": false,
+  "hostedExecution": false,
+  "nativeHistoriesExecuted": 0,
+  "notExecuted": [
+    "Maven",
+    "native producer",
+    "native evidence replay",
+    "hosted workflow",
+    "paid cloud"
+  ],
+  "paidCloud": false,
+  "phase3Complete": false,
+  "python": {
+    "suites": [
+      {
+        "path": "target/v53-phase3-witness-replay/python-final.log",
+        "sha256": "5b19f0d921407e8fe961b8fd100c943dcc2efce72396dd6327dc65228fa15749",
+        "tests": 19
+      },
+      {
+        "path": "target/v53-phase3-witness-replay/python-plan.log",
+        "sha256": "af7781322dfeff7040b4669e3a19347eb077f286e90565d69f26f3a777cb06c5",
+        "tests": 51
+      }
+    ],
+    "tests": 70
+  },
+  "runtimeQualified": false,
+  "schema": "gse-v53-development-evidence-v1",
+  "scope": "phase3-offline-witness-observations",
+  "sourceSha256": {
+    "scripts/v53/phase3_history_cohort.py": "8e88b3c4cb8f5fb5b6d27f01a2600413174db6449c1289a9bd5adba4570bf3ff",
+    "scripts/v53/phase3_witness_observations.py": "60669803885143ee9b13eb5a8b48f079362bb4adb1010986726301b61ba6e9db",
+    "scripts/v53/test_phase3_history_cohort.py": "e66ca186b44b446f025078a31c712c7bfac665383dd7add1698e221dcaacdc66",
+    "scripts/v53/test_phase3_witness_observations.py": "af414b01584f4ad37a5dcf1197fa2c4db5e3142b0e412180df492d23a211ec83"
+  },
+  "status": "PASS",
+  "syntheticIntegration": {
+    "archives": 478,
+    "candidateWitnesses": 19,
+    "executionGroups": 238,
+    "histories": 544,
+    "notApplicableFixtureRows": 3,
+    "qualification": "synthetic reader-output and routing checks; not native evidence",
+    "rejectedFixtureRows": 16
+  }
+}

@@ -12,6 +12,7 @@ import shutil
 import tempfile
 
 from . import phase3_seed_cohort as seeds
+from . import phase3_witness_observations as witnesses
 
 SCHEMA = 'gse-v53-phase3-history-cohort-v1'
 plan, shared, need, h = seeds.plan, seeds.shared, seeds.need, seeds.h
@@ -102,6 +103,8 @@ def run(index, seed_inputs, inputs, output):
         index_raw = seeds.read_bytes(index); value = plan.decode(index_raw); modules = seeds.adapters()
         source_sha = seeds.validate_index(value, modules); catalogs = plan.catalogues()
         source = seeds.checkout_source(source_sha)
+        witness_bytes, witness_plan = witnesses.prepare(); observed_witnesses = []
+        (output/'coverage-plan.json').write_bytes(witness_bytes)
         (output/'index.json').write_bytes(index_raw)
         original = raw_inventory(inputs, value, modules, catalogs)
         h.save(output/'raw-inventory.json', original)
@@ -124,6 +127,8 @@ def run(index, seed_inputs, inputs, output):
                     result = replay_group(name, adapter, seed_inputs/name, raw, cohort_output/'groups'/key, key, ctx)
                 need(result.get('status') == 'PARTIAL' and result.get('phase3Complete') is False,
                      'history cohort owning verifier scope')
+                observed_witnesses.extend(witnesses.observe_group(witness_plan, name, key, result, adapter, ctx, original))
+                h.save(output/'witness-observations.json', observed_witnesses)
                 artifact = verified/adapter.artifact_name(ctx, 'verified', key); artifact.mkdir()
                 h.save(artifact/'receipt.json', result)
                 receipt['groupsReplayed'] += 1
@@ -148,6 +153,10 @@ def run(index, seed_inputs, inputs, output):
              'history cohort index/checkout changed during replay')
         need(plan.catalogues() == catalogs and receipt['historiesReplayed'] == sum(v['members'] for v in catalogs.values()),
              'history cohort complete unchanged catalogues')
+        need(witnesses.prepare() == (witness_bytes, witness_plan), 'history cohort witness plan changed during replay')
+        coverage = witnesses.finish(witness_plan, observed_witnesses); h.save(output/'coverage.json', coverage)
+        receipt['candidateWitnesses'] = dict(path='coverage.json', sha256=shared.tc.file_hash(output/'coverage.json'),
+            rejected=coverage['rejected'], notApplicable=coverage['notApplicable'], phase3Complete=False)
         receipt.pop('active', None)
         receipt.update(status='PARTIAL', allDeclaredHistoriesReplayed=True,
                        acceptanceAuthority='all declared original histories replayed; workflow, coverage and resource closure remain separate')

@@ -50,6 +50,31 @@ reason templates remain unbound at audit time. An unsupported original shape
 must retain its failure; the audit does not authorize retrying until a preferred
 shape appears.
 
+## Observations from offline replay
+
+The [whole-history cohort](PHASE_3_HISTORY_COHORT.md) now loads and validates this
+plan before replay. After each owning verifier returns, the internal
+[observation hook](../../../scripts/v53/phase3_witness_observations.py) rechecks
+its complete result contract and extracts the exact selected rows. Each row is
+bound to the current workflow context, original archive hash and owning replay
+hash. A joining-process witness must come from its own child archive, even when
+three children share one execution group.
+
+Conditional absence is copied from the owning reader's checked original; late
+unused PREPARE absence is derived from its checked network observations. An
+unrelated failure, missing negative, wrong child, stale attempt or invented
+rejection fails the cohort. This hook has no standalone receipt-admission CLI
+and does not replace original physical replay.
+
+The cohort retains `coverage-plan.json` and incremental
+`witness-observations.json`. Only after all original replays, owning aggregates
+and final inventory/source checks succeed does it write `coverage.json`, with
+separate rejection and not-applicable counts for all nineteen witnesses. Its
+status remains `PARTIAL`; observing every candidate does not close a requirement
+or qualify the frozen S/N matrix. A replay failure preserves earlier diagnostics
+without retrying the original. See the
+[integration development receipt](phase3-evidence/witness-observations.json).
+
 ## What this does not close
 
 - Native carried-process halt/SIGKILL qualification is not replaced by the older
@@ -70,6 +95,7 @@ From the repository root, choose a new output directory:
 ```bash
 python3 -m scripts.v53.phase3_coverage --output target/v53-phase3-coverage/audit-new
 python3 -m unittest scripts.v53.test_phase3_coverage scripts.v53.test_phase3_qualification_plan
+python3 -m unittest scripts.v53.test_phase3_witness_observations scripts.v53.test_phase3_history_cohort
 ```
 
 The command retains the inspected plan, deduplicated catalogue, exact source

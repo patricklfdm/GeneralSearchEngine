@@ -1,5 +1,9 @@
 # Phase 3: replay the complete declared hosted history set offline
 
+[Candidate witness observations](PHASE_3_COVERAGE_WITNESSES.md) now bind
+nineteen exact selectors to actual owning replay results and original archives.
+The complete result remains PARTIAL, with applicability reported separately.
+
 Status: offline original replay entry implemented; Phase 3 remains OPEN.
 
 The [seed gate](PHASE_3_SEED_COHORT.md) reconciles independent preparations.

@@ -910,24 +910,28 @@
       "implementation": [
         "scripts/v53/case_inventory.py",
         "scripts/v53/phase3_qualification_plan.py",
-        "scripts/v53/phase3_coverage.py"
+        "scripts/v53/phase3_coverage.py",
+        "scripts/v53/phase3_witness_observations.py"
       ],
       "tests": [
         "scripts/v53/test_case_inventory.py",
         "scripts/v53/test_phase3_qualification_plan.py",
-        "scripts/v53/test_phase3_coverage.py"
+        "scripts/v53/test_phase3_coverage.py",
+        "scripts/v53/test_phase3_witness_observations.py"
       ],
       "readers": [
         "scripts/v53/case_inventory.py",
         "scripts/v53/phase3_qualification_plan.py",
-        "scripts/v53/phase3_coverage.py"
+        "scripts/v53/phase3_coverage.py",
+        "scripts/v53/phase3_witness_observations.py"
       ],
       "docs": [
         "docs/v5x/v5.3/ACCEPTANCE_REGISTER.md",
         "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
         "docs/v5x/v5.3/PHASE_3_COVERAGE_WITNESSES.md",
         "docs/v5x/v5.3/phase3-coverage-witnesses.json",
-        "docs/v5x/v5.3/phase3-evidence/coverage-witnesses.json"
+        "docs/v5x/v5.3/phase3-evidence/coverage-witnesses.json",
+        "docs/v5x/v5.3/phase3-evidence/witness-observations.json"
       ],
       "cohorts": [
         "profiles",
@@ -969,7 +973,8 @@
         "scripts/v53/carried_data_history_hosted.py",
         "scripts/v53/process_joint_hosted.py",
         "scripts/v53/phase3_seed_cohort.py",
-        "scripts/v53/phase3_history_cohort.py"
+        "scripts/v53/phase3_history_cohort.py",
+        "scripts/v53/phase3_witness_observations.py"
       ],
       "tests": [
         "scripts/v53/test_case_inventory.py",
@@ -996,7 +1001,8 @@
         "scripts/v53/test_process_joint_hosted.py",
         "scripts/v53/test_process_joint_workflow.py",
         "scripts/v53/test_phase3_seed_cohort.py",
-        "scripts/v53/test_phase3_history_cohort.py"
+        "scripts/v53/test_phase3_history_cohort.py",
+        "scripts/v53/test_phase3_witness_observations.py"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -1018,7 +1024,8 @@
         "scripts/v53/process_joint_cohort.py",
         "scripts/v53/process_joint_hosted.py",
         "scripts/v53/phase3_seed_cohort.py",
-        "scripts/v53/phase3_history_cohort.py"
+        "scripts/v53/phase3_history_cohort.py",
+        "scripts/v53/phase3_witness_observations.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md",
@@ -1042,7 +1049,9 @@
         "docs/v5x/v5.3/PHASE_3_SEED_COHORT.md",
         "docs/v5x/v5.3/phase3-evidence/seed-cohort.json",
         "docs/v5x/v5.3/PHASE_3_HISTORY_COHORT.md",
-        "docs/v5x/v5.3/phase3-evidence/history-cohort.json"
+        "docs/v5x/v5.3/phase3-evidence/history-cohort.json",
+        "docs/v5x/v5.3/PHASE_3_COVERAGE_WITNESSES.md",
+        "docs/v5x/v5.3/phase3-evidence/witness-observations.json"
       ],
       "cohorts": [
         "profiles",

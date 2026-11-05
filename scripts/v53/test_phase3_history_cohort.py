@@ -91,6 +91,7 @@ class HistoryCohortTest(unittest.TestCase):
         self.f = seed_fixture.Phase3SeedCohortTest(); self.f.setUp(); self.addCleanup(self.f.doCleanups)
         self.root = self.f.root; self.inputs = self.root/'originals'; self.inputs.mkdir()
         self.catalogs = c.plan.catalogues(); self.verified = []; self.aggregated = []; self.count = 0
+        _, self.witness_plan = c.witnesses.prepare()
         self.bundles = []; self.after_verify = lambda name,key: None
         data = self.root/'tiny-original'; data.mkdir()
         for name, adapter in self.f.modules.items():
@@ -125,10 +126,14 @@ class HistoryCohortTest(unittest.TestCase):
                              workflowExecutionAttested=False, wholeHistories=self.catalogs[name]['members'])
                 c.h.save(output/'receipt.json', value); return value
             self.f.stack.enter_context(patch.object(adapter, 'aggregate', side_effect=aggregate))
+        self.originals = c.raw_inventory(self.inputs, self.f.index, self.f.modules, self.catalogs)
 
     def verifier(self, name, key, output):
         self.verified.append((name, key)); output.mkdir(parents=True, exist_ok=True)
         value = dict(status='PARTIAL', phase3Complete=False, owner=name, group=key)
+        from .test_phase3_witness_observations import group_fixture
+        if c.witnesses.selected(self.witness_plan, name, key):
+            value.update(group_fixture(name, key, self.f.index['cohorts'][name], self.originals))
         c.h.save(output/'receipt.json', value)
         (output/'progress.jsonl').write_text('{"synthetic":true}\n')
         self.after_verify(name, key)
@@ -151,6 +156,12 @@ class HistoryCohortTest(unittest.TestCase):
         self.assertEqual(before, c.raw_inventory(self.inputs, self.f.index, self.f.modules, self.catalogs))
         self.assertFalse(list(self.output.rglob('scratch-*')))
         self.assertEqual(238, len(list(self.output.glob('*/groups/*/progress.jsonl'))))
+        coverage = c.seeds.read(self.output/'coverage.json')
+        self.assertEqual((16, 3), (coverage['rejected'], coverage['notApplicable']))
+        self.assertEqual('PARTIAL', coverage['status']); self.assertFalse(coverage['phase3Complete'])
+        self.assertEqual(19, len(coverage['witnesses']))
+        self.assertEqual(c.shared.tc.file_hash(self.output/'coverage.json'), value['candidateWitnesses']['sha256'])
+        self.assertEqual(c.witnesses.prepare()[0], (self.output/'coverage-plan.json').read_bytes())
 
     def test_missing_group_extra_group_and_partial_joining_group_refuse_before_readers(self):
         group = self.bundles[0]; moved = self.root/'saved'; group.rename(moved)
@@ -188,6 +199,8 @@ class HistoryCohortTest(unittest.TestCase):
         self.assertEqual('profiles', value['active']['cohort']); self.assertFalse(value['allDeclaredHistoriesReplayed'])
         self.assertTrue(list(self.output.rglob('scratch-*/replay/receipt.json')))
         self.assertTrue(self.bundles[0].is_dir())
+        self.assertFalse((self.output/'coverage.json').exists())
+        self.assertFalse((self.output/'witness-observations.json').exists())
 
     def test_late_original_and_seed_drift_refuse_even_after_all_replays(self):
         for kind in ('raw', 'seed'):
