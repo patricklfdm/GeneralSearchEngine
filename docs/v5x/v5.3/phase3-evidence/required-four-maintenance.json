@@ -1,0 +1,79 @@
+{
+  "baseHead": "12bbbfea3e7a7888b1c8cec4474e3c029040dfca",
+  "conditionalEntryTests": 13,
+  "correctedSourceNativeQualified": false,
+  "historicalDiagnostic": {
+    "capturedFloors": 22,
+    "floorEvents": 2449,
+    "networkAcquisitionQualified": false,
+    "originalsChanged": false,
+    "physicalDerivationRerun": false,
+    "pinnedFloors": 3,
+    "raw": "general-search-engine-replication/target/v53-native-dispatch/run-d9b8fe61-4036-416d-b2e4-7f7ed47bd0ad",
+    "runtimeSource": "25d80cb3"
+  },
+  "nativeNegativeCasesExecuted": 0,
+  "notes": [
+    "Initial independent helper fixture passed raw bytes instead of inventory entries; corrected fixture. The initial failure log is retained."
+  ],
+  "peerLedgerCompositionQualified": false,
+  "phase3Complete": false,
+  "planAndContractTests": 19,
+  "relatedTests": 269,
+  "reports": [
+    {
+      "path": "target/v53-required-four-maintenance/capture-diagnostic-01.json",
+      "sha256": "007353960bf1ab44624d2069b357847e1e9a0bb308dfe7e77eddad2868441237"
+    },
+    {
+      "path": "target/v53-required-four-maintenance/capture-diagnostic-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-required-four-maintenance/capture-diagnostic.py",
+      "sha256": "ebb4e7dd9005dbaf119942cbd092322511f2ace347279128abc7adb1f3d60f15"
+    },
+    {
+      "path": "target/v53-required-four-maintenance/python-entry-01.log",
+      "sha256": "efc36fc218959ff84c332178eccf73e740322e0759f79f39dd0c1b71dc7aa1e0"
+    },
+    {
+      "path": "target/v53-required-four-maintenance/python-entry-02.log",
+      "sha256": "c3030e758a54e1d8b6d7e2fd5113b0115a5965ed0647060860940b92e97d4709"
+    },
+    {
+      "path": "target/v53-required-four-maintenance/python-entry-03.log",
+      "sha256": "cfef1f5b80e1a9d170c891dfa640d34de72aef8260a01aa35e5372c31253b436"
+    },
+    {
+      "path": "target/v53-required-four-maintenance/python-related-01.log",
+      "sha256": "320c1a8cec5ab1803edfb5bef4c45464edffaf924bbb4cef973e4a3f8ce9fbfb"
+    },
+    {
+      "path": "target/v53-required-four-maintenance/python-shared-01.log",
+      "sha256": "4c92ddd48b60b537d2b1d004f18f99f7f4b3a16d6da11bc99b44aae21ee4beb4"
+    },
+    {
+      "path": "target/v53-required-four-maintenance/python-plan-01.log",
+      "sha256": "677aae29f427c32c6a5a3d62f73c4118f4ab6c7aa54290d3682baa31c47f8ef7"
+    }
+  ],
+  "requiredNegativeCases": 20,
+  "schema": "gse-v53-required-four-maintenance-development-v1",
+  "sources": [
+    {
+      "path": "scripts/v53/joining_maintenance_evidence.py",
+      "sha256": "8c88755e278450ac9d2f332f6755dafc152fcfd89542980da1bad0f2dde02c99"
+    },
+    {
+      "path": "scripts/v53/required_four_maintenance.py",
+      "sha256": "e7a0885582ccf695fd0e8212d58fbbf2c36ff8b9b4a820e6975932922af180c0"
+    },
+    {
+      "path": "scripts/v53/test_required_four_maintenance.py",
+      "sha256": "943cdb71be9fb39289049b9753b168575925d125d2db770d571a3b2620d3edd8"
+    }
+  ],
+  "status": "ENTRY_READY_NATIVE_QUALIFICATION_PENDING",
+  "wholeRuntimeResourcesQualified": false
+}

@@ -18,10 +18,14 @@ from . import joining_control_evidence as control
 c=control; e=c.e; n=c.n; f=c.f; disk=c.disk; need=c.need; sha=c.sha
 
 
-def floor_events(copies,local,network):
+def floor_events(copies,local,network,*,pinned=False):
     """Derive exact force and release counts from complete original members."""
-    ordered=sorted(copies.values(),key=lambda v:((v['node']==local) if network else False,sha(v['manifest'])))
+    need(type(pinned) is bool and (not pinned or local in copies),'joining maintenance pinned local copy')
+    ordered=sorted((v for node,v in copies.items() if not pinned or node!=local),
+                   key=lambda v:((v['node']==local) if network else False,sha(v['manifest'])))
     names=['FLOOR_RESERVED','FLOOR_DIRECTORY_CREATED','FLOOR_PROPOSAL_WRITTEN','FLOOR_PROPOSAL_FORCED']
+    if pinned:names[2:2]=['FLOOR_LOCAL_ORIGINAL_FORCED','FLOOR_LOCAL_SELECTOR_WRITTEN',
+                          'FLOOR_LOCAL_SELECTOR_FORCED','FLOOR_LOCAL_PARENT_FORCED']
     for own in ordered:
         names+=['FLOOR_COPY_CREATED','FLOOR_MANIFEST_WRITTEN','FLOOR_MANIFEST_FORCED']
         for member in sorted(own['members']):
@@ -34,7 +38,9 @@ def floor_events(copies,local,network):
             'FLOOR_RELEASE_PARENT_FORCED','FLOOR_RELEASE_RELINQUISHED']
     names+=['FLOOR_RELEASE_FILE_DELETED']*sum(len(v['members'])+1 for v in ordered)
     names+=['FLOOR_RELEASE_COPY_DELETED']*len(ordered)
-    names+=['FLOOR_RELEASE_PROPOSAL_CLEARED','FLOOR_RELEASE_AUTHORITY_CLEARED','FLOOR_RELEASE_CLEARED','FLOOR_RELEASE_BEFORE_RETURN']
+    names+=['FLOOR_RELEASE_PROPOSAL_CLEARED']
+    if pinned:names+=['FLOOR_RELEASE_LOCAL_CLEARED']
+    names+=['FLOOR_RELEASE_AUTHORITY_CLEARED','FLOOR_RELEASE_CLEARED','FLOOR_RELEASE_BEFORE_RETURN']
     return names
 
 
@@ -78,6 +84,9 @@ class Replay(c.Replay):
     joining_status_scopes={'continuation-endpoint':'continuation-owner'}
 
     def governing(self,copies,own):same_cut(copies,own)
+
+    def expected_events(self,copies,own,network,start,end):
+        return floor_events(copies,own['node'],network)
 
     def discovery(self,statuses,packet,q,remote):
         need(len(statuses)==1,'joining maintenance acquisition before discovery')
@@ -172,7 +181,7 @@ class Replay(c.Replay):
                 need(not used.intersection(new),'joining maintenance discovery reused by floor');used.update(new);network+=1
             else:copies=self.direct(own,start);direct+=1
             self.governing(copies,own)
-            need([v['event'] for _,v in actual]==floor_events(copies,node,is_network) and all(v.get('scope')==scope for _,v in actual),
+            need([v['event'] for _,v in actual]==self.expected_events(copies,own,is_network,start,end) and all(v.get('scope')==scope for _,v in actual),
                  'joining maintenance exact copy force/release order')
             if node==self.model.joining:c.owner_lifetime(self.events,node,'continuation-owner',start,end)
             generations+=retirement_order(self.events,node,start,end,scope)

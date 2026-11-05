@@ -1,5 +1,12 @@
 # Phase 3 qualification inventory and remaining work
 
+[Required-four maintenance](PHASE_3_REQUIRED_FOUR_MAINTENANCE.md) now composes
+original pin custody and exact floor lifetime checks behind physical/network/
+export admission. Thirteen conditional regressions and a historical diagnostic
+of 22 captured floors pass; the 20 native negatives and corrected-source complete
+entry are pending. Continuous ledgers/resources and final-source execution remain
+open; no frozen coverage or native PASS is inferred from this entry.
+
 [Required-four export composition](PHASE_3_REQUIRED_FOUR_EXPORTS.md) now binds
 content and control authorization to the explicit four-required-voter topology
 behind the complete physical/network precondition, with 26 required negatives.

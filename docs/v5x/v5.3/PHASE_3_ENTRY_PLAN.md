@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Required-four maintenance](PHASE_3_REQUIRED_FOUR_MAINTENANCE.md) now binds
+local original pins to captured selector/generation bytes and exact force/release
+order, with all 15 existing and five pin-boundary negatives required. Historical
+diagnostics match 22 captured floors / 2449 callbacks, including three pinned
+floors. Corrected-source full replay and continuous ledger composition stay OPEN.
+
 [Required-four export composition](PHASE_3_REQUIRED_FOUR_EXPORTS.md) now adds an
 original-first content/control entry and all 26 existing capability negatives.
 Historical physical/transfer-only diagnostics derive actual lifetime windows;
