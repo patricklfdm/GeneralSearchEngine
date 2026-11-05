@@ -610,7 +610,8 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransitionCaptureTest.java",
         "scripts/v53/test_native_resource_evidence.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransportConnectionTest.java",
-        "scripts/v53/test_transport_resource_evidence.py"
+        "scripts/v53/test_transport_resource_evidence.py",
+        "scripts/v53/test_floor_resource_evidence.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -641,7 +642,9 @@
         "scripts/v53/native_resource_evidence.py",
         "scripts/v53/native_resource_negatives.py",
         "scripts/v53/transport_resource_evidence.py",
-        "scripts/v53/transport_resource_negatives.py"
+        "scripts/v53/transport_resource_negatives.py",
+        "scripts/v53/floor_resource_evidence.py",
+        "scripts/v53/floor_resource_negatives.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -679,7 +682,9 @@
         "docs/v5x/v5.3/PHASE_3_NATIVE_RESOURCE_ACCOUNTING.md",
         "docs/v5x/v5.3/phase3-evidence/native-resource-accounting.json",
         "docs/v5x/v5.3/PHASE_3_TRANSPORT_RESOURCE_BINDING.md",
-        "docs/v5x/v5.3/phase3-evidence/transport-resource-binding.json"
+        "docs/v5x/v5.3/phase3-evidence/transport-resource-binding.json",
+        "docs/v5x/v5.3/PHASE_3_FLOOR_RESOURCE_BINDING.md",
+        "docs/v5x/v5.3/phase3-evidence/floor-resource-binding.json"
       ],
       "cohorts": [
         "profiles",

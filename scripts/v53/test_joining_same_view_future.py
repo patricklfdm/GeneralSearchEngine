@@ -15,6 +15,39 @@ def event(point,node='node-1',scope=None):
 
 
 class JoiningSameViewFutureTest(unittest.TestCase):
+    def original_records(self,*,ack,departing=True):
+        names=('selector.gsr','certificate.gsr','catalog.gsr','statement.gsr')
+        files={'applied-end/'+name:name.encode() for name in (*names,*(('ack.gsr',) if ack else ()))}
+        local={name:name.encode() for name in ('promise.gsr','selected.gsr')}
+        parts={name:name.encode() for name in ('ENTRY','ACCEPT','PROOF')}
+        meta=dict(root='a'*64,owner=dict(node='node-3' if departing else 'node-2'),
+                  parent=dict(cut=dict(view=dict(old=['node-1','node-2','node-3'],new=['node-1','node-2','node-4'],operation='replace'))))
+        return files,local,parts,meta
+
+    def test_departing_final_uses_nine_originals_and_requires_full_departure_validation(self):
+        from . import departing_future_evidence as departing
+        with patch.object(m.f,'decode',return_value=dict(kind='FINAL')),patch.object(departing,'originals') as check:
+            args=self.original_records(ack=False);records=m.publication_records(*args)
+        self.assertEqual(set(departing.RECORDS),set(records));check.assert_called_once_with(args[-1],records)
+        with patch.object(m.f,'decode',return_value=dict(kind='FINAL')), \
+             patch.object(departing,'originals',side_effect=ValueError('invalid exact FINAL')):
+            with self.assertRaisesRegex(ValueError,'invalid exact FINAL'):m.publication_records(*args)
+
+    def test_voting_owner_requires_and_preserves_original_ack(self):
+        with patch.object(m.f,'decode',return_value=dict(kind='FINAL')):
+            args=self.original_records(ack=True,departing=False);records=m.publication_records(*args)
+            self.assertEqual(args[0]['applied-end/ack.gsr'],records['ack.gsr']);self.assertEqual(10,len(records))
+            with self.assertRaisesRegex(ValueError,'exact voting ACK inventory'):
+                m.publication_records(*self.original_records(ack=False,departing=False))
+
+    def test_departing_owner_cannot_invent_successor_vote_or_omit_ack_for_another_kind(self):
+        with patch.object(m.f,'decode',return_value=dict(kind='FINAL')):
+            with self.assertRaisesRegex(ValueError,'exact voting ACK inventory'):m.publication_records(*self.original_records(ack=True))
+        for kind in ('JOINT','DATA','BARRIER'):
+            with self.subTest(kind=kind),patch.object(m.f,'decode',return_value=dict(kind=kind)), \
+                 self.assertRaisesRegex(ValueError,'exact voting ACK inventory'):
+                m.publication_records(*self.original_records(ack=False))
+
     def reader(self,events=()):
         value=m.Replay.__new__(m.Replay);value.events=list(events);value.root=Path('/original')
         value.model=SimpleNamespace(joining='node-4');value.used=set();value.callbacks=set();value.steps=[]

@@ -48,6 +48,12 @@ The required-four entry additionally invokes
 connected frame buffers. Pre-connection allocations remain explicit unmatched
 lifetimes, and service/export/cache CONTROL ownership remains unqualified.
 
+[Floor resource binding](PHASE_3_FLOOR_RESOURCE_BINDING.md) additionally derives
+exact copy extents and continuous local-pin coverage from original files. It
+checks all floor leases, including changes between callbacks, through directory
+cleanup and resource release. Receiving scratch and other storage owners remain
+separate from this scope.
+
 `scripts.v53.native_resource_negatives` validates the untouched original before
 15 exact-reason mutations. They cover missing/foreign owners, foreign root,
 missing/duplicated/misattributed boundaries, sequence/usage forgery, late
@@ -68,7 +74,9 @@ For a fresh required-four producer, add `-Dv53.resource.transitions=true` to its
 existing native command alongside `-Dv53.joining.requiredFour=true`,
 `-Dv53.transport.connections=true` and `-Dv53.publication.resources=true`; qualify
 with `--profile 5-REPLACE-required-four`. Never add reconstructed traces to an old
-original. The complete required-four execution is still pending.
+original. A complete required-four execution and corrected original replay now
+pass; [floor resource validation](PHASE_3_FLOOR_RESOURCE_BINDING.md) records the
+exact source, first reader failure, unchanged original and current scope.
 
 ## Local development evidence
 
@@ -88,7 +96,7 @@ hashes and the initial negative-test error-message mismatch are retained in the
 [development index](phase3-evidence/native-resource-accounting.json).
 
 Whole-runtime physical storage and control-message lifetime derivation, the
-complete corrected-source required-four replay, frozen coverage and final-source
+complete negative matrices, frozen coverage and final-source
 admission/execution remain open. Twelve hosted subsets / 544 planned histories
 remain unchanged. This development evidence does not close Phase 3.
 

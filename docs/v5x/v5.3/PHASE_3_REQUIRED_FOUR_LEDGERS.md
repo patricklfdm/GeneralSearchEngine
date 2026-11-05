@@ -14,6 +14,16 @@ node 3. A future covering floor can protect old bytes without falsely becoming a
 same-cut peer ACK. Required-four peer maintenance uses the original-pin force
 plan from the preceding batch and records each floor input once.
 
+For the departing node's immediate FINAL, future-retention contains nine original
+records and no successor `ack.gsr`. The continuous reader now uses that existing
+format, after the strict departing-FINAL verifier checks original owner, parent,
+view transition, certificate, statement and phases. Voting owners still require
+the original tenth ACK; an ACK on an old-only departing FINAL is refused. This
+corrects a reader assumption exposed by the complete required-four run: node 3
+at index 10 previously raised `KeyError: applied-end/ack.gsr`. Runtime bytes and
+voting authority are unchanged. The failure and corrected replay of the same
+original are recorded with [floor resource validation](PHASE_3_FLOOR_RESOURCE_BINDING.md).
+
 The negative matrix retains all 86 existing component cases: 20 peer, 26 learner,
 19 future and 21 ballot cases. Three existing applicability conditions are
 explicit: a joining-owner write-scope mutation requires an original joining
@@ -36,6 +46,13 @@ python3 -m scripts.v53.required_four_ledgers "$ORIGINAL" --qualify --workers 1
 ```
 
 ## Current evidence and remaining work
+
+The complete original at Java source `f0b60e1d` now passes all four chains after
+the departing-FINAL reader correction above: 152 peer writes, 13 learner writes,
+106 future writes and 26 forced promises, with all six final owner states bound.
+Its retained failed and repaired replay is indexed with floor resource validation.
+The 86-case native ledger negative matrix remains pending; this positive replay
+does not mark those mutations or final-source hosted execution complete.
 
 Twelve conditional tests cover common original context, independent mutable state,
 pin and covering-floor dispatch, all six final owners, original-first admission,

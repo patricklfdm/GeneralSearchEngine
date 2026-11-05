@@ -1,5 +1,15 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Floor resource binding](PHASE_3_FLOOR_RESOURCE_BINDING.md) now derives copied
+storage extents and continuous pinned-generation coverage from original files.
+It covers all floor leases through exact cleanup/release, including mutations
+between callbacks. One complete required-four original passes eleven native
+slots, cold reopen and corrected independent physical/network/export/maintenance/
+ledger replay. It binds 56 floors / 358 copy leases and 81031 resource changes.
+Receiving scratch, other storage/control lifetimes, full negative matrices and
+final-source qualification remain OPEN. Historical batch notes below retain the
+qualification state and evidence that existed at those earlier revisions.
+
 [Exact transport resource binding](PHASE_3_TRANSPORT_RESOURCE_BINDING.md) now
 derives frame charges and nested release order from original socket attempts,
 wire bytes and resource sequences. Both actual late-retry histories and 32 exact

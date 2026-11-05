@@ -103,16 +103,18 @@ def validate(directory,profile='stable',progress=None):
     index,traces,boundaries,events=load(root)
     result=replay(index,traces,boundaries,events,identities,authority)
     count=bind_publications(publication.collect(root,events),boundaries)
-    transport=None
+    transport=None;floors=None
     if profile=='5-REPLACE-required-four':
         from . import transport_resource_evidence
         wires=collection.read_json(root,'wire.json',collection.WIRE_BYTES)
         # Attempts that never reached a connected wire boundary must remain
         # explicit gaps, not be assigned to a later identical connected retry.
         transport=transport_resource_evidence.replay(events,wires,traces,boundaries,identities,authority,require_all_frames=False)
+        from . import floor_resource_evidence
+        floors=floor_resource_evidence.bind(root,events,traces,boundaries)
     need(collection.inventory(root)==before,'native resources original changed')
     return dict(result,scope='native-owner-accounting-with-original-publication-boundaries',profile=profile,
-                precondition=preceding,publicationResources=physical,publicationBoundaries=count,transportResources=transport,
+                precondition=preceding,publicationResources=physical,publicationBoundaries=count,transportResources=transport,floorResources=floors,
                 physicalPeakQualified=False,controlLifetimesQualified=False,finalSourceCohortQualified=False)
 
 

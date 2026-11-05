@@ -25,6 +25,24 @@ RETURNS=['FUTURE_RETENTION_BEFORE_RETURN','FUTURE_RETENTION_ACK_BEFORE_RETURN',
          'FUTURE_RETENTION_PROMOTED','FUTURE_RETENTION_CLEARED']
 
 
+def publication_records(files,local,parts,metadata):
+    """A departing FINAL owner has original proof bytes, never a successor ACK."""
+    names=('selector.gsr','certificate.gsr','catalog.gsr','statement.gsr')
+    need(all('applied-end/'+name in files for name in names),'joining future original applied end')
+    records={name:files['applied-end/'+name] for name in names}
+    records.update({name:local[name] for name in ('promise.gsr','selected.gsr')})
+    records.update({name.lower()+'.gsr':parts[name] for name in ('ENTRY','ACCEPT','PROOF')})
+    entry=f.decode(parts['ENTRY'],'records','ENTRY',metadata['root'])
+    old=metadata['parent']['cut']['view'];node=metadata['owner']['node']
+    departing=(entry['kind']=='FINAL' and old['operation'] is not None and node in old['old'] and node not in old['new'])
+    need(('applied-end/ack.gsr' in files)==(not departing),'joining future exact voting ACK inventory')
+    if departing:
+        from .departing_future_evidence import originals
+        originals(metadata,records)
+    else:records['ack.gsr']=files['applied-end/ack.gsr']
+    return records
+
+
 def declared_old_lifetimes(events,joining,old_owner_lifetimes):
     reason='joining ledger declared original cold lifetime'
     lifetimes=cold_owners.validate(old_owner_lifetimes,maximum=len(events),reason=reason)
@@ -109,9 +127,7 @@ class Replay:
         need(not self.state[node]['records'] and self.state[node]['meta']['parent'] is None,
              'joining future preceding target not cleared')
         _,local,packet=disk.current(files);parent=disk.anchor(packet['capsule'])
-        originals={k:files['applied-end/'+k] for k in ('selector.gsr','certificate.gsr','catalog.gsr','statement.gsr','ack.gsr')}
-        originals.update({k:local[k] for k in ('promise.gsr','selected.gsr')})
-        originals.update({k.lower()+'.gsr':parts[k] for k in ('ENTRY','ACCEPT','PROOF')})
+        originals=publication_records(files,local,parts,dict(self.state[node]['meta'],parent=parent,peers=[]))
         cert=f.decode(parts['CERTIFICATE'],'records','CERTIFICATE');voters=[v['voter'] for v in cert['proofs']]
         proposer=cert['ballot']['proposer'];need(proposer in voters,'joining future original proposer proof')
         targets=[v for v in voters if v!=proposer];ids=a.n.s.catalog.identities(self.model.states[index]['identities'])

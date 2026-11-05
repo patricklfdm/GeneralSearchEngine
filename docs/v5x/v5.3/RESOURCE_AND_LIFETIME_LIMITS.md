@@ -1,5 +1,10 @@
 # V5.3 bounded resources and lifetime
 
+The [floor resource reader](PHASE_3_FLOOR_RESOURCE_BINDING.md) independently binds
+exact copied manifest/member/image bytes and continuous original generation pins
+to resource lifetimes, through completed cleanup. This adds no capacity; receiving
+scratch and complete combined physical peaks remain separate qualifications.
+
 The `resources` object in [format-catalog.json](format-catalog.json) is normative.
 These are library admission/storage bounds, separate from soft experiment time
 and monetary budgets. All integer arithmetic is checked before allocation/force;

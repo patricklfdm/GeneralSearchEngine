@@ -1,0 +1,272 @@
+{
+  "baseHead": "f0b60e1d1e93ff9c1e7a4ba2ced5e3b927fdc25f",
+  "finalSourceCohortQualified": false,
+  "floorNegatives": 11,
+  "floorResources": {
+    "copyLeases": 358,
+    "floorBoundaries": 6188,
+    "floorStorageLifetimesQualified": true,
+    "floors": 56,
+    "phase3Complete": false,
+    "physicalPeakQualified": false,
+    "pinnedFloors": 3,
+    "pinnedMutationChecks": 171,
+    "receivingScratchQualified": false,
+    "scope": "original-floor-copy-and-local-pin-storage-lifetimes",
+    "status": "PASS",
+    "wholeRuntimeResourcesQualified": false
+  },
+  "javaInputs": 1128,
+  "javaTests": 1,
+  "ledgers": {
+    "ballot": {
+      "adoptionFences": [],
+      "allocatorComparisons": 126,
+      "ballotForceQualified": true,
+      "chainSha256": "a98745ef7cdcac6be3bd9541b3cf241f866236cfc3edd6f89e4520fbafd72880",
+      "completePhysicalQualified": false,
+      "finalCounters": {
+        "node-1": 9,
+        "node-2": 1,
+        "node-3": 1,
+        "node-4": 1,
+        "node-5": 1,
+        "node-6": 7
+      },
+      "forcedPromises": 26,
+      "phase3Complete": false,
+      "reservations": 10,
+      "sameViewPhysicalQualified": false,
+      "scope": "one-native-REPLACE-continuous-ballot",
+      "selfGrants": 9,
+      "status": "PASS",
+      "unusedReservations": 1
+    },
+    "future": {
+      "chainSha256": "8a7a22efb321e7e810e7a40bad4c59f378376724480f19d896690cdfb4bacaa2",
+      "completePhysicalQualified": false,
+      "durableWrites": 106,
+      "finalRevisions": {
+        "node-1": 34,
+        "node-2": 34,
+        "node-3": 31,
+        "node-4": 0,
+        "node-5": 0,
+        "node-6": 7
+      },
+      "futureLedgerCompositionQualified": true,
+      "learnerLedgerCompositionQualified": false,
+      "ledgerComparisons": 114,
+      "openReseals": 10,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "scope": "one-native-REPLACE-continuous-future-ledger",
+      "status": "PASS",
+      "writesByKind": {
+        "clear": 34,
+        "record": 72
+      }
+    },
+    "learner": {
+      "admissionCustodyEvents": 11,
+      "capturedLedgers": 26,
+      "chainSha256": "c9bb450fb540cb2c7dd11880a329f21ae3475cdc3348118176262c5824506b70",
+      "completePhysicalQualified": false,
+      "durableWrites": 13,
+      "finalRevisions": {
+        "node-1": 4,
+        "node-2": 4,
+        "node-3": 4,
+        "node-4": 0,
+        "node-5": 0,
+        "node-6": 1
+      },
+      "joiningWrites": 1,
+      "learnerLedgerCompositionQualified": true,
+      "ledgerComparisons": 141,
+      "openReseals": 10,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "sameViewPhysicalQualified": false,
+      "scope": "one-native-REPLACE-continuous-learner-ledger",
+      "selectedTransitions": 19,
+      "status": "PASS",
+      "writesByKind": {
+        "confirm": 3,
+        "record": 6,
+        "selected": 4
+      }
+    },
+    "peers": {
+      "capturedLedgers": 26,
+      "chainSha256": "ad18a1742d20fc80f24c161d75b539acdaff55852dfb1495d326b2829f32b06d",
+      "completePhysicalQualified": false,
+      "durableWrites": 152,
+      "finalRevisions": {
+        "node-1": 49,
+        "node-2": 49,
+        "node-3": 43,
+        "node-4": 0,
+        "node-5": 0,
+        "node-6": 11
+      },
+      "forceAndNetworkQualified": false,
+      "ledgerComparisons": 135,
+      "openReseals": 10,
+      "peerLedgerCompositionQualified": true,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "scope": "one-native-REPLACE-original-peer-ledger-chain",
+      "status": "PASS",
+      "writesByKind": {
+        "maintenance": 102,
+        "publication": 34,
+        "selected": 16
+      }
+    }
+  },
+  "nativeAccountingNegatives": 15,
+  "nativeSeconds": 1334,
+  "notes": [
+    "The native run completed once at the recorded Java inputs. First replay failed at node-3 FINAL index 10 because its nonvoting applied end correctly contains no successor ACK.",
+    "The shared future reader now uses strict existing departing-FINAL verification for nine originals, and still requires ACKs for voting owners. Repaired complete replay uses the unchanged original; no native rerun.",
+    "Observed accounting maxima do not establish whole-runtime physical peaks. Receiving scratch, other owners, full existing negative matrices and final-source cohort remain open."
+  ],
+  "originalEventBoundaries": 38783,
+  "phase3Complete": false,
+  "publicationBoundaries": 374,
+  "pythonAndContractTests": 139,
+  "qualificationSeconds": 423.422,
+  "raw": "general-search-engine-replication/target/v53-native-dispatch/run-bc82bb01-127a-40e0-9332-dd2f2bc8a1d3",
+  "reports": [
+    {
+      "path": "target/v53-floor-resource-binding/contracts-01.log",
+      "sha256": "eb7a152aa5dd3a36653e2bf39f624b82a3868aa8e31897e444fbeebd8b1abb87"
+    },
+    {
+      "path": "target/v53-floor-resource-binding/future-diagnostic-01.log",
+      "sha256": "1e837a331369657eac0682f2a6fa21c4490c0af14036ecb28dd00ed380f0a500"
+    },
+    {
+      "path": "target/v53-floor-resource-binding/future-regression.log",
+      "sha256": "cf2511da4903bc635c2a762a942b942f8b28667d823d6d2dded661b3c2befbd8"
+    },
+    {
+      "path": "target/v53-floor-resource-binding/native-replay-01.log",
+      "sha256": "34cecf939791b89d7d076b1619e04106b3ad5832bcfd7f520e759645dabf4de6"
+    },
+    {
+      "path": "target/v53-floor-resource-binding/native-replay-02.log",
+      "sha256": "5f142f3531d804d795eaeb4a85630b318261d7b68b3992d46172202690d58738"
+    },
+    {
+      "path": "target/v53-floor-resource-binding/python-01.log",
+      "sha256": "f20ed13f26f357b5238f4d82fcd982c7acefd384ee91506a8a2c10ffb980bdf5"
+    },
+    {
+      "path": "target/v53-floor-resource-binding/python-02.log",
+      "sha256": "1fb75ce8e9b4782d7e19384150cca17faf257b0c4ff8f8f98b24f6f0c49451e3"
+    },
+    {
+      "path": "target/v53-floor-resource-binding/python-03.log",
+      "sha256": "18b161f21bfcc4431d8573fe65f904c1ebc815528a1223a84de63c3ce2d8b16f"
+    },
+    {
+      "path": "target/v53-floor-resource-binding/python-04.log",
+      "sha256": "7619adf08deb962c380f8c328bca4f84c77b1a3a62146d2972b15d167c7b18d7"
+    },
+    {
+      "path": "target/v53-floor-resource-binding/python-final-02.log",
+      "sha256": "ac54ab31de2c7c5ec303ca0e7de8f452a58e7078de116e0879419bbd7a367066"
+    },
+    {
+      "path": "target/v53-floor-resource-binding/python-final.log",
+      "sha256": "8d2135d90acff8a5c53b9ccd3478878d8c82e4ea6ee05faa3c57d87545be276e"
+    },
+    {
+      "path": "target/v53-floor-resource-binding/remaining-diagnostic-01.log",
+      "sha256": "d21922733b432004846fca1a8eb124bd26cf26da530afc10d9621c74126d44ad"
+    },
+    {
+      "path": "target/v53-floor-resource-binding/native-summary.json",
+      "sha256": "117710c26ebedf178e60f6a835b4f34c024f6f5f47ee88a90af87fdf513fb506"
+    },
+    {
+      "path": "target/v53-floor-resource-binding/native-original.json",
+      "sha256": "d9e895933e9d3b6705e98d04c150fec5800e7c5d3ea825d5d76c03072b42f6ef"
+    },
+    {
+      "path": "target/v53-floor-resource-binding/native-accounting-negatives.json",
+      "sha256": "8089888a5c1eafab113024d53fe502f16456f1ff7a240aaf33c786566cf84947"
+    },
+    {
+      "path": "target/v53-floor-resource-binding/native-floor-negatives.json",
+      "sha256": "cfc432aacf9b5ca912fdc3bda421c9e0a137e7d10c0ee4ceca5c27a543b7b362"
+    },
+    {
+      "path": "target/v53-floor-resource-binding/java-source-check.json",
+      "sha256": "b986aad45b9a53ce0379f30ad7bc4ec36d356bf1566fb1d44a023e833f8fbcd0"
+    },
+    {
+      "path": "target/v53-floor-resource-binding/original-inventory.json",
+      "sha256": "7240ae3253ad51d71598d8b4c1b8248c01bc8f82b418a110c7cdebc6b1216c58"
+    },
+    {
+      "path": "target/v53-floor-resource-binding/native-failure-01.json",
+      "sha256": "789f5f65e7dc8d0eb620268536a6b4c43b27e10541019790d683b23c6f762154"
+    },
+    {
+      "path": "target/v53-floor-resource-binding/remaining-diagnostic.json",
+      "sha256": "d135144984fdb4f735514ee0b0c41b838317c60680c0b32822e926a6b11fa586"
+    },
+    {
+      "path": "target/v53-floor-resource-binding/qualify_native.py",
+      "sha256": "93745e97a7786b4b516e68728523ae6824e3289800efd770a2509966f567ccd2"
+    },
+    {
+      "path": "target/v53-required-four-resources/java-input.json",
+      "sha256": "6606520b44f33a3cee48d03ca0f90ac9cbbc57a83583596f8b30ab6ddafba546"
+    },
+    {
+      "path": "target/v53-required-four-resources/maven-01.log",
+      "sha256": "8bd1e28d91b2c591c11e04ebe142834f67a3d7f8e31976d487e49a6d8c227e97"
+    }
+  ],
+  "resourceChanges": 81031,
+  "schema": "gse-v53-floor-resource-binding-development-v1",
+  "sources": [
+    {
+      "path": "scripts/v53/floor_resource_evidence.py",
+      "sha256": "cc37e2830aa912ac4163aeb410c1d0ced00f584647d2e9772cc456c11d3976bd"
+    },
+    {
+      "path": "scripts/v53/floor_resource_negatives.py",
+      "sha256": "1b826212901f08e4f1ad698a6fa005cc39f8e8313f7a0f6d9553c975060aa91b"
+    },
+    {
+      "path": "scripts/v53/test_floor_resource_evidence.py",
+      "sha256": "782cd138af384b1f7ca4275321b009440b65e5ca5d8af352382568bfc8a08f38"
+    },
+    {
+      "path": "scripts/v53/native_resource_evidence.py",
+      "sha256": "b81aa38195fb2cc1ec1d279957d51618334426d95b1604cbe18d7586bbbb5757"
+    },
+    {
+      "path": "scripts/v53/joining_same_view_future.py",
+      "sha256": "27d58c79353fd7d2b095bef7d62a32fc60e47a649ebed8a3b695f70d15020faa"
+    },
+    {
+      "path": "scripts/v53/test_joining_same_view_future.py",
+      "sha256": "0e0e038cde69c5c5ce6fed36dca57274ab8cea023777689579ad624a1bc72def"
+    }
+  ],
+  "status": "PASS",
+  "transport": {
+    "allTransportFramesQualified": false,
+    "boundFrameLifetimes": 19332,
+    "checkedFrameBoundaries": 33840,
+    "otherControlReservations": 14148,
+    "unobservedFrames": 252
+  },
+  "wholeRuntimeResourcesQualified": false
+}

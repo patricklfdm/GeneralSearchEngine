@@ -1,5 +1,18 @@
 # Phase 3 qualification inventory and remaining work
 
+[Floor storage lifetimes](PHASE_3_FLOOR_RESOURCE_BINDING.md) now bind copied
+metadata/images and pinned local generations to the original event/resource
+sequences. Conditional regressions and eleven coherent negative cases cover
+wrong extents, copy identity and gaps between callbacks. The complete required-four
+original now passes all eleven slots, cold reopen and corrected full original
+replay, including all four continuous ledgers. Its first replay failure exposed
+a reader's incorrect ACK requirement for a departing FINAL owner; that failure
+remains retained. Resource replay binds 56 floors / 358 leases and 81031 changes.
+Receiving scratch, other control/storage owners, complete negative matrices,
+combined physical maxima and final-source admission remain open. Earlier batch
+notes below describe their historical evidence state, superseded only for the
+specific original scope qualified here.
+
 [Transport frame lifetimes](PHASE_3_TRANSPORT_RESOURCE_BINDING.md) now bind
 original invocation IDs to exact request/reply leases. Two real TCP retry/failure
 histories qualify 15 frame lifetimes and 32 exact negatives. This covers connected
