@@ -3,7 +3,7 @@
   "status": "PLANNED",
   "phase3Complete": false,
   "acceptancePlanSha256": "cdb67a09eb2acc2b2f7d7348204d4a2e4cebc7996aaeacdec6145864f5f846f1",
-  "sourceCatalogueSha256": "7c2ec19e944a49fceffc9190e98291464d9b0d49eba993d94f4b6a5ae771c250",
+  "sourceCatalogueSha256": "14b0efb306e9f96381f118ffbcb0f63b24e6d33f70bb7ac1108159d84b5b4c66",
   "requirements": [
     {
       "id": "3A-activation",
@@ -117,9 +117,25 @@
           "reason": "node late prepare exact undelivered original grant",
           "condition": "original-late-unused-prepare",
           "scope": "Only applicable when the original records a late unused PREPARE; absence is not rejection."
+        },
+        {
+          "id": "whole-group-carried-reply-lifetime",
+          "cohort": "carried-data-histories",
+          "unit": "data-applied-application-force-kill",
+          "histories": [
+            "data-applied-application-force-kill"
+          ],
+          "selector": {
+            "suite": "process-history",
+            "case": "network-cross-life-delivery",
+            "variant": "default"
+          },
+          "reason": "native carried delivery crosses group death",
+          "condition": "always",
+          "scope": "Original whole-group SIGKILL and same-directory carried DATA recovery; an old reply cannot arrive in the replacement JVM."
         }
       ],
-      "openWork": "Native carried-process halt/SIGKILL is not supplied by the Phase 2 conditional carried_process_evidence fixture; retained-directory recovery and unavailable authority still need the full Phase 3 matrix."
+      "openWork": "Eight native carried DATA halt/SIGKILL cases now have owning original-first physical/process/network replay and a source-bound entry. Final-source execution and broader retained-directory/unavailable-authority coverage remain required; Phase 2 conditional fixtures do not supply these originals."
     },
     {
       "id": "3C-learner",

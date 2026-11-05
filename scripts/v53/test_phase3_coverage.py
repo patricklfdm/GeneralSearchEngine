@@ -30,9 +30,9 @@ class Phase3CoverageTest(unittest.TestCase):
 
     def test_complete_source_partition_has_no_runtime_acceptance(self):
         result = self.validate()
-        self.assertEqual(478, sum(map(len, self.source['units'].values())))
-        self.assertEqual(544, sum(len(v['histories']) for units in self.source['units'].values() for v in units.values()))
-        self.assertEqual(19, len(result['candidateWitnesses']))
+        self.assertEqual(486, sum(map(len, self.source['units'].values())))
+        self.assertEqual(552, sum(len(v['histories']) for units in self.source['units'].values() for v in units.values()))
+        self.assertEqual(20, len(result['candidateWitnesses']))
         self.assertEqual(4, result['conditionalWitnesses'])
         self.assertTrue(all(w['qualification'] == 'NOT_EVALUATED' for w in result['candidateWitnesses']))
         self.assertEqual(0, result['nativeHistoriesExecuted'])
@@ -136,7 +136,7 @@ class Phase3CoverageTest(unittest.TestCase):
         with patch.object(h, 'execute', side_effect=AssertionError('audit must not execute')):
             first = c.inspect(); second = c.inspect()
         self.assertEqual(first, second)
-        self.assertEqual((478, 544, 238), tuple(first[0][k] for k in
+        self.assertEqual((486, 552, 246), tuple(first[0][k] for k in
                          ('sourceArchiveUnits', 'plannedHostedHistories', 'plannedExecutionGroups')))
         self.assertIn('scripts/v53/phase3_coverage.py', first[0]['inspectedFiles'])
 

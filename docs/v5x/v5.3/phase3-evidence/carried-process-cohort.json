@@ -1,0 +1,139 @@
+{
+  "baseCommit": "e7c288b9512ed95d1ab32da2cb2b2c31510c7e77",
+  "changedSource": {
+    "path": "target/v53-carried-process-cohort/changed-source.json",
+    "sha256": "93e7bd6503ee27504caaf2adba118ce13d1e11c7ee67b43fdedfc315bc5fc1ae"
+  },
+  "contract": {
+    "path": "target/v53-carried-process-cohort/contract.json",
+    "result": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 2772,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "sha256": "ee3eca228bf40c26cf79846eddb9e5cb8cef88204bfd465f09929db7dfe5b1af"
+  },
+  "execution": {
+    "hostedWorkflow": false,
+    "newJavaHistories": 0,
+    "paidCloud": false,
+    "pushed": false
+  },
+  "phase3Complete": false,
+  "planned": {
+    "candidateWitnesses": 20,
+    "cases": [
+      "data-accept",
+      "data-proof",
+      "data-certificate",
+      "data-applied",
+      "data-applied-cleanup-halt",
+      "data-applied-cleanup-kill",
+      "data-applied-accept-rename-halt",
+      "data-applied-accept-rename-kill",
+      "data-applied-proof-rename-halt",
+      "data-applied-proof-rename-kill",
+      "data-applied-application-force-halt",
+      "data-applied-application-force-kill"
+    ],
+    "executionGroups": 246,
+    "hostedHistories": 552,
+    "members": 12,
+    "negativeCases": 587,
+    "processCases": 8,
+    "rawArchives": 486,
+    "subsets": 12
+  },
+  "preservedDiagnostics": [
+    {
+      "path": "target/v53-carried-process-cohort/first-unit.log",
+      "sha256": "a27e6b924e53f67f66d3a1f2591e0f1ec3b5d32dd827088a8e9e7ccbf4a37642"
+    },
+    {
+      "path": "target/v53-carried-process-cohort/second-unit.log",
+      "sha256": "2c647fd83a86f9918f29b5d9554aee3ed82ac1a36b809e192402f2590f52ec36"
+    }
+  ],
+  "python": [
+    {
+      "path": "target/v53-carried-process-cohort/unit.log",
+      "scope": "synthetic capture, archive, downloaded replay and aggregate contracts",
+      "sha256": "36e52ec6370ab30428838edaef2ea817c6676b229b2460248b96fce04dc12245",
+      "tests": 45
+    },
+    {
+      "path": "target/v53-carried-process-cohort/cohort-first.log",
+      "scope": "source, witness, seed and all twelve owning aggregates",
+      "sha256": "49122ad88961abd77e244f672f681858fe2e03199091d8c6be5310d71c8af7c0",
+      "tests": 70
+    }
+  ],
+  "readerManifest": {
+    "path": "target/v53-carried-process-cohort/reader-manifest.json",
+    "sha256": "da1c20d90fa935e1aafe7ddc1b8e543db2f8970e00f6efb9f332019686e81da3"
+  },
+  "relocatedOriginalReplay": {
+    "archiveManifest": {
+      "path": "target/v53-carried-process-cohort/portable-original/artifact/manifest.json",
+      "sha256": "4089899ee2f5e93f72bec688f3162d10771b87e472a52d8c68aef1baaba5c9ab"
+    },
+    "path": "target/v53-carried-process-cohort/portable-original/receipt.json",
+    "qualification": {
+      "path": "target/v53-carried-process-cohort/portable-original/qualification.json",
+      "sha256": "edd39bce913d34fab1516e588f2b72588d6aa8a6a5b659d42e44f1da83e1b289"
+    },
+    "result": {
+      "archiveSha256": "3393ed095afd2bffcabc1576cef63ce4ca6460630e8994604405a6f595cf7f38",
+      "case": "data-applied-application-force-halt",
+      "cohortAdmitted": false,
+      "elapsedSeconds": 73.726,
+      "execution": "local-archive-replay-only",
+      "hostedWorkflow": false,
+      "jvmExecuted": false,
+      "negatives": 56,
+      "originalPreserved": true,
+      "phase3Complete": false,
+      "readerSha256": "b8b066d86a55e89d44b0f65d1c320a13b9f991016105a81da73182567423b6c2",
+      "runtimeSource": "ce47d970cc1e2029e6e4421dca2efb644a322736",
+      "status": "PASS"
+    },
+    "sha256": "650bed342d9849ee918c186de36de899bae62d513633f7502fd2c13292478a16"
+  },
+  "remaining": [
+    "complete final-source twelve-case carried DATA execution and source-bound admission",
+    "complete final-source twelve-subset qualification",
+    "phase-wide resource maximum and remaining coverage obligations"
+  ],
+  "retainedOriginalContractChecks": {
+    "cohortAdmitted": false,
+    "currentRuntimeHistories": 1,
+    "historicalBroaderRuntimeHistories": 8,
+    "histories": 9,
+    "path": "target/v53-carried-process-cohort/original-contract-check.json",
+    "sha256": "65371e9a04d1a37bf8243dbbda3f140f96178276d6a67c480884955b98dea005"
+  },
+  "schema": "gse-v53-carried-process-cohort-development-v1",
+  "schemas": {
+    "cohort": "gse-v53-carried-data-history-cohort-v2",
+    "execution": "gse-v53-carried-data-history-execution-v2",
+    "hosted": "gse-v53-carried-data-history-hosted-v2"
+  },
+  "scope": "v2 source-bound entry integration; no final-source native cohort execution",
+  "sourceCoverageAudit": {
+    "path": "target/v53-carried-process-cohort/coverage-audit/receipt.json",
+    "sha256": "24d90a22936944024fed80056fc4eabd5b31f72bdd3141ad95e973c8c39b1404"
+  },
+  "status": "PARTIAL",
+  "unchangedJavaFiles": 1367,
+  "unchangedOriginalReaders": {
+    "scripts/v53/native_carried_network.py": "d34738b26a66b66a55579a19b53065067bae141fac0afe0138196aaa33f24134",
+    "scripts/v53/native_carried_process_evidence.py": "064819c1a7cf3f585f8fb7fcc49327bce7392e9481be67313b4717146634944c",
+    "scripts/v53/native_carried_recovery_evidence.py": "f7c3719414bb92f936d6adc2e97c2e0e98767ef08a186acc2592b4eab7d500db"
+  },
+  "workflowChange": "Only the planning step label changes; the existing four-job dynamic topology now reads twelve cases, with max-parallel 4, exact source/run/attempt, failed uploads and 90-day retention unchanged."
+}

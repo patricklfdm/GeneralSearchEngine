@@ -4,12 +4,13 @@
 cold local reacceptance, empty completion headroom and exact-vote maintenance
 before a fresh grant. Whole-group halt/SIGKILL regressions reopen original directories.
 Independent original-byte, process and complete wire replay now qualify each
-retained whole-group history. Final-source cohort admission, complete resource
-qualification and Phase 3 closure remain OPEN.
+retained whole-group history. The existing carried DATA subset now includes its
+eight process cases: twelve complete histories and 587 exact negatives. Final-source
+cohort admission, complete resource qualification and Phase 3 closure remain OPEN.
 
 [Exact candidate witnesses](PHASE_3_COVERAGE_WITNESSES.md) now bind twelve
-Phase 3 requirements to nineteen specific archive/reader/rejection selectors.
-The complete 544-history source catalogue preserves 478 archives and 238
+Phase 3 requirements to twenty specific archive/reader/rejection selectors.
+The complete 552-history source catalogue preserves 486 archives and 246
 execution groups. This source audit does not grant native or phase acceptance.
 The offline cohort records these witnesses only after owning original replay,
 keeping conditional absence separate from actual rejection.
@@ -41,7 +42,7 @@ fencing remains independent of the old control registry. Phase 3 remains OPEN.
 
 [Offline original-history cohort replay](PHASE_3_HISTORY_COHORT.md) now connects
 all twelve existing owning readers and aggregates. Complete seed/source binding
-precedes raw replay; offline results remain PARTIAL. The 544-history catalogue
+precedes raw replay; offline results remain PARTIAL. The 552-history catalogue
 is an execution plan, with final-source execution and Phase 3 closure still OPEN.
 
 [Voting shutdown and cleanup failures](PHASE_3_VOTING_CLOSE_FAILURES.md)

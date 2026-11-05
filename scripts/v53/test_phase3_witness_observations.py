@@ -37,7 +37,7 @@ def qualification(name, unit):
 
 
 def group_fixture(name, group, ctx, archive_hashes):
-    """Known synthetic shapes also used by the 478-archive orchestration test."""
+    """Known synthetic shapes also used by the 486-archive orchestration test."""
     adapter = seeds.adapters()[name]
     def member(unit):
         field = 'profile' if name == 'profiles' else 'case'
@@ -72,9 +72,9 @@ class WitnessObservationsTest(unittest.TestCase):
         groups = dict.fromkeys((v['cohort'], v['executionGroup']) for v in self.plan['witnesses'])
         return [v for name, group in groups for v in self.observe(name, group)]
 
-    def test_all_nineteen_witnesses_use_actual_owning_output_shapes(self):
+    def test_all_twenty_witnesses_use_actual_owning_output_shapes(self):
         result = w.finish(self.plan, self.all_observations())
-        self.assertEqual(19, result['rejected'] + result['notApplicable'])
+        self.assertEqual(20, result['rejected'] + result['notApplicable'])
         self.assertEqual(3, result['notApplicable'])
         self.assertEqual('PARTIAL', result['status'])
         self.assertTrue(all(result[k] is False for k in ('phase3Complete','runtimeQualified','frozenScenarioCoverageQualified')))

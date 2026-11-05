@@ -90,9 +90,11 @@ class CarriedDataHistoryHostedTest(unittest.TestCase):
         w.h.save(data/'seed.json',seed)
         with self.assertRaisesRegex(ValueError,'process toolchain record'):w.seed_inputs(data,self.ctx)
 
-    def test_aggregate_requires_four_exact_originals_and_all_negative_results(self):
+    def test_aggregate_requires_twelve_exact_originals_and_all_negative_results(self):
         result=w.aggregate(self.bundle,self.verified(),self.root/'aggregate',self.ctx,'success','success')
-        self.assertEqual('PASS',result['status']);self.assertEqual(4,result['wholeOwnershipHistories']);self.assertEqual(4,result['nativeCases']);self.assertEqual(129,result['negativeCases'])
+        self.assertEqual('PASS',result['status']);self.assertEqual((12,12,8,587),tuple(result[k] for k in
+            ('wholeOwnershipHistories','nativeCases','processCases','negativeCases')))
+        self.assertTrue(result['declaredWholeGroupCarriedRecoveryQualified'])
         self.assertTrue(result['declaredCarriedDataHistoriesQualified']);self.assertFalse(result['phase3Complete'])
 
     def test_bad_stage_or_missing_verifier_cannot_aggregate(self):
@@ -101,6 +103,22 @@ class CarriedDataHistoryHostedTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'workflow stage'):w.aggregate(self.bundle,root,self.root/f'failed-{i}',self.ctx,execute,verify)
         shutil.rmtree(root/w.artifact_name(self.ctx,'verified',self.case))
         with self.assertRaisesRegex(ValueError,'verified inventory'):w.aggregate(self.bundle,root,self.root/'missing',self.ctx,'success','success')
+
+    def test_four_member_seed_and_process_case_relabelling_are_rejected(self):
+        data,_=w.unpack(self.bundle,self.root/'four-member',self.ctx,'seed')
+        seed=w.m.read(data/'seed.json');seed['cases']=list(w.m.CASES[:4]);w.h.save(data/'seed.json',seed)
+        with self.assertRaisesRegex(ValueError,'seed scope'):w.seed_inputs(data,self.ctx)
+        root=self.verified();case='data-applied-cleanup-kill'
+        path=root/w.artifact_name(self.ctx,'verified',case)/'receipt.json';value=w.m.read(path)
+        value['member']['qualification']=fixtures.replay('data-applied-cleanup-halt');w.h.save(path,value)
+        with self.assertRaisesRegex(ValueError,'complete original process result'):
+            w.aggregate(self.bundle,root,self.root/'wrong-death',self.ctx,'success','success')
+
+    def test_old_hosted_schema_cannot_occupy_a_new_verified_slot(self):
+        root=self.verified();path=root/w.artifact_name(self.ctx,'verified',self.case)/'receipt.json'
+        value=w.m.read(path);value['schema']='gse-v53-carried-data-history-hosted-v1';w.h.save(path,value)
+        with self.assertRaisesRegex(ValueError,'verifier context'):
+            w.aggregate(self.bundle,root,self.root/'legacy-receipt',self.ctx,'success','success')
 
     def test_changed_receipts_cannot_mix_attempts_duplicate_originals_or_relax_negatives(self):
         root=self.verified();path=root/w.artifact_name(self.ctx,'verified',self.case)/'receipt.json';original=w.m.read(path)
@@ -134,7 +152,7 @@ class CarriedDataHistoryHostedTest(unittest.TestCase):
             directory=inputs/w.artifact_name(self.ctx,'verified',case);directory.mkdir()
             shutil.copyfile(self.root/('replayed-'+case)/'receipt.json',directory/'receipt.json')
         result=w.aggregate(self.bundle,inputs,self.root/'roundtrip-aggregate',self.ctx,'success','success')
-        self.assertEqual((4,4,129),(result['wholeOwnershipHistories'],result['nativeCases'],result['negativeCases']))
+        self.assertEqual((12,12,587),(result['wholeOwnershipHistories'],result['nativeCases'],result['negativeCases']))
         for field in ('phase3Complete','processDeathQualified','combinedPeakResourcesQualified','allMembershipProfilesQualified','autonomousCompetitionQualified','powerLossQualified'):
             self.assertIs(False,result[field])
 

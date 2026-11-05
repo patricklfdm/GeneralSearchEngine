@@ -1,7 +1,7 @@
 # Phase 3: replay the complete declared hosted history set offline
 
 [Candidate witness observations](PHASE_3_COVERAGE_WITNESSES.md) now bind
-nineteen exact selectors to actual owning replay results and original archives.
+twenty exact selectors to actual owning replay results and original archives.
 The complete result remains PARTIAL, with applicability reported separately.
 
 Status: offline original replay entry implemented; Phase 3 remains OPEN.
@@ -12,8 +12,8 @@ index and **raw original artifacts**, calls every owning downloaded verifier,
 then calls every owning aggregate. It never consumes downloaded PASS receipts
 as a substitute for replay and never calls a producer, Maven or GitHub.
 
-The current catalogue is **544 declared whole histories in 238 execution groups**,
-stored in **478 raw archives**. The difference is intentional: joining-process
+The current catalogue is **552 declared whole histories in 246 execution groups**,
+stored in **486 raw archives**. The difference is intentional: joining-process
 has 120 groups containing three separate originals each, while transfer and
 automatic groups contain several whole histories in a single archive. A lease,
 source or continuous history is not divided for replay. These counts are not
@@ -85,9 +85,9 @@ checkout are rechecked after the final replay. Successful overall output is:
 {
   "status": "PARTIAL",
   "allDeclaredHistoriesReplayed": true,
-  "historiesReplayed": 544,
-  "groupsReplayed": 238,
-  "rawArchives": 478,
+  "historiesReplayed": 552,
+  "groupsReplayed": 246,
+  "rawArchives": 486,
   "workflowExecutionAttested": false,
   "runtimeQualified": false,
   "frozenScenarioCoverageQualified": false,
@@ -101,9 +101,13 @@ development validation uses synthetic archives and orchestration readers for
 the complete routing test, real owning seed readers, all twelve actual aggregate
 contracts, and the actual REMOVE and three-original joining downloaded verifiers
 with synthetic physical oracles. It proves routing, provenance, rejection and failure retention. It does
-not execute 544 JVM histories. See the [development receipt](phase3-evidence/history-cohort.json).
+not execute 552 JVM histories. See the [development receipt](phase3-evidence/history-cohort.json).
 
 An authorized final-source hosted set, independently attested workflow stages,
 precise Phase 3 coverage, missing protocol axes and simultaneous resource-limit
 qualification still remain. This entry does not close those requirements or
 relax any workload parameters, limits, CI checks or cloud admission.
+
+The [carried DATA v2 integration receipt](phase3-evidence/carried-process-cohort.json)
+records the current expanded catalogue checks. Earlier development receipts
+retain their original smaller catalogue and are not rewritten as new execution.

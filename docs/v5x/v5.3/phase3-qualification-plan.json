@@ -148,18 +148,25 @@
       "tests": [
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53OwnedCrossViewTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53OwnedAdoptionProcessTest.java",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53OwnedRecoveryTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53OwnedRecoveryTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessTest.java"
       ],
       "readers": [
-        "scripts/v53/owned_cross_view_evidence.py"
+        "scripts/v53/owned_cross_view_evidence.py",
+        "scripts/v53/native_carried_recovery_evidence.py",
+        "scripts/v53/native_carried_process_evidence.py",
+        "scripts/v53/native_carried_network.py",
+        "scripts/v53/carried_data_history.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_OWNED_CROSS_VIEW.md",
-        "docs/v5x/v5.3/PHASE_3_OWNED_RECOVERY.md"
+        "docs/v5x/v5.3/PHASE_3_OWNED_RECOVERY.md",
+        "docs/v5x/v5.3/PHASE_3_NATIVE_CARRIED_RECOVERY.md"
       ],
       "cohorts": [
         "profiles",
-        "node-renames"
+        "node-renames",
+        "carried-data-histories"
       ],
       "gaps": [
         "component-cohorts",
@@ -1115,8 +1122,8 @@
       "status": "ENTRY_READY_EXECUTION_PENDING"
     },
     "carried-data-histories": {
-      "members": 4,
-      "casesSha256": "569c67072cf5d3fc44d8df50e1f9c9ca56c4cd77a19969eb07783f8be456e2b5",
+      "members": 12,
+      "casesSha256": "dcf4fd179d7f313df3b4efa5860c3869792c73d7538c77dc25ea07bba11676d0",
       "status": "ENTRY_READY_EXECUTION_PENDING"
     },
     "carried-transition-histories": {
@@ -1140,7 +1147,7 @@
       "id": "component-cohorts",
       "status": "OPEN",
       "dependsOn": [],
-      "work": "The focused 3-ADD learner pair and complete TCP lifetime/process matrices have source-bound capture, admission and hosted entries. Seven native carried/stable round histories now have source-bound local admission and an independent seven-job hosted entry. Four carried DATA phases now have a source-bound local entry with immutable payload, derived application state and next-BARRIER qualification; its four-member hosted adapter is prepared, with final-source execution pending. Two four-voter REMOVE carried INTENT/FINAL originals now have independent physical/lifecycle replay and 60 exact negatives, including portable optimized replay. Two new request-observed originals now add complete attempted transport, durable activation/slot replies and 153 exact network negatives per kind. Older response-only records are explicitly refused for this scope. The same originals now have temporal export authorization and complete-copy floor lifetime replay (416 transfers, 20 floors, 44 exact negatives). Continuous peer/future revision composition and complete observed retirement callbacks now add 154 exact negatives on those same originals. Two new originals now retain 1176 actual retirement file prefixes with 38 exact negatives and portable replay. The carried transition pair now has source/build/toolchain/reader-bound whole-history capture/admission and a two-job hosted execution/downloaded-replay entry requiring all 602 negative checks. Final-source execution, carried process-death histories and other profiles remain open. Continue other carried payload/process axes, competing owners, transition recovery and uncovered learner profiles. Phase 2 conditional process fixtures cannot substitute for Phase 3 native originals. Final-source execution remains pending; reuse existing producers/readers. Automatic competition, higher-ballot restart and the complete 48-case PROMISE reply-revocation matrix now have a three-group hosted adapter. All 50 original plans must share the seed and source/build/toolchain/reader, with complete downloaded original-first replay and exact shape-dependent negative vectors. Final-source execution and broader lifecycle/export coverage remain pending. The 32 joint-floor process histories now have a v2 local cohort gate and a hosted adapter with one immutable seed, whole native execution and independent downloaded replay. Their 1544 cut-specific negatives are fixed before mutation; complete final-source execution remains pending.",
+      "work": "The focused 3-ADD learner pair and complete TCP lifetime/process matrices have source-bound capture, admission and hosted entries. Seven native carried/stable round histories now have source-bound local admission and an independent seven-job hosted entry. Four carried DATA phases now have a source-bound local entry with immutable payload, derived application state and next-BARRIER qualification; its four-member hosted adapter is prepared, with final-source execution pending. Two four-voter REMOVE carried INTENT/FINAL originals now have independent physical/lifecycle replay and 60 exact negatives, including portable optimized replay. Two new request-observed originals now add complete attempted transport, durable activation/slot replies and 153 exact network negatives per kind. Older response-only records are explicitly refused for this scope. The same originals now have temporal export authorization and complete-copy floor lifetime replay (416 transfers, 20 floors, 44 exact negatives). Continuous peer/future revision composition and complete observed retirement callbacks now add 154 exact negatives on those same originals. Two new originals now retain 1176 actual retirement file prefixes with 38 exact negatives and portable replay. The carried transition pair now has source/build/toolchain/reader-bound whole-history capture/admission and a two-job hosted execution/downloaded-replay entry requiring all 602 negative checks. Final-source execution, carried process-death histories and other profiles remain open. Continue other carried payload/process axes, competing owners, transition recovery and uncovered learner profiles. Phase 2 conditional process fixtures cannot substitute for Phase 3 native originals. Final-source execution remains pending; reuse existing producers/readers. Automatic competition, higher-ballot restart and the complete 48-case PROMISE reply-revocation matrix now have a three-group hosted adapter. All 50 original plans must share the seed and source/build/toolchain/reader, with complete downloaded original-first replay and exact shape-dependent negative vectors. Final-source execution and broader lifecycle/export coverage remain pending. The 32 joint-floor process histories now have a v2 local cohort gate and a hosted adapter with one immutable seed, whole native execution and independent downloaded replay. Their 1544 cut-specific negatives are fixed before mutation; complete final-source execution remains pending. The carried DATA v2 subset now includes eight whole-group carried DATA halt/SIGKILL methods in addition to the four original states. Each two-child history remains one execution/archive; all twelve require 587 exact negatives, with final-source execution still pending.",
       "acceptance": "Exact source/build/toolchain/reader-bound originals and independent original-first replay. Missing observations, unsupported histories or an original deadline failure remain failures. Whole ownership and revision histories stay indivisible."
     },
     {
@@ -1157,7 +1164,7 @@
         "component-cohorts",
         "combined-resources"
       ],
-      "work": "The exact source-selector audit now binds nineteen candidate witnesses for all twelve Phase 3 requirements and pins the complete 478-archive catalogue. Complete Phase 3 schedule and rejection-family coverage still require original selectors, applicability and final-source replay; no coverage is inferred from substrings or counts. The frozen 3310 S rows remain Phase 5 requirements.",
+      "work": "The exact source-selector audit now binds twenty candidate witnesses for all twelve Phase 3 requirements and pins the complete 486-archive catalogue. Complete Phase 3 schedule and rejection-family coverage still require original selectors, applicability and final-source replay; no coverage is inferred from substrings or counts. The frozen 3310 S rows remain Phase 5 requirements.",
       "acceptance": "No family closes from substring matches, aggregate pass counts or a related profile. Explicit refusal evidence for inapplicable rows, expected negative reasons and owner-phase boundaries must remain reviewable."
     },
     {

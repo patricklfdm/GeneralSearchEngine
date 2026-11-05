@@ -1,4 +1,4 @@
-"""Capture four complete native carried DATA histories without replaying a client.
+"""Capture complete native carried DATA histories without replaying a client.
 
 Old ACCEPT/PROOF/CERTIFICATE/APPLIED, new-ballot completion and the next fresh
 BARRIER remain one original. Full physical replay precedes every exact negative.
@@ -15,12 +15,13 @@ from . import joining_history_run as h
 from . import remove_process_matrix as shared
 from . import process_toolchain as tc
 from . import carried_slot_evidence as carried
+from . import native_carried_network as recovery
 
 dispatch=carried.d
 
 need=h.need;read=shared.read;reader_manifest=shared.reader_manifest;BUILDS=shared.BUILDS
-SCHEMA='gse-v53-carried-data-history-execution-v1'
-COHORT='gse-v53-carried-data-history-cohort-v1'
+SCHEMA='gse-v53-carried-data-history-execution-v2'
+COHORT='gse-v53-carried-data-history-cohort-v2'
 PACKAGE='io.github.patricklfdm.generalsearch.replication.'
 METHODS={
     'data-accept':('V53CarriedDataDriverTest','acceptedDataReplaysOnceBeforeFreshBarrier','v53-native-dispatch'),
@@ -28,6 +29,16 @@ METHODS={
     'data-certificate':('V53CarriedDataDriverTest','certifiedDataReplaysOnceBeforeFreshBarrier','v53-native-dispatch'),
     'data-applied':('V53CarriedDataDriverTest','appliedDataReplaysOnceBeforeFreshBarrier','v53-native-dispatch'),
 }
+PROCESS_CASES={}
+for label,cut,suffix in (
+    ('cleanup','NATIVE_RETIREMENT_CERTIFICATE_RETAINED','DuringCarriedCertificateCleanup'),
+    ('accept-rename','ACCEPT_RENAMED','AfterCarriedAcceptRename'),
+    ('proof-rename','PROOF_RENAMED','AfterCarriedProofRename'),
+    ('application-force','APPLY_ACK_DIRECTORY_FORCED','AfterCarriedApplicationForce')):
+    for mode in ('halt','kill'):
+        case='data-applied-'+label+'-'+mode
+        PROCESS_CASES[case]=dict(mode=mode,cut=cut)
+        METHODS[case]=('V53NativeCarriedProcessTest',mode+suffix,'v53-native-carried-process')
 CASES=tuple(METHODS)
 
 
@@ -54,13 +65,17 @@ def junit(reports,case):
 
 
 def phase(case):
-    selected(case);return case.removeprefix('data-').upper()
+    selected(case);return 'APPLIED' if case in PROCESS_CASES else case.removeprefix('data-').upper()
 
 
 def histories(case):selected(case);return [case]
 
 
 def negative_cases(case):
+    selected(case)
+    if case in PROCESS_CASES:
+        return [dict(suite='process-history',case=name,status='REJECTED',reason=reason)
+                for name,reason in recovery.negative_cases(PROCESS_CASES[case]['cut']).items()]
     return [dict(suite='physical',case=name,status='REJECTED',reason=reason)
             for name,reason in carried.negative_cases(phase(case),confirmed_retention=True,kind='DATA').items()]
 
@@ -69,9 +84,15 @@ def collect(raw,case):
     selected(case);raw=Path(raw);before=h.inventory(raw)
     need((raw/'carried-phase.txt').read_text()==phase(case),'carried DATA exact carried phase')
     need((raw/'carried-kind.txt').read_bytes()==b'DATA','carried DATA payload declaration')
-    entry=(raw/'entry-1.gsr').read_bytes()
-    need(read(raw/'carried-result.json')==dict(status='PASS',carried=h.digest(entry),slots=2,publicReady=False),
-         'carried DATA producer scope')
+    if case in PROCESS_CASES:
+        result=read(raw/'process/result.json');recovery.process.children(result)
+        need({k:result[k] for k in ('mode','cut')}==PROCESS_CASES[case], 'carried DATA exact process cut/mode')
+        need(not (raw/'carried-result.json').exists(),'carried DATA unexpected nonprocess claim')
+    else:
+        entry=(raw/'entry-1.gsr').read_bytes()
+        need(read(raw/'carried-result.json')==dict(status='PASS',carried=h.digest(entry),slots=2,publicReady=False),
+             'carried DATA producer scope')
+        need(not (raw/'process').exists(),'carried DATA unexpected process claim')
     need(not (raw/'round-result.json').exists(),'carried DATA unexpected lifecycle claim')
     plans={case:h.digest(h.snapshot.s.regular(raw/'original-plan.gsbp',h.snapshot.MIB))}
     need(h.inventory(raw)==before,'carried DATA changed during collection')
@@ -81,9 +102,10 @@ def collect(raw,case):
 
 def replay(raw,case):
     selected(case);raw=Path(raw);before=h.inventory(raw)
-    value=carried.qualify(raw,confirmed_retention=True,kind='DATA')
+    value=(recovery.qualify(raw) if case in PROCESS_CASES else carried.qualify(raw,confirmed_retention=True,kind='DATA'))
     need(h.inventory(raw)==before,'carried DATA original changed in reader')
-    return dict(original=value['original'],negatives=[dict(suite='physical',**v) for v in value['negatives']],originalPreserved=True)
+    suite='process-history' if case in PROCESS_CASES else 'physical'
+    return dict(original=value['original'],negatives=[dict(suite=suite,**v) for v in value['negatives']],originalPreserved=True)
 
 
 def capture(output,maven,case,source_from=None):
@@ -170,11 +192,66 @@ def member(path,case,source,build,toolchain,reader):
     return dict(raw=raw,plans=collection['plans'],inventory=collection['inventory'],receiptSha256=h.digest((path/'receipt.json').read_bytes()))
 
 
+def check_process_result(original,case):
+    """Enforce the owning reader's result shape; this does not replay raw bytes."""
+    need(type(original) is dict, 'carried DATA process original result')
+    process=original.get('process');network=original.get('network')
+    need(type(process) is dict and type(network) is dict, 'carried DATA process original result')
+    fixed=dict(status='PASS',scope='native-carried-whole-group-process-history',originalFirst=True,
+        process=process,network=network,fullWireReplay=True,processHistoryQualified=True,
+        phase3Complete=False,cohortAdmitted=False,powerLoss=False,publicRuntime=False)
+    exact=lambda actual,expected: h.snapshot.f.canonical(actual)==h.snapshot.f.canonical(expected)
+    need(exact(original,fixed),'carried DATA process original scope')
+    messages=process.get('childMessages')
+    need(type(messages) is list and len(messages)==2 and all(type(v) is int and 0<v<=32768 for v in messages),
+         'carried DATA process child observations')
+    physical=dict(status='PARTIAL',scope='native-carried-whole-group-physical',physicalReplay=True,
+        cut=PROCESS_CASES[case]['cut'],campaigns=2,dataApplications=1,publishedSlots=2,
+        fullWireReplay=False,processHistoryQualified=False,phase3Complete=False)
+    expected=dict(status='PARTIAL',scope='native-carried-whole-group-physical-and-process',componentChecks='PASS',
+        originalFirst=True,**PROCESS_CASES[case],freshGroupJvms=2,survivingOriginalOwners=0,childMessages=messages,
+        clientCalls=0,physical=physical,processObservations=True,fullWireReplay=False,processHistoryQualified=False,
+        cohortAdmitted=False,powerLoss=False,phase3Complete=False)
+    need(exact(process,expected),'carried DATA complete original process result')
+    need(set(network)=={'fullWireReplay','phases','exchanges','requests','silent','silentRequests','background'} and
+         network['fullWireReplay'] is True,'carried DATA complete process network result')
+    count=lambda v:type(v) is int and 0<=v<=32768
+    need(all(count(network[k]) for k in ('exchanges','requests','silentRequests')) and
+         0<network['exchanges']<=network['requests'],'carried DATA process network counts')
+    phases=network['phases'];background=network['background'];silent=network['silent']
+    need(type(phases) is list and len(phases)==5 and all(type(v) is dict for v in phases),
+         'carried DATA complete five process phases')
+    for i,row in enumerate(phases):
+        keys={'exchanges','transfers','unusedIncompleteTransfers'}
+        if i in (0,2):
+            keys.add('voters')
+            need(row.get('voters') in (['node-1','node-2'],['node-1','node-3']),'carried DATA process selected pair')
+        elif i in (3,4):
+            keys|={'index','recordingQuorums'}
+            need(type(row.get('index')) is int and row['index']==i-2 and
+                 type(row.get('recordingQuorums')) is int and row['recordingQuorums']==1,'carried DATA process publication quorum')
+        need(set(row)==keys and all(count(row[k]) for k in ('exchanges','transfers','unusedIncompleteTransfers')) and
+             row['unusedIncompleteTransfers']<=row['transfers']<=row['exchanges'] and
+             (i==1 or row['exchanges']>0),'carried DATA process phase counts')
+    need(type(background) is dict and set(background)=={'samples','exchanges','contactOnly','silentRequests'} and
+         background['contactOnly'] is True and all(count(background[k]) for k in ('samples','exchanges','silentRequests')) and
+         sum(v['exchanges'] for v in phases)+background['exchanges']==network['exchanges'],
+         'carried DATA process heartbeat coverage')
+    need(type(silent) is list and all(type(v) is dict and set(v)=={'index','kind','attempts'} and
+         type(v['index']) is int and v['index'] in (1,2) and v['kind'] in ('FUTURE_RETENTION_INTENT','CHECKPOINT_ACK_LOOKUP') and
+         type(v['attempts']) is int and 1<=v['attempts']<=3 for v in silent) and
+         sum(v['attempts'] for v in silent)==network['silentRequests'], 'carried DATA process silent attempts')
+
+
 def check_result(value,case):
     selected(case)
     need(type(value) is dict and set(value)=={'original','negatives','originalPreserved'} and value['originalPreserved'] is True,
          'carried DATA preserved original replay')
     original=value['original']
+    if case in PROCESS_CASES:
+        check_process_result(original,case)
+        need(value['negatives']==negative_cases(case),'carried DATA exact negative vector')
+        return
     keys={'status','phase','slots','voters','selected','transfers','automaticElection','publicReady','phase3Complete',
           'retentionSemantics','carriedKind','applicationSequence','lastDataIndex'}
     need(type(original) is dict and set(original)==keys and original['status']=='PASS' and original['phase']==phase(case) and
@@ -195,10 +272,10 @@ def qualify_member(path,case,*pins):
 
 def aggregate(paths,*pins,workers=1,progress=None):
     check_pins(*pins);need(type(workers) is int and 1<=workers<=4,'carried DATA cohort replay workers')
-    need(type(paths) is dict and set(paths)==set(CASES),'carried DATA cohort complete four histories')
+    need(type(paths) is dict and set(paths)==set(CASES),'carried DATA cohort complete declared histories')
     need(len({Path(v).resolve() for v in paths.values()})==len(CASES),'carried DATA cohort distinct producers')
     originals={k:member(paths[k],k,*pins) for k in CASES};plans=[v for k in CASES for v in originals[k]['plans'].values()]
-    need(len(plans)==len(set(plans))==4,'carried DATA cohort distinct complete original histories')
+    need(len(plans)==len(set(plans))==len(CASES),'carried DATA cohort distinct complete original histories')
     outcomes={}
     with ProcessPoolExecutor(max_workers=workers) as pool:
         tasks={pool.submit(qualify_member,paths[k],k,*pins):k for k in CASES};pending=set(tasks)
@@ -214,9 +291,10 @@ def aggregate(paths,*pins,workers=1,progress=None):
     for k in CASES:need(member(paths[k],k,*pins)==originals[k],'carried DATA cohort original changed before aggregate')
     check_pins(*pins);passed=all(outcomes[k]['status']=='PASS' for k in CASES)
     return dict(schema=COHORT,status='PASS' if passed else 'FAIL',scope='complete-declared-native-carried-data-phases',
-        cases=[outcomes[k] for k in CASES],wholeOwnershipHistories=4,nativeCases=4,
+        cases=[outcomes[k] for k in CASES],wholeOwnershipHistories=len(CASES),nativeCases=len(CASES),processCases=len(PROCESS_CASES),
         negativeCases=sum(len(v.get('qualification',{}).get('negatives',[])) for v in outcomes.values()),
-        **dict(zip(('sourceSha256','buildSha256','toolchainSha256','readerSha256'),pins)),declaredCarriedDataHistoriesQualified=passed,processDeathQualified=False,
+        **dict(zip(('sourceSha256','buildSha256','toolchainSha256','readerSha256'),pins)),declaredCarriedDataHistoriesQualified=passed,
+        declaredWholeGroupCarriedRecoveryQualified=passed,processDeathQualified=False,
         allMembershipProfilesQualified=False,combinedPeakResourcesQualified=False,autonomousCompetitionQualified=False,
         completePhysicalQualified=False,powerLossQualified=False,phase3Complete=False)
 

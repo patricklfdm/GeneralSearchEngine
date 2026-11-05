@@ -1,4 +1,4 @@
-"""Four whole native carried DATA histories, isolated execution and downloaded replay.
+"""Whole native carried DATA histories, isolated execution and downloaded replay.
 
 Exact source/run/attempt binds every artifact. No JVM history is split, retried
 or reconstructed from a successful fragment. The scope is not Phase 3 closure.
@@ -15,7 +15,7 @@ from . import remove_process_hosted as shared
 h=m.h;need=m.need;tc=shared.tc
 WORKFLOW='.github/workflows/v53-carried-data-histories.yml'
 BRANCH='refs/heads/experiment/v53-carried-data-histories'
-SCHEMA='gse-v53-carried-data-history-hosted-v1'
+SCHEMA='gse-v53-carried-data-history-hosted-v2'
 MAX_BYTES=shared.MAX_BYTES
 pins=shared.pins
 # Each old DATA vote, carried completion and fresh BARRIER is indivisible.
@@ -149,15 +149,16 @@ def aggregate(seed_bundle,inputs,output,ctx,execute_result,verify_result, *, off
             need(not histories.intersection(plans.values()) and value['rawArchiveSha256'] not in archives and
                  member['producerReceiptSha256'] not in receipts,'carried DATA hosted duplicated history')
             histories.update(plans.values());archives.add(value['rawArchiveSha256']);receipts.add(member['producerReceiptSha256']);cases.append(value)
-        need(len(histories)==4,'carried DATA hosted complete ownership histories')
+        need(len(histories)==len(m.CASES),'carried DATA hosted complete ownership histories')
         seed_inputs(seed_root,ctx)
         negatives=[v for case in cases for v in case['member']['qualification']['negatives']]
-        receipt.update(status='PASS',cases=cases,wholeOwnershipHistories=len(histories),nativeCases=4,negativeCases=len(negatives),
+        receipt.update(status='PASS',cases=cases,wholeOwnershipHistories=len(histories),nativeCases=len(m.CASES),processCases=len(m.PROCESS_CASES),negativeCases=len(negatives),
             rejected=sum(v['status']=='REJECTED' for v in negatives),seedArchiveSha256=manifest['archiveSha256'],
             **{name+'Sha256':value for name,value in zip(('source','build','toolchain','reader'),pins(seed))},
-            declaredCarriedDataHistoriesQualified=True,processDeathQualified=False,allMembershipProfilesQualified=False,combinedPeakResourcesQualified=False,
+            declaredCarriedDataHistoriesQualified=True,declaredWholeGroupCarriedRecoveryQualified=True,
+            processDeathQualified=False,allMembershipProfilesQualified=False,combinedPeakResourcesQualified=False,
             autonomousCompetitionQualified=False,completePhysicalQualified=False,powerLossQualified=False,
-            acceptanceAuthority='all exact-attempt workflow stages plus four whole-history downloaded original-first verifier receipts')
+            acceptanceAuthority='all exact-attempt workflow stages plus twelve whole-history downloaded original-first verifier receipts')
         shared.complete_aggregate(receipt, offline_replay)
     except BaseException as error:receipt.update(status='FAIL',failure=dict(type=type(error).__name__,message=str(error)));raise
     finally:h.save(output/'receipt.json',receipt)
@@ -165,9 +166,9 @@ def aggregate(seed_bundle,inputs,output,ctx,execute_result,verify_result, *, off
 
 
 def summary(path,ctx,command,case,result):
-    rows=[('Source',ctx['source']),('Run / attempt',ctx['run']+' / '+ctx['attempt']),('Carried DATA phase',case or 'all four histories'),
-          ('Status',result['status']),('Scope','Four carried DATA phases and their following fresh BARRIER'),('Phase 3 complete',False)]
-    for name in ('wholeOwnershipHistories','nativeCases','negativeCases','rejected'):
+    rows=[('Source',ctx['source']),('Run / attempt',ctx['run']+' / '+ctx['attempt']),('Carried DATA case',case or 'all twelve histories'),
+          ('Status',result['status']),('Scope','Four carried DATA phases and eight whole-group halt/SIGKILL recoveries, each with a fresh BARRIER'),('Phase 3 complete',False)]
+    for name in ('wholeOwnershipHistories','nativeCases','processCases','negativeCases','rejected'):
         if name in result:rows.append((name,result[name]))
     for name in ('sourceSha256','buildSha256','toolchainSha256','readerSha256'):
         if name in result:rows.append((name,result[name]))

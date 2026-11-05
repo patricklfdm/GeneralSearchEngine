@@ -92,8 +92,8 @@ report and raw-history bindings.
 The new whole-group Java fixtures remain development regressions. The first
 reader below supplies independent physical and process-observation checks with
 a PARTIAL result. The complete network reader then qualifies the original whole
-history. Final-source cohort admission stays open; these process cases are not
-yet added to the twelve-subset final-source cohort.
+history. The process cases now belong to the existing carried DATA subset;
+complete final-source execution and cohort admission stay open.
 
 ## Whole-group physical and process reader
 
@@ -202,10 +202,10 @@ pass. Two unmodified histories also pass after relocation with identical results
 Every original file and directory remains unchanged. These results do not turn
 the eight historical producers into final-source executions.
 
-Next, extend the existing carried DATA cohort with the eight declared
-halt/SIGKILL methods, preserving each two-child history as one execution and
-one archive. Its capture, downloaded replay, aggregate and source catalogue must
-agree on the complete inventory before any final-source execution. This is
-pending integration, not a thirteenth hosted subset or qualification granted by
-these historical originals. The complete phase-wide resource and coverage
-obligations remain open.
+The [carried DATA v2 cohort](PHASE_3_CARRIED_DATA_COHORT.md) now includes all eight
+declared halt/SIGKILL methods, preserving each two-child history as one execution
+and one archive. Capture, downloaded replay, aggregate and source catalogue
+require the same complete twelve-case inventory. It reuses the existing hosted
+subset. These historical originals do not grant final-source cohort admission;
+final-source execution and complete phase-wide resource/coverage obligations
+remain open.

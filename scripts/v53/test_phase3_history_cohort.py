@@ -144,22 +144,22 @@ class HistoryCohortTest(unittest.TestCase):
         with redirect_stdout(io.StringIO()):
             return c.run(self.f.index_path, self.f.inputs, self.inputs, self.output)
 
-    def test_all_478_original_archives_route_to_238_whole_groups_and_twelve_owners(self):
+    def test_all_486_original_archives_route_to_246_whole_groups_and_twelve_owners(self):
         before = c.raw_inventory(self.inputs, self.f.index, self.f.modules, self.catalogs)
         value = self.run_gate()
-        self.assertEqual((478, 238, 544), (value['rawArchives'], value['groupsReplayed'], value['historiesReplayed']))
-        self.assertEqual(238, len(self.verified)); self.assertEqual(list(self.f.modules), self.aggregated)
+        self.assertEqual((486, 246, 552), (value['rawArchives'], value['groupsReplayed'], value['historiesReplayed']))
+        self.assertEqual(246, len(self.verified)); self.assertEqual(list(self.f.modules), self.aggregated)
         self.assertEqual('PARTIAL', value['status']); self.assertTrue(value['allDeclaredHistoriesReplayed'])
         for key in ('phase3Complete','runtimeQualified','workflowExecutionAttested',
                     'frozenScenarioCoverageQualified','combinedPeakResourcesQualified'):
             self.assertIs(False, value[key])
         self.assertEqual(before, c.raw_inventory(self.inputs, self.f.index, self.f.modules, self.catalogs))
         self.assertFalse(list(self.output.rglob('scratch-*')))
-        self.assertEqual(238, len(list(self.output.glob('*/groups/*/progress.jsonl'))))
+        self.assertEqual(246, len(list(self.output.glob('*/groups/*/progress.jsonl'))))
         coverage = c.seeds.read(self.output/'coverage.json')
-        self.assertEqual((16, 3), (coverage['rejected'], coverage['notApplicable']))
+        self.assertEqual((17, 3), (coverage['rejected'], coverage['notApplicable']))
         self.assertEqual('PARTIAL', coverage['status']); self.assertFalse(coverage['phase3Complete'])
-        self.assertEqual(19, len(coverage['witnesses']))
+        self.assertEqual(20, len(coverage['witnesses']))
         self.assertEqual(c.shared.tc.file_hash(self.output/'coverage.json'), value['candidateWitnesses']['sha256'])
         self.assertEqual(c.witnesses.prepare()[0], (self.output/'coverage-plan.json').read_bytes())
 

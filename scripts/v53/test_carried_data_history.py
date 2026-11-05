@@ -9,6 +9,7 @@ import unittest
 from unittest.mock import patch
 import xml.etree.ElementTree as ET
 from . import carried_data_history as m
+from . import test_native_carried_process_evidence as process_fixture
 from .test_process_toolchain import record
 
 
@@ -16,7 +17,10 @@ def raw_tree(raw,case):
     raw.mkdir(parents=True);(raw/'original-plan.gsbp').write_bytes(case.encode())
     (raw/'carried-phase.txt').write_text(m.phase(case));(raw/'carried-kind.txt').write_text('DATA')
     (raw/'entry-1.gsr').write_bytes(b'synthetic entry')
-    m.h.save(raw/'carried-result.json',dict(status='PASS',carried=m.h.digest(b'synthetic entry'),slots=2,publicReady=False))
+    if case in m.PROCESS_CASES:
+        (raw/'process').mkdir()
+        m.h.save(raw/'process/result.json',process_fixture.NativeCarriedProcessEvidenceTest().result(**m.PROCESS_CASES[case]))
+    else:m.h.save(raw/'carried-result.json',dict(status='PASS',carried=m.h.digest(b'synthetic entry'),slots=2,publicReady=False))
 
 
 def reports(work,case):
@@ -27,6 +31,24 @@ def reports(work,case):
 
 
 def replay(case):
+    if case in m.PROCESS_CASES:
+        physical=dict(status='PARTIAL',scope='native-carried-whole-group-physical',physicalReplay=True,
+            cut=m.PROCESS_CASES[case]['cut'],campaigns=2,dataApplications=1,publishedSlots=2,
+            fullWireReplay=False,processHistoryQualified=False,phase3Complete=False)
+        process=dict(status='PARTIAL',scope='native-carried-whole-group-physical-and-process',componentChecks='PASS',
+            originalFirst=True,**m.PROCESS_CASES[case],freshGroupJvms=2,survivingOriginalOwners=0,childMessages=[100,200],
+            clientCalls=0,physical=physical,processObservations=True,fullWireReplay=False,processHistoryQualified=False,
+            cohortAdmitted=False,powerLoss=False,phase3Complete=False)
+        phases=[dict(exchanges=3,transfers=1,unusedIncompleteTransfers=0) for _ in range(5)]
+        for i in (0,2):phases[i]['voters']=['node-1','node-2']
+        for i in (3,4):phases[i].update(index=i-2,recordingQuorums=1)
+        network=dict(fullWireReplay=True,phases=phases,exchanges=17,requests=19,silentRequests=2,
+            silent=[dict(index=i,kind='FUTURE_RETENTION_INTENT',attempts=1) for i in (1,2)],
+            background=dict(samples=1,exchanges=2,contactOnly=True,silentRequests=0))
+        original=dict(status='PASS',scope='native-carried-whole-group-process-history',originalFirst=True,
+            process=process,network=network,fullWireReplay=True,processHistoryQualified=True,
+            phase3Complete=False,cohortAdmitted=False,powerLoss=False,publicRuntime=False)
+        return dict(original=original,negatives=m.negative_cases(case),originalPreserved=True)
     original=dict(status='PASS',phase=m.phase(case),slots=2,voters=3,selected=2,transfers=1,automaticElection=False,
                   publicReady=False,phase3Complete=False,retentionSemantics='original-copy-confirmation',
                   carriedKind='DATA',applicationSequence=1,lastDataIndex=1)
@@ -66,7 +88,7 @@ class CarriedDataHistoryTest(unittest.TestCase):
         with patch.object(m,'ProcessPoolExecutor',ThreadPoolExecutor):return m.aggregate(self.paths if paths is None else paths,*self.pins,**kwargs)
 
     def test_catalogue_uses_complete_native_methods_without_retry_or_case_filter(self):
-        self.assertEqual(4,len(m.CASES));self.assertEqual((1,)*4,tuple(len(m.histories(k)) for k in m.CASES))
+        self.assertEqual(12,len(m.CASES));self.assertEqual((1,)*12,tuple(len(m.histories(k)) for k in m.CASES))
         for case,(cls,method,_) in m.METHODS.items():
             text=(m.h.ROOT/m.h.MODULE/('src/test/java/'+m.PACKAGE.replace('.','/')+cls+'.java')).read_text()
             self.assertIn('void '+method+'()',text)
@@ -74,6 +96,59 @@ class CarriedDataHistoryTest(unittest.TestCase):
             self.assertFalse(any('retry' in v.lower() or 'timeout' in v.lower() or '.case=' in v for v in args))
         for value in ('other','',False):
             with self.subTest(value=value),self.assertRaisesRegex(ValueError,'exact case'):m.command(value)
+
+    def test_whole_group_catalogue_has_all_four_cuts_and_both_deaths(self):
+        self.assertEqual({(cut,mode) for cut in ('NATIVE_RETIREMENT_CERTIFICATE_RETAINED','ACCEPT_RENAMED',
+            'PROOF_RENAMED','APPLY_ACK_DIRECTORY_FORCED') for mode in ('halt','kill')},
+            {(v['cut'],v['mode']) for v in m.PROCESS_CASES.values()})
+        self.assertEqual({'data-accept','data-proof','data-certificate','data-applied'},set(m.CASES)-set(m.PROCESS_CASES))
+        for case in m.PROCESS_CASES:
+            self.assertEqual('APPLIED',m.phase(case));self.assertEqual([case],m.histories(case))
+            self.assertEqual('V53NativeCarriedProcessTest',m.selected(case)[0])
+            self.assertEqual('v53-native-carried-process',m.selected(case)[2])
+
+    def test_process_collection_cannot_relabel_cut_mode_or_use_a_surviving_owner(self):
+        case='data-applied-cleanup-kill';raw=self.raw(self.paths[case]);path=raw/'process/result.json';original=path.read_bytes()
+        changes=[lambda v:v.update(mode='halt'),lambda v:v.update(cut='PROOF_RENAMED'),lambda v:v.update(clientCalls=1),
+            lambda v:v['children'][0].update(exit=0),lambda v:v['children'][1].update(pid=v['children'][0]['pid']),
+            lambda v:v['children'][0].update(allLocksReleasedAfterDeath=False)]
+        for change in changes:
+            value=m.read(path);change(value);m.h.save(path,value)
+            with self.subTest(change=change),self.assertRaises(ValueError):m.collect(raw,case)
+            path.write_bytes(original)
+        # Even internally consistent halt records cannot occupy a kill member.
+        m.h.save(path,process_fixture.NativeCarriedProcessEvidenceTest().result('halt',m.PROCESS_CASES[case]['cut']))
+        with self.assertRaisesRegex(ValueError,'exact process cut/mode'):m.collect(raw,case)
+
+    def test_process_reader_is_required_and_original_failure_cannot_fall_back(self):
+        case='data-applied-proof-rename-halt';raw=self.raw(self.paths[case])
+        with patch.object(m.recovery,'qualify',side_effect=ValueError('invalid original group')) as reader, \
+                patch.object(m.carried,'qualify') as legacy:
+            with self.assertRaisesRegex(ValueError,'invalid original group'):m.replay(raw,case)
+            reader.assert_called_once_with(raw);legacy.assert_not_called()
+        expected=replay(case);result=dict(original=expected['original'],negatives=[{k:v for k,v in row.items() if k!='suite'}
+            for row in expected['negatives']])
+        with patch.object(m.recovery,'qualify',return_value=result) as reader:
+            self.assertEqual(expected,m.replay(raw,case));reader.assert_called_once_with(raw)
+
+    def test_process_receipt_cannot_omit_network_phases_or_inflate_authority(self):
+        case='data-applied-application-force-halt'
+        changes=[lambda v:v.update(fullWireReplay=False),lambda v:v.update(cohortAdmitted=True),
+            lambda v:v.update(publicRuntime=True),lambda v:v['process'].update(mode='kill'),
+            lambda v:v['process'].update(cut='ACCEPT_RENAMED'),lambda v:v['process'].update(survivingOriginalOwners=1),
+            lambda v:v['process'].update(freshGroupJvms=True),lambda v:v['process'].update(clientCalls=1),
+            lambda v:v['process'].update(childMessages=[True,10]),lambda v:v['process']['physical'].update(dataApplications=2),
+            lambda v:v['network']['phases'].pop(),lambda v:v['network']['phases'][2].update(voters=['node-1']),
+            lambda v:v['network']['phases'][3].update(recordingQuorums=True),lambda v:v['network']['phases'][4].update(index=1),
+            lambda v:v['network'].update(exchanges=1),lambda v:v['network']['background'].update(contactOnly=False),
+            lambda v:v['network']['silent'][0].update(attempts=True),lambda v:v['network'].update(silentRequests=0)]
+        for change in changes:
+            value=replay(case);change(value['original'])
+            with self.subTest(change=change),self.assertRaises(ValueError):m.check_result(value,case)
+
+    def test_legacy_four_history_execution_schema_is_not_a_v2_member(self):
+        self.receipt(schema='gse-v53-carried-data-history-execution-v1')
+        with self.assertRaisesRegex(ValueError,'successful unretried producer'):self.member()
 
     def test_collection_is_only_bounded_inventory_not_authority_replay(self):
         with patch.object(m,'replay') as validator:result=m.collect(self.raw(),self.case)
@@ -133,17 +208,18 @@ class CarriedDataHistoryTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'exactly one original'):self.member()
 
     def test_missing_pair_aliases_and_reused_bootstraps_refuse(self):
-        with self.assertRaisesRegex(ValueError,'complete four histories'):self.aggregate({self.case:self.path})
+        with self.assertRaisesRegex(ValueError,'complete declared histories'):self.aggregate({self.case:self.path})
         with self.assertRaisesRegex(ValueError,'distinct producers'):self.aggregate(dict.fromkeys(m.CASES,self.path))
         other=self.paths['data-proof'];raw=self.raw(other);source=raw/'original-plan.gsbp'
         source.write_bytes((self.raw()/'original-plan.gsbp').read_bytes());m.h.save(other/'collection.json',m.collect(raw,'data-proof'))
         value=m.read(other/'receipt.json');value['collectionSha256']=m.h.digest((other/'collection.json').read_bytes());m.h.save(other/'receipt.json',value)
         with self.assertRaisesRegex(ValueError,'distinct complete original'):self.aggregate()
 
-    def test_complete_four_histories_replay_once_and_preserve_scope(self):
+    def test_complete_twelve_histories_replay_once_and_preserve_scope(self):
         with patch.object(m,'replay',side_effect=lambda raw,case:replay(case)) as reader:result=self.aggregate(workers=4)
-        self.assertEqual(4,reader.call_count);self.assertEqual('PASS',result['status'])
-        self.assertEqual(4,result['nativeCases']);self.assertEqual(4,result['wholeOwnershipHistories']);self.assertEqual(129,result['negativeCases'])
+        self.assertEqual(12,reader.call_count);self.assertEqual('PASS',result['status'])
+        self.assertEqual((12,12,8,587),tuple(result[k] for k in ('nativeCases','wholeOwnershipHistories','processCases','negativeCases')))
+        self.assertTrue(result['declaredWholeGroupCarriedRecoveryQualified'])
         for key in ('phase3Complete','combinedPeakResourcesQualified','autonomousCompetitionQualified','completePhysicalQualified','powerLossQualified','processDeathQualified'):
             self.assertIs(False,result[key])
 
@@ -152,7 +228,7 @@ class CarriedDataHistoryTest(unittest.TestCase):
             if case==self.case:raise ValueError('original failed')
             return replay(case)
         with patch.object(m,'replay',side_effect=failed) as reader:result=self.aggregate(workers=4)
-        self.assertEqual(4,reader.call_count);self.assertEqual('FAIL',result['status'])
+        self.assertEqual(12,reader.call_count);self.assertEqual('FAIL',result['status'])
         self.assertEqual('original failed',result['cases'][0]['failure']['message']);self.assertTrue(all(v['status']=='PASS' for v in result['cases'][1:]))
 
     def test_missing_negatives_profiles_or_inflated_scope_never_pass(self):
