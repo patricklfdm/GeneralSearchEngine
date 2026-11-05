@@ -1,0 +1,200 @@
+{
+  "baseSource": "86afeef94eed7b69dbbc8d8a7a18c65048a0ccc9",
+  "conditionalCaptures": [
+    {
+      "families": {
+        "joining-preparation-export": 1
+      },
+      "negativeChecks": 4,
+      "original": "general-search-engine-replication/target/v53-joining-metadata-extents/run-00ea7cf5-7086-4318-8876-2d60477783bb",
+      "scope": "conditional-joining-handler-session-extents",
+      "status": "PARTIAL"
+    },
+    {
+      "families": {
+        "joining-retention-export": 1
+      },
+      "negativeChecks": 6,
+      "original": "general-search-engine-replication/target/v53-joining-metadata-extents/run-46828f6e-3bad-4a1e-b303-ba696ee6b200",
+      "scope": "conditional-joining-handler-session-extents",
+      "status": "PARTIAL"
+    }
+  ],
+  "finalSourceCohortQualified": false,
+  "historicalCensus": {
+    "allocationsIndividuallyBound": false,
+    "currentNativeQualified": false,
+    "directHandles": 72,
+    "observedHandles": 865,
+    "phase3Complete": false,
+    "residual": [
+      {
+        "bytes": 4096,
+        "count": 1,
+        "node": "node-1",
+        "role": "prefix-export"
+      }
+    ],
+    "scope": "historical-per-node-role-extent-census-only",
+    "sessionHandles": 792,
+    "status": "PASS"
+  },
+  "historicalDerivation": {
+    "allocatedHandles": 792,
+    "currentAllocationsQualified": false,
+    "elapsedSeconds": 209.617,
+    "families": {
+      "joining-checkpoint-export": 3,
+      "joining-completion-export": 2,
+      "joining-intent": 2,
+      "joining-preparation-export": 1,
+      "joining-retention-export": 3,
+      "learner-root-export": 1,
+      "prefix-export": 240,
+      "record-export": 263,
+      "source-export": 42,
+      "vote-export": 229
+    },
+    "newRuntimeExecution": false,
+    "original": "general-search-engine-replication/target/v53-native-dispatch/run-bc82bb01-127a-40e0-9332-dd2f2bc8a1d3",
+    "phase3Complete": false,
+    "scope": "historical-original-successful-session-charge-derivation",
+    "sessions": 786,
+    "status": "PASS"
+  },
+  "newJavaExecution": false,
+  "newPythonTests": 17,
+  "phase3Complete": false,
+  "productionJavaChanged": false,
+  "pythonTests": 324,
+  "remaining": [
+    "current-source full native resource composition",
+    "separate failure scopes",
+    "physical custody and simultaneous maxima/headroom",
+    "cohort admission and final-source hosted qualification"
+  ],
+  "reports": [
+    {
+      "path": "target/v53-session-content-extents/census-01.log",
+      "sha256": "d0effcbcd7f49bb25d6a8f107a66d11afc18cbccdc4f73d2ccb0428be8f2b7f2"
+    },
+    {
+      "path": "target/v53-session-content-extents/census.py",
+      "sha256": "29f28d69eaafd4d84f0698b696fa23a6a5a061bb8594d10b70eac2f169dcc4ac"
+    },
+    {
+      "path": "target/v53-session-content-extents/components-01.log",
+      "sha256": "41c8f71a0507f9bf9dc7430d864b8c1265d5cca80f90349c7fd3720b4cc5868d"
+    },
+    {
+      "path": "target/v53-session-content-extents/components.json",
+      "sha256": "4eaf61f089db54c0e8b5a0bfe512757a62f519329f32097ba40bd8254c5cad43"
+    },
+    {
+      "path": "target/v53-session-content-extents/components.py",
+      "sha256": "a6548da3e4b54f419c81e69f225ba369f630a8e44217e82d800a98cb0ffb841c"
+    },
+    {
+      "path": "target/v53-session-content-extents/contract.json",
+      "sha256": "c83a4a9c140e36891460bb80de98cf2a3f0571444193664603f8a3f07650ae28"
+    },
+    {
+      "path": "target/v53-session-content-extents/contract.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-session-content-extents/derive-historical.py",
+      "sha256": "8973e27ca8342b57099a115456f7846585ec907278cdebe95836b01f3d47004a"
+    },
+    {
+      "path": "target/v53-session-content-extents/finalize.py",
+      "sha256": "cde4c1ba24ea858a26dde38ade0a9fc8d7c0ec8a600a4e899898fa74457da2e4"
+    },
+    {
+      "path": "target/v53-session-content-extents/historical-01.log",
+      "sha256": "23c340f8ec4fb96b4113e12dcbddd9560e280273a74d28a9d7a7553eca696a2d"
+    },
+    {
+      "path": "target/v53-session-content-extents/historical-census.json",
+      "sha256": "ac33c31d034059a0255aca44e888e8e35166267efdc90845b04078a3d2d1db66"
+    },
+    {
+      "path": "target/v53-session-content-extents/historical-derived-01.json",
+      "sha256": "b53cd18d34c3d1f5aed282ea880f6d5e2da8150c120860898dd3f3c407909cb7"
+    },
+    {
+      "path": "target/v53-session-content-extents/historical-original-01.json",
+      "sha256": "72ad63f02303611add436d11e9f72bc0ea27dbaed146687f62fe382bf8ecaf23"
+    },
+    {
+      "path": "target/v53-session-content-extents/plan/acceptance-plan.json",
+      "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+    },
+    {
+      "path": "target/v53-session-content-extents/plan/plan.json",
+      "sha256": "811d5dedd9f3965d1927fd1072d36c23b8a7fb6dcf8b158172e4b4d48e57c005"
+    },
+    {
+      "path": "target/v53-session-content-extents/plan/receipt.json",
+      "sha256": "680dc5df1db39ca90bed0be4d915f861863963cb301820892aea61a3f75aab03"
+    },
+    {
+      "path": "target/v53-session-content-extents/plan.log",
+      "sha256": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df"
+    },
+    {
+      "path": "target/v53-session-content-extents/python-final-01.log",
+      "sha256": "d51cf9acdfbcec6643e7ae59f33a5b0bdfe19134787c3ad859b460c3a4276156"
+    },
+    {
+      "path": "target/v53-session-content-extents/python-new-01.log",
+      "sha256": "6704d6fa5d10f7d24c2efbbbad623ac396644eb43e64ff5e1a2f9f384b01bf87"
+    },
+    {
+      "path": "target/v53-session-content-extents/python-new-02.log",
+      "sha256": "86cc4309115efe082c6c0ce3ca365610e6745de58103d9f7c216592f397c153d"
+    },
+    {
+      "path": "target/v53-session-content-extents/python-new-03.log",
+      "sha256": "899e5cc64e3e63d4daaa27382d40135d80e7618f4a9438b3e3166eb26995c0ad"
+    },
+    {
+      "path": "target/v53-session-content-extents/reader-input.json",
+      "sha256": "b143fd1f7263c0cafaeb92c749f090628fb752c7a50ed250cc87aae71e8f9b5e"
+    }
+  ],
+  "schema": "gse-v53-session-content-extents-development-v1",
+  "scope": "all-successful-session-content-extent-reader",
+  "sources": [
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_QUALIFICATION_AUDIT.md",
+      "sha256": "c8621269706ea5fe41cfdddc65a35e1da56576fb5925f4f7e3afc0edc6a243fe"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_SESSION_CONTENT_EXTENTS.md",
+      "sha256": "9483fbeecd5b6a05740272a509b10d61271ba6c0e3bbca8fe6a7e249f92491af"
+    },
+    {
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "0ec8b7da4914e66b1224e8bfae8d804c5b735fb3d828fce54debcaf479fb3626"
+    },
+    {
+      "path": "scripts/v53/native_control_closes.py",
+      "sha256": "f0b92bf5856bdc056bf9cc80511d724e8bfc3b4e73853e5da37c0280cbac2f6d"
+    },
+    {
+      "path": "scripts/v53/native_resource_evidence.py",
+      "sha256": "33763e8cc9d800f57267881fac251316ccd3e3e2899e63caf8cb7b1f366d7e04"
+    },
+    {
+      "path": "scripts/v53/session_content_extents.py",
+      "sha256": "d274a51b064a764676660fa72a64fe3fee1e1925b24f64c76957ee595564f99c"
+    },
+    {
+      "path": "scripts/v53/test_session_content_extents.py",
+      "sha256": "33e8ea4e87c2172797f73daa9a1927a1289e98dfbebd0eebac63666b75e3713a"
+    }
+  ],
+  "status": "PASS",
+  "wholeRuntimeResourcesQualified": false
+}

@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Successful-session content extents](PHASE_3_SESSION_CONTENT_EXTENTS.md) now
+derive all ten export families from original contents and bind every session's
+exact charges and nested prefixes. Historical required-four yields 786 sessions
+and 792 handles; 324 Python tests and ten actual-component mutation checks pass.
+Current-source complete resource and hosted qualification remain OPEN.
+
 [Published learner-prefix probe](PHASE_3_PUBLISHED_PREFIX_PROBE.md) now binds
 the actual local call and cleanup interval to original references, generation
 and confirmed learner permission. Twenty Java and 307 Python checks pass;
