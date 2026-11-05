@@ -75,6 +75,52 @@ final class MembershipResources {
     synchronized MembershipControlCloseObservations.Snapshot controlCloseObservations() {
         require(controlCloses!=null,"control close observations disabled");return controlCloses.snapshot();
     }
+    /** Optional annotation around an actual local owner, never a new authority
+     * or an extra reservation. The exporter is queried outside our monitor. */
+    MembershipTransferExport observeDirectExport(MembershipTransferExport export,String phase) {
+        if(!exportOwnership)return export;
+        try {
+            var owned=export.closeReservations();
+            synchronized(this) {
+                String role=switch(phase){case "ACTIVATION","SELECTED"->"source-export-";case "MAINTENANCE"->"prefix-export-";default->throw new IllegalArgumentException("direct export phase");};
+                require(owned.size()==1,"direct export one original handle");var lease=owned.getFirst();
+                require(lease.pool()==this && lease.key.unit==Unit.CONTROL && lease.key.owner.startsWith(role)
+                        && (lease.released || leases.get(lease.key)==lease),"direct export original handle");
+                var point=observations.checkpoint(usage());require(point.complete(),"direct export incomplete resources");
+                long call=controlCloses.record(phase+"_BORROW_ACQUIRED",-1,point.sequence(),lease.key.owner,List.of());
+                return new ObservedExport(export,lease,phase,call);
+            }
+        }catch(RuntimeException|OutOfMemoryError error){synchronized(this){controlCloses.failed();}return export;}
+    }
+    private final class ObservedExport implements MembershipTransferExport {
+        final MembershipTransferExport original;
+        final Lease lease;
+        final String phase;
+        final long call;
+        boolean invoked;
+        ObservedExport(MembershipTransferExport original,Lease lease,String phase,long call){this.original=original;this.lease=lease;this.phase=phase;this.call=call;}
+        public MembershipContext context(){return original.context();}
+        public MembershipIdentity identity(){return original.identity();}
+        public Map<String,Object> ballot(){return original.ballot();}
+        public List<Lease> closeReservations(){return original.closeReservations();}
+        public void request(MembershipIdentity reader,MembershipFormat.Decoded request,UUID session){original.request(reader,request,session);}
+        public Map<String,MembershipSourceExport.Content> references()throws java.io.IOException{return original.references();}
+        public byte[] read(String digest,long offset,int maximum)throws java.io.IOException{return original.read(digest,offset,maximum);}
+        private void record(String event,boolean returned) {
+            try {
+                var point=observations.checkpoint(usage());require(point.complete() && call>=0 && (!returned || lease.released),"direct export close observation");
+                controlCloses.record(phase+"_BORROW_"+event,call,point.sequence(),lease.key.owner,List.of());
+            }catch(RuntimeException|OutOfMemoryError error){controlCloses.failed();}
+        }
+        @Override public void close() {
+            boolean first;
+            synchronized(MembershipResources.this){first=!invoked;invoked=true;if(first)record("CLOSE_BEGIN",false);}
+            // Preserve every original close call, exception and suppression.
+            // The resource monitor must not be held across exporter callbacks.
+            original.close();
+            if(first)synchronized(MembershipResources.this){record("RETURNED",true);}
+        }
+    }
     synchronized Lease reserve(Unit unit,String owner,long bytes) {
         Objects.requireNonNull(unit,"unit");Objects.requireNonNull(owner,"owner");
         require(!owner.isEmpty() && owner.length()<=128 && bytes>=0 && bytes<=unit.bytes,"reservation shape");

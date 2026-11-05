@@ -16,6 +16,9 @@ ROLES=('transfer-service','transfer-trace','source-session','joining-checkpoint-
 SERVICES={'transfer-service':'transfer-trace','joining-checkpoint-service':'joining-checkpoint-trace'}
 MAXIMUM=65536
 CHILDREN_MAXIMUM=262144
+DIRECT_ROLES={'ACTIVATION':'source-export','SELECTED':'source-export','MAINTENANCE':'prefix-export'}
+DIRECT_EVENTS={phase+'_BORROW_'+event:(phase,event) for phase in DIRECT_ROLES
+               for event in ('ACQUIRED','CLOSE_BEGIN','RETURNED')}
 
 
 def role(owner):
@@ -67,18 +70,39 @@ def replay(traces,closes,*,export_ownership=False):
              0<value['maximum']<=MAXIMUM and value['truncated'] is False and value['failed'] is False and
              type(value['observations']) is int and type(value['rows']) is list and
              value['observations']==len(value['rows'])<=value['maximum'],'control close complete bounded recorder')
-        pairs={};calls={};attachments={};cursor=0;child_count=0
+        pairs={};calls={};attachments={};direct={};cursor=0;child_count=0
         for seq,row in enumerate(value['rows']):
             need(type(row) is dict and set(row)=={'sequence','event','call','resourceSequence','owner','children'} and
                  type(row['sequence']) is int and row['sequence']==seq and type(row['call']) is int and
+                 type(row['event']) is str and
                  type(row['resourceSequence']) is int and cursor<=row['resourceSequence']<len(trace['changes']) and
-                 type(row['owner']) is str and row['owner'] in life and role(row['owner']) is not None and
+                 type(row['owner']) is str and row['owner'] in life and
+                 (role(row['owner']) is not None or export_ownership and row['event'] in DIRECT_EVENTS) and
                  type(row['children']) is list and all(type(v) is str for v in row['children']) and
                  row['children']==sorted(set(row['children'])) and len(row['children'])<=256,
                  'control close exact ordered row')
             cursor=row['resourceSequence'];name=row['owner'];owned=life[name]
             child_count+=len(row['children']);need(child_count<=CHILDREN_MAXIMUM,'control close child capacity')
-            if row['event']=='ATTACHED':
+            if row['event'] in DIRECT_EVENTS:
+                phase,event=DIRECT_EVENTS[row['event']]
+                need(export_ownership and not row['children'] and name.startswith(DIRECT_ROLES[phase]+'-'),
+                     'control close direct export scope')
+                if event=='ACQUIRED':
+                    need(name not in direct and row['call']==seq and owned['end'] is not None and owned['start']<=cursor,
+                         'control close original direct acquisition')
+                    direct[name]=dict(phase=phase,acquired=row,begin=None,returned=None)
+                else:
+                    need(name in direct and direct[name]['phase']==phase and row['call']==direct[name]['acquired']['sequence'],
+                         'control close original direct call')
+                    observed=direct[name]
+                    if event=='CLOSE_BEGIN':
+                        need(observed['begin'] is None and observed['returned'] is None,'control close unique direct cleanup')
+                        observed['begin']=row
+                    else:
+                        need(observed['begin'] is not None and observed['returned'] is None and owned['end']<=cursor,
+                             'control close direct release before return')
+                        observed['returned']=row
+            elif row['event']=='ATTACHED':
                 need(export_ownership and role(name)=='source-session' and row['call']==seq and
                      name not in attachments and name not in pairs and owned['end'] is not None and
                      owned['start']<=cursor<owned['end'] and 0<len(row['children'])<=2,
@@ -103,6 +127,8 @@ def replay(traces,closes,*,export_ownership=False):
         expected={name for name in life if role(name)}
         need(set(pairs)==expected and all(v['returned'] is not None for v in pairs.values()),
              'control close complete cleanup intervals')
+        need(all(v['begin'] is not None and v['returned'] is not None for v in direct.values()),
+             'control close incomplete direct cleanup')
         parent={};session_parent={}
         for name,pair in pairs.items():
             kind=role(name);start=pair['begin'];end=pair['returned'];owned=life[name]
@@ -133,7 +159,7 @@ def replay(traces,closes,*,export_ownership=False):
                       'control close completed session order')
         if export_ownership:
             need(set(attachments)==set(session_parent),'control close complete export attachments')
-        owners[node]=dict(pairs=pairs,lifetimes=life,sessionParents=session_parent,exportAttachments=attachments)
+        owners[node]=dict(pairs=pairs,lifetimes=life,sessionParents=session_parent,exportAttachments=attachments,directExports=direct)
         total+=len(pairs);children_total+=child_count
     need(total>0,'control close unobserved cleanup')
     return dict(status='PASS',cleanupIntervals=total,childReferences=children_total,owners=owners,

@@ -1,11 +1,19 @@
 # Phase 3 qualification inventory and remaining work
 
+[Direct local export ownership](PHASE_3_DIRECT_EXPORT_OWNERSHIP.md) binds proposer,
+SELECTED receiver and maintenance borrows to original bytes and operation
+intervals. A new stable TCP history accounts for all 45 exports (39 session-owned,
+six direct), with 24 exact negative checks. The prior partial capture remains
+partial. Complete joining/required-four resource composition, physical custody/
+peaks and final-source qualification remain OPEN.
+
 [Session export ownership](PHASE_3_SESSION_EXPORT_OWNERSHIP.md) now binds actual
-export handles to successful source sessions. A new native TCP history validates
+export handles to successful source sessions. Its earlier native TCP history validates
 39 session-owned allocations and twelve exact negative checks. Six direct local
-borrows remain explicitly unattached, so the extended native receipt is PARTIAL;
+borrows remain explicitly unattached in that capture, so its receipt stays PARTIAL;
 strict complete-inventory replay still rejects it. Joining groups, direct-borrow
-ownership, complete resource composition and final-source qualification remain OPEN.
+qualification beyond the new stable history above, complete resource composition
+and final-source qualification remain OPEN.
 
 [Vote and learner ROOT export bindings](PHASE_3_SPECIAL_EXPORT_RESOURCES.md)
 add four native histories and 22 direct allocations, with 72 exact resource

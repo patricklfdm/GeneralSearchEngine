@@ -1,0 +1,382 @@
+{
+  "allMembershipProfilesQualified": false,
+  "baseSource": "ce9e1ff5814ffa3df762c5280aa7f1b2ca7f1b75",
+  "directNegatives": [
+    {
+      "case": "missing-acquisition",
+      "reason": "control close original direct call",
+      "status": "REJECT"
+    },
+    {
+      "case": "duplicate-acquisition",
+      "reason": "control close original direct acquisition",
+      "status": "REJECT"
+    },
+    {
+      "case": "missing-close-begin",
+      "reason": "control close direct release before return",
+      "status": "REJECT"
+    },
+    {
+      "case": "missing-return",
+      "reason": "control close incomplete direct cleanup",
+      "status": "REJECT"
+    },
+    {
+      "case": "unobserved-local-owner",
+      "reason": "session export unclaimed allocation",
+      "status": "REJECT"
+    },
+    {
+      "case": "wrong-close-call",
+      "reason": "control close original direct call",
+      "status": "REJECT"
+    },
+    {
+      "case": "wrong-source-phase",
+      "reason": "direct export original content/cohort",
+      "status": "REJECT"
+    },
+    {
+      "case": "changed-original-digest",
+      "reason": "direct export original content/cohort",
+      "status": "REJECT"
+    },
+    {
+      "case": "changed-original-extent",
+      "reason": "direct export original content extent",
+      "status": "REJECT"
+    },
+    {
+      "case": "late-acquisition",
+      "reason": "direct export original activation lifetime",
+      "status": "REJECT"
+    },
+    {
+      "case": "return-before-release",
+      "reason": "control close direct release before return",
+      "status": "REJECT"
+    },
+    {
+      "case": "boolean-resource-point",
+      "reason": "control close exact ordered row",
+      "status": "REJECT"
+    }
+  ],
+  "directOwnership": {
+    "allMembershipProfilesQualified": false,
+    "directExports": 6,
+    "exportInventory": {
+      "allExportFamiliesQualified": false,
+      "completeExportAllocationInventory": true,
+      "declaredSessionExportReleaseQualified": true,
+      "directFamilies": {
+        "ACTIVATION": 1,
+        "MAINTENANCE": 4,
+        "SELECTED": 1
+      },
+      "directOwnedAllocations": 6,
+      "exportContentExtentsQualified": false,
+      "failedConstructorExportsQualified": false,
+      "families": {
+        "prefix-export": 8,
+        "record-export": 16,
+        "source-export": 2,
+        "vote-export": 13
+      },
+      "ownedAllocations": 45,
+      "phase3Complete": false,
+      "revokedBeforeAttachment": 0,
+      "scope": "observed-session-and-local-export-handles",
+      "sessionOwnedAllocations": 39,
+      "sessions": 39,
+      "status": "PASS",
+      "unattachedExports": [],
+      "wholeRuntimeResourcesQualified": false
+    },
+    "originalContentBindingsQualified": true,
+    "originalOperationIntervalsQualified": true,
+    "phase3Complete": false,
+    "phases": {
+      "ACTIVATION": 1,
+      "MAINTENANCE": 4,
+      "SELECTED": 1
+    },
+    "scope": "stable-native-direct-export-ownership",
+    "status": "PASS",
+    "wholeRuntimeResourcesQualified": false
+  },
+  "finalSourceCohortQualified": false,
+  "historicalCaptureStatus": "PARTIAL",
+  "historicalStrictRejection": "session export unclaimed allocation",
+  "javaTests": 37,
+  "nativeHistories": 1,
+  "nativePreconditions": "complete original physical/publication/network/owner/source/session replay before direct-owner binding",
+  "nativeRaw": "general-search-engine-replication/target/v53-native-dispatch/run-0087a370-431d-43f0-949b-ccdf4e762e10",
+  "newJavaTests": 8,
+  "newPythonTests": 13,
+  "phase3Complete": false,
+  "publicRuntimeQualified": false,
+  "pythonTests": 133,
+  "remaining": [
+    "complete native joining and required-four export groups",
+    "failed-constructor and abnormal-close composition",
+    "physical custody, image pins and peak/headroom composition",
+    "final-source cohort admission and hosted execution"
+  ],
+  "reports": [
+    {
+      "path": "target/v53-direct-export-ownership/contract-final.json",
+      "sha256": "d110e706ca69bd077e59ea3e9c011fa15caabbe70338d25ddbc7604ccff0fe22"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/finalize.py",
+      "sha256": "422e46719e77fc07825108323d957f6374ab8294c6af1df44444490ad7bb0bb5"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/historical-scope.json",
+      "sha256": "7a891ea2c75caa5fd776d2edef8ac317e292f78eadc2a3f9d467e935234acc21"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/java-input-01.json",
+      "sha256": "912baf6f668938035c30938587f4138f962d9c7866b06a42ac5b014bd8cb27a4"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/junit-components/TEST-io.github.patricklfdm.generalsearch.replication.V53ControlCloseObservationsTest.xml",
+      "sha256": "cab8551d51f480fc56dfcce68711f5d5a040876b5505c2e2b1dc9757e5c8b82d"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/junit-components/TEST-io.github.patricklfdm.generalsearch.replication.V53DirectExportOwnershipTest.xml",
+      "sha256": "7e712f3c787c7d144af97eb2637949c31cac02da4f4ea4cae1a246c9a7ff0e4f"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/junit-components/TEST-io.github.patricklfdm.generalsearch.replication.V53ResourceTransitionCaptureTest.xml",
+      "sha256": "202a0965604b8bfb2cb8e82c7dcfd8bd13f2b7b887ddec5e2578b99e62de6d98"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/junit-components/TEST-io.github.patricklfdm.generalsearch.replication.V53SessionExportOwnershipTest.xml",
+      "sha256": "56292f77e8ef9bc06f163a1399c223089c27203dd9e65c5d4dfcba4168295472"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/junit-native/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml",
+      "sha256": "909fb76384284cfa60c8ea5143800624949cd8cb7f0b40cbc0beef589686eb9f"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/junit-regression/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationDriverTest.xml",
+      "sha256": "848920874cd3ae2b9c7609e541d0fdcfc1fc9f3ba9ecd561ea901b8bbf9b1a02"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/junit-regression/TEST-io.github.patricklfdm.generalsearch.replication.V53SelectedPullTest.xml",
+      "sha256": "043550c6871ab98672aded22a69a09811f24a0fe9e43f41f172cacdbec7e7ede"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/maven-components-01.log",
+      "sha256": "0301179139aead124d2c8a31feedda6e7711c868951e9d157f7ddd1e65373779"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/maven-native-01.log",
+      "sha256": "f3a14df41cb0626c7b2774a78d316bf0d197866b2b5f764d123bc39148e2fabf"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/maven-regression-01.log",
+      "sha256": "07db3df2a843c1c611cc5991b0a3f0bd3183851180a61cfd46feeeeb4c21caa8"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/native-replay-01.json",
+      "sha256": "c18bc27d7adf48796e387958bd7d38975e3706b8e500231ae0313618cb326c89"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/native-replay-01.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/native-replay-final.json",
+      "sha256": "c18bc27d7adf48796e387958bd7d38975e3706b8e500231ae0313618cb326c89"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/native-replay-final.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/plan-final/acceptance-plan.json",
+      "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/plan-final/plan.json",
+      "sha256": "811d5dedd9f3965d1927fd1072d36c23b8a7fb6dcf8b158172e4b4d48e57c005"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/plan-final/receipt.json",
+      "sha256": "2943d8f87cd553c83ec93682ce0034092b845074b0dd57a1cde92b520eabf1b6"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/plan-final.log",
+      "sha256": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/python-01.log",
+      "sha256": "d13b3078af1a6ed274445b00a2e93e4dced8be7900e154424d4a6046286adc50"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/python-final-02.log",
+      "sha256": "4995b53cd35460370f587392aaaa551f9972ff3a149b0cd980701b9f8a1b11ad"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/python-final.log",
+      "sha256": "f170ddee5bce956506eec53d9f047d736ddd7d7c86e1696c412dad4a78442fd9"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/raw-inventory.json",
+      "sha256": "99afe78b5ff70b365f448f68c0c29e188e8c187d26e16213dabf797fc3f859e0"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/raw-path.txt",
+      "sha256": "900d422ea7ee2cf82b3d73135e8ad5529e0ed339c9dcf1676507fa8d518a673c"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/session-negatives-final.json",
+      "sha256": "0442df7cf9cbd73ff7f5450c604fb962c12d094e7ea7eea367ee13d7120e0850"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/session-negatives.json",
+      "sha256": "4868ab4eae273a99ab32a20185b525e53c3fbb061e74988c15f25dd65eb7a753"
+    },
+    {
+      "path": "target/v53-direct-export-ownership/session-negatives.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "runtimeChange": "optional direct-owner observations; original exporters returned when disabled; close calls/order/exceptions preserved",
+  "schema": "gse-v53-direct-export-ownership-development-v1",
+  "scope": "stable-native-direct-export-ownership",
+  "sessionNegatives": [
+    {
+      "case": "missing-attachment",
+      "reason": "control close complete export attachments",
+      "status": "REJECT"
+    },
+    {
+      "case": "duplicate-attachment",
+      "reason": "control close original export attachment",
+      "status": "REJECT"
+    },
+    {
+      "case": "empty-owned-group",
+      "reason": "control close original export attachment",
+      "status": "REJECT"
+    },
+    {
+      "case": "duplicate-handle",
+      "reason": "control close exact ordered row",
+      "status": "REJECT"
+    },
+    {
+      "case": "unknown-handle",
+      "reason": "control close original export allocation",
+      "status": "REJECT"
+    },
+    {
+      "case": "session-as-export",
+      "reason": "control close original export allocation",
+      "status": "REJECT"
+    },
+    {
+      "case": "boolean-resource-point",
+      "reason": "control close exact ordered row",
+      "status": "REJECT"
+    },
+    {
+      "case": "wrong-attachment-call",
+      "reason": "control close original export attachment",
+      "status": "REJECT"
+    },
+    {
+      "case": "missing-close-return",
+      "reason": "control close complete cleanup intervals",
+      "status": "REJECT"
+    },
+    {
+      "case": "truncated",
+      "reason": "control close complete bounded recorder",
+      "status": "REJECT"
+    },
+    {
+      "case": "failed",
+      "reason": "control close complete bounded recorder",
+      "status": "REJECT"
+    },
+    {
+      "case": "unclaimed-export",
+      "reason": "session export unattached inventory changed",
+      "status": "REJECT"
+    }
+  ],
+  "sources": [
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_DIRECT_EXPORT_OWNERSHIP.md",
+      "sha256": "dca6a6c9750172fa31d36279275802245c6c8f0a431672d24a829f9904b38f65"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_QUALIFICATION_AUDIT.md",
+      "sha256": "0157984b710aef8f9181454453491143016cd16f02c3f90e89715889b96686d0"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_SESSION_EXPORT_OWNERSHIP.md",
+      "sha256": "0a948c7095ff0bf24db8c8d5c39835bbfd6e2e4ee867a80cbfe6f16db17c14d1"
+    },
+    {
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "d977d44806e5df20a6b9b28ce0f5a7aaad2de6851794640fe320d5d0bab6d561"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationDriver.java",
+      "sha256": "96924d128b56d79588013d3953ddc9ddd8f3498869323c9a2969f32c71f00704"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java",
+      "sha256": "62695eeccc51def7e727f05ad3caceeed0ed07e45fbcd9c9dcedb22f4b3cb29e"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java",
+      "sha256": "62914e12af0da05a4875a63a39dffa1d254b00880504487349016c2720e04de7"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSelectedPull.java",
+      "sha256": "4ed927c1cb0df421a02d32ae918d544a9fbfc94c83cddb78226dc21f3ef230d1"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DirectExportOwnershipTest.java",
+      "sha256": "bb5c112819b9097c0d2bc0c5b04a1ab4d846d9d3b086aac8e950f34daeda4803"
+    },
+    {
+      "path": "scripts/v53/control_close_evidence.py",
+      "sha256": "3dc492d320fb75f316f031085fdd554798ab0ed67bf38035ab2af339d8043136"
+    },
+    {
+      "path": "scripts/v53/direct_export_evidence.py",
+      "sha256": "03be02e89f0b727037058405b03e6a1b9338e6e7dde56c052d7c17a575bdaf6d"
+    },
+    {
+      "path": "scripts/v53/direct_export_negatives.py",
+      "sha256": "ebefcd2bee7efeba2afb05a3157cfeeb8c803597523f3be9615bb370544463cd"
+    },
+    {
+      "path": "scripts/v53/native_resource_evidence.py",
+      "sha256": "d9b7ba58bc5bbdb05e189714b62e58fa608945f6dc0c9ad5f0884fb092d85087"
+    },
+    {
+      "path": "scripts/v53/session_export_evidence.py",
+      "sha256": "b3dcdd300f23434a5f803bb5f480fa52ee7376f73cc9b9367520be730fbfb2b1"
+    },
+    {
+      "path": "scripts/v53/session_export_negatives.py",
+      "sha256": "a19cd192a30c01ce20e9e7267c1e776804ad7be4b52df0b0f5f3dd5ccd478c1c"
+    },
+    {
+      "path": "scripts/v53/test_direct_export_evidence.py",
+      "sha256": "576825f4dc6ab6c6a369cf9f03734081d5fbeaabf6ddda5773c034e99e7c8add"
+    }
+  ],
+  "status": "PASS",
+  "wholeRuntimeResourcesQualified": false
+}

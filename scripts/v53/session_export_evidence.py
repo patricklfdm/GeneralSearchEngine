@@ -35,7 +35,7 @@ def kind(name):
 
 def inspect(traces,closes):
     account=close.replay(traces,closes,export_ownership=True)
-    allocations=0;sessions=0;families=Counter();revoked=0;unattached=[]
+    allocations=0;sessions=0;families=Counter();revoked=0;unattached=[];direct_families=Counter();direct_allocations=0
     for node,owner in account['owners'].items():
         life=owner['lifetimes'];claimed={};exports={}
         for name in life:
@@ -52,6 +52,10 @@ def inspect(traces,closes):
                 claimed[name]=session
                 revoked+=life[name]['end']<=attachment['resourceSequence']
             families[SHAPES[frozenset(roles)]]+=1;sessions+=1
+        for name,observed in owner['directExports'].items():
+            need(kind(name)==close.DIRECT_ROLES[observed['phase']] and name not in claimed,
+                 'session export exact exclusive direct ownership')
+            claimed[name]='direct:'+observed['phase'];direct_families[observed['phase']]+=1;direct_allocations+=1
         for name in sorted(set(exports)-set(claimed)):
             unattached.append(dict(node=node,owner=name,role=exports[name],**life[name]))
         # Each handle is an immutable export reservation. Size is checked by
@@ -66,8 +70,10 @@ def inspect(traces,closes):
                  changes[0][1]==changes[1][1],'session export immutable allocation')
         allocations+=len(claimed)
     need(sessions>0,'session export unobserved ownership')
-    return dict(status='PARTIAL' if unattached else 'PASS',scope='observed-source-session-export-handles',sessions=sessions,
-                ownedAllocations=allocations,revokedBeforeAttachment=revoked,families=dict(sorted(families.items())),
+    return dict(status='PARTIAL' if unattached else 'PASS',scope='observed-session-and-local-export-handles',sessions=sessions,
+                ownedAllocations=allocations,sessionOwnedAllocations=allocations-direct_allocations,
+                directOwnedAllocations=direct_allocations,directFamilies=dict(sorted(direct_families.items())),
+                revokedBeforeAttachment=revoked,families=dict(sorted(families.items())),
                 declaredSessionExportReleaseQualified=True,unattachedExports=unattached,
                 completeExportAllocationInventory=not unattached,exportContentExtentsQualified=False,
                 allExportFamiliesQualified=False,failedConstructorExportsQualified=False,

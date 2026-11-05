@@ -118,8 +118,9 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
         }
         // Borrow matching live physical bytes instead of creating one receiving image
         // per remote copy in addition to the separately accounted floor images.
-        try(var images=owner.exportPrefix(MembershipContext.cutDigest(context.cut),ballot,
-                context.authority(),resources,clock,started,budget)) {
+        var images=owner.exportPrefix(MembershipContext.cutDigest(context.cut),ballot,
+                context.authority(),resources,clock,started,budget);
+        try(var cleanup=resources.observeDirectExport(images,"MAINTENANCE")) {
         for(String node:copyOrder(context,joining,installed)) {
             if(quorum(voters) && voters.containsAll(joining) && voters.containsAll(required.keySet()))break;
             if(voters.contains(node) || pending.isPresent() && !required.containsKey(node))continue;check();

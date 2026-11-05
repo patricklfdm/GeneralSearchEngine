@@ -165,6 +165,7 @@ final class MembershipActivationDriver implements AutoCloseable {
         final MembershipActivation campaign;
         final MembershipSelection.Source own;
         final MembershipSourceExport localImages;
+        final MembershipTransferExport localImagesCleanup;
         final List<Task> tasks=new ArrayList<>();
         final BlockingQueue<Task> completions=new ArrayBlockingQueue<>(10);
         MembershipActivationAncestry history;
@@ -186,6 +187,7 @@ final class MembershipActivationDriver implements AutoCloseable {
             own=campaign.ownSource();
             try {localImages=(MembershipSourceExport)owner.exportTransfer(own.basis.digest(),own.capsule.context.authority(),campaign.ballot(),clock,started,budget);}
             catch(IOException|RuntimeException error){campaign.close();throw error;}
+            localImagesCleanup=resources.observeDirectExport(localImages,"ACTIVATION");
         }
         void checkBase()throws IOException {remaining();require(!ended,"activation driver round ended");owner.checkCampaignWait(own.capsule.context.authority(),campaign.ballot());owner.checkActivation(own.basis,null,false);remaining();}
         void check()throws IOException {checkBase();if(history!=null)history.recheck();}
@@ -272,7 +274,7 @@ final class MembershipActivationDriver implements AutoCloseable {
                 if(history!=null)try{history.close();}catch(IOException|RuntimeException error){failure=new IOException("activation ancestry cleanup failed",error);}
                 for(var task:snapshot())try{task.drain();task.release();}catch(IOException|RuntimeException error){if(failure==null)failure=new IOException("activation peer drain/cleanup failed",error);else failure.addSuppressed(error);}
             }finally {
-                localImages.close();campaign.close();if(!success || failure!=null)endpoint.abandon(object(own.basis.value().get("ballot")));
+                localImagesCleanup.close();campaign.close();if(!success || failure!=null)endpoint.abandon(object(own.basis.value().get("ballot")));
             }
             if(failure!=null)throw failure;
         }

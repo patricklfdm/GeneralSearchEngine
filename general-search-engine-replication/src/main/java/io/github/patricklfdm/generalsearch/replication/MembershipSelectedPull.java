@@ -32,6 +32,7 @@ final class MembershipSelectedPull implements AutoCloseable {
     private final Path scratch;
     private final Object directoryKey;
     private MembershipSourceExport localExport;
+    private MembershipTransferExport localExportCleanup;
     private MembershipActivationAncestry history;
     private Decoded selected;
     private boolean closed,removed;
@@ -67,6 +68,7 @@ final class MembershipSelectedPull implements AutoCloseable {
             var decisionPull=pull(proposer);String digest=(String)object(request.value().get("payload")).get("selection");
             selected=decisionPull.fetchRecord(digest,"SELECTED",this::selection);
             localExport=(MembershipSourceExport)owner.exportTransfer(own.basis.digest(),own.capsule.context.authority(),object(own.basis.value().get("ballot")),clock,started,budget);
+            localExportCleanup=resources.observeDirectExport(localExport,"SELECTED");
             var originalReceives=new TreeMap<String,MembershipSourceReceive>();
             for(Object value:list(selected.value().get("sources"))) {
                 check();var reference=object(value);String node=(String)reference.get("voter");MembershipSelection.Source source;
@@ -137,7 +139,7 @@ final class MembershipSelectedPull implements AutoCloseable {
         if(removed)return;closed=true;IOException failure=null;
         if(history!=null)try{history.close();}catch(IOException|RuntimeException error){failure=new IOException("selected ancestry cleanup",error);}
         for(var pull:pulls)try{pull.close();}catch(IOException|RuntimeException error){if(failure==null)failure=new IOException("selected pull cleanup",error);else failure.addSuppressed(error);}
-        if(localExport!=null)localExport.close();images.clear();sources.clear();receives.clear();
+        if(localExport!=null)(localExportCleanup!=null?localExportCleanup:localExport).close();images.clear();sources.clear();receives.clear();
         try {AdmissionPaths.safe(scratch);require(directoryKey.equals(MembershipBasisSources.key(scratch)),"selected pull scratch replaced");Files.delete(scratch);removed=true;}
         catch(IOException|RuntimeException error){if(failure==null)failure=new IOException("selected pull scratch cleanup",error);else failure.addSuppressed(error);}
         if(failure!=null)throw failure;

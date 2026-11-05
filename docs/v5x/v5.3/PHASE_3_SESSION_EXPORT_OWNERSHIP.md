@@ -1,5 +1,9 @@
 # Phase 3 session-owned export handles
 
+The later [direct-owner follow-up](PHASE_3_DIRECT_EXPORT_OWNERSHIP.md) qualifies
+the six local borrows on a new original. The original described here remains
+PARTIAL; its missing observations are not backfilled.
+
 The [native cleanup reader](PHASE_3_NATIVE_CONTROL_CLOSE.md) now observes the
 actual CONTROL handles that a source session owns through its exporter. The
 [development index](phase3-evidence/session-export-ownership.json) records the

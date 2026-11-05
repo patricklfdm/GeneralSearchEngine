@@ -1,9 +1,15 @@
 # V5.3 — controlled cluster operations
 
+[Direct local export ownership](PHASE_3_DIRECT_EXPORT_OWNERSHIP.md) now covers
+the six local activation/SELECTED/maintenance borrows on a new stable history.
+All 45 exports in that history have observed owners and matched cleanup calls;
+old evidence retains its original partial scope. Complete joining/resource and
+final-source qualification remain OPEN.
+
 [Session export ownership](PHASE_3_SESSION_EXPORT_OWNERSHIP.md) now records the
-actual handles closed through each source session. One new native history binds
-39 such allocations; six direct local borrows remain explicit gaps and keep the
-extended result PARTIAL. This advances Phase 3 resource composition without
+actual handles closed through each source session. Its earlier native capture
+binds 39 such allocations; six missing direct-owner observations keep that
+original result PARTIAL. This advances Phase 3 resource composition without
 closing complete joining, physical-peak or final-source qualification.
 
 [Joining connection integration](PHASE_3_JOINING_CONNECTIONS.md) now threads
