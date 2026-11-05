@@ -89,7 +89,8 @@ class V53ControlCloseObservationsTest {
             var session=new MembershipSourceSession(export,f.fixture.request.targets().get(1).identity(),UUID.randomUUID(),b,1024,
                     MembershipFormat.FRAME,f.clock::get,0,BUDGET);
             assertSame(error,assertThrows(IllegalStateException.class,session::close));assertEquals(0,b.usage().leases());
-            session.close();assertEquals(List.of("BEGIN"),b.controlCloseObservations().rows().stream().map(MembershipControlCloseObservations.Row::event).toList());
+            assertSame(error,assertThrows(IllegalStateException.class,session::close));
+            assertEquals(List.of("BEGIN"),b.controlCloseObservations().rows().stream().map(MembershipControlCloseObservations.Row::event).toList());
         }
     }
     @Test void slowExporterDoesNotHoldBudgetMonitorAndRepeatedSessionCloseDoesNoWork()throws Exception {

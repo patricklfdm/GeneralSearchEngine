@@ -170,15 +170,18 @@ class V53TransferServiceTest {
             assertEquals(2,requests.size());assertEquals(1,new HashSet<>(requests).size());assertEquals(1,l.service.usage().traces());
         }
     }
-    @Test void closeDuringAdmittedRequestReleasesResourcesAndCannotReopenTheTrace()throws Exception {
+    @Test void closeDuringAdmittedRequestWaitsForDrainAndCannotReopenTheTrace()throws Exception {
         var entered=new CountDownLatch(1);var release=new CountDownLatch(1);
         try(var l=new Local(2,(event,request,response)->{if(event.equals("TRANSFER_ADMITTED")){entered.countDown();V53MembershipTransportTest.await(release);}})) {
             var request=l.request(2,UUID.randomUUID(),l.f.source.basis.digest());
             var pending=CompletableFuture.runAsync(()->assertThrows(IllegalArgumentException.class,()->l.service.handle(l.peer(2),request)));
+            CompletableFuture<Void> closing=null;
             try {
-                assertTrue(entered.await(5,TimeUnit.SECONDS));l.service.close();
-                assertEquals(0,l.f.fixture.resources.usage().queued());assertEquals(new MembershipTransferService.Usage(0,0,1,true),l.service.usage());
-            }finally{release.countDown();}
+                assertTrue(entered.await(5,TimeUnit.SECONDS));closing=CompletableFuture.runAsync(l.service::close);
+                V53MembershipTransportTest.waitFor(()->l.service.usage().closed());
+                var originalClose=closing;assertThrows(TimeoutException.class,()->originalClose.get(200,TimeUnit.MILLISECONDS));
+                assertTrue(l.f.fixture.resources.usage().queued()>0);assertEquals(new MembershipTransferService.Usage(1,0,1,true),l.service.usage());
+            }finally{release.countDown();if(closing!=null)closing.get(10,TimeUnit.SECONDS);}
             pending.get(5,TimeUnit.SECONDS);assertEquals(new MembershipTransferService.Usage(0,0,0,true),l.service.usage());
             assertThrows(IllegalArgumentException.class,()->l.service.handle(l.peer(2),request));
         }

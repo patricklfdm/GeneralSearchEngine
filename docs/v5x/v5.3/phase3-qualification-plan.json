@@ -676,7 +676,8 @@
         "scripts/v53/test_required_four_direct_exports.py",
         "scripts/v53/test_session_content_extents.py",
         "scripts/v53/test_export_allocation_coverage.py",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SlotCloseDrainTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SlotCloseDrainTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransferCloseDrainTest.java"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",

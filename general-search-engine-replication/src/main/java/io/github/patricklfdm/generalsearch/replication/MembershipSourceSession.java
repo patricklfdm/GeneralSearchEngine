@@ -29,6 +29,7 @@ final class MembershipSourceSession implements MembershipTransport.Handler,AutoC
     private MembershipSourceExport.Content content;
     private long sent,sequence;
     private boolean committed,closed;
+    private Throwable closeFailure;
     private String lastRequest;
     private Decoded lastResponse;
     private MembershipResources.Lease responseLease;
@@ -102,13 +103,22 @@ final class MembershipSourceSession implements MembershipTransport.Handler,AutoC
                 result=small(request,"TRANSFER_COMMIT",p);committed=true;
             }
             check();lastRequest=digest;lastResponse=result;sequence=next;return result;
-        }catch(IOException|RuntimeException error){close();throw error;}
+        }catch(IOException|RuntimeException error){
+            try{close();}catch(RuntimeException|Error cleanup){if(cleanup!=error)error.addSuppressed(cleanup);}
+            throw error;
+        }
     }
     synchronized MembershipResources.Lease closeReservation(){return closed?null:metadata;}
-    @Override public synchronized void close(){if(!closed){
-        long observation=metadata.observeCloseBegin(responseLease);
-        closed=true;releaseResponse();metadata.close();export.close();
-        // Deliberately absent when the exporter throws after releasing metadata.
-        metadata.observeCloseReturned(observation);
-    }}
+    @Override public synchronized void close(){
+        // Exporter cleanup has no retry contract. Remember an unchecked failure
+        // rather than retrying side effects or converting it into a later success.
+        if(closeFailure instanceof RuntimeException error)throw error;
+        if(closeFailure instanceof Error error)throw error;
+        if(closed)return;
+        long observation=metadata.observeCloseBegin(responseLease);closed=true;
+        try {
+            releaseResponse();metadata.close();export.close();
+            metadata.observeCloseReturned(observation);
+        }catch(RuntimeException|Error error){closeFailure=error;throw error;}
+    }
 }

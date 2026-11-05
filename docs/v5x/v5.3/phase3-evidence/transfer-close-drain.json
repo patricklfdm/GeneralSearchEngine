@@ -1,0 +1,130 @@
+{
+  "baseSource": "8ef101fc8383d2f3c8a700f512d106067bde040c",
+  "completeCurrentNativeExecuted": false,
+  "finalSourceFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceSession.java": "e3ed7b425efec51bf7d29295c5d49cb48dca3dff6f7bb8dc498dec13b269b270",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransferService.java": "ec0358ddc5d481d6a2936e1a5861ff64316a4857c103e13f024f646963d79bf9",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ControlCloseObservationsTest.java": "102571d569fb96adce1484c244f92ca711216686e7dddd0ad5f48402ba94ce92",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransferCloseDrainTest.java": "8a8ad34c98a58f6035ce46dac88f08dc5ffee2ef968d6885cacb6f0bb72eef91",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransferServiceTest.java": "8b119855e2091c2342775e07063059d260f578a53dbfed0c7e1b1181eb6ff0a1"
+  },
+  "finalSourceLearnerCancellation": {
+    "errors": 0,
+    "failures": 0,
+    "reports": {
+      "target/v53-transfer-close-drain/learner-cancel-01.xml": "4df1c99188a2815e84f046c42b4b0ac41db9ed30ee009276f4aafe06c57ff858"
+    },
+    "seconds": 62.404,
+    "skipped": 0,
+    "tests": 1
+  },
+  "finalSourceTests": {
+    "errors": 0,
+    "failures": 0,
+    "reports": {
+      "target/v53-transfer-close-drain/final-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml": "4328a50793065f0dc1c9f1bcb7dcfd1520ecd8a244237acf858b22ed8ad05453",
+      "target/v53-transfer-close-drain/final-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceControlResourcesTest.xml": "2f2a8b0c3358de759ee2363891b000d1814921315c9b0d3f9c29bac1b55858df",
+      "target/v53-transfer-close-drain/final-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53TransferCloseDrainTest.xml": "abb9dd36169e8341c48d853fa020dde24e5367e90d9aef65f3dcc8f03a51780e"
+    },
+    "seconds": 100.817,
+    "skipped": 0,
+    "tests": 10
+  },
+  "hostedExecution": false,
+  "intermediateAdjacentTests": {
+    "errors": 0,
+    "failures": 0,
+    "reports": {
+      "target/v53-transfer-close-drain/adjacent-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ControlCloseObservationsTest.xml": "e74da2ec36061e60a712fd0fa9f3ea7905b87b3aa018d10af79a375df589be23",
+      "target/v53-transfer-close-drain/adjacent-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotCloseDrainTest.xml": "34af8de8eb6ee3b6e13e472eae377fb49e90727162cff121513c7b86d0e0858a",
+      "target/v53-transfer-close-drain/adjacent-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53TransferCloseDrainTest.xml": "b67f21b65c66f5e897ee2b34ae111c3384b82d31cd89ce93079ee4504e95a6c9",
+      "target/v53-transfer-close-drain/adjacent-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest.xml": "ba014be5960e0e85b65b4f921f4dfda980eef35bed479fc0b6077ce25bc1994e"
+    },
+    "seconds": 196.831,
+    "skipped": 0,
+    "tests": 37
+  },
+  "originalReproduction": {
+    "errors": 0,
+    "failures": 6,
+    "reports": {
+      "target/v53-transfer-close-drain/original-01.xml": "73b21b1f23ac3d2c1d2ea69d960c644e523426c554f9bd10106a6d1bf57c9a98"
+    },
+    "seconds": 19.187,
+    "skipped": 0,
+    "tests": 6
+  },
+  "originalTcpReplay": {
+    "elapsedSeconds": 2.864,
+    "original": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-source-control-resources/run-acf9622c-1268-4ec6-8709-9a66b47018f5",
+    "originalInventorySha256": "8abcae6577124c869cf6183759a9b9fcec24f39141ef16f9b93b3ccecf67bf57",
+    "phase3Complete": false,
+    "readers": {
+      "cleanup": {
+        "cases": 4,
+        "negativeChecks": 64,
+        "status": "PASS"
+      },
+      "source": {
+        "cases": 4,
+        "negativeChecks": 76,
+        "status": "PASS"
+      }
+    },
+    "status": "PASS",
+    "wholeRuntimeResourcesQualified": false
+  },
+  "paidCloud": false,
+  "phase3Complete": false,
+  "plannedHostedHistories": 544,
+  "planningAndReaderTests": 48,
+  "reports": {
+    "target/v53-transfer-close-drain/adjacent-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ControlCloseObservationsTest.xml": "e74da2ec36061e60a712fd0fa9f3ea7905b87b3aa018d10af79a375df589be23",
+    "target/v53-transfer-close-drain/adjacent-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotCloseDrainTest.xml": "34af8de8eb6ee3b6e13e472eae377fb49e90727162cff121513c7b86d0e0858a",
+    "target/v53-transfer-close-drain/adjacent-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53TransferCloseDrainTest.xml": "b67f21b65c66f5e897ee2b34ae111c3384b82d31cd89ce93079ee4504e95a6c9",
+    "target/v53-transfer-close-drain/adjacent-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest.xml": "ba014be5960e0e85b65b4f921f4dfda980eef35bed479fc0b6077ce25bc1994e",
+    "target/v53-transfer-close-drain/adjacent-01.log": "203bcecb17f186e74775ecdf5778ad7cae38fdcfc57c93d7ebea85cf582bf03a",
+    "target/v53-transfer-close-drain/base-source.txt": "005a21c78f83a2d55ad29738d83d0206897dcd9317e959be0fdc2278107cc631",
+    "target/v53-transfer-close-drain/cleanup-replay-01.json": "afe39b9b4127c70ec7b082be1ac5a6ecf9a7c83a77800550ffe8eaf16a06a13f",
+    "target/v53-transfer-close-drain/contract-01.log": "c5f61d28803c9b73edfb07e9d5f0add59d5b08dbb0eb7975893986855681edfc",
+    "target/v53-transfer-close-drain/final-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml": "4328a50793065f0dc1c9f1bcb7dcfd1520ecd8a244237acf858b22ed8ad05453",
+    "target/v53-transfer-close-drain/final-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceControlResourcesTest.xml": "2f2a8b0c3358de759ee2363891b000d1814921315c9b0d3f9c29bac1b55858df",
+    "target/v53-transfer-close-drain/final-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53TransferCloseDrainTest.xml": "abb9dd36169e8341c48d853fa020dde24e5367e90d9aef65f3dcc8f03a51780e",
+    "target/v53-transfer-close-drain/final-01.log": "4378553132986b6844ed35bb0250fa3cfc220deea618a2116284bcc2e4a7ed8e",
+    "target/v53-transfer-close-drain/final-source.json": "072a543d74ec058b1af54cfabdcf56028167625e9b9f4f6c6d4fb738778cfe5e",
+    "target/v53-transfer-close-drain/finalize.py": "2801aacbccf414342fbcb31dd137041e2be9f687b6d63ef6bab22cee4055b813",
+    "target/v53-transfer-close-drain/learner-cancel-01.log": "b71942c51995f69e0c577b5e9c787ea63121402ef87f995662e446126037b2e9",
+    "target/v53-transfer-close-drain/learner-cancel-01.xml": "4df1c99188a2815e84f046c42b4b0ac41db9ed30ee009276f4aafe06c57ff858",
+    "target/v53-transfer-close-drain/original-01.log": "3d838af0f2b1a62e3e854d06f0f26179ea97458fd4bd50954646cbd59c0ea821",
+    "target/v53-transfer-close-drain/original-01.xml": "73b21b1f23ac3d2c1d2ea69d960c644e523426c554f9bd10106a6d1bf57c9a98",
+    "target/v53-transfer-close-drain/original-collection.txt": "cc3867dc2768fea91e4625c0bddb60eab975d32bf6054144aeb78989fdbc9630",
+    "target/v53-transfer-close-drain/python-01.log": "36db8dd2857cc41c46e246d75bef37b3f83538951fb3a7170528dfd06203ce57",
+    "target/v53-transfer-close-drain/qualification-plan-01.log": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df",
+    "target/v53-transfer-close-drain/qualification-plan-01/acceptance-plan.json": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717",
+    "target/v53-transfer-close-drain/qualification-plan-01/plan.json": "96d907eb7a5c61e2c1432c776760d213d0a2dfff1e7c35365b9f36186afdcf8c",
+    "target/v53-transfer-close-drain/qualification-plan-01/receipt.json": "28a932abf275ee5da579c95607a7e4ab5deab490d519e6d05c6c4cfea87e8744",
+    "target/v53-transfer-close-drain/reader-input.json": "c9b581c8ccbd01c550bdfe15f61259f302a2f5dc9b4597f52970bc8cbc8433a3",
+    "target/v53-transfer-close-drain/repaired-01.log": "b161a04f1d1b7a2f048b173acfc4d23ee4ef0c70be5c710be69f30105162f042",
+    "target/v53-transfer-close-drain/repaired-01.xml": "a33a8e5579f149428333129f1595122ca8486a9dd850e7337f76a14d24974bb0",
+    "target/v53-transfer-close-drain/replay-01.log": "bd89f5d238684fcde53f4203e13f59c521807b670f652fc9ff35fbd052cc1a3b",
+    "target/v53-transfer-close-drain/replay-summary.json": "c3f47f00534355425e8ee06198dee684c4b64fe991fb779cf0750074cb58186c",
+    "target/v53-transfer-close-drain/replay.py": "4f2d3582d0fe669cfd898faba281e472b46640d9fbf3cf115b3bb1892005f852",
+    "target/v53-transfer-close-drain/source-replay-01.json": "00f8251209ac4c8b58d92715abe0078e6f410559f70fc19978ba7e2f747742c7"
+  },
+  "requirements": 12,
+  "schema": "gse-v53-transfer-close-drain-development-v1",
+  "scope": "shared-transfer-drain-and-exporter-failure-regressions",
+  "sourceNotes": [
+    "adjacent-01 predates the final closed-newcomer fast rejection and its test assertion",
+    "final-01 and learner-cancel-01 test the final source bytes",
+    "the injected preparation exporter reports failure after its real original export closes; this is not a native storage/crash fault"
+  ],
+  "status": "PASS",
+  "unchangedReaderFiles": {
+    "scripts/v53/control_close_evidence.py": "d93575a21a05592da4970f3813ae57b1e3ada1ca74ba715ca835cdd3235d3874",
+    "scripts/v53/control_close_negatives.py": "19c842a1a96a7f570993e8a86255b0d2c5ece499cbb67eae3a49b3ddd260ce1c",
+    "scripts/v53/source_control_resource_evidence.py": "1d4fbda7ff2e6a637f31f2169ace8401c38d13a2f34484e5239c0f0d44e62e72",
+    "scripts/v53/source_control_resource_negatives.py": "77b56c527b3736f136bca0c8fdead84af4cb66ad14accc9f0cb7524ff285e497"
+  },
+  "wholeRuntimeResourcesQualified": false
+}

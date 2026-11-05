@@ -1,5 +1,10 @@
 # Phase 3 source-component cleanup intervals
 
+Runtime follow-up: [shared transfer-service drain](PHASE_3_TRANSFER_CLOSE_DRAIN.md)
+now waits for concurrent cleanup and admitted callbacks, and preserves failed
+exporter cleanup across repeated closes. The observation results and historical
+runtime behavior below retain their original source scope.
+
 Follow-up: [native cleanup binding and listener drain](PHASE_3_NATIVE_CONTROL_CLOSE.md)
 adds source-bound multi-session cleanup replay and corrects the learner endpoint
 closed predicate. The results below retain their original batch scope.

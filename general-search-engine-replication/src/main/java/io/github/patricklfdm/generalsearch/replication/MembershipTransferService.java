@@ -2,6 +2,7 @@ package io.github.patricklfdm.generalsearch.replication;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.LongSupplier;
 import static io.github.patricklfdm.generalsearch.replication.MembershipContext.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
@@ -32,6 +33,10 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
     private final MembershipLearnerRetentionServing learnerServing;
     private final Map<Key,Entry> traces=new HashMap<>();
     private final Map<MembershipIdentity,Integer> calls=new HashMap<>();
+    private final ThreadLocal<Integer> handlerDepth=new ThreadLocal<>();
+    private final Object cleanup=new Object();
+    private boolean drained;
+    private Throwable cleanupFailure;
     private volatile boolean closed;
 
     MembershipTransferService(MembershipGrantJournal owner,Map<String,Object> ballot,MembershipResources resources,
@@ -77,7 +82,10 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
     boolean poll(){if(expired())close();return !closed;}
     private void live()throws IOException {
         try{time();guard.check();if(prefix)require(owner.readOnlyCapsule().context.cut.equals(context.cut),"prefix service cut changed");time();}
-        catch(IOException|RuntimeException error){close();throw error;}
+        catch(IOException|RuntimeException error){
+            try{revoke();}catch(RuntimeException|Error cleanup){if(cleanup!=error)error.addSuppressed(cleanup);}
+            throw error;
+        }
     }
     private final class Entry {
         final Key key;
@@ -170,6 +178,24 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
                 && payload.get("action").equals("REQUEST") && number(payload.get("offset"))==0 && payload.get("bytes").equals(""),"transfer initial request");
     }
     @Override public Decoded handle(MembershipIdentity reader,Decoded request)throws IOException {
+        // A rejected newcomer must not join an older handler's drain.
+        require(!closed,"original transfer service deadline/closed");
+        Integer outer=handlerDepth.get();handlerDepth.set(outer==null?1:outer+1);Throwable failure=null;
+        try{return answer(reader,request);}
+        catch(IOException|RuntimeException|Error error){failure=error;throw error;}
+        finally {
+            if(outer!=null)handlerDepth.set(outer);
+            else {
+                handlerDepth.remove();
+                // Internal expiry/fencing revokes immediately; only a handler
+                // that has left its admitted call may finish draining the scope.
+                if(closed)try{close();}catch(RuntimeException|Error cleanup){
+                    if(failure==null)throw cleanup;if(cleanup!=failure)failure.addSuppressed(cleanup);
+                }
+            }
+        }
+    }
+    private Decoded answer(MembershipIdentity reader,Decoded request)throws IOException {
         live();require(request.size()<=frameLimit,"transfer service frame capacity");
         require(request.kind().equals("CHUNK") || request.kind().equals("TRANSFER_COMMIT"),"transfer service request kind");
         UUID trace=UUID.fromString((String)request.value().get("trace"));
@@ -190,8 +216,15 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
             events.at("TRANSFER_ADMITTED",request,null);live();var response=entry.handle(request);live();
             events.at("TRANSFER_BEFORE_REPLY",request,response);live();entry.checkRecording();return response;
         }
-        catch(IOException|RuntimeException|Error error){entry.abort();if(expired())close();throw error;}
-        finally {synchronized(this){int count=calls.get(reader);if(count==1)calls.remove(reader);else calls.put(reader,count-1);}}
+        catch(IOException|RuntimeException|Error error){
+            try{entry.abort();}catch(RuntimeException|Error cleanup){
+                if(cleanup!=error)error.addSuppressed(cleanup);
+                try{revoke();}catch(RuntimeException|Error cancel){if(cancel!=error)error.addSuppressed(cancel);}
+            }
+            if(expired())try{revoke();}catch(RuntimeException|Error cleanup){if(cleanup!=error)error.addSuppressed(cleanup);}
+            throw error;
+        }
+        finally {synchronized(this){int count=calls.get(reader);if(count==1)calls.remove(reader);else calls.put(reader,count-1);notifyAll();}}
     }
     boolean sameCut(Map<String,Object> cut){return context.cut.equals(cut);}
     synchronized boolean contains(MembershipIdentity reader,Decoded request) {
@@ -203,17 +236,39 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
         // Never acquire an entry monitor while holding the registry monitor.
         return new Usage(entries.size(),(int)entries.stream().filter(Entry::liveSession).count(),active,stopped);
     }
-    @Override public void close() {
-        List<Entry> entries;long observation;
-        synchronized(this){if(closed)return;closed=true;entries=List.copyOf(traces.values());traces.clear();
-            observation=-1;
-            if(metadata.observesClose())try{observation=metadata.observeCloseBegin(entries.stream().map(e->e.marker).toList());}
-            catch(RuntimeException|OutOfMemoryError error){metadata.closeObservationFailed();}}
-        // The protocol must call close outside the journal monitor; reads serialize on that owner.
-        // Cancel the shared quorum before acquiring entry monitors: their first
-        // requests may still be waiting for that quorum while holding the entry.
+    private void revoke() {
+        synchronized(this){closed=true;}
+        // Cancel shared quorum work before waiting for admitted readers.
         if(learnerServing!=null)learnerServing.close();
-        try{for(var entry:entries)entry.close();}finally{metadata.close();}
-        metadata.observeCloseReturned(observation);
+    }
+    private void rethrowCleanup() {
+        if(cleanupFailure instanceof RuntimeException error)throw error;
+        if(cleanupFailure instanceof Error error)throw error;
+    }
+    @Override public void close() {
+        revoke();Integer depth=handlerDepth.get();
+        if(depth!=null)throw new IllegalStateException("transfer close from active handler");
+        handlerDepth.remove();
+        long end=System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(bounds.requestTimeoutMillis());
+        try{synchronized(this){while(!calls.isEmpty()){
+            long left=end-System.nanoTime();require(left>0,"transfer service close timeout");TimeUnit.NANOSECONDS.timedWait(this,left);
+        }}}catch(InterruptedException error){Thread.currentThread().interrupt();throw new IllegalStateException("transfer service close interrupted",error);}
+        // Never wait for entries/exporters under the service or budget monitor.
+        // All admitted callbacks have exited; no new trace can enter after revoke.
+        synchronized(cleanup) {
+            if(drained)return;rethrowCleanup();List<Entry> entries;
+            synchronized(this){entries=List.copyOf(traces.values());}
+            long observation=-1;
+            if(metadata.observesClose())try{observation=metadata.observeCloseBegin(entries.stream().map(e->e.marker).toList());}
+            catch(RuntimeException|OutOfMemoryError error){metadata.closeObservationFailed();}
+            for(var entry:entries)try{entry.close();}catch(RuntimeException|Error error){
+                if(cleanupFailure==null)cleanupFailure=error;else if(cleanupFailure!=error)cleanupFailure.addSuppressed(error);
+            }
+            // Retain the bounded trace owners and parent charge on failure.
+            // Repeated close must not erase the first failed exporter cleanup.
+            rethrowCleanup();
+            try{metadata.close();}catch(RuntimeException|Error error){cleanupFailure=error;throw error;}
+            synchronized(this){traces.clear();}drained=true;metadata.observeCloseReturned(observation);
+        }
     }
 }

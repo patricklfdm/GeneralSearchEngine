@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Shared transfer-service drain](PHASE_3_TRANSFER_CLOSE_DRAIN.md) now waits for
+admitted callbacks and original exporter cleanup before successful close. Failed
+export cleanup remains a failure on repeated close; other traces are still
+cleaned. Scoped regressions and original TCP evidence remain separate from
+complete resource/Phase 3 qualification.
+
 [Native slot drain retries](PHASE_3_SLOT_CLOSE_DRAIN.md) fix repeated/concurrent
 close returning while a writer remains active. Parent scopes retain failed
 children and scratch ownership; admitted waiter release precedes zero calls.
