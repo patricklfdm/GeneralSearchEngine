@@ -42,12 +42,16 @@ def bind(traces,closes,associations,*,export_ownership=False):
                 exportOwnership=export_result,wholeRuntimeResourcesQualified=False,phase3Complete=False)
 
 
-def replay(events,wires,traces,boundaries,identities,root,closes,*,export_ownership=False,joining_requests=False):
+def replay(events,wires,traces,boundaries,identities,root,closes,*,export_ownership=False,joining_requests=False,joining_extents=None):
     need(type(joining_requests) is bool and (not joining_requests or export_ownership),'native close joining requests policy')
+    need(joining_extents is None or joining_requests and type(joining_extents) is dict and joining_extents,'native close joining extents policy')
     associations={};initials={}
     original=source.replay(events,wires,traces,boundaries,identities,root,bindings=associations,initials=initials if joining_requests else None)
     result=bind(traces,closes,associations,export_ownership=export_ownership)
     if joining_requests:
         from . import joining_export_request_evidence
         result['joiningExportRequests']=joining_export_request_evidence.bind(traces,closes,initials)
+    if joining_extents is not None:
+        from . import joining_metadata_extents
+        result['joiningMetadataExtents']=joining_metadata_extents.bind(traces,closes,initials,joining_extents)
     return dict(result,precondition=original)

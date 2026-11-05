@@ -19,11 +19,17 @@ class V53JoiningExportRequestTest {
         var preparationHelper=new V53JoiningPreparationTest();preparationHelper.temp=temp;
         Path parent=Path.of("target/v53-joining-export-requests");Files.createDirectories(parent);
         Path raw=Files.createDirectory(parent.resolve("run-"+UUID.randomUUID()));
+        Path extentParent=Path.of("target/v53-joining-metadata-extents");Files.createDirectories(extentParent);
+        Path extents=Files.createDirectory(extentParent.resolve(raw.getFileName()));
         String role=preparation?"joining-preparation-export":"joining-retention-export";
         var first=new ArrayList<Map<String,Object>>();var requests=new ArrayList<Decoded>();
         MembershipResources pool;
         try(var local=helper.new Local(true)) {
             pool=local.a;
+            if(!preparation) {
+                var selector=decode(Files.readAllBytes(local.path.resolve("selector.gsr")),"records","SELECTOR");
+                Files.copy(local.path.resolve("generations/"+selector.value().get("generation")+"/generation.gsr"),extents.resolve("generation.gsr"));
+            }
             try(var endpoint=preparationHelper.endpoint(local);var publication=preparationHelper.publication(local)) {
                 if(preparation)endpoint.publishJoiningPreparation(publication);
                 try(var pull=local.pull((peer,request,kind,deadline)->{
@@ -40,7 +46,8 @@ class V53JoiningExportRequestTest {
                     }catch(Exception error){return CompletableFuture.failedFuture(error);}
                 })) {
                     String reference=preparation?MembershipJoiningPreparation.reference(local.reader.activationContext(),local.reader.activationIdentity()):local.reference();
-                    pull.fetchPrefixMetadata(reference,preparation?MembershipJoiningPreparation.MAXIMUM:MembershipJoiningRetentionSeed.FRAGMENT_MAXIMUM);
+                    byte[] content=pull.fetchPrefixMetadata(reference,preparation?MembershipJoiningPreparation.MAXIMUM:MembershipJoiningRetentionSeed.FRAGMENT_MAXIMUM);
+                    Files.write(extents.resolve("content.bin"),content,StandardOpenOption.CREATE_NEW);
                 }
             }
             assertEquals(1,requests.size());var request=requests.getFirst();
@@ -58,7 +65,9 @@ class V53JoiningExportRequestTest {
         assertEquals(0,pool.usage().leases());
         V53ResourceTraceFiles.write(raw.resolve("resources.json"),pool.observations());
         V53ResourceTraceFiles.writeCloses(raw.resolve("closes.json"),pool.controlCloseObservations());
+        for(String file:List.of("scope.json","initial.json","resources.json","closes.json"))Files.copy(raw.resolve(file),extents.resolve(file));
         System.out.println("v53JoiningExportRequestEvidence="+raw.toAbsolutePath());
+        System.out.println("v53JoiningMetadataExtentEvidence="+extents.toAbsolutePath());
     }
     @Test void allFiveRequestRolesFitExistingOwnerLimitAndKeepDistinctAllocations() {
         var source=V53DeclarationsTest.node(1);var peer=V53DeclarationsTest.node(2);

@@ -1,0 +1,426 @@
+{
+  "allJoiningFamiliesQualified": false,
+  "baseSource": "664520f45de627061d8ed08372f72b17a1f6c226",
+  "captures": [
+    "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-joining-metadata-extents/run-d4a83cf8-81c7-431a-a8fd-32e147d85a0d",
+    "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-joining-metadata-extents/run-9a42576f-3fad-44f7-8302-882f7100a1d9"
+  ],
+  "components": [
+    {
+      "allJoiningFamiliesQualified": false,
+      "component": {
+        "negatives": [
+          {
+            "case": "metadata-extent",
+            "reason": "joining metadata original reservation extent",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-content",
+            "reason": "joining metadata original expectations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "extra-content",
+            "reason": "joining metadata complete original expectations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "foreign-source",
+            "reason": "joining metadata original expectation shape",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-family",
+            "reason": "joining metadata original expectation shape",
+            "status": "REJECTED"
+          },
+          {
+            "case": "boolean-extent",
+            "reason": "joining metadata original expectation shape",
+            "status": "REJECTED"
+          },
+          {
+            "case": "foreign-first-request",
+            "reason": "joining metadata complete original expectations",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "allJoiningFamiliesObserved": false,
+          "families": {
+            "joining-preparation-export": 1
+          },
+          "metadataAllocations": 1,
+          "metadataExtentsQualified": true,
+          "nativeContentAuthorityQualified": false,
+          "nestedPrefixes": 0,
+          "phase3Complete": false,
+          "requestBindings": {
+            "allJoiningFamiliesObserved": false,
+            "boundMetadataAllocations": 1,
+            "exportContentQualified": false,
+            "exportFamilyAuthorityQualified": false,
+            "exportInventory": {
+              "allExportFamiliesQualified": false,
+              "completeExportAllocationInventory": true,
+              "declaredSessionExportReleaseQualified": true,
+              "directFamilies": {},
+              "directOwnedAllocations": 0,
+              "exportContentExtentsQualified": false,
+              "failedConstructorExportsQualified": false,
+              "families": {
+                "joining-preparation-export": 1
+              },
+              "joiningExportRequestsQualified": false,
+              "ownedAllocations": 1,
+              "phase3Complete": false,
+              "probeFamilies": {},
+              "probeOwnedAllocations": 0,
+              "revokedBeforeAttachment": 0,
+              "rollbackFamilies": {},
+              "rollbackOwnedAllocations": 0,
+              "scope": "observed-session-and-local-export-handles",
+              "sessionOwnedAllocations": 1,
+              "sessions": 1,
+              "status": "PASS",
+              "unattachedExports": [],
+              "wholeRuntimeResourcesQualified": false
+            },
+            "failedConstructorExportsQualified": false,
+            "families": {
+              "joining-preparation-export": 1
+            },
+            "joiningExportRequestsQualified": true,
+            "metadataExtentsQualified": false,
+            "originalInitialRequests": 1,
+            "phase3Complete": false,
+            "scope": "original-first-request-to-session-export-handle",
+            "status": "PASS",
+            "wholeRuntimeResourcesQualified": false
+          },
+          "scope": "original-joining-session-metadata-and-prefix-extents",
+          "status": "PASS",
+          "wholeRuntimeResourcesQualified": false
+        }
+      },
+      "inventory": {
+        "bytes": 15596,
+        "directories": [],
+        "files": {
+          "closes.json": "9e1ac18de3616bbe53306710d2f4250776c089dcf68807cc6c9390a0d004714c",
+          "content.bin": "21cec565a4ce381996632da3d347b631882f8322a9a430fcc28832bef68570f5",
+          "initial.json": "4916fbecbb0001c924923d26920a544d421f72d05f6e17974fb2d007c72bb186",
+          "resources.json": "220b273e18878c16c7d3cec5dfe6bc326dea8a7b8216b99d559d9003467c6df9",
+          "scope.json": "bff3c5e29a8ff3dca7051907240c43f11eca15ae1f7f946d20c50434e99bdcd6"
+        }
+      },
+      "nativeMembershipQualified": false,
+      "phase3Complete": false,
+      "scope": "conditional-original-joining-metadata-extent",
+      "status": "PARTIAL"
+    },
+    {
+      "allJoiningFamiliesQualified": false,
+      "component": {
+        "negatives": [
+          {
+            "case": "metadata-extent",
+            "reason": "joining metadata original reservation extent",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-content",
+            "reason": "joining metadata original expectations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "extra-content",
+            "reason": "joining metadata complete original expectations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "foreign-source",
+            "reason": "joining metadata original expectation shape",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-family",
+            "reason": "joining metadata original expectation shape",
+            "status": "REJECTED"
+          },
+          {
+            "case": "boolean-extent",
+            "reason": "joining metadata original expectation shape",
+            "status": "REJECTED"
+          },
+          {
+            "case": "foreign-first-request",
+            "reason": "joining metadata complete original expectations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "prefix-binding",
+            "reason": "joining metadata original nested generation",
+            "status": "REJECTED"
+          },
+          {
+            "case": "prefix-extent",
+            "reason": "joining metadata original prefix extent",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "allJoiningFamiliesObserved": false,
+          "families": {
+            "joining-retention-export": 1
+          },
+          "metadataAllocations": 1,
+          "metadataExtentsQualified": true,
+          "nativeContentAuthorityQualified": false,
+          "nestedPrefixes": 1,
+          "phase3Complete": false,
+          "requestBindings": {
+            "allJoiningFamiliesObserved": false,
+            "boundMetadataAllocations": 1,
+            "exportContentQualified": false,
+            "exportFamilyAuthorityQualified": false,
+            "exportInventory": {
+              "allExportFamiliesQualified": false,
+              "completeExportAllocationInventory": true,
+              "declaredSessionExportReleaseQualified": true,
+              "directFamilies": {},
+              "directOwnedAllocations": 0,
+              "exportContentExtentsQualified": false,
+              "failedConstructorExportsQualified": false,
+              "families": {
+                "joining-retention-export": 1
+              },
+              "joiningExportRequestsQualified": false,
+              "ownedAllocations": 2,
+              "phase3Complete": false,
+              "probeFamilies": {},
+              "probeOwnedAllocations": 0,
+              "revokedBeforeAttachment": 0,
+              "rollbackFamilies": {},
+              "rollbackOwnedAllocations": 0,
+              "scope": "observed-session-and-local-export-handles",
+              "sessionOwnedAllocations": 2,
+              "sessions": 1,
+              "status": "PASS",
+              "unattachedExports": [],
+              "wholeRuntimeResourcesQualified": false
+            },
+            "failedConstructorExportsQualified": false,
+            "families": {
+              "joining-retention-export": 1
+            },
+            "joiningExportRequestsQualified": true,
+            "metadataExtentsQualified": false,
+            "originalInitialRequests": 1,
+            "phase3Complete": false,
+            "scope": "original-first-request-to-session-export-handle",
+            "status": "PASS",
+            "wholeRuntimeResourcesQualified": false
+          },
+          "scope": "original-joining-session-metadata-and-prefix-extents",
+          "status": "PASS",
+          "wholeRuntimeResourcesQualified": false
+        }
+      },
+      "inventory": {
+        "bytes": 28922,
+        "directories": [],
+        "files": {
+          "closes.json": "a370faf6a2226651bd98206d9b4147c3e7627aed7a23d2facb593a9ebabc7af3",
+          "content.bin": "c80ff9caa4f69a0403fe4a07cd6b56012231c0932a1bfeb4f1bd675ec5a511dd",
+          "generation.gsr": "0845afc0abd787afb27dde1404a2cf96093b63e7f645732bc9d63094280c8cc2",
+          "initial.json": "19fba6db24d4026d25d0fd7e646b0bb7e3d57f0285f6cb93e29edec435b264bc",
+          "resources.json": "a2ae586972e2bae73cea52dfecf4a34ffb08f4a133b1fa08fe2682fda65197f1",
+          "scope.json": "b6e07d7a4444b9d266a4e309f59151ca45c1c9d1ea603f292effcdef3c4b2b37"
+        }
+      },
+      "nativeMembershipQualified": false,
+      "phase3Complete": false,
+      "scope": "conditional-original-joining-metadata-extent",
+      "status": "PARTIAL"
+    }
+  ],
+  "conditionalCases": 2,
+  "finalSourceCohortQualified": false,
+  "historicalRequiredFourReplay": {
+    "elapsedSeconds": 153.604,
+    "families": {
+      "joining-checkpoint-export": 3,
+      "joining-completion-export": 2,
+      "joining-intent": 2,
+      "joining-preparation-export": 1,
+      "joining-retention-export": 3
+    },
+    "metadataAllocationsQualified": false,
+    "newRuntimeExecution": false,
+    "original": "general-search-engine-replication/target/v53-native-dispatch/run-bc82bb01-127a-40e0-9332-dd2f2bc8a1d3",
+    "sessions": 11,
+    "status": "PASS"
+  },
+  "javaTests": 22,
+  "negativeChecks": 16,
+  "newPythonTests": 18,
+  "phase3Complete": false,
+  "productionJavaChanged": false,
+  "pythonTests": 196,
+  "remaining": [
+    "complete current-source native joining/required-four resource composition",
+    "additional failure and cleanup cases",
+    "whole-runtime physical custody and peak composition",
+    "final-source cohort admission and hosted execution"
+  ],
+  "reports": [
+    {
+      "path": "target/v53-joining-metadata-extents/component-1.json",
+      "sha256": "69ce0c6ab38daf923e258528c248dcf1467141c89dd2aa4a5a52ebf208bb6abf"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/component-2.json",
+      "sha256": "76fce8c7c4a2d4800660dafe1eb6941dac13e90bb1d80f48e190b6bfd5431dc8"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/component-negatives.log",
+      "sha256": "13ffddd6a582d1cb0197d316402c4679bc9ecde148035ba0ef58cf7b42b4c50d"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/contract.json",
+      "sha256": "b276af2120e6e15b53a2432b3d077e92bf954f26aeb7a9dc992c496895e0be61"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/contract.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/finalize.py",
+      "sha256": "3159d30299fa89c404a5f96f84feac102c3e141134c28f0dc886b7fcdbd6e828"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/historical-replay.log",
+      "sha256": "93d69935a0194a05ed7860887042aabb4ec58da37cfbe89b6fd8df238c68df8d"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/historical-required-four-derived.json",
+      "sha256": "6480495b442b2218796ed839b7c4f3669d4d271c547941e434164df10745151d"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/historical-required-four-precondition.json",
+      "sha256": "86efd6da929ea65c705ef4a512974ae42c36fced771384947fc1d9d40d0c519c"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/java-01.log",
+      "sha256": "81e9543b7a79d00fa44e837e94876b0c37b47e4bee94aad6a7559d9b55cfcfab"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/java-input.json",
+      "sha256": "8677a035b1b7282d6b50801dde34e53fa88676ad7e3b4375e0346243c8fba4da"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/java-results.json",
+      "sha256": "8521f18f0a6b94b158d2413ba08691933cf59d91271ccd511061b6aa84ad57de"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ExportRollbackTest.xml",
+      "sha256": "f1669d335dc6a0422dd91561938f81581a48d0e80e10b52021376a462dd998f2"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53JoiningExportRequestTest.xml",
+      "sha256": "5e06055eb17b9c72000f4c9234b7a98f780856ee9684569615a9960c0468b97e"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ProbeExportOwnershipTest.xml",
+      "sha256": "5a4a0edc76c083690a27c90747c4ee396227841bf4703c6b01756b53e3d3107f"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/plan/acceptance-plan.json",
+      "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/plan/plan.json",
+      "sha256": "811d5dedd9f3965d1927fd1072d36c23b8a7fb6dcf8b158172e4b4d48e57c005"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/plan/receipt.json",
+      "sha256": "372e7bbf6a2ba8f98301802bda93fb933c1e353580c0d8a55a75c08a0960dc2a"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/plan.log",
+      "sha256": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/python-final-01.log",
+      "sha256": "3ca1b43275bb08f019125b98f1ea174cf51e448c295b0ca1fe18f2a0eec8d78b"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/python-final-02.log",
+      "sha256": "9631bed8b330ef02d089f4edbecc510bd53bb85efd1414d74a89a81afd1e7470"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/python-new-01.log",
+      "sha256": "103ca5c98f761d34ed2892cc40592dad797212f6a9906e7b77ba8c201f84446d"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/python-new-02.log",
+      "sha256": "6f9e4829b9fca468dc587ab0f80b08de4107af7c0036724bc2bfbb6f0e7f0e4e"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/qualified-1.json",
+      "sha256": "4aadd24ec3ab558d18e276ffbfea7f9dfbc4d777ca2639b4e4bad2f362c4e58c"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/qualified-2.json",
+      "sha256": "8d7ae996de782485e36fff62dc13afe4219e68e2f632fb43ddaf62b6cb33478b"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/raw-paths.json",
+      "sha256": "62aa07d4276fa28eda63316a2c9b428183deae72f3830a5a1216744f1e4bae3c"
+    },
+    {
+      "path": "target/v53-joining-metadata-extents/replay-historical.py",
+      "sha256": "fb6c6c3ede213f1f5c855bcfcf40f0d594daae7aa342a856db0ccc447b9754c5"
+    }
+  ],
+  "schema": "gse-v53-joining-metadata-extents-development-v1",
+  "scope": "original-joining-metadata-extent-reader",
+  "sources": [
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_JOINING_METADATA_EXTENTS.md",
+      "sha256": "c3eb1b280f6e4328b7bdf03673c82d023947ab50b5ccf917344868d68b76870c"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_QUALIFICATION_AUDIT.md",
+      "sha256": "66492292de367b3426a6d907be4ce409014b3c0ab0c809c8550f689154718922"
+    },
+    {
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "3b9d9af22c0287517234d83e3dedc300e00625da45214c3455e37df1bc301049"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningExportRequestTest.java",
+      "sha256": "2643a86bf947b2e983442087fb5f805564aa3bbf353d4ec980487e1f247a14dc"
+    },
+    {
+      "path": "scripts/v53/joining_metadata_extents.py",
+      "sha256": "3c5553934cf4f866f857d6b78a3d19dd9daa56f22490ffd82a7200d8cc1aa2b3"
+    },
+    {
+      "path": "scripts/v53/native_control_closes.py",
+      "sha256": "983ed1414163beb360f2e3583125ce88745ba662bb14dbc2841e7499721c3b8a"
+    },
+    {
+      "path": "scripts/v53/native_resource_evidence.py",
+      "sha256": "6fb450de82d6423e2dd10da910f3f96fdc3a0405ec2746e1c48d08a06c0b450b"
+    },
+    {
+      "path": "scripts/v53/test_joining_metadata_extents.py",
+      "sha256": "245000ab65e78e81a9748e0744e02cd1d88c5b33f7492fd3f2ce625506e1f3f5"
+    }
+  ],
+  "status": "PASS",
+  "wholeRuntimeResourcesQualified": false
+}

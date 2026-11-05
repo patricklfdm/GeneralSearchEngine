@@ -90,7 +90,8 @@ def bind_publications(transactions,boundaries):
     return count
 
 
-def validate(directory,profile='stable',progress=None,*,source_control=False,control_closes=False,export_ownership=False,direct_exports=False,joining_requests=False):
+def validate(directory,profile='stable',progress=None,*,source_control=False,control_closes=False,export_ownership=False,direct_exports=False,joining_requests=False,joining_extents=False):
+    need(type(joining_extents) is bool and (not joining_extents or joining_requests),'native resources joining extents policy')
     need(type(joining_requests) is bool and (not joining_requests or export_ownership and control_closes and profile=='5-REPLACE-required-four'),
          'native resources joining requests policy')
     need(type(source_control) is bool and type(control_closes) is bool,'native resources source-control policy')
@@ -106,7 +107,7 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
     elif profile=='5-REPLACE-required-four':
         from . import required_four_ledgers as ledgers
         preceding=ledgers.validate(root,progress)
-        model=ledgers.maintenance.exports.control_reader(root).model
+        controls=ledgers.maintenance.exports.control_reader(root);model=controls.model
         network=ledgers.maintenance.exports.network.network
         identities=network.s.catalog.identities(model.states[-1]['identities']);authority=model.root
         closing=set(identities)-{model.joining}
@@ -121,8 +122,12 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
     cleanup=None
     if control_closes:
         from . import control_close_evidence,native_control_closes
+        expected_extents=None
+        if joining_extents:
+            from . import joining_metadata_extents
+            expected_extents=joining_metadata_extents.derive(controls)
         cleanup=native_control_closes.replay(events,wires,traces,boundaries,identities,authority,control_close_evidence.load(root,index),
-                                           export_ownership=export_ownership,joining_requests=joining_requests)
+                                           export_ownership=export_ownership,joining_requests=joining_requests,joining_extents=expected_extents)
         source_result=cleanup['precondition']
     else:source_result=native_source_resources.replay(events,wires,traces,boundaries,identities,authority,require_complete=source_control)
     direct=None
@@ -154,5 +159,6 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('root')
     p.add_argument('--profile',choices=('stable','5-REPLACE-required-four'),default='stable')
     p.add_argument('--source-control',action='store_true');p.add_argument('--control-closes',action='store_true')
-    p.add_argument('--export-ownership',action='store_true');p.add_argument('--direct-exports',action='store_true');p.add_argument('--joining-requests',action='store_true');a=p.parse_args()
-    print(json.dumps(validate(a.root,a.profile,source_control=a.source_control,control_closes=a.control_closes,export_ownership=a.export_ownership,direct_exports=a.direct_exports,joining_requests=a.joining_requests),sort_keys=True))
+    p.add_argument('--export-ownership',action='store_true');p.add_argument('--direct-exports',action='store_true');p.add_argument('--joining-requests',action='store_true')
+    p.add_argument('--joining-extents',action='store_true');a=p.parse_args()
+    print(json.dumps(validate(a.root,a.profile,source_control=a.source_control,control_closes=a.control_closes,export_ownership=a.export_ownership,direct_exports=a.direct_exports,joining_requests=a.joining_requests,joining_extents=a.joining_extents),sort_keys=True))

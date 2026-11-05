@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Joining metadata extents](PHASE_3_JOINING_METADATA_EXTENTS.md) now bind all five
+metadata families to original content sizes and exact first requests, including
+the separate nested prefix charge. Two actual conditional handlers pass 16
+negative checks; historical required-four content derives eleven expectations.
+Current-source full resource composition and hosted qualification remain OPEN.
+
 [Explicit probe export ownership](PHASE_3_PROBE_EXPORT_OWNERSHIP.md) now records
 successful prefix/INTENT probe handles separately from sessions and rollback.
 Two actual conditional prefix captures pass normal-close/expiry replay and 24
