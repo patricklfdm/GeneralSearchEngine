@@ -180,8 +180,50 @@ all sixteen physical negatives and unchanged replay after relocating the entire
 producer. Seventy-seven focused Python checks passed. This recorded development
 source snapshot is not a final-commit or hosted execution attestation.
 
+## Complete hosted boundary entry
+
+The opt-in [capacity workflow](../../../.github/workflows/v53-capacity-completion.yml)
+and [hosted adapter](../../../scripts/v53/capacity_completion_hosted.py) now prepare
+the longer operation-231 qualification. They are supplemental to the twelve
+native subsets; the 552-history native inventory is unchanged. This workflow has
+not yet been dispatched and is not a Required, release or cloud gate.
+
+Preparation freezes source, reference classes, actual tools, the owning reader
+and an offline Maven repository. Execution must reproduce those classes and
+dependencies, then run exactly the full operation-231 method once. It keeps the
+same original owners through all five slots, both campaigns, capacity refusal
+and subsequent DATA; these steps cannot be sharded. A separate verifier job
+downloads the seed and complete original from the exact source/run/attempt,
+checks successful execution, and performs original-first physical replay, all
+sixteen exact negatives and unchanged portable replay. Failed originals and
+diagnostics are retained; neither retries nor the short smoke can substitute.
+
+The seed retains the shared 1 GiB transport limit. Only this workflow's raw bundle
+uses 6 GiB for source, classes, logs and repeated snapshots. The underlying raw
+history remains bounded at 4 GiB; individual archive members remain at 256 MiB,
+with links, traversal and duplicate entries rejected. These are evidence-copy
+limits, not runtime allowances. All other hosted adapters keep their existing
+1 GiB transport default. Uncompressed temporary extraction and mutation copies
+also consume disk; the 6 GiB limit is not a measured peak disk claim.
+
+All three jobs use the existing pinned tools, print progress every minute during
+their Python stages and retain artifacts for 90 days. The 360-minute job timeout
+is the existing hosted infrastructure ceiling; it does not change protocol
+timeouts or authorize an automatic retry. The only entry points are an explicit
+dispatch or a push to `experiment/v53-capacity-completion`; ordinary development
+pushes and PRs do not invoke it. No dispatch or push is part of this local batch.
+
+A successful final receipt qualifies only the conditional capacity continuation.
+It leaves historical-prefix authority, simultaneous combined resource maxima,
+native process/network and Phase 3 completion false. Development checks and the
+unchanged real-smoke archive transport are recorded in the
+[hosted entry receipt](phase3-evidence/capacity-completion-hosted.json); synthetic
+orchestration tests and smoke transport cannot replace the pending full history.
+
 The test deliberately verifies a large immutable prefix on every owner reopen;
 its duration is not a failover or throughput measurement. Longer final-source
 qualification remains eligible for the planned hosted parallel acceptance.
-Removing the continuation tests, reader and optional fixture tracing is a test-only rollback;
-production Java, persisted formats, bounds, POMs and workflows are unchanged.
+The hosted entry can be rolled back by removing its dedicated workflow, adapter,
+tests and the optional shared archive-bound parameter; existing adapters retain
+their default. Production Java, persisted formats, runtime bounds, POMs,
+Required checks, release and cloud workflows are unchanged.

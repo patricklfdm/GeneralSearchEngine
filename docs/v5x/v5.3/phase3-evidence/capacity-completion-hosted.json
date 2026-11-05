@@ -1,0 +1,90 @@
+{
+  "archiveBounds": {
+    "memberBytes": 268435456,
+    "originalRawBytes": 4294967296,
+    "rawBundleBytes": 6442450944,
+    "seedBytes": 1073741824
+  },
+  "base": "b674dbf1d09558c1e82d94b17763c73557f076b3",
+  "capacityBoundaryQualified": false,
+  "coverageAudit": {
+    "path": "target/v53-capacity-hosted/coverage-final/receipt.json",
+    "sha256": "0a1ed15cbba205d3778f3602ce5d02abd448f5acf898cf756dd18e2ee54b91c2"
+  },
+  "documentationContract": {
+    "path": "target/v53-capacity-hosted/contract.json",
+    "sha256": "efa5bc7c0b97b6e89550d3586b9c5bdf8974690e8d2e948f81ff109b5472fc2c"
+  },
+  "hostedExecuted": false,
+  "nativeArchiveUnits": 486,
+  "nativeCohorts": 12,
+  "nativeHistories": 552,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "profile": "capacity-231",
+  "pushed": false,
+  "remaining": [
+    "Complete operation-231 execution on final source with independent downloaded original/negative replay.",
+    "Historical-prefix and learner authority remain conditional.",
+    "Simultaneous physical resource maxima and final native Phase 3 cohort remain open."
+  ],
+  "replay": {
+    "path": "target/v53-capacity-hosted/portable-verification/receipt.json",
+    "sha256": "183e7cbe7d629d51291fb22561ce8ecd306713dbfdc6bdd5a5cbbeebaf268da8"
+  },
+  "retainedDevelopmentFailure": {
+    "reason": "Workflow reference was placed in the implementation-only category; moved to its linked documentation while retaining the existing category contract.",
+    "receipt": {
+      "path": "target/v53-capacity-hosted/coverage/receipt.json",
+      "sha256": "03e22c21d6d558e71b4e9cb911300aeaf3b76aa0344afcb10e2a29616761a39f"
+    }
+  },
+  "schema": "gse-v53-capacity-completion-hosted-development-v1",
+  "staticValidation": {
+    "actionlint": "not installed; not executed",
+    "shellBlocks": 3,
+    "yaml": "PASS"
+  },
+  "status": "PARTIAL",
+  "tests": [
+    {
+      "log": {
+        "path": "target/v53-capacity-hosted/python.log",
+        "sha256": "08ffe9947b775ba663046ad14ad515a1b8db36631052b4fd8b8e37b375cc05eb"
+      },
+      "scope": "focused entry/physical/seed/cohort and hosted guards",
+      "tests": 99
+    },
+    {
+      "log": {
+        "path": "target/v53-capacity-hosted/hosted-regressions.log",
+        "sha256": "c2b29a51e2fc2fba59e93a41f8eae9d8c7efc19ca41802630ad0799fe3232695"
+      },
+      "scope": "all hosted and workflow regression modules",
+      "tests": 243
+    },
+    {
+      "log": {
+        "path": "target/v53-capacity-hosted/optimized.log",
+        "sha256": "d6171cbb5abfd2c8cf3558c36793be6638d4750625233319f311a91f900ac3a3"
+      },
+      "scope": "hosted guards with Python assertions disabled",
+      "tests": 12
+    },
+    {
+      "log": {
+        "path": "target/v53-capacity-hosted/plan-tests.log",
+        "sha256": "1c02c70b86a698ba8af3be4f629a095cf57d59bc685b00edca2c020358cd9375"
+      },
+      "scope": "final qualification and coverage plan guards",
+      "tests": 34
+    }
+  ],
+  "transport": {
+    "path": "target/v53-capacity-hosted/transport-receipt.json",
+    "sha256": "67930c53ce7d24015010b8610c7d0b59c96cb4fbc11d8e285274bcd8ad5b1263"
+  },
+  "transportScope": "Unchanged prior real replay-smoke-1 producer using its originally recorded reader. This tests archive transport, not operation-231 or a new runtime execution.",
+  "wholeHistoryExecutionGroups": 1,
+  "workflow": ".github/workflows/v53-capacity-completion.yml"
+}
