@@ -1,0 +1,150 @@
+{
+  "baseSource": "4e3d4778d5b7171ffc21223ecf25479ab71dcaf1",
+  "bases": {
+    "checkedBoundaries": 284,
+    "forcedRetirementReleaseQualified": true,
+    "leases": 58,
+    "otherStorageLifetimesQualified": false,
+    "persistentBasisChargesQualified": true,
+    "phase3Complete": false,
+    "physicalPeakQualified": false,
+    "reopenedLifetimes": 3,
+    "retiredSources": 22,
+    "scope": "original-persistent-basis-charges-through-observed-owner-lifetimes",
+    "sourceOwnerLifetimes": 29,
+    "sources": 26,
+    "status": "PASS",
+    "units": {
+      "APPLICATION": 26,
+      "SOURCE": 26
+    },
+    "unmarkedFinalCloseLeases": 6,
+    "unmarkedShutdownPhysicalOrderQualified": false,
+    "wholeRuntimeResourcesQualified": false
+  },
+  "basisNegatives": 17,
+  "eventBoundaries": 38783,
+  "finalSourceCohortQualified": false,
+  "nativeExecutionRepeated": false,
+  "nativeJavaInputFiles": 1128,
+  "nativeProducerSource": "f0b60e1d1e93ff9c1e7a4ba2ced5e3b927fdc25f",
+  "nativeRaw": "general-search-engine-replication/target/v53-native-dispatch/run-bc82bb01-127a-40e0-9332-dd2f2bc8a1d3",
+  "nativeReplayElapsedSeconds": 442.938,
+  "newConditionalTests": 17,
+  "originalJavaInputs": {
+    "path": "target/v53-required-four-resources/java-input.json",
+    "sha256": "6606520b44f33a3cee48d03ca0f90ac9cbbc57a83583596f8b30ab6ddafba546"
+  },
+  "otherStorageLifetimesQualified": false,
+  "phase3Complete": false,
+  "physicalPeakQualified": false,
+  "publicationBoundaries": 374,
+  "pythonTests": 181,
+  "remaining": [
+    "unmarked old-owner shutdown physical order",
+    "post-handoff learner file custody",
+    "direct receiving physical captures",
+    "pre-connection and other CONTROL lifetimes",
+    "complete native export/maintenance/ledger negative matrices",
+    "combined physical maxima and completion headroom",
+    "frozen coverage and final-source hosted qualification"
+  ],
+  "reports": [
+    {
+      "path": "target/v53-basis-resources/native-summary.json",
+      "sha256": "79625a5b0d93d08f1b8d0cd55d7dbd81928e34a19dcb217548ebd820bd3a4981"
+    },
+    {
+      "path": "target/v53-basis-resources/native-original.json",
+      "sha256": "eb147b6c07349081c605f29c0eeb338010ec2d7935e151872a2ffdbef43bd526"
+    },
+    {
+      "path": "target/v53-basis-resources/native-basis-negatives.json",
+      "sha256": "e52f5f974dbc877a7c67c5feb4cb0b334e2ff21b40dbdba0d98bae271e5b2c70"
+    },
+    {
+      "path": "target/v53-basis-resources/native-replay-01.log",
+      "sha256": "a6aabf8fcfe900c6331e03d2bc01b0b68eed0e3ef2b44d75046a54c72121bcbe"
+    },
+    {
+      "path": "target/v53-basis-resources/java-source-check.json",
+      "sha256": "b986aad45b9a53ce0379f30ad7bc4ec36d356bf1566fb1d44a023e833f8fbcd0"
+    },
+    {
+      "path": "target/v53-basis-resources/original-inventory.json",
+      "sha256": "7240ae3253ad51d71598d8b4c1b8248c01bc8f82b418a110c7cdebc6b1216c58"
+    },
+    {
+      "path": "target/v53-basis-resources/python-final.log",
+      "sha256": "c897f0cf8765d793eee9bcfef9e7deb8407ffdb1beb91d3570d9f3f0cb06261e"
+    },
+    {
+      "path": "target/v53-basis-resources/python-final-02.log",
+      "sha256": "c57999ca39bdffb7d65cd61400b5985c1a82a65fe13772f367edfc427fdcfc9c"
+    },
+    {
+      "path": "target/v53-basis-resources/contracts-01.log",
+      "sha256": "f6000998c310017f7cffbb0ee2e523b40d30266ade2f369b42133b7828271e46"
+    },
+    {
+      "path": "target/v53-basis-resources/diagnostic.json",
+      "sha256": "342b29052a950bae1df782115627af6261acc1969ec01fccad75a1b1c254ab81"
+    },
+    {
+      "path": "target/v53-basis-resources/derived-plan.json",
+      "sha256": "584395d85a5b3005af21afb1dd702a0ff1650c766c09378372049e753b5aab21"
+    },
+    {
+      "path": "target/v53-basis-resources/diagnostic-01.log",
+      "sha256": "f3d51898daf99dd33157f000ebb57097cee5054751ca7a18dcd2d3ef594414ee"
+    },
+    {
+      "path": "target/v53-basis-resources/diagnostic-02.log",
+      "sha256": "7ed89ccf6182a286a5dc64f1eb27d55bd63182a2e4532d873dbd2f5475f38d5d"
+    },
+    {
+      "path": "target/v53-basis-resources/source-map.json",
+      "sha256": "a576fac3119d2b156857fc7fad4e4c77e30c48374edfb576830814ba2ea4b621"
+    },
+    {
+      "path": "target/v53-basis-resources/map-01.log",
+      "sha256": "6cf6fca792b2e306348f7c680b7cd921d810c06954288393c988937e4d7870e8"
+    },
+    {
+      "path": "target/v53-basis-resources/qualify_native.py",
+      "sha256": "f1c8fc3e6996c5ac978231ec59881e97cafd077e0d12f98d90d5176cee901703"
+    },
+    {
+      "path": "target/v53-basis-resources/diagnose.py",
+      "sha256": "86302f4eb0be14c39497d56ef15aba44940733997e315ff2608d986a188099a8"
+    },
+    {
+      "path": "target/v53-basis-resources/map_sources.py",
+      "sha256": "e7d4323cd1eaf4a0b73abad3fdd110805c9d833e109bfbaba246c5045911ea13"
+    }
+  ],
+  "resourceChanges": 81031,
+  "schema": "gse-v53-basis-resource-binding-development-v1",
+  "scope": "required-four-original-persistent-basis-resources-and-owner-lifetimes",
+  "sources": [
+    {
+      "path": "scripts/v53/basis_resource_evidence.py",
+      "sha256": "2f468933e4b0d6b1fd104a43bd867fd40b8f5f4c03f7ad7b020b9add486b3039"
+    },
+    {
+      "path": "scripts/v53/basis_resource_negatives.py",
+      "sha256": "87b29a1a90fc57685557d731e5554ddf0dab29439eeaf175dcd8306a48dee67c"
+    },
+    {
+      "path": "scripts/v53/test_basis_resource_evidence.py",
+      "sha256": "77a366ff75cceafff99b9f5de498e02cf0c159a3743055bcce2d87cbbce922b8"
+    },
+    {
+      "path": "scripts/v53/native_resource_evidence.py",
+      "sha256": "1d5ce30b823fbf2a06be454fe484973948f7b6be06b9774ff62b35cf716bc677"
+    }
+  ],
+  "status": "PASS",
+  "unmarkedShutdownPhysicalOrderQualified": false,
+  "wholeRuntimeResourcesQualified": false
+}

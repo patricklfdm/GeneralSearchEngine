@@ -1,5 +1,10 @@
 # V5.3 bounded resources and lifetime
 
+The [persistent BASIS reader](PHASE_3_BASIS_RESOURCE_BINDING.md) additionally binds
+immutable original packet/image charges through forced retirement and original
+owner reopen intervals. It does not treat generation reloads as owner restarts;
+unobserved final shutdown ordering remains explicitly unqualified.
+
 The [floor resource reader](PHASE_3_FLOOR_RESOURCE_BINDING.md) independently binds
 exact copied manifest/member/image bytes and continuous original generation pins
 to resource lifetimes, through completed cleanup. This adds no capacity; receiving

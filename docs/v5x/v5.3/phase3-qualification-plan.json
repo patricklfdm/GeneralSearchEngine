@@ -612,7 +612,8 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransportConnectionTest.java",
         "scripts/v53/test_transport_resource_evidence.py",
         "scripts/v53/test_floor_resource_evidence.py",
-        "scripts/v53/test_receive_resource_evidence.py"
+        "scripts/v53/test_receive_resource_evidence.py",
+        "scripts/v53/test_basis_resource_evidence.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -647,7 +648,9 @@
         "scripts/v53/floor_resource_evidence.py",
         "scripts/v53/floor_resource_negatives.py",
         "scripts/v53/receive_resource_evidence.py",
-        "scripts/v53/receive_resource_negatives.py"
+        "scripts/v53/receive_resource_negatives.py",
+        "scripts/v53/basis_resource_evidence.py",
+        "scripts/v53/basis_resource_negatives.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -689,7 +692,9 @@
         "docs/v5x/v5.3/PHASE_3_FLOOR_RESOURCE_BINDING.md",
         "docs/v5x/v5.3/phase3-evidence/floor-resource-binding.json",
         "docs/v5x/v5.3/PHASE_3_RECEIVE_RESOURCE_BINDING.md",
-        "docs/v5x/v5.3/phase3-evidence/receive-resource-binding.json"
+        "docs/v5x/v5.3/phase3-evidence/receive-resource-binding.json",
+        "docs/v5x/v5.3/PHASE_3_BASIS_RESOURCE_BINDING.md",
+        "docs/v5x/v5.3/phase3-evidence/basis-resource-binding.json"
       ],
       "cohorts": [
         "profiles",

@@ -1,5 +1,13 @@
 # Phase 3 qualification inventory and remaining work
 
+[Persistent BASIS resource binding](PHASE_3_BASIS_RESOURCE_BINDING.md) now derives
+packet/image charges from original grants and requires continuous ownership
+through retirement or a proven owner transition. The unchanged complete native
+original passes 26 source / 58 lease bindings, 22 retirements, three reopens and
+seventeen exact negatives; 181 related tests pass. Ordinary generation reloads do
+not authorize release/reacquire gaps. Unmarked old-owner shutdown ordering and
+remaining physical/control scopes remain open; Phase 3 is not closed.
+
 [Receiving resource binding](PHASE_3_RECEIVE_RESOURCE_BINDING.md) now derives
 transfer leases from original packet/image bytes and authorized generation
 metadata, and checks scratch release only after the exact remote floor copy is

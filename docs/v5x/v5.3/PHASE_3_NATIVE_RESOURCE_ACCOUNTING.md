@@ -110,3 +110,10 @@ SOURCE/LEARNER/APPLICATION reservations. It shares one admitted maintenance mode
 with floor resource replay and requires receiving scratch to remain charged
 until the corresponding remote copy is forced. Post-handoff learner file custody
 and other storage/control lifetimes remain unqualified.
+
+The [persistent BASIS reader](PHASE_3_BASIS_RESOURCE_BINDING.md) now binds original
+packet/image charges to creation, retirement and cold-owner lifetimes. It shares
+the admitted maintenance model used by floor and receiving readers. Three observed
+reopens preserve exact source bytes; ordinary current-generation validation never
+authorizes a resource gap. Old-owner final shutdown order remains unqualified
+where the original contains no explicit close callback.
