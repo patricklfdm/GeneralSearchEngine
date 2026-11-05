@@ -1,0 +1,888 @@
+{
+  "baseCommit": "e9f919e2ee5871078e4139e7a91f182687858d4a",
+  "contract": {
+    "path": "target/v53-native-carried-network/contract.json",
+    "result": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 2765,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "sha256": "5620582319bd49ba4ca32ec00e7c0b53c12f0ee92fd7c851fc0cb0e2e6979a6b"
+  },
+  "executions": {
+    "hostedWorkflow": false,
+    "javaRerun": false,
+    "paidCloud": false
+  },
+  "phase3Complete": false,
+  "portableReplay": {
+    "histories": 2,
+    "path": "target/v53-native-carried-network/portable-replay.json",
+    "sha256": "7857b177924e13a8875863d66d8ad5e52d277b1223b9899d08a410fc2ff5d61b"
+  },
+  "preservedDiagnostics": [
+    {
+      "path": "target/v53-native-carried-network/qualification.log",
+      "sha256": "160ccdacff823720391ac6c0eb38b483939c7348048ab2c8b22cb611228257c0"
+    },
+    {
+      "path": "target/v53-native-carried-network/negative-diagnostic.log",
+      "sha256": "114081fa5c714dc59b322f51368aecdec9a0d9ee512f81c1557bed9bcdfdb011"
+    },
+    {
+      "path": "target/v53-native-carried-network/unit-first.log",
+      "sha256": "5bb8b40040770827862692d0ce2cfa7c8ec3ab7b70397aac34345606fd8842c6"
+    },
+    {
+      "path": "target/v53-native-carried-network/python-regression.log",
+      "sha256": "05368693c0bcc47812327d080333f5156d4b923cc2098c2ce1689d7e488dade8"
+    },
+    {
+      "path": "target/v53-native-carried-network/delivery-lifetime-negative.log",
+      "sha256": "425acf8bcc3d93053c21a8cbc86959b0918ff8d97e4ea5f73eac3bbacd241821"
+    },
+    {
+      "path": "target/v53-native-carried-network/unit-delivery-lifetime.log",
+      "sha256": "d2fb41082e408e2f5f8300e0c9aff827e840b3ea83198866cf636f19a4657296"
+    }
+  ],
+  "priorFilesUnchanged": 2223,
+  "python": [
+    {
+      "path": "target/v53-native-carried-network/python-regression-final.log",
+      "sha256": "3f0ba3c386b585d3779575fac907816f2d56b0428a4e340f2d158b024a32fbd8",
+      "tests": 104
+    },
+    {
+      "path": "target/v53-native-carried-network/cohort-regression.log",
+      "scope": "existing twelve-subset source/seed/history/witness orchestration",
+      "sha256": "4326cfa40e404e17d54e3da2c2d291e351d3d8ba0c208b9eb5fb8bd179bb9d3f",
+      "tests": 70
+    }
+  ],
+  "readerSourceSha256": {
+    "scripts/v53/native_carried_network.py": "d34738b26a66b66a55579a19b53065067bae141fac0afe0138196aaa33f24134",
+    "scripts/v53/node_current_network.py": "91dee6d0272addd7c5833be23e84c5c1696e3129e3824f377dc936aed5175a04",
+    "scripts/v53/test_native_carried_network.py": "c2380f29e25a598a5fc1a4c3d574a99b2a1ca8edb7ece562128b8ed9d6751b36"
+  },
+  "remaining": [
+    "source-bound cohort admission for the complete process cases",
+    "final-source hosted executions",
+    "remaining phase-wide coverage and combined resource acceptance"
+  ],
+  "replay": {
+    "fullWireReplay": true,
+    "histories": 9,
+    "negatives": 514,
+    "originalFilesAndDirectoriesUnchanged": true,
+    "rows": [
+      {
+        "cut": "APPLY_ACK_DIRECTORY_FORCED",
+        "elapsedSeconds": 76.077,
+        "inventory": "target/v53-native-carried-network/final/run-fc04fd72-030a-4577-8f45-dff70a9cd4dd-inventory.json",
+        "inventorySha256": "1c8934ce39e0a7d9872bf0c1b4cfd3b0c1712a9c35c654ec05c7a54471c95feb",
+        "mode": "halt",
+        "negatives": 56,
+        "network": {
+          "background": {
+            "contactOnly": true,
+            "exchanges": 24,
+            "samples": 12,
+            "silentRequests": 0
+          },
+          "exchanges": 333,
+          "fullWireReplay": true,
+          "phases": [
+            {
+              "exchanges": 28,
+              "transfers": 4,
+              "unusedIncompleteTransfers": 0,
+              "voters": [
+                "node-1",
+                "node-2"
+              ]
+            },
+            {
+              "exchanges": 71,
+              "transfers": 12,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 28,
+              "transfers": 4,
+              "unusedIncompleteTransfers": 0,
+              "voters": [
+                "node-1",
+                "node-2"
+              ]
+            },
+            {
+              "exchanges": 89,
+              "index": 1,
+              "recordingQuorums": 1,
+              "transfers": 17,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 93,
+              "index": 2,
+              "recordingQuorums": 1,
+              "transfers": 18,
+              "unusedIncompleteTransfers": 0
+            }
+          ],
+          "requests": 339,
+          "silent": [
+            {
+              "attempts": 3,
+              "index": 1,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "FUTURE_RETENTION_INTENT"
+            }
+          ],
+          "silentRequests": 6
+        },
+        "originalUnchanged": true,
+        "report": "target/v53-native-carried-network/final/run-fc04fd72-030a-4577-8f45-dff70a9cd4dd-qualified.json",
+        "reportSha256": "7ab0a10c149a6b8373c87f9bf2204e91268ebfb2159b0b00c90c089d924e0fc5",
+        "root": "general-search-engine-replication/target/v53-native-carried-process/run-fc04fd72-030a-4577-8f45-dff70a9cd4dd",
+        "runtimeScope": "ce47d970-final-narrowed-permission"
+      },
+      {
+        "cut": "ACCEPT_RENAMED",
+        "elapsedSeconds": 76.149,
+        "inventory": "target/v53-native-carried-network/final/run-5a5cfea7-dfbd-4aa9-847c-9904737fab54-inventory.json",
+        "inventorySha256": "a13de256d4fc3d08336d0b8a2b5ad9a578cbdd41463aca3e1fee89a189624635",
+        "mode": "halt",
+        "negatives": 58,
+        "network": {
+          "background": {
+            "contactOnly": true,
+            "exchanges": 20,
+            "samples": 10,
+            "silentRequests": 0
+          },
+          "exchanges": 308,
+          "fullWireReplay": true,
+          "phases": [
+            {
+              "exchanges": 28,
+              "transfers": 4,
+              "unusedIncompleteTransfers": 0,
+              "voters": [
+                "node-1",
+                "node-2"
+              ]
+            },
+            {
+              "exchanges": 0,
+              "transfers": 0,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 78,
+              "transfers": 10,
+              "unusedIncompleteTransfers": 1,
+              "voters": [
+                "node-1",
+                "node-3"
+              ]
+            },
+            {
+              "exchanges": 89,
+              "index": 1,
+              "recordingQuorums": 1,
+              "transfers": 17,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 93,
+              "index": 2,
+              "recordingQuorums": 1,
+              "transfers": 18,
+              "unusedIncompleteTransfers": 0
+            }
+          ],
+          "requests": 323,
+          "silent": [
+            {
+              "attempts": 3,
+              "index": 1,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 1,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            }
+          ],
+          "silentRequests": 15
+        },
+        "originalUnchanged": true,
+        "report": "target/v53-native-carried-network/final/run-5a5cfea7-dfbd-4aa9-847c-9904737fab54-qualified.json",
+        "reportSha256": "46219331748d77de1a694c31aaa17e9e590717b34b2936b3feb8ae7ff857ef0a",
+        "root": "general-search-engine-replication/target/v53-native-carried-process/run-5a5cfea7-dfbd-4aa9-847c-9904737fab54",
+        "runtimeScope": "historical-broader-candidate"
+      },
+      {
+        "cut": "APPLY_ACK_DIRECTORY_FORCED",
+        "elapsedSeconds": 75.767,
+        "inventory": "target/v53-native-carried-network/final/run-65468b4c-332a-481d-b496-a86af33c0d32-inventory.json",
+        "inventorySha256": "a8ab64a17d949e1518b9580a32f21361502329cf72b1bbbe5e6c9336654aef08",
+        "mode": "halt",
+        "negatives": 56,
+        "network": {
+          "background": {
+            "contactOnly": true,
+            "exchanges": 26,
+            "samples": 13,
+            "silentRequests": 0
+          },
+          "exchanges": 335,
+          "fullWireReplay": true,
+          "phases": [
+            {
+              "exchanges": 28,
+              "transfers": 4,
+              "unusedIncompleteTransfers": 0,
+              "voters": [
+                "node-1",
+                "node-2"
+              ]
+            },
+            {
+              "exchanges": 71,
+              "transfers": 12,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 28,
+              "transfers": 4,
+              "unusedIncompleteTransfers": 0,
+              "voters": [
+                "node-1",
+                "node-2"
+              ]
+            },
+            {
+              "exchanges": 89,
+              "index": 1,
+              "recordingQuorums": 1,
+              "transfers": 17,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 93,
+              "index": 2,
+              "recordingQuorums": 1,
+              "transfers": 18,
+              "unusedIncompleteTransfers": 0
+            }
+          ],
+          "requests": 341,
+          "silent": [
+            {
+              "attempts": 3,
+              "index": 1,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "FUTURE_RETENTION_INTENT"
+            }
+          ],
+          "silentRequests": 6
+        },
+        "originalUnchanged": true,
+        "report": "target/v53-native-carried-network/final/run-65468b4c-332a-481d-b496-a86af33c0d32-qualified.json",
+        "reportSha256": "fe2ae3e9e06558012283a04c69af5a2700fafcc6f972b040f21d6cbaf5ad8a4f",
+        "root": "general-search-engine-replication/target/v53-native-carried-process/run-65468b4c-332a-481d-b496-a86af33c0d32",
+        "runtimeScope": "historical-broader-candidate"
+      },
+      {
+        "cut": "NATIVE_RETIREMENT_CERTIFICATE_RETAINED",
+        "elapsedSeconds": 74.529,
+        "inventory": "target/v53-native-carried-network/final/run-139ba023-790a-483b-9024-ab78e10e67a0-inventory.json",
+        "inventorySha256": "9ebe7171a403dcb311cca3f8f901f4202d7ea42bac1f17829f5318b212ecd341",
+        "mode": "halt",
+        "negatives": 57,
+        "network": {
+          "background": {
+            "contactOnly": true,
+            "exchanges": 20,
+            "samples": 10,
+            "silentRequests": 0
+          },
+          "exchanges": 308,
+          "fullWireReplay": true,
+          "phases": [
+            {
+              "exchanges": 28,
+              "transfers": 4,
+              "unusedIncompleteTransfers": 0,
+              "voters": [
+                "node-1",
+                "node-2"
+              ]
+            },
+            {
+              "exchanges": 0,
+              "transfers": 0,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 78,
+              "transfers": 10,
+              "unusedIncompleteTransfers": 1,
+              "voters": [
+                "node-1",
+                "node-3"
+              ]
+            },
+            {
+              "exchanges": 89,
+              "index": 1,
+              "recordingQuorums": 1,
+              "transfers": 17,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 93,
+              "index": 2,
+              "recordingQuorums": 1,
+              "transfers": 18,
+              "unusedIncompleteTransfers": 0
+            }
+          ],
+          "requests": 323,
+          "silent": [
+            {
+              "attempts": 3,
+              "index": 1,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 1,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            }
+          ],
+          "silentRequests": 15
+        },
+        "originalUnchanged": true,
+        "report": "target/v53-native-carried-network/final/run-139ba023-790a-483b-9024-ab78e10e67a0-qualified.json",
+        "reportSha256": "caabf5086ba3ce97967bc65a253c19376096bb70730841482f6ec1c742d3f8aa",
+        "root": "general-search-engine-replication/target/v53-native-carried-process/run-139ba023-790a-483b-9024-ab78e10e67a0",
+        "runtimeScope": "historical-broader-candidate"
+      },
+      {
+        "cut": "PROOF_RENAMED",
+        "elapsedSeconds": 79.363,
+        "inventory": "target/v53-native-carried-network/final/run-10a0fd76-29d0-457d-ae7c-6682a0dce916-inventory.json",
+        "inventorySha256": "33a61be6f7caa0fb7d8013e6f470aa967c76de2700541d7ee8f1416eaca22b9b",
+        "mode": "halt",
+        "negatives": 58,
+        "network": {
+          "background": {
+            "contactOnly": true,
+            "exchanges": 24,
+            "samples": 12,
+            "silentRequests": 0
+          },
+          "exchanges": 327,
+          "fullWireReplay": true,
+          "phases": [
+            {
+              "exchanges": 28,
+              "transfers": 4,
+              "unusedIncompleteTransfers": 0,
+              "voters": [
+                "node-1",
+                "node-2"
+              ]
+            },
+            {
+              "exchanges": 38,
+              "transfers": 7,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 55,
+              "transfers": 7,
+              "unusedIncompleteTransfers": 0,
+              "voters": [
+                "node-1",
+                "node-3"
+              ]
+            },
+            {
+              "exchanges": 89,
+              "index": 1,
+              "recordingQuorums": 1,
+              "transfers": 17,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 93,
+              "index": 2,
+              "recordingQuorums": 1,
+              "transfers": 18,
+              "unusedIncompleteTransfers": 0
+            }
+          ],
+          "requests": 342,
+          "silent": [
+            {
+              "attempts": 3,
+              "index": 1,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 1,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            }
+          ],
+          "silentRequests": 15
+        },
+        "originalUnchanged": true,
+        "report": "target/v53-native-carried-network/final/run-10a0fd76-29d0-457d-ae7c-6682a0dce916-qualified.json",
+        "reportSha256": "3e9fc340514903ab3128b27b0dfc25148141a86cfd3ecd90061a8dcfaa291646",
+        "root": "general-search-engine-replication/target/v53-native-carried-process/run-10a0fd76-29d0-457d-ae7c-6682a0dce916",
+        "runtimeScope": "historical-broader-candidate"
+      },
+      {
+        "cut": "ACCEPT_RENAMED",
+        "elapsedSeconds": 77.484,
+        "inventory": "target/v53-native-carried-network/final/run-42069a78-7238-4237-bfcd-2414d8c0ec39-inventory.json",
+        "inventorySha256": "38d683c298480cffe414d0774861438db4e629a275cf5dde4cdde6b5bf52d2b3",
+        "mode": "kill",
+        "negatives": 58,
+        "network": {
+          "background": {
+            "contactOnly": true,
+            "exchanges": 22,
+            "samples": 11,
+            "silentRequests": 0
+          },
+          "exchanges": 310,
+          "fullWireReplay": true,
+          "phases": [
+            {
+              "exchanges": 28,
+              "transfers": 4,
+              "unusedIncompleteTransfers": 0,
+              "voters": [
+                "node-1",
+                "node-2"
+              ]
+            },
+            {
+              "exchanges": 0,
+              "transfers": 0,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 77,
+              "transfers": 9,
+              "unusedIncompleteTransfers": 0,
+              "voters": [
+                "node-1",
+                "node-3"
+              ]
+            },
+            {
+              "exchanges": 90,
+              "index": 1,
+              "recordingQuorums": 1,
+              "transfers": 17,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 93,
+              "index": 2,
+              "recordingQuorums": 1,
+              "transfers": 18,
+              "unusedIncompleteTransfers": 0
+            }
+          ],
+          "requests": 325,
+          "silent": [
+            {
+              "attempts": 3,
+              "index": 1,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 1,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            }
+          ],
+          "silentRequests": 15
+        },
+        "originalUnchanged": true,
+        "report": "target/v53-native-carried-network/final/run-42069a78-7238-4237-bfcd-2414d8c0ec39-qualified.json",
+        "reportSha256": "a831284ac04f6b69ec73bff7997f0a706ac55ac5073d315d82a8a071dba4b7f7",
+        "root": "general-search-engine-replication/target/v53-native-carried-process/run-42069a78-7238-4237-bfcd-2414d8c0ec39",
+        "runtimeScope": "historical-broader-candidate"
+      },
+      {
+        "cut": "APPLY_ACK_DIRECTORY_FORCED",
+        "elapsedSeconds": 77.166,
+        "inventory": "target/v53-native-carried-network/final/run-fece1f56-a042-4e6c-bff2-e7fae6b7a301-inventory.json",
+        "inventorySha256": "ccba4d8d8e0d3a05968021f7ce8c272a1be41ecbd138d0d5117a4ba4fe820f32",
+        "mode": "kill",
+        "negatives": 56,
+        "network": {
+          "background": {
+            "contactOnly": true,
+            "exchanges": 26,
+            "samples": 13,
+            "silentRequests": 0
+          },
+          "exchanges": 335,
+          "fullWireReplay": true,
+          "phases": [
+            {
+              "exchanges": 28,
+              "transfers": 4,
+              "unusedIncompleteTransfers": 0,
+              "voters": [
+                "node-1",
+                "node-2"
+              ]
+            },
+            {
+              "exchanges": 71,
+              "transfers": 12,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 28,
+              "transfers": 4,
+              "unusedIncompleteTransfers": 0,
+              "voters": [
+                "node-1",
+                "node-2"
+              ]
+            },
+            {
+              "exchanges": 89,
+              "index": 1,
+              "recordingQuorums": 1,
+              "transfers": 17,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 93,
+              "index": 2,
+              "recordingQuorums": 1,
+              "transfers": 18,
+              "unusedIncompleteTransfers": 0
+            }
+          ],
+          "requests": 341,
+          "silent": [
+            {
+              "attempts": 3,
+              "index": 1,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "FUTURE_RETENTION_INTENT"
+            }
+          ],
+          "silentRequests": 6
+        },
+        "originalUnchanged": true,
+        "report": "target/v53-native-carried-network/final/run-fece1f56-a042-4e6c-bff2-e7fae6b7a301-qualified.json",
+        "reportSha256": "f3b368de376c5958bee6fd7446f37ae3986f349ee5af0d46939bc93b5c464d75",
+        "root": "general-search-engine-replication/target/v53-native-carried-process/run-fece1f56-a042-4e6c-bff2-e7fae6b7a301",
+        "runtimeScope": "historical-broader-candidate"
+      },
+      {
+        "cut": "NATIVE_RETIREMENT_CERTIFICATE_RETAINED",
+        "elapsedSeconds": 74.901,
+        "inventory": "target/v53-native-carried-network/final/run-01faea7f-1c4e-4a96-b79b-e8ff247635e9-inventory.json",
+        "inventorySha256": "34bc96e2068d0acb7b2a2dd06539e01b27c2dba66a1af3e97e3d7adf08e9614b",
+        "mode": "kill",
+        "negatives": 57,
+        "network": {
+          "background": {
+            "contactOnly": true,
+            "exchanges": 22,
+            "samples": 11,
+            "silentRequests": 0
+          },
+          "exchanges": 309,
+          "fullWireReplay": true,
+          "phases": [
+            {
+              "exchanges": 28,
+              "transfers": 4,
+              "unusedIncompleteTransfers": 0,
+              "voters": [
+                "node-1",
+                "node-2"
+              ]
+            },
+            {
+              "exchanges": 0,
+              "transfers": 0,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 77,
+              "transfers": 9,
+              "unusedIncompleteTransfers": 0,
+              "voters": [
+                "node-1",
+                "node-3"
+              ]
+            },
+            {
+              "exchanges": 89,
+              "index": 1,
+              "recordingQuorums": 1,
+              "transfers": 17,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 93,
+              "index": 2,
+              "recordingQuorums": 1,
+              "transfers": 18,
+              "unusedIncompleteTransfers": 0
+            }
+          ],
+          "requests": 324,
+          "silent": [
+            {
+              "attempts": 3,
+              "index": 1,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 1,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            }
+          ],
+          "silentRequests": 15
+        },
+        "originalUnchanged": true,
+        "report": "target/v53-native-carried-network/final/run-01faea7f-1c4e-4a96-b79b-e8ff247635e9-qualified.json",
+        "reportSha256": "3d5f53d82bf411aaa1fd56ec8e04a5015ed97ec7c4c4806fe29f1f78392a50d4",
+        "root": "general-search-engine-replication/target/v53-native-carried-process/run-01faea7f-1c4e-4a96-b79b-e8ff247635e9",
+        "runtimeScope": "historical-broader-candidate"
+      },
+      {
+        "cut": "PROOF_RENAMED",
+        "elapsedSeconds": 76.11,
+        "inventory": "target/v53-native-carried-network/final/run-d31829b4-bd08-4c8f-be64-e6ca5b25b5f1-inventory.json",
+        "inventorySha256": "cbd261dd6a87cfa784c89ac05700b1f8787175cf1eac84b102692ccd68707759",
+        "mode": "kill",
+        "negatives": 58,
+        "network": {
+          "background": {
+            "contactOnly": true,
+            "exchanges": 22,
+            "samples": 11,
+            "silentRequests": 0
+          },
+          "exchanges": 325,
+          "fullWireReplay": true,
+          "phases": [
+            {
+              "exchanges": 28,
+              "transfers": 4,
+              "unusedIncompleteTransfers": 0,
+              "voters": [
+                "node-1",
+                "node-2"
+              ]
+            },
+            {
+              "exchanges": 38,
+              "transfers": 7,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 55,
+              "transfers": 7,
+              "unusedIncompleteTransfers": 0,
+              "voters": [
+                "node-1",
+                "node-3"
+              ]
+            },
+            {
+              "exchanges": 89,
+              "index": 1,
+              "recordingQuorums": 1,
+              "transfers": 17,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 93,
+              "index": 2,
+              "recordingQuorums": 1,
+              "transfers": 18,
+              "unusedIncompleteTransfers": 0
+            }
+          ],
+          "requests": 340,
+          "silent": [
+            {
+              "attempts": 3,
+              "index": 1,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 1,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            }
+          ],
+          "silentRequests": 15
+        },
+        "originalUnchanged": true,
+        "report": "target/v53-native-carried-network/final/run-d31829b4-bd08-4c8f-be64-e6ca5b25b5f1-qualified.json",
+        "reportSha256": "3b17135f5f20fd8542e21f0ae5cbdd64ae2bcab1f9e000a8eaa403956949251e",
+        "root": "general-search-engine-replication/target/v53-native-carried-process/run-d31829b4-bd08-4c8f-be64-e6ca5b25b5f1",
+        "runtimeScope": "historical-broader-candidate"
+      }
+    ]
+  },
+  "runtimeSources": {
+    "current": {
+      "commit": "ce47d970cc1e2029e6e4421dca2efb644a322736",
+      "histories": 1,
+      "negatives": 56,
+      "sourceManifest": {
+        "path": "target/v53-native-carried-recovery/final-scope-source.json",
+        "sha256": "59a4513b53aa9938214abaf59725dbb583d7f7970f80b8c7d72c174a16f3e1a5"
+      }
+    },
+    "historical": {
+      "histories": 8,
+      "negatives": 458,
+      "scope": "earlier broader context permission; not final-source execution",
+      "sourceManifest": {
+        "path": "target/v53-native-carried-recovery/corrected-focus-source.json",
+        "sha256": "d5998a0add6fe63e46a101f6f3775854b1f123f17c05e96fc17a14c2b3da0427"
+      }
+    }
+  },
+  "schema": "gse-v53-native-carried-network-development-v1",
+  "scope": "nine original whole-group process histories; final-source cohort and complete resources remain open",
+  "sourceFiles": {
+    "path": "target/v53-native-carried-network/source-files.json",
+    "sha256": "564e28c96a574d9c71a81ab7ca39a03d87c92c156cd03da5b1cfaf1d1387eb13"
+  },
+  "status": "PARTIAL",
+  "unchangedJavaFiles": 1367
+}

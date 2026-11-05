@@ -30,12 +30,19 @@ def installation_retention(events, start, stop, group, selected):
         need(observed==list(INSTALL_RETENTION if changes else ()), 'current node selected retention forces: '+node)
 
 
-def heartbeats(root, events, entries, sent, boundaries):
+def heartbeats(root, events, entries, sent, boundaries, *, stages=None):
     a=p.net.a; timelines=defaultdict(list); installations=[]
+    if stages is None:
+        stages={0:'installed-1',1:'published-1',3:'installed-2',4:'published-2',5:'published-3',
+                6:'installed-3',7:'published-4',8:'published-5'}
+    need(type(stages) is dict and stages and
+         all(type(i) is int and 0<=i<len(boundaries) and type(v) is str and
+             v.startswith(('installed-','published-')) and v.split('-',1)[1].isdigit() and
+             str(int(v.split('-',1)[1]))==v.split('-',1)[1] and int(v.split('-',1)[1])>0 for i,v in stages.items()) and
+         list(stages)==sorted(stages),
+         'current heartbeat physical stage schedule')
     for node, files in a.group(root,'before-network').items():
         timelines[node].append((-1,c.current(files)[2]['capsule']['cut']))
-    stages={0:'installed-1',1:'published-1',3:'installed-2',4:'published-2',5:'published-3',
-            6:'installed-3',7:'published-4',8:'published-5'}
     for ordinal,stage in stages.items():
         start,stop=boundaries[ordinal]; group=a.group(root,stage)
         selected=f.decode(c.current(group['node-1'])[1]['selected.gsr'],'records','SELECTED')

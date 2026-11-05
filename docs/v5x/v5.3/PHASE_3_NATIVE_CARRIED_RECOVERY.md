@@ -89,10 +89,11 @@ are retained. See the [development receipt](phase3-evidence/native-carried-recov
 and `target/v53-native-carried-recovery/validation-summary.json` for exact source,
 report and raw-history bindings.
 
-The new whole-group Java fixtures remain development regressions. The following
-reader adds independent physical and process-observation checks, with a PARTIAL
-result; complete network qualification and final-source cohort admission stay
-open. They are not yet added to the twelve-subset final-source cohort.
+The new whole-group Java fixtures remain development regressions. The first
+reader below supplies independent physical and process-observation checks with
+a PARTIAL result. The complete network reader then qualifies the original whole
+history. Final-source cohort admission stays open; these process cases are not
+yet added to the twelve-subset final-source cohort.
 
 ## Whole-group physical and process reader
 
@@ -145,7 +146,66 @@ the earlier broader candidate. The 159-test regression suite passes, followed
 by two additional component-scope/read-only-view checks. Historical replay is
 not final-source execution of all eight process cases.
 
-Next, connect the complete original-wire campaign/slot/retirement replay for
-both lives, including response delivery and every unconsumed exchange. Only then
-can this family enter source-bound cohort preparation and final-source execution.
-This reader and a passing producer cannot independently close Phase 3.
+## Complete original network replay
+
+`scripts.v53.native_carried_network` first runs the physical and process reader,
+then classifies every original request, response and delivery across five phases:
+the first election, interrupted carried work, the successor election, recovered
+DATA and the fresh BARRIER. Sends, reads and responses must belong to the same
+phase and child life. Even an otherwise valid old reply cannot arrive in the
+replacement JVM. Each source transfer must retain original bytes, bounded
+identical attempts, chunk ordering and completion before its dependent force.
+
+Both campaigns require received discovery, PREPARE, source and INSTALL exchanges.
+An unused candidate can retain an unreceived reply or a cancelled source prefix;
+neither may supply the selected pair. The reader derives the pre-grant and
+post-ACCEPT maintenance copies and forces independently, including recovery that
+selects node 3 instead of node 2. Early rename cuts cannot invent the later
+PROOF/application traffic. The application-force cut must retain the original
+ACCEPT/PROOF receipts without projecting later publication into the dead life.
+
+Recovered DATA and BARRIER require their own application statements, original
+parent ACKs, future-retention recording majority and publication ordering.
+Unanswered retention and checkpoint lookups remain diagnostic attempts. Separate
+heartbeat replay binds its cuts to the original installation/publication force
+timeline; contact does not grant a vote, proof or readiness. The shared heartbeat
+reader accepts an explicit validated stage schedule for this history while
+retaining its original nine-phase default for existing readers.
+
+```bash
+python3 -m scripts.v53.native_carried_network ORIGINAL_HISTORY --qualify
+```
+
+The combined reader returns `status=PASS`, `fullWireReplay=true` and
+`processHistoryQualified=true` only for that original history. It retains
+`phase3Complete=false`, `cohortAdmitted=false`, `publicRuntime=false` and
+`powerLoss=false`. Resource-count observations do not establish complete
+resource-lifetime or simultaneous-maximum qualification.
+
+Every qualification preserves the earlier process negatives and adds mutations
+for missing/early/cross-life delivery, changed source/control bytes, false
+heartbeat contact, wrong recording majority, early publication, missing original
+parent ACK and altered unanswered retention reference. Pre-grant retirement is
+also required at the earlier cuts. Mutations keep child and combined transcripts,
+wire bytes and digests consistent so an unrelated correlation error cannot
+substitute for the required semantic rejection. Original replay always precedes
+mutations; exact rejection reasons remain mandatory.
+
+The [network receipt](phase3-evidence/native-carried-network.json) binds the
+reader source, original file/directory inventories and qualification reports.
+Current and historical runtime sources remain separate. This Python-only batch
+does not rerun Java, dispatch hosted workflows or execute paid cloud work.
+All nine originals and 514 exact negatives pass: one final-narrowed-runtime
+history supplies 56 negatives, and eight earlier-candidate histories supply 458.
+The 104 reader regressions and 70 existing cohort/source/witness regressions
+pass. Two unmodified histories also pass after relocation with identical results.
+Every original file and directory remains unchanged. These results do not turn
+the eight historical producers into final-source executions.
+
+Next, extend the existing carried DATA cohort with the eight declared
+halt/SIGKILL methods, preserving each two-child history as one execution and
+one archive. Its capture, downloaded replay, aggregate and source catalogue must
+agree on the complete inventory before any final-source execution. This is
+pending integration, not a thirteenth hosted subset or qualification granted by
+these historical originals. The complete phase-wide resource and coverage
+obligations remain open.
