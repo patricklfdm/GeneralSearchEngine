@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Retired activation control custody](PHASE_3_ACTIVATION_CONTROL_CUSTODY.md)
+keeps original cached request/reply bytes charged while admitted callers still
+reference them. Replacing the cache or closing the scope does not free those
+bytes before the final caller drains. Full Phase 3 resource closure remains OPEN.
+
 [Activation waiter admission](PHASE_3_ACTIVATION_WAITER_CAPACITY.md) now charges
 all control reply callers, including duplicates, against the shared 64-waiter
 pool and inherited pending-call bound before dispatch. Capacity refusal retains

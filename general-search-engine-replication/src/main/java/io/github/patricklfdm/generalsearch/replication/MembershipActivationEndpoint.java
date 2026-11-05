@@ -477,7 +477,8 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         final Decoded request;
         final CompletableFuture<Decoded> result=new CompletableFuture<>();
         final MembershipResources.Lease lease;
-        boolean finished;
+        boolean finished,retired;
+        int users;
         Control(Scope active,MembershipIdentity sender,Decoded request) {
             this.active=active;this.sender=sender;this.request=request;
             lease=resources.reserve(MembershipResources.Unit.CONTROL,"activation-control-"+UUID.randomUUID(),request.size());
@@ -526,7 +527,13 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             finally {try{synchronized(registry){finished=true;if(closed || active.ended || control!=this)close();}}
                 finally{controlThread=null;}}
         }
-        @Override public void close(){lease.close();}
+        // Removing the cached task is not permission to release the request
+        // and response still referenced by admitted callers. Their existing
+        // bounded stack references own retired tasks; no retired-task queue is
+        // created. The last caller releases bytes only after the worker stops.
+        private void releaseIfDrained(){if(retired && finished && users==0)lease.close();}
+        void releaseCaller(){require(users>0,"activation control caller ownership");users--;releaseIfDrained();}
+        @Override public void close(){synchronized(registry){retired=true;releaseIfDrained();}}
     }
     @Override public Decoded handle(MembershipIdentity sender,Decoded request)throws IOException {
         beginCall();try{return handleAdmitted(sender,request);}finally{endCall();}
@@ -608,18 +615,18 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                 if(replace) {
                     if(task!=null){task.close();control=null;}
                     control=task=new Control(active,sender,request);
-                    try{controls.execute(task::run);}catch(RuntimeException|Error error){task.close();control=null;throw error;}
+                    try{controls.execute(task::run);}catch(RuntimeException|Error error){task.finished=true;task.close();control=null;throw error;}
                 }
-                waiters++;
+                task.users++;waiters++;
             }catch(RuntimeException|Error error){waiter.close();throw error;}
         }
-        try(waiter) {
+        try {
             long left=active.limit-(clock.getAsLong()-active.started);require(left>0,"original activation endpoint deadline");
             var response=task.result.get(left,TimeUnit.NANOSECONDS);active.completed(sender,request,response);return response;
         }catch(InterruptedException error){Thread.currentThread().interrupt();throw new IOException("activation endpoint interrupted",error);}
         catch(TimeoutException error){active.close(ScopeEnd.CONTROL_TIMEOUT);throw new IOException("activation endpoint deadline",error);}
         catch(ExecutionException error){if(error.getCause() instanceof IOException io)throw io;if(error.getCause() instanceof RuntimeException r)throw r;throw new IOException("activation endpoint control failed",error.getCause());}
-        finally {synchronized(registry){waiters--;}}
+        finally {synchronized(registry){try{task.releaseCaller();}finally{waiter.close();waiters--;}}}
     }
     private Decoded capacityReply(Scope active,Decoded request) {
         var values=new TreeMap<>(request.value());values.put("sender",request.value().get("recipient"));values.put("recipient",request.value().get("sender"));
