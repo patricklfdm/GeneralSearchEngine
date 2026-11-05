@@ -1,5 +1,11 @@
 # V5.3 bounded resources and lifetime
 
+[Source control resources](PHASE_3_SOURCE_CONTROL_RESOURCES.md) now bind logical
+requests, cached responses, session metadata and completed trace caches to exact
+original request/session identities. Short TCP loss/retry histories and coherent
+negative replay qualify this component; multi-session native integration and
+other CONTROL/storage obligations remain OPEN. Phase 3 is not closed.
+
 [Unsent transport attempts](PHASE_3_UNSENT_RESOURCES.md) retain exact frame
 ownership after queue/connect failure and require release by the corresponding
 terminal observation. This changes no allocation bound, retry count or deadline;

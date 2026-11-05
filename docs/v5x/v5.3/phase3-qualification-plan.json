@@ -548,7 +548,8 @@
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationFiles.java",
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRetirementFiles.java",
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResourceObservations.java",
-        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransport.java"
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransport.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceResources.java"
       ],
       "tests": [
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransferTest.java",
@@ -617,7 +618,9 @@
         "scripts/v53/test_owner_close_evidence.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53UnsentTransportTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53QueuedUnsentTest.java",
-        "scripts/v53/test_unsent_resource_evidence.py"
+        "scripts/v53/test_unsent_resource_evidence.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SourceControlResourcesTest.java",
+        "scripts/v53/test_source_control_resource_evidence.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -658,7 +661,9 @@
         "scripts/v53/owner_close_evidence.py",
         "scripts/v53/owner_close_negatives.py",
         "scripts/v53/unsent_resource_evidence.py",
-        "scripts/v53/unsent_resource_negatives.py"
+        "scripts/v53/unsent_resource_negatives.py",
+        "scripts/v53/source_control_resource_evidence.py",
+        "scripts/v53/source_control_resource_negatives.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -706,7 +711,9 @@
         "docs/v5x/v5.3/PHASE_3_OWNER_CLOSE_RESOURCES.md",
         "docs/v5x/v5.3/phase3-evidence/owner-close-resources.json",
         "docs/v5x/v5.3/PHASE_3_UNSENT_RESOURCES.md",
-        "docs/v5x/v5.3/phase3-evidence/unsent-resource-binding.json"
+        "docs/v5x/v5.3/phase3-evidence/unsent-resource-binding.json",
+        "docs/v5x/v5.3/PHASE_3_SOURCE_CONTROL_RESOURCES.md",
+        "docs/v5x/v5.3/phase3-evidence/source-control-resources.json"
       ],
       "cohorts": [
         "profiles",

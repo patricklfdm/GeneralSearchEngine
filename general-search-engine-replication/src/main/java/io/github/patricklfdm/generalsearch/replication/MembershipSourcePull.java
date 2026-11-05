@@ -125,7 +125,7 @@ final class MembershipSourcePull implements AutoCloseable {
     }
     private Decoded exchange(Decoded request,String kind)throws IOException {
         require(request.size()<=frameLimit,"source pull request frame limit");var retry=new MembershipExchange(request.digest(),started,budget);
-        try(var held=resources.reserve(MembershipResources.Unit.CONTROL,"source-request-"+UUID.randomUUID(),request.size())) {
+        try(var held=resources.reserve(MembershipResources.Unit.CONTROL,MembershipSourceResources.request("source-request",request),request.size())) {
             for(;;) {
                 // Attempt accounting cannot send or consume protocol data. Check
                 // the complete guard after its clock read, immediately before

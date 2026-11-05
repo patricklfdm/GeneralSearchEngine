@@ -1,0 +1,138 @@
+{
+  "schema": "gse-v53-source-control-resources-development-v1",
+  "status": "PASS",
+  "phase3Complete": false,
+  "scope": "one-serial-original-record-pull-per-loopback-TCP-history",
+  "baseSource": "6995aab3d30eb0c6a76f892b2b89c4bf18dfd9c5",
+  "nativeRaw": "general-search-engine-replication/target/v53-source-control-resources/run-b0cb26ed-ebfe-44de-95f3-a06c3855f01c",
+  "javaTests": 43,
+  "newConditionalTests": 9,
+  "pythonTests": 157,
+  "nativeHistories": 4,
+  "logicalRequests": 10,
+  "tcpAttempts": 18,
+  "boundSourceControlReservations": 28,
+  "nativeNegatives": 76,
+  "replaySeconds": 1.942,
+  "nativeJavaInputFiles": 1450,
+  "multiSessionNativeQualified": false,
+  "allControlResourcesQualified": false,
+  "wholeRuntimeResourcesQualified": false,
+  "finalSourceCohortQualified": false,
+  "remaining": [
+    "multi-session native source/control integration",
+    "other export/task/control lifetimes",
+    "post-handoff physical custody",
+    "combined maxima and completion headroom",
+    "remaining negative matrices",
+    "final-source hosted qualification"
+  ],
+  "sources": [
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java",
+      "sha256": "26929ac44fd1fe99edc3a3aa7a8cb047bd9106474830274aff688591fbe1baea"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceResources.java",
+      "sha256": "21169a5a64932f91ebac8fd6735bd16b9cac2dea40c5050c816dba5ea35a7c3f"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceSession.java",
+      "sha256": "c70c86f2bd19371be0f9b6e9de8e341741bb58cd8f7ba24035ddfcd3105ecc0f"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransferService.java",
+      "sha256": "217c888373c0adc64237bea574e188feb5a34f3da079250ebc9a525ef881358f"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SourceControlResourcesTest.java",
+      "sha256": "c39e3ba9192e435082de34178b02b55bcdcd463af58a9176bf7f49866d10815d"
+    },
+    {
+      "path": "scripts/v53/source_control_resource_evidence.py",
+      "sha256": "561d59ea8433ec1bdad0619ccf1724b211d6e6817f775be0315cc33a2281bd37"
+    },
+    {
+      "path": "scripts/v53/source_control_resource_negatives.py",
+      "sha256": "77b56c527b3736f136bca0c8fdead84af4cb66ad14accc9f0cb7524ff285e497"
+    },
+    {
+      "path": "scripts/v53/test_source_control_resource_evidence.py",
+      "sha256": "7adc7c48f875b6f5c2e081b7b6171a9cd316004aeb7a2d4b2e8ecd380913a7fb"
+    }
+  ],
+  "reports": [
+    {
+      "path": "target/v53-source-control-resources/native-summary.json",
+      "sha256": "cebd4a0fc1746c60c764b41c9efc242491e7ea5228d8a02e4560d390f6b99c9b"
+    },
+    {
+      "path": "target/v53-source-control-resources/original-inventory.json",
+      "sha256": "36aad3dde157eee8b27bc9e11a1a7fd09ad718b3dc80b5c190dee477398080e6"
+    },
+    {
+      "path": "target/v53-source-control-resources/java-input.json",
+      "sha256": "ebec7cb55d5f0d382fd18d7efda931355da5b49bb8861fc1153f08a66e5f3490"
+    },
+    {
+      "path": "target/v53-source-control-resources/new-java-tests.xml",
+      "sha256": "70099ed6352c7dc1a3a6fe3c0c16d4db752061aa658b2ad2cb9d647b77541633"
+    },
+    {
+      "path": "target/v53-source-control-resources/maven-01.log",
+      "sha256": "30237308b6c4ec0f132462106378f6fc21c5d77fad6ad13c7924c63df9eff560"
+    },
+    {
+      "path": "target/v53-source-control-resources/maven-02.log",
+      "sha256": "3e8a4f468c3d61612c2bc03b2e672187cd65faebad3e37a5f2617653d50c2a2c"
+    },
+    {
+      "path": "target/v53-source-control-resources/python-01.log",
+      "sha256": "092f3ef0c082b5e2a61888b77b1f68ffbd0afb7284e19601ea6250cb7141c478"
+    },
+    {
+      "path": "target/v53-source-control-resources/python-02.log",
+      "sha256": "1754eef251f25de2b6bf503ea08eb659e98247d813ec1d73f1e3686641e2107e"
+    },
+    {
+      "path": "target/v53-source-control-resources/replay-01.log",
+      "sha256": "3d3b07f3b5f523567d96d37b16e3254ce4046f4925daac178f2c5b4b498034c3"
+    },
+    {
+      "path": "target/v53-source-control-resources/qualify.py",
+      "sha256": "55cacef2caf05ccb1e5ccdd5b3a4901385bdb070d4385bb73ff32c86f3994bbc"
+    },
+    {
+      "path": "target/v53-source-control-resources/python-final.log",
+      "sha256": "bc867f6efd82497d94826fded4deb64bb7c93f9075ec272ba77f9eeab7aa9522"
+    },
+    {
+      "path": "target/v53-source-control-resources/contract.log",
+      "sha256": "6180e5d95d5d8fb5a80f6e152e45a2c8cbb85ece2a0db21de67d9a5758cd4a7a"
+    },
+    {
+      "path": "target/v53-source-control-resources/qualification-plan.log",
+      "sha256": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df"
+    },
+    {
+      "path": "target/v53-source-control-resources/maven-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53RecordExchangeTest.xml",
+      "sha256": "5fff68eaebb4040c20dba2529b58b9b3d15850f077c0b77715f230f41b6e2a46"
+    },
+    {
+      "path": "target/v53-source-control-resources/maven-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceControlResourcesTest.xml",
+      "sha256": "7a3db209e52744fa6232be933f87181c4824f2160faddcfa4999549b1c81c824"
+    },
+    {
+      "path": "target/v53-source-control-resources/maven-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceExchangeTest.xml",
+      "sha256": "f522ce16b6f462eee7870ed957c1e018f3a96d15267d8a910f50b08f5a2334f0"
+    },
+    {
+      "path": "target/v53-source-control-resources/maven-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53TransferReplyLifetimeTest.xml",
+      "sha256": "f7b04f3e1347d13ab1dfcd184b39d985c41d50661cbd23c0fdbe4926383b6492"
+    },
+    {
+      "path": "target/v53-source-control-resources/maven-01-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest.xml",
+      "sha256": "8fd36812390d882fc7f8f06bc959d6cdd5f8164c7989d21e45b2c3f37623f9d9"
+    }
+  ]
+}

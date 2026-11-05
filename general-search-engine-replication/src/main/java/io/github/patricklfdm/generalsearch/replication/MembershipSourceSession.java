@@ -41,7 +41,8 @@ final class MembershipSourceSession implements MembershipTransport.Handler,AutoC
         this.chunkLimit=Math.min(chunkLimit,4*1024*1024);this.frameLimit=frameLimit;
         context=export.context();owner=export.identity();ballot=export.ballot();
         require(!reader.equals(owner) && reader.equals(context.identities.get(reader.nodeId().value())),"source session exact reader");
-        metadata=resources.reserve(MembershipResources.Unit.CONTROL,"source-session-"+UUID.randomUUID(),32768);
+        metadata=resources.reserve(MembershipResources.Unit.CONTROL,
+                MembershipSourceResources.session("source-session",context.root,owner,reader,session),32768);
         try {
             references=Map.copyOf(export.references());
             require(!references.isEmpty() && references.size()<=11 && references.values().stream().distinct().count()<=10,"source content count");time();
@@ -54,13 +55,13 @@ final class MembershipSourceSession implements MembershipTransport.Handler,AutoC
         return decode(encode("wire",kind,fields),"wire",kind);
     }
     private void releaseResponse(){if(responseLease!=null){responseLease.close();responseLease=null;}lastResponse=null;}
-    private void reserveResponse(int bytes) {
+    private void reserveResponse(Decoded request,int bytes) {
         require(bytes>0 && bytes<=frameLimit,"source response frame capacity");releaseResponse();
-        responseLease=resources.reserve(MembershipResources.Unit.CONTROL,"source-response-"+UUID.randomUUID(),bytes);
+        responseLease=resources.reserve(MembershipResources.Unit.CONTROL,MembershipSourceResources.request("source-response",request),bytes);
     }
     private Decoded small(Decoded request,String kind,Map<String,Object> payload) {
         // Small, schema-bounded control fields; the persistent session reservation covers construction.
-        var result=response(request,kind,payload);reserveResponse(result.size());return result;
+        var result=response(request,kind,payload);reserveResponse(request,result.size());return result;
     }
     /** All distinct contents of this immutable export have been committed. The
      * registry may now retain only the last exact reply, not reopen the export. */
@@ -88,7 +89,7 @@ final class MembershipSourceSession implements MembershipTransport.Handler,AutoC
                     var payload=new TreeMap<String,Object>(Map.of("id",id.toString(),"action","DATA","offset",offset,"digest","0".repeat(64),"bytes",""));
                     int overhead=response(request,"CHUNK",payload).size();
                     int count=(int)Math.min(Math.min(chunkLimit,content.bytes()-sent),((frameLimit-overhead)/4L)*3);
-                    require(count>0,"source chunk frame headroom");int encoded=((count+2)/3)*4;reserveResponse(overhead+encoded);
+                    require(count>0,"source chunk frame headroom");int encoded=((count+2)/3)*4;reserveResponse(request,overhead+encoded);
                     byte[] bytes=export.read(content.digest(),offset,count);require(bytes.length==count,"source chunk changed length");
                     payload.put("digest",hash(bytes));payload.put("bytes",Base64.getEncoder().encodeToString(bytes));result=response(request,"CHUNK",payload);
                     require(result.size()==overhead+encoded,"source response reservation extent");sent+=count;

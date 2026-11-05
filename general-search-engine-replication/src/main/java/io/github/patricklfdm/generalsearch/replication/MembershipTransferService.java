@@ -88,7 +88,8 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
         String completedRequest;
         Decoded completedReply;
         volatile boolean dead,released;
-        Entry(Key key) {this.key=key;marker=resources.reserve(MembershipResources.Unit.CONTROL,"transfer-trace-"+UUID.randomUUID(),1024);}
+        Entry(Key key) {this.key=key;marker=resources.reserve(MembershipResources.Unit.CONTROL,
+                MembershipSourceResources.session("transfer-trace",context.root,identity,key.reader,key.trace),1024);}
         synchronized Decoded handle(Decoded request)throws IOException {
             require(!dead && !released,"transfer trace already ended");
             try {

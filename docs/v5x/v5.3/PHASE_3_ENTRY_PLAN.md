@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Source control resources](PHASE_3_SOURCE_CONTROL_RESOURCES.md) now bind logical
+requests, cached responses, session metadata and completed trace caches to exact
+original request/session identities. Short TCP loss/retry histories and coherent
+negative replay qualify this component; multi-session native integration and
+other CONTROL/storage obligations remain OPEN. Phase 3 is not closed.
+
 [Unsent transport resources](PHASE_3_UNSENT_RESOURCES.md) now bind buffers that
 fail before the connected write callback to their exact request and local attempt.
 Four native histories / eight failed allocations and 48 exact negatives pass;
