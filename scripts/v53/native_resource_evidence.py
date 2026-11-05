@@ -103,18 +103,22 @@ def validate(directory,profile='stable',progress=None):
     index,traces,boundaries,events=load(root)
     result=replay(index,traces,boundaries,events,identities,authority)
     count=bind_publications(publication.collect(root,events),boundaries)
-    transport=None;floors=None
+    transport=None;floors=None;receiving=None
     if profile=='5-REPLACE-required-four':
         from . import transport_resource_evidence
         wires=collection.read_json(root,'wire.json',collection.WIRE_BYTES)
         # Attempts that never reached a connected wire boundary must remain
         # explicit gaps, not be assigned to a later identical connected retry.
         transport=transport_resource_evidence.replay(events,wires,traces,boundaries,identities,authority,require_all_frames=False)
-        from . import floor_resource_evidence
-        floors=floor_resource_evidence.bind(root,events,traces,boundaries)
+        from . import floor_resource_evidence, receive_resource_evidence
+        reader=floor_resource_evidence.maintenance.Replay(root);reader.run()
+        need(reader.events==events,'native resources original maintenance event input')
+        floors=floor_resource_evidence.replay(floor_resource_evidence.plans(reader),events,traces,boundaries)
+        receiving=receive_resource_evidence.replay(receive_resource_evidence.derive(reader),events,traces,boundaries)
     need(collection.inventory(root)==before,'native resources original changed')
     return dict(result,scope='native-owner-accounting-with-original-publication-boundaries',profile=profile,
-                precondition=preceding,publicationResources=physical,publicationBoundaries=count,transportResources=transport,floorResources=floors,
+                precondition=preceding,publicationResources=physical,publicationBoundaries=count,transportResources=transport,
+                floorResources=floors,receivingResources=receiving,
                 physicalPeakQualified=False,controlLifetimesQualified=False,finalSourceCohortQualified=False)
 
 

@@ -103,3 +103,10 @@ remain unchanged. This development evidence does not close Phase 3.
 Rollback removes the optional fixture flag/capture, checkpoint accessor and new
 entry/tests together. Existing disabled observers, durable files, authority
 decisions, wire formats and CI topology do not depend on the new collection.
+
+The [receiving resource reader](PHASE_3_RECEIVE_RESOURCE_BINDING.md) additionally
+binds original transfers and complete learner generation metadata to their exact
+SOURCE/LEARNER/APPLICATION reservations. It shares one admitted maintenance model
+with floor resource replay and requires receiving scratch to remain charged
+until the corresponding remote copy is forced. Post-handoff learner file custody
+and other storage/control lifetimes remain unqualified.

@@ -1,5 +1,14 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Receiving resource binding](PHASE_3_RECEIVE_RESOURCE_BINDING.md) now derives
+transfer leases from original packet/image bytes and authorized generation
+metadata, and checks scratch release only after the exact remote floor copy is
+forced. The unchanged full original passes 165 receiving bindings, 117 handoffs
+and nineteen exact native negatives; 164 related tests pass. Atomic learner
+handoffs preserve charges; individual post-handoff file
+custody and other storage/control lifetimes remain separate qualifications.
+Phase 3 stays OPEN. Earlier notes retain their historical source-bound scope.
+
 [Floor resource binding](PHASE_3_FLOOR_RESOURCE_BINDING.md) now derives copied
 storage extents and continuous pinned-generation coverage from original files.
 It covers all floor leases through exact cleanup/release, including mutations

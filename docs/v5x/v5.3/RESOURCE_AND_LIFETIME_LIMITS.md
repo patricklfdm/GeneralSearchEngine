@@ -3,7 +3,10 @@
 The [floor resource reader](PHASE_3_FLOOR_RESOURCE_BINDING.md) independently binds
 exact copied manifest/member/image bytes and continuous original generation pins
 to resource lifetimes, through completed cleanup. This adds no capacity; receiving
-scratch and complete combined physical peaks remain separate qualifications.
+scratch is now checked through the specific transfer/metadata/floor boundaries
+by the [receiving resource reader](PHASE_3_RECEIVE_RESOURCE_BINDING.md).
+Post-handoff file custody and complete combined physical peaks remain separate
+qualifications.
 
 The `resources` object in [format-catalog.json](format-catalog.json) is normative.
 These are library admission/storage bounds, separate from soft experiment time

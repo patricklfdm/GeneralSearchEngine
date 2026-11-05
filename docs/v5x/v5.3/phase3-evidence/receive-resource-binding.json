@@ -1,0 +1,138 @@
+{
+  "baseSource": "2db41d7116caa0bedddae4cc50c6cab505f7b7f4",
+  "eventBoundaries": 38783,
+  "finalSourceCohortQualified": false,
+  "floors": {
+    "copyLeases": 358,
+    "floorBoundaries": 6188,
+    "floorStorageLifetimesQualified": true,
+    "floors": 56,
+    "phase3Complete": false,
+    "physicalPeakQualified": false,
+    "pinnedFloors": 3,
+    "pinnedMutationChecks": 171,
+    "receivingScratchQualified": false,
+    "scope": "original-floor-copy-and-local-pin-storage-lifetimes",
+    "status": "PASS",
+    "wholeRuntimeResourcesQualified": false
+  },
+  "nativeExecutionRepeated": false,
+  "nativeJavaInputFiles": 1128,
+  "nativeProducerSource": "f0b60e1d1e93ff9c1e7a4ba2ced5e3b927fdc25f",
+  "nativeRaw": "general-search-engine-replication/target/v53-native-dispatch/run-bc82bb01-127a-40e0-9332-dd2f2bc8a1d3",
+  "nativeReplayElapsedSeconds": 457.726,
+  "newConditionalTests": 21,
+  "originalJavaInputs": {
+    "path": "target/v53-required-four-resources/java-input.json",
+    "sha256": "6606520b44f33a3cee48d03ca0f90ac9cbbc57a83583596f8b30ab6ddafba546"
+  },
+  "otherStorageLifetimesQualified": false,
+  "phase3Complete": false,
+  "physicalPeakQualified": false,
+  "postHandoffLearnerCustodyQualified": false,
+  "publicationBoundaries": 374,
+  "pythonTests": 164,
+  "receiveNegatives": 19,
+  "receiving": {
+    "checkedBoundaries": 1074,
+    "floorHandoffs": 117,
+    "identifiedPersistentBasisOwners": 26,
+    "otherStorageLifetimesQualified": false,
+    "phase3Complete": false,
+    "physicalPeakQualified": false,
+    "postHandoffLearnerCustodyQualified": false,
+    "receivingFloorHandoffQualified": true,
+    "receivingTransferChargesQualified": true,
+    "scope": "original-receiving-file-reservations-and-forced-floor-handoff",
+    "status": "PASS",
+    "transfers": 165,
+    "units": {
+      "APPLICATION": 3,
+      "LEARNER": 3,
+      "SOURCE": 159
+    },
+    "wholeRuntimeResourcesQualified": false
+  },
+  "remaining": [
+    "post-handoff learner file custody",
+    "receiving create/delete/parent-force physical captures",
+    "persistent BASIS storage lifetimes",
+    "pre-connection and other CONTROL lifetimes",
+    "complete native export/maintenance/ledger negative matrices",
+    "combined physical maxima and completion headroom",
+    "frozen coverage and final-source hosted qualification"
+  ],
+  "reports": [
+    {
+      "path": "target/v53-receive-resources/native-summary.json",
+      "sha256": "c41c73934728bc5a106d0b586ff99214628cbae4c6eb258f3155b13cd507a1ef"
+    },
+    {
+      "path": "target/v53-receive-resources/native-original.json",
+      "sha256": "f79aab19a7324be66126908eb53e5d9da5b4abc9814071ceb5cb6628fd93a4c1"
+    },
+    {
+      "path": "target/v53-receive-resources/native-receive-negatives.json",
+      "sha256": "b76bdb4e478cdbb5c6ae9c9deceae1bed889619d9b9df8c06846b33ccc987b66"
+    },
+    {
+      "path": "target/v53-receive-resources/native-replay-01.log",
+      "sha256": "47656bdec54c6be4a57d19f66379f496bd1be5090a076b3c5160381d8b4e6a9b"
+    },
+    {
+      "path": "target/v53-receive-resources/java-source-check.json",
+      "sha256": "b986aad45b9a53ce0379f30ad7bc4ec36d356bf1566fb1d44a023e833f8fbcd0"
+    },
+    {
+      "path": "target/v53-receive-resources/original-inventory.json",
+      "sha256": "7240ae3253ad51d71598d8b4c1b8248c01bc8f82b418a110c7cdebc6b1216c58"
+    },
+    {
+      "path": "target/v53-receive-resources/python-final.log",
+      "sha256": "02d22f633f1150527850f0ecccb01a197034ab8224c84c6aa37b040a0c5c8f24"
+    },
+    {
+      "path": "target/v53-receive-resources/contracts-01.log",
+      "sha256": "84fd8675c818fc4e5954be8f5709e6215f3ed3ea26f02589461894e63524e43d"
+    },
+    {
+      "path": "target/v53-receive-resources/diagnostic.json",
+      "sha256": "3943ea8d4e5ade1a52315c6ed468c3682cc1786d3d91f97823d0ee7b9078ce35"
+    },
+    {
+      "path": "target/v53-receive-resources/derived-plan.json",
+      "sha256": "0e2c69762a9aa93589d005d3269dacf1e6769fcd645d1c67be9ea14c53db0e17"
+    },
+    {
+      "path": "target/v53-receive-resources/replay-diagnostic-01.log",
+      "sha256": "668e84b50ff8f6362627813c4615c427d04241e1a30cbcf2d6237d3d9a058e54"
+    },
+    {
+      "path": "target/v53-receive-resources/qualify_native.py",
+      "sha256": "fc54962ab4982a1d758fddf5c983bc2db91b5ad660ffd1bf00730c5f565e27ae"
+    }
+  ],
+  "resourceChanges": 81031,
+  "schema": "gse-v53-receive-resource-binding-development-v1",
+  "scope": "required-four-original-receiving-reservations-and-floor-handoff",
+  "sources": [
+    {
+      "path": "scripts/v53/receive_resource_evidence.py",
+      "sha256": "6a651c77b627bea3e52bfeee14338a27bcbab2770fe4f88f3974e39bc5b1aa37"
+    },
+    {
+      "path": "scripts/v53/receive_resource_negatives.py",
+      "sha256": "b8bd891f07d38d4df041722eba979d596b6afaf39d3e1c3317b90dd724b1a435"
+    },
+    {
+      "path": "scripts/v53/test_receive_resource_evidence.py",
+      "sha256": "7232f673b99380f9d182378e77bdb4d4990267c67d75fbb41ae414cb9deabf34"
+    },
+    {
+      "path": "scripts/v53/native_resource_evidence.py",
+      "sha256": "a9b4e680e75764f48446d4ddedcf2405729360531361d2d798e5826c4a8fe23b"
+    }
+  ],
+  "status": "PASS",
+  "wholeRuntimeResourcesQualified": false
+}
