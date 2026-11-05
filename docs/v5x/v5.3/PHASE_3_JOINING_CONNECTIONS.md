@@ -91,6 +91,31 @@ mvn -o -B -ntp -f reactor/pom.xml -pl ../general-search-engine-replication -am \
   '-Dtest=V53JoiningIntentExportTest#requiredFourVotersCompleteReplacementFinalAndStableBarrier' test
 ```
 
+`scripts.v53.required_four_network` is the dedicated entry for that new
+original. It first completes required-four owner-file and retirement derivation,
+then requires original connection observations and replays every attempted
+exchange, grant/installation/slot force chain and current-owner lifecycle. Its
+PASS is scoped to observed network and durable ACKs; export/control capabilities,
+continuous ledgers and whole-runtime resources retain their separate gates.
+
+```bash
+python3 -m scripts.v53.required_four_network "$ORIGINAL" --qualify
+```
+
+The qualifier preserves all 121 existing network/force/lifecycle mutations and
+adds four connection completeness/correlation mutations. Exact transport error
+names reflect the new reader; durable authority errors retain their existing
+names. Before mutation, the original connection replay selects actual caller and
+receiver failures, if present, for missing/foreign/duplicate-terminal mutations.
+Late receiver terminals use their bound connection positions, never the latest
+matching request hash. A trace without those failures does not invent them.
+Every negative preserves all non-observation files and must fail for its declared
+reason; unrelated errors or an invalid original cannot count as rejection.
+
+Eight conditional entry tests and 51 related reader tests pass. These prove
+admission/mutation behavior only. The fresh original and its complete negative
+replay are still pending; this entry is not a positive native receipt.
+
 Its files, source retirements, complete network/phase history and remaining
 export/control/resource lifetime obligations must be replayed independently.
 A short collector pass cannot stand in for that gate. Process-child propagation

@@ -262,7 +262,8 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransportConnectionTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ConnectionTrace.java",
         "scripts/v53/test_connection_transcript.py",
-        "scripts/v53/test_joining_connections.py"
+        "scripts/v53/test_joining_connections.py",
+        "scripts/v53/test_required_four_network.py"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -281,7 +282,8 @@
         "scripts/v53/required_four_physical.py",
         "scripts/v53/connection_transcript.py",
         "scripts/v53/transport_connection_evidence.py",
-        "scripts/v53/joining_connections.py"
+        "scripts/v53/joining_connections.py",
+        "scripts/v53/required_four_network.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_JOINT_COORDINATION.md",
