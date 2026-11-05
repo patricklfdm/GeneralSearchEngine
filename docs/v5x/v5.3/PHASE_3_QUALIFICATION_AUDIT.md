@@ -1,5 +1,11 @@
 # Phase 3 qualification inventory and remaining work
 
+[Required-four continuous ledgers](PHASE_3_REQUIRED_FOUR_LEDGERS.md) now connect
+the four existing chain readers to the required-four original and pinned-floor
+maintenance. The entry retains all six final owners and 86 component mutations;
+conditional regressions do not qualify a native run. Corrected-source complete
+replay, resource/process coverage and final-source execution remain pending.
+
 [Required-four maintenance](PHASE_3_REQUIRED_FOUR_MAINTENANCE.md) now composes
 original pin custody and exact floor lifetime checks behind physical/network/
 export admission. Thirteen conditional regressions and a historical diagnostic

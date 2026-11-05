@@ -266,7 +266,8 @@
         "scripts/v53/test_required_four_network.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerEndpointConnectionTest.java",
         "scripts/v53/test_required_four_exports.py",
-        "scripts/v53/test_required_four_maintenance.py"
+        "scripts/v53/test_required_four_maintenance.py",
+        "scripts/v53/test_required_four_ledgers.py"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -288,7 +289,8 @@
         "scripts/v53/joining_connections.py",
         "scripts/v53/required_four_network.py",
         "scripts/v53/required_four_exports.py",
-        "scripts/v53/required_four_maintenance.py"
+        "scripts/v53/required_four_maintenance.py",
+        "scripts/v53/required_four_ledgers.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_JOINT_COORDINATION.md",
@@ -317,7 +319,9 @@
         "docs/v5x/v5.3/PHASE_3_REQUIRED_FOUR_EXPORTS.md",
         "docs/v5x/v5.3/phase3-evidence/required-four-exports.json",
         "docs/v5x/v5.3/PHASE_3_REQUIRED_FOUR_MAINTENANCE.md",
-        "docs/v5x/v5.3/phase3-evidence/required-four-maintenance.json"
+        "docs/v5x/v5.3/phase3-evidence/required-four-maintenance.json",
+        "docs/v5x/v5.3/PHASE_3_REQUIRED_FOUR_LEDGERS.md",
+        "docs/v5x/v5.3/phase3-evidence/required-four-ledgers.json"
       ],
       "cohorts": [
         "profiles",

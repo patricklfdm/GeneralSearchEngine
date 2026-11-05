@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Required-four continuous ledgers](PHASE_3_REQUIRED_FOUR_LEDGERS.md) now compose
+peer/learner/future/ballot derivation over the same original history, preserve all
+six owners through cold comparison and retain 86 component negative cases with
+explicit original-dependent applicability. Conditional entry tests pass; native
+chain/negative qualification, resource maxima and final-source execution remain
+OPEN.
+
 [Required-four maintenance](PHASE_3_REQUIRED_FOUR_MAINTENANCE.md) now binds
 local original pins to captured selector/generation bytes and exact force/release
 order, with all 15 existing and five pin-boundary negatives required. Historical

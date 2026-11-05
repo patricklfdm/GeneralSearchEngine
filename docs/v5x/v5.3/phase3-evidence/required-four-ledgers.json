@@ -1,0 +1,61 @@
+{
+  "baseHead": "641fb8d3747be781835373ced949e8894a4032e3",
+  "conditionalEntryTests": 12,
+  "correctedSourceNativeQualified": false,
+  "declaredNegativeCases": 86,
+  "finalSourceCohortQualified": false,
+  "maximumOriginalDependentNotApplicable": 3,
+  "nativeNegativeCasesExecuted": 0,
+  "negativeCatalog": {
+    "ballot": 21,
+    "future": 19,
+    "learner": 26,
+    "peers": 20
+  },
+  "notes": [
+    "Initial temporary-file fixtures used noncanonical JSON; canonical fixtures corrected. Initial failed output retained.",
+    "No old native original was modified or counted as new-runtime qualification."
+  ],
+  "phase3Complete": false,
+  "planAndContractTests": 19,
+  "relatedTests": 385,
+  "reports": [
+    {
+      "path": "target/v53-required-four-ledgers/python-entry-01.log",
+      "sha256": "1cc9f5f673c2c6244542628cd08028cb9615100ba5e6972a428854d80f59b5ea"
+    },
+    {
+      "path": "target/v53-required-four-ledgers/python-entry-02.log",
+      "sha256": "fc523972b6a1714a1d54810e5e0468e39c4bd3e3d5232a86ffd2e808fc829bd9"
+    },
+    {
+      "path": "target/v53-required-four-ledgers/python-entry-03.log",
+      "sha256": "aa20a2cbd4b495b721d271e618f4947b6f3d248ae4d791571f591ce4cc5a7919"
+    },
+    {
+      "path": "target/v53-required-four-ledgers/python-related-01.log",
+      "sha256": "dcac1761fa501504a1b6624bb2bdad5942dcc3775dead948d9ab9713f173b2a9"
+    },
+    {
+      "path": "target/v53-required-four-ledgers/python-plan-01.log",
+      "sha256": "02535377aa18361b34f7369352a149b1bd27335d1c251204e4b7e6e09534635f"
+    }
+  ],
+  "schema": "gse-v53-required-four-ledger-development-v1",
+  "sources": [
+    {
+      "path": "scripts/v53/required_four_ledgers.py",
+      "sha256": "8e0faf79bab3d5f7ca96bb24a5a405400b332019c4e8f39ebc6bf34fc9f837bd"
+    },
+    {
+      "path": "scripts/v53/test_required_four_ledgers.py",
+      "sha256": "62986eb13a6f9c8a9be089b5b3b81316611dd947745074fb9aed3b2dfd6a54b0"
+    },
+    {
+      "path": "scripts/v53/required_four_maintenance.py",
+      "sha256": "e7a0885582ccf695fd0e8212d58fbbf2c36ff8b9b4a820e6975932922af180c0"
+    }
+  ],
+  "status": "ENTRY_READY_NATIVE_QUALIFICATION_PENDING",
+  "wholeRuntimeResourcesQualified": false
+}
