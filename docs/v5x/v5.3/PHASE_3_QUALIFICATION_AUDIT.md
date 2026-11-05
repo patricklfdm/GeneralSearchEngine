@@ -1,5 +1,12 @@
 # Phase 3 qualification inventory and remaining work
 
+[Required-four export composition](PHASE_3_REQUIRED_FOUR_EXPORTS.md) now binds
+content and control authorization to the explicit four-required-voter topology
+behind the complete physical/network precondition, with 26 required negatives.
+Historical original-byte lifetime and transfer-only diagnostics pass their narrow
+scope. Corrected-source complete replay, continuous ledger/resource composition
+and final-source execution remain pending.
+
 [Joining connection integration](PHASE_3_JOINING_CONNECTIONS.md) now threads
 original socket metadata through old-owner and scoped joining collectors and the
 shared phase/network readers. Actual overlapping retries through these collectors

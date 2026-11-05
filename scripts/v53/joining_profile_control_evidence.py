@@ -40,9 +40,11 @@ def quorum_time(view,owner,rows,end):
 
 
 class Replay(c.Replay):
-    def __init__(self,root,profile,*,old_owner_lifetimes=None):
+    def __init__(self,root,profile,*,old_owner_lifetimes=None,required_four=False):
         self.root=Path(root);self.profile=profile
-        self.__dict__.update(vars(exports.context(root,profile,old_owner_lifetimes=old_owner_lifetimes)));self.kind=self.model.kind
+        need(type(required_four) is bool,'joining export required-four profile')
+        self.__dict__.update(vars(exports.context(root,profile,old_owner_lifetimes=old_owner_lifetimes,
+            **({'required_four':True} if required_four else {}))));self.kind=self.model.kind
         self.phases=c.n.phase.blocks(self.events,self.model,old_owner_lifetimes=old_owner_lifetimes);self.recordings=[];self.confirmations={}
         proofs=f.decode(self.model.phases[8]['CERTIFICATE'],'records','CERTIFICATE')['proofs']
         self.expected_confirmations={v['voter'] for v in proofs}

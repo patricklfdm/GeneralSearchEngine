@@ -1,0 +1,108 @@
+{
+  "baseHead": "198649ae20a0b35c986c1ace3162f9177524f64b",
+  "completeControlExportQualified": false,
+  "conditionalEntryTests": 12,
+  "correctedSourceNativeQualified": false,
+  "diagnosticNotes": [
+    "First conditional context fixture lacked an identity registry; corrected before passing tests.",
+    "First read-only temporal diagnostic used the wrong module alias and stopped before replay; corrected invocation is retained separately."
+  ],
+  "finalSourceCohortQualified": false,
+  "historicalDiagnostics": {
+    "completeNetworkQualified": false,
+    "contentSessions": 777,
+    "contents": 1500,
+    "controlExportsQualified": false,
+    "generationWindows": 59,
+    "generationsByNode": {
+      "node-1": 18,
+      "node-2": 18,
+      "node-3": 16,
+      "node-4": 1,
+      "node-5": 1,
+      "node-6": 5
+    },
+    "joiningExportLifetimes": 51,
+    "originalsChanged": false,
+    "raw": "general-search-engine-replication/target/v53-native-dispatch/run-d9b8fe61-4036-416d-b2e4-7f7ed47bd0ad",
+    "recordWindows": 546,
+    "runtimeSource": "25d80cb3",
+    "sourceWindows": 26,
+    "unqualifiedControlSessions": 9
+  },
+  "incompleteOriginal": {
+    "raw": "general-search-engine-replication/target/v53-native-dispatch/run-178c7357-83bf-44de-a17b-8b7b3e0c0520",
+    "reason": "joining connection complete wire metadata",
+    "runtimeSource": "2f5cce27ffd2054011ed04fd7791c75bb9e090f9",
+    "status": "REJECTED"
+  },
+  "initialRelatedTests": 83,
+  "maintenanceAndPeerCompositionQualified": false,
+  "nativeNegativeCasesExecuted": 0,
+  "phase3Complete": false,
+  "relatedProfileAndNetworkTests": 200,
+  "reports": [
+    {
+      "path": "target/v53-required-four-exports/python-01.log",
+      "sha256": "dfb174018fd0e78d6193abed9c84fdf810498fc33416e6059cf13454d98f0ebf"
+    },
+    {
+      "path": "target/v53-required-four-exports/python-02.log",
+      "sha256": "ef4a936e99ae5624dd90b2696222fbe18fe6569eb01c390890ad91df54f80a71"
+    },
+    {
+      "path": "target/v53-required-four-exports/python-03.log",
+      "sha256": "ec59b45a6cf05c8719333a05bbdca7d9b2bbcef46f731af3be92c48a62b5da34"
+    },
+    {
+      "path": "target/v53-required-four-exports/python-04.log",
+      "sha256": "a86a150651d34bd22d6f7ab8b6ef734452b614e943f335c3fb44eb4b33c2d5c9"
+    },
+    {
+      "path": "target/v53-required-four-exports/physical-windows-01.log",
+      "sha256": "f8267927067c787dc08165041f254df84d1e450d71719dde5ad117beef6a805a"
+    },
+    {
+      "path": "target/v53-required-four-exports/physical-windows-02.json",
+      "sha256": "5d00ebf8b619f4a1737000c1b1bc7ef0027bdf5c3342a6d461c63ea779711be2"
+    },
+    {
+      "path": "target/v53-required-four-exports/physical-windows-02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-required-four-exports/transfer-diagnostic-01.json",
+      "sha256": "4f8f586944ca2ac9e7b6fb3c8b6223f4a3c09c44e2a51fc44bad1629864e9467"
+    },
+    {
+      "path": "target/v53-required-four-exports/transfer-diagnostic-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-required-four-exports/incomplete-original-refusal.log",
+      "sha256": "60d65d27e3dca5368c88956903eaad658f3cce20c036ac98e983954aa4334676"
+    }
+  ],
+  "requiredNegativeCases": 26,
+  "schema": "gse-v53-required-four-export-development-v1",
+  "sources": [
+    {
+      "path": "scripts/v53/required_four_exports.py",
+      "sha256": "d42f971ba28d112926e2646be39ce861d64f582b9fdf7b12e01f3f011dafedac"
+    },
+    {
+      "path": "scripts/v53/joining_profile_export_evidence.py",
+      "sha256": "20dfdba3a6ef52f2b2c2a92206a3af2560a4f5a165a036b2c381250cc8fa8bce"
+    },
+    {
+      "path": "scripts/v53/joining_profile_control_evidence.py",
+      "sha256": "998b4daef4947e9466d7dcf589dc833d5dbffd6fed35fc116f43c83c3f8b9ce4"
+    },
+    {
+      "path": "scripts/v53/test_required_four_exports.py",
+      "sha256": "b2f61df4f583551875c090014bae670d2171dfd0f0aa575cd4184720e98ee811"
+    }
+  ],
+  "status": "ENTRY_READY_NATIVE_QUALIFICATION_PENDING",
+  "wholeRuntimeResourcesQualified": false
+}
