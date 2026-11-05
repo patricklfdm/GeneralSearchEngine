@@ -1,5 +1,12 @@
 # Phase 3 qualification inventory and remaining work
 
+[Unsent transport resources](PHASE_3_UNSENT_RESOURCES.md) now bind buffers that
+fail before the connected write callback to their exact request and local attempt.
+Four native histories / eight failed allocations and 48 exact negatives pass;
+the existing two late-terminal histories and 32 negatives also pass. Old unobserved
+allocations and other CONTROL lifetimes remain gaps until qualified on new
+originals. Phase 3 and final-source qualification remain OPEN.
+
 [Owner close observations](PHASE_3_OWNER_CLOSE_RESOURCES.md) now bind resource
 release to an actual close invocation and successful return. One new short TCP
 history qualifies three owners / 20 released leases with twelve close negatives

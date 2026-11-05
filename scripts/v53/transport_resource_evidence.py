@@ -18,6 +18,7 @@ from . import transport_connection_evidence as component
 need=accounting.need
 HEADER=48
 PREFIX='transport-'
+UNSENT='NETWORK_UNSENT_FAILED'
 OWNER=re.compile(r'transport-(request-send|request-read|response-send|response-read)-([0-9a-f-]{36})\Z')
 
 
@@ -132,11 +133,32 @@ def replay(events,wires,traces,boundaries,identities,root,*,require_all_frames=T
         if failure is not None:
             live(request,failure['serverFailed'],size)
             if answer is not None:closed(answer,failure['serverFailed'])
+    # Reserved requests can fail before connect/queue dispatch reaches SEND.
+    # Bind their own original request and local invocation; never borrow a
+    # successful identical retry's connected boundary or manufacture a reply.
+    unsent=[];unsent_ids=set()
+    connected_ids={v['connection']['id'] for v in events if v.get('event') in connections.TRANSPORT}
+    for at,event in enumerate(events):
+        if event.get('event')!=UNSENT:continue
+        fields={'node','event','invocation','request','kind','bytes','reason'}
+        need(set(event)==fields|({'scope'} if 'scope' in event else set()) and
+             all(type(v) is str and v for v in event.values()),'transport resources unsent shape')
+        identifier=owner('transport-request-send-'+event['invocation'])[1];node=event['node']
+        need(identifier not in connected_ids and identifier not in unsent_ids,'transport resources unsent reused invocation');unsent_ids.add(identifier)
+        need(event['reason'] in connections.t.native.attempts.REASONS,'transport resources unsent failure reason')
+        kind,request=connections.t.wire(event['bytes']);raw=base64.b64decode(event['bytes'],validate=True)
+        need(node in identities and request['root']==root and request['sender']==identities[node] and
+             request['recipient'] in identities.values() and request['recipient']!=request['sender'] and
+             event['kind']==kind and event['request']==connections.t.sha(raw),'transport resources unsent original request')
+        outgoing=get(node,'request-send',identifier);send(outgoing,len(raw));closed(outgoing,at)
+        unsent.append(dict(node=node,eventIndex=at,invocation=identifier,request=event['request'],reason=event['reason'],
+                           start=outgoing['start'],end=outgoing['end']))
     extra=set(leases)-used
     need(not any((node,identifier) in known for node,role,identifier in extra),'transport resources foreign role on observed connection')
     unbound=[leases[key] for key in sorted(extra)]
     need(not require_all_frames or not unbound,'transport resources unobserved frame lifetimes')
     return dict(status='PASS',attempts=network['attempts'],failedAttempts=len(network['failed']),
+                unsentAttempts=unsent,observedUnsentFramesQualified=bool(unsent),
                 boundFrameLifetimes=len(used),checkedFrameBoundaries=checks,unobservedFrameLifetimes=unbound,
                 otherControlReservations=other,observedTransportFramesQualified=True,
                 allTransportFramesQualified=not unbound,controlLifetimesQualified=False,wholeRuntimeResourcesQualified=False,phase3Complete=False)

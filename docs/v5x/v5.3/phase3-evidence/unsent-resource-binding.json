@@ -1,0 +1,165 @@
+{
+  "baseSource": "a4eab8e34ffcd5ab8ad9b95b4255ff62a122c062",
+  "connectedNegatives": 32,
+  "connectedRaw": "general-search-engine-replication/target/v53-transport-resources/run-571a52cf-26af-4863-97c3-c51d86a95cf6",
+  "controlLifetimesQualified": false,
+  "finalSourceCohortQualified": false,
+  "historicalOtherControlReservations": 14148,
+  "historicalSource": "f0b60e1d1e93ff9c1e7a4ba2ced5e3b927fdc25f",
+  "historicalUnboundRequestSendLeases": 252,
+  "javaTests": 27,
+  "nativeCases": [
+    {
+      "boundFrameLifetimes": 6,
+      "case": "refused-direct",
+      "unsentAttempts": 2
+    },
+    {
+      "boundFrameLifetimes": 6,
+      "case": "refused-decorated",
+      "unsentAttempts": 2
+    },
+    {
+      "boundFrameLifetimes": 6,
+      "case": "rejected-direct",
+      "unsentAttempts": 2
+    },
+    {
+      "boundFrameLifetimes": 6,
+      "case": "rejected-decorated",
+      "unsentAttempts": 2
+    }
+  ],
+  "nativeJavaInputFiles": 1129,
+  "nativeRaw": "general-search-engine-replication/target/v53-unsent-resources/run-22adce86-0e3e-4c2d-9f59-8d3cb1b0e568",
+  "nativeReplayElapsedSeconds": 3.601,
+  "nativeUnsentAttempts": 8,
+  "nativeUnsentHistories": 4,
+  "newConditionalTests": 13,
+  "phase3Complete": false,
+  "pythonTests": 148,
+  "queuedLifecycleCases": [
+    "cancel",
+    "deadline",
+    "close"
+  ],
+  "remaining": [
+    "new required-four source-bound unsent/owner-close observation",
+    "other CONTROL lifetimes",
+    "direct receiving physical captures",
+    "post-handoff learner file custody",
+    "complete export/maintenance/ledger negative matrices",
+    "combined physical maxima and completion headroom",
+    "frozen coverage and final-source hosted qualification"
+  ],
+  "reports": [
+    {
+      "path": "target/v53-unsent-resources/native-summary.json",
+      "sha256": "6141312c6ce41f64fd60ad01443428a3ec9f59cb6b8d1b2b5e11fea60507304d"
+    },
+    {
+      "path": "target/v53-unsent-resources/native-unsent.json",
+      "sha256": "16b2b0072deff434f1242d6e2645dc841c8fcc1d5ecd5e4d383cd5fbc04370af"
+    },
+    {
+      "path": "target/v53-unsent-resources/native-connected.json",
+      "sha256": "ebb6692bc95e87a4221de52911493c5aed2eae49799cb5815a5e3dcef4b71e4c"
+    },
+    {
+      "path": "target/v53-unsent-resources/java-input.json",
+      "sha256": "f86e61b3dd704bfe43fafb4cdc06befc5306606e76cdf912e660160de461a30f"
+    },
+    {
+      "path": "target/v53-unsent-resources/original-inventory.json",
+      "sha256": "3bf43f2a285dac29cfd5bc688cc530aa84df43f79c21141cd26d8216cfb1ea46"
+    },
+    {
+      "path": "target/v53-unsent-resources/connected-inventory.json",
+      "sha256": "77be4c82ae1f16b630a73fb9349224263b743598f79e352ec0c0bcb7d809813b"
+    },
+    {
+      "path": "target/v53-unsent-resources/remaining-control-inventory.json",
+      "sha256": "7299f7ef7753bc94383053da92cb9e1b9cd7a1696d1faabb325ac553ab6ea812"
+    },
+    {
+      "path": "target/v53-unsent-resources/maven-01.log",
+      "sha256": "c376874a7d3713b83db201796465eec1b128a141c56eecf02c8f197e63e6ee70"
+    },
+    {
+      "path": "target/v53-unsent-resources/maven-02.log",
+      "sha256": "65772177c873aabd1cf17b1ceebe9e36fc1bd4e90ecc2d9bdcd877185bea5444"
+    },
+    {
+      "path": "target/v53-unsent-resources/maven-03.log",
+      "sha256": "c486b62ff19eb05ef779fdc24689f57756a76cb135fe202fc7e0333b4c02ddd3"
+    },
+    {
+      "path": "target/v53-unsent-resources/python-01.log",
+      "sha256": "036cf7ca83089cbbde367a92f8b82d502cbda074ad574d8aca4b615c3fb7606e"
+    },
+    {
+      "path": "target/v53-unsent-resources/python-02.log",
+      "sha256": "0a82fcaaad3ac57ca5b1d7f33016dac71ee70a93dac17f96cc64a095b8278025"
+    },
+    {
+      "path": "target/v53-unsent-resources/python-final.log",
+      "sha256": "d61c8e6c12f0a37bfabccb466250b55052e42810c4dab2bb5becbb1b91595f38"
+    },
+    {
+      "path": "target/v53-unsent-resources/python-final-02.log",
+      "sha256": "7164601841107b4d81c39266d0f461bb800c141a11a537e6090dccec3c458baa"
+    },
+    {
+      "path": "target/v53-unsent-resources/replay-01.log",
+      "sha256": "e4f40ef56e277770b07c4077db0c6cde0e664f4d0b5e44786c60353eb53c4964"
+    },
+    {
+      "path": "target/v53-unsent-resources/qualify.py",
+      "sha256": "286ca6141ec617fc8c1efd0f0e750bb9d2c0afc4097ce74b7dbb2057e4501695"
+    }
+  ],
+  "requiredFourUnsentQualified": false,
+  "schema": "gse-v53-unsent-resource-binding-development-v1",
+  "scope": "original-reserved-unsent-TCP-request-lifetimes",
+  "sources": [
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransport.java",
+      "sha256": "647b4e56ebccb5b358cf58a30db23d8a43373dd9250464aab33270a872b8ae3b"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ConnectionTrace.java",
+      "sha256": "dd6bbe94dc60100cef739cf842062d11bda29f769b57f896582d975499f84745"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningTrace.java",
+      "sha256": "12d8f82c888436da891819d43bd0cc9fe8dd66390e0bc01e4c31b210fb51da5b"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53UnsentTransportTest.java",
+      "sha256": "f80c1e4422562dc0749b3ddaa763e06595f6e8659e4d0f2ef17686d70a0e2759"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53QueuedUnsentTest.java",
+      "sha256": "d09e61e4350aa6d69bb0289795c25dfc911be9f28d1f660a9544d3277743342b"
+    },
+    {
+      "path": "scripts/v53/transport_resource_evidence.py",
+      "sha256": "4b57ecfa4a0159a6c0d780aea76bf5748f01fb27d9f4926e55f234bf80c2a430"
+    },
+    {
+      "path": "scripts/v53/unsent_resource_evidence.py",
+      "sha256": "14e0a6577646585fcb4022f5005c0efe40b0cdeeef1c6bdf67d41ce8181ce6eb"
+    },
+    {
+      "path": "scripts/v53/unsent_resource_negatives.py",
+      "sha256": "b50992eb63be5c48482ac1a9ad20feee2e48c61e089e5fbb3578f03bde1a4c4b"
+    },
+    {
+      "path": "scripts/v53/test_unsent_resource_evidence.py",
+      "sha256": "52b0bdc8fd0dd678212e071df73e3394beceae9c316c473f944a0375bd2eac72"
+    }
+  ],
+  "status": "PASS",
+  "unsentNegatives": 48,
+  "wholeRuntimeResourcesQualified": false
+}

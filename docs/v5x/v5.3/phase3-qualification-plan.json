@@ -614,7 +614,10 @@
         "scripts/v53/test_floor_resource_evidence.py",
         "scripts/v53/test_receive_resource_evidence.py",
         "scripts/v53/test_basis_resource_evidence.py",
-        "scripts/v53/test_owner_close_evidence.py"
+        "scripts/v53/test_owner_close_evidence.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53UnsentTransportTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53QueuedUnsentTest.java",
+        "scripts/v53/test_unsent_resource_evidence.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -653,7 +656,9 @@
         "scripts/v53/basis_resource_evidence.py",
         "scripts/v53/basis_resource_negatives.py",
         "scripts/v53/owner_close_evidence.py",
-        "scripts/v53/owner_close_negatives.py"
+        "scripts/v53/owner_close_negatives.py",
+        "scripts/v53/unsent_resource_evidence.py",
+        "scripts/v53/unsent_resource_negatives.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -699,7 +704,9 @@
         "docs/v5x/v5.3/PHASE_3_BASIS_RESOURCE_BINDING.md",
         "docs/v5x/v5.3/phase3-evidence/basis-resource-binding.json",
         "docs/v5x/v5.3/PHASE_3_OWNER_CLOSE_RESOURCES.md",
-        "docs/v5x/v5.3/phase3-evidence/owner-close-resources.json"
+        "docs/v5x/v5.3/phase3-evidence/owner-close-resources.json",
+        "docs/v5x/v5.3/PHASE_3_UNSENT_RESOURCES.md",
+        "docs/v5x/v5.3/phase3-evidence/unsent-resource-binding.json"
       ],
       "cohorts": [
         "profiles",

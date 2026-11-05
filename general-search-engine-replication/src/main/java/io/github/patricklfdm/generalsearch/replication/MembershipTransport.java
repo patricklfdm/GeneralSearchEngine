@@ -32,6 +32,9 @@ final class MembershipTransport implements AutoCloseable {
         /** Local observation only. The token is never transmitted or used as protocol authority. */
         default void at(String event,Decoded request,Decoded response,Connection connection)throws IOException {at(event,request,response);}
         default void failed(boolean outbound,Decoded request,Reason reason,Connection connection)throws IOException {failed(outbound,request,reason);}
+        /** Reserved outgoing buffer released before any write-boundary callback.
+         * Local attempt only: an earlier identical attempt may have executed. */
+        default void unsent(Decoded request,UUID invocation,Reason reason)throws IOException {}
     }
     record Connection(UUID id,InetSocketAddress local,InetSocketAddress remote) {
         Connection {Objects.requireNonNull(id);Objects.requireNonNull(local);Objects.requireNonNull(remote);}
@@ -193,7 +196,7 @@ final class MembershipTransport implements AutoCloseable {
     CompletableFuture<Decoded> exchange(MembershipIdentity recipient,Decoded request,String responseKind,long originalDeadline,
             MembershipSourcePull.Guard beforeWrite) {
         Objects.requireNonNull(beforeWrite);
-        var result=new CompletableFuture<Decoded>();Peer peer=null;MembershipResources.Lease lease=null;boolean acquired=false;
+        var result=new CompletableFuture<Decoded>();Peer peer=null;MembershipResources.Lease lease=null;boolean acquired=false;UUID invocation=null;
         try {
             if(closed)throw new Failure(Reason.CLOSED,"membership transport closed",null);
             // The caller's deadline can only be shortened by the per-request bound, never renewed in a queue.
@@ -204,15 +207,16 @@ final class MembershipTransport implements AutoCloseable {
             MembershipWire.envelope(request,root,local,recipient);contactRequest(request,responseKind);
             require(object(CATALOG.get("wire")).containsKey(responseKind) && request.size()<=maximum,"transport request kind/size");
             if(!peer.outgoing.tryAcquire())throw new Failure(Reason.CAPACITY,"membership peer in-flight capacity",null);
-            acquired=true;var invocation=UUID.randomUUID();lease=reserve("request-send",invocation,request.size());byte[] bytes=request.bytes(); // reserve before the copied send buffer
-            var owned=lease;var target=peer;outboundCount.incrementAndGet();
+            acquired=true;invocation=UUID.randomUUID();lease=reserve("request-send",invocation,request.size());byte[] bytes=request.bytes(); // reserve before the copied send buffer
+            var owned=lease;var target=peer;var attemptId=invocation;outboundCount.incrementAndGet();
             try {
                 execute(()->{
                     Decoded reply=null;Throwable failure=null;var attempt=new Attempt();
-                    try{reply=send(target,request,bytes,responseKind,deadline,result::isCancelled,beforeWrite,attempt,invocation);}
+                    try{reply=send(target,request,bytes,responseKind,deadline,result::isCancelled,beforeWrite,attempt,attemptId);}
                     catch(Throwable error){failure=classify(error);}
                     finally{owned.close();target.outgoing.release();outboundCount.decrementAndGet();}
                     if(failure!=null && attempt.observed)observeFailure(true,request,failure,attempt.connection);
+                    else if(failure!=null)observeUnsent(request,attemptId,failure);
                     // Continuations may immediately submit another request; release first.
                     if(failure==null)result.complete(reply);else result.completeExceptionally(failure);
                 });
@@ -221,7 +225,8 @@ final class MembershipTransport implements AutoCloseable {
         }catch(Throwable error){
             if(lease!=null)lease.close();
             if(acquired)peer.outgoing.release();
-            result.completeExceptionally(classify(error));return result;
+            var failure=classify(error);if(lease!=null)observeUnsent(request,invocation,failure);
+            result.completeExceptionally(failure);return result;
         }
     }
     private Throwable classify(Throwable error) {
@@ -234,6 +239,11 @@ final class MembershipTransport implements AutoCloseable {
     private void observeFailure(boolean outbound,Decoded request,Throwable failure,Connection connection) {
         if(!(failure instanceof Failure classified))return;
         try{events.failed(outbound,request,classified.reason,connection);}
+        catch(Throwable observer){if(observer!=failure)failure.addSuppressed(observer);}
+    }
+    private void observeUnsent(Decoded request,UUID invocation,Throwable failure) {
+        if(!(failure instanceof Failure classified))return;
+        try{events.unsent(request,invocation,classified.reason);}
         catch(Throwable observer){if(observer!=failure)failure.addSuppressed(observer);}
     }
     private Decoded send(Peer peer,Decoded request,byte[] bytes,String kind,long deadline,BooleanSupplier cancelled,

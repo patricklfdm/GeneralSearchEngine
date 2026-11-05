@@ -1,5 +1,10 @@
 # Exact TCP frame reservation lifetimes
 
+The [unsent-attempt extension](PHASE_3_UNSENT_RESOURCES.md) additionally binds
+original outgoing buffers released before any connected write callback. New
+records retain their own request and invocation; historical gaps remain gaps.
+This does not qualify other service/cache/control lifetimes.
+
 Native accounting alone can reconstruct charged bytes without proving which
 concurrent identical request owns them. `MembershipTransport` now uses one fresh
 local invocation UUID for a socket attempt and its CONTROL frame leases:

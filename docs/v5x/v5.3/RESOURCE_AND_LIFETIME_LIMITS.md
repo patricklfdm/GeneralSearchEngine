@@ -1,5 +1,10 @@
 # V5.3 bounded resources and lifetime
 
+[Unsent transport attempts](PHASE_3_UNSENT_RESOURCES.md) retain exact frame
+ownership after queue/connect failure and require release by the corresponding
+terminal observation. This changes no allocation bound, retry count or deadline;
+unobserved and non-frame CONTROL owners remain separate qualifications.
+
 [Explicit owner close observations](PHASE_3_OWNER_CLOSE_RESOURCES.md) bind
 quiescent storage release to the real close call and its return. Historical
 collections without those markers remain unobserved; final zero usage alone

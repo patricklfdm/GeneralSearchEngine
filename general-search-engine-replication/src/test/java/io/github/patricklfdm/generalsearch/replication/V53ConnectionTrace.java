@@ -37,4 +37,12 @@ final class V53ConnectionTrace implements MembershipTransport.Events {
     @Override public void failed(boolean outbound,Decoded request,MembershipTransport.Reason reason,MembershipTransport.Connection connection) {
         var row=row("NETWORK_ATTEMPT_FAILED",request,connection);row.put("direction",outbound?"OUTBOUND":"INBOUND");row.put("reason",reason.name());events.add(row);
     }
+    static Map<String,Object> unsentRow(String node,String scope,Decoded request,UUID invocation,MembershipTransport.Reason reason) {
+        var row=new TreeMap<String,Object>();row.put("node",node);if(scope!=null)row.put("scope",scope);
+        row.put("event","NETWORK_UNSENT_FAILED");row.put("invocation",invocation.toString());row.put("reason",reason.name());
+        row.put("request",request.digest());row.put("kind",request.kind());row.put("bytes",Base64.getEncoder().encodeToString(request.bytes()));return row;
+    }
+    @Override public void unsent(Decoded request,UUID invocation,MembershipTransport.Reason reason) {
+        events.add(unsentRow(node,"connection-test",request,invocation,reason));
+    }
 }

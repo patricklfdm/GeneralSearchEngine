@@ -86,6 +86,12 @@ final class V53JoiningTrace {
             @Override public void failed(boolean outbound,Decoded request,MembershipTransport.Reason reason,MembershipTransport.Connection connection)throws java.io.IOException {
                 context(connection,enabled.getAsBoolean() && connections.getAsBoolean(),()->failed(outbound,request,reason));
             }
+            @Override public void unsent(Decoded request,UUID invocation,MembershipTransport.Reason reason)throws java.io.IOException {
+                // Allocation observation does not depend on whether this fixture
+                // has enabled its later connected request/response diagnostics.
+                if(Boolean.getBoolean("v53.transport.unsent"))events.add(V53ConnectionTrace.unsentRow(node,scope,request,invocation,reason));
+                delegate.unsent(request,invocation,reason);
+            }
         };
     }
     /** Preserve both callback methods when a fixture adds diagnostics. */
@@ -103,6 +109,9 @@ final class V53JoiningTrace {
             }
             @Override public void failed(boolean outbound,Decoded request,MembershipTransport.Reason reason,MembershipTransport.Connection connection)throws java.io.IOException {
                 collected.failed(outbound,request,reason,connection);observer.failed(outbound,request,reason,connection);
+            }
+            @Override public void unsent(Decoded request,UUID invocation,MembershipTransport.Reason reason)throws java.io.IOException {
+                collected.unsent(request,invocation,reason);observer.unsent(request,invocation,reason);
             }
         };
     }
