@@ -6,7 +6,9 @@ change. The producer now records every voting/application/publication phase and
 both campaigns. Independent original-file replay and sixteen exact negatives pass
 for the short shared-path smoke; the fixed operation-231 full-boundary replay,
 combined resource qualification and final-source cohort remain OPEN. This adds
-no hosted subset and does not promote the smoke to capacity qualification.
+no hosted subset and does not promote the smoke to capacity qualification. A separate
+recorded-source execution/admission entry now binds the complete original,
+compiled classes, tools and reader; full-boundary execution remains pending.
 
 [Native carried DATA recovery](PHASE_3_NATIVE_CARRIED_RECOVERY.md) now covers
 cold local reacceptance, empty completion headroom and exact-vote maintenance

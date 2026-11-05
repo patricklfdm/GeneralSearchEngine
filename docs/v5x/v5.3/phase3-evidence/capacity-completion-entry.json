@@ -1,0 +1,92 @@
+{
+  "actualProfile": "replay-smoke-1",
+  "base": "a31ef3bb6c04887f774a6bbeffd02b13e60b2629",
+  "capacityBoundaryQualified": false,
+  "classes": {
+    "path": "target/v53-capacity-entry/smoke-final/build.json",
+    "sha256": "2cebdc0f1eff26cfea0f2bd322ffe7b716f79461b76a912dddfadd496d9d2ee8"
+  },
+  "collection": {
+    "path": "target/v53-capacity-entry/smoke-final/collection.json",
+    "sha256": "e49eed2574e7cacfff1303c6e3add8f554090319e6efc88a09acca51504a7a22"
+  },
+  "collectionExecution": {
+    "elapsedSeconds": 0.615,
+    "exit": 0
+  },
+  "combinedResourcesQualified": false,
+  "earlierPipelineCheck": {
+    "portableQualification": {
+      "path": "target/v53-capacity-entry/portable-verified/receipt.json",
+      "sha256": "dbeb4b266b6edd13c84418d6aa65fdcc422853a06fe2acf3121ea30558f79192"
+    },
+    "producer": {
+      "path": "target/v53-capacity-entry/smoke/receipt.json",
+      "sha256": "05be75f9cdec96579668fda023436cb49b6a1947d1f6910963b129ff5f3cb30c"
+    },
+    "qualification": {
+      "path": "target/v53-capacity-entry/verified/receipt.json",
+      "sha256": "dbeb4b266b6edd13c84418d6aa65fdcc422853a06fe2acf3121ea30558f79192"
+    }
+  },
+  "execution": {
+    "elapsedSeconds": 101.161,
+    "exit": 0
+  },
+  "junit": {
+    "path": "target/v53-capacity-entry/smoke-final/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53CapacityCompletionReplayTest.xml",
+    "seconds": 86.381,
+    "sha256": "df0b5cd37661ba322a4761f9e11688295a6423325a9e19ecc33004ca1cb7495d",
+    "tests": 1
+  },
+  "limitations": [
+    "Operation-231 complete entry has not run on final source.",
+    "Conditional prefix/learner authority remains conditional.",
+    "Local development source snapshot; hosted seed/workflow/run/attempt attestation remains pending.",
+    "No full combined resource maximum or Phase 3 closure claim."
+  ],
+  "nativeCohortChanged": false,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "pins": {
+    "path": "target/v53-capacity-entry/smoke-final/pins.json",
+    "sha256": "289889ab28092bd9e5cbdcd080a90ce0d77b921da95e00b3006d3846d842667d"
+  },
+  "portableQualification": {
+    "path": "target/v53-capacity-entry/final-portable/receipt.json",
+    "sha256": "183e7cbe7d629d51291fb22561ce8ecd306713dbfdc6bdd5a5cbbeebaf268da8"
+  },
+  "producer": {
+    "path": "target/v53-capacity-entry/smoke-final/receipt.json",
+    "sha256": "2cf91ab2e01bc08d0fc5b73963f4b94bb80afe7658146f7ab6403a363b9b0ad4"
+  },
+  "pushed": false,
+  "python": {
+    "log": {
+      "path": "target/v53-capacity-entry/final-python.log",
+      "sha256": "fc374526ade22ccd23c75b194b47c7911094f02fe6b70fc0bc3cbe2951853032"
+    },
+    "tests": 77
+  },
+  "qualification": {
+    "path": "target/v53-capacity-entry/final-verified/receipt.json",
+    "sha256": "183e7cbe7d629d51291fb22561ce8ecd306713dbfdc6bdd5a5cbbeebaf268da8"
+  },
+  "raw": "target/v53-capacity-entry/smoke-final/workspace/general-search-engine-replication/target/v53-capacity-completion/run-b23d8ac4-5e22-4617-9d01-41c7e55290d6-smoke",
+  "reader": {
+    "path": "target/v53-capacity-entry/smoke-final/reader.json",
+    "sha256": "aad4153fbf54f89750c0a5b764ef3ef094ae603199a47cdb4a4e8641f097ba39"
+  },
+  "schema": "gse-v53-capacity-completion-entry-development-v1",
+  "source": {
+    "path": "target/v53-capacity-entry/smoke-final/source.json",
+    "sha256": "b070395999a217affc505ea2db7eeefdf0775fafe40a69237e6598a8d0369585"
+  },
+  "sourceScope": "Recorded development snapshot on the stated base; later documentation receipt updates are not part of that execution. Reader and implementation bytes are unchanged.",
+  "status": "PARTIAL",
+  "toolchain": {
+    "path": "target/v53-capacity-entry/smoke-final/toolchain.json",
+    "sha256": "b607d0dbeeeb732d95c3f23643cc4601b711cc462f7419ac092159fc2c2e5093"
+  },
+  "workflowDispatched": false
+}

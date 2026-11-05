@@ -129,6 +129,57 @@ continuous history: do not split their individual slots, campaigns or refusals
 into separately scheduled experiments. Their starting prefix and learner
 receipt are still conditional.
 
+## Recorded-source execution and admission
+
+The [capacity entry](../../../scripts/v53/capacity_completion_run.py) now runs
+either explicit profile in a fresh immutable source copy. It records complete
+source hashes, original class inventories, actual Maven/Java tool binaries,
+the owning Python reader set, exactly one unretried JUnit method and both
+execution/collection process receipts. A failed attempt stays in its own output
+directory; collection alone always returns PARTIAL and grants no capacity or
+continuation qualification. It prints the current stage, process and latest log
+line every minute while a subprocess is running. Collector output uses exclusive
+creation and cannot be written into the raw history; verifier output must be
+outside the producer. Existing evidence is not overwritten.
+
+Verification checks the caller's source/build/toolchain/reader pins, every
+recorded source and class, exact raw directory, complete collection and original
+test result. It then replays the unmodified history, all sixteen exact negatives
+and an unchanged relocated copy, and checks the producer again. Extra histories,
+changed bytes, skipped/flaky/retried tests, missing negatives and profile
+substitution are rejected. The complete history stays indivisible.
+
+The 4 GiB collection bound covers repeated evidence snapshots, not a runtime
+allowance. All protocol/resource limits remain frozen. This conditional entry
+is supplemental to the twelve native network/process subsets; it does not
+change their 552 histories or 486 archives and cannot close native historical
+authority, combined physical maxima or Phase 3 by itself. The full operation-231
+entry is implemented but has not yet been executed and admitted on final source.
+
+Use new directories for each attempt. The generated `pins.json` can be used for
+local verification; final hosted qualification must reconcile these identities
+with the independently retained source/build seed, not just trust the producer's
+own file. No workflow is dispatched by these commands:
+
+```bash
+python3.11 -B -m scripts.v53.capacity_completion_run capture \
+  target/v53-capacity-final/attempt-1 --profile capacity-231
+python3.11 -B -m scripts.v53.capacity_completion_run verify \
+  target/v53-capacity-final/replay-1 --profile capacity-231 \
+  --producer target/v53-capacity-final/attempt-1 \
+  --pins target/v53-capacity-final/attempt-1/pins.json
+```
+
+`--maven`, when supplied, names Maven's `bin/mvn` executable rather than a wrapper.
+The same entry with `--profile replay-smoke-1` is a short pipeline check;
+its successful replay explicitly leaves `capacityBoundaryQualified=false`.
+The [entry development receipt](phase3-evidence/capacity-completion-entry.json)
+separates that check from the pending full boundary and hosted attestation.
+The final development entry passed one original short execution, exact admission,
+all sixteen physical negatives and unchanged replay after relocating the entire
+producer. Seventy-seven focused Python checks passed. This recorded development
+source snapshot is not a final-commit or hosted execution attestation.
+
 The test deliberately verifies a large immutable prefix on every owner reopen;
 its duration is not a failover or throughput measurement. Longer final-source
 qualification remains eligible for the planned hosted parallel acceptance.
