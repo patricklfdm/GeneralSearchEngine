@@ -266,7 +266,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         void maintain(boolean beforeGrant)throws IOException {maintain(beforeGrant,()->{});}
         void maintain(boolean beforeGrant,MembershipSourcePull.Guard pulse)throws IOException {
             MembershipSourcePull.Guard guarded=()->{pulse.check();check();};
-            guarded.check();if(!(beforeGrant?owner.publishedMaintenanceRequired():owner.nativeGenerationMaintenanceRequired()))return;
+            guarded.check();if(!(beforeGrant?owner.preGrantMaintenanceRequired():owner.nativeGenerationMaintenanceRequired()))return;
             var work=beforeGrant?MembershipGenerationMaintenance.beforeGrant(owner,resources,bounds,this::exchange,guarded,scratch,clock,started,limit):
                     new MembershipGenerationMaintenance(owner,resources,bounds,this::exchange,guarded,scratch,clock,started,limit);
             synchronized(this){if(ended || closed){work.close();throw new IOException("native maintenance scope ended");}

@@ -4,17 +4,20 @@ import tempfile
 import unittest
 from unittest.mock import patch
 from . import node_current_evidence as m
+from .test_source_packet import fixture, frame
 
 
 class NodeCurrentEvidenceTest(unittest.TestCase):
     def sample(self, kind):
         schema=m.f.catalog();return m.f.sample(schema['records'][kind]['schema'],schema['types'])
 
-    def vote(self, *, changed=None, proof=False):
+    def vote(self, *, changed=None, proof=False, kind=None, carried=False):
         selected=self.sample('SELECTED');selected['nextEntry']=None
         cap=dict(root=selected['root'],cut=selected['cut'])
         entry=self.sample('ENTRY');entry.update(root=selected['root'],authority=selected['view'],
             index=selected['cut']['index']+1,payload=m.e.digest(b'payload'))
+        if kind is not None:entry['kind']=kind
+        if carried:selected['nextEntry']=m.e.digest(m.f.encode('records','ENTRY',entry))
         accept=dict(root=selected['root'],authority=selected['view'],ballot=selected['ballot'],
             index=entry['index'],entry=m.e.digest(m.f.encode('records','ENTRY',entry)))
         if changed:accept.update(changed)
@@ -41,10 +44,71 @@ class NodeCurrentEvidenceTest(unittest.TestCase):
             self.assertEqual(files[name],result[name])
         self.assertEqual(b'observed',result[m.n.s.FILE])
 
+    def carried_source(self):
+        capsule,index,objects=fixture();cap=m.f.decode(capsule,'records','CAPSULE')
+        ballot=self.sample('PROMISE')['ballot'];ballot['counter']=2
+        view=m.e.authority(cap['root'],cap['cut']['view'])
+        entry=dict(root=cap['root'],authority=view,index=1,previous=cap['cut']['entry'],
+                   origin=ballot,kind='BARRIER',payload=m.e.digest(b''))
+        entry=m.f.encode('records','ENTRY',entry)
+        accept=m.f.encode('records','ACCEPT',dict(root=cap['root'],authority=view,ballot=ballot,index=1,entry=m.e.digest(entry)))
+        objects.update({m.e.digest(entry):entry,m.e.digest(accept):accept})
+        index['objects']=[dict(sha256=h,bytes=len(raw)) for h,raw in sorted(objects.items())]
+        cap['inventory']=m.e.digest(m.f.canonical(index));capsule=m.f.encode('records','CAPSULE',cap)
+        basis=dict(self.sample('BASIS'),root=cap['root'],view=view,ballot=ballot,cut=cap['cut'],
+                   capsule=m.e.digest(capsule),inventory=cap['inventory'],accepted=m.e.digest(accept))
+        raw=m.f.encode('records','BASIS',basis);packet=m.e.p.decode(frame(capsule,m.f.canonical(index),objects))
+        before={'grants.gsr':b'journal-owned-by-enclosing-reader',
+                'sources/'+basis['basisId']+'/source.gscp':frame(capsule,m.f.canonical(index),objects)}
+        return before,[('BASIS',raw,basis)],packet,{'ENTRY':entry}
+
+    def test_above_floor_retired_source_needs_exact_original_bytes_and_successor(self):
+        before,rows,packet,frames=self.carried_source()
+        with patch.object(m.c,'journal',return_value=rows):
+            m.retained_carried_sources(before,{},'node-1',frames,packet)
+            for key in (rows[0][2]['accepted'],m.e.digest(frames['ENTRY']),m.e.digest(b'')):
+                changed=deepcopy(packet);changed['objects'][key]=b'changed'
+                with self.subTest(key=key),self.assertRaisesRegex(ValueError,'retained carried source tail'):
+                    m.retained_carried_sources(before,{},'node-1',frames,changed)
+            with self.assertRaisesRegex(ValueError,'retained carried source tail'):
+                m.retained_carried_sources(before,{},'node-1',{'ENTRY':b'other entry'},packet)
+
+    def test_retained_source_is_not_claimed_as_deleted(self):
+        before,rows,packet,frames=self.carried_source();packet['objects'].clear()
+        with patch.object(m.c,'journal',return_value=rows):
+            m.retained_carried_sources(before,before,'node-1',frames,packet)
+
+    def test_transferred_carried_vote_keeps_bytes_and_checks_source_succession(self):
+        files,members,packet=self.vote();frames,_=m.c.pending(files['pending.accept'],())
+        selected=m.f.decode(members['selected.gsr'],'records','SELECTED');selected['nextEntry']=m.e.digest(frames['ENTRY'])
+        members['selected.gsr']=m.f.encode('records','SELECTED',selected)
+        files['pending.accept']=m.e.container([frames['SELECTOR'],frames['PROMISE'],members['selected.gsr'],
+                                              frames['ENTRY'],frames['ACCEPT']],frames['PAYLOAD'])
+        before=deepcopy(files);projected={'pending.accept':m.c.EMPTY,'grants.gsr':b'pruned',m.n.s.FILE:b'observed'}
+        with patch.object(m.c,'current',return_value=('generations/a/',members,packet)), \
+                patch.object(m.current,'maintenance',return_value={'node-1':projected}), \
+                patch.object(m,'retained_carried_sources') as tail:
+            result=m.maintenance({'node-1':files},('node-1',),after_accept=True)['node-1']
+        self.assertEqual(before,files);self.assertEqual(files['pending.accept'],result['pending.accept'])
+        self.assertEqual(b'pruned',result['grants.gsr']);self.assertNotIn('sources/old',result)
+        tail.assert_called_once();self.assertEqual('node-1',tail.call_args.args[2])
+
     def test_old_pending_vote_does_not_authorize_maintenance(self):
         files,_,_=self.vote(proof=True);group={'node-1':files}
         with patch.object(m.current,'maintenance') as project:
             self.assertEqual(group,m.maintenance(group,('node-1',)));project.assert_not_called()
+
+    def test_context_commands_keep_the_original_source_lifetime(self):
+        for kind in ('INTENT','FINAL'):
+            files,members,packet=self.vote(kind=kind,carried=True)
+            projected={'pending.accept':m.c.EMPTY,'grants.gsr':b'pruned',m.n.s.FILE:b'observed'}
+            with patch.object(m.c,'current',return_value=('generations/a/',members,packet)), \
+                    patch.object(m.current,'maintenance',return_value={'node-1':projected}), \
+                    patch.object(m,'retained_carried_sources') as tail:
+                result=m.maintenance({'node-1':files},('node-1',),after_accept=True)['node-1']
+            tail.assert_not_called()
+            for name in ('pending.accept','grants.gsr','sources/old/source.gscp'):
+                self.assertEqual(files[name],result[name])
 
     def test_proof_cannot_be_erased_to_claim_new_accept(self):
         files,members,packet=self.vote(proof=True)

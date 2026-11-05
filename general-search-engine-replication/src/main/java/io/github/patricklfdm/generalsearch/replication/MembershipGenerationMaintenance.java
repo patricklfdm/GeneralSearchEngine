@@ -48,7 +48,7 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
         this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);this.link=Objects.requireNonNull(link);
         this.guard=Objects.requireNonNull(guard);this.scratch=Objects.requireNonNull(scratch);this.clock=Objects.requireNonNull(clock);
         this.started=started;this.budget=budget;original=beforeGrant?null:owner.voting(resources);
-        published=beforeGrant?owner.publishedMaintenance(resources):null;
+        published=beforeGrant?owner.preGrantMaintenance(resources):null;
         context=beforeGrant?published.context:original.before.context;ballot=beforeGrant?published.ballot:original.ballot;check();
     }
     private void check()throws IOException {
@@ -89,7 +89,7 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
     }
     void run()throws IOException {
         synchronized(this){require(!used && !closed,"native maintenance single use/closed");used=true;}
-        check();if(!(published==null?owner.nativeGenerationMaintenanceRequired():owner.publishedMaintenanceRequired()))return;
+        check();if(!(published==null?owner.nativeGenerationMaintenanceRequired():owner.preGrantMaintenanceRequired()))return;
         var own=owner.floorCopyCurrent();var pending=owner.pendingFloorProposal();
         var required=new TreeMap<String,Map<String,Object>>();
         if(pending.isPresent())for(Object value:MembershipFormat.list(pending.get().value().get("sources"))) {
@@ -205,11 +205,12 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
         owner.retireInactive();check();
         // Selected-prefix installation may have advanced a lagging proposer
         // after source-only maintenance was deferred. This newly forced floor
-        // now covers the old sources. Reuse the normal published permit only
-        // when no pending vote/application owns them; never release their image
-        // charges merely because selection succeeded.
+        // now covers the old sources. An exact transferred carried vote may
+        // retain their unresolved tail under the same pinned permission used
+        // before a grant. Staged applications and untransferred votes still
+        // forbid this path; every source needs its own retirement decision.
         var sourcePermit=published!=null?published:
-                owner.publishedMaintenanceRequired()?owner.publishedMaintenance(resources):null;
+                owner.preGrantMaintenanceRequired()?owner.preGrantMaintenance(resources):null;
         if(sourcePermit!=null)for(String source:owner.supersededPublishedSources(sourcePermit)) {
             // The old physical source stays owned until its original retirement
             // decision and journal replacement are forced. A new campaign must

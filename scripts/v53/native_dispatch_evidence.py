@@ -134,7 +134,7 @@ def slots(root, group, selection, *, carried=None, kinds=('BARRIER', 'DATA'), co
         group = maintenance(group, confirmed_retention=confirmed_retention); states.append(copy.deepcopy(group))
         maintenance_writes = {node: s.r.decode(group[node][s.FILE])['revision'] - s.r.decode(before[node][s.FILE])['revision'] for node in VOTERS}
         retirement_events = {node: [] for node in VOTERS}
-        if confirmed_retention and carried is not None and index == 2:
+        if confirmed_retention and carried is not None and index == 1:
             from .native_source_retirement_evidence import retire_predecessor
             group, retirement_events = retire_predecessor(group, VOTERS)
             states[-1] = copy.deepcopy(group)

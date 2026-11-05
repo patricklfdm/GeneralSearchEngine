@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Native carried DATA recovery](PHASE_3_NATIVE_CARRIED_RECOVERY.md) now covers
+cold local reacceptance, empty completion headroom and exact-vote maintenance
+before a fresh grant. Whole-group halt/SIGKILL regressions reopen original directories;
+independent process-history replay and Phase 3 closure remain OPEN.
+
 [Exact candidate witnesses](PHASE_3_COVERAGE_WITNESSES.md) now bind twelve
 Phase 3 requirements to nineteen specific archive/reader/rejection selectors.
 The complete 544-history source catalogue preserves 478 archives and 238

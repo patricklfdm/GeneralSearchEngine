@@ -72,6 +72,7 @@ final class MembershipNodeOwner<K,T> implements AutoCloseable {
                     config.root(),config.localIdentity(),resources,MembershipGrantJournal.MAXIMUM,hooks.storage());opening();
             var context=journal.activationContext();
             for(var seed:config.seedPeers())require(seed.equals(context.identities.get(seed.nodeId().value())),"node seed differs from original identity");
+            journal.recoverCarriedAcceptance(application,config.materialization());opening();
             endpoint=new MembershipActivationEndpoint(journal,resources,config.bounds(),(peer,request,kind,deadline)->{
                 var current=transport;
                 if(state!=State.OPEN || current==null)return CompletableFuture.failedFuture(new IOException("node transport not serving"));

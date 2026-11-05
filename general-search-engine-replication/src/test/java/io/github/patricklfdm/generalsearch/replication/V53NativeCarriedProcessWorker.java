@@ -1,0 +1,87 @@
+package io.github.patricklfdm.generalsearch.replication;
+
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
+import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*;
+import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
+
+/** A whole native group on its original disks; only node 1 campaigns. No client retry. */
+public final class V53NativeCarriedProcessWorker {
+    static final Set<String> CUTS=Set.of("NATIVE_RETIREMENT_CERTIFICATE_RETAINED","ACCEPT_RENAMED",
+            "PROOF_RENAMED","APPLY_ACK_DIRECTORY_FORCED");
+    public static void main(String[] args)throws Exception {
+        Path spec=Path.of(args[0]);int life=Integer.parseInt(args[1]);String point=args[2],mode=args[3];
+        if((life!=1 && life!=2) || !CUTS.contains(point) || !Set.of("halt","kill").contains(mode))
+            throw new IllegalArgumentException("native carried process case");
+        var input=object(parse(Files.readAllBytes(spec),65536));
+        var paths=list(input.get("nodes")).stream().map(MembershipFormat::object).toList();
+        if(paths.size()!=3)throw new IllegalArgumentException("native carried process fixed topology");
+        var identities=new ArrayList<MembershipIdentity>();
+        for(var path:paths)identities.add(MembershipContext.identity(object(decode(Files.readAllBytes(
+                Path.of((String)path.get("replica")).resolve("node.gsr")),"records","NODE").value().get("identity"))));
+        var root=decode(Files.readAllBytes(Path.of((String)paths.getFirst().get("replica")).resolve("root.gsr")),"records","ROOT");
+        var history=new MembershipRoot(new ReplicationGroupId(UUID.fromString((String)root.value().get("groupId"))),
+                UUID.fromString((String)root.value().get("historyId")),root.rootDigest());
+        var sink=new V53NodeProcessWorker.Pipe();var owners=new ArrayList<MembershipNodeOwner<Integer,Doc>>();
+        var activeSlot=new AtomicLong();var installations=new AtomicLong();var cut=new AtomicBoolean();
+        var bounds=ReplicationBounds.defaults();long started=System.nanoTime();
+        sink.accept("started",Map.of("pid",ProcessHandle.current().pid(),"life",life,"mode",mode,"cut",point));
+        Throwable primary=null;
+        try {
+            for(int index=0;index<3;index++) {
+                var identity=identities.get(index);String name=identity.nodeId().value();var path=paths.get(index);
+                Path replica=Path.of((String)path.get("replica")),application=Path.of((String)path.get("application"));
+                var config=new MembershipReplicaConfig<>(history,identity,identities.stream().filter(v->!v.equals(identity)).toList(),
+                        replica,storage(application,2),bounds,AutomaticLeadershipPolicy.forBounds(bounds));
+                var original=V53NodeProcessWorker.hooks(name,life,(action,value)->{
+                    if(action.equals("snapshot"))sink.accept(action,"life-"+life+"-"+value);
+                    else if(!action.equals("installed"))sink.accept(action,value);
+                });
+                var hooks=new MembershipNodeOwner.Hooks(event->{
+                    original.storage().at(event);
+                    if(life==1 && name.equals("node-1") && activeSlot.get()==1 && event.equals(point) && cut.compareAndSet(false,true))
+                        V53NodeProcessWorker.crash(sink,point,mode);
+                },original.network(),(event,record)->{
+                    if(name.equals("node-1") && event.equals("SLOT_BEGIN"))activeSlot.set(number(record.value().get("index")));
+                    original.round().at(event,record);
+                    if(name.equals("node-1") && event.equals("INSTALLED"))sink.accept("installed",Map.of("life",life,
+                            "number",installations.incrementAndGet(),"bytes",Base64.getEncoder().encodeToString(record.bytes())));
+                },original.slot());
+                Path scratch=Path.of((String)path.get("scratch"));
+                var owner=new MembershipNodeOwner<>(config,builder().configuration(),scratch.resolve("incoming"),scratch.resolve("outgoing"),
+                        System::nanoTime,V53NodeOwnerNetworkTest.BUDGET,hooks);
+                owners.add(owner);owner.open();
+                if(owner.serviceState().orElseThrow()!=MembershipAutomaticOwner.State.NEW)throw new AssertionError("restored READY");
+                try{owner.readiness();throw new AssertionError("readiness before fresh barrier");}catch(IllegalArgumentException expected){}
+                var counts=new TreeMap<String,Object>();owner.usage().counts().forEach((unit,count)->counts.put(unit.name(),count));
+                sink.accept("event",Map.of("node",name,"incarnation",life,"event","NODE_OPEN","counts",counts));
+            }
+            sink.accept("opened",life);
+            var ready=owners.getFirst().start().await(180,TimeUnit.SECONDS);
+            if(life==1)throw new AssertionError("declared carried boundary not reached");
+            sink.accept("snapshot","life-2-ready");
+            sink.accept("ready",Base64.getEncoder().encodeToString(ready.bytes()));
+        }catch(Exception|Error error){
+            primary=error;
+            try {
+                sink.accept("snapshot","life-"+life+"-failed");
+                for(int i=0;i<owners.size();i++) {
+                    var owner=owners.get(i);var counts=new TreeMap<String,Object>();owner.usage().counts().forEach((unit,count)->counts.put(unit.name(),count));
+                    sink.accept("event",Map.of("node","node-"+(i+1),"incarnation",life,"event","NODE_FAILED",
+                            "counts",counts,"failure",error.toString()));
+                }
+            }catch(Exception diagnostic){error.addSuppressed(diagnostic);}
+            throw error;
+        }
+        finally {
+            IOException closing=null;
+            for(var owner:owners.reversed())try{owner.close();if(owner.usage().leases()!=0)throw new IOException("native carried resource leak");}
+            catch(IOException error){if(closing==null)closing=error;else closing.addSuppressed(error);}
+            if(primary!=null && closing!=null)primary.addSuppressed(closing);else if(closing!=null)throw closing;
+        }
+        sink.accept("closed",Map.of("life",life,"elapsedNanos",System.nanoTime()-started,"clientCalls",0));
+    }
+}

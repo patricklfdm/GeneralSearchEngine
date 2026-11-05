@@ -424,9 +424,13 @@ final class MembershipGrantJournal implements AutoCloseable {
                         && journal.pendingAccept.active().certificate()!=null,"application files without original local certificate");
                 if(journal.coveredVote(journal.pendingAccept.active()))require(!journal.replayFiles.present(),"published generation cannot retain replay scratch");
                 else if(journal.pendingAccept.active()!=null || journal.pendingAccept.pending()) {
-                    // A durable floor/retirement may own the three empty application slots.
-                    // Resume maintenance before admitting another vote or application.
-                    if(journal.floors.exists() && !journal.appliedEnd.present() && !journal.replayFiles.present()) {
+                    // A durable floor or newer grant owns recovery before the
+                    // old vote can apply. Reserve only the publication slot;
+                    // another admitted acceptance must reserve completion again.
+                    boolean superseded=!journal.pendingAccept.pending() && journal.pendingAccept.active()!=null && journal.promise!=null
+                            && compareBallot(object(journal.promise.value().get("ballot")),
+                                    object(journal.pendingAccept.active().accept().value().get("ballot")))>0;
+                    if(superseded || journal.floors.exists() && !journal.appliedEnd.present() && !journal.replayFiles.present()) {
                         journal.reservePublicationImage();
                     }else journal.reserveApplicationCompletion();
                 }
@@ -1866,6 +1870,22 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(resources==budget,"native voting resource owner");return new Voting();
     }
 
+    /** A cold native owner must transfer an old carried vote before allocating
+     * another ballot. The installed selection already fixes the only entry and
+     * payload it may accept. Complete that local acceptance through the ordinary
+     * typed path; this creates no proof, application ACK, publication or READY. */
+    synchronized <K,T> void recoverCarriedAcceptance(io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
+            io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage)throws IOException {
+        require(ownedHistory,"native carried recovery requires original history owner");checkOwner();
+        if(!carriedVoteUntransferred())return;
+        require(selection!=null && promise!=null && selection.digest().equals(current.manifest.value().get("selection"))
+                && promise.digest().equals(current.manifest.value().get("promise"))
+                && selection.value().get("cut").equals(current.capsule.context.cut)
+                && selection.value().get("nextEntry")!=null,"native carried recovery requires installed original selection");
+        var entry=decode(current.capsule.packet.objectBytes((String)selection.value().get("nextEntry")),"records","ENTRY");
+        acceptCurrent(entry,current.capsule.packet.objectBytes((String)entry.value().get("payload")),configuration,storage);
+    }
+
     /** Native typed reacceptance may retire only this owner's old derived work,
      * after matching the exact entry and payload in the installed selection.
      * The durable old vote survives until acceptCurrent forces its replacement. */
@@ -2638,15 +2658,37 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(floors.pending())floors.pendingProposal(floorCopyCurrent());
         return inactive.exists() || floors.exists();
     }
-    /** A completed publication can require retirement before another grant adds
-     * a source or installs a generation. Pending votes/applications retain their
-     * existing carried-entry path; they cannot borrow this permission. */
+    /** Ordinary published maintenance cannot borrow a pending vote's authority. */
     synchronized boolean publishedMaintenanceRequired()throws IOException {
+        return preGrantMaintenanceRequired(false);
+    }
+    /** Before a fresh grant, the exact transferred carried vote can also retain
+     * the old unresolved entry while governing copies retire its generation. */
+    synchronized boolean preGrantMaintenanceRequired()throws IOException {
+        return preGrantMaintenanceRequired(true);
+    }
+    private boolean preGrantMaintenanceRequired(boolean carried)throws IOException {
         boolean generations=nativeGenerationMaintenanceRequired();
         if(!generations && !sameCutSourceMaintenanceRequired())return false;
-        return (pendingAccept==null || !pendingAccept.pending() && pendingAccept.active()==null)
+        return (pendingAccept==null || !pendingAccept.pending() && (pendingAccept.active()==null || carried && transferredCarriedVote()))
                 && (pendingContext==null || !pendingContext.pending() && pendingContext.active().isEmpty())
                 && (appliedEnd==null || !appliedEnd.present() && !replayFiles.present());
+    }
+    private boolean transferredCarriedVote() {
+        var vote=pendingAccept==null?null:pendingAccept.active();
+        // A later forced grant may already exist after an interrupted startup.
+        // It fences new voting, but does not erase this installed vote's exact
+        // retirement succession. The permit separately pins the latest grant.
+        return vote!=null && !pendingAccept.pending()
+                // Context-changing commands retain their existing context and
+                // published-maintenance lifetimes. This permission is only for
+                // ordinary carried application/no-op recovery.
+                && Set.of("DATA","BARRIER").contains(vote.entry().value().get("kind"))
+                && vote.selected().digest().equals(current.manifest.value().get("selection"))
+                && vote.promise().digest().equals(current.manifest.value().get("promise"))
+                && vote.selected().value().get("cut").equals(current.capsule.context.cut)
+                && vote.entry().digest().equals(vote.selected().value().get("nextEntry"))
+                && Arrays.equals(vote.selector().bytes(),current.selector.bytes());
     }
     /** A fresh grant can supersede an intermediate same-cut source before it
      * installs another generation. This is only a scheduling hint: deletion
@@ -2667,6 +2709,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         private final MembershipGrantJournal owningJournal=MembershipGrantJournal.this;
         private final MembershipCurrentGeneration generation=current;
         private final String originalPromise=promise==null?null:promise.digest(),originalSelection=selection==null?null:selection.digest();
+        private final String originalVote=pendingAccept==null || pendingAccept.active()==null?null:hash(pendingAccept.active().bytes());
         final MembershipContext context=current.capsule.context;
         final Map<String,Object> ballot=Map.copyOf(observed.get());
         private PublishedMaintenance() { }
@@ -2676,14 +2719,23 @@ final class MembershipGrantJournal implements AutoCloseable {
                 require(current==generation && Objects.equals(originalPromise,promise==null?null:promise.digest())
                         && Objects.equals(originalSelection,selection==null?null:selection.digest()),
                         "published maintenance authority changed");
-                require(pendingAccept==null || !pendingAccept.pending() && pendingAccept.active()==null,
+                if(originalVote==null)require(pendingAccept==null || !pendingAccept.pending() && pendingAccept.active()==null,
                         "published maintenance cannot retire pending vote");
+                else {
+                    require(transferredCarriedVote() && originalVote.equals(hash(pendingAccept.active().bytes())),
+                            "carried maintenance vote changed");
+                    verifyVote(pendingAccept.active());
+                }
                 fence(ballot);
             }
         }
     }
     synchronized PublishedMaintenance publishedMaintenance(MembershipResources budget)throws IOException {
         require(resources==budget && publishedMaintenanceRequired(),"published maintenance requires clean owned generation");
+        return preGrantMaintenance(budget);
+    }
+    synchronized PublishedMaintenance preGrantMaintenance(MembershipResources budget)throws IOException {
+        require(resources==budget && preGrantMaintenanceRequired(),"pre-grant maintenance requires owned generation and exact vote");
         // Read-only maintenance may acquire the missing joining copy before a
         // new grant. The ledger changes only after that governing floor forces.
         rotationIdle();applicationReferencesIdle();
@@ -3903,6 +3955,15 @@ final class MembershipGrantJournal implements AutoCloseable {
         }else if(promise!=null && promise.value().get("ballot").equals(next)) {
             require(promise.value().get("view").equals(context.authority()),"duplicate grant changed configuration");
             require(basis!=null,"incomplete original basis; fresh ballot required");fence(next);return basis;
+        }
+        // A strictly newer grant fences completion of the previous vote. Its
+        // empty replay/end reservations must not crowd out the actual source
+        // image capturing that vote. Existing staged bytes remain pinned, and
+        // the next ACCEPT/application path must reserve completion again.
+        if(appliedEnd!=null && pendingAccept.active()!=null
+                && compareBallot(next,object(pendingAccept.active().accept().value().get("ballot")))>0) {
+            if(!replayFiles.present())replayFiles.releaseCompletion();
+            if(!appliedEnd.present())appliedEnd.releaseEmptyCompletion();
         }
         // Reserve both maximum frames before PROMISE; never strand its BASIS on our own byte limit.
         ensureJournalCapacity(RESERVATION,"grant journal rotation required");

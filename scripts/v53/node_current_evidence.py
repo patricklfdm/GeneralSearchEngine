@@ -25,7 +25,7 @@ def maintenance(group, voters, *, after_accept=False):
     Validate the new ACCEPT independently before projecting those same fields,
     then restore its exact bytes. A pending PROOF is never silently erased.
     """
-    copies = copy.deepcopy(group); eligible = []; pending = {}
+    copies = copy.deepcopy(group); eligible = []; pending = {}; transferred = {}
     for node in voters:
         files = group[node]; vote = files['pending.accept']
         if vote != c.EMPTY:
@@ -41,6 +41,9 @@ def maintenance(group, voters, *, after_accept=False):
                  entry=e.digest(frames['ENTRY'])) and entry['index'] == accepted['index']
                  and entry['payload'] == e.digest(frames['PAYLOAD']), 'current node exact reaccepted vote')
             pending[node] = vote; copies[node]['pending.accept'] = c.EMPTY
+            if (selected['nextEntry'] == e.digest(frames['ENTRY']) and entry['kind'] in ('DATA','BARRIER')
+                    and 'pending.context' not in files):
+                transferred[node] = (frames, packet)
         eligible.append(node)
     # Floor copies still use the entire governing cohort, including unchanged
     # copies whose pending vote prevents their own maintenance.
@@ -51,11 +54,34 @@ def maintenance(group, voters, *, after_accept=False):
         projected = projected_group[node]
         result[node] = projected
         if node in pending:
-            # Current maintenance cannot acquire a published source-retirement
-            # permit while this vote owns the originals, even after reaccept.
-            projected.update({k:v for k,v in group[node].items() if k == 'grants.gsr' or k.startswith('sources/')})
+            if node in transferred:
+                frames, packet = transferred[node]
+                retained_carried_sources(group[node], projected, node, frames, packet)
+            else:
+                # A newly proposed entry (or retained context) cannot borrow the
+                # exact installed carried vote's maintenance permission.
+                projected.update({k:v for k,v in group[node].items() if k == 'grants.gsr' or k.startswith('sources/')})
             projected['pending.accept'] = pending[node]
     return result
+
+
+def retained_carried_sources(before, after, node, frames, packet):
+    """Every removed tail above the floor stays in the installed original packet
+    and under this exact successor ACCEPT. Ancestry/floor coverage is already
+    established by the enclosing maintenance projection.
+    """
+    rows=c.journal(before['grants.gsr'],packet['capsule']['root'],node)
+    bases={value['basisId']:(raw,value) for kind,raw,value in rows if kind=='BASIS'}
+    for name, raw in before.items():
+        if not name.startswith('sources/') or not name.endswith('/source.gscp') or name in after:continue
+        basis,value=bases[name.split('/')[1]]; original=e.p.decode(raw);e.p.bind(original,basis)
+        if value['accepted'] is None:continue
+        accept=f.decode(original['objects'][value['accepted']],'records','ACCEPT')
+        if accept['index']<=packet['capsule']['cut']['index']:continue
+        entry=f.decode(original['objects'][accept['entry']],'records','ENTRY')
+        need(all(packet['objects'].get(h)==original['objects'][h]
+                 for h in (value['accepted'],accept['entry'],entry['payload']))
+             and accept['entry']==e.digest(frames['ENTRY']), 'current node retained carried source tail')
 
 
 class Service(p.Service):
@@ -167,7 +193,7 @@ def maintenance_network(phase, before, owner, ballot, lower, upper, *, voters, a
     copies = copy.deepcopy(before)
     for node in voters: copies[node]['pending.accept'] = c.EMPTY
     projected = current.maintenance(copies, voters)[owner]
-    removed = [] if after_accept else [name for name in before[owner]
+    removed = [name for name in before[owner]
         if name.startswith('sources/') and before[owner][name] is not None and name not in projected]
     retention = ('RETENTION_FORCED', 'RETENTION_PARENT_FORCED')
     retired = ('RETIREMENT_AUTHORITY_FORCED','RETIREMENT_PARENT_FORCED','RETIREMENT_DELETE_VALIDATED',
@@ -276,8 +302,8 @@ def mutate(root, name):
         node=raw/'applied-2/node-1'
         selected=f.decode(c.current(c.inventory(node))[1]['selected.gsr'],'records','SELECTED')
         current_ids={v['basisId'] for v in selected['sources']}
-        old=next(v for v in (node/'sources').iterdir() if v.name not in current_ids)
-        shutil.rmtree(old);return
+        protected=next(v for v in (node/'sources').iterdir() if v.name in current_ids)
+        shutil.rmtree(protected);return
     if name=='reused-installation-number':
         path=root/'process/life-2.jsonl';rows=p.process.transcript(path)
         next(v for v in rows if v['action']=='installed' and v['value']['number']==3)['value']['number']=2

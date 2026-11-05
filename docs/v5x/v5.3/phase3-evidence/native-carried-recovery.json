@@ -1,0 +1,160 @@
+{
+  "schema": "gse-v53-development-evidence-v1",
+  "status": "PASS",
+  "scope": "native-carried-cold-recovery-local-regressions",
+  "baseSource": "6480238ccfab5fa6bd59d70edd2666768ee5be63",
+  "phase3Complete": false,
+  "publicRuntimeQualified": false,
+  "nativeProcessHistoryQualified": false,
+  "finalCohortEnrolled": false,
+  "hostedExecution": false,
+  "paidCloud": false,
+  "finalJava": {
+    "tests": 7,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "log": "target/v53-native-carried-recovery/java-final-scope.log",
+    "sha256": "4562b8d3e00b9bab7bbaf0771cbfee619caadf279aaf731c4953afa447e3e106",
+    "cases": [
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53CarriedDataDriverTest",
+        "method": "appliedDataReplaysOnceBeforeFreshBarrier"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53CarriedSlotDriverTest",
+        "method": "newerGrantKeepsExistingAppliedBytes"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53CarriedSlotDriverTest",
+        "method": "observedHigherBallotRefusesCarriedRecoveryBeforeCleanup"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53CarriedSlotDriverTest",
+        "method": "originalCarriedRecoveryTransfersOnlyAcceptanceAndIsIdempotent"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53CarriedTransitionDriverTest",
+        "method": "carriedIntentFinishesBeforeFreshStableBarrier"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53CarriedTransitionDriverTest",
+        "method": "carriedFinalFinishesBeforeFreshStableBarrier"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53NativeCarriedProcessTest",
+        "method": "haltAfterCarriedApplicationForce"
+      }
+    ]
+  },
+  "python": [
+    {
+      "tests": 111,
+      "path": "target/v53-native-carried-recovery/python-final.log",
+      "sha256": "26d668f2ac2de0d2b334a58f57996f98b8472cad92ddf63ff24e8229a2fac3e6"
+    },
+    {
+      "tests": 76,
+      "path": "target/v53-native-carried-recovery/python-cohort-bindings-corrected.log",
+      "sha256": "9756564dfeff3f7810508dc42892cecccb557c320e2c6f922361f671334e63aa"
+    }
+  ],
+  "physical": [
+    {
+      "kind": "INTENT",
+      "root": "general-search-engine-replication/target/v53-native-dispatch/run-195f603a-a7e6-4e75-891e-636394e0daa4",
+      "negatives": 30,
+      "report": "target/v53-native-carried-recovery/final-intent-replay.json",
+      "sha256": "33e644d1637b9031505bac7d62c100a7e9df41ec6a04f87e6c42b0ad6fb92863"
+    },
+    {
+      "kind": "FINAL",
+      "root": "general-search-engine-replication/target/v53-native-dispatch/run-db5bbc52-14b4-4707-ba80-7bf2324c0416",
+      "negatives": 30,
+      "report": "target/v53-native-carried-recovery/final-final-replay.json",
+      "sha256": "ac6687c5c8eb244997348c5b3c2d73a3e396b3d1ef68109418bd3bc04775cefb"
+    },
+    {
+      "kind": "DATA",
+      "root": "general-search-engine-replication/target/v53-native-dispatch/run-52b38ad6-75ef-4df8-9956-476193be7cbe",
+      "negatives": 33,
+      "report": "target/v53-native-carried-recovery/final-data-replay.json",
+      "sha256": "0bde006b6db6f107847587b513e155e293a7c9c86d0f206c23fa15b485253224"
+    }
+  ],
+  "originalFailure": {
+    "source": "6480238c",
+    "case": "haltDuringCarriedCertificateCleanup",
+    "status": "FAIL",
+    "evidence": "general-search-engine-replication/target/v53-native-carried-process/run-6e7695d8-01a9-4220-867c-86188f0b1036",
+    "error": "carried application staging must retire before another authority change",
+    "sourceHashes": {
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "801ea0853b9d357534cc0e824f38178efe84116933eca87579f548404c77bcff",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipNodeOwner.java": "f9096fb9197818880752f977e5a6ec258217d4d0a20da1fb34df32ffc3b610a3"
+    }
+  },
+  "intermediateCandidate": {
+    "sourceManifest": "target/v53-native-carried-recovery/corrected-focus-source.json",
+    "sha256": "d5998a0add6fe63e46a101f6f3775854b1f123f17c05e96fc17a14c2b3da0427",
+    "scope": "earlier broader context permission; not complete final-source qualification",
+    "processCases": 8,
+    "carriedBarrierNegatives": 104,
+    "singleNodeNegatives": 34
+  },
+  "catalogue": {
+    "changedReasonRows": 30,
+    "changedArchiveUnits": 9,
+    "selectedWitnesses": 19,
+    "subsets": 12,
+    "histories": 544,
+    "executionGroups": 238,
+    "archives": 478,
+    "before": "62bace8fc4eb6c220327579f8341294f4f5715462d084bae60afb152c68e5343",
+    "after": "7c2ec19e944a49fceffc9190e98291464d9b0d49eba993d94f4b6a5ae771c250",
+    "deltaPath": "target/v53-native-carried-recovery/catalogue-delta.json",
+    "deltaSha256": "c7e73bce3c2f4ed7e2b8809bd215005ff7f42cf9fa319e275648cee76265d8ab"
+  },
+  "validationSummary": {
+    "path": "target/v53-native-carried-recovery/validation-summary.json",
+    "sha256": "4cf86dd866beacbf5ae1d1f00ba7fec2ab2004898cae46226607bd5692cc7b8e"
+  },
+  "sourceSha256": {
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": "f03be5b2dbcf5a58a41902212324a232dfdcb7bb34a63571bb85c52266979e87",
+    "docs/v5x/v5.3/README.md": "e6a805162630fc3e8e666273d9603c463f470d74c4491ceaa2a0d331391a86c9",
+    "docs/v5x/v5.3/PHASE_3_NATIVE_CARRIED_RECOVERY.md": "549f4340f0d5cb59e7a865f50d97410d587bb3854b508ab0bfff6bd73b48cbbd",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationDriver.java": "40548932b4cfbe24d19b78ce640a62fe8b6015fd599cc4d013939496d9045c4e",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java": "7b265d2c86767d9a0c995d61bced0f7e73dc38982245b69898ab69b095ebba8b",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java": "f5cb463c9d13c7cc92137048ce6bcc51f6db9939ec795c973cf27df078554dc7",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "de3fb2452601cf39639511b25be7009de27350588d605376e74dcd1a6ed77304",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipNodeOwner.java": "34135938349086f9670c152eda29a3f80358901642a1549acef0fea9f4ed0d96",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CarriedSlotDriverTest.java": "9f0366454096f165eee1b0ae6b11c7c950617fd5d81db4ae26aaeb2186846192",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CarriedTransitionDriverTest.java": "0669c9cdb40d32b3ea5dc9b53de84e80828718104a20e0e7faa1e3470f5de7cf",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessTest.java": "fd9e5d9a6e89c471be47c86a29c7edf41aaa9e07e321c141f0b8b59edb551915",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessWorker.java": "9f2ba8779084c980338831f65aefb8dfa5dd65c08720c92b5c8050321178bdcf",
+    "scripts/v53/native_dispatch_evidence.py": "fa5aabd811aff50d3b2b6eb8405f48ece6a47c11b01ebc555bb57d8fc38810bb",
+    "scripts/v53/native_source_retirement_evidence.py": "569d570808bea940530d8d9d5a81bbab8ec37e47a53b38e4bf1ce6f0230e1451",
+    "scripts/v53/node_current_evidence.py": "90c37648cfe95d709f53be538abd943065f0f81d18938a0a9bb45928a8c3da26",
+    "scripts/v53/test_node_current_evidence.py": "81be90c953ae9e941997a379c21228e5956d4fc20d5d5441d6288602e72646ac",
+    "scripts/v53/test_native_source_retirement_evidence.py": "c528f4f98e5b0e464da10573a820e5fbecbdb5f9e1592061a796edfdca3740b5",
+    "docs/v5x/v5.3/phase3-coverage-witnesses.json": "08a214e0770475f5575414ea61298dca31a74e2f6e1a0f37c0bed501ce6b1633"
+  },
+  "remaining": [
+    "independent original-first whole-group process reader and negatives",
+    "new process-family final-source cohort admission",
+    "complete Phase 3 resource/coverage qualification and final-source hosted replay"
+  ],
+  "contract": {
+    "path": "target/v53-native-carried-recovery/contract-commit.json",
+    "sha256": "cc3bf7c39b322fa1d0c413858c9e7efc83018662e1fc93d1c835b625ad4ad579",
+    "result": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 2763,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    }
+  }
+}

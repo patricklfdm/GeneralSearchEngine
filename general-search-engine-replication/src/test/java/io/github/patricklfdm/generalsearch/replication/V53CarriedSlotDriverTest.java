@@ -83,6 +83,70 @@ class V53CarriedSlotDriverTest {
             assertTrue(Files.isDirectory(target.replicaDirectory().resolve("applied-end")));
         }
     }
+    @Test void originalCarriedRecoveryTransfersOnlyAcceptanceAndIsIdempotent()throws Exception {
+        V53BootstrapPublicationTest.Fixture retained;byte[] exactVote;
+        try(var n=network("APPLIED")) {
+            retained=n.f;
+            n.activate();var target=n.f.request.targets().getFirst();var owner=n.owners.getFirst();
+            var original=MembershipPendingAccept.decode(Files.readAllBytes(target.replicaDirectory().resolve("pending.accept")));
+            assertNotNull(original.certificate());
+            assertFalse(owner.preGrantMaintenanceRequired());
+            owner.recoverCarriedAcceptance(builder().configuration(),target.materialization());
+            var recovered=MembershipPendingAccept.decode(Files.readAllBytes(target.replicaDirectory().resolve("pending.accept")));
+            assertArrayEquals(original.entry().bytes(),recovered.entry().bytes());assertArrayEquals(original.payload(),recovered.payload());
+            assertEquals(n.ballot,recovered.accept().value().get("ballot"));assertEquals(n.selected.digest(),recovered.selected().digest());
+            assertNull(recovered.proof());assertNull(recovered.certificate());
+            exactVote=recovered.bytes();
+            for(var frame:List.of(original.entry(),original.accept(),original.proof(),original.certificate()))
+                assertArrayEquals(frame.bytes(),owner.originalSource().capsule.packet.objectBytes(frame.digest()));
+            assertEquals(0L,owner.activationContext().cut.get("index"));
+            assertFalse(owner.publishedMaintenanceRequired());assertTrue(owner.preGrantMaintenanceRequired());
+            var permit=owner.preGrantMaintenance(n.resources.getFirst());permit.check();
+            var before=V53ReplayFilesTest.files(target.replicaDirectory());
+            owner.recoverCarriedAcceptance(builder().configuration(),target.materialization());
+            assertEquals(before,V53ReplayFilesTest.files(target.replicaDirectory()));
+            var usage=n.resources.getFirst().usage();owner.prepareCurrent(n.ballot);
+            assertEquals(usage,n.resources.getFirst().usage());
+            assertEquals(before,V53ReplayFilesTest.files(target.replicaDirectory()));
+            var higher=new TreeMap<>(n.ballot);higher.put("counter",owner.reserveCounter());
+            var basis=owner.prepareCurrent(higher);
+            assertThrows(IllegalArgumentException.class,permit::check);
+            assertTrue(owner.preGrantMaintenanceRequired());var renewed=owner.preGrantMaintenance(n.resources.getFirst());renewed.check();
+            assertEquals(recovered.accept().digest(),basis.value().get("accepted"));
+            assertArrayEquals(recovered.bytes(),Files.readAllBytes(target.replicaDirectory().resolve("pending.accept")));
+            assertEquals(0L,owner.activationContext().cut.get("index"));
+            var fenced=new TreeMap<>(higher);fenced.put("counter",number(higher.get("counter"))+1);owner.observeCurrent(fenced);
+            assertThrows(MembershipGrantJournal.HigherBallot.class,renewed::check);
+        }
+        var target=retained.request.targets().getFirst();
+        try(var reopened=retained.open(target,"reopen-transferred-after-new-grant")) {
+            assertArrayEquals(exactVote,Files.readAllBytes(target.replicaDirectory().resolve("pending.accept")));
+            assertTrue(reopened.preGrantMaintenanceRequired());reopened.preGrantMaintenance(retained.resources).check();
+            assertEquals(0L,reopened.activationContext().cut.get("index"));
+        }
+        assertEquals(0,retained.resources.usage().leases());
+    }
+    @Test void observedHigherBallotRefusesCarriedRecoveryBeforeCleanup()throws Exception {
+        try(var n=network("APPLIED")) {
+            n.activate();var target=n.f.request.targets().getFirst();var owner=n.owners.getFirst();
+            var higher=new TreeMap<>(n.ballot);higher.put("counter",number(higher.get("counter"))+1);owner.observeCurrent(higher);
+            var before=V53ReplayFilesTest.files(target.replicaDirectory());
+            assertThrows(IllegalArgumentException.class,()->owner.recoverCarriedAcceptance(builder().configuration(),target.materialization()));
+            assertEquals(before,V53ReplayFilesTest.files(target.replicaDirectory()));
+        }
+    }
+    @Test void newerGrantKeepsExistingAppliedBytes()throws Exception {
+        try(var n=network("APPLIED")) {
+            var target=n.f.request.targets().getFirst();var owner=n.owners.getFirst();
+            Path applied=target.replicaDirectory().resolve(MembershipAppliedEndFiles.DIRECTORY);
+            var endBefore=V53ReplayFilesTest.files(applied);assertFalse(endBefore.isEmpty());
+            var vote=Files.readAllBytes(target.replicaDirectory().resolve("pending.accept"));
+            var next=new TreeMap<>(object(owner.originalBasis().orElseThrow().value().get("ballot")));
+            next.put("counter",owner.reserveCounter());owner.prepareCurrent(next);
+            assertEquals(endBefore,V53ReplayFilesTest.files(applied));
+            assertArrayEquals(vote,Files.readAllBytes(target.replicaDirectory().resolve("pending.accept")));
+        }
+    }
     @Test void higherBallotDuringRemoteCleanupCannotProduceANewVote()throws Exception {
         try(var n=network("APPLIED")) {
             long started=System.nanoTime();n.activate();var target=n.f.request.targets().get(1);var old=Files.readAllBytes(target.replicaDirectory().resolve("pending.accept"));
