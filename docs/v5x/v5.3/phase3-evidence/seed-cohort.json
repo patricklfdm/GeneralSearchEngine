@@ -1,0 +1,51 @@
+{
+  "adjacentChecks": {
+    "hostedAdapterSuites": 12,
+    "includesNewTests": true,
+    "log": "target/v53-phase3-seed-cohort/adjacent-final.log",
+    "passed": 221,
+    "sha256": "db3943d6ea4d543075585ef5fabd91315e01a366a43f7b94e81b3d54c5a17569"
+  },
+  "baseSource": "4d1b53190a0e903d28af91441fefbab675a39ef4",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 2712,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "historiesExecuted": 0,
+  "hostedExecution": false,
+  "limitations": [
+    "Synthetic orchestration is not hosted execution.",
+    "Actual final-source seed archives are not available as a complete accepted set.",
+    "The gate never attests GitHub execution or qualifies original histories.",
+    "Combined resources, exact coverage, workflow admission and final-source execution remain OPEN."
+  ],
+  "paidCloud": false,
+  "phase3Complete": false,
+  "plannedHostedHistories": 544,
+  "planning": {
+    "execution": "source-inventory-only",
+    "plannedHostedHistories": 544,
+    "requirements": 12,
+    "status": "PASS"
+  },
+  "runtimeQualified": false,
+  "schema": "gse-v53-seed-cohort-development-v1",
+  "scope": "synthetic seed orchestration and actual temporary Git blob reader",
+  "sourceFiles": {
+    "scripts/v53/phase3_seed_cohort.py": "14d38bfa942666ae8c35c5c734a6d9669f003b7106f6b80330679f4010109c54",
+    "scripts/v53/test_phase3_seed_cohort.py": "151c52a67ec5956d54caf8a644c8f0fdccd605b2eebea9d1ec6cd60e6da0811e"
+  },
+  "status": "PARTIAL",
+  "tests": {
+    "log": "target/v53-phase3-seed-cohort/final-01.log",
+    "passed": 17,
+    "sha256": "b86aff4c218fa389ff84df95d58ec08ee33b10cc06d79990fc5d5809a01ffeb1"
+  },
+  "unchanged": "Java runtime, POMs, workflows, frozen formats, quotas and deadlines"
+}

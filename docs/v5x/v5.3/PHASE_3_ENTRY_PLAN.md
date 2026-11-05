@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Hosted seed reconciliation](PHASE_3_SEED_COHORT.md) adds a prerequisite for
+phase-wide admission: all twelve original preparations must share complete Git
+source, classes, tools and dependencies, with each exact workflow/run/attempt
+and reader set checked separately. It executes no histories and returns only
+PARTIAL; full cohort admission and Phase 3 closure remain OPEN.
+
 [Shared transfer-service drain](PHASE_3_TRANSFER_CLOSE_DRAIN.md) extends the slot
 lifetime correction to admitted callbacks, original exporters and parent trace
 custody. Export cleanup failures cannot turn into successful repeated close.

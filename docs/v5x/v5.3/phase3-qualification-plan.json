@@ -912,7 +912,8 @@
         "scripts/v53/round_history_hosted.py",
         "scripts/v53/carried_data_history.py",
         "scripts/v53/carried_data_history_hosted.py",
-        "scripts/v53/process_joint_hosted.py"
+        "scripts/v53/process_joint_hosted.py",
+        "scripts/v53/phase3_seed_cohort.py"
       ],
       "tests": [
         "scripts/v53/test_case_inventory.py",
@@ -937,7 +938,8 @@
         "scripts/v53/test_automatic_history_workflow.py",
         "scripts/v53/test_process_joint_cohort.py",
         "scripts/v53/test_process_joint_hosted.py",
-        "scripts/v53/test_process_joint_workflow.py"
+        "scripts/v53/test_process_joint_workflow.py",
+        "scripts/v53/test_phase3_seed_cohort.py"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -957,7 +959,8 @@
         "scripts/v53/carried_transition_history_hosted.py",
         "scripts/v53/automatic_history_hosted.py",
         "scripts/v53/process_joint_cohort.py",
-        "scripts/v53/process_joint_hosted.py"
+        "scripts/v53/process_joint_hosted.py",
+        "scripts/v53/phase3_seed_cohort.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md",
@@ -977,7 +980,9 @@
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_HOSTED.md",
         "docs/v5x/v5.3/PHASE_3_AUTOMATIC_HISTORY_HOSTED.md",
         "docs/v5x/v5.3/PHASE_3_PROCESS_JOINT_COHORT.md",
-        "docs/v5x/v5.3/PHASE_3_PROCESS_JOINT_HOSTED.md"
+        "docs/v5x/v5.3/PHASE_3_PROCESS_JOINT_HOSTED.md",
+        "docs/v5x/v5.3/PHASE_3_SEED_COHORT.md",
+        "docs/v5x/v5.3/phase3-evidence/seed-cohort.json"
       ],
       "cohorts": [
         "profiles",
@@ -1094,7 +1099,7 @@
         "combined-resources",
         "frozen-coverage"
       ],
-      "work": "Implement final Phase 3 admission across all required subsets after the missing entries and precise coverage are known. Current per-workflow aggregates are scoped subset gates, not a phase-wide aggregate.",
+      "work": "Implement final Phase 3 admission across all required subsets after the missing entries and precise coverage are known. Current per-workflow aggregates are scoped subset gates, not a phase-wide aggregate. An offline all-twelve seed gate now checks complete Git source, actual class inventories, portable tools, dependencies and each owning reader/run/attempt without requiring distinct reader sets to have the same hash. It returns PARTIAL with no runtime/workflow attestation. Original-history replay, precise coverage and final workflow attestation remain separate prerequisites.",
       "acceptance": "Bind exact source and actual build/toolchain/readers, each workflow/run/attempt and complete declared inventories; reconcile independent seed provenance. Reject missing/failed/mixed originals. No acceptance from this planning report."
     },
     {

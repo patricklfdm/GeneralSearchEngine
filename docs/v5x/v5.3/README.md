@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Hosted seed reconciliation](PHASE_3_SEED_COHORT.md) verifies all twelve
+independent preparations against complete Git source, class bytes, tools and
+dependencies while allowing the existing different reader sets. Its PARTIAL
+result is preparation provenance only; full runtime admission remains OPEN.
+
 [Shared transfer-service drain](PHASE_3_TRANSFER_CLOSE_DRAIN.md) now waits for
 admitted callbacks and original exporter cleanup before successful close. Failed
 export cleanup remains a failure on repeated close; other traces are still
