@@ -595,13 +595,16 @@ final class MembershipLearnerDisposition implements AutoCloseable {
         for(var value:retained.values())value.collectCustody(result);
     }
     boolean closed(){return closed;}
-    @Override public void close()throws IOException {
+    void revokeAndDrainListeners()throws IOException {
         MembershipLearnerCheckpointEndpoint endpoint;MembershipLearnerHeadEndpoint progress;
         synchronized(this){closed=true;endpoint=checkpointEndpoint;progress=headEndpoint;}
         // Readers take the original owner monitor. Revoke first, but never
         // drain transport workers while holding that monitor. Keep reservations
         // for a retry if transport draining itself fails.
         closeListeners(endpoint,progress);
+    }
+    @Override public void close()throws IOException {
+        revokeAndDrainListeners();
         var children=new ArrayList<AutoCloseable>();
         synchronized(this) {
             if(released)return;released=true;if(voterStage!=null)children.add(voterStage);children.addAll(retained.values());children.addAll(leases);

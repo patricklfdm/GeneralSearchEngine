@@ -33,7 +33,8 @@ final class MembershipLearnerStore implements AutoCloseable {
     private MembershipLearnerPlacement.Recovery placementRecovery;
     private MembershipOwnership owner;
     private Object directoryKey,lockKey;
-    private boolean closed,failed,complete;
+    private volatile boolean closed;
+    private boolean released,failed,complete;
     private MembershipLearnerStore(MembershipLearnerAdmissionFiles operation,MembershipLearnerRetention decision,MembershipBallotAllocator.Cut cut)throws IOException {
         this.operation=operation;this.plan=operation.retained();this.decision=decision;this.cut=cut;path=plan.request.replicaDirectory();
         expected=expected(plan,decision);retirement=MembershipLearnerRetirement.load(plan,decision);
@@ -391,7 +392,23 @@ final class MembershipLearnerStore implements AutoCloseable {
         intent.collectCustody(result);
     }
     @Override public void close()throws IOException {
-        if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.add(pendingIntent);children.add(intent);children.add(cancellation);children.add(slot);children.add(successor);children.add(typed);children.addAll(received.values());children.addAll(leases);
-        children.add(owner);children.add(operation);MembershipLearnerSource.closeChildren(children.toArray(AutoCloseable[]::new));
+        var drains=new ArrayList<AutoCloseable>();
+        synchronized(this) {
+            closed=true;if(released)return;
+            for(var disposition:Arrays.asList(pendingIntent,intent,cancellation))
+                if(disposition!=null)drains.add(disposition::revokeAndDrainListeners);
+        }
+        // Revoke every listener before releasing any child storage or parent
+        // lock. A callback close only cancels; a failed/interrupted drain must
+        // leave this same store able to retry. Never wait on workers under the
+        // store monitor, which a callback may need to invoke close again.
+        MembershipLearnerSource.closeChildren(drains.toArray(AutoCloseable[]::new));
+        synchronized(this) {
+            if(released)return;
+            var children=new ArrayList<AutoCloseable>();children.add(pendingIntent);children.add(intent);children.add(cancellation);
+            children.add(slot);children.add(successor);children.add(typed);children.addAll(received.values());children.addAll(leases);
+            children.add(owner);children.add(operation);MembershipLearnerSource.closeChildren(children.toArray(AutoCloseable[]::new));
+            released=true;
+        }
     }
 }

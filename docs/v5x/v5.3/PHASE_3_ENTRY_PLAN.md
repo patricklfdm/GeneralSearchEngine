@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Store ownership across failed drain](PHASE_3_STORE_LISTENER_DRAIN.md) now
+separates revocation/drain from parent storage and lock release. Original
+checkpoint/head callback and interrupted-close failures exposed three prematurely
+released POSIX locks. Scoped resource and fresh-JVM lock observations cover the
+corrected retries; constructor, replacement/recovery and full native custody
+qualification remain OPEN.
+
 [Retained-owner failed close](PHASE_3_PENDING_LISTENER_DRAIN.md) now requires
 listener drain before storage release or voter handoff. Checkpoint/head callback
 and interrupted-close cases retain original storage for an external retry, with

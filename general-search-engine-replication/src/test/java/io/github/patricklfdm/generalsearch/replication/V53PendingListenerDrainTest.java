@@ -36,8 +36,8 @@ class V53PendingListenerDrainTest {
     static final class Gate implements MembershipTransport.Events,AutoCloseable {
         final CountDownLatch entered=new CountDownLatch(1),release=new CountDownLatch(1);
         final AtomicReference<Throwable> failure=new AtomicReference<>();final AtomicReference<Map<String,Object>> held=new AtomicReference<>();
-        final MembershipLearnerPendingIntent owner;final Capture capture;final boolean callback;
-        Gate(MembershipLearnerPendingIntent owner,Capture capture,boolean callback){this.owner=owner;this.capture=capture;this.callback=callback;}
+        final AutoCloseable owner;final Capture capture;final boolean callback;
+        Gate(AutoCloseable owner,Capture capture,boolean callback){this.owner=owner;this.capture=capture;this.callback=callback;}
         void attemptClose() {
             capture.mark("OWNER_CLOSE_BEGIN",null,Thread.currentThread().isInterrupted());
             try{owner.close();}catch(Throwable error){failure.set(error);}

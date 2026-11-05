@@ -1,0 +1,252 @@
+{
+  "schema": "gse-v53-store-listener-drain-development-v1",
+  "status": "PASS",
+  "phase3Complete": false,
+  "baseSource": "58bf32b31e489167db13b991475cdc44f1a80401",
+  "javaTests": 8,
+  "newJavaCases": 6,
+  "originalFailures": 4,
+  "raceFixtureAddedAfterCoreRun": true,
+  "runtimeUnchangedBetweenGreenRuns": true,
+  "pythonTests": 93,
+  "newPythonTests": 10,
+  "cases": [
+    {
+      "path": "general-search-engine-replication/target/v53-store-drain/run-d7891716-a946-4e51-bcac-5a0856c291fd",
+      "result": {
+        "status": "PASS",
+        "scope": "conditional-store-failed-close",
+        "listener": "checkpoint",
+        "mode": "callback",
+        "retainedStorageLeases": 3,
+        "baselineStorageLeases": 4,
+        "fileObservations": 28,
+        "resourceTransitions": 323,
+        "failedCloseStorageContinuityQualified": true,
+        "physicalStorageQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false,
+        "storeLockContinuityObserved": true,
+        "originalLocks": 3
+      },
+      "negativeCases": 18
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-store-drain/run-6fddb603-850e-4886-ac3e-0edaf1a3dbc7",
+      "result": {
+        "status": "PASS",
+        "scope": "conditional-store-failed-close",
+        "listener": "head",
+        "mode": "callback",
+        "retainedStorageLeases": 3,
+        "baselineStorageLeases": 4,
+        "fileObservations": 29,
+        "resourceTransitions": 317,
+        "failedCloseStorageContinuityQualified": true,
+        "physicalStorageQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false,
+        "storeLockContinuityObserved": true,
+        "originalLocks": 3
+      },
+      "negativeCases": 18
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-store-drain/run-9fcaf5df-d44b-45ba-b755-51df75ac0f4e",
+      "result": {
+        "status": "PASS",
+        "scope": "conditional-store-failed-close",
+        "listener": "checkpoint",
+        "mode": "interrupt",
+        "retainedStorageLeases": 3,
+        "baselineStorageLeases": 4,
+        "fileObservations": 28,
+        "resourceTransitions": 323,
+        "failedCloseStorageContinuityQualified": true,
+        "physicalStorageQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false,
+        "storeLockContinuityObserved": true,
+        "originalLocks": 3
+      },
+      "negativeCases": 18
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-store-drain/run-eec95e14-335a-4c90-8e2f-e9f8fe284fa8",
+      "result": {
+        "status": "PASS",
+        "scope": "conditional-store-failed-close",
+        "listener": "head",
+        "mode": "interrupt",
+        "retainedStorageLeases": 3,
+        "baselineStorageLeases": 4,
+        "fileObservations": 29,
+        "resourceTransitions": 317,
+        "failedCloseStorageContinuityQualified": true,
+        "physicalStorageQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false,
+        "storeLockContinuityObserved": true,
+        "originalLocks": 3
+      },
+      "negativeCases": 18
+    }
+  ],
+  "negativeCases": 72,
+  "previousPendingOriginals": 4,
+  "previousPendingNegatives": 48,
+  "physicalStorageQualified": false,
+  "wholeRuntimeResourcesQualified": false,
+  "finalSourceCohortQualified": false,
+  "remaining": [
+    "constructor rollback",
+    "replacement/recovery guards distinguish revoked from fully released owners",
+    "remaining export/task/control lifetimes",
+    "combined maxima/headroom",
+    "new-source required-four/joining and final-source hosted qualification"
+  ],
+  "sources": [
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDisposition.java",
+      "sha256": "3ab092c3b1a30464110cb79cef8f54430f09e65e5d5f6193bc6c833b27c77e2a"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerStore.java",
+      "sha256": "6f1249175d823918b29ad519f70f10feca17fcf3ad9269be63617055f7c4479d"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerStoreCloseRaceTest.java",
+      "sha256": "d74e912d3910f1ffdb5d3769d8cfafa7ca62eb60d95bef1458406bdef363bbb1"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerStoreDrainTest.java",
+      "sha256": "afdda6a710ec6dae99a3e3ca5abe23cf87f13b66e83a7edfdf4de76aaef6bd84"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingListenerDrainTest.java",
+      "sha256": "3077dc2248694e224de2fadaa776ce9604b5ab4dee7754ff73a49faa253a16c0"
+    },
+    {
+      "path": "scripts/v53/pending_drain_evidence.py",
+      "sha256": "159f279505dc32d8dca1e1ddfb2a7fc1b191a7a8d3b6c4169172e859a2e86d1d"
+    },
+    {
+      "path": "scripts/v53/store_drain_negatives.py",
+      "sha256": "f1f70f9e5c8757b5166af637308e177067ae7dc8800cf1653acc8355f12b64c5"
+    },
+    {
+      "path": "scripts/v53/test_store_drain_evidence.py",
+      "sha256": "5e710845b7bad966084f58fb2a5d01dac053a4456afebf5c40db666669674399"
+    }
+  ],
+  "reports": [
+    {
+      "path": "target/v53-store-drain/TEST-io.github.patricklfdm.generalsearch.replication.V53LearnerCheckpointEndpointTest.xml",
+      "sha256": "b0512d34efee07d386c14254f6b09d9599b77c8eb2011b03907c1f252b8ed4e6"
+    },
+    {
+      "path": "target/v53-store-drain/TEST-io.github.patricklfdm.generalsearch.replication.V53LearnerStoreCloseRaceTest.xml",
+      "sha256": "1f72022cc34cbf6368aa4e590d453cafcd274bdadc0e1b62c352f413ac9ad64c"
+    },
+    {
+      "path": "target/v53-store-drain/TEST-io.github.patricklfdm.generalsearch.replication.V53LearnerStoreDrainTest.xml",
+      "sha256": "c8d29f0eec1614eb2baa421834a90e0ea420de591264b37528644f5141b0ece4"
+    },
+    {
+      "path": "target/v53-store-drain/TEST-io.github.patricklfdm.generalsearch.replication.V53PendingHeadConfirmationTest.xml",
+      "sha256": "21e9eca604a80908d040612b24e92681a22b10c0eed387108d0d53a09d1267bb"
+    },
+    {
+      "path": "target/v53-store-drain/contract.log",
+      "sha256": "5e174681d6aefea25435bfdc2299003bc8b7f254f1140ae5daa0f95b6b94ab4f"
+    },
+    {
+      "path": "target/v53-store-drain/finalize.py",
+      "sha256": "4136b58cda2e6deb2c1d9d4f246dc4a077ad3e7142c199ef5e10af0daf7dde0e"
+    },
+    {
+      "path": "target/v53-store-drain/green-java-input.json",
+      "sha256": "98fba7fa717a1d4fd05e593d1af011e72c65b8a7ea27cf1f51d570bc1732430f"
+    },
+    {
+      "path": "target/v53-store-drain/maven-green-01.log",
+      "sha256": "63c52a4aae5be71141de79a0ebf5e683aaebd62b1a7cb6865a2bc33643a3d746"
+    },
+    {
+      "path": "target/v53-store-drain/maven-race-01.log",
+      "sha256": "dcbecd10fb6d5a0098931757d1622d2f9896fc4ab78c69918995923156052961"
+    },
+    {
+      "path": "target/v53-store-drain/maven-red-01.log",
+      "sha256": "064e2bb20eff530a1c1519276febd476a5e444a6de8680209e3c04f9c8d9e4bf"
+    },
+    {
+      "path": "target/v53-store-drain/plan-01/acceptance-plan.json",
+      "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+    },
+    {
+      "path": "target/v53-store-drain/plan-01/plan.json",
+      "sha256": "17ad3eb66550d04c66cc928a7cc4d6b820a800d4ceb592d7fde7c52f7bcefdb2"
+    },
+    {
+      "path": "target/v53-store-drain/plan-01/receipt.json",
+      "sha256": "56cf92d537ac2f8626fdf41c0d1239b4cb63f65da572cce7fb099cdcb970021f"
+    },
+    {
+      "path": "target/v53-store-drain/plan.log",
+      "sha256": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df"
+    },
+    {
+      "path": "target/v53-store-drain/previous-pending-compatibility.json",
+      "sha256": "79d7e1defdd31c79659efa911347df7656e4e3a1652a69440bbc58572a02a607"
+    },
+    {
+      "path": "target/v53-store-drain/python-01.log",
+      "sha256": "de294aefa768b62747eb35d0a1a15954212414379521273cc245ae18ce6f0903"
+    },
+    {
+      "path": "target/v53-store-drain/python-02.log",
+      "sha256": "b71576105057ec7cffedc70cb3e2dbf56a85258ac73dd5e3e5aa7d9e83dc1f96"
+    },
+    {
+      "path": "target/v53-store-drain/python-final.log",
+      "sha256": "10d94c3c3b268ceff0fe7066570d54ed56737c5183493007a0b164f410ca4fe8"
+    },
+    {
+      "path": "target/v53-store-drain/race-java-input.json",
+      "sha256": "028823ed9e15cf6b4ac1eae67eec7debecf700a17ee6681fb51d379c85d7cb8a"
+    },
+    {
+      "path": "target/v53-store-drain/raw-inventories.json",
+      "sha256": "966fd5b935d10e733e0cdd58be987c040a046ec96d69874bcc5a3bfecd5af004"
+    },
+    {
+      "path": "target/v53-store-drain/red-java-input.json",
+      "sha256": "828a99fcd366e283b2d82769c143b8c83bb59b402ae5fc582d0e870d49deae05"
+    },
+    {
+      "path": "target/v53-store-drain/red-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53LearnerStoreDrainTest.xml",
+      "sha256": "8ab8aa105b550481cac9d7eb5a701b6e48032c22ac1f7e4475a0fb6c69050acb"
+    },
+    {
+      "path": "target/v53-store-drain/red-reports/io.github.patricklfdm.generalsearch.replication.V53LearnerStoreDrainTest.txt",
+      "sha256": "c129f771ee2d09e385e46ed7366adddd134b7fcda3b4f23ad5d778d17e1a4c9d"
+    },
+    {
+      "path": "target/v53-store-drain/run-6fddb603-850e-4886-ac3e-0edaf1a3dbc7-replay.json",
+      "sha256": "208f95e8c5862bfebb7465f95e028e234b9644cc9ae353ee4b2f2eea9d748bc9"
+    },
+    {
+      "path": "target/v53-store-drain/run-9fcaf5df-d44b-45ba-b755-51df75ac0f4e-replay.json",
+      "sha256": "9a98a34ef055b160c001cb14e30315cfccfbd5026ae717cd026780dbf68f3fce"
+    },
+    {
+      "path": "target/v53-store-drain/run-d7891716-a946-4e51-bcac-5a0856c291fd-replay.json",
+      "sha256": "e1c1a47fcc9faa1e007d3bc0dd90346181b70ffcd93c088ddd3b022532032c13"
+    },
+    {
+      "path": "target/v53-store-drain/run-eec95e14-335a-4c90-8e2f-e9f8fe284fa8-replay.json",
+      "sha256": "88d0f7d01fcc55ce917247a602a3dcd5086f89470574e2f97a9b6bf012d27844"
+    }
+  ]
+}
