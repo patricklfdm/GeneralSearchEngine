@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Membership capacity completion](PHASE_3_CAPACITY_COMPLETION.md) adds a
+conditional-prefix owner continuation at the last admissible fixed-history
+change. It retains same-directory INTENT/FINAL, stable continuation, refusal and
+post-refusal DATA. Independent whole-history/resource qualification and the
+final-source cohort remain OPEN; this adds no hosted subset.
+
 [Native carried DATA recovery](PHASE_3_NATIVE_CARRIED_RECOVERY.md) now covers
 cold local reacceptance, empty completion headroom and exact-vote maintenance
 before a fresh grant. Whole-group halt/SIGKILL regressions reopen original directories.

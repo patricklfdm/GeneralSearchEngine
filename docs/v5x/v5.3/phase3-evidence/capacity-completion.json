@@ -1,0 +1,109 @@
+{
+  "schema": "gse-v53-capacity-completion-development-v1",
+  "status": "PARTIAL",
+  "phase3Complete": false,
+  "combinedResourcesQualified": false,
+  "wholeHistoryQualified": false,
+  "finalProducerFullRun": false,
+  "paidCloud": false,
+  "pushed": false,
+  "base": "151db9d500ceca57237734fbffe6d426efc24b71",
+  "nativeContinuation": {
+    "status": "PASS",
+    "conditionalPrefix": true,
+    "operation": 231,
+    "nextOperationRefused": 232,
+    "finalCut": 1620,
+    "applicationSequence": 42,
+    "nodes": 3,
+    "junit": {
+      "path": "target/v53-capacity-completion/continuation-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PublicationCapacityTest.xml",
+      "sha256": "cd0bb351bbdea360322b9e13ada4bc84472793e4d1c435b31cbc72e6fc35bb9d",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 1128.117
+    },
+    "source": {
+      "path": "target/v53-capacity-completion/second-compiled-inputs.json",
+      "sha256": "4edf265874347bd68c20d60bd6dd96ffbe461689df0b5106b2634f5a5bab0815"
+    },
+    "log": {
+      "path": "target/v53-capacity-completion/second.log",
+      "sha256": "33e8699946280cdc78e64b17e1036f17768b5911c6bfe3648f2a331cedd95404"
+    },
+    "raw": "general-search-engine-replication/target/v53-publication-capacity/run-fca612e0-08e7-4bf1-832e-f2e5104efb98-completion",
+    "evidenceQualification": "FAIL",
+    "refusalReplay": {
+      "path": "target/v53-capacity-completion/original-refusal-replay.json",
+      "sha256": "fc4b748ec5ebbdd5e60bf0d264aa27ab463f274604e67c0792a152b1d3c7c87d"
+    },
+    "inventory": {
+      "path": "target/v53-capacity-completion/completed-inventory.json",
+      "sha256": "cbfdf1df5a2e1a8abfcc607314d5ae15dc397e0eb76056f42d4576085e2e2b94"
+    }
+  },
+  "earlierCalibration": {
+    "status": "FAIL",
+    "nativeOwnersOpened": false,
+    "reason": "assumed next membership reservation did not fit",
+    "log": {
+      "path": "target/v53-capacity-completion/first.log",
+      "sha256": "a6d8dd0e1b0157523d1b5fe24020ebd0ab32e07acc8072714800b35c379627ce"
+    }
+  },
+  "finalBoundedChecks": {
+    "sizing": {
+      "path": "target/v53-capacity-completion/final-fast-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PublicationCapacityTest.xml",
+      "sha256": "70367a491063768d6d8167346d12e947140d4ae54851a8e8fbf7b93512ebffaf",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 7.734
+    },
+    "correctedRefusal": {
+      "path": "target/v53-capacity-completion/corrected-refusal-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PublicationCapacityTest.xml",
+      "sha256": "eada7de58cf1ce209c7fb57794d3199a160d4b3cbca52a6f6955d780bcd5f09f",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 91.678
+    },
+    "correctedSource": {
+      "path": "target/v53-capacity-completion/corrected-source.json",
+      "sha256": "c845323cd7d651e30536856fbada688946cd16815825e80b562e7b7dc7c069b9"
+    },
+    "originalFiles": {
+      "path": "target/v53-capacity-completion/corrected-refusal-replay.json",
+      "sha256": "59a3a567574188e7a38cf4d77380474e24c46613857a892f8d09b38c747bf185"
+    },
+    "packetExtents": {
+      "path": "target/v53-capacity-completion/retained-budget-check.json",
+      "sha256": "bacc0cd01a6902ce5695a02c6f3ac00e2f57adbf650224dfa2ab05fb70cd0d0d"
+    },
+    "packetExtentsScope": "18 original retained packet/envelope sizes only; no independent authority qualification",
+    "pythonTests": 48,
+    "pythonLog": {
+      "path": "target/v53-capacity-completion/python.log",
+      "sha256": "4c8577736c498eaac557a5d537a66902e3579a1c2f7cce1502220dedd9cc9d84"
+    }
+  },
+  "preservedInvalidRefusal": {
+    "report": {
+      "path": "target/v53-capacity-completion/final-refusal-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PublicationCapacityTest.xml",
+      "sha256": "c957b595ec969da7ec8ade18be3c568d301b3049337b55ce3c4aa9c05cbcac76",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 74.727
+    },
+    "raw": "target/v53-capacity-completion/isolated-invalid-refusal",
+    "reason": "current-floor read callback included after checking admission event list; original unchanged"
+  },
+  "remaining": [
+    "final complete producer execution with corrected recording and added snapshots",
+    "independent whole-history, physical force and resource replay",
+    "native network and complete simultaneous-resource qualification",
+    "final-source Phase 3 cohort"
+  ]
+}

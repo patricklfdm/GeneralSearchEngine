@@ -1,5 +1,11 @@
 # V5.3 bounded resources and lifetime
 
+[Membership capacity completion](PHASE_3_CAPACITY_COMPLETION.md) adds a
+conditional-prefix owner continuation at the last admissible fixed-history
+change. It retains same-directory INTENT/FINAL, stable continuation, refusal and
+post-refusal DATA. Independent whole-history/resource qualification and the
+final-source cohort remain OPEN; this adds no hosted subset.
+
 [Outgoing activation drain](PHASE_3_ACTIVATION_DRIVER_DRAIN.md) now retains
 original task/export/campaign ownership until every worker exits. Cancellation
 no longer interrupts file owners; self-close requires an external drain.

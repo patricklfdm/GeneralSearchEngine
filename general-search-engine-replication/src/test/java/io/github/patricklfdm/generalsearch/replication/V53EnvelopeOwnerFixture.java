@@ -9,10 +9,11 @@ import static org.junit.jupiter.api.Assertions.*;
 /** Conditional prefix only; subsequent grants, votes, apply and publication use real owners. */
 final class V53EnvelopeOwnerFixture {
     final Path directory;final MembershipCapsule initial;final V53EnvelopeHistoryFixture history;
-    final Set<Owned> owned=new HashSet<>();final MembershipRoot root;final Map<String,Object> ballot;
+    final Set<Owned> owned=new HashSet<>();final MembershipRoot root;Map<String,Object> ballot;
+    MembershipCapsule current;
     final List<Integer> voters=List.of(1,2,3);Path evidence;
     V53EnvelopeOwnerFixture(Path directory,V53EnvelopeHistoryFixture history,MembershipCapsule initial)throws Exception {
-        this.directory=directory;this.history=history;this.initial=initial;Files.createDirectories(directory);
+        this.directory=directory;this.history=history;this.initial=initial;this.current=initial;Files.createDirectories(directory);
         var rr=history.seed.root;
         root=new MembershipRoot(new ReplicationGroupId(UUID.fromString((String)rr.value().get("groupId"))),UUID.fromString((String)rr.value().get("historyId")),rr.rootDigest());
         ballot=history.seed.ballot(3);var packet=initial.packet;
@@ -43,8 +44,8 @@ final class V53EnvelopeOwnerFixture {
         return MembershipGrantJournal.openApplying(node(n),root,V53DeclarationsTest.node(n),resources,(r,p,i)->initial.verifyExtension(p,i,owned),events::add);
     }
     Decoded entry(String kind,byte[] payload) {
-        return decode(encode("records","ENTRY",Map.of("root",root.manifestDigest(),"authority",initial.context.authority(),"index",number(initial.context.cut.get("index"))+1,
-                "previous",initial.context.cut.get("entry"),"origin",ballot,"kind",kind,"payload",hash(payload))),"records","ENTRY");
+        return decode(encode("records","ENTRY",Map.of("root",root.manifestDigest(),"authority",current.context.authority(),"index",number(current.context.cut.get("index"))+1,
+                "previous",current.context.cut.get("entry"),"origin",ballot,"kind",kind,"payload",hash(payload))),"records","ENTRY");
     }
     void refuse(String kind,byte[] payload)throws Exception {
         var proposed=entry(kind,payload);
@@ -53,14 +54,25 @@ final class V53EnvelopeOwnerFixture {
             if(evidence!=null) {Files.createDirectories(evidence.resolve("node-"+n));V53JournalApplicationTest.copy(node(n),evidence.resolve("node-"+n+"/before"));}
             var resources=new MembershipResources(512*MembershipResources.MIB);var events=new ArrayList<String>();
             try(var s=open(n,resources,events)) {
+                // Inspect the current published cut before delimiting the
+                // admission call; FLOOR_COPY is an observation, not its write.
+                assertEquals(current.context.cut,s.floorCopyCurrent().capsule.context.cut);
                 events.clear();var usage=resources.usage();
                 var error=assertThrows(MembershipOperationException.class,()->s.acceptCurrent(proposed,payload));
                 assertEquals(MembershipOperationException.Reason.CAPACITY_EXCEEDED,error.reason());assertEquals(AutomaticReplicationException.Outcome.NOT_SUBMITTED,error.outcome());
                 assertTrue(events.isEmpty(),events.toString());assertTrue(s.currentOwnedTail().isEmpty());assertEquals(usage,resources.usage());
-                assertEquals(before,V53ReplayFilesTest.files(node(n)));assertEquals(initial.context.cut,s.originalSource().capsule.context.cut);
+                assertEquals(before,V53ReplayFilesTest.files(node(n)));
             }
             assertEquals(0,resources.usage().leases());assertEquals(before,V53ReplayFilesTest.files(node(n)));
-            try(var s=open(n)){assertThrows(MembershipOperationException.class,()->s.acceptCurrent(proposed,payload));}
+            var reopenedResources=new MembershipResources(512*MembershipResources.MIB);var reopenedEvents=new ArrayList<String>();
+            try(var s=open(n,reopenedResources,reopenedEvents)) {
+                reopenedEvents.clear();var usage=reopenedResources.usage();
+                var error=assertThrows(MembershipOperationException.class,()->s.acceptCurrent(proposed,payload));
+                assertEquals(MembershipOperationException.Reason.CAPACITY_EXCEEDED,error.reason());
+                assertEquals(AutomaticReplicationException.Outcome.NOT_SUBMITTED,error.outcome());
+                assertEquals(usage,reopenedResources.usage());assertTrue(reopenedEvents.isEmpty(),reopenedEvents.toString());
+            }
+            assertEquals(0,reopenedResources.usage().leases());
             assertEquals(before,V53ReplayFilesTest.files(node(n)));
             if(evidence!=null) {
                 V53JournalApplicationTest.copy(node(n),evidence.resolve("node-"+n+"/after"));
@@ -95,7 +107,27 @@ final class V53EnvelopeOwnerFixture {
             bridges.add(new MembershipSelection.Bridge(group.getFirst().statement(),group.stream().map(MembershipAppliedEndFiles.ParentEndorsement::acknowledgement).toList(),observers));
         }
         for(int n:voters)try(var s=open(n)){s.publishCurrent(plans.get(n),acks,observations,bridges);assertTrue(s.currentCertificate().isEmpty());}
-        try(var s=open(1)){return s.floorCopyCurrent().capsule;}
+        try(var s=open(1)){current=s.floorCopyCurrent().capsule;return current;}
+    }
+    /** Reopen the same original owners; never rebuild their directories from a new prefix. */
+    void campaign()throws Exception {
+        maintain();ballot=history.seed.ballot(Math.toIntExact(number(ballot.get("counter"))+1));
+        var offers=new ArrayList<MembershipSelection.Source>();var images=new TreeMap<String,byte[]>();var old=new TreeMap<Integer,String>();
+        for(int n:voters)try(var s=open(n)) {
+            s.originalBasis().ifPresent(b->old.put(n,(String)b.value().get("basisId")));
+            s.prepareCurrent(ballot);var source=s.originalSource();offers.add(source);
+            for(String h:source.capsule.packet.images().keySet())images.put(h,Files.readAllBytes(node(n).resolve("sources").resolve((String)source.basis.value().get("basisId")).resolve(h+".image")));
+        }
+        for(int n:voters)try(var s=open(n)){s.selectCurrent(offers,List.of());s.installCurrent(offers,List.of(),images);}
+        var copies=new ArrayList<MembershipFloor.Copy>();for(int n:voters)try(var s=open(n)){copies.add(s.floorCopyCurrent());}
+        for(int n:voters)try(var s=open(n)) {
+            s.establishFloor(copies);s.retireInactive();if(old.containsKey(n))s.retireSource(old.get(n));s.releaseFloor();s.rotateJournal();
+        }
+    }
+    void snapshot(Path output)throws Exception {
+        Files.createDirectories(output);
+        for(int n:voters)V53JournalApplicationTest.copy(node(n),output.resolve("node-"+n));
+        System.out.println("v53CapacityCompletionStage="+output.getFileName());System.out.flush();
     }
     void maintain()throws Exception {
         var copies=new ArrayList<MembershipFloor.Copy>();for(int n:voters)try(var s=open(n)){copies.add(s.floorCopyCurrent());}

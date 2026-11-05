@@ -65,3 +65,8 @@ and optimized Python; all 36 focused Python tests pass in both modes. The contex
 same-round and carried-publication regression evidence also passes independent
 normal/optimized and portable replay. Maximum-image execution and Phase 2 closure remain
 separate obligations.
+
+The later [Phase 3 capacity continuation](PHASE_3_CAPACITY_COMPLETION.md) adds
+a same-directory INTENT/FINAL, stable BARRIER and DATA path at the fixed
+conditional-prefix admission boundary. It remains separate from native network,
+independent whole-history and complete combined-resource qualification.
