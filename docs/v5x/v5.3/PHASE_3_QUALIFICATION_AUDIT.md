@@ -1,5 +1,12 @@
 # Phase 3 qualification inventory and remaining work
 
+[Original export resource bindings](PHASE_3_EXPORT_RESOURCES.md) now tie native
+source, record and prefix CONTROL reservations to original content digests and
+exact extents. Three stable-size histories cover 18 overlapping allocations;
+48 resource negatives reject missing ownership, wrong bytes and premature
+release. Vote/learner export families, session integration, physical peaks and
+final-source qualification remain OPEN.
+
 [Recovery after completed release](PHASE_3_RECOVERY_RELEASE_GUARD.md) separates
 immediate revocation from permission to replace an old disposition. Two original
 TCP regressions showed recovery passing the owner guard and then being rejected

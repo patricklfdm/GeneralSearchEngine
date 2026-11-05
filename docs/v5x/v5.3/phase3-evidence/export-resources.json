@@ -1,0 +1,239 @@
+{
+  "schema": "gse-v53-export-resources-development-v1",
+  "status": "PASS",
+  "phase3Complete": false,
+  "baseSource": "2ff2d115ab4ed8741a09fd4a25f692ff37a1d200",
+  "javaTests": 11,
+  "newJavaTests": 4,
+  "pythonTests": 89,
+  "newPythonTests": 11,
+  "initialAttempt": "test compilation rejected a private overload; corrected to the existing accessible entry before execution",
+  "runtimeChange": "local observation owner names bind source BASIS, exact record and current generation manifest digests",
+  "cases": [
+    {
+      "path": "general-search-engine-replication/target/v53-export-resources/run-60826e97-8ec6-417e-83b0-cb7c84f0e31c",
+      "result": {
+        "status": "PASS",
+        "scope": "native-source-record-prefix-export-accounting",
+        "size": 3,
+        "exportReservations": 6,
+        "originalCases": 2,
+        "resourceTransitions": 25,
+        "exportReservationBindingsQualified": true,
+        "networkSessionQualified": false,
+        "expiryClockIndependentlyQualified": false,
+        "allExportFamiliesQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false,
+        "physicalPrecondition": {
+          "size": 3,
+          "contents": 4
+        }
+      },
+      "negativeCases": 16
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-export-resources/run-c1f6f9a7-e421-4aae-a784-fb1fd480f41e",
+      "result": {
+        "status": "PASS",
+        "scope": "native-source-record-prefix-export-accounting",
+        "size": 4,
+        "exportReservations": 6,
+        "originalCases": 2,
+        "resourceTransitions": 25,
+        "exportReservationBindingsQualified": true,
+        "networkSessionQualified": false,
+        "expiryClockIndependentlyQualified": false,
+        "allExportFamiliesQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false,
+        "physicalPrecondition": {
+          "size": 4,
+          "contents": 4
+        }
+      },
+      "negativeCases": 16
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-export-resources/run-4b637b3b-9fb4-4351-bb5c-7d4aba54716f",
+      "result": {
+        "status": "PASS",
+        "scope": "native-source-record-prefix-export-accounting",
+        "size": 5,
+        "exportReservations": 6,
+        "originalCases": 2,
+        "resourceTransitions": 25,
+        "exportReservationBindingsQualified": true,
+        "networkSessionQualified": false,
+        "expiryClockIndependentlyQualified": false,
+        "allExportFamiliesQualified": false,
+        "wholeRuntimeResourcesQualified": false,
+        "phase3Complete": false,
+        "physicalPrecondition": {
+          "size": 5,
+          "contents": 4
+        }
+      },
+      "negativeCases": 16
+    }
+  ],
+  "exportReservations": 18,
+  "negativeCases": 48,
+  "existingSourceExportNegatives": 10,
+  "allExportFamiliesQualified": false,
+  "networkSessionQualified": false,
+  "expiryClockIndependentlyQualified": false,
+  "wholeRuntimeResourcesQualified": false,
+  "finalSourceCohortQualified": false,
+  "remaining": [
+    "vote and learner-specific export resources",
+    "native session and direct export ownership composition",
+    "physical peaks and combined maxima",
+    "remaining resource owners",
+    "final-source hosted qualification"
+  ],
+  "sources": [
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPrefixExport.java",
+      "sha256": "6e8e73632a23c6f38262cf7843fe31f576297ecf51424c761752d9db81316733"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRecordExport.java",
+      "sha256": "f2f172d9787d31de22a5dc8dc4131cdbf6d78ca933e1c1dcbc1b053471d7df84"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceExport.java",
+      "sha256": "12f0e5fa5b3f80e5ad8a3bd68e8d20d9fb1e522f824aef88bb6ff193f5a7a9fb"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceResources.java",
+      "sha256": "ab936d2ff21e068e27282bf97623f5921ac7a4eb7350b2b6f0e311601d5afffa"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ExportResourceBindingsTest.java",
+      "sha256": "dfad24d56516b3d7952951c2650c79b1429cd205eb27c976abbe790c4adcf828"
+    },
+    {
+      "path": "scripts/v53/export_resource_evidence.py",
+      "sha256": "225e5b9abe770ac515594d05b17e077d200caf9bbe0b0c96bbcdf34cd651debe"
+    },
+    {
+      "path": "scripts/v53/export_resource_negatives.py",
+      "sha256": "deff1e2b92e6d7437ac195ee974d489c95da63cf3b03449e7096237795f47ca8"
+    },
+    {
+      "path": "scripts/v53/test_export_resource_evidence.py",
+      "sha256": "5c6b60a1419219532f034e2feecfe9e049ab616e547fc598ee1be706df0698a9"
+    }
+  ],
+  "reports": [
+    {
+      "path": "target/v53-export-resources/TEST-io.github.patricklfdm.generalsearch.replication.V53ExportResourceBindingsTest.xml",
+      "sha256": "c2980b07f74df96285f8fa350c1e301fc2a86f3ecec2b26f9289f4e05a566df6"
+    },
+    {
+      "path": "target/v53-export-resources/TEST-io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest.xml",
+      "sha256": "d5cff782c25d12409b72d4c74a328d1debc84968e5bac7818641b41b8ced17cb"
+    },
+    {
+      "path": "target/v53-export-resources/TEST-io.github.patricklfdm.generalsearch.replication.V53RecordExchangeTest.xml",
+      "sha256": "9f9d71c20231687e0c79056aee91916b485fce02cf0b728ab717db7f1caea145"
+    },
+    {
+      "path": "target/v53-export-resources/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceExportTest.xml",
+      "sha256": "df948f33d816b436fdef9b2552c481984eaf408e21e1ed313a83443d504537d0"
+    },
+    {
+      "path": "target/v53-export-resources/__pycache__/finalize.cpython-310.pyc",
+      "sha256": "19f4048aac08f5738cd95ed4370f9c1e54884b1f6acf88b9dc4b555f2bbf178a"
+    },
+    {
+      "path": "target/v53-export-resources/contract.log",
+      "sha256": "df563703cebc9a33964bbe483174cca901584dbfc9b6866b8890a5d4bb44c074"
+    },
+    {
+      "path": "target/v53-export-resources/finalize.py",
+      "sha256": "fc09513174d37919ff94d03e4ae9a2ed557a7193a09d3f552fa671024c41f2da"
+    },
+    {
+      "path": "target/v53-export-resources/java-input-02.json",
+      "sha256": "e04877ce74e14245188859d575114a0a2b01aed4bee86d5d744c5fdd3930ba10"
+    },
+    {
+      "path": "target/v53-export-resources/java-input.json",
+      "sha256": "930edd45e03e4782e1d287b2694ebc78f1f6e5a994c87bec12ef2849ea21bead"
+    },
+    {
+      "path": "target/v53-export-resources/maven-01.log",
+      "sha256": "f48b4fcbcd651776907027624ccf57f7bb625171412f31b0ed0a635af8846707"
+    },
+    {
+      "path": "target/v53-export-resources/maven-02.log",
+      "sha256": "c7a7961a9071471f1ad0c22f5e85c01f6c2cbf31514b0bf8dc986a02a5b21179"
+    },
+    {
+      "path": "target/v53-export-resources/maven-regression-01.log",
+      "sha256": "36ea72ba2e6ead1501edcc97311e1eb050252284069b192f14c6ccbbcd95a478"
+    },
+    {
+      "path": "target/v53-export-resources/plan-tests.log",
+      "sha256": "616660372b1787eaba17018c0a2be33dd6e9d123610e13be6340f4ea2ab05afa"
+    },
+    {
+      "path": "target/v53-export-resources/plan.log",
+      "sha256": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df"
+    },
+    {
+      "path": "target/v53-export-resources/python-final.log",
+      "sha256": "25300ee4d09c7cb9306d6c80fbc376e453a982c207f99a99b1f11080c7e5bed3"
+    },
+    {
+      "path": "target/v53-export-resources/python-new-01.log",
+      "sha256": "c31e811c47f992d66e20f9b41cd43f0634edac76521e17dbdc11a485fe59c061"
+    },
+    {
+      "path": "target/v53-export-resources/qualification-plan/acceptance-plan.json",
+      "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+    },
+    {
+      "path": "target/v53-export-resources/qualification-plan/plan.json",
+      "sha256": "cbb95c9f43b3ec9ad63360ca5f5dd868b9bb8d4b4ae150385af911e754562846"
+    },
+    {
+      "path": "target/v53-export-resources/qualification-plan/receipt.json",
+      "sha256": "71c71351c612328a28b18678e15fd140ebe099454989877196a8c07d5ca302bc"
+    },
+    {
+      "path": "target/v53-export-resources/raw-inventories.json",
+      "sha256": "95702d02f3a0e8b8cc2700c25f3b11ecdc198998d235d51bf0ca2cbc1c436165"
+    },
+    {
+      "path": "target/v53-export-resources/run-4b637b3b-9fb4-4351-bb5c-7d4aba54716f-original.json",
+      "sha256": "f8a753141173977a5ff7346d21b34468e6285c21a1f6f2c9bb8bb4f0dbfb3f29"
+    },
+    {
+      "path": "target/v53-export-resources/run-4b637b3b-9fb4-4351-bb5c-7d4aba54716f-qualified.json",
+      "sha256": "cec496be0bfbe2fafc8e569eb57f2aaa56b8f52a2a2ad251e7e2fbaa6e3e2b15"
+    },
+    {
+      "path": "target/v53-export-resources/run-60826e97-8ec6-417e-83b0-cb7c84f0e31c-original.json",
+      "sha256": "0e74f35b6cd2cfeb1c0ecc1e11966c8cd972c3ba409044132e9c605cad094531"
+    },
+    {
+      "path": "target/v53-export-resources/run-60826e97-8ec6-417e-83b0-cb7c84f0e31c-qualified.json",
+      "sha256": "5d0c845f050b0e0560621ba145bf2f31b23d7444471bcfd1b69e3aa008bb50ee"
+    },
+    {
+      "path": "target/v53-export-resources/run-c1f6f9a7-e421-4aae-a784-fb1fd480f41e-original.json",
+      "sha256": "8e84a8e03d8e2f0e8da79ca40cc38c6f7b7e5b18387a84e28e4681b0a7f15c00"
+    },
+    {
+      "path": "target/v53-export-resources/run-c1f6f9a7-e421-4aae-a784-fb1fd480f41e-qualified.json",
+      "sha256": "1a88f9af65260d488037aafe47e9e43fedaf3684eb9ee0712e1b475dd531052e"
+    },
+    {
+      "path": "target/v53-export-resources/source-export-regression.json",
+      "sha256": "2c257eb96b067ddafb931bd20b325bcc8e3025a23449bdd0a075ef0eec07dd66"
+    }
+  ]
+}

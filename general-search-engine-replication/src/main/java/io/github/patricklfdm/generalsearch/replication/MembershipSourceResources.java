@@ -8,6 +8,10 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*
  * nonce distinguishes allocations even when an exact request/session recurs. */
 final class MembershipSourceResources {
     private MembershipSourceResources() {}
+    static String export(String role,String originalDigest) {
+        MembershipValidation.digest(originalDigest);
+        return role+"-"+originalDigest+"-"+UUID.randomUUID();
+    }
     static String request(String role,Decoded request) {
         return role+"-"+request.digest()+"-"+UUID.randomUUID();
     }

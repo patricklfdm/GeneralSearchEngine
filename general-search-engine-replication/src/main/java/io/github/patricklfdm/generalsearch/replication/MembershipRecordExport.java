@@ -31,7 +31,7 @@ final class MembershipRecordExport implements MembershipTransferExport {
             MembershipGrantJournal.Publication publication) {
         this.publication=publication;this.owner=owner;this.context=context;this.identity=identity;this.ballot=Map.copyOf(ballot);
         kind=record.kind();digest=record.digest();this.clock=clock;this.started=started;this.budget=budget;
-        lease=resources.reserve(MembershipResources.Unit.CONTROL,"record-export-"+UUID.randomUUID(),record.size());
+        lease=resources.reserve(MembershipResources.Unit.CONTROL,MembershipSourceResources.export("record-export",record.digest()),record.size());
         try{bytes=record.bytes();}catch(RuntimeException|Error error){lease.close();throw error;}
     }
     String kind(){return kind;}

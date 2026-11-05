@@ -30,7 +30,7 @@ final class MembershipSourceExport implements MembershipTransferExport,Membershi
         require(budget>0 && budget<Long.MAX_VALUE/2,"source export time budget");
         this.owner=Objects.requireNonNull(owner);this.source=Objects.requireNonNull(source);this.promise=Objects.requireNonNull(promise);
         this.clock=Objects.requireNonNull(clock);this.budget=budget;this.started=started;
-        var lease=resources.reserve(MembershipResources.Unit.CONTROL,"source-export-"+UUID.randomUUID(),promise.size()+(long)source.basis.size());
+        var lease=resources.reserve(MembershipResources.Unit.CONTROL,MembershipSourceResources.export("source-export",source.basis.digest()),promise.size()+(long)source.basis.size());
         try {
             var entries=new TreeMap<String,Member>();record(entries,promise);record(entries,source.basis);
             byte[] packet=source.capsule.packet.bytes();file(entries,directory.resolve(MembershipBasisSources.PACKET),hash(packet),packet.length,MembershipTransfer.Kind.CAPSULE);

@@ -556,7 +556,10 @@
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerCheckpointEndpoint.java",
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerHeadEndpoint.java",
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDisposition.java",
-        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerStore.java"
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerStore.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceExport.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRecordExport.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPrefixExport.java"
       ],
       "tests": [
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransferTest.java",
@@ -642,7 +645,9 @@
         "scripts/v53/test_store_drain_evidence.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ConstructionRollbackTest.java",
         "scripts/v53/test_construction_rollback_evidence.py",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DispositionRecoveryGuardTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DispositionRecoveryGuardTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ExportResourceBindingsTest.java",
+        "scripts/v53/test_export_resource_evidence.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -696,7 +701,9 @@
         "scripts/v53/pending_drain_negatives.py",
         "scripts/v53/store_drain_negatives.py",
         "scripts/v53/construction_rollback_evidence.py",
-        "scripts/v53/construction_rollback_negatives.py"
+        "scripts/v53/construction_rollback_negatives.py",
+        "scripts/v53/export_resource_evidence.py",
+        "scripts/v53/export_resource_negatives.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -754,7 +761,8 @@
         "docs/v5x/v5.3/PHASE_3_PENDING_LISTENER_DRAIN.md",
         "docs/v5x/v5.3/PHASE_3_STORE_LISTENER_DRAIN.md",
         "docs/v5x/v5.3/PHASE_3_CONSTRUCTION_ROLLBACK.md",
-        "docs/v5x/v5.3/PHASE_3_RECOVERY_RELEASE_GUARD.md"
+        "docs/v5x/v5.3/PHASE_3_RECOVERY_RELEASE_GUARD.md",
+        "docs/v5x/v5.3/PHASE_3_EXPORT_RESOURCES.md"
       ],
       "cohorts": [
         "profiles",

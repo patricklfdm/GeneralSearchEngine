@@ -44,7 +44,7 @@ final class MembershipPrefixExport implements MembershipTransferExport,Membershi
         var first=ancestry || completeGeneration?contents.get(generation.manifest.digest()):contents.values().stream().filter(v->v.kind()==MembershipTransfer.Kind.CAPSULE).findFirst().orElseThrow();
         require(contents.putIfAbsent(packetOnly?packetReference(context()):metadataOnly?generationMetadataReference(context()):
                 completeGeneration?generationReference(context()):ancestry?ancestryReference(context()):cutDigest(context().cut),first)==null,"prefix cut reference collision");references=Map.copyOf(contents);
-        metadata=resources.reserve(MembershipResources.Unit.CONTROL,"prefix-export-"+UUID.randomUUID(),4096);
+        metadata=resources.reserve(MembershipResources.Unit.CONTROL,MembershipSourceResources.export("prefix-export",generation.manifest.digest()),4096);
     }
     /** Derived lookup alias only, never an authority record or manifest digest. */
     static String ancestryReference(MembershipContext context) {
