@@ -1,0 +1,398 @@
+{
+  "baseSource": "50aebe82937b218f6ff1d07d860ef443a4bf5783",
+  "conditionalPreparation": "two independent original-byte reads; publication remains usable after first session cleanup; not native joining",
+  "exactNegatives": [
+    {
+      "case": "missing-attachment",
+      "reason": "control close complete export attachments",
+      "status": "REJECT"
+    },
+    {
+      "case": "duplicate-attachment",
+      "reason": "control close original export attachment",
+      "status": "REJECT"
+    },
+    {
+      "case": "empty-owned-group",
+      "reason": "control close original export attachment",
+      "status": "REJECT"
+    },
+    {
+      "case": "duplicate-handle",
+      "reason": "control close exact ordered row",
+      "status": "REJECT"
+    },
+    {
+      "case": "unknown-handle",
+      "reason": "control close original export allocation",
+      "status": "REJECT"
+    },
+    {
+      "case": "session-as-export",
+      "reason": "control close original export allocation",
+      "status": "REJECT"
+    },
+    {
+      "case": "boolean-resource-point",
+      "reason": "control close exact ordered row",
+      "status": "REJECT"
+    },
+    {
+      "case": "wrong-attachment-call",
+      "reason": "control close original export attachment",
+      "status": "REJECT"
+    },
+    {
+      "case": "missing-close-return",
+      "reason": "control close complete cleanup intervals",
+      "status": "REJECT"
+    },
+    {
+      "case": "truncated",
+      "reason": "control close complete bounded recorder",
+      "status": "REJECT"
+    },
+    {
+      "case": "failed",
+      "reason": "control close complete bounded recorder",
+      "status": "REJECT"
+    },
+    {
+      "case": "unclaimed-export",
+      "reason": "session export unattached inventory changed",
+      "status": "REJECT"
+    }
+  ],
+  "finalSourceCohortQualified": false,
+  "javaTests": 25,
+  "nativeExportOwnership": {
+    "allExportFamiliesQualified": false,
+    "completeExportAllocationInventory": false,
+    "declaredSessionExportReleaseQualified": true,
+    "exportContentExtentsQualified": false,
+    "failedConstructorExportsQualified": false,
+    "families": {
+      "prefix-export": 8,
+      "record-export": 16,
+      "source-export": 2,
+      "vote-export": 13
+    },
+    "ownedAllocations": 39,
+    "phase3Complete": false,
+    "revokedBeforeAttachment": 0,
+    "scope": "observed-source-session-export-handles",
+    "sessions": 39,
+    "status": "PARTIAL",
+    "unattachedExports": [
+      {
+        "end": 400,
+        "node": "node-1",
+        "owner": "prefix-export-714a180e18d79eaf811e19c5b323fa92a65c4759a345bc832451a691b8bb7f40-ecc0e369-f970-45ff-9cd1-9de78eb98cff",
+        "role": "prefix-export",
+        "start": 228
+      },
+      {
+        "end": 1123,
+        "node": "node-1",
+        "owner": "prefix-export-8fde6d20700036137638f7850949297ac14ee8c7d7d682c6ccc1141ea58e21a1-18ac84db-82ba-4b84-a8e4-3ab035cfbac6",
+        "role": "prefix-export",
+        "start": 928
+      },
+      {
+        "end": 227,
+        "node": "node-1",
+        "owner": "source-export-b5259cf2a18f55e5b68e539d21c4711b74f72d9bc3b6dcadad4c472ca5e9e71d-1cbac9e1-e7cb-4d49-b964-ab1e101168d6",
+        "role": "source-export",
+        "start": 9
+      },
+      {
+        "end": 533,
+        "node": "node-2",
+        "owner": "prefix-export-6b942b5f4ab165c40d9af4dd63e34b670c33cdf1318606fdc38d41b5d1ff976a-0e890f68-aec4-4019-8147-9194d65733dd",
+        "role": "prefix-export",
+        "start": 361
+      },
+      {
+        "end": 1263,
+        "node": "node-2",
+        "owner": "prefix-export-cef158f6a4bdcd70415bf12d68ed6f4872ecb5e3ea2df764194ef3c569454165-ae50da50-6f44-432e-93cf-b4d7da237bde",
+        "role": "prefix-export",
+        "start": 1068
+      },
+      {
+        "end": 208,
+        "node": "node-2",
+        "owner": "source-export-70fa44068a8d5bd76673e9f59065a24e7d98af759082a74ff8df6065c100b66b-6f3ec0d5-35da-4035-b723-431c1d31cbcd",
+        "role": "source-export",
+        "start": 130
+      }
+    ],
+    "wholeRuntimeResourcesQualified": false
+  },
+  "nativeHistories": 1,
+  "nativeOriginalPreconditions": "physical/publication/network/accounting/source buffers passed before attachment replay",
+  "nativeRaw": "general-search-engine-replication/target/v53-native-dispatch/run-1ebca2c6-f6c1-45a8-952e-455a8aacd15b",
+  "negativeQualification": "PASS",
+  "newJavaTests": 7,
+  "newPythonTests": 15,
+  "phase3Complete": false,
+  "productionExportImplementations": 11,
+  "publicRuntimeQualified": false,
+  "pythonTests": 120,
+  "remaining": [
+    "direct local activation/publication export ownership",
+    "complete native nested/joining exporter execution",
+    "failed-constructor and abnormal-close composition",
+    "independent physical extents/peaks",
+    "final-source cohort admission/execution"
+  ],
+  "reports": [
+    {
+      "path": "target/v53-session-export-ownership/contract-final.json",
+      "sha256": "dae9f8d3fb737d94da57b0aaa6e1cd2e2db8fecb335185e7b490dca0bf2244a1"
+    },
+    {
+      "path": "target/v53-session-export-ownership/finalize.py",
+      "sha256": "c422db4bd9218dd476cc2631e7a98506a15f4ffdad8b910c32f1054de7e3ecb9"
+    },
+    {
+      "path": "target/v53-session-export-ownership/historical-compatibility.json",
+      "sha256": "e1468d5f24001125c93f70ddebab580177776081733e6dce45d946171690f6f3"
+    },
+    {
+      "path": "target/v53-session-export-ownership/historical-compatibility.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-session-export-ownership/java-input-01.json",
+      "sha256": "7744c32d8f5c507c1529164abdf679d52a32edf88b2d7692922fd83bb7baf805"
+    },
+    {
+      "path": "target/v53-session-export-ownership/java-input-02.json",
+      "sha256": "bae6828ce278309a1675af8a642bd7a6faecda5be0f2bef1a7847ae4c6d1ebe4"
+    },
+    {
+      "path": "target/v53-session-export-ownership/junit-components/TEST-io.github.patricklfdm.generalsearch.replication.V53ControlCloseObservationsTest.xml",
+      "sha256": "92f7b5464db0561030855e2489b80a58f2f70085bb704fcd581f6a846230f8f0"
+    },
+    {
+      "path": "target/v53-session-export-ownership/junit-components/TEST-io.github.patricklfdm.generalsearch.replication.V53ResourceTransitionCaptureTest.xml",
+      "sha256": "e27a0e0274c0725484c960b38511ab6ac8418650db684660ac9942b3db56d7bd"
+    },
+    {
+      "path": "target/v53-session-export-ownership/junit-components/TEST-io.github.patricklfdm.generalsearch.replication.V53SessionExportOwnershipTest.xml",
+      "sha256": "bcbe0fe9d08b0e3bfc807f03bb6e38458535434f9d6714052821fe434cf2028e"
+    },
+    {
+      "path": "target/v53-session-export-ownership/junit-native/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml",
+      "sha256": "d08d45801c7fa0dc8952c9cb100dc431abcf14c8cdda80200b5ac526b8dc8504"
+    },
+    {
+      "path": "target/v53-session-export-ownership/maven-components-01.log",
+      "sha256": "d19ef396b8b45cf9a86d68fbaeb2446f00dbd59844c37d8896676d8ac6bbfde7"
+    },
+    {
+      "path": "target/v53-session-export-ownership/maven-components-02.log",
+      "sha256": "e3a8ff21bed22546dc1d415af398de709aa421f5b2566d2661f3d221a4389c8c"
+    },
+    {
+      "path": "target/v53-session-export-ownership/maven-native-01.log",
+      "sha256": "111be09cadc31fef5dd74b29049532d499d3fa351ff759f9b41455d58b1fb266"
+    },
+    {
+      "path": "target/v53-session-export-ownership/native-replay-01.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-session-export-ownership/native-replay-01.stderr",
+      "sha256": "d911d4767c5d682a427fc3ca16222c9953986324b3e845a7f8f9800dc3e8892a"
+    },
+    {
+      "path": "target/v53-session-export-ownership/native-replay-02.json",
+      "sha256": "0f9438b7466e5b618f4e8f2691d25266c89a710936b59bba2f25c02e25683c6e"
+    },
+    {
+      "path": "target/v53-session-export-ownership/native-replay-02.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-session-export-ownership/native-replay-final.json",
+      "sha256": "0f9438b7466e5b618f4e8f2691d25266c89a710936b59bba2f25c02e25683c6e"
+    },
+    {
+      "path": "target/v53-session-export-ownership/native-replay-final.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/v53-session-export-ownership/plan-final/acceptance-plan.json",
+      "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+    },
+    {
+      "path": "target/v53-session-export-ownership/plan-final/plan.json",
+      "sha256": "811d5dedd9f3965d1927fd1072d36c23b8a7fb6dcf8b158172e4b4d48e57c005"
+    },
+    {
+      "path": "target/v53-session-export-ownership/plan-final/receipt.json",
+      "sha256": "2eea2f8d7fde2c49fd2801801a78d5f6100422d559a22304f2eb547c60f74ed2"
+    },
+    {
+      "path": "target/v53-session-export-ownership/plan-final.log",
+      "sha256": "b6967ad2cde79393d4fc02524e9825edfc1b89967f5d2769b674a1f280aae2df"
+    },
+    {
+      "path": "target/v53-session-export-ownership/python-01.log",
+      "sha256": "e3605e24a1169720b69399f0983ff4ea2da94db239fb9268e8f3511597111c69"
+    },
+    {
+      "path": "target/v53-session-export-ownership/python-02.log",
+      "sha256": "bf1e1572f434875472000f60a374da7a6fabf99668209e6e62cced3964b85a5c"
+    },
+    {
+      "path": "target/v53-session-export-ownership/python-03.log",
+      "sha256": "76e9bf67dcf0052a3e51f5aeffb5132ede3f25c5250cc462b7fe85f95a8de0d7"
+    },
+    {
+      "path": "target/v53-session-export-ownership/python-04.log",
+      "sha256": "81d23c07633ea4880a4f8013d10d3b4412704c8a492e4453ce7dd4cc8b955c00"
+    },
+    {
+      "path": "target/v53-session-export-ownership/python-final.log",
+      "sha256": "48e7d70f7359b4fe94b4feeb697c711d50fe90f604f489dec5634bdd77225047"
+    },
+    {
+      "path": "target/v53-session-export-ownership/raw-inventory.json",
+      "sha256": "16cb59130a05f39d805872764d5033ab6b78eefffe9b6cab4afecf732487212d"
+    }
+  ],
+  "retainedFailures": [
+    "maven-components-01.log: test compilation missing nested Lease type qualification",
+    "native-replay-01.stderr: strict complete export inventory rejected six unattached original allocations",
+    "python-03.log: mutation driver reused its synthetic orphan UUID; corrected to select a distinct identifier"
+  ],
+  "runtimeChange": "optional ownership observation only; existing close order and limits preserved",
+  "schema": "gse-v53-session-export-ownership-development-v1",
+  "sources": [
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_QUALIFICATION_AUDIT.md",
+      "sha256": "0eb9c6e2538ff77a706eac99672bf793a271ba161f836203bb808f88acb7c5b8"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_SESSION_EXPORT_OWNERSHIP.md",
+      "sha256": "f0f6a737eae884627ca0490aa3158e813b5ca8b4ebeac1d353e62b584f4ce61b"
+    },
+    {
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "90d82a7378f75fe9d1f59721e246349fb928cba8fac0daea6257ab8de46fdbba"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningCompletion.java",
+      "sha256": "e03768fa594ce302463cddbac1f457ad8d78abfb2046835531f85f46de28344c"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningIntentExport.java",
+      "sha256": "8e6bd967e32350468b6c25bdbf5aa9cec3e660e7b099ceb07e6d8a2bc7d89c44"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningPreparation.java",
+      "sha256": "6e9064cbdd8bb07517c7f47a44100ed1c6ad4e49c4b8d62584a8cf29245e996b"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningRetentionExport.java",
+      "sha256": "594d63369f2cc60aa9c027ee71d517ee4099b78f98586d7bfbb0749147ab54dd"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerCheckpointEndpoint.java",
+      "sha256": "398d32f82a9ed1d72759f8fb3d6320059943903ce427b2e5b70cf0d278e5ec73"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerPrefixExport.java",
+      "sha256": "c9e7a78629267c93eb4a9f47f3abf6b4eac9e79acdd136dad5310b15bc17adca"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerRootExport.java",
+      "sha256": "23417aab20b6690e23e9de6a9b2194f42268116dcffd4efe2f62bfe0de8d2a73"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPrefixExport.java",
+      "sha256": "efcf4e23e06fde8a70c6ab8fa295bd2bee30b121de43cefbfa1ac0b6bd3122bb"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRecordExport.java",
+      "sha256": "01bd1fbbbf4fe25fa0ed26abbf52cee87da7055d297e97157e2083a5d1e84315"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java",
+      "sha256": "2366ab4e61f64288ca8c6ac9b9a2e56bfd48b40ae9341e6f782048f05dc10b40"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceExport.java",
+      "sha256": "745d08747428fbc4f51a2760409ff987e8f905ff20c64e5eedc71ddfa3b33de8"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceSession.java",
+      "sha256": "aa87ac70f11127dec3473c91c88badbfc75d45055214c63886f35058858ec6f3"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransferExport.java",
+      "sha256": "5e10f5b03e147fbded5e456c7faa5466561ca1d9b9eb5f7d9b27508e56860af4"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipVoteExport.java",
+      "sha256": "573f6293fa7626e7cf98c761d64b759fe9331c68a3dc21b88f4c4f4340ba3285"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ControlCloseObservationsTest.java",
+      "sha256": "0bd53e088b292067e51fa08a2f13caba1eb2a44440128874795bcef1e68727ab"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningRetentionNetworkTest.java",
+      "sha256": "f9387c75c055f03b3fe4e43b4914e91285fd0c847da1cf5f99e67d8c3dc5e74c"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java",
+      "sha256": "7700376ea355c7ce9cf2ca963e2d61e4d8e3a1b4e0c53152362cea58beb193ed"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransitionCapture.java",
+      "sha256": "c32cd3355d5e896c65c7145b703318dd0e5d8d1d06cb2ea9b4635eeb8478c85a"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RetainedAncestryTest.java",
+      "sha256": "87f09617d54dbb8c7b0ac2ac563563e376737a7f9b02ea1da602be248c5529a9"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RetainedProvenanceTest.java",
+      "sha256": "02e2287900ee41dcdb88eb92c1dd709bce7cedfd394ef391cd06bfd13ed2ec39"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SessionExportOwnershipTest.java",
+      "sha256": "efb57cd899197f0d3b90552a357cad690e2b4042610644b39f16e9d097ec5315"
+    },
+    {
+      "path": "scripts/v53/control_close_evidence.py",
+      "sha256": "75bc4ffef02abf0b66e79b0215721537da1395473aec0797892e5038163fc646"
+    },
+    {
+      "path": "scripts/v53/native_control_closes.py",
+      "sha256": "09a7b24f4f92ce6f5afa9251db95758c6732dc7a54fa8760529f2bda4aecd74b"
+    },
+    {
+      "path": "scripts/v53/native_resource_evidence.py",
+      "sha256": "1f0f809a17e6d6eea07af40c6bf9648d26947d6a5e32ddc0cb3a46f893ac136f"
+    },
+    {
+      "path": "scripts/v53/session_export_evidence.py",
+      "sha256": "1eb887585e883aca3b931c79519809143bfc973449f1210d38967b6871b8590a"
+    },
+    {
+      "path": "scripts/v53/session_export_negatives.py",
+      "sha256": "324f51fa2feaf86adde8c2aaecb2a56053f87ebfdb36fb777efb1f470e138302"
+    },
+    {
+      "path": "scripts/v53/test_session_export_evidence.py",
+      "sha256": "f858ee8a1cb5467af5057db70235621a78814db5b99ea1ac59d2ae9f74178fe1"
+    }
+  ],
+  "status": "PARTIAL",
+  "wholeRuntimeResourcesQualified": false
+}

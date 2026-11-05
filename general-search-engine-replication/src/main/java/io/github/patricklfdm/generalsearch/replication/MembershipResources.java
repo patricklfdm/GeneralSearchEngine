@@ -26,6 +26,7 @@ final class MembershipResources {
     private long metadata, staging, queued, protectedUsed;
     private final MembershipResourceObservations observations;
     private final MembershipControlCloseObservations controlCloses;
+    private final boolean exportOwnership;
 
     MembershipResources(long stagingLimit) { this(METADATA_LIMIT,stagingLimit,QUEUE_LIMIT); }
     MembershipResources(long metadataLimit,long stagingLimit,long queueLimit) {
@@ -35,6 +36,9 @@ final class MembershipResources {
         this(metadataLimit,stagingLimit,queueLimit,observationLimit,0);
     }
     MembershipResources(long metadataLimit,long stagingLimit,long queueLimit,int observationLimit,int closeLimit) {
+        this(metadataLimit,stagingLimit,queueLimit,observationLimit,closeLimit,false);
+    }
+    MembershipResources(long metadataLimit,long stagingLimit,long queueLimit,int observationLimit,int closeLimit,boolean exportOwnership) {
         require(metadataLimit>=HEADROOM && metadataLimit<=METADATA_LIMIT && stagingLimit>0
                 && queueLimit>0 && queueLimit<=QUEUE_LIMIT,"resource limit");
         this.metadataLimit=metadataLimit;this.stagingLimit=stagingLimit;this.queueLimit=queueLimit;
@@ -43,6 +47,8 @@ final class MembershipResources {
         require(closeLimit>=0 && closeLimit<=MembershipControlCloseObservations.MAXIMUM && (closeLimit==0 || observations!=null),
                 "control close requires resource observations");
         controlCloses=closeLimit==0?null:new MembershipControlCloseObservations(closeLimit);
+        require(!exportOwnership || controlCloses!=null,"export ownership requires close observations");
+        this.exportOwnership=exportOwnership;
         observe("START");
     }
     private void observe(String event) {
@@ -332,6 +338,27 @@ final class MembershipResources {
         private Key key; private long bytes; private boolean released;
         private GenerationReload reload;
         private Lease(Key key,long bytes) { this.key=key;this.bytes=bytes; }
+        private MembershipResources pool(){return MembershipResources.this;}
+        boolean observesExports(){return exportOwnership;}
+        /** Called once after successful session construction. Revocation can
+         * already have released a handle; ownership is still exact. Never call
+         * into an exporter while holding the accounting monitor. */
+        void observeExportOwnership(Collection<Lease> children) {
+            if(!exportOwnership)return;
+            synchronized(MembershipResources.this) {
+                try {
+                    require(!released && leases.get(key)==this && key.unit==Unit.CONTROL,"export session original owner");
+                    require(!children.isEmpty() && children.size()<=2,"export ownership extent");
+                    var names=new TreeSet<String>();
+                    for(var child:children) {
+                        require(child!=this && child.pool()==MembershipResources.this && child.key.unit==Unit.CONTROL
+                                && (child.released || leases.get(child.key)==child) && names.add(child.key.owner),"export ownership original handle");
+                    }
+                    var point=observations.checkpoint(usage());require(point.complete(),"export ownership incomplete resources");
+                    controlCloses.record("ATTACHED",-1,point.sequence(),key.owner,List.copyOf(names));
+                }catch(RuntimeException|OutOfMemoryError error){controlCloses.failed();}
+            }
+        }
         boolean observesClose(){return controlCloses!=null;}
         void closeObservationFailed(){synchronized(MembershipResources.this){if(controlCloses!=null)controlCloses.failed();}}
         long observeCloseBegin(Lease child) {

@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Session export ownership](PHASE_3_SESSION_EXPORT_OWNERSHIP.md) now records the
+actual handles closed through each source session. One new native history binds
+39 such allocations; six direct local borrows remain explicit gaps and keep the
+extended result PARTIAL. This advances Phase 3 resource composition without
+closing complete joining, physical-peak or final-source qualification.
+
 [Joining connection integration](PHASE_3_JOINING_CONNECTIONS.md) now threads
 original socket metadata through old-owner and scoped joining collectors and the
 shared phase/network readers. Actual overlapping retries through these collectors

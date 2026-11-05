@@ -26,9 +26,11 @@ class V53JoiningRetentionNetworkTest {
     final class Local implements AutoCloseable {
         final V53JoiningRetentionSeedTest.Input in=V53JoiningRetentionSeedTest.input(3,"ADD");
         final V53CurrentGenerationFixture fixture=new V53CurrentGenerationFixture(3,in.fixture());
-        final MembershipResources a=resources(),b=resources();final AtomicLong clock=new AtomicLong();
+        final MembershipResources a,b;final AtomicLong clock=new AtomicLong();
         final MembershipGrantJournal source,reader;final MembershipTransferService service;final Path path;
-        Local()throws Exception {
+        Local()throws Exception {this(false);}
+        Local(boolean exportOwnership)throws Exception {
+            a=exportOwnership?V53SessionExportOwnershipTest.budget():resources();b=resources();
             Path base=Files.createDirectory(temp.resolve(UUID.randomUUID().toString()));path=base.resolve("source");fixture.provision(path);
             var original=in.sources().getFirst();var promise=MembershipPeerRetentionSource.read(original).promise();
             var out=new ByteArrayOutputStream();out.writeBytes(Files.readAllBytes(path.resolve("grants.gsr")));out.writeBytes(promise.bytes());out.writeBytes(original.basis.bytes());Files.write(path.resolve("grants.gsr"),out.toByteArray());

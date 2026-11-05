@@ -56,7 +56,8 @@ def allocations(trace):
     return result
 
 
-def replay(traces,closes):
+def replay(traces,closes,*,export_ownership=False):
+    need(type(export_ownership) is bool,'control close export policy')
     need(type(closes) is dict and set(closes)==set(traces) and traces,'control close complete original budgets')
     owners={};total=0;children_total=0
     for node,trace in traces.items():
@@ -66,7 +67,7 @@ def replay(traces,closes):
              0<value['maximum']<=MAXIMUM and value['truncated'] is False and value['failed'] is False and
              type(value['observations']) is int and type(value['rows']) is list and
              value['observations']==len(value['rows'])<=value['maximum'],'control close complete bounded recorder')
-        pairs={};calls={};cursor=0;child_count=0
+        pairs={};calls={};attachments={};cursor=0;child_count=0
         for seq,row in enumerate(value['rows']):
             need(type(row) is dict and set(row)=={'sequence','event','call','resourceSequence','owner','children'} and
                  type(row['sequence']) is int and row['sequence']==seq and type(row['call']) is int and
@@ -77,7 +78,16 @@ def replay(traces,closes):
                  'control close exact ordered row')
             cursor=row['resourceSequence'];name=row['owner'];owned=life[name]
             child_count+=len(row['children']);need(child_count<=CHILDREN_MAXIMUM,'control close child capacity')
-            if row['event']=='BEGIN':
+            if row['event']=='ATTACHED':
+                need(export_ownership and role(name)=='source-session' and row['call']==seq and
+                     name not in attachments and name not in pairs and owned['end'] is not None and
+                     owned['start']<=cursor<owned['end'] and 0<len(row['children'])<=2,
+                     'control close original export attachment')
+                need(all(child!=name and child in life and life[child]['end'] is not None and
+                         life[child]['start']<owned['start'] for child in row['children']),
+                     'control close original export allocation')
+                attachments[name]=row
+            elif row['event']=='BEGIN':
                 need(row['call']==seq and name not in pairs and owned['end'] is not None and
                      owned['start']<=cursor<owned['end'],'control close original live invocation')
                 need(all(child!=name and child in life and life[child]['end'] is not None and
@@ -121,7 +131,9 @@ def replay(traces,closes):
                 need(parent.get(name)==p,'control close active session omitted')
             else:need(name not in parent and pairs[name]['returned']['sequence']<pairs[p]['begin']['sequence'],
                       'control close completed session order')
-        owners[node]=dict(pairs=pairs,lifetimes=life,sessionParents=session_parent)
+        if export_ownership:
+            need(set(attachments)==set(session_parent),'control close complete export attachments')
+        owners[node]=dict(pairs=pairs,lifetimes=life,sessionParents=session_parent,exportAttachments=attachments)
         total+=len(pairs);children_total+=child_count
     need(total>0,'control close unobserved cleanup')
     return dict(status='PASS',cleanupIntervals=total,childReferences=children_total,owners=owners,

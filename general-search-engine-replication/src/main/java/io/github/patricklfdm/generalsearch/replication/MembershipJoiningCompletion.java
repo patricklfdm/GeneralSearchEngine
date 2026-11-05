@@ -70,6 +70,7 @@ final class MembershipJoiningCompletion implements MembershipTransferExport {
             require(owner.activationContext().cut.equals(context.cut),"joining completion original cut changed");}
         elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"joining completion closed/original deadline");
     }
+    @Override public List<MembershipResources.Lease> closeReservations(){return List.of(metadata);}
     @Override public MembershipContext context(){return context;}
     @Override public MembershipIdentity identity(){return owner.activationIdentity();}
     @Override public Map<String,Object> ballot(){return object(first.value().get("ballot"));}

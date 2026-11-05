@@ -72,6 +72,7 @@ class V53ControlCloseObservationsTest {
     }
     private static MembershipTransferExport wrap(MembershipTransferExport original,Runnable close) {
         return new MembershipTransferExport() {
+            public List<MembershipResources.Lease> closeReservations(){return original.closeReservations();}
             public MembershipContext context(){return original.context();}
             public MembershipIdentity identity(){return original.identity();}
             public Map<String,Object> ballot(){return original.ballot();}

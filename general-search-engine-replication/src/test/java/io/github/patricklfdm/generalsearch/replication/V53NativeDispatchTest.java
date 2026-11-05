@@ -111,7 +111,7 @@ class V53NativeDispatchTest {
             if(Boolean.getBoolean("v53.publication.resources"))publicationResources=new V53PublicationResourceCapture(f.raw);
             if(Boolean.getBoolean("v53.resource.transitions"))resourceTransitions=new V53ResourceTransitionCapture(f.raw,f.result.root().manifestDigest(),
                     Boolean.getBoolean("v53.resource.owner.close")?f.request.targets().stream().map(t->t.identity().nodeId().value()).sorted().toList():List.of(),
-                    Boolean.getBoolean("v53.resource.control.close"));
+                    Boolean.getBoolean("v53.resource.control.close"),Boolean.getBoolean("v53.resource.export.ownership"));
             f.snapshot("before-network");
             for(var target:f.request.targets()) {
                 var budget=resourceBudget(target.identity());resources.add(budget);links.add(new AtomicReference<>());

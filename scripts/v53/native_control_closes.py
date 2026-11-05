@@ -9,8 +9,8 @@ from . import native_source_resources as source
 need=close.need
 
 
-def bind(traces,closes,associations):
-    account=close.replay(traces,closes)
+def bind(traces,closes,associations,*,export_ownership=False):
+    account=close.replay(traces,closes,export_ownership=export_ownership)
     leases,legacy,_=source.scan(traces);need(not legacy,'native close legacy source bindings')
     by_session={};by_trace={}
     for response,(session,trace) in associations.items():
@@ -32,13 +32,17 @@ def bind(traces,closes,associations):
         for name in observed['pairs']:
             if close.role(name) in close.SERVICES:services+=1
             if close.role(name)=='joining-checkpoint-service':joining+=1
-    return dict(status='PASS',scope='native-source-cleanup-performing-invocations',cleanupIntervals=account['cleanupIntervals'],
+    export_result=None
+    if export_ownership:
+        from . import session_export_evidence
+        export_result=session_export_evidence.inspect(traces,closes)
+    return dict(status=export_result['status'] if export_result else 'PASS',scope='native-source-cleanup-performing-invocations',cleanupIntervals=account['cleanupIntervals'],
                 childReferences=account['childReferences'],services=services,sessions=len(expected),responsesAtClose=responses,
                 joiningCheckpointServices=joining,nativeServiceCleanupIntervalsQualified=True,listenerDrainQualified=False,
-                wholeRuntimeResourcesQualified=False,phase3Complete=False)
+                exportOwnership=export_result,wholeRuntimeResourcesQualified=False,phase3Complete=False)
 
 
-def replay(events,wires,traces,boundaries,identities,root,closes):
+def replay(events,wires,traces,boundaries,identities,root,closes,*,export_ownership=False):
     associations={}
     original=source.replay(events,wires,traces,boundaries,identities,root,bindings=associations)
-    return dict(bind(traces,closes,associations),precondition=original)
+    return dict(bind(traces,closes,associations,export_ownership=export_ownership),precondition=original)

@@ -67,6 +67,7 @@ final class MembershipJoiningIntentExport implements MembershipTransferExport {
         }
     }
     private void check()throws IOException {require(!closed,"joining metadata closed");original.check();borrow.references();}
+    @Override public List<MembershipResources.Lease> closeReservations(){return MembershipTransferExport.ownedWithBorrow(metadata,borrow);}
     @Override public MembershipContext context(){return original.context();}
     @Override public MembershipIdentity identity(){return local;}
     @Override public Map<String,Object> ballot(){return object(initial.value().get("ballot"));}

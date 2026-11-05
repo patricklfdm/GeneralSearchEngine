@@ -203,6 +203,7 @@ class V53RetainedAncestryTest {
                 refs.put(MembershipPrefixExport.ancestryReference(l.higher.context),new MembershipSourceExport.Content(hash(encoded),encoded.length,MembershipTransfer.Kind.RECORD));
                 refs.put(hash(ancestry),new MembershipSourceExport.Content(hash(ancestry),ancestry.length,MembershipTransfer.Kind.RECORD));
                 var fake=new MembershipTransferExport() {
+            public List<MembershipResources.Lease> closeReservations(){return List.of();}
                     public MembershipContext context(){return l.higher.context;}
                     public MembershipIdentity identity(){return l.l.peer(0);}
                     public Map<String,Object> ballot(){return Map.of();}

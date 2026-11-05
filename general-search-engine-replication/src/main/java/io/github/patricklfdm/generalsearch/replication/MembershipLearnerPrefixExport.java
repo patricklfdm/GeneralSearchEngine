@@ -104,6 +104,7 @@ final class MembershipLearnerPrefixExport implements MembershipTransferExport {
         else MembershipLearnerDiscovery.reservation(original.context,reader);
         borrow.references();
     }
+    @Override public List<MembershipResources.Lease> closeReservations(){return borrow.closeReservations();}
     @Override public MembershipContext context(){return original.context;}
     @Override public MembershipIdentity identity(){return borrow.identity();}
     @Override public Map<String,Object> ballot(){return borrow.ballot();}

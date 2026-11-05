@@ -99,6 +99,7 @@ final class MembershipJoiningPreparation implements AutoCloseable {
         private volatile boolean ended;
         Export(MembershipIdentity reader,Decoded initial,MembershipResources.Lease charge){this.reader=reader;this.initial=initial;this.charge=charge;}
         private void live()throws IOException{require(!ended,"joining preparation export closed");check();}
+        @Override public List<MembershipResources.Lease> closeReservations(){return List.of(charge);}
         @Override public MembershipContext context(){return context;}
         @Override public MembershipIdentity identity(){return owner.activationIdentity();}
         @Override public Map<String,Object> ballot(){return object(initial.value().get("ballot"));}

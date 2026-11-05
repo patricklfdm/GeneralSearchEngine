@@ -87,6 +87,7 @@ final class MembershipLearnerCheckpointEndpoint implements AutoCloseable {
                         new MembershipSourceExport.Content(original.acknowledgement.digest(),bytes.length,MembershipTransfer.Kind.RECORD));exports++;
             }catch(RuntimeException|Error error){lease.close();throw error;}
         }
+        @Override public List<MembershipResources.Lease> closeReservations(){return List.of(lease);}
         @Override public MembershipContext context(){return original.source.context;}
         @Override public MembershipIdentity identity(){return original.identity;}
         @Override public Map<String,Object> ballot(){return ballot;}

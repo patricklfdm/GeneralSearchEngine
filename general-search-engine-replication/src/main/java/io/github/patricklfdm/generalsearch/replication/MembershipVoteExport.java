@@ -28,6 +28,7 @@ final class MembershipVoteExport implements MembershipTransferExport {
     }
     boolean expired(){long elapsed=clock.getAsLong()-started;return closed || elapsed<0 || elapsed>=budget;}
     void revoke(){if(!closed){closed=true;lease.close();}}
+    @Override public List<MembershipResources.Lease> closeReservations(){return List.of(lease);}
     @Override public MembershipContext context(){return voting.before.context;}
     @Override public MembershipIdentity identity(){return owner.activationIdentity();}
     @Override public Map<String,Object> ballot(){return voting.ballot;}

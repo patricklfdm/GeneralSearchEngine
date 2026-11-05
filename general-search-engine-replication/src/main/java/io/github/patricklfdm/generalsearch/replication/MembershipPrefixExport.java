@@ -65,6 +65,7 @@ final class MembershipPrefixExport implements MembershipTransferExport,Membershi
     }
     boolean expired(){long elapsed=clock.getAsLong()-started;return closed || elapsed<0 || elapsed>=budget;}
     void revoke(){if(!closed){closed=true;metadata.close();}}
+    @Override public List<MembershipResources.Lease> closeReservations(){return List.of(metadata);}
     @Override public MembershipContext context(){return generation.capsule.context;}
     @Override public MembershipIdentity identity(){return owner.activationIdentity();}
     @Override public Map<String,Object> ballot(){return ballot;}

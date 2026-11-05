@@ -47,6 +47,8 @@ final class MembershipSourceSession implements MembershipTransport.Handler,AutoC
             references=Map.copyOf(export.references());
             require(!references.isEmpty() && references.size()<=11 && references.values().stream().distinct().count()<=10,"source content count");time();
         }catch(IOException|RuntimeException|Error error){metadata.close();throw error;}
+        if(metadata.observesExports())try{metadata.observeExportOwnership(export.closeReservations());}
+        catch(RuntimeException|OutOfMemoryError error){metadata.closeObservationFailed();}
     }
     private void time(){long elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"original source session deadline/closed");}
     private void check()throws IOException {time();require(references.equals(export.references()),"source references changed");time();}

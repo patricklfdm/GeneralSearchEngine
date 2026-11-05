@@ -55,6 +55,7 @@ final class MembershipJoiningRetentionExport implements MembershipTransferExport
         }
     }
     private void check()throws IOException {require(!closed,"joining retention export closed");borrow.references();owner.checkActivation(basis,null,false);}
+    @Override public List<MembershipResources.Lease> closeReservations(){return MembershipTransferExport.ownedWithBorrow(metadata,borrow);}
     @Override public MembershipContext context(){return context;}
     @Override public MembershipIdentity identity(){return owner.activationIdentity();}
     @Override public Map<String,Object> ballot(){return object(initial.value().get("ballot"));}

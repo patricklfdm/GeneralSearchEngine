@@ -57,6 +57,7 @@ final class MembershipSourceExport implements MembershipTransferExport,Membershi
     void revoke(){if(!closed){closed=true;control.close();}}
     MembershipSelection.Source source()throws IOException {synchronized(owner){owner.checkSourceExport(this);return source;}}
     Decoded promise()throws IOException {synchronized(owner){owner.checkSourceExport(this);return promise;}}
+    @Override public List<MembershipResources.Lease> closeReservations(){return List.of(control);}
     @Override public MembershipContext context(){return source.capsule.context;}
     @Override public MembershipIdentity identity(){return source.owner;}
     @Override public Map<String,Object> ballot(){return object(source.basis.value().get("ballot"));}

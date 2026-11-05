@@ -197,6 +197,7 @@ class V53RetainedProvenanceTest {
             refs.put(cutDigest(a.copied.context.cut),refs.get(hash(encoded)));
             packet.images().forEach((digest,size)->refs.put(digest,new MembershipSourceExport.Content(digest,size,MembershipTransfer.Kind.APPLICATION)));
             var fake=new MembershipTransferExport() {
+            public List<MembershipResources.Lease> closeReservations(){return List.of();}
                 public MembershipContext context(){return a.copied.context;}
                 public MembershipIdentity identity(){return a.source.activationIdentity();}
                 public Map<String,Object> ballot(){return Map.of();}

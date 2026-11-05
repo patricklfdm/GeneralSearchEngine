@@ -1,5 +1,12 @@
 # Phase 3 qualification inventory and remaining work
 
+[Session export ownership](PHASE_3_SESSION_EXPORT_OWNERSHIP.md) now binds actual
+export handles to successful source sessions. A new native TCP history validates
+39 session-owned allocations and twelve exact negative checks. Six direct local
+borrows remain explicitly unattached, so the extended native receipt is PARTIAL;
+strict complete-inventory replay still rejects it. Joining groups, direct-borrow
+ownership, complete resource composition and final-source qualification remain OPEN.
+
 [Vote and learner ROOT export bindings](PHASE_3_SPECIAL_EXPORT_RESOURCES.md)
 add four native histories and 22 direct allocations, with 72 exact resource
 negatives. Receipt lookup identity stays distinct from content identity; ROOT

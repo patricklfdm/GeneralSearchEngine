@@ -90,8 +90,9 @@ def bind_publications(transactions,boundaries):
     return count
 
 
-def validate(directory,profile='stable',progress=None,*,source_control=False,control_closes=False):
+def validate(directory,profile='stable',progress=None,*,source_control=False,control_closes=False,export_ownership=False):
     need(type(source_control) is bool and type(control_closes) is bool,'native resources source-control policy')
+    need(type(export_ownership) is bool and (not export_ownership or control_closes),'native resources export-ownership policy')
     root=Path(directory);before=collection.inventory(root)
     if control_closes:need((root/'control-close-captures').is_dir(),'native resources missing control close observations')
     physical=publication.validate(root,profile,progress,resource_transitions=True,control_closes=control_closes)
@@ -116,7 +117,8 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
     cleanup=None
     if control_closes:
         from . import control_close_evidence,native_control_closes
-        cleanup=native_control_closes.replay(events,wires,traces,boundaries,identities,authority,control_close_evidence.load(root,index))
+        cleanup=native_control_closes.replay(events,wires,traces,boundaries,identities,authority,control_close_evidence.load(root,index),
+                                           export_ownership=export_ownership)
         source_result=cleanup['precondition']
     else:source_result=native_source_resources.replay(events,wires,traces,boundaries,identities,authority,require_complete=source_control)
     transport=None;floors=None;receiving=None;bases=None
@@ -132,7 +134,7 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
         receiving=receive_resource_evidence.replay(receive_resource_evidence.derive(reader),events,traces,boundaries)
         bases=basis_resource_evidence.replay(basis_resource_evidence.derive(reader),events,traces,boundaries)
     need(collection.inventory(root)==before,'native resources original changed')
-    return dict(result,scope='native-owner-accounting-with-original-publication-boundaries',profile=profile,
+    return dict(result,status=cleanup['status'] if cleanup else result['status'],scope='native-owner-accounting-with-original-publication-boundaries',profile=profile,
                 precondition=preceding,publicationResources=physical,publicationBoundaries=count,transportResources=transport,
                 floorResources=floors,receivingResources=receiving,basisResources=bases,ownerCloseResources=closed,
                 sourceControlResources=source_result,sourceCleanupIntervals=cleanup,
@@ -142,5 +144,6 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('root')
     p.add_argument('--profile',choices=('stable','5-REPLACE-required-four'),default='stable')
-    p.add_argument('--source-control',action='store_true');p.add_argument('--control-closes',action='store_true');a=p.parse_args()
-    print(json.dumps(validate(a.root,a.profile,source_control=a.source_control,control_closes=a.control_closes),sort_keys=True))
+    p.add_argument('--source-control',action='store_true');p.add_argument('--control-closes',action='store_true')
+    p.add_argument('--export-ownership',action='store_true');a=p.parse_args()
+    print(json.dumps(validate(a.root,a.profile,source_control=a.source_control,control_closes=a.control_closes,export_ownership=a.export_ownership),sort_keys=True))

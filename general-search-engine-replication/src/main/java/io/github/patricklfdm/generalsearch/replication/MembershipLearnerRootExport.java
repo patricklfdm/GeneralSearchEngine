@@ -61,6 +61,7 @@ final class MembershipLearnerRootExport implements MembershipTransferExport {
         originalBorrow.references();
         elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"learner ROOT export closed/original deadline");
     }
+    @Override public List<MembershipResources.Lease> closeReservations(){return MembershipTransferExport.ownedWithBorrow(lease,originalBorrow);}
     @Override public MembershipContext context(){return original.context;}
     @Override public MembershipIdentity identity(){return local;}
     @Override public Map<String,Object> ballot(){return object(request.value().get("ballot"));}

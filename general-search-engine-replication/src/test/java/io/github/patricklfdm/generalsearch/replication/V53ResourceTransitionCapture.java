@@ -13,7 +13,7 @@ final class V53ResourceTransitionCapture {
     private record Owner(MembershipIdentity identity,MembershipResources budget,int registeredAt) {}
     private final String root;
     private final Path directory;
-    private final boolean controlCloses;
+    private final boolean controlCloses,exportOwnership;
     private final Map<String,Owner> owners=new TreeMap<>();
     private final List<Map<String,Object>> boundaries=new ArrayList<>();
     private final List<String> closingOwners;
@@ -26,10 +26,14 @@ final class V53ResourceTransitionCapture {
         this(raw,root,closingOwners,false);
     }
     V53ResourceTransitionCapture(Path raw,String root,List<String> closingOwners,boolean controlCloses)throws IOException {
+        this(raw,root,closingOwners,controlCloses,false);
+    }
+    V53ResourceTransitionCapture(Path raw,String root,List<String> closingOwners,boolean controlCloses,boolean exportOwnership)throws IOException {
         require(closingOwners.size()<=6 && closingOwners.equals(closingOwners.stream().distinct().sorted().toList()) &&
                 closingOwners.stream().allMatch(n->n.matches("node-[1-6]")),"resource close original owners");
         this.closingOwners=List.copyOf(closingOwners);
-        this.controlCloses=controlCloses;
+        require(!exportOwnership || controlCloses,"export ownership requires close capture");
+        this.controlCloses=controlCloses;this.exportOwnership=exportOwnership;
         MembershipValidation.digest(root);this.root=root;directory=Files.createDirectory(raw.resolve(DIRECTORY));
     }
     void closeOwner(MembershipGrantJournal journal,List<Map<String,Object>> events)throws IOException {
@@ -53,7 +57,7 @@ final class V53ResourceTransitionCapture {
                 "resource capture owner registration");
         var budget=new MembershipResources(MembershipResources.METADATA_LIMIT,512*MembershipResources.MIB,
                 MembershipResources.QUEUE_LIMIT,MembershipResourceObservations.MAXIMUM,
-                controlCloses?MembershipControlCloseObservations.MAXIMUM:0);
+                controlCloses?MembershipControlCloseObservations.MAXIMUM:0,exportOwnership);
         owners.put(node,new Owner(identity,budget,eventIndex));return budget;
     }
     synchronized void event(int index,Map<String,Object> event) {
