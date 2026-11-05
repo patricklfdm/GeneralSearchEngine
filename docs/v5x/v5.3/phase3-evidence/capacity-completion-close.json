@@ -1,0 +1,171 @@
+{
+  "base": "c3e65c8aa2a35f90b4d5025d2785a307faac25aa",
+  "capacityBoundaryQualified": false,
+  "classes": {
+    "path": "target/v53-capacity-close/producer/build.json",
+    "sha256": "5caae03d0aec3521e37c39993fdcb2025e69a0c22e830829a9764542d274a92b"
+  },
+  "collection": {
+    "path": "target/v53-capacity-close/producer/collection.json",
+    "sha256": "29013bf39739d0dac3e21b146a9c7a14d1e4dc6e9cfb583c5637545b3eb0fdd4"
+  },
+  "execution": {
+    "path": "target/v53-capacity-close/producer/execution.json",
+    "sha256": "1bccf4b0478d3942dbe5f27d3ff4e93496e4a05243f561aa8c59e0a30e540d3d"
+  },
+  "hostedExecuted": false,
+  "java": {
+    "reports": [
+      {
+        "path": "target/v53-capacity-close/regressions/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PublicationCapacityTest.xml",
+        "seconds": 79.833,
+        "sha256": "596d3c09980ebe44ee8bc9a6b0f725965839c75fdfd7889b3450151ba6c25f93",
+        "tests": 1
+      },
+      {
+        "path": "target/v53-capacity-close/regressions/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ResourceTransitionCaptureTest.xml",
+        "seconds": 6.196,
+        "sha256": "afb9396595145f49700ed6edd8aa97465166ba58e8ef5fc1d48d793343180319",
+        "tests": 8
+      },
+      {
+        "path": "target/v53-capacity-close/capture-tests/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53EnvelopeCloseCaptureTest.xml",
+        "seconds": 9.732,
+        "sha256": "dc02f7674936527215ae2c811175c00227dd33d86790fd18ef80cdb55273f1eb",
+        "tests": 3
+      },
+      {
+        "path": "target/v53-capacity-close/producer/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53CapacityCompletionReplayTest.xml",
+        "seconds": 89.451,
+        "sha256": "6afe93ecf49a4275ecbd98f97d86dbc61ec3ef539b9498b3cd364cc23d3b474c",
+        "tests": 1
+      }
+    ],
+    "tests": 13,
+    "unchangedRelatedRegressionSources": true
+  },
+  "limitations": [
+    "Historical prefix and learner authority remain conditional.",
+    "Full operation-231 and final-source hosted execution remain pending.",
+    "Close accounting does not establish physical shutdown order or simultaneous whole-runtime physical maxima."
+  ],
+  "optimizedOriginalReplay": {
+    "path": "target/v53-capacity-close/optimized-original.json",
+    "sha256": "deb65cfa837e1b834c44b58ace80caeadf5f0ee0d36361fc1554d30e78a9e1e1"
+  },
+  "optimizedTests": {
+    "log": {
+      "path": "target/v53-capacity-close/optimized-tests.log",
+      "sha256": "bafd4f3e0292b16b2361bef3515b88f0032059edae1c2ac290e61b8dc852180f"
+    },
+    "tests": 16
+  },
+  "originalNegatives": 16,
+  "originalPreserved": true,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "pins": {
+    "buildSha256": "5caae03d0aec3521e37c39993fdcb2025e69a0c22e830829a9764542d274a92b",
+    "readerSha256": "28adf653b9c2f7b23fbdb77e0169d525e8e2ef15235ddeeec4896bd0f8523709",
+    "sourceSha256": "b0bdb971df1525c4d266028960371f1f7d7424fc18d3f1f61028f9544c4e4a0b",
+    "toolchainSha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+  },
+  "producerReceipt": {
+    "path": "target/v53-capacity-close/producer/receipt.json",
+    "sha256": "ae606611b34650b3348d7cc47dffb51e1c714793bf1c30bd630212e87dbe5093"
+  },
+  "producerSource": {
+    "path": "target/v53-capacity-close/producer/source.json",
+    "sha256": "b0bdb971df1525c4d266028960371f1f7d7424fc18d3f1f61028f9544c4e4a0b"
+  },
+  "profile": "replay-smoke-1",
+  "pushed": false,
+  "python": {
+    "log": {
+      "path": "target/v53-capacity-close/python-complete.log",
+      "sha256": "86e64ce7bdb9fc5aa134204c742fac6e1d609cc05de6f552da0aeac9f2e374a7"
+    },
+    "tests": 112
+  },
+  "qualification": {
+    "path": "target/v53-capacity-close/qualification/receipt.json",
+    "sha256": "0be9d52a4dfddeb336cb9c5afcaf6fd4e963d46ef28c4ff3c2b1cb49490bcc98"
+  },
+  "qualificationDuration": {
+    "elapsedSeconds": 33.112
+  },
+  "raw": "workspace/general-search-engine-replication/target/v53-capacity-completion/run-bdb86be4-c02b-43e5-8880-580ce20380e0-smoke",
+  "reader": {
+    "path": "target/v53-capacity-close/producer/reader.json",
+    "sha256": "2baa9fb1ba12ccc295483ecd094ce56848585729d90f843e1db37d95da653f51"
+  },
+  "resourceAndCloseNegatives": 18,
+  "resources": {
+    "closeCheckedChanges": 1314,
+    "closeIntervalsQualified": true,
+    "closeReleasedLeases": 1314,
+    "eventCheckpoints": 8211,
+    "maximumObservedCounts": {
+      "APPLICATION": 7,
+      "GENERATION": 2,
+      "JOURNAL": 1,
+      "MISC": 1,
+      "SOURCE": 6
+    },
+    "maximumObservedReservations": {
+      "leases": 17,
+      "metadata": 36000334,
+      "queued": 0,
+      "staging": 268465542
+    },
+    "maximumPublicationStorage": {
+      "applications": 6,
+      "metadata": 35784752,
+      "sources": 1,
+      "staging": 268465542
+    },
+    "mutations": 3622,
+    "observedAccountingQualified": true,
+    "ownerLifetimes": 157,
+    "phase3Complete": false,
+    "physicalShutdownOrderQualified": false,
+    "publicationBoundaries": 165,
+    "publicationStorageQualified": true,
+    "publications": 15,
+    "scope": "conditional-owner-accounting-and-publication-storage",
+    "status": "PASS",
+    "wholeRuntimeResourcesQualified": false
+  },
+  "retainedDevelopmentFailure": {
+    "correctionExecution": {
+      "path": "target/v53-capacity-close/capture-tests/execution.json",
+      "sha256": "e3285adcadd864a3ba008ef11637ab38cd175f2d55fdce2d8dc9fe576c4f1133"
+    },
+    "correctionSource": {
+      "path": "target/v53-capacity-close/capture-tests/source.json",
+      "sha256": "cebbd7aa54a8909666f0b26b2dbcd78d180fae3329c8875c3d973b662be6b461"
+    },
+    "execution": {
+      "path": "target/v53-capacity-close/regressions/execution.json",
+      "sha256": "8c91da065925ae31909ad4313a5b27e0a00f761d8ae2a9a1f4d1f145710d75ed"
+    },
+    "failedTests": 3,
+    "log": {
+      "path": "target/v53-capacity-close/regressions/maven.log",
+      "sha256": "aafd6c9fd40819246cfea8c0246fefffa0dc9d9864164b94dff9e0b8e5734de0"
+    },
+    "passedRelatedTests": 9,
+    "reason": "New close fixture did not create its seed parent; corrected test-only setup and all three tests passed in a separate recorded-source run.",
+    "source": {
+      "path": "target/v53-capacity-close/regressions/source.json",
+      "sha256": "c88d728e10e7ebee44a899b31a8034ad5fc7ba0304b21e5372a4a03e9b66b7ed"
+    }
+  },
+  "schema": "gse-v53-capacity-completion-close-development-v1",
+  "scope": "Immutable-source local conditional continuation; not final-source hosted or full-capacity qualification.",
+  "status": "PARTIAL",
+  "toolchain": {
+    "path": "target/v53-capacity-close/producer/toolchain.json",
+    "sha256": "ff03990375125113d155b59dd77bc9e5c651b1e43088cf15178c89ffb7f2ba07"
+  }
+}

@@ -38,7 +38,7 @@ def resource_summary(profile):
                 maximumObservedReservations=dict(metadata=36*1024**2,staging=256*1024**2,queued=0,leases=7),
                 maximumObservedCounts=dict(GENERATION=2,SOURCE=3,APPLICATION=7),
                 maximumPublicationStorage=dict(metadata=36*1024**2,staging=256*1024**2,applications=7,sources=3),
-                observedAccountingQualified=True,publicationStorageQualified=True,closeIntervalsQualified=False,
+                observedAccountingQualified=True,publicationStorageQualified=True,closeIntervalsQualified=True,closeReleasedLeases=500,closeCheckedChanges=500,physicalShutdownOrderQualified=False,
                 wholeRuntimeResourcesQualified=False,phase3Complete=False)
 
 

@@ -47,7 +47,7 @@ class V53PublicationCapacityTest {
         var after=f.publish("BARRIER",new byte[0],application);
         assertEquals(number(stable.context.cut.get("index"))+1,number(after.context.cut.get("index")));
         assertEquals(stable.context.catalog.get("applicationSequence"),after.context.catalog.get("applicationSequence"));
-        f.maintain();try(var s=f.open(1)){assertEquals(after.context.cut,s.floorCopyCurrent().capsule.context.cut);}
+        f.maintain();try(var opened=f.open(1)){var s=opened.journal();assertEquals(after.context.cut,s.floorCopyCurrent().capsule.context.cut);}
     }
     @Test void legacySealedPrefixRefusesUnpublishableIntentBeforeVote()throws Exception {
         var f=new V53EnvelopeOwnerFixture(temp.resolve("sealed"),history,sealed);f.evidence=evidence.resolve("intent-refusal");var operation=object(list(sealed.context.catalog.get("results")).getFirst());
@@ -126,7 +126,7 @@ class V53PublicationCapacityTest {
         var after=f.publish("DATA",payload,application);
         assertEquals(number(stable.context.catalog.get("applicationSequence"))+1,number(after.context.catalog.get("applicationSequence")));
         assertEquals(stable.context.view,after.context.view);f.maintain();
-        try(var owner=f.open(1)) {
+        try(var opened=f.open(1)){var owner=opened.journal();
             var original=owner.floorCopyCurrent();
             var loaded=application.read(original.fileBytes(original.capsule.terminal().application()+".image"),"capacity-final-data");
             assertTrue(loaded.documents().contains(new io.github.patricklfdm.generalsearch.admission.OfflineApplication.Doc(20,"capacity-still-writable")));

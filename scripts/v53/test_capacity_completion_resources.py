@@ -28,11 +28,11 @@ class CapacityCompletionResourcesTest(unittest.TestCase):
         for i,(node,operation) in enumerate(m.schedule('replay-smoke-1')):
             scope=f'open-{i:04d}';name=scope+'.json';sha=self.write(self.directory/name,trace)
             owners.append(dict(scope=scope,node=node,operation=operation,path=name,sha256=sha))
-            for event,sequence in [('OWNER_OPEN_BEGIN',0),('OWNER_OPEN_RETURNED',3),('WRITER_CALLBACK',3)]:
+            for event,sequence in [('OWNER_OPEN_BEGIN',0),('OWNER_OPEN_RETURNED',3),('WRITER_CALLBACK',3),(m.close.BEGIN,3),(m.close.RETURNED,6)]:
                 points.append(dict(eventIndex=len(events),sequence=sequence,usage=changes[sequence]['usage']))
                 events.append(dict(node=node,event=event,scope=scope))
             if operation:self.calls.append(dict(operation=operation,node=node,events=['WRITER_CALLBACK']))
-        self.write(self.directory/'index.json',dict(schema='gse-v53-completion-resources-v1',root='a'*64,owners=owners,
+        self.write(self.directory/'index.json',dict(schema='gse-v53-completion-resources-v2',root='a'*64,owners=owners,
             eventsSha256=self.write(self.directory/'events.json',events),boundariesSha256=self.write(self.directory/'boundaries.json',points)))
         for target,value in [('p.collect',[[dict(eventIndex=0,usageBefore=m.r.EMPTY,usageAfter=m.r.EMPTY)]*11 for _ in range(15)]),('c.inventory',{}),
                              ('p.compare',dict(maximumObservedStorage=dict(metadata=34*m.r.MIB,staging=0,applications=0,sources=0)))]:
@@ -47,7 +47,7 @@ class CapacityCompletionResourcesTest(unittest.TestCase):
     def test_full_and_smoke_have_exact_opens_and_cannot_substitute(self):
         value=self.validate();m.check_summary(value,'replay-smoke-1')
         self.assertEqual(157,value['ownerLifetimes']);self.assertEqual(93,len(self.calls));self.assertEqual(165,value['publicationBoundaries'])
-        self.assertFalse(value['wholeRuntimeResourcesQualified']);self.assertFalse(value['closeIntervalsQualified'])
+        self.assertFalse(value['wholeRuntimeResourcesQualified']);self.assertTrue(value['closeIntervalsQualified']);self.assertEqual(471,value['closeReleasedLeases']);self.assertFalse(value['physicalShutdownOrderQualified'])
         self.assertEqual(163,len(m.schedule('capacity-231')))
         with self.assertRaisesRegex(ValueError,'original owner schedule'):m.validate(self.root,'capacity-231','a'*64,self.calls)
         with self.assertRaisesRegex(ValueError,'explicit profile'):m.schedule('auto')
@@ -57,6 +57,18 @@ class CapacityCompletionResourcesTest(unittest.TestCase):
         for name,reason in list(m.VARIANTS.items())[:6]:
             root=self.root.parent/name;shutil.copytree(self.root,root);m.mutate(root,name)
             with self.subTest(name=name),self.assertRaisesRegex(ValueError,reason):self.validate(root)
+
+    def test_nine_coherent_close_mutations_fail_for_their_own_reasons(self):
+        self.validate()
+        for name,reason in m.VARIANTS.items():
+            if not name.startswith('close-'):continue
+            root=self.root.parent/name;shutil.copytree(self.root,root);m.mutate(root,name)
+            with self.subTest(name=name),self.assertRaisesRegex(ValueError,reason):self.validate(root)
+
+    def test_old_resource_index_cannot_invent_close_observations(self):
+        index=m.read(self.directory,'index.json',m.r.MIB);index['schema']='gse-v53-completion-resources-v1'
+        self.write(self.directory/'index.json',index)
+        with self.assertRaisesRegex(ValueError,'original root'):self.validate()
 
     def test_call_omission_unobserved_files_and_failed_observation_are_rejected(self):
         with self.assertRaisesRegex(ValueError,'call correspondence'):m.validate(self.root,'replay-smoke-1','a'*64,self.calls[1:])
@@ -74,6 +86,6 @@ class CapacityCompletionResourcesTest(unittest.TestCase):
                        lambda v:v['resources']['maximumObservedCounts'].update(APPLICATION=8)]:
             value=replay('replay-smoke-1');change(value)
             with self.assertRaises(ValueError):admission.check_result(value,'replay-smoke-1')
-        for field,value in [('ownerLifetimes',True),('mutations',0),('publicationBoundaries',164),('closeIntervalsQualified',True)]:
+        for field,value in [('ownerLifetimes',True),('mutations',0),('publicationBoundaries',164),('closeIntervalsQualified',False),('physicalShutdownOrderQualified',True),('closeReleasedLeases',True),('closeCheckedChanges',0)]:
             summary=resource_summary('replay-smoke-1');summary[field]=value
             with self.subTest(field=field),self.assertRaisesRegex(ValueError,'scope'):m.check_summary(summary,'replay-smoke-1')

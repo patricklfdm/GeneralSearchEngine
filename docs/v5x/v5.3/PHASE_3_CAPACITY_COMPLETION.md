@@ -202,8 +202,8 @@ downloads the seed and complete original from the exact source/run/attempt,
 checks successful execution, and performs original-first physical replay, all
 sixteen exact negatives and unchanged portable replay. Failed originals and
 diagnostics are retained; neither retries nor the short smoke can substitute.
-The version-3 entry also requires all nine resource negatives and the complete
-publication-storage and owner-accounting result. Dropping that result or using
+The version-4 entry requires all eighteen resource/close negatives and the complete
+publication-storage, owner-accounting and exact close-interval result. Dropping that result or using
 the smoke's owner count for the full boundary is rejected.
 
 The seed retains the shared 1 GiB transport limit. Only this workflow's raw bundle
@@ -268,10 +268,11 @@ publication callback. Resource manifest hashes are updated where
 appropriate so these cases reach their intended semantic check. Portable replay
 and original replay with Python assertions disabled agree.
 
-Final zero accounting establishes only the observed budget result. This fixture
-does not claim the exact close-call interval, every control-message lifetime,
-historical-prefix authority or simultaneous full physical maxima. The complete
-operation-231 version-3 execution remains pending for hosted acceptance. The
+Version-3 final zero accounting established only the observed budget result;
+that original did not observe close-call intervals. The version-4 follow-up below
+records these intervals on new originals. Every control-message lifetime,
+historical-prefix authority and simultaneous full physical maxima remain separate
+obligations. The complete operation-231 execution remains pending for hosted acceptance. The
 [resource development receipt](phase3-evidence/capacity-completion-resources.json)
 separates the actual Java source and original, current independent reader, test
 results and retained development failures. No production code or frozen bound
@@ -284,3 +285,51 @@ The hosted entry can be rolled back by removing its dedicated workflow, adapter,
 tests and the optional shared archive-bound parameter; existing adapters retain
 their default. Production Java, persisted formats, runtime bounds, POMs,
 Required checks, release and cloud workflows are unchanged.
+
+
+## Original close invocation and return
+
+Version 4 wraps each journal in a fixture-owned `AutoCloseable` scope. Its close
+checks the original live journal, records `RESOURCE_OWNER_CLOSE_BEGIN`, calls the
+real journal close and records `RESOURCE_OWNER_CLOSE_RETURNED` only on success.
+The surrounding try-with-resources also invokes this path when the body fails.
+An already closed journal or foreign scope cannot fabricate a second lifetime.
+An exception during close leaves the original incomplete interval for rejection.
+This wrapper does not change production close behavior or extend any deadline.
+
+The resource reader reuses the existing independent owner-close replay for each
+original budget. It binds markers to the exact mutation checkpoints, requires
+quiescent storage ownership at entry, release-only changes until return, exact
+released leases and a terminal zero checkpoint. Opening must have returned
+before closing begins; no event for that scope may follow successful close.
+The original node and scope are checked before normalization into the shared
+reader. Publication callbacks and the original 93 primary calls remain bound to
+their original resource/event records.
+
+Nine additional coherent negatives cover missing/duplicate/unknown return
+markers, a later event, empty/early-return intervals, an empty starting owner,
+allocation during close and pending CONTROL ownership at close entry. Updated
+hashes and balanced mutations ensure these are semantic rejections. All sixteen
+storage negatives and the previous nine resource negatives remain required.
+Old v2/v3 receipts and v1 resource indexes cannot supply the missing observations.
+Their originals remain intact under their original reader and qualification scope.
+
+This qualifies observed conditional storage-owner close accounting only. It does
+not establish OS lock release timing between callbacks, hardware durability or
+whole-runtime resource lifetimes. The full operation-231 run and final-source
+hosted acceptance remain pending; the short profile cannot replace them. The
+[close development receipt](phase3-evidence/capacity-completion-close.json)
+records the new original, exact source/classes/reader, validation and retained
+failed development attempts separately from the earlier resource smoke.
+
+
+The new immutable-source short execution and exact pin-bound admission pass:
+157 original owner lifetimes, 1,314 release changes, 8,211 event checkpoints,
+15 publications / 165 physical boundaries, sixteen storage negatives and eighteen
+resource/close negatives. Portable replay and optimized-Python original replay
+agree. Three new real-journal close tests, nine related Java regressions and
+112 Python tests pass; sixteen close/resource tests also pass under `python -O`.
+The first new-test run omitted the seed parent directory and failed before
+opening journals. Its original log remains retained; a separate corrected-source
+run passes all three new tests. That setup failure is not a protocol failure
+or a qualified negative history.

@@ -37,7 +37,7 @@ CRITICAL={
 
 def receipt(profile):
     e.need(profile in PROFILES,'completion explicit profile');number=PROFILES[profile]
-    return dict(schema='gse-v53-capacity-completion-v3',status='PASS',profile=profile,completedOperation=number,
+    return dict(schema='gse-v53-capacity-completion-v4',status='PASS',profile=profile,completedOperation=number,
                 nextOperationRefused=number+1 if number==231 else None,applicationSequence=42,nodes=3,
                 conditionalPrefix=True,freshProcesses=False,nativeNetwork=False,phase3Complete=False)
 

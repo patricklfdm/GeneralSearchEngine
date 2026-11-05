@@ -4,7 +4,8 @@
 conditional-prefix owner continuation at the last admissible fixed-history
 change. It retains same-directory INTENT/FINAL, stable continuation, refusal and
 post-refusal DATA. Version-3 replay binds every observed budget and 165 physical
-publication boundaries in the short continuation. Full-boundary execution,
+publication boundaries in the short continuation. Version 4 additionally binds
+resource release to each actual close invocation and successful return. Full-boundary execution,
 simultaneous physical maxima and the final-source cohort remain OPEN; the native
 subset inventory is unchanged.
 

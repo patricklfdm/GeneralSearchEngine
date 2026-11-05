@@ -38,13 +38,13 @@ final class V53CapacityCompletionFixture {
             var after=f.publish("DATA",payload,application);
             assertEquals(number(sealed.context.cut.get("index"))+5,number(after.context.cut.get("index")));
             assertEquals(42L,after.context.catalog.get("applicationSequence"));assertEquals(completed.context.view,after.context.view);
-            for(int n:f.voters)try(var owner=f.open(n)) {
+            for(int n:f.voters)try(var opened=f.open(n)){var owner=opened.journal();
                 var copy=owner.floorCopyCurrent();assertEquals(after.context.cut,copy.capsule.context.cut);
                 var loaded=application.read(copy.fileBytes(copy.capsule.terminal().application()+".image"),"completion-data-"+n);
                 assertTrue(loaded.documents().contains(new io.github.patricklfdm.generalsearch.admission.OfflineApplication.Doc(21,"admitted-completion")));
             }
         } finally {f.finishTrace();}
-        var receipt=new TreeMap<String,Object>();receipt.put("schema","gse-v53-capacity-completion-v3");receipt.put("status","PASS");
+        var receipt=new TreeMap<String,Object>();receipt.put("schema","gse-v53-capacity-completion-v4");receipt.put("status","PASS");
         receipt.put("profile",boundary?"capacity-231":"replay-smoke-1");receipt.put("completedOperation",change);
         receipt.put("nextOperationRefused",boundary?change+1:null);receipt.put("applicationSequence",42);receipt.put("nodes",3);
         receipt.put("conditionalPrefix",true);receipt.put("freshProcesses",false);receipt.put("nativeNetwork",false);receipt.put("phase3Complete",false);

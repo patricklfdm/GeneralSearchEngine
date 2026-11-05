@@ -9,9 +9,20 @@ from pathlib import Path
 from . import resource_transitions as r
 from . import publication_resource_evidence as p
 from . import carried_publication_evidence as c
+from . import owner_close_evidence as close
+from . import owner_close_negatives as close_negatives
 
 need=r.need;read=p.history.read_json
 DIRECTORY='completion-resources'
+
+
+def close_data(owner,trace,rows):
+    # Each open has its own original budget. Normalize only the reader's local
+    # keys/indices; the owning validator checks the original node/scope first.
+    scope=owner['scope']
+    events=[dict(node=scope,event=event['event']) for event,_ in rows]
+    points=[dict(point,eventIndex=i,node=scope) for i,(_,point) in enumerate(rows)]
+    return dict(schema=close.V2,closingOwners=[scope]),{scope:trace},points,events,{scope}
 
 
 def schedule(profile):
@@ -36,7 +47,7 @@ def schedule(profile):
 def validate(root,profile,root_digest,calls):
     root=Path(root);directory=root/DIRECTORY;index=read(directory,'index.json',r.MIB)
     need(type(index) is dict and set(index)=={'schema','root','owners','eventsSha256','boundariesSha256'} and
-         index['schema']=='gse-v53-completion-resources-v1' and index['root']==root_digest,'completion resources original root')
+         index['schema']=='gse-v53-completion-resources-v2' and index['root']==root_digest,'completion resources original root')
     owners=index['owners'];expected=schedule(profile)
     need(type(owners) is list and len(owners)==len(expected) and
          all(type(o) is dict and set(o)=={'scope','node','operation','path','sha256'} and
@@ -56,6 +67,7 @@ def validate(root,profile,root_digest,calls):
         need(ordinal>=last and event['node']==owner['node'],'completion resources original event owner');last=ordinal
         by_owner[event['scope']].append((event,point))
     maximum=dict(metadata=0,staging=0,queued=0,leases=0);counts=Counter();transitions=0;observed_calls=[]
+    close_released=close_changes=0
     for owner in owners:
         raw,value=r.read(directory/owner['path']);need(p.sha(raw)==owner['sha256'],'completion resources original trace hash')
         need(tuple(value.get(k) for k in ('metadataLimit','stagingLimit','queueLimit'))==(384*r.MIB,512*r.MIB,64*r.MIB),
@@ -64,6 +76,10 @@ def validate(root,profile,root_digest,calls):
         names=[row[0]['event'] for row in rows]
         need(names and names[0]=='OWNER_OPEN_BEGIN' and names.count('OWNER_OPEN_BEGIN')==names.count('OWNER_OPEN_RETURNED')==1,
              'completion resources lifetime boundaries')
+        closed=close.replay(*close_data(owner,value,rows))
+        close_released+=closed['releasedLeases'];close_changes+=closed['checkedChanges']
+        need(names.index('OWNER_OPEN_RETURNED')<names.index(close.BEGIN) and names[-1]==close.RETURNED,
+             'completion resources open before close')
         previous=-1
         for event,point in rows:
             seq=point['sequence'];need(type(seq) is int and previous<=seq<len(value['changes']),'completion resources checkpoint sequence')
@@ -73,7 +89,8 @@ def validate(root,profile,root_digest,calls):
         need(returned.get('JOURNAL')==1 and returned.get('MISC')==1 and returned.get('GENERATION',0)>0,
              'completion resources opened original storage')
         if owner['operation']:
-            observed_calls.append(dict(operation=owner['operation'],node=owner['node'],events=[n for n in names if not n.startswith('OWNER_OPEN_')]))
+            observed_calls.append(dict(operation=owner['operation'],node=owner['node'],events=[n for n in names if
+                not n.startswith(('OWNER_OPEN_','RESOURCE_OWNER_CLOSE'))]))
         for key in maximum:maximum[key]=max(maximum[key],result['maximumObservedReservations'][key])
         for key,count in result['maximumObservedCounts'].items():counts[key]=max(counts[key],count)
     need(observed_calls==calls,'completion resources original call correspondence')
@@ -95,22 +112,26 @@ def validate(root,profile,root_digest,calls):
     return dict(status='PASS',scope='conditional-owner-accounting-and-publication-storage',ownerLifetimes=len(owners),
                 mutations=transitions,eventCheckpoints=len(events),publications=len(transactions),publicationBoundaries=len(transactions)*len(p.POINTS),
                 maximumObservedReservations=maximum,maximumObservedCounts=dict(counts),maximumPublicationStorage=publication_max,
-                observedAccountingQualified=True,publicationStorageQualified=True,closeIntervalsQualified=False,
+                observedAccountingQualified=True,publicationStorageQualified=True,closeIntervalsQualified=True,
+                closeReleasedLeases=close_released,closeCheckedChanges=close_changes,physicalShutdownOrderQualified=False,
                 wholeRuntimeResourcesQualified=False,phase3Complete=False)
 
 
 def check_summary(value,profile):
     fields={'status','scope','ownerLifetimes','mutations','eventCheckpoints','publications','publicationBoundaries',
             'maximumObservedReservations','maximumObservedCounts','maximumPublicationStorage','observedAccountingQualified',
-            'publicationStorageQualified','closeIntervalsQualified','wholeRuntimeResourcesQualified','phase3Complete'}
+            'publicationStorageQualified','closeIntervalsQualified','closeReleasedLeases','closeCheckedChanges',
+            'physicalShutdownOrderQualified','wholeRuntimeResourcesQualified','phase3Complete'}
     need(type(value) is dict and set(value)==fields and value['status']=='PASS' and
          value['scope']=='conditional-owner-accounting-and-publication-storage' and
          type(value['ownerLifetimes']) is int and value['ownerLifetimes']==len(schedule(profile)) and
          type(value['publications']) is int and value['publications']==15 and
          type(value['publicationBoundaries']) is int and value['publicationBoundaries']==165 and
          all(type(value[k]) is int and value[k]>value['ownerLifetimes'] for k in ('mutations','eventCheckpoints')) and
-         all(value[k] is True for k in ('observedAccountingQualified','publicationStorageQualified')) and
-         all(value[k] is False for k in ('closeIntervalsQualified','wholeRuntimeResourcesQualified','phase3Complete')),
+         all(type(value[k]) is int and value['ownerLifetimes']<=value[k]<value['mutations'] for k in ('closeReleasedLeases','closeCheckedChanges')) and
+         value['closeReleasedLeases']==value['closeCheckedChanges'] and
+         all(value[k] is True for k in ('observedAccountingQualified','publicationStorageQualified','closeIntervalsQualified')) and
+         all(value[k] is False for k in ('physicalShutdownOrderQualified','wholeRuntimeResourcesQualified','phase3Complete')),
          'completion resources qualification scope')
     maximum=value['maximumObservedReservations'];counts=value['maximumObservedCounts'];publication=value['maximumPublicationStorage']
     bounds=dict(metadata=384*r.MIB,staging=512*r.MIB,queued=64*r.MIB,leases=sum(r.COUNTS.values()))
@@ -135,6 +156,9 @@ VARIANTS={
     'publication-charge':'publication resources exact charges: PUBLICATION_VALIDATED',
     'publication-missing':'publication resources unobserved metadata',
     'publication-checkpoint':'completion resources publication checkpoint binding',
+    **{'close-'+name:close_negatives.NEGATIVES[name] for name in (
+        'missing-return','duplicate-begin','unknown-marker','post-close-event','empty-interval',
+        'early-return','empty-begin','allocation-during-close','control-during-close')},
 }
 
 
@@ -159,7 +183,8 @@ def mutate(copy,name):
         scope=next(v['scope'] for v in events if v['event']=='PUBLICATION_VALIDATED')
         start=next(i for i,v in enumerate(events) if v['scope']==scope and v['event']=='OWNER_OPEN_RETURNED')
         for i in range(start,len(events)):
-            if events[i]['scope']==scope:points[i].update(sequence=points[start]['sequence'],usage=points[start]['usage'])
+            if events[i]['scope']==scope and not events[i]['event'].startswith('RESOURCE_OWNER_CLOSE'):
+                points[i].update(sequence=points[start]['sequence'],usage=points[start]['usage'])
         write(directory/'boundaries.json',points);index['boundariesSha256']=p.sha((directory/'boundaries.json').read_bytes())
     elif name in ('publication-charge','publication-missing'):
         folder=Path(copy)/p.DIRECTORY;manifest=read(folder,'index.json',r.MIB)
@@ -169,5 +194,18 @@ def mutate(copy,name):
             for key in ('usageBefore','usageAfter'):value[key]['staging']+=1
             write(path,value);ref['sha256']=p.sha(path.read_bytes())
         write(folder/'index.json',manifest)
+    elif name.startswith('close-'):
+        owner=index['owners'][-1];scope=owner['scope'];path=directory/owner['path'];_,value=r.read(path)
+        events=read(directory,'events.json',32*r.MIB);points=read(directory,'boundaries.json',32*r.MIB)
+        first=next(i for i,v in enumerate(events) if v['scope']==scope)
+        need(all(v['scope']==scope for v in events[first:]),'completion resources close mutation original scope')
+        data=close_data(owner,value,list(zip(events[first:],points[first:])));close_negatives.mutate(data,name.removeprefix('close-'))
+        _,traces,changed_points,changed_events,_=data
+        if len(changed_points)<len(changed_events):changed_points.append(dict(changed_points[-1]))
+        events[first:]=[dict(node=owner['node'],scope=scope,event=v['event']) for v in changed_events]
+        points[first:]=[dict(eventIndex=first+i,sequence=v['sequence'],usage=v['usage']) for i,v in enumerate(changed_points)]
+        write(path,traces[scope]);owner['sha256']=p.sha(path.read_bytes())
+        for file,key in [('events.json','eventsSha256'),('boundaries.json','boundariesSha256')]:
+            write(directory/file,events if file=='events.json' else points);index[key]=p.sha((directory/file).read_bytes())
     else:raise ValueError('unknown completion resource mutation')
     write(directory/'index.json',index)

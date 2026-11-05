@@ -31,11 +31,13 @@ class CapacityCompletionTest(unittest.TestCase):
 
     def test_legacy_receipt_cannot_qualify_without_new_original_resource_observations(self):
         with tempfile.TemporaryDirectory() as temp:
-            root=Path(temp);value=q.receipt('replay-smoke-1');value['schema']='gse-v53-capacity-completion-v2'
-            (root/'receipt.json').write_bytes(q.e.f.canonical(value))
-            with patch.object(q,'Walk') as walk:
-                with self.assertRaisesRegex(ValueError,'completion receipt/profile'):q.validate(root,'replay-smoke-1')
-                walk.assert_not_called()
+            root=Path(temp)
+            for version in (2,3):
+                value=q.receipt('replay-smoke-1');value['schema']=f'gse-v53-capacity-completion-v{version}'
+                (root/'receipt.json').write_bytes(q.e.f.canonical(value))
+                with self.subTest(version=version),patch.object(q,'Walk') as walk:
+                    with self.assertRaisesRegex(ValueError,'completion receipt/profile'):q.validate(root,'replay-smoke-1')
+                    walk.assert_not_called()
 
     def test_every_call_requires_its_ordered_forces_returns_and_actual_owner(self):
         phases={kind+'-6':q.NODES for kind in q.CRITICAL}
