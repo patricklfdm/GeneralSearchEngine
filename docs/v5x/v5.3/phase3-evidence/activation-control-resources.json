@@ -1,0 +1,273 @@
+{
+  "baseSource": "3d560b57d3c1e64cc653c5bacdd59beab8d6ac72",
+  "classFiles": {
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$ActivationProgress.class": "6ea4c5206aff88c586b64985445862d4347dc9a3a04c80330b31db752c05a135",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$ActivationStage.class": "aea621ddbe9282ac9b19d3f1b4c60f67f0b7ea9e23296080b73c32c45f4069f8",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$Control.class": "a57d613e8f87adcc1de4d6bda0348aab539309d29d6583a5b974cb37b5ae79bf",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$HeartbeatContact.class": "4cc09adacccd4c7828a462e1c17fc0b373b010d403edfdb1776026728f6d2c2b",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$InactiveScope.class": "7ea64f99194975b487a349b989b293b8345d96db95714aeb9097c5685c926f76",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$Scope.class": "4377b4d36127b3004e161d68cec3e47a98b290d3f2ed4e0edeb976fec4b12c29",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$ScopeEnd.class": "3835657329b9acc37212f4465b36d7c76e2c15a189f235bf280616447004faa3",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$ScopeGuard.class": "c8b281d1d01a195517cc6dfc54a10e1b1b735abb51aaffc3ccbc1653811e3532",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$Slots.class": "2d7d0feff1c893f0af3d7fcc49e0720f60af6c505e83887cde4f41495df9a44a",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint$Usage.class": "bab4fe15223713b38e3e0060478874f8fc5da32e31294b10f66abb283c22de64",
+    "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.class": "3c5e0b3a24716108836a7fe4e7785b32b672e4dd816745b48d3f8f596e314047"
+  },
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 2747,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "exhaustiveMatcherCases": 1500,
+  "finalJavaTests": 10,
+  "finalSourceCohortQualified": false,
+  "hostedExecution": false,
+  "interruptedHandlersQualified": false,
+  "java": {
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationControlCustodyTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-activation-control-resources/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationControlCustodyTest.xml",
+      "seconds": 11.15,
+      "sha256": "0494c91e488f79a711bae492c2b8265700c113dacc126f7699a89e1aa9dac7f0",
+      "skipped": 0,
+      "tests": 3
+    },
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationWaiterCapacityTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-activation-control-resources/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationWaiterCapacityTest.xml",
+      "seconds": 23.012,
+      "sha256": "13f640e4cbffe05885057e7b5b7ae0f3500c4e06be71d28eec94df976a937651",
+      "skipped": 0,
+      "tests": 6
+    },
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml": {
+      "errors": 0,
+      "failures": 0,
+      "path": "target/v53-activation-control-resources/reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml",
+      "seconds": 60.287,
+      "sha256": "643d2088fbd7ced8a9bedf1f914968162270e03c92e596a881dccafe853d0f91",
+      "skipped": 0,
+      "tests": 1
+    }
+  },
+  "legacy": {
+    "path": "target/v53-activation-control-resources/legacy-rejection.json",
+    "result": {
+      "diagnostic": {
+        "activationResourcesQualified": false,
+        "legacyReservations": 12,
+        "phase3Complete": false,
+        "status": "NOT_OBSERVED",
+        "wholeRuntimeResourcesQualified": false
+      },
+      "original": "general-search-engine-replication/target/v53-native-dispatch/run-e5991436-c8b4-485b-a400-45d1452c8729",
+      "reason": "activation resources original bindings required",
+      "strict": "REJECTED"
+    },
+    "sha256": "e5683d73054d1d896f6761039c795c5c2675e2b3dd68f49c7858ddd28e828359"
+  },
+  "limitations": [
+    "The runtime history was executed once. Intermediate reader/negative-driver failures remain retained; corrections replay the same unchanged original.",
+    "A direct already-published reply may arrive before publication completes while waiting for the writer monitor. Its exact original publication must precede its offered response; the actual publication still requires complete control/caller custody.",
+    "Request digest labels only correlate observations; original physical bytes, network connections, local calls and durable boundaries remain mandatory authority.",
+    "Three existing custody and six waiter regressions plus one fresh two-slot native history pass after the conservative waiter-before-control caller release order.",
+    "All twenty negatives reject for exact expected reasons only after the unchanged original qualifies; raw files and inventories remain fixed.",
+    "The iterative interval matcher visits neighbours lazily and agrees with exhaustive assignment over 1500 deterministic small sets; it proves compatible injective coverage, not identical socket scheduling.",
+    "Old UUID-only controls are rejected strictly; no legacy evidence is backfilled.",
+    "Interrupted handlers, arbitrary retired-cache schedules, joining/failure histories, complete runtime peaks and final-source cohort execution remain OPEN."
+  ],
+  "logs": {
+    "native-01.log": "77d8e617e502ff384cf782167be698507bea42f9a0161b647542916653257cd2",
+    "native-replay-01.log": "942e6aa4b756effcb2a690914a85e02ec9d786ed4db341607e46446afe7591f2",
+    "native-replay-02.log": "adb91c916fbeae697b38015e8b707db41dfeb972216d724c1b98d0421d30b440",
+    "native-replay-03.log": "23e0b9803de23acc86840e840b649a12cb27d1e91441c014ca04490a154f267e",
+    "native-replay-04.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-replay-final-02.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-replay-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "planning-tests.log": "953b155416a2b330deabd3706142532ec4d327eb94fc30d465aec494c3ca457e",
+    "python-01.log": "7da9d42a3d2c8d2da2a32228ead56ff70231ddfe40e60fc9385ac72d97974617",
+    "python-02.log": "3431f30e3b401ef777064c9cdfe705f3698341c6d9cda4464a588a9cdb7cc933",
+    "python-03.log": "301fe988539a63ff66581254407d32c932e576a1c8494087e2c776db500f2abf",
+    "python-final-02.log": "a18a9a6d5575bf7076a6e26395893f185ffadba602feb5dc528bb2b7d35035c4",
+    "python-final-03.log": "88f47dce96401b7a47336516170908e8eb92eac20c93622d401f17af5a88e612",
+    "python-final.log": "d02b1d5d72e9f160c793a23fced1b3bb6589ca65eb66e4d867bf4b1448875fda"
+  },
+  "native": {
+    "executions": 1,
+    "negativeCases": [
+      {
+        "case": "request-short",
+        "reason": "activation resources original request extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "request-long",
+        "reason": "activation resources original request extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cache-short",
+        "reason": "activation resources original cached extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cache-long",
+        "reason": "activation resources original cached extent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "control-binding",
+        "reason": "activation resources unobserved allocation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "waiter-binding",
+        "reason": "activation resources unobserved allocation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-control",
+        "reason": "activation resources one cache and callers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-waiter",
+        "reason": "activation resources one cache and callers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "legacy-control",
+        "reason": "activation resources original bindings required",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-control",
+        "reason": "activation resources one cache and callers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-waiter",
+        "reason": "activation resources unmatched waiter",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reused-control",
+        "reason": "activation resources reused allocation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-growth",
+        "reason": "activation resources original reply growth",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-growth",
+        "reason": "activation resources single cache growth",
+        "status": "REJECTED"
+      },
+      {
+        "case": "growth-before-durability",
+        "reason": "activation resources original durable boundary",
+        "status": "REJECTED"
+      },
+      {
+        "case": "release-before-caller",
+        "reason": "activation resources cached reply caller custody",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-grant-boundary",
+        "reason": "activation resources original durable boundary",
+        "status": "REJECTED"
+      },
+      {
+        "case": "fast-publication-witness-omitted",
+        "reason": "activation resources missing mandatory caller",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-child-binding",
+        "reason": "activation resources slot child custody",
+        "status": "REJECTED"
+      },
+      {
+        "case": "publication-control-omitted",
+        "reason": "activation resources publication caller custody",
+        "status": "REJECTED"
+      }
+    ],
+    "original": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-dispatch/run-61b3ebf7-0666-4f57-abc8-ff5783d7811e",
+    "originalInventorySha256": "67f26b2414ffbede7bae1f66b239f96267780f909c101628f3c81ef0a8b19da3",
+    "path": "target/v53-activation-control-resources/native-replay-final-02.json",
+    "result": {
+      "activationResourcesQualified": true,
+      "boundReservations": 26,
+      "cachedControls": 12,
+      "calls": 15,
+      "durableBoundaryChecks": 5,
+      "fastPublicationReplies": 1,
+      "interruptedHandlersQualified": false,
+      "kinds": {
+        "ACCEPT": 2,
+        "APPLY": 2,
+        "PREPARE": 1,
+        "PROOF": 2,
+        "PUBLISH": 4,
+        "SELECTED": 1
+      },
+      "localCallers": 2,
+      "phase3Complete": false,
+      "publicationTransactions": 4,
+      "slotChildWaiters": 10,
+      "status": "PASS",
+      "waiterReservations": 14,
+      "wholeRuntimeResourcesQualified": false
+    },
+    "sha256": "6f092d0c455f033c4b1d225ff7f4402cf0fcab6000d9314879ea21a80dd5709d"
+  },
+  "newPythonTests": 13,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "physicalPeakQualified": false,
+  "python": {
+    "suites": [
+      {
+        "path": "target/v53-activation-control-resources/python-final-03.log",
+        "sha256": "88f47dce96401b7a47336516170908e8eb92eac20c93622d401f17af5a88e612",
+        "tests": 116
+      },
+      {
+        "path": "target/v53-activation-control-resources/planning-tests.log",
+        "sha256": "953b155416a2b330deabd3706142532ec4d327eb94fc30d465aec494c3ca457e",
+        "tests": 18
+      }
+    ],
+    "tests": 134
+  },
+  "retainedReplays": {
+    "native-replay-01.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-replay-02.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-replay-03.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-replay-04.json": "6f092d0c455f033c4b1d225ff7f4402cf0fcab6000d9314879ea21a80dd5709d",
+    "native-replay-final-02.json": "6f092d0c455f033c4b1d225ff7f4402cf0fcab6000d9314879ea21a80dd5709d",
+    "native-replay-final.json": "6f092d0c455f033c4b1d225ff7f4402cf0fcab6000d9314879ea21a80dd5709d"
+  },
+  "schema": "gse-v53-development-evidence-v1",
+  "scope": "original-stable-activation-control-and-caller-custody",
+  "sourceSha256": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java": "ac03b6abda4a1e3debbbf69e736548e3af142fca67b1ec3fd43fdea9a04d9713",
+    "scripts/v53/activation_control_resource_negatives.py": "05e4f71271347edeb7dd58a9eaaa9ec573919551516dc7e2b6dc771c86df127a",
+    "scripts/v53/activation_control_resources.py": "2b82825d82f5ef6485c657b4506f4daecf8f3a6a241547afbbdd54d5f37254c5",
+    "scripts/v53/native_resource_evidence.py": "6874924bd7d86424efb5c076ce6f17c82282a0ba8d15d82772643d0daec58d50",
+    "scripts/v53/test_activation_control_resources.py": "d45a9c2f9b9cc0ca430f924b8a8eae738aac9fce8527cd49de29fce2f44b8aac"
+  },
+  "status": "PASS",
+  "wholeRuntimeResourcesQualified": false
+}

@@ -481,7 +481,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         int users;
         Control(Scope active,MembershipIdentity sender,Decoded request) {
             this.active=active;this.sender=sender;this.request=request;
-            lease=resources.reserve(MembershipResources.Unit.CONTROL,"activation-control-"+UUID.randomUUID(),request.size());
+            lease=resources.reserve(MembershipResources.Unit.CONTROL,MembershipSourceResources.request("activation-control",request),request.size());
         }
         void run() {
             controlThread=Thread.currentThread();
@@ -626,7 +626,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         }catch(InterruptedException error){Thread.currentThread().interrupt();throw new IOException("activation endpoint interrupted",error);}
         catch(TimeoutException error){active.close(ScopeEnd.CONTROL_TIMEOUT);throw new IOException("activation endpoint deadline",error);}
         catch(ExecutionException error){if(error.getCause() instanceof IOException io)throw io;if(error.getCause() instanceof RuntimeException r)throw r;throw new IOException("activation endpoint control failed",error.getCause());}
-        finally {synchronized(registry){try{task.releaseCaller();}finally{waiter.close();waiters--;}}}
+        finally {synchronized(registry){try{waiter.close();}finally{try{task.releaseCaller();}finally{waiters--;}}}}
     }
     private Decoded capacityReply(Scope active,Decoded request) {
         var values=new TreeMap<>(request.value());values.put("sender",request.value().get("recipient"));values.put("recipient",request.value().get("sender"));

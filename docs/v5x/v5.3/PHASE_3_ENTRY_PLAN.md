@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Original activation resource bindings](PHASE_3_ACTIVATION_CONTROL_RESOURCES.md)
+now qualify stable control request/reply extents, duplicate waiter intervals and
+physical publication custody. Fast published replies require original physical
+authority at their response cut. Whole-runtime and Phase 3 closure remain OPEN.
+
 [Retired activation control custody](PHASE_3_ACTIVATION_CONTROL_CUSTODY.md)
 keeps original cached request/reply bytes charged while admitted callers still
 reference them. Replacing the cache or closing the scope does not free those

@@ -90,8 +90,10 @@ def bind_publications(transactions,boundaries):
     return count
 
 
-def validate(directory,profile='stable',progress=None,*,source_control=False,control_closes=False,export_ownership=False,direct_exports=False,joining_requests=False,joining_extents=False,published_probe=False,session_extents=False,complete_exports=False,voting_control=False,slot_control=False):
+def validate(directory,profile='stable',progress=None,*,source_control=False,control_closes=False,export_ownership=False,direct_exports=False,joining_requests=False,joining_extents=False,published_probe=False,session_extents=False,complete_exports=False,voting_control=False,slot_control=False,activation_control=False):
+    need(type(activation_control) is bool and (not activation_control or profile=='stable'), 'native resources activation control policy')
     need(type(slot_control) is bool and (not slot_control or profile=='stable'), 'native resources slot control policy')
+    if activation_control:slot_control=True
     need(type(voting_control) is bool and (not voting_control or profile=='stable'), 'native resources voting control policy')
     if slot_control:voting_control=True
     need(type(complete_exports) is bool and (not complete_exports or profile=='5-REPLACE-required-four'),
@@ -188,12 +190,17 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
         from . import slot_control_resources
         slots=slot_control_resources.replay(events,wires,traces,boundaries,identities,authority,
                 slot_control_resources.publications(rounds,selection,identities),transactions)
+    activation=None
+    if activation_control:
+        from . import activation_control_resources
+        activation=activation_control_resources.replay(events,wires,traces,boundaries,identities,authority,
+                slot_control_resources.publications(rounds,selection,identities),transactions)
     need(collection.inventory(root)==before,'native resources original changed')
     return dict(result,status=cleanup['status'] if cleanup else result['status'],scope='native-owner-accounting-with-original-publication-boundaries',profile=profile,
                 precondition=preceding,publicationResources=physical,publicationBoundaries=count,publicationGenerationResources=generations,transportResources=transport,
                 floorResources=floors,receivingResources=receiving,basisResources=bases,ownerCloseResources=closed,
                 sourceControlResources=source_result,sourceCleanupIntervals=cleanup,directExportOwnership=direct,publishedPrefixProbe=published,exportAllocationCoverage=export_coverage,
-                votingControlResources=voting,slotControlResources=slots,physicalPeakQualified=False,controlLifetimesQualified=False,finalSourceCohortQualified=False)
+                votingControlResources=voting,slotControlResources=slots,activationControlResources=activation,physicalPeakQualified=False,controlLifetimesQualified=False,finalSourceCohortQualified=False)
 
 
 if __name__=='__main__':
@@ -201,5 +208,5 @@ if __name__=='__main__':
     p.add_argument('--profile',choices=('stable','5-REPLACE-required-four'),default='stable')
     p.add_argument('--source-control',action='store_true');p.add_argument('--control-closes',action='store_true')
     p.add_argument('--export-ownership',action='store_true');p.add_argument('--direct-exports',action='store_true');p.add_argument('--joining-requests',action='store_true')
-    p.add_argument('--joining-extents',action='store_true');p.add_argument('--published-probe',action='store_true');p.add_argument('--session-extents',action='store_true');p.add_argument('--complete-exports',action='store_true');p.add_argument('--voting-control',action='store_true');p.add_argument('--slot-control',action='store_true');a=p.parse_args()
-    print(json.dumps(validate(a.root,a.profile,source_control=a.source_control,control_closes=a.control_closes,export_ownership=a.export_ownership,direct_exports=a.direct_exports,joining_requests=a.joining_requests,joining_extents=a.joining_extents,published_probe=a.published_probe,session_extents=a.session_extents,complete_exports=a.complete_exports,voting_control=a.voting_control,slot_control=a.slot_control),sort_keys=True))
+    p.add_argument('--joining-extents',action='store_true');p.add_argument('--published-probe',action='store_true');p.add_argument('--session-extents',action='store_true');p.add_argument('--complete-exports',action='store_true');p.add_argument('--voting-control',action='store_true');p.add_argument('--slot-control',action='store_true');p.add_argument('--activation-control',action='store_true');a=p.parse_args()
+    print(json.dumps(validate(a.root,a.profile,source_control=a.source_control,control_closes=a.control_closes,export_ownership=a.export_ownership,direct_exports=a.direct_exports,joining_requests=a.joining_requests,joining_extents=a.joining_extents,published_probe=a.published_probe,session_extents=a.session_extents,complete_exports=a.complete_exports,voting_control=a.voting_control,slot_control=a.slot_control,activation_control=a.activation_control),sort_keys=True))

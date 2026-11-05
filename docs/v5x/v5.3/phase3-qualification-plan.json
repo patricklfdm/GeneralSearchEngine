@@ -30,13 +30,16 @@
         "scripts/v53/test_deferred_grant_process_evidence.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationCloseDrainTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationWaiterCapacityTest.java",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationControlCustodyTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationControlCustodyTest.java",
+        "scripts/v53/test_activation_control_resources.py"
       ],
       "readers": [
         "scripts/v53/activation_evidence.py",
         "scripts/v53/activation_driver_evidence.py",
         "scripts/v53/native_activation_evidence.py",
-        "scripts/v53/deferred_grant_process_evidence.py"
+        "scripts/v53/deferred_grant_process_evidence.py",
+        "scripts/v53/activation_control_resources.py",
+        "scripts/v53/activation_control_resource_negatives.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_ACTIVATION.md",
@@ -48,7 +51,9 @@
         "docs/v5x/v5.3/PHASE_3_ACTIVATION_WAITER_CAPACITY.md",
         "docs/v5x/v5.3/phase3-evidence/activation-waiter-capacity.json",
         "docs/v5x/v5.3/PHASE_3_ACTIVATION_CONTROL_CUSTODY.md",
-        "docs/v5x/v5.3/phase3-evidence/activation-control-custody.json"
+        "docs/v5x/v5.3/phase3-evidence/activation-control-custody.json",
+        "docs/v5x/v5.3/PHASE_3_ACTIVATION_CONTROL_RESOURCES.md",
+        "docs/v5x/v5.3/phase3-evidence/activation-control-resources.json"
       ],
       "cohorts": [
         "profiles",
@@ -694,7 +699,8 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53VotingCloseFailureTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationCloseDrainTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationWaiterCapacityTest.java",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationControlCustodyTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationControlCustodyTest.java",
+        "scripts/v53/test_activation_control_resources.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -776,7 +782,9 @@
         "scripts/v53/voting_control_resources.py",
         "scripts/v53/voting_control_resource_negatives.py",
         "scripts/v53/slot_control_resources.py",
-        "scripts/v53/slot_control_resource_negatives.py"
+        "scripts/v53/slot_control_resource_negatives.py",
+        "scripts/v53/activation_control_resources.py",
+        "scripts/v53/activation_control_resource_negatives.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -865,7 +873,9 @@
         "docs/v5x/v5.3/PHASE_3_ACTIVATION_WAITER_CAPACITY.md",
         "docs/v5x/v5.3/phase3-evidence/activation-waiter-capacity.json",
         "docs/v5x/v5.3/PHASE_3_ACTIVATION_CONTROL_CUSTODY.md",
-        "docs/v5x/v5.3/phase3-evidence/activation-control-custody.json"
+        "docs/v5x/v5.3/phase3-evidence/activation-control-custody.json",
+        "docs/v5x/v5.3/PHASE_3_ACTIVATION_CONTROL_RESOURCES.md",
+        "docs/v5x/v5.3/phase3-evidence/activation-control-resources.json"
       ],
       "cohorts": [
         "profiles",

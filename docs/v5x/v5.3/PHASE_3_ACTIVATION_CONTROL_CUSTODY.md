@@ -25,8 +25,10 @@ reservations and the original CONTROL/queued-byte limits still constrain
 admission. If additional retained bytes leave insufficient capacity, ordinary
 reservation failure applies before new work can run.
 
-The caller releases retired control custody before releasing its WAITER and
-leaving the endpoint caller drain. A dispatch rejection marks the never-started
+The caller releases its WAITER and then retired control custody before leaving
+the endpoint caller drain; both releases share the original registry. The
+[independent resource reader](PHASE_3_ACTIVATION_CONTROL_RESOURCES.md) checks that
+conservative ordering against original reply boundaries. A dispatch rejection marks the never-started
 task finished before retiring it. An active cancelled worker retains its bytes
 until it finishes, even if every response caller has already returned. Closing
 or abandoning a scope does not turn live references into free capacity.
