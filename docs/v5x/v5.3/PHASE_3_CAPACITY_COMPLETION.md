@@ -28,18 +28,36 @@ independent category maxima can coexist under the shared staging budget.
 
 ## Retained evidence and limits
 
-The fixture retains complete directory snapshots for SEALED, INTENT, joint
-installation, FINAL, stable installation, BARRIER, RETIRE and DATA. It also keeps
-before/after refusal copies and a final stopped snapshot, including on a thrown
-continuation failure. Stage progress is printed after each retained snapshot.
-A success receipt is written only after the continuation and final retention
-finish. The existing refusal-only reader and its directory contract are unchanged;
-completion evidence uses a separate sibling directory.
+The shared continuation producer now retains the SEALED starting owners and all
+ACCEPT, PROOF, CERTIFICATE, applied-end, published and reclaimed files at each of
+five slots. Both campaigns retain PREPARE, SELECTED, installed and reclaimed
+files; the proposer allocates each new counter through the original owner.
+Actual call events and returned ownership observations accompany these files.
+The capacity profile also keeps the rejected command and before/after refusal
+copies. A stopped snapshot is retained on success or failure, and a success
+receipt is written only after final retention. Stage progress is printed after
+each snapshot. The existing refusal-only reader remains unchanged.
+
+The [independent continuation reader](../../../scripts/v53/capacity_completion_evidence.py)
+derives each vote, proof, checkpoint, catalog, generation, retained source and
+reclamation result. It compares every original file, checks both governing
+majorities and force-before-return order, and independently decodes the actual
+core application image, including document order, sequence and both active
+index descriptors. The existing cross-view reader keeps its original single
+index expectation; this fixture explicitly uses PREFIX(value) and RANGE(id).
+
+The caller must choose `capacity-231` or `replay-smoke-1`. The same Java producer
+and Python continuation logic serve both, but the fixed initial cut, operation
+and receipt must match the selected profile. The short profile has no capacity
+refusal and returns `capacityBoundary=false`. It cannot satisfy the operation-231
+qualification. The reader checks the unmodified original before mutations and
+requires the exact rejection reason for every negative. Portable replay reads
+unchanged copied originals.
 
 The original historical capsule, its earlier observations and learner receipt
 remain conditional inputs. This test exercises real storage owners after that
 prefix, with explicit orchestration in one JVM. It does not qualify native TCP,
-process death, forced hardware durability, independent whole-history replay,
+process death, forced hardware durability, independent historical-prefix replay,
 full simultaneous physical maxima or a final-source hosted cohort. The
 552-history / twelve-subset Phase 3 inventory is unchanged.
 
@@ -67,14 +85,29 @@ bounded sizing regressions, 48 Python checks, documentation contracts and the
 source-selector audit also pass. A retained-packet extent check is separately
 recorded; it is not a replacement for physical authority or force replay.
 
-The final producer additionally retains BARRIER, RETIRE and stopped snapshots,
-prints stage progress and checks actual packet extents against the initial
-reservation. This final complete producer has not been rerun as a new full
-history. That expensive execution and independent whole-history/resource
-qualification remain pending for the hosted acceptance. The
+The current producer retains every phase rather than only the earlier named
+endpoints. Its short original-owner continuation passed in 77.38 JUnit seconds;
+independent replay checked five slots, two campaigns, 93 call observations and
+54 ownership observations. All sixteen evidence mutations were rejected at the
+expected checks, and portable replay passed. This is a reader/producer smoke,
+not a full capacity result. An initial reader-development attempt failed by
+passing byte dictionaries to a JSON comparison helper; its failure is retained,
+and the correction compares original byte inventories directly.
+
+The current complete operation-231 producer has not been rerun. That expensive
+execution and independent full-boundary/resource qualification remain pending
+for hosted acceptance. The earlier
 [development receipt](phase3-evidence/capacity-completion.json) distinguishes the
 successful storage execution, failed original evidence and corrected narrow
-checks. Original failures are not rewritten or converted into negative passes.
+checks. The [continuation replay receipt](phase3-evidence/capacity-completion-replay.json)
+records this batch separately. Original failures are not rewritten or converted
+into negative passes.
+
+The final reader gives identical results with Python assertions disabled. Sixty-four
+focused Python checks and ten existing Java regressions pass alongside the one
+new native smoke. Replaying the unchanged earlier four-profile cross-view
+originals still passes all sixty slots and sixteen existing negatives. These
+are local development checks, not the final frozen-toolchain hosted cohort.
 
 Run the complete bounded continuation against a recorded source and retain the
 log and original evidence (no GCP):
@@ -84,10 +117,20 @@ mvn -o -B -ntp -f reactor/pom.xml -pl ../general-search-engine-replication -am \
   -Dsurefire.failIfNoSpecifiedTests=false \
   -Dtest=V53PublicationCapacityTest#lastAdmittedChangeCompletesAcrossReopenedOwnersThenRefusesNewMembershipAndPublishesData \
   test
+python3.11 -B -m scripts.v53.capacity_completion_evidence \
+  general-search-engine-replication/target/v53-publication-capacity/run-<id>-completion \
+  --profile capacity-231
 ```
+
+For the short producer/replay smoke, run `V53CapacityCompletionReplayTest` with
+the same Maven options and replay its printed evidence directory using
+`--profile replay-smoke-1`. The full boundary and the smoke each remain one
+continuous history: do not split their individual slots, campaigns or refusals
+into separately scheduled experiments. Their starting prefix and learner
+receipt are still conditional.
 
 The test deliberately verifies a large immutable prefix on every owner reopen;
 its duration is not a failover or throughput measurement. Longer final-source
 qualification remains eligible for the planned hosted parallel acceptance.
-Removing this test and its fixture continuation methods is a test-only rollback;
+Removing the continuation tests, reader and optional fixture tracing is a test-only rollback;
 production Java, persisted formats, bounds, POMs and workflows are unchanged.

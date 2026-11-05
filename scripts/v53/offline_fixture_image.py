@@ -41,13 +41,19 @@ def image_members(raw):
     return result
 
 
-def application(raw,history,sequence,documents):
+def fixture_indexes(cursor,count,expected):
+    e.need(count==len(expected),'cross-view application indexes')
+    for descriptor in expected:
+        same((cursor.unpack('>B')[0],cursor.string(1024),cursor.string(128,True)),descriptor,'cross-view application indexes')
+
+
+def application(raw,history,sequence,documents,*,expected_indexes=((1,'value',''),)):
     """Decode this fixed fixture's real core backup; never trust producer JSON."""
     members=image_members(raw);identity=uuid.UUID(history).int;halves=(identity>>64,identity&((1<<64)-1));profile=core.profile_digest()
     def header(cursor,magic):
         same(cursor.unpack('>QhhQQ'),(magic,1,2,*halves),'cross-view application identity')
     def indexes(cursor,count):
-        e.need(count==1 and cursor.unpack('>B')[0]==1 and cursor.string(1024)=='value' and cursor.string(128,True)=='','cross-view application indexes')
+        fixture_indexes(cursor,count,expected_indexes)
     meta=uncheck(members['gse-backup-metadata'],64,'cross-view metadata');header(meta,core.METADATA_MAGIC)
     e.need(meta.string(128)=='gse-durable','cross-view application family');size=meta.unpack('>I')[0]
     e.need(size==len(core.profile_bytes()) and meta.take(size)==core.profile_bytes() and meta.take(32)==profile,'cross-view application profile')

@@ -12,6 +12,7 @@ final class V53EnvelopeOwnerFixture {
     final Set<Owned> owned=new HashSet<>();final MembershipRoot root;Map<String,Object> ballot;
     MembershipCapsule current;
     final List<Integer> voters=List.of(1,2,3);Path evidence;
+    Path trace;final List<Map<String,Object>> calls=new ArrayList<>();String operation;
     V53EnvelopeOwnerFixture(Path directory,V53EnvelopeHistoryFixture history,MembershipCapsule initial)throws Exception {
         this.directory=directory;this.history=history;this.initial=initial;this.current=initial;Files.createDirectories(directory);
         var rr=history.seed.root;
@@ -39,7 +40,19 @@ final class V53EnvelopeOwnerFixture {
         maintain();
     }
     Path node(int n){return directory.resolve("node-"+n);}
-    MembershipGrantJournal open(int n)throws Exception{return open(n,new MembershipResources(512*MembershipResources.MIB),new ArrayList<>());}
+    MembershipGrantJournal open(int n)throws Exception {
+        var events=new ArrayList<String>();
+        if(trace!=null && operation!=null)calls.add(Map.of("operation",operation,"node","node-"+n,"events",events));
+        return open(n,new MembershipResources(512*MembershipResources.MIB),events);
+    }
+    void trace(Path output)throws Exception {trace=output;snapshot(output.resolve("sealed"));}
+    void capture(String stage)throws Exception {operation=null;if(trace!=null)snapshot(trace.resolve(stage));}
+    void finishTrace()throws Exception {
+        operation=null;if(trace==null)return;
+        snapshot(trace.resolve("stopped"));
+        Files.write(trace.resolve("calls.json"),canonical(calls,8*1024*1024));
+        Files.write(trace.resolve("observations.json"),canonical(V53JournalApplicationTest.observations(owned),1024*1024));
+    }
     MembershipGrantJournal open(int n,MembershipResources resources,List<String> events)throws Exception {
         return MembershipGrantJournal.openApplying(node(n),root,V53DeclarationsTest.node(n),resources,(r,p,i)->initial.verifyExtension(p,i,owned),events::add);
     }
@@ -83,46 +96,67 @@ final class V53EnvelopeOwnerFixture {
     }
     MembershipCapsule publish(String kind,byte[] payload,V53ApplicationReplayTest application)throws Exception {
         var entry=entry(kind,payload);var accepts=new HashSet<Owned>();Decoded accepted=null;
+        long slot=number(entry.value().get("index"));
+        if(trace!=null) {Files.write(trace.resolve("entry-"+slot+".gsr"),entry.bytes());Files.write(trace.resolve("payload-"+slot+".bin"),payload);}
+        operation="accept-"+slot;
         for(int n:voters)try(var s=open(n)) {
             var receipt=s.acceptCurrent(entry,payload);accepts.add(receipt);
             byte[] original=Files.readAllBytes(node(n).resolve(MembershipPendingAccept.FILE));
             assertEquals(receipt,s.acceptCurrent(entry,payload));assertArrayEquals(original,Files.readAllBytes(node(n).resolve(MembershipPendingAccept.FILE)));
             accepted=MembershipPendingAccept.decode(original).accept();
         }
+        capture("slot-"+slot+"-accepted");
         owned.addAll(accepts);var fields=new TreeMap<>(accepted.value());fields.put("accepts",V53PublicationLifetimeTest.witnesses(root.manifestDigest(),"ACCEPT",accepted,accepts));
         var proof=decode(encode("records","PROOF",fields),"records","PROOF");var proofs=new HashSet<Owned>();
+        operation="proof-"+slot;
         for(int n:voters)try(var s=open(n)){proofs.add(s.proveCurrent(proof,accepts));}owned.addAll(proofs);
+        capture("slot-"+slot+"-proved");
         fields.put("proofs",V53PublicationLifetimeTest.witnesses(root.manifestDigest(),"PROOF",proof,proofs));var certificate=decode(encode("records","CERTIFICATE",fields),"records","CERTIFICATE");
-        var phased=new HashSet<>(accepts);phased.addAll(proofs);for(int n:voters)try(var s=open(n)){s.certifyCurrent(certificate,phased);}
+        var phased=new HashSet<>(accepts);phased.addAll(proofs);operation="certificate-"+slot;
+        for(int n:voters)try(var s=open(n)){s.certifyCurrent(certificate,phased);}
+        capture("slot-"+slot+"-certified");
         var plans=new TreeMap<Integer,MembershipGrantJournal.Applied>();var acks=new ArrayList<Decoded>();var observations=new HashSet<Owned>();
         var groups=new TreeMap<Long,List<MembershipAppliedEndFiles.ParentEndorsement>>();
+        operation="apply-"+slot;
         for(int n:voters)try(var s=open(n)) {
             var a=s.applyCurrent(application.configuration(),application.storage(),phased);plans.put(n,a);acks.add(a.endorsement().acknowledgement());observations.add(a.endorsement().owned());
             var ends=new ArrayList<>(a.endorsement().ancestors());a.endorsement().parent().ifPresent(ends::add);
             for(var e:ends)groups.computeIfAbsent(number(object(e.statement().value().get("start")).get("index")),k->new ArrayList<>()).add(e);
         }
+        capture("slot-"+slot+"-applied");
         owned.addAll(observations);var bridges=new ArrayList<MembershipSelection.Bridge>();
         for(var group:groups.values()) {
             var observers=group.stream().map(MembershipAppliedEndFiles.ParentEndorsement::owned).collect(java.util.stream.Collectors.toSet());owned.addAll(observers);
             bridges.add(new MembershipSelection.Bridge(group.getFirst().statement(),group.stream().map(MembershipAppliedEndFiles.ParentEndorsement::acknowledgement).toList(),observers));
         }
+        operation="publish-"+slot;
         for(int n:voters)try(var s=open(n)){s.publishCurrent(plans.get(n),acks,observations,bridges);assertTrue(s.currentCertificate().isEmpty());}
+        capture("slot-"+slot+"-published");
+        if(trace!=null){maintain();capture("slot-"+slot+"-settled");}
         try(var s=open(1)){current=s.floorCopyCurrent().capsule;return current;}
     }
     /** Reopen the same original owners; never rebuild their directories from a new prefix. */
     void campaign()throws Exception {
-        maintain();ballot=history.seed.ballot(Math.toIntExact(number(ballot.get("counter"))+1));
+        maintain();long next;
+        try(var s=open(1)){next=s.reserveCounter();}
+        assertEquals(number(ballot.get("counter"))+1,next);ballot=history.seed.ballot(Math.toIntExact(next));
         var offers=new ArrayList<MembershipSelection.Source>();var images=new TreeMap<String,byte[]>();var old=new TreeMap<Integer,String>();
+        operation="prepare-"+next;
         for(int n:voters)try(var s=open(n)) {
             s.originalBasis().ifPresent(b->old.put(n,(String)b.value().get("basisId")));
             s.prepareCurrent(ballot);var source=s.originalSource();offers.add(source);
             for(String h:source.capsule.packet.images().keySet())images.put(h,Files.readAllBytes(node(n).resolve("sources").resolve((String)source.basis.value().get("basisId")).resolve(h+".image")));
         }
-        for(int n:voters)try(var s=open(n)){s.selectCurrent(offers,List.of());s.installCurrent(offers,List.of(),images);}
+        capture("campaign-"+next+"-prepared");operation="select-"+next;
+        for(int n:voters)try(var s=open(n)){s.selectCurrent(offers,List.of());}
+        capture("campaign-"+next+"-selected");operation="install-"+next;
+        for(int n:voters)try(var s=open(n)){s.installCurrent(offers,List.of(),images);}
+        capture("campaign-"+next+"-installed");
         var copies=new ArrayList<MembershipFloor.Copy>();for(int n:voters)try(var s=open(n)){copies.add(s.floorCopyCurrent());}
         for(int n:voters)try(var s=open(n)) {
             s.establishFloor(copies);s.retireInactive();if(old.containsKey(n))s.retireSource(old.get(n));s.releaseFloor();s.rotateJournal();
         }
+        capture("campaign-"+next+"-settled");
     }
     void snapshot(Path output)throws Exception {
         Files.createDirectories(output);

@@ -90,6 +90,9 @@ class Walk:
     def entry_bytes(self, fields):
         return e.f.encode('records', 'ENTRY', fields)
 
+    def verify_application(self,image,sequence,documents):
+        application(image,self.history,sequence,documents)
+
     def publish(self,kind,command=None,nodes=None):
         nodes=nodes or self.active;members,packet,cap,before=self.state();self.slot+=1;slot=self.slot
         selected=e.f.decode(members['selected.gsr'],'records','SELECTED');r=cap['root'];ids={n:e.f.decode(self.group[n]['node.gsr'],'records','NODE')['identity']['storage'] for n in nodes}
@@ -114,7 +117,7 @@ class Walk:
         image=self.application_image(slot,nodes)
         if kind=='DATA':
             after=copy.deepcopy(before);after.update(application=e.digest(image),applicationSequence=before['applicationSequence']+1,lastDataIndex=slot,cut=dict(cap['cut'],index=slot,entry=e.digest(entry)))
-            application(image,self.history,after['applicationSequence'],self.data_documents())
+            self.verify_application(image,after['applicationSequence'],self.data_documents())
         else:
             e.need(image==members[cap['application']+'.image'],'cross-view control image changed')
             after=context.reduce_catalog(before,cap['catalog'],kind,command,e.digest(entry),r)

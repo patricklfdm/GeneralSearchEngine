@@ -137,45 +137,10 @@ class V53PublicationCapacityTest {
         var reservation=MembershipPublicationCapacity.publication(lastAdmissible,null,"RESERVE",8192,0);
         assertTrue(reservation.fits());assertFalse(MembershipPublicationCapacity.publication(lastCompleted,null,"RESERVE",8192,0).fits());
         assertEquals(231,lastChange);withinReservation(lastSealed,reservation);
-        var f=new V53EnvelopeOwnerFixture(temp.resolve("completion"),history,lastSealed);
-        // The large historical prefix and learner receipt are conditional. From
-        // this point all votes, force, publication and reopen use these original owners.
-        Path out=evidence.resolveSibling(evidence.getFileName()+"-completion");f.snapshot(out.resolve("sealed"));
-        try {
-            var operation=object(list(lastSealed.context.catalog.get("results")).getFirst());var descriptor=new TreeMap<String,Object>();
-            for(String k:List.of("request","prepared","receipt"))descriptor.put(k,operation.get(k));
-            var joint=f.publish("INTENT",command("INTENT",Map.of("sealed",descriptor)),application);
-            withinReservation(joint,reservation);
-            assertNotNull(joint.context.view.get("operation"));f.snapshot(out.resolve("intent"));
-            f.campaign();f.snapshot(out.resolve("joint-installed"));
-            var completed=f.publish("FINAL",command("FINAL",Map.of("binding",operation.get("binding"))),application);
-            withinReservation(completed,reservation);
-            assertNull(completed.context.view.get("operation"));f.snapshot(out.resolve("final"));
-            f.campaign();f.snapshot(out.resolve("stable-installed"));
-            withinReservation(f.publish("BARRIER",new byte[0],application),reservation);f.maintain();f.snapshot(out.resolve("barrier"));
-            withinReservation(f.publish("RETIRE",command("RETIRE",Map.of("through",(long)lastChange)),application),reservation);f.maintain();f.snapshot(out.resolve("retired"));
-            assertTrue(list(f.current.context.catalog.get("results")).isEmpty());
-            var target=new ArrayList<Map<String,Object>>();for(int n=1;n<=4;n++)target.add(V53ContextFixture.member(n));target.add(V53ContextFixture.member(6+lastChange));
-            target.sort(Comparator.comparing(v->(String)v.get("node")));
-            f.evidence=out.resolve("refusal");f.refuse("RESERVE",command("RESERVE",Map.of("request",Map.of("root",f.root.manifestDigest(),
-                    "expected",f.current.context.authority(),"number",(long)lastChange+1,"kind","REPLACE","target",target))));
-            byte[] payload;try(var encoder=application.encoder()) {
-                payload=MembershipApplicationReplay.data("ADD",encoder.documents("ADD",List.of(new io.github.patricklfdm.generalsearch.admission.OfflineApplication.Doc(21,"admitted-completion"))));
-            }
-            var after=f.publish("DATA",payload,application);f.maintain();f.snapshot(out.resolve("data"));
-            assertEquals(number(lastSealed.context.cut.get("index"))+5,number(after.context.cut.get("index")));
-            assertEquals(42L,after.context.catalog.get("applicationSequence"));assertEquals(completed.context.view,after.context.view);
-            for(int n:f.voters)try(var owner=f.open(n)) {
-                var copy=owner.floorCopyCurrent();assertEquals(after.context.cut,copy.capsule.context.cut);
-                var loaded=application.read(copy.fileBytes(copy.capsule.terminal().application()+".image"),"completion-data-"+n);
-                assertTrue(loaded.documents().contains(new io.github.patricklfdm.generalsearch.admission.OfflineApplication.Doc(21,"admitted-completion")));
-            }
-        } finally {f.snapshot(out.resolve("stopped"));}
-        Files.write(out.resolve("receipt.json"),canonical(Map.of("schema","gse-v53-capacity-completion-v1","status","PASS",
-                "conditionalPrefix",true,"completedOperation",lastChange,"nextOperationRefused",lastChange+1,"applicationSequence",42,"nodes",3,
-                "freshProcesses",false,"nativeNetwork",false,"phase3Complete",false),65536));
-        System.out.println("v53CapacityCompletionEvidence="+out.toAbsolutePath());
+        V53CapacityCompletionFixture.run(temp.resolve("completion"),evidence.resolveSibling(evidence.getFileName()+"-completion"),
+                history,lastSealed,reservation,lastChange,application);
     }
+
     static void withinReservation(MembershipCapsule capsule,MembershipPublicationCapacity.Budget reserved) {
         assertTrue(capsule.packet.envelope().length+HEADER<=reserved.envelope());
         assertTrue(capsule.packet.bytes().length<=reserved.packet());

@@ -1,0 +1,199 @@
+{
+  "base": "289006fe0f5e486c86afd8220b3a4875239a23fc",
+  "capacityBoundaryQualified": false,
+  "combinedResourcesQualified": false,
+  "compiledClasses": {
+    "path": "target/v53-capacity-replay/compiled-classes.json",
+    "sha256": "432db20e2a141a07e146e31ce9c91c51a2cfd42702c91237d15995eb584d4913"
+  },
+  "finalProducerCapacityRun": false,
+  "initialReaderFailure": {
+    "log": {
+      "path": "target/v53-capacity-replay/first-replay.stderr",
+      "sha256": "0664452cd8262edc2eee7407b164c7410dc56d159eb922c3fa66b9b28602a099"
+    },
+    "reason": "TypeError comparing byte inventories as JSON; fixed to compare exact original bytes"
+  },
+  "javaSource": {
+    "path": "target/v53-capacity-replay/java-source.json",
+    "sha256": "c5ac77e6badc3848b08f39234bc9336176e00075aa4c78dc867a7bd653152bfb"
+  },
+  "junit": {
+    "path": "target/v53-capacity-replay/smoke-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53CapacityCompletionReplayTest.xml",
+    "seconds": 77.375,
+    "sha256": "28bb2f32602d32a693b53762d3dfab1cefce0cbfbfa71ec2258ec3b5eb3828ac",
+    "tests": 1
+  },
+  "legacyJava": [
+    {
+      "path": "target/v53-capacity-replay/legacy-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PublicationCapacityTest.xml",
+      "seconds": 196.873,
+      "sha256": "59019d7355951e30edfc0f2a5dce9cab6941fb74cabde31a71ad9120ea5ba5d6",
+      "tests": 5
+    },
+    {
+      "path": "target/v53-capacity-replay/legacy-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ApplicationReplayTest.xml",
+      "seconds": 2.463,
+      "sha256": "25f81888f686af27f8676cd760245f2ff0abd85a7c921323face1dd77381aa34",
+      "tests": 5
+    }
+  ],
+  "legacyReplay": {
+    "negatives": 16,
+    "original": "general-search-engine-replication/target/v53-admitted-cross-view/run-dde237a3-3ac4-4668-a53a-01f876ff6ac5",
+    "path": "target/v53-capacity-replay/legacy-replay.json",
+    "profiles": 4,
+    "sha256": "48561a3725ec4aa568686f622924a041595f9ac399dac69224d6c32b8874e20c",
+    "slots": 60
+  },
+  "logs": [
+    {
+      "path": "target/v53-capacity-replay/smoke.log",
+      "sha256": "d98692300229610c53e5d6c32f1661fd2ae9acdf773bf567cc261e55e3ca4c14"
+    },
+    {
+      "path": "target/v53-capacity-replay/legacy-regressions.log",
+      "sha256": "dacdf18dd6eb95136fb2ea2776df39357b984343ad843baac0844af752a8a9f0"
+    }
+  ],
+  "optimizedReplay": {
+    "path": "target/v53-capacity-replay/final-optimized-replay.json",
+    "sha256": "9e8d6b65075671ad7ed90be9bdb1695467234d7432b8c254ae557d2bd6148ac0"
+  },
+  "paidCloud": false,
+  "pending": [
+    "current operation-231 complete physical replay",
+    "final-source hosted qualification",
+    "combined physical resource maxima"
+  ],
+  "phase3Complete": false,
+  "pushed": false,
+  "python": {
+    "log": {
+      "path": "target/v53-capacity-replay/final-python.log",
+      "sha256": "e1417cd9e56d2d3148cb1b548e951ddb197968a14fe4033086a9865b41cab0dc"
+    },
+    "tests": 64
+  },
+  "raw": {
+    "inventory": {
+      "path": "target/v53-capacity-replay/original-inventory.json",
+      "sha256": "203409ce84093ec0270d9000ec69efbbee867ebf49d31c0d1dfeb6fb3467a0e2"
+    },
+    "path": "target/v53-capacity-replay/originals"
+  },
+  "reader": {
+    "path": "target/v53-capacity-replay/final-reader.json",
+    "sha256": "e1795486d8a83a2c6b17baaaf0874679f584d3fed93e31221aa352790ec706cb"
+  },
+  "replay": {
+    "path": "target/v53-capacity-replay/final-replay.json",
+    "result": {
+      "callObservations": 93,
+      "campaigns": 2,
+      "capacityBoundary": false,
+      "conditionalPrefix": true,
+      "freshProcesses": false,
+      "nativeNetwork": false,
+      "negativeCases": [
+        {
+          "case": "profile",
+          "reason": "completion receipt/profile",
+          "status": "REJECTED"
+        },
+        {
+          "case": "accept",
+          "reason": "admitted exact slot-6-accepted: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "proof",
+          "reason": "admitted exact slot-6-proved: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "certificate",
+          "reason": "admitted exact slot-6-certified: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "apply",
+          "reason": "admitted exact slot-6-applied: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "publish",
+          "reason": "admitted exact slot-6-published: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "allocator",
+          "reason": "admitted exact campaign-4-prepared: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "source",
+          "reason": "admitted exact campaign-4-prepared: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "control-image",
+          "reason": "cross-view control image changed",
+          "status": "REJECTED"
+        },
+        {
+          "case": "data-sequence",
+          "reason": "cross-view application sequence/documents",
+          "status": "REJECTED"
+        },
+        {
+          "case": "data-index",
+          "reason": "cross-view application indexes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "data-document",
+          "reason": "cross-view application document bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "force",
+          "reason": "completion force before return",
+          "status": "REJECTED"
+        },
+        {
+          "case": "call",
+          "reason": "completion exact call coverage",
+          "status": "REJECTED"
+        },
+        {
+          "case": "observation",
+          "reason": "completion exact observations",
+          "status": "REJECTED"
+        },
+        {
+          "case": "stopped",
+          "reason": "admitted exact stopped: node-1",
+          "status": "REJECTED"
+        }
+      ],
+      "originalFirst": true,
+      "ownedObservations": 54,
+      "owners": 3,
+      "phase3Complete": false,
+      "portableReplay": "PASS",
+      "profile": "replay-smoke-1",
+      "slots": 5,
+      "status": "PASS"
+    },
+    "sha256": "9e8d6b65075671ad7ed90be9bdb1695467234d7432b8c254ae557d2bd6148ac0"
+  },
+  "schema": "gse-v53-capacity-completion-replay-development-v1",
+  "scope": "Real original-owner continuation after a conditional SEALED prefix; operation-1 replay smoke only; no historical learner, TCP or process-death claim.",
+  "status": "PARTIAL",
+  "toolchain": {
+    "path": "target/v53-capacity-replay/toolchain.txt",
+    "qualification": "local development check, not frozen hosted acceptance",
+    "sha256": "3510b2c34d9214348a5d8feafd49b21db85f05da88815c51920753b8bb089d27"
+  }
+}
