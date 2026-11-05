@@ -82,6 +82,13 @@ verified backup to a new root; old tokens/operation IDs do not cross that bounda
 
 ## Tests and acceptance boundaries
 
+[Resource transition observations](PHASE_3_RESOURCE_TRANSITIONS.md) retain
+transient charged peaks and exact expansion rollback between fixed callbacks.
+The independent delta reader enforces the same category, byte and completion
+headroom limits. Observation is optional and confers no physical/deletion
+authority; whole-history owner/boundary binding and peak qualification remain
+separate obligations.
+
 [Publication reservation handoff](PHASE_3_PUBLICATION_RESERVATION.md) keeps the
 original image maximum charged until the complete candidate reservation succeeds.
 Publication and carried installation consume its exact successor handle without

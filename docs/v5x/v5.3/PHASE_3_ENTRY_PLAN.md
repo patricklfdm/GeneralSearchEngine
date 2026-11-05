@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Resource transition observation](PHASE_3_RESOURCE_TRANSITIONS.md) now records
+transient reservation changes and exact expansion rollback under the resource
+monitor. Six native component traces replay independently; overflow/failure
+traces are rejected. Complete producer ownership/boundary binding and native
+combined peak qualification remain OPEN.
+
 [Required-four continuous ledgers](PHASE_3_REQUIRED_FOUR_LEDGERS.md) now compose
 peer/learner/future/ballot derivation over the same original history, preserve all
 six owners through cold comparison and retain 86 component negative cases with

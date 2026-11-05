@@ -24,12 +24,37 @@ final class MembershipResources {
     private final Set<SourceClaim> sourceClaims=new HashSet<>();
     private final long metadataLimit, stagingLimit, queueLimit;
     private long metadata, staging, queued, protectedUsed;
+    private final MembershipResourceObservations observations;
 
     MembershipResources(long stagingLimit) { this(METADATA_LIMIT,stagingLimit,QUEUE_LIMIT); }
     MembershipResources(long metadataLimit,long stagingLimit,long queueLimit) {
+        this(metadataLimit,stagingLimit,queueLimit,0);
+    }
+    MembershipResources(long metadataLimit,long stagingLimit,long queueLimit,int observationLimit) {
         require(metadataLimit>=HEADROOM && metadataLimit<=METADATA_LIMIT && stagingLimit>0
                 && queueLimit>0 && queueLimit<=QUEUE_LIMIT,"resource limit");
         this.metadataLimit=metadataLimit;this.stagingLimit=stagingLimit;this.queueLimit=queueLimit;
+        require(observationLimit>=0 && observationLimit<=MembershipResourceObservations.MAXIMUM,"resource observation bound");
+        observations=observationLimit==0?null:new MembershipResourceObservations(observationLimit,metadataLimit,stagingLimit,queueLimit);
+        observe("START");
+    }
+    private void observe(String event) {
+        if(observations==null)return;
+        if(!observations.accepting()){observations.skipped();return;}
+        try {
+            var charges=new ArrayList<MembershipResourceObservations.Charge>();
+            for(var lease:leases.values())charges.add(new MembershipResourceObservations.Charge(lease.key.unit,lease.key.owner,lease.bytes,""));
+            for(var claim:generationClaims)charges.add(new MembershipResourceObservations.Charge(claim.target.unit,claim.target.owner,0,claim.source.key.owner));
+            for(var claim:sourceClaims)charges.add(new MembershipResourceObservations.Charge(claim.target.unit,claim.target.owner,0,claim.source.key.owner));
+            observations.record(event,charges,usage());
+        } catch(RuntimeException | OutOfMemoryError error) {
+            // Observation must not enter an owning operation's rollback path
+            // after its atomic switch. An incomplete trace cannot qualify.
+            observations.failed();
+        }
+    }
+    synchronized MembershipResourceObservations.Snapshot observations() {
+        require(observations!=null,"resource observations disabled");return observations.snapshot(usage());
     }
     synchronized Lease reserve(Unit unit,String owner,long bytes) {
         Objects.requireNonNull(unit,"unit");Objects.requireNonNull(owner,"owner");
@@ -53,6 +78,7 @@ final class MembershipResources {
         if(unit.staging)staging+=bytes;
         if(unit==Unit.CONTROL)queued+=bytes;
         if(unit.protectedSpace())protectedUsed+=bytes;
+        observe("RESERVE");
         return lease;
     }
     synchronized Usage usage() {
@@ -135,6 +161,7 @@ final class MembershipResources {
                 leases=next;metadata-=lessMetadata;staging-=lessStaging;protectedUsed-=lessProtected;
                 for(int n=0;n<oldHandles.length;n++)oldHandles[n].released=true;
                 for(int n=0;n<newHandles.length;n++)newHandles[n].reload=null;closed=true;
+                observe("GENERATION_RELOAD");
             }
         }
         @Override public void close() {
@@ -189,6 +216,7 @@ final class MembershipResources {
         var acquired=new ArrayList<Lease>(additions.size());
         var ordered=new ArrayList<Lease>(additions.size());
         var successor=publication==null?null:new Lease(new Key(Unit.APPLICATION,image.owner),publication.bytes);
+        observe("EXTEND_BEGIN");
         try {
             for(var row:growth.entrySet())row.getKey().reserveStorage(Math.max(row.getKey().bytes,row.getValue()));
             for(var row:additions) {
@@ -203,11 +231,13 @@ final class MembershipResources {
                 var next=new HashMap<>(leases);next.remove(publication.key);next.put(successor.key,successor);
                 leases=next;publication.released=true;
             }
+            observe("EXTEND_COMMIT");
             return result;
         }catch(RuntimeException | Error error) {
             acquired.forEach(Lease::close);
             originals.forEach((lease,bytes)->lease.bytes=bytes);
             metadata=originalMetadata;staging=originalStaging;
+            observe("EXTEND_ROLLBACK");
             throw error;
         }
     }
@@ -241,7 +271,7 @@ final class MembershipResources {
                 for(var row:requested){var key=new Key(row.unit,row.owner);var lease=new Lease(key,row.bytes);next.put(key,lease);issued.put(row,lease);}
                 var result=new StorageBatch(issued);
                 leases=next;metadata=trial.metadata;staging=trial.staging;queued=trial.queued;protectedUsed=trial.protectedUsed;
-                for(var lease:originals.keySet())lease.released=true;committed=true;return result;
+                for(var lease:originals.keySet())lease.released=true;committed=true;observe("REPLACE");return result;
             }
         }
     }
@@ -282,6 +312,7 @@ final class MembershipResources {
         var nextLeases=new HashMap<>(leases);for(var lease:original.keySet())nextLeases.remove(lease.key);
         for(var next:result.values())nextLeases.put(next.key,next);
         leases=nextLeases;for(var lease:original.keySet())lease.released=true;
+        observe("TRANSFER");
         return immutable;
     }
     final class Lease implements AutoCloseable {
@@ -295,6 +326,7 @@ final class MembershipResources {
                 require(total>=bytes && total<=Unit.CONTROL.bytes,"control reservation extent");
                 long additional=total-bytes;require(additional<=queueLimit-queued,"global queued-byte capacity");
                 queued+=additional;bytes=total;
+                observe("CONTROL_GROW");
             }
         }
         /** Increase one existing image reservation in place; never alias two physical files. */
@@ -304,6 +336,7 @@ final class MembershipResources {
                 long additional=Unit.APPLICATION.bytes-bytes;
                 require(additional<=stagingLimit-staging,"shared staging capacity");
                 staging+=additional;bytes=Unit.APPLICATION.bytes;
+                observe("APPLICATION_MAXIMUM");
             }
         }
         /** Grow one already-owned floor copy before completing its partial files.
@@ -321,6 +354,7 @@ final class MembershipResources {
                 if(key.unit.metadata)metadata+=additional;
                 if(key.unit.staging)staging+=additional;
                 bytes=total;
+                observe("STORAGE_GROW");
             }
         }
         /** One admission owner expands its existing protected metadata slot;
@@ -332,6 +366,7 @@ final class MembershipResources {
                 long additional=total-bytes;require(additional<=metadataLimit-metadata,"metadata capacity");
                 require(HEADROOM-protectedUsed-additional<=metadataLimit-metadata-additional,"completion headroom");
                 metadata+=additional;protectedUsed+=additional;bytes=total;
+                observe("MISC_GROW");
             }
         }
         /** Reserve a future generation slot while the original learner still
@@ -346,7 +381,7 @@ final class MembershipResources {
                         && sourceClaims.stream().noneMatch(c->c.source==this)
                         && leases.keySet().stream().filter(k->k.unit==Unit.GENERATION).count()+generationClaims.size()<Unit.GENERATION.count,
                         "generation reservation capacity");
-                var claim=new GenerationClaim(this,target);generationClaims.add(claim);return claim;
+                var claim=new GenerationClaim(this,target);generationClaims.add(claim);observe("GENERATION_CLAIM");return claim;
             }
         }
         /** A pending joining history is a retained source, not another selected
@@ -362,7 +397,7 @@ final class MembershipResources {
                         && generationClaims.stream().noneMatch(c->c.source==this)
                         && leases.keySet().stream().filter(k->k.unit==Unit.SOURCE).count()+sourceClaims.size()<Unit.SOURCE.count,
                         "source reservation capacity");
-                var claim=new SourceClaim(this,target);sourceClaims.add(claim);return claim;
+                var claim=new SourceClaim(this,target);sourceClaims.add(claim);observe("SOURCE_CLAIM");return claim;
             }
         }
         @Override public void close() {
@@ -376,6 +411,7 @@ final class MembershipResources {
                 if(key.unit.staging)staging-=bytes;
                 if(key.unit==Unit.CONTROL)queued-=bytes;
                 if(key.unit.protectedSpace())protectedUsed-=bytes;
+                observe("RELEASE");
             }
         }
     }
@@ -392,9 +428,10 @@ final class MembershipResources {
                         && source.key.unit==Unit.LEARNER && leases.get(source.key)==source && !leases.containsKey(target),"source claim closed or foreign");
                 leases.remove(source.key);source.key=target;leases.put(target,source);
                 sourceClaims.remove(this);closed=true;
+                observe("SOURCE_COMMIT");
             }
         }
-        @Override public void close(){synchronized(MembershipResources.this){if(!closed){sourceClaims.remove(this);closed=true;}}}
+        @Override public void close(){synchronized(MembershipResources.this){if(!closed){sourceClaims.remove(this);closed=true;observe("SOURCE_CANCEL");}}}
     }
     /** No duplicate byte reservation or release/reacquire gap. A pending claim
      * consumes a generation count, while its bytes remain charged as LEARNER. */
@@ -414,8 +451,9 @@ final class MembershipResources {
                 leases.remove(source.key);source.key=target;leases.put(target,source);
                 staging-=source.bytes; // Immutable local generation metadata is not receiving scratch.
                 generationClaims.remove(this);closed=true;
+                observe("GENERATION_COMMIT");
             }
         }
-        @Override public void close(){synchronized(MembershipResources.this){if(!closed){generationClaims.remove(this);closed=true;}}}
+        @Override public void close(){synchronized(MembershipResources.this){if(!closed){generationClaims.remove(this);closed=true;observe("GENERATION_CANCEL");}}}
     }
 }

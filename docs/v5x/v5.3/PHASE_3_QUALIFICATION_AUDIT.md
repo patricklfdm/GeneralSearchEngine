@@ -1,5 +1,11 @@
 # Phase 3 qualification inventory and remaining work
 
+[Resource transitions](PHASE_3_RESOURCE_TRANSITIONS.md) now observe accounting
+mutations between existing publication/transport callbacks. Six component traces
+cover all 19 event kinds and 210 transitions; two incomplete traces are rejected.
+Per-owner accounting peaks do not qualify whole-runtime physical maxima. The
+complete native producer/boundary integration remains pending.
+
 [Required-four continuous ledgers](PHASE_3_REQUIRED_FOUR_LEDGERS.md) now connect
 the four existing chain readers to the required-four original and pinned-floor
 maintenance. The entry retains all six final owners and 86 component mutations;

@@ -1,0 +1,130 @@
+{
+  "baseHead": "9d2ca7c7c20c7907891f28f97a6ea2dd8294e66f",
+  "javaTests": 43,
+  "nativeOriginals": [
+    {
+      "path": "general-search-engine-replication/target/v53-resource-observations/run-66bc54e7-a9f6-4667-ba5f-a92ff100bb85/claims.json",
+      "sha256": "15a65864abedb604f3c723c399665e6127a8f3589481b553af54704da62db29c"
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-resource-observations/run-66bc54e7-a9f6-4667-ba5f-a92ff100bb85/concurrent.json",
+      "sha256": "a55891ed73d46e8103e8f1ae4de0484997a4fe7e4d23f12edc26a52e55398ac4"
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-resource-observations/run-66bc54e7-a9f6-4667-ba5f-a92ff100bb85/failed-observation.json",
+      "sha256": "239e39bdb7ad9858de09027858e6585adda231628799110afe231c5de6b219a0"
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-resource-observations/run-66bc54e7-a9f6-4667-ba5f-a92ff100bb85/overflow.json",
+      "sha256": "786c051f1df012a349fcdab8ac5b9bef908d51c31281c69e39149db7495214ef"
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-resource-observations/run-66bc54e7-a9f6-4667-ba5f-a92ff100bb85/reload.json",
+      "sha256": "4f504ae1e84b9e10ff7f857a9d453648ca7add549ed48aac95a853c4661b292e"
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-resource-observations/run-66bc54e7-a9f6-4667-ba5f-a92ff100bb85/replacement.json",
+      "sha256": "24b0ecb0bfe87f20ae0e6d556191eb43223adf5fc9872950e59e82c75195ec85"
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-resource-observations/run-66bc54e7-a9f6-4667-ba5f-a92ff100bb85/rollback.json",
+      "sha256": "e89ba18e5d8b36ff51d77bf4384a572f4978e2002edd5c81a7c87981779af869"
+    },
+    {
+      "path": "general-search-engine-replication/target/v53-resource-observations/run-66bc54e7-a9f6-4667-ba5f-a92ff100bb85/scalar.json",
+      "sha256": "d223817f9f3655d9adb16f28fc2b8406290dbf88830df9555f5977c1a68002a4"
+    }
+  ],
+  "newJavaTests": 8,
+  "newPythonTests": 14,
+  "notes": [
+    "First Java run passed before explicit expansion-begin observations were added. Its original outputs remain retained.",
+    "First Python negative fixtures reused mutable charge dictionaries; deep-copied fixture records corrected the intended negative targets. Initial failures are retained.",
+    "First standalone diagnostic invocation lacked PYTHONPATH and failed before importing the reader; corrected invocation replayed unchanged native originals.",
+    "No native complete-history or peak-physical qualification is claimed."
+  ],
+  "observedEventKinds": 19,
+  "phase3Complete": false,
+  "planAndContractTests": 19,
+  "positiveTraces": 6,
+  "positiveTransitions": 210,
+  "pythonTests": 55,
+  "raw": "general-search-engine-replication/target/v53-resource-observations/run-66bc54e7-a9f6-4667-ba5f-a92ff100bb85",
+  "refusedIncompleteTraces": 2,
+  "reports": [
+    {
+      "path": "target/v53-resource-transitions/java-input-02.json",
+      "sha256": "20e77725f4fa24dc7cc486c29c4b79a59c515397f61c23592a902852e873e603"
+    },
+    {
+      "path": "target/v53-resource-transitions/maven-01.log",
+      "sha256": "364ef3e2e9b8bf11f6de7d49d2476f8b058201904eab8358ca7727fb7ca50078"
+    },
+    {
+      "path": "target/v53-resource-transitions/maven-02.log",
+      "sha256": "966eef2dccc94496e2ceab25729c79be2b901a27473abd5fbaaecc7c2406989d"
+    },
+    {
+      "path": "target/v53-resource-transitions/python-01.log",
+      "sha256": "8964d0360450a527b9624f28363b2462ee9d757d3a538dec367127c835cf35ad"
+    },
+    {
+      "path": "target/v53-resource-transitions/python-02.log",
+      "sha256": "c9811dcd7d51683ba5e61910b5aa26e91e8766a287b6a6f52a04bac8ac9f3a3d"
+    },
+    {
+      "path": "target/v53-resource-transitions/python-related-01.log",
+      "sha256": "0e16469ef59be5fe658dab2adb3b8e79dd0b7a7d3cd0eeef5bda44f3f6cdb626"
+    },
+    {
+      "path": "target/v53-resource-transitions/replay-01.json",
+      "sha256": "de05cd03c8bd04a6418f971cc11593533166b948124314d1d954118c8f14d9ad"
+    },
+    {
+      "path": "target/v53-resource-transitions/replay-01.log",
+      "sha256": "de05cd03c8bd04a6418f971cc11593533166b948124314d1d954118c8f14d9ad"
+    },
+    {
+      "path": "target/v53-resource-transitions/replay-native-02.json",
+      "sha256": "69b09941aaa98922ebbc65a580d32e7c986ec52ead3c5c64b385ebdf5c2faedb"
+    },
+    {
+      "path": "target/v53-resource-transitions/replay-native-02.log",
+      "sha256": "f4d633ad746b8e458969dc20c7e65e6512f1876d1dd9f367d1ee576f44a803ee"
+    },
+    {
+      "path": "target/v53-resource-transitions/replay-native.py",
+      "sha256": "5a697ac529e75b3bd27e595a9479c1a6f5a52a503707c0879095220011595fbb"
+    },
+    {
+      "path": "target/v53-resource-transitions/python-plan-01.log",
+      "sha256": "bc2300f71b43c871b8d1218d9ed1091e042b7cfeffc3921e9c6bbf56fbd9c7cc"
+    }
+  ],
+  "schema": "gse-v53-resource-transitions-development-v1",
+  "sourceUnchangedDuringFinalJavaValidation": true,
+  "sources": [
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResourceObservations.java",
+      "sha256": "801cc7de2b3d0aa11a0b6eba24328a4736e738aa99fa98d70ff8d748d8bec894"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java",
+      "sha256": "faa98d08c2bcf47f0fd9b5633ed6a72f7ff4c0c6ef6c45550cdbb0cb24af2803"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceObservationsTest.java",
+      "sha256": "61b2ce445cea301f7786519d79dec63f803ed3d91277d8b2c8e343a48823f471"
+    },
+    {
+      "path": "scripts/v53/resource_transitions.py",
+      "sha256": "88172ea48b2af045d969ee7acee81953b3b3bb81ecf86b33f79d313a1df0309c"
+    },
+    {
+      "path": "scripts/v53/test_resource_transitions.py",
+      "sha256": "1e14002bae71e80feb8a9ec19243cfce0370dd7d20fac6154ca85dc2c8737369"
+    }
+  ],
+  "status": "NATIVE_COMPONENT_QUALIFIED_OWNER_INTEGRATION_PENDING",
+  "wholeRuntimeResourcesQualified": false
+}
