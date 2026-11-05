@@ -89,15 +89,63 @@ are retained. See the [development receipt](phase3-evidence/native-carried-recov
 and `target/v53-native-carried-recovery/validation-summary.json` for exact source,
 report and raw-history bindings.
 
-The new whole-group Java fixtures are development regressions, not independent
-process-history qualification. They are not yet added to the twelve-subset
-final-source cohort. A dedicated original-first reader, negative mutations and
-complete source-bound cohort admission remain required before claiming this
-process family or Phase 3 complete. No hosted workflow or paid cloud ran.
+The new whole-group Java fixtures remain development regressions. The following
+reader adds independent physical and process-observation checks, with a PARTIAL
+result; complete network qualification and final-source cohort admission stay
+open. They are not yet added to the twelve-subset final-source cohort.
 
-The next process qualification must bind both actual child lives, original
-directories, exit/lock observations, each cut's physical files, cold local
-acceptance and the later original-wire campaign. It must reject changed entry
-or payload, missing source succession, stale readiness, invented client retries
-and altered process observations. A passing producer alone cannot satisfy that
-obligation or replace final-source hosted execution.
+## Whole-group physical and process reader
+
+`scripts.v53.native_carried_recovery_evidence` reconstructs bootstrap, the old
+three-voter DATA acceptance/certificate/application, both new campaigns, every
+interrupted directory, cold reacceptance, subsequent DATA publication and a fresh
+barrier. It derives grants, frozen source packets, selected generations, peer
+ledgers and application contents before comparing entire snapshot inventories.
+Observed campaign inputs are grant participation, the selected pair and fresh
+source UUIDs; their storage consequences are independently derived. Whether each choice was
+justified by an actual received network exchange remains a separate obligation.
+
+The cuts have different original storage states. In particular, at local PROOF
+rename the peer has completed ACCEPT but has not received PROOF or retired its
+old generation. The reducer must not project the leader's maintenance onto that
+peer. At cold open, an already transferred vote is retained; a superseded vote
+uses its original selected entry and retained certificate, then transfers only
+ACCEPT. The reader does not manufacture a new proof, application ACK or READY.
+
+`scripts.v53.native_carried_process_evidence` runs the physical reduction first,
+then checks two distinct child lives, the three original replica/application
+paths, disjoint scratch, held/released locks, halt/SIGKILL exit, zero client calls
+and successful successor exit. Child stdout must agree exactly with the combined
+event and response inventories. It checks original vote forces, cold force and
+cleanup ordering, interrupted rename prefixes, application/publication milestones
+and readiness following the fresh barrier. Resource counts are retained
+observations, not full resource-lifetime qualification. Response correlation does
+not substitute for complete TCP transfer, delivery and state replay.
+
+```bash
+python3 -m scripts.v53.native_carried_process_evidence ORIGINAL_HISTORY --qualify
+```
+
+Every qualification first accepts the unchanged original, then copies it into a
+temporary directory for each mutation. The 32 common negatives cover original
+entry/payload/certificate/source, interrupted/cold/final state, process identity,
+lock/exit/path claims, child/combined stream consistency, missing force/cleanup,
+invented retries and stale readiness. The two rename cuts each add one negative
+for an invented parent force. Exact rejection reasons are required. These checks
+return `componentChecks=PASS` but retain `status=PARTIAL`, `fullWireReplay=false`,
+`processHistoryQualified=false` and `cohortAdmitted=false`.
+
+The [reader receipt](phase3-evidence/native-carried-process-reader.json) records
+current and historical runtime sources separately, raw inventory hashes,
+unchanged-original checks, lightweight unit regressions and exact negative
+results. No Java workload, hosted workflow or paid cloud was rerun for this batch.
+Nine retained histories pass 292 exact negative variants: one history/32 variants
+uses the final narrowed runtime source, while eight histories/260 variants use
+the earlier broader candidate. The 159-test regression suite passes, followed
+by two additional component-scope/read-only-view checks. Historical replay is
+not final-source execution of all eight process cases.
+
+Next, connect the complete original-wire campaign/slot/retirement replay for
+both lives, including response delivery and every unconsumed exchange. Only then
+can this family enter source-bound cohort preparation and final-source execution.
+This reader and a passing producer cannot independently close Phase 3.

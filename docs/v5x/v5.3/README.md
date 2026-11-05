@@ -2,8 +2,9 @@
 
 [Native carried DATA recovery](PHASE_3_NATIVE_CARRIED_RECOVERY.md) now covers
 cold local reacceptance, empty completion headroom and exact-vote maintenance
-before a fresh grant. Whole-group halt/SIGKILL regressions reopen original directories;
-independent process-history replay and Phase 3 closure remain OPEN.
+before a fresh grant. Whole-group halt/SIGKILL regressions reopen original directories.
+Independent original-byte and process-observation replay now returns PARTIAL;
+complete wire replay, final-source cohort admission and Phase 3 closure remain OPEN.
 
 [Exact candidate witnesses](PHASE_3_COVERAGE_WITNESSES.md) now bind twelve
 Phase 3 requirements to nineteen specific archive/reader/rejection selectors.

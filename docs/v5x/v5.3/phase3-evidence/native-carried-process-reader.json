@@ -1,0 +1,244 @@
+{
+  "baseCommit": "ce47d970cc1e2029e6e4421dca2efb644a322736",
+  "contract": {
+    "path": "target/v53-native-carried-reader/contract.json",
+    "result": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 2764,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "sha256": "1128744dc8e300c396f1f15878206c50afd0806b07fdbab721f2140b368859d9"
+  },
+  "executions": {
+    "hostedWorkflow": false,
+    "javaRerun": false,
+    "paidCloud": false
+  },
+  "phase3Complete": false,
+  "preservedDiagnostics": [
+    {
+      "path": "target/v53-native-carried-reader/first-physical.log",
+      "sha256": "0c5a62e33282bedd31156d7bbc3da46d531c22c8690e14f8a7be52cc5f696d46"
+    },
+    {
+      "path": "target/v53-native-carried-reader/matrix-physical-2.log",
+      "sha256": "4dc8a6a7f7d6a0d0d4c59a826345a3569de25336c5fde47362f27b9e3530778e"
+    },
+    {
+      "path": "target/v53-native-carried-reader/matrix-physical.log",
+      "sha256": "6296b2dbfa54a2cf8d8dabb3125856432f8a840be66e7b5e26a96adf8fd5be1a"
+    },
+    {
+      "path": "target/v53-native-carried-reader/matrix-process-2.log",
+      "sha256": "4dc8a6a7f7d6a0d0d4c59a826345a3569de25336c5fde47362f27b9e3530778e"
+    },
+    {
+      "path": "target/v53-native-carried-reader/matrix-process.log",
+      "sha256": "b40287bb15bc499d5bbd4ad7ad1f0ea23c86e803e58922c6e93657f35520153a"
+    },
+    {
+      "path": "target/v53-native-carried-reader/negative-diagnostic.log",
+      "sha256": "c47597c689a3d8780022864d8daec82ea8a01918cb7385934b7d8ce978379c5c"
+    },
+    {
+      "path": "target/v53-native-carried-reader/process-first.log",
+      "sha256": "af6de27769ad59e4d3aac071d101e67bdbc068add0069f392b3df30a1e6f5ea0"
+    },
+    {
+      "path": "target/v53-native-carried-reader/process-second.log",
+      "sha256": "58a6f6af9e74af3271ed12c0b0cd6128d797923e8f28bd823556497c45a7d3b0"
+    },
+    {
+      "path": "target/v53-native-carried-reader/process-third.log",
+      "sha256": "7ec5414bac2530b6eec92191fd3f06d6e6a033ad9348bccde8e9d74a5f40c840"
+    },
+    {
+      "path": "target/v53-native-carried-reader/python-regression.log",
+      "sha256": "e6167a8d9b09ebefdc83bb9b66cc9a58c324941db3b0baa21ff75849b2e34984"
+    },
+    {
+      "path": "target/v53-native-carried-reader/unit-first.log",
+      "sha256": "d034ab39354c2f034fa02526bcbb2b25197c79369aa9fb04ff68ee72fc6a232f"
+    }
+  ],
+  "previousRuntimeAndReaderFilesUnchanged": 2221,
+  "python": [
+    {
+      "path": "target/v53-native-carried-reader/python-regression-corrected.log",
+      "sha256": "0dd3ff648e02514d064391cb9cafc6ce42d94fcd42c3cf8f6697fdda7f2d7cb8",
+      "tests": 159
+    },
+    {
+      "path": "target/v53-native-carried-reader/unit-final.log",
+      "scope": "includes 13 tests from regression plus two final scope/view checks",
+      "sha256": "dfe4fedb90c607062ae4e1109920a5f2f30962a59b7e7e1e76c21f4a4a0a2758",
+      "tests": 15
+    }
+  ],
+  "readerSourceSha256": {
+    "scripts/v53/native_carried_process_evidence.py": "064819c1a7cf3f585f8fb7fcc49327bce7392e9481be67313b4717146634944c",
+    "scripts/v53/native_carried_recovery_evidence.py": "f7c3719414bb92f936d6adc2e97c2e0e98767ef08a186acc2592b4eab7d500db",
+    "scripts/v53/test_native_carried_process_evidence.py": "d5982deaa8d01b21ab18cbfbdfd77493ae125851e2b70a1b82c7a8e0c1b33584"
+  },
+  "remaining": [
+    "complete original-wire activation/slot/retirement replay across both child lives",
+    "new family source-bound cohort admission and final-source hosted executions",
+    "remaining phase-wide coverage/resource acceptance"
+  ],
+  "replay": {
+    "histories": 9,
+    "negatives": 292,
+    "originalFilesUnchanged": true,
+    "rows": [
+      {
+        "cut": "APPLY_ACK_DIRECTORY_FORCED",
+        "elapsedSeconds": 24.607,
+        "mode": "halt",
+        "negatives": 32,
+        "originalInventory": "target/v53-native-carried-reader/run-fc04fd72-030a-4577-8f45-dff70a9cd4dd-original-files.json",
+        "originalInventorySha256": "b76cff8889ef64925bd2470f0041feef85e00a866c2119d5dd75c0286501052a",
+        "originalUnchanged": true,
+        "report": "target/v53-native-carried-reader/run-fc04fd72-030a-4577-8f45-dff70a9cd4dd-qualification.json",
+        "reportSha256": "f1bbaf93c1bdccd8e7d47c160ce27d5545b7ffe0fe544a8df02608fd9c600bb3",
+        "root": "general-search-engine-replication/target/v53-native-carried-process/run-fc04fd72-030a-4577-8f45-dff70a9cd4dd",
+        "runtimeScope": "ce47d970-final-narrowed-permission"
+      },
+      {
+        "cut": "PROOF_RENAMED",
+        "elapsedSeconds": 25.512,
+        "mode": "halt",
+        "negatives": 33,
+        "originalInventory": "target/v53-native-carried-reader/run-10a0fd76-29d0-457d-ae7c-6682a0dce916-original-files.json",
+        "originalInventorySha256": "28b577486f61fce6d53599f9187c9677e0c63a31e3735c45df17f85ae099f732",
+        "originalUnchanged": true,
+        "report": "target/v53-native-carried-reader/run-10a0fd76-29d0-457d-ae7c-6682a0dce916-qualification.json",
+        "reportSha256": "af41b1bee1999789b7ab6b1fe729ac5ebb6189ab025dfc5ace931771bdd5b937",
+        "root": "general-search-engine-replication/target/v53-native-carried-process/run-10a0fd76-29d0-457d-ae7c-6682a0dce916",
+        "runtimeScope": "historical-broader-candidate"
+      },
+      {
+        "cut": "APPLY_ACK_DIRECTORY_FORCED",
+        "elapsedSeconds": 24.36,
+        "mode": "halt",
+        "negatives": 32,
+        "originalInventory": "target/v53-native-carried-reader/run-65468b4c-332a-481d-b496-a86af33c0d32-original-files.json",
+        "originalInventorySha256": "02ae3168c6053b9227507ad4fefb19547ec8b414dc498be36cdba601fa599bcf",
+        "originalUnchanged": true,
+        "report": "target/v53-native-carried-reader/run-65468b4c-332a-481d-b496-a86af33c0d32-qualification.json",
+        "reportSha256": "1f8e06d78c694df0a71799eb0426a361cdf4506167787262e4db25fcb98efe97",
+        "root": "general-search-engine-replication/target/v53-native-carried-process/run-65468b4c-332a-481d-b496-a86af33c0d32",
+        "runtimeScope": "historical-broader-candidate"
+      },
+      {
+        "cut": "NATIVE_RETIREMENT_CERTIFICATE_RETAINED",
+        "elapsedSeconds": 23.574,
+        "mode": "halt",
+        "negatives": 32,
+        "originalInventory": "target/v53-native-carried-reader/run-139ba023-790a-483b-9024-ab78e10e67a0-original-files.json",
+        "originalInventorySha256": "bff2d185a7c4f7daae3de8ef81fee802e0dd88bc47d64593c5f6a5fc1cf6a079",
+        "originalUnchanged": true,
+        "report": "target/v53-native-carried-reader/run-139ba023-790a-483b-9024-ab78e10e67a0-qualification.json",
+        "reportSha256": "3567c985f4c8690dbf3e7c5dd0722d6a4588aca5e9bb727bb1fd5435aba1ef2e",
+        "root": "general-search-engine-replication/target/v53-native-carried-process/run-139ba023-790a-483b-9024-ab78e10e67a0",
+        "runtimeScope": "historical-broader-candidate"
+      },
+      {
+        "cut": "ACCEPT_RENAMED",
+        "elapsedSeconds": 24.928,
+        "mode": "kill",
+        "negatives": 33,
+        "originalInventory": "target/v53-native-carried-reader/run-42069a78-7238-4237-bfcd-2414d8c0ec39-original-files.json",
+        "originalInventorySha256": "07fef282b8131fd290691332d4479fc7cec326842e793788c567bea219d1b782",
+        "originalUnchanged": true,
+        "report": "target/v53-native-carried-reader/run-42069a78-7238-4237-bfcd-2414d8c0ec39-qualification.json",
+        "reportSha256": "da30777c31b28f541af1ce55b8e1ded7f0c4e80849d7dfe3ca2372dc500ffb01",
+        "root": "general-search-engine-replication/target/v53-native-carried-process/run-42069a78-7238-4237-bfcd-2414d8c0ec39",
+        "runtimeScope": "historical-broader-candidate"
+      },
+      {
+        "cut": "APPLY_ACK_DIRECTORY_FORCED",
+        "elapsedSeconds": 24.543,
+        "mode": "kill",
+        "negatives": 32,
+        "originalInventory": "target/v53-native-carried-reader/run-fece1f56-a042-4e6c-bff2-e7fae6b7a301-original-files.json",
+        "originalInventorySha256": "84024699e87dec3ff9f7dedeba87aa6dd14956eb4040fc5c93fbfa39e6d86934",
+        "originalUnchanged": true,
+        "report": "target/v53-native-carried-reader/run-fece1f56-a042-4e6c-bff2-e7fae6b7a301-qualification.json",
+        "reportSha256": "464bdef61bcf341595596649cb87e44522d7ca0d3ce05a409b264163ec23d41b",
+        "root": "general-search-engine-replication/target/v53-native-carried-process/run-fece1f56-a042-4e6c-bff2-e7fae6b7a301",
+        "runtimeScope": "historical-broader-candidate"
+      },
+      {
+        "cut": "NATIVE_RETIREMENT_CERTIFICATE_RETAINED",
+        "elapsedSeconds": 23.199,
+        "mode": "kill",
+        "negatives": 32,
+        "originalInventory": "target/v53-native-carried-reader/run-01faea7f-1c4e-4a96-b79b-e8ff247635e9-original-files.json",
+        "originalInventorySha256": "aaa18fda122a7d953e0bda90c6926809f5f472191001db8a6117f74df882caa3",
+        "originalUnchanged": true,
+        "report": "target/v53-native-carried-reader/run-01faea7f-1c4e-4a96-b79b-e8ff247635e9-qualification.json",
+        "reportSha256": "f148ff3f7574165294bac4ded56729ab61cf3b2d1d0c13da9a14f8c5f8f26249",
+        "root": "general-search-engine-replication/target/v53-native-carried-process/run-01faea7f-1c4e-4a96-b79b-e8ff247635e9",
+        "runtimeScope": "historical-broader-candidate"
+      },
+      {
+        "cut": "ACCEPT_RENAMED",
+        "elapsedSeconds": 24.961,
+        "mode": "halt",
+        "negatives": 33,
+        "originalInventory": "target/v53-native-carried-reader/run-5a5cfea7-dfbd-4aa9-847c-9904737fab54-original-files.json",
+        "originalInventorySha256": "23bb4a617520a29d33d9811175129b7c5d909c91c5a3f5e82252731d09d4b536",
+        "originalUnchanged": true,
+        "report": "target/v53-native-carried-reader/run-5a5cfea7-dfbd-4aa9-847c-9904737fab54-qualification.json",
+        "reportSha256": "071b51a885e67281a69bd9584eccb8f97e5f6f89a7d6caddb61c0ae829f81aca",
+        "root": "general-search-engine-replication/target/v53-native-carried-process/run-5a5cfea7-dfbd-4aa9-847c-9904737fab54",
+        "runtimeScope": "historical-broader-candidate"
+      },
+      {
+        "cut": "PROOF_RENAMED",
+        "elapsedSeconds": 26.635,
+        "mode": "kill",
+        "negatives": 33,
+        "originalInventory": "target/v53-native-carried-reader/run-d31829b4-bd08-4c8f-be64-e6ca5b25b5f1-original-files.json",
+        "originalInventorySha256": "580f72432517ece802e4108f8b66e76c6917e89829027b74346e180699ae20f6",
+        "originalUnchanged": true,
+        "report": "target/v53-native-carried-reader/run-d31829b4-bd08-4c8f-be64-e6ca5b25b5f1-qualification.json",
+        "reportSha256": "0267edd10ab97ab5b4b4458d8e2d1b2c5154cf8a7a3782b90ac283542623d596",
+        "root": "general-search-engine-replication/target/v53-native-carried-process/run-d31829b4-bd08-4c8f-be64-e6ca5b25b5f1",
+        "runtimeScope": "historical-broader-candidate"
+      }
+    ]
+  },
+  "runtimeSources": {
+    "current": {
+      "commit": "ce47d970cc1e2029e6e4421dca2efb644a322736",
+      "histories": 1,
+      "negatives": 32,
+      "sourceManifest": {
+        "path": "target/v53-native-carried-recovery/final-scope-source.json",
+        "sha256": "59a4513b53aa9938214abaf59725dbb583d7f7970f80b8c7d72c174a16f3e1a5"
+      }
+    },
+    "historical": {
+      "histories": 8,
+      "negatives": 260,
+      "scope": "earlier broader context permission; not final-source execution",
+      "sourceManifest": {
+        "path": "target/v53-native-carried-recovery/corrected-focus-source.json",
+        "sha256": "d5998a0add6fe63e46a101f6f3775854b1f123f17c05e96fc17a14c2b3da0427"
+      }
+    }
+  },
+  "schema": "gse-v53-native-carried-process-reader-development-v1",
+  "scope": "original physical reduction and process observations; full network/cohort admission pending",
+  "sourceFiles": {
+    "path": "target/v53-native-carried-reader/source-files.json",
+    "sha256": "e837af94dad7446d3278739b3b06b49815d15eadfb80a259462e492159b80015"
+  },
+  "status": "PARTIAL"
+}
