@@ -8,6 +8,21 @@ from . import test_native_carried_transition_physical as fixtures
 
 
 class NativeCarriedTransitionForcesTest(unittest.TestCase):
+    def test_prefix_binding_keeps_original_rows_and_excludes_other_nodes(self):
+        row=dict(node='node-1',event='RETIREMENT_CREATED',incarnation=2);state={'root.gsr':dict(bytes=4,sha256='a'*64)};result=[]
+        m.bind_prefixes([dict(row,node='node-2'),dict(row,event='WIRE_RESPONSE'),row],'node-1',[('generation','RETIREMENT_CREATED',state)],result)
+        self.assertIs(row,result[0][0]);self.assertIs(state,result[0][2])
+        self.assertEqual('generation',result[0][1])
+
+    def test_prefix_binding_cannot_omit_duplicate_or_reorder_original_callbacks(self):
+        rows=[dict(node='node-1',event=v) for v in ('RETIREMENT_CREATED','RETIREMENT_PROPOSAL_WRITTEN')]
+        plan=[('generation',v['event'],{}) for v in rows]
+        for actual in (rows[:1],rows+rows[:1]):
+            with self.assertRaisesRegex(ValueError,'^transition forces complete retirement prefix count$'):m.bind_prefixes(actual,'node-1',plan,[])
+        with self.assertRaisesRegex(ValueError,'^transition forces original retirement prefix boundary$'):m.bind_prefixes(list(reversed(rows)),'node-1',plan,[])
+        # Existing callers without a capture sidecar retain their exact receipt.
+        m.bind_prefixes(rows,'node-1',None,None)
+
     def successor(self,mutation=None):
         files,members,packet,entry,payload,selected=fixtures.NativeCarriedTransitionPhysicalTest().command()
         packet['capsule']['root']=selected['root']

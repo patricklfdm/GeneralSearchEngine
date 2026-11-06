@@ -13,6 +13,7 @@ public final class V53NativeCarriedProcessWorker {
     static final Set<String> CUTS=Set.of("NATIVE_RETIREMENT_CERTIFICATE_RETAINED","ACCEPT_RENAMED",
             "PROOF_RENAMED","APPLY_ACK_DIRECTORY_FORCED");
     public static void main(String[] args)throws Exception {
+        if(args.length<4 || args.length>6)throw new IllegalArgumentException("native carried worker arguments");
         Path spec=Path.of(args[0]);int life=Integer.parseInt(args[1]);String point=args[2],mode=args[3];
         if((life!=1 && life!=2) || !CUTS.contains(point) || !Set.of("halt","kill").contains(mode))
             throw new IllegalArgumentException("native carried process case");
@@ -30,7 +31,8 @@ public final class V53NativeCarriedProcessWorker {
         var history=new MembershipRoot(new ReplicationGroupId(UUID.fromString((String)root.value().get("groupId"))),
                 UUID.fromString((String)root.value().get("historyId")),root.rootDigest());
         var pipe=new V53NodeProcessWorker.Pipe();
-        var capture=args.length==5?new V53NodeResourceCapture(Path.of(args[4]),history.manifestDigest(),life,pipe):null;
+        var capture=args.length>=5?new V53NodeResourceCapture(Path.of(args[4]),history.manifestDigest(),life,pipe,
+                args.length==6?Path.of(args[5]):null):null;
         V53NodeProcessWorker.Sink sink=capture==null?pipe:capture;
         var owners=new ArrayList<MembershipNodeOwner<Integer,Doc>>();
         var activeSlot=new AtomicLong();var installations=new AtomicLong();var cut=new AtomicBoolean();
@@ -64,7 +66,7 @@ public final class V53NativeCarriedProcessWorker {
                 Path scratch=Path.of((String)path.get("scratch"));
                 var owner=new MembershipNodeOwner<>(config,builder().configuration(),scratch.resolve("incoming"),scratch.resolve("outgoing"),
                         System::nanoTime,TimeUnit.SECONDS.toNanos(seconds),hooks,capture!=null);
-                if(capture!=null)capture.register(identity,owner);
+                if(capture!=null)capture.register(identity,owner,replica);
                 owners.add(owner);owner.open();
                 if(owner.serviceState().orElseThrow()!=MembershipAutomaticOwner.State.NEW)throw new AssertionError("restored READY");
                 try{owner.readiness();throw new AssertionError("readiness before fresh barrier");}catch(IllegalArgumentException expected){}

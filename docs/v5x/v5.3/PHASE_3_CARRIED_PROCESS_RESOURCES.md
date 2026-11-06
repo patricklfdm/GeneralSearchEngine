@@ -6,6 +6,11 @@ It qualifies observed accounting and successful owner close; it does not replace
 transient physical-file capture, whole-runtime resource qualification or cohort
 admission. The twelve hosted subsets and their frozen counts are unchanged.
 
+A separate [retirement-prefix component](PHASE_3_CARRIED_PROCESS_PREFIXES.md)
+now adds writer-held generation/source/journal bytes to this same original
+resource wrapper. The resource-only receipts below retain their original scope;
+the new component requires the full resource replay before comparing its files.
+
 ## Actual owners and observation boundaries
 
 `MembershipNodeOwner` has a package-private opt-in for the existing bounded

@@ -12,6 +12,7 @@ final class V53RemoveRetirementCapture {
     static final int MAXIMUM_CAPTURES=2048;
     static final String SCHEMA="gse-v53-remove-retirement-capture-v1";
     static final String CARRIED_SCHEMA="gse-v53-carried-retirement-capture-v1";
+    static final String PROCESS_SCHEMA="gse-v53-carried-process-retirement-capture-v1";
     final Path raw,root;
     private final Path objects;
     private final Map<String,String> active=new HashMap<>();
@@ -20,7 +21,10 @@ final class V53RemoveRetirementCapture {
     private int count;
     private boolean finished;
     V53RemoveRetirementCapture(Path raw)throws IOException {
-        this.raw=raw;root=Files.createDirectory(raw.resolveSibling("retirement-captures-"+raw.getFileName()));
+        this(raw,raw.resolveSibling("retirement-captures-"+raw.getFileName()));
+    }
+    V53RemoveRetirementCapture(Path raw,Path directory)throws IOException {
+        this.raw=raw;root=Files.createDirectory(directory);
         objects=Files.createDirectory(root.resolve("objects"));
     }
     synchronized void at(String node,Path replica,String point,int eventIndex)throws IOException {
@@ -61,6 +65,17 @@ final class V53RemoveRetirementCapture {
     synchronized void finishCarried(String kind)throws IOException {
         require(Set.of("INTENT","FINAL").contains(kind),"carried capture kind");
         finish(CARRIED_SCHEMA,kind,"carried-transition-result.json");
+    }
+    synchronized void finishProcess(String history,int life,String terminal,byte[] events)throws IOException {
+        MembershipValidation.digest(history);
+        require(!finished && active.isEmpty() && (life==1 && terminal.equals("CUT_PREFIX") || life==2 && terminal.equals("CLOSED")),
+                "process retirement original terminal");
+        // INTENT/ACCEPT can die before the first retirement. Empty coverage is
+        // explicit and must match the original callback inventory in replay.
+        Files.write(root.resolve("collection.json"),canonical(Map.of("schema",PROCESS_SCHEMA,"root",history,
+                "life",life,"pid",ProcessHandle.current().pid(),"terminal",terminal,"eventsSha256",hash(events),
+                "captures",count,"storedBytes",bytes),4096),StandardOpenOption.CREATE_NEW);
+        finished=true;
     }
     private void finish(String schema,String profile,String resultName)throws IOException {
         require(!finished && active.isEmpty() && count>0,"REMOVE capture incomplete collection");

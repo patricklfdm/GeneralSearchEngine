@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Carried-process retirement prefixes](PHASE_3_CARRIED_PROCESS_PREFIXES.md)
+add writer-held generation/source/journal file captures to both original JVM
+lifetimes. Independent transaction replay derives every expected inventory;
+process-bound sidecars cannot supply their own expected bytes. Other transient
+storage operations, whole-resource composition and Phase 3 acceptance remain OPEN.
+
 [Carried-process resource observations](PHASE_3_CARRIED_PROCESS_RESOURCES.md)
 now bind the actual node budgets to original child events through group death and
 same-directory restart. Crash prefixes remain distinct from the successor's

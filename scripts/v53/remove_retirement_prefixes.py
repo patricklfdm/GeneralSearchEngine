@@ -35,6 +35,18 @@ def collect_bound(root,sidecar,profile,schema,result_name,node_count):
     result_raw=r.n.collection.snapshot.s.regular(root/result_name,4096)
     need(header['eventsSha256']==sha(events_raw) and header['resultSha256']==sha(result_raw),'REMOVE prefix original history binding')
     events=r.n.collection.read_json(root,'events.json',r.n.collection.EVENT_BYTES)
+    return collect_contents(sidecar,events,header,node_count,
+        lambda node:{key:g.snapshot.s.regular(root/'before-network'/node/key,16384) for key in ('root.gsr','node.gsr')},inventory)
+
+
+def collect_contents(sidecar,events,header,node_count,owner_records,inventory):
+    """Decode bounded originals after the owning caller binds its header/events.
+
+    A whole-group child can end before its first retirement. Its caller must
+    independently require the exact empty callback coverage, never infer it.
+    """
+    need(type(header['captures']) is int and 0<=header['captures']<=MAXIMUM_CAPTURES and
+         type(header['storedBytes']) is int and 0<=header['storedBytes']<=g.MAXIMUM_BYTES,'REMOVE prefix collection header')
     names=[f'capture-{i:04d}.json' for i in range(1,header['captures']+1)]
     need({v.name for v in sidecar.iterdir()}=={'collection.json','objects',*names} and
          inventory['directories']==['objects'],'REMOVE prefix exact sidecar layout')
@@ -69,7 +81,7 @@ def collect_bound(root,sidecar,profile,schema,result_name,node_count):
             parent=Path(path).parent.as_posix();need(parent=='.' or parent in files and files[parent] is None,'REMOVE prefix parent directory')
         need(type(node) is str and node in {'node-'+str(i+1) for i in range(node_count)},'REMOVE prefix original node')
         if node not in owners:
-            owners[node]={key:g.snapshot.s.regular(root/'before-network'/node/key,16384) for key in ('root.gsr','node.gsr')}
+            owners[node]=owner_records(node)
         need(all(files.get(k)==v for k,v in owners[node].items()),'REMOVE prefix original owner records')
         copies[at]=dict(node=node,kind=value['kind'],point=point,files=files)
     need(total==header['storedBytes'],'REMOVE prefix stored byte count')

@@ -57,7 +57,7 @@ def successors(source,tail,files,node,cap):
          for h in (tail,old['entry'],entry['payload'])),'transition forces retained source tail')
 
 
-def maintenance(group_,node,*,campaign=False):
+def maintenance(group_,node,*,campaign=False,prefixes=None):
     """Project every FLOOR, generation/source retirement and release callback."""
     expected=p.maintain(group_,(node,),campaign=campaign)[node]
     if expected==group_[node]:return [],dict(generations=0,sources=0,borrowed=0)
@@ -76,6 +76,7 @@ def maintenance(group_,node,*,campaign=False):
     if any(k.startswith('generations/') and k!=prefix[:-1] and not k.startswith(prefix) for k in files):
         pending=files['pending.accept'] if files['pending.accept']!=c.EMPTY else None
         files,steps,details=retirement.generation_plan(files,node,copies,pending)
+        if prefixes is not None:prefixes.extend(('generation',point,state) for point,state in steps)
         events.extend(v[0] for v in steps);generations=1;borrowed=int(details['borrowedImages'])
     available=p.t.maintenance.confirmation.endpoints(packet,members.get('ancestry.gsr',b''))
     removed=sorted({k.split('/')[1] for k in files if k.startswith('sources/') and k not in expected})
@@ -83,6 +84,7 @@ def maintenance(group_,node,*,campaign=False):
         authority,compact=retirement.s.sources.decision(files,node,identifier,coverage=available,
             allow_published_tail=True,tail_check=successors if campaign else None)
         steps=retirement.s.sources.observed.release.transaction(retirement.s.physical(files),authority,compact,identifier)
+        if prefixes is not None:prefixes.extend(('source',point,state) for point,state in steps)
         events.extend(v[0] for v in steps);prefix='sources/'+identifier
         files={k:v for k,v in files.items() if k!=prefix and not k.startswith(prefix+'/')};files['grants.gsr']=compact
         need(steps[-1][1]==retirement.s.physical(files),'transition forces source projection')
@@ -98,6 +100,15 @@ def maintenance(group_,node,*,campaign=False):
 def maintenance_order(rows,node,expected):
     actual=[v for v in names(rows,node) if v.startswith(MAINTENANCE) and v!='FLOOR_COPY_BEFORE_RETURN']
     need(actual==expected,'transition forces exact maintenance callbacks')
+
+
+def bind_prefixes(rows,node,expected,collector):
+    if collector is None:return
+    actual=[v for v in rows if v.get('node')==node and v['event'].startswith(retirement.s.PREFIXES)]
+    need(len(actual)==len(expected),'transition forces complete retirement prefix count')
+    for event,(kind,point,state) in zip(actual,expected):
+        need(event['event']==point,'transition forces original retirement prefix boundary')
+        collector.append((event,kind,state))
 
 
 def ledger_order(rows,node,before,after):
@@ -143,16 +154,18 @@ def cold(rows,before):
               expected,'transition forces cold exact recovery')
 
 
-def campaign(rows,before,installed):
+def campaign(rows,before,installed,*,prefixes=None):
     chosen=f.decode(c.current(installed['node-1'])[1]['selected.gsr'],'records','SELECTED')
     voters=[v['voter'] for v in chosen['sources']]
     touched=[n for n in before if n in voters or before[n]['grants.gsr']!=installed[n]['grants.gsr']]
     reconciled=p.t.t.reconcile(before,touched);stats=[]
     for node in before:
-        events=names(rows,node);expected,detail=maintenance(reconciled,node,campaign=True) if node in touched else ([],{})
+        local=[] if prefixes is not None else None
+        events=names(rows,node);expected,detail=maintenance(reconciled,node,campaign=True,prefixes=local) if node in touched else ([],{})
         exact(events,('ACCEPT_','PROOF_','CERTIFICATE_','APPLY_','PUBLICATION_','COVERED_','FUTURE_RETENTION_','REPLAY_'),[],
               'transition forces campaign cannot execute a slot')
         maintenance_order(rows,node,expected);stats.append(detail)
+        bind_prefixes(rows,node,local,prefixes)
         ledger_order(rows,node,before[node][d.s.FILE],installed[node][d.s.FILE])
         exact(events,('ALLOCATOR_',),list(allocator.CUTS) if node=='node-1' else [],'transition forces campaign allocator')
         if node in touched:
@@ -240,7 +253,7 @@ def publication_order(events,applied_files,published,peer,count):
     need(pending==1 and completed==0,'transition forces future completion/clear count')
 
 
-def slot(rows,before,applied_group,published,*,first,point=None):
+def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None):
     chosen=f.decode(c.current(before['node-1'])[1]['selected.gsr'],'records','SELECTED')
     voters=[v['voter'] for v in chosen['sources']];stats=[]
     accepting=copy.deepcopy(before)
@@ -254,8 +267,10 @@ def slot(rows,before,applied_group,published,*,first,point=None):
         events=names(rows,node)
         exact(events,GRANTS,[],'transition forces slot cannot create a campaign')
         maintained=node in voters and (point is None or point=='PROOF_RENAMED' and node=='node-1')
-        expected,detail=maintenance(accepting if first else before,node) if maintained else ([],{})
+        local=[] if prefixes is not None else None
+        expected,detail=maintenance(accepting if first else before,node,prefixes=local) if maintained else ([],{})
         maintenance_order(rows,node,expected);stats.append(detail)
+        bind_prefixes(rows,node,local,prefixes)
         if node not in voters or point=='ACCEPT_RENAMED' and node!='node-1':
             exact(events,('ACCEPT_','PROOF_','CERTIFICATE_','APPLY_','INSTALL_','PUBLICATION_','COVERED_',
                   'RETENTION_','FUTURE_RETENTION_','REPLAY_'),[],
@@ -290,10 +305,11 @@ def slot(rows,before,applied_group,published,*,first,point=None):
     return stats
 
 
-def replay(root,kind,point):
+def replay(root,kind,point,*,prefixes=None):
     root=Path(root);result=process.read(root/'process/result.json');children=native.children(result,kind=kind)
     lives,_,_,_,_=process.observations(root,result,children);index,_,_=p.t.shape(kind);stats=[]
     for life,rows in enumerate(lives,1):
+        collected=[] if prefixes is not None else None
         cold(rows,group(root,'before-network' if life==1 else 'before-reopen'))
         start=max(i for i,v in enumerate(rows) if v['event']=='NODE_OPEN')
         covered=set(range(start+1))
@@ -302,22 +318,28 @@ def replay(root,kind,point):
         for at,event in marks:
             if event=='ROUND_INSTALLED':
                 ordinal+=1;installed=group(root,f'life-{life}-installed-{ordinal}')
-                stats+=campaign(rows[start+1:at],before,installed)
+                stats+=campaign(rows[start+1:at],before,installed,prefixes=collected)
                 covered.update(range(start+1,at))
             elif event=='ROUND_SLOT_BEGIN':slot_start=at
             elif event=='ROUND_SLOT_COMPLETE':
                 published=group(root,f'life-2-published-{index+ordinal-1}')
-                stats+=slot(rows[slot_start+1:at],installed,group(root,f'life-2-applied-{index+ordinal-1}'),published,first=ordinal==1)
+                stats+=slot(rows[slot_start+1:at],installed,group(root,f'life-2-applied-{index+ordinal-1}'),published,first=ordinal==1,prefixes=collected)
                 covered.update(range(slot_start+1,at))
                 before=published;start=at
         if life==1:
-            stats+=slot(rows[slot_start+1:],installed,None,group(root,'at-cut'),first=True,point=point)
+            stats+=slot(rows[slot_start+1:],installed,None,group(root,'at-cut'),first=True,point=point,prefixes=collected)
             covered.update(range(slot_start+1,len(rows)))
         for at,row in enumerate(rows):
             if row['event'].startswith(TRACKED) and row['event']!='FLOOR_COPY_BEFORE_RETURN':
                 need(at in covered,'transition forces storage callback outside operation')
                 if row['event']!='PUBLICATION_SEND_BOUNDARY':
                     need(set(row)=={'node','event','incarnation'},'transition forces callback shape')
+        if prefixes is not None:
+            positions={id(row):at for at,row in enumerate(rows)};used=[positions[id(row)] for row,_,_ in collected]
+            need(len(set(used))==len(used) and set(used)=={at for at,row in enumerate(rows) if row['event'].startswith(retirement.s.PREFIXES)},
+                 'transition forces unbound retirement prefix')
+            prefixes.extend(dict(life=life,eventIndex=positions[id(row)],node=row['node'],point=row['event'],kind=kind_,files=state)
+                for row,kind_,state in sorted(collected,key=lambda v:positions[id(v[0])]))
     return dict(status='PARTIAL',scope='carried-transition-storage-callbacks',coldOwners=8,
         campaigns=1+p.t.shape(kind)[1],generationRetirements=sum(v.get('generations',0) for v in stats),
         sourceRetirements=sum(v.get('sources',0) for v in stats),observedStorageCallbacks=True,

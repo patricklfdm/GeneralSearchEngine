@@ -11,6 +11,21 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*
 
 class V53NodeResourceCaptureTest {
     @TempDir Path temp;
+    @Test void optionalFileObserverSharesExactEventBytesAndOriginalOwnerRegistration()throws Exception {
+        var helper=new V53NodeOwnerTest();helper.temp=temp;
+        try(var f=helper.new Fixture()) {
+            Path output=temp.resolve("observed-prefix"),prefix=temp.resolve("file-prefix");
+            var capture=new V53NodeResourceCapture(output,f.group.fixture.result.root().manifestDigest(),2,(a,v)->{},prefix);
+            var node=observed(f,V53NodeOwnerTest.hooks(event->capture.accept("event",Map.of("node","node-1","event",event)),MembershipTransport.Events.NONE));
+            var config=f.config(ReplicationBounds.defaults());
+            assertThrows(IllegalArgumentException.class,()->capture.register(config.localIdentity(),node));
+            capture.register(config.localIdentity(),node,config.replicaDirectory());node.open();capture.closeOwner(node);capture.save("CLOSED");
+            var resources=object(parse(Files.readAllBytes(output.resolve("index.json")),16384));
+            var files=object(parse(Files.readAllBytes(prefix.resolve("collection.json")),4096));
+            for(String key:List.of("root","life","pid","terminal","eventsSha256"))assertEquals(resources.get(key),files.get(key));
+            assertEquals(V53RemoveRetirementCapture.PROCESS_SCHEMA,files.get("schema"));
+        }
+    }
     static MembershipNodeOwner<Integer,Doc> observed(V53NodeOwnerTest.Fixture f,MembershipNodeOwner.Hooks hooks) {
         var node=new MembershipNodeOwner<>(f.config(ReplicationBounds.defaults()),builder().configuration(),
                 f.scratch.resolve("observed-in"),f.scratch.resolve("observed-out"),System::nanoTime,TimeUnit.SECONDS.toNanos(180),hooks,true);

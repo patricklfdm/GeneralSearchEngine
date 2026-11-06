@@ -10,6 +10,24 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*
 
 class V53RemoveRetirementCaptureTest {
     @TempDir Path temp;
+    @Test void processCollectionBindsEmptyPreRetirementCrashAndRejectsUnfinishedTransactions()throws Exception {
+        Path raw=Files.createDirectory(temp.resolve("raw")),replica=Files.createDirectory(temp.resolve("authority"));
+        Files.write(replica.resolve("empty"),new byte[0]);byte[] events=canonical(List.of(),4096);String root=hash(new byte[0]);
+        var empty=new V53RemoveRetirementCapture(raw,temp.resolve("empty-prefix"));
+        assertThrows(IllegalArgumentException.class,()->empty.finishProcess(root,2,"CUT_PREFIX",events));
+        empty.finishProcess(root,1,"CUT_PREFIX",events);
+        var value=object(parse(Files.readAllBytes(empty.root.resolve("collection.json")),4096));
+        assertEquals(V53RemoveRetirementCapture.PROCESS_SCHEMA,value.get("schema"));assertEquals(0L,value.get("captures"));
+        assertEquals(0L,value.get("storedBytes"));assertEquals(ProcessHandle.current().pid(),value.get("pid"));
+        assertEquals(hash(events),value.get("eventsSha256"));assertEquals(root,value.get("root"));
+        assertThrows(IllegalArgumentException.class,()->empty.finishProcess(root,1,"CUT_PREFIX",events));
+        var pending=new V53RemoveRetirementCapture(raw,temp.resolve("pending-prefix"));
+        pending.at("node-1",replica,"RETIREMENT_OLD_FILES_FORCED",0);
+        assertThrows(IllegalArgumentException.class,()->pending.finishProcess(root,1,"CUT_PREFIX",events));
+        pending.at("node-1",replica,"RETIREMENT_BEFORE_RETURN",1);
+        pending.finishProcess(root,2,"CLOSED",events);
+        assertEquals(2L,object(parse(Files.readAllBytes(pending.root.resolve("collection.json")),4096)).get("captures"));
+    }
     @Test void capturesRealSourceRetirementWithoutChangingTheTraceOrWriterLock()throws Exception {
         Path raw=Files.createDirectory(temp.resolve("run-source")),replica=temp.resolve("authority");
         String id=V53SourceReleaseWorker.provision(replica,3,0);var capture=new V53RemoveRetirementCapture(raw);

@@ -26,10 +26,16 @@ class V53NativeCarriedProcessTest {
         run(point,mode,kind,false);
     }
     void run(String point,String mode,String kind,boolean observeResources)throws Exception {
+        run(point,mode,kind,observeResources,false);
+    }
+    void run(String point,String mode,String kind,boolean observeResources,boolean observeRetirement)throws Exception {
         assertTrue(Set.of("DATA","INTENT","FINAL").contains(kind));
         boolean data=kind.equals("DATA");int size=data?3:4,index=data?1:kind.equals("INTENT")?5:6;
-
-        Path container=observeResources?Files.createDirectories(Path.of("target/v53-native-carried-resources/run-"+UUID.randomUUID())):null;
+        assertTrue(!observeRetirement || observeResources && !data,"retirement requires original context resources");
+        Path prefix=observeRetirement?Files.createDirectories(Path.of("target/v53-native-carried-prefixes/run-"+UUID.randomUUID())):null;
+        if(observeRetirement){Files.createDirectory(prefix.resolve("retirement"));System.out.println("v53NativeCarriedPrefixesEvidence="+prefix.toAbsolutePath());}
+        Path container=observeRetirement?Files.createDirectory(prefix.resolve("observed")):
+                observeResources?Files.createDirectories(Path.of("target/v53-native-carried-resources/run-"+UUID.randomUUID())):null;
         Path raw=observeResources?Files.createDirectory(container.resolve("history")):Files.createDirectories(Path.of("target/"+(data?"v53-native-carried-process":"v53-native-carried-transition-process")+"/run-"+UUID.randomUUID()));
         if(observeResources){Files.createDirectory(container.resolve("resources"));System.out.println("v53NativeCarriedResourcesEvidence="+container.toAbsolutePath());}
         System.out.println("v53NativeCarriedProcessEvidence="+raw.toAbsolutePath());
@@ -54,6 +60,7 @@ class V53NativeCarriedProcessTest {
                     var command=new ArrayList<>(List.of(Path.of(System.getProperty("java.home"),"bin/java").toString(),"-cp",System.getProperty("java.class.path"),
                             V53NativeCarriedProcessWorker.class.getName(),spec.toAbsolutePath().toString(),Integer.toString(life),point,mode));
                     if(observeResources)command.add(container.resolve("resources/life-"+life).toAbsolutePath().toString());
+                    if(observeRetirement)command.add(prefix.resolve("retirement/life-"+life).toAbsolutePath().toString());
                     Process child=new ProcessBuilder(command)
                             .redirectError(stderr.toFile()).start();children.add(child);
                     var record=new TreeMap<String,Object>();record.put("life",life);record.put("pid",child.pid());records.add(record);
