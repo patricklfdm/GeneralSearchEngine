@@ -4,6 +4,8 @@ Phase 3 remains **OPEN**. These development process cases extend the existing
 [carried transition pair](PHASE_3_CARRIED_TRANSITIONS.md). Complete interrupted
 force/network replay and source-bound cohort admission are still required. The
 original storage snapshot reduction described below is now implemented.
+The storage callback component also derives the observed force/return ordering;
+transient-file and complete TCP/export replay remain separate obligations.
 They do not add accepted members to the twelve hosted subsets.
 
 ## Original history and process ownership
@@ -114,6 +116,55 @@ replay also pass after the shared helper change.
 
 ```bash
 python3.11 -B -m scripts.v53.native_carried_transition_physical \
+  general-search-engine-replication/target/v53-native-carried-transition-process/run-<id> --qualify
+```
+
+## Original storage callback ordering
+
+The [callback reader](../../../scripts/v53/native_carried_transition_forces.py)
+first requires the complete snapshot and process components. For both original
+JVM lifetimes it then derives cold recovery, campaign grants and installation,
+carried voting, application, publication and covered-file deletion order. FLOOR,
+generation retirement, source retirement, journal rotation and FLOOR release
+callbacks come from the existing independent transaction models. Ledger revision
+changes require the corresponding complete original write/force sequences.
+
+Campaign source retirement above the published floor requires the exact
+transferred successor vote and all original ACCEPT, entry and payload bytes in
+the retained packet. Sources below the floor still require the original floor
+authority. The shared retirement helper keeps its strict default for older
+callers; only this owning reader supplies the additional successor proof.
+Ordinary in-slot maintenance does not gain that campaign permission.
+
+A rename cut cannot imply parent force, return or an ACK. Repeated idempotent
+vote ACKs must follow the original complete write. Applied-end callbacks are
+derived from their original files; publication must retain and then delete the
+exact derived covered end. Storage callbacks outside a cold/campaign/slot
+interval, unexpected callback fields and cold vote recovery inserted inside a
+fresh slot are rejected. Core replay milestones are ordered, but this component
+does not yet derive its complete scratch inventory.
+
+The [callback development index](phase3-evidence/carried-transition-forces.json)
+records the two unchanged originals, thirty-one exact negative checks per
+original, focused regression results and portable optimized replay. Mutations
+change both matching child/merged callback transcripts while preserving all
+storage and wire bytes, paths and directory inventory. The unmodified original
+must pass first; an unrelated refusal earns no negative credit. Development
+failures exposed incorrect callback targeting in the INTENT negative driver:
+both cold transfer and the later vote contain ACCEPT writes. The corrected
+negative driver targets the actual slot, including its early-ACK mutation.
+These tool-development failures remain retained separately from runtime evidence.
+
+Receipts remain **PARTIAL**, with `observedStorageCallbacks=true`,
+`transientBytesCaptured=false`, `coreScratchInventoryReplay=false`,
+`fullForceReplay=false` and `fullWireReplay=false`. Callback order and final
+snapshots do not prove every intermediate candidate/deletion byte or temporal
+export authority. No Java history was rerun, no new native case was added, and
+the hosted catalogue is unchanged. Existing DATA network replay and uninterrupted
+FINAL retirement replay also pass with the shared helper's unchanged default.
+
+```bash
+python3.11 -B -m scripts.v53.native_carried_transition_forces \
   general-search-engine-replication/target/v53-native-carried-transition-process/run-<id> --qualify
 ```
 

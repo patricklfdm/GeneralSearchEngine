@@ -48,7 +48,7 @@ def published_tail(source,tail,files,node,cap):
          accept['index']<=floor['cut']['index'], 'joining retirement uncovered source tail')
 
 
-def decision(files,node,identifier,*,coverage=None,allow_published_tail=False):
+def decision(files,node,identifier,*,coverage=None,allow_published_tail=False,tail_check=None):
     """Exact old grant plus a new decision, derived before any deletion."""
     _,current,packet=disk.current(files);cap=packet['capsule']
     rows=disk.journal(files['grants.gsr'],cap['root'],node)
@@ -68,7 +68,12 @@ def decision(files,node,identifier,*,coverage=None,allow_published_tail=False):
     need(available.get(point['cut']['index'])==point and source['capsule']['root']==cap['root'],
          'joining retirement governing source coverage')
     tail=group[1][2]['accepted']
-    if tail is not None and allow_published_tail:
+    if tail is not None and tail_check is not None:
+        # A caller owning an independently replayed transferred vote must prove
+        # that succession explicitly. Ordinary joining readers retain their
+        # unresolved-tail refusal; a Boolean cannot waive it.
+        tail_check(source,tail,files,node,cap)
+    elif tail is not None and allow_published_tail:
         published_tail(source,tail,files,node,cap)
     else:need(tail is None, 'joining retirement joining fixture unresolved tail')
     expected_names={prefix+'source.gscp',*[prefix+h+'.image' for h in source['images']]}
