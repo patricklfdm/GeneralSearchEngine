@@ -50,7 +50,7 @@ public final class V53NodeProcessWorker {
             }}
         }
     }
-    static void crash(Pipe sink,String point,String mode)throws IOException {
+    static void crash(Sink sink,String point,String mode)throws IOException {
         sink.accept("cut",Map.of("name",point,"mode",mode,"pid",ProcessHandle.current().pid()));
         if(mode.equals("halt"))Runtime.getRuntime().halt(73);
         if(!mode.equals("kill"))throw new AssertionError("unknown process fault");

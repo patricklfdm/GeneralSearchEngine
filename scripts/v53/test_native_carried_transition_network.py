@@ -15,31 +15,35 @@ class NativeCarriedTransitionNetworkTest(unittest.TestCase):
         identities={f'node-{i}':dict(m.f.sample(types['identity'],types,i),node=f'node-{i}') for i in (1,2)}
         first_trace=base['trace']
         for life in (1,2):
+            kind='HEARTBEAT' if change in ('undelivered-heartbeat','cross-death-heartbeat') and life==1 else 'STATUS_PROBE'
+            answer='HEARTBEAT_ACK' if kind=='HEARTBEAT' else 'STATUS'
             cut=m.f.sample(types['cut'],types);cut['view']['generation']=life
             q=deepcopy(base);q.update(sender=identities['node-1'],recipient=identities['node-2'],
                 view=m.e.authority(q['root'],cut['view']),trace=f'00000000-0000-0000-0000-{life:012d}')
             if life==1:first_trace=q['trace']
             if life==2 and change=='trace':q['trace']=first_trace
             if life==2 and change=='view':q['view']=m.e.authority(q['root'],groups['one']['node-1']['capsule']['cut']['view'])
-            a=dict(q,sender=q['recipient'],recipient=q['sender'],payload=dict(nonce=q['payload']['nonce'],cut=cut,ready=False))
-            qr=m.f.encode('wire','STATUS_PROBE',q);ar=m.f.encode('wire','STATUS',a);qh,ah=m.e.digest(qr),m.e.digest(ar)
+            if kind=='HEARTBEAT':q['payload']=dict(cut=cut,activated=True)
+            a=dict(q,sender=q['recipient'],recipient=q['sender'],payload=dict(cut=cut) if kind=='HEARTBEAT' else dict(nonce=q['payload']['nonce'],cut=cut,ready=False))
+            qr=m.f.encode('wire',kind,q);ar=m.f.encode('wire',answer,a);qh,ah=m.e.digest(qr),m.e.digest(ar)
             wire=dict(request=base64.b64encode(qr).decode(),response=base64.b64encode(ar).decode(),withheld=False)
             wires.append(wire)
-            events.extend([dict(node='node-1',incarnation=life,event='NETWORK_SEND',kind='STATUS_PROBE',request=qh,bytes=wire['request']),
-                dict(node='node-2',incarnation=life,event='NETWORK_REQUEST',kind='STATUS_PROBE',request=qh),
+            events.extend([dict(node='node-1',incarnation=life,event='NETWORK_SEND',kind=kind,request=qh,bytes=wire['request']),
+                dict(node='node-2',incarnation=life,event='NETWORK_REQUEST',kind=kind,request=qh),
                 dict(node='node-2',incarnation=life,event='WIRE_RESPONSE',request=qh,response=ah),
-                dict(node='node-1',incarnation=life,event='NETWORK_RECEIVED',kind='STATUS',response=ah)])
+                dict(node='node-1',incarnation=life,event='NETWORK_RECEIVED',kind=answer,response=ah)])
             if life==1:events.append(dict(event='GROUP_CRASH',incarnation=1))
             groups['one' if life==1 else 'two']={n:dict(identity=v,capsule=dict(root=q['root'],cut=cut)) for n,v in identities.items()}
         if change in ('send-life','read-life','reply-life','delivery-life'):
             events[('send-life','read-life','reply-life','delivery-life').index(change)]['incarnation']=2
-        elif change=='cross-death':
+        elif change in ('cross-death','cross-death-heartbeat'):
             delivery=deepcopy(events[3]);delivery['incarnation']=2;events[3]=dict(event='NOT_TRANSPORT')
             events.insert(8,delivery)
         elif change=='outside':events.append(dict(events[0],incarnation=2))
         elif change=='silent':
             wires.pop(0);events[2]=events[3]=dict(event='NOT_TRANSPORT')
-        ranges=[dict(start=-1,stop=4,life=1,before='one'),dict(start=4,stop=10 if change=='cross-death' else 9,life=2,before='two')]
+        elif change in ('undelivered-heartbeat','undelivered-status'):events[3]=dict(event='NOT_TRANSPORT')
+        ranges=[dict(start=-1,stop=4,life=1,before='one'),dict(start=4,stop=10 if change in ('cross-death','cross-death-heartbeat') else 9,life=2,before='two')]
         history=SimpleNamespace(ranges=ranges)
         with patch.object(m.forces,'group',side_effect=lambda root,name:groups['one' if name=='before-network' else name]),\
                 patch.object(m.d.future,'identity',side_effect=lambda files:files['identity']),\
@@ -63,6 +67,15 @@ class NativeCarriedTransitionNetworkTest(unittest.TestCase):
     def test_unanswered_original_request_never_becomes_a_response(self):
         _,rows,sent,_=self.transport('silent')
         self.assertEqual(1,len(rows));self.assertEqual(1,sum(v['response'] is None for values in sent.values() for v in values))
+
+    def test_offered_unreceived_heartbeat_does_not_invent_client_delivery(self):
+        _,rows,sent,_=self.transport('undelivered-heartbeat')
+        self.assertEqual('HEARTBEAT',rows[0]['kind']);self.assertIsNone(rows[0]['delivered'])
+        self.assertEqual(2,len(rows));self.assertEqual(2,sum(len(v) for v in sent.values()))
+
+    def test_undelivered_control_and_cross_death_heartbeat_are_still_rejected(self):
+        with self.assertRaisesRegex(ValueError,'undelivered required response'):self.transport('undelivered-status')
+        with self.assertRaisesRegex(ValueError,'delivery crosses phase or group death'):self.transport('cross-death-heartbeat')
 
     def test_unclassified_silence_cannot_supply_a_quorum(self):
         history=SimpleNamespace(phases=[])

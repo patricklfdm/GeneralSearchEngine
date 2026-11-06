@@ -43,14 +43,24 @@ final class MembershipNodeOwner<K,T> implements AutoCloseable {
 
     MembershipNodeOwner(MembershipReplicaConfig<K,T> config,SearchEngineConfiguration<K,T> application,
             Path incoming,Path outgoing,LongSupplier clock,long budget,Hooks hooks) {
+        this(config,application,incoming,outgoing,clock,budget,hooks,false);
+    }
+    /** Private bounded observation only; the actual owner's limits and leases
+     * are identical to the default path. No I/O runs under the budget monitor. */
+    MembershipNodeOwner(MembershipReplicaConfig<K,T> config,SearchEngineConfiguration<K,T> application,
+            Path incoming,Path outgoing,LongSupplier clock,long budget,Hooks hooks,boolean observeResources) {
         this.config=Objects.requireNonNull(config);this.application=Objects.requireNonNull(application);
         this.incoming=MembershipValidation.path(incoming);this.outgoing=MembershipValidation.path(outgoing);
         MembershipValidation.disjoint(List.of(config.replicaDirectory(),config.materialization().directory(),this.incoming,this.outgoing));
         this.clock=Objects.requireNonNull(clock);require(budget>0 && budget<Long.MAX_VALUE/2,"node owner budget");this.budget=budget;
-        this.hooks=Objects.requireNonNull(hooks);resources=new MembershipResources(config.bounds().maxSnapshotStagingBytes());
+        this.hooks=Objects.requireNonNull(hooks);resources=new MembershipResources(MembershipResources.METADATA_LIMIT,
+                config.bounds().maxSnapshotStagingBytes(),MembershipResources.QUEUE_LIMIT,
+                observeResources?MembershipResourceObservations.MAXIMUM:0);
     }
     State state(){return state;}
     MembershipResources.Usage usage(){return resources.usage();}
+    MembershipResourceObservations.Checkpoint resourceCheckpoint(){return resources.observationCheckpoint();}
+    MembershipResourceObservations.Snapshot resourceObservations(){return resources.observations();}
     synchronized Optional<MembershipAutomaticOwner.State> serviceState(){return automatic==null?Optional.empty():Optional.of(automatic.state());}
     synchronized Optional<Throwable> failure(){return automatic==null?Optional.empty():automatic.failure();}
     synchronized Optional<IOException> observationFailure() {

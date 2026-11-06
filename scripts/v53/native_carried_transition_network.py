@@ -90,9 +90,17 @@ def transport(root,history,original):
         value=offered.get(row['offered'])
         need(value is not None and value['request']==row['request'],'transition network unmatched response')
         stage=history.ranges[stages[value['at']]]
-        need(row['delivered'] is not None and stage['start']<row['delivered']<stage['stop'] and
-             original[row['delivered']].get('incarnation')==stage['life'],
-             'transition network delivery crosses phase or group death')
+        if row['delivered'] is None:
+            # HeartbeatRound returns on a governing majority and cancels the
+            # remaining callers. A server may have offered an exact ACK whose
+            # client was already cancelled. contacts() still requires the
+            # original delivered majority; this observation gives no credit.
+            need(row['kind']=='HEARTBEAT' and row['answer']=='HEARTBEAT_ACK',
+                 'transition network undelivered required response')
+        else:
+            need(stage['start']<row['delivered']<stage['stop'] and
+                 original[row['delivered']].get('incarnation')==stage['life'],
+                 'transition network delivery crosses phase or group death')
         row.update(sent=value['at'],received=value['received'])
     return events,rows,sent,identities
 
@@ -144,7 +152,9 @@ def contacts(root,history,events,rows,sent):
             v['request']['trace']==trace and v['delivered'] is not None and first<v['delivered']<stop}
         need(all(len(responding&set(view[k]))>len(view[k])//2 for k in ('old','new')),
              'transition network heartbeat governing contact')
-    return dict(statusReplies=status,heartbeatSamples=len(samples),heartbeatReplies=sum(v['kind']=='HEARTBEAT' for v in rows)),silent
+    return dict(statusReplies=status,heartbeatSamples=len(samples),heartbeatReplies=sum(v['kind']=='HEARTBEAT' for v in rows),
+        deliveredHeartbeatReplies=sum(v['kind']=='HEARTBEAT' and v['delivered'] is not None for v in rows),
+        unreceivedHeartbeatReplies=sum(v['kind']=='HEARTBEAT' and v['delivered'] is None for v in rows)),silent
 
 
 def interrupted(root,history,events,rows):
@@ -270,6 +280,7 @@ NEGATIVES={
     'network-publish-generation':'joining original phase ACK',
     'network-heartbeat-request':'transition network original heartbeat request',
     'network-heartbeat-reply':'transition network original heartbeat reply',
+    'network-heartbeat-no-contact':'transition network heartbeat governing contact',
     'network-wrong-quorum':'transition network exact original recording quorums',
     'network-silent-retention-reference':'transition network unclassified unanswered request',
 }

@@ -1,0 +1,707 @@
+{
+  "acceptancePlan": {
+    "path": "docs/v5x/v5.3/acceptance-plan.json",
+    "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+  },
+  "base": "3c3b8212a042b611e15c52e7237280cc8549ee3c",
+  "declaredProcessCases": 8,
+  "developmentDiagnostics": [
+    {
+      "path": "target/v53-carried-process-resources/java-focused.log",
+      "sha256": "cbdeac721ca9275f5a523f4fdeca7e2b71e70395c83e5030cc16964cd5c758b8"
+    },
+    {
+      "path": "target/v53-carried-process-resources/java-focused-reactor.log",
+      "sha256": "a96e6af3b85f6ece4f6f425712b2adcb1efb1f0b977a7ae585710916a6ed46dd"
+    },
+    {
+      "path": "target/v53-carried-process-resources/unit-first.log",
+      "sha256": "6303d35b01095fa61e03de77dd914bc3b742a56d46b24f78cd6e1bbe33597a49"
+    },
+    {
+      "path": "target/v53-carried-process-resources/intent-qualify-v2.stderr",
+      "sha256": "ddeb7fd2b92489fbf6b96a41f599356f5ba32478df2aaf3e9620748f426a3bed"
+    },
+    {
+      "path": "target/v53-carried-process-resources/intent-network-diagnostic-v2.json",
+      "sha256": "b036dccbe4a930121213a79159839a2c471565e762214c3fb469d183ebbb3719"
+    }
+  ],
+  "executedProcessAxes": 2,
+  "hostedExecuted": false,
+  "limitations": [
+    "Per-owner accounting observations only, not simultaneous physical resource occupancy.",
+    "Crash captures precede parent acknowledgement/death; unobserved post-cut allocation tail is excluded.",
+    "Bootstrap/admitted-prefix resource observations are not supplied by these child lifetimes.",
+    "Transient force bytes, core scratch inventory, application ACK recovery and whole-resource composition remain open.",
+    "Six other declared process cuts and final-source cohort acceptance remain pending."
+  ],
+  "limits": {
+    "metadata": 402653184,
+    "queued": 67108864,
+    "staging": 17179869184,
+    "unchanged": true
+  },
+  "mutatedPrerequisiteReplayed": false,
+  "negativePrecondition": "full original storage/process/callback/network/export/floor/ledger replay; exact unchanged history inventory",
+  "networkRegression": {
+    "path": "target/v53-carried-process-resources/intent-network-qualify.json",
+    "sha256": "3fd80b69c188820fd8e6b79c3e96fa25ef36d0e1c849fd828ed8a49001487207"
+  },
+  "newNativeExecutions": 2,
+  "observedAccountingQualified": true,
+  "originals": [
+    {
+      "bytes": 42250251,
+      "cut": "PROOF_RENAMED",
+      "files": 5704,
+      "inventory": {
+        "path": "target/v53-carried-process-resources/final-inventory.json",
+        "sha256": "479ac2422c4ea1f71427d6695ad3cb262b983f54776065b814d36197e62d439a"
+      },
+      "kind": "FINAL",
+      "mode": "kill",
+      "native": {
+        "path": "target/v53-carried-process-resources/native-final.log",
+        "sha256": "17e8803c8ba4f816cd095bb7c6e54e56da63077cfe4ef52a79168d960a232da0"
+      },
+      "negativeCases": 23,
+      "newNativeExecution": true,
+      "path": "general-search-engine-replication/target/v53-native-carried-resources/run-fc05018e-841f-475f-bad0-7c70a9021ab2",
+      "portable": {
+        "path": "target/v53-carried-process-resources/final-portable-v3.json",
+        "sha256": "e6ffd6b8c9b6b8cb888e5d895f0c40cad8985254d6d88665f8c6c1ec8eecc2c9"
+      },
+      "progress": {
+        "path": "target/v53-carried-process-resources/final-qualify-v3.stderr",
+        "sha256": "7a6e37e38999e3aeb6408ee19f829853fa1f72814d897335bd2f685d915f8835"
+      },
+      "qualification": {
+        "path": "target/v53-carried-process-resources/final-qualify-v3.json",
+        "sha256": "1812de11f306d655d4dabb34d05223dd6494d66f78f85a0b5967e8cb7a0915be"
+      },
+      "resources": {
+        "cohortAdmitted": false,
+        "crashedOwnerPrefixes": 4,
+        "lifetimes": [
+          {
+            "events": 1056,
+            "life": 1,
+            "maximumPerOwnerReservations": {
+              "leases": 63,
+              "metadata": 36086356,
+              "queued": 1158477,
+              "staging": 268622292
+            },
+            "owners": [
+              {
+                "close": null,
+                "closed": false,
+                "lastEventSequence": 1162,
+                "maximumObservedCounts": {
+                  "APPLICATION": 7,
+                  "CONTROL": 48,
+                  "GENERATION": 2,
+                  "JOURNAL": 1,
+                  "MISC": 1,
+                  "SOURCE": 6
+                },
+                "maximumObservedReservations": {
+                  "leases": 63,
+                  "metadata": 36086356,
+                  "queued": 1158477,
+                  "staging": 268622292
+                },
+                "node": "node-1",
+                "transitions": 1163
+              },
+              {
+                "close": null,
+                "closed": false,
+                "lastEventSequence": 677,
+                "maximumObservedCounts": {
+                  "APPLICATION": 7,
+                  "CONTROL": 25,
+                  "GENERATION": 2,
+                  "JOURNAL": 1,
+                  "MISC": 1,
+                  "SOURCE": 4,
+                  "WAITER": 3
+                },
+                "maximumObservedReservations": {
+                  "leases": 37,
+                  "metadata": 35979697,
+                  "queued": 764169,
+                  "staging": 268527606
+                },
+                "node": "node-2",
+                "transitions": 680
+              },
+              {
+                "close": null,
+                "closed": false,
+                "lastEventSequence": 677,
+                "maximumObservedCounts": {
+                  "APPLICATION": 7,
+                  "CONTROL": 25,
+                  "GENERATION": 2,
+                  "JOURNAL": 1,
+                  "MISC": 1,
+                  "SOURCE": 4,
+                  "WAITER": 3
+                },
+                "maximumObservedReservations": {
+                  "leases": 37,
+                  "metadata": 35979697,
+                  "queued": 764169,
+                  "staging": 268527606
+                },
+                "node": "node-3",
+                "transitions": 680
+              },
+              {
+                "close": null,
+                "closed": false,
+                "lastEventSequence": 21,
+                "maximumObservedCounts": {
+                  "APPLICATION": 6,
+                  "CONTROL": 5,
+                  "GENERATION": 1,
+                  "JOURNAL": 1,
+                  "MISC": 1,
+                  "SOURCE": 1
+                },
+                "maximumObservedReservations": {
+                  "leases": 15,
+                  "metadata": 35744126,
+                  "queued": 362183,
+                  "staging": 268466404
+                },
+                "node": "node-4",
+                "transitions": 24
+              }
+            ],
+            "pid": 497119,
+            "terminal": "CUT_PREFIX"
+          },
+          {
+            "events": 5288,
+            "life": 2,
+            "maximumPerOwnerReservations": {
+              "leases": 78,
+              "metadata": 36242906,
+              "queued": 2108841,
+              "staging": 268725010
+            },
+            "owners": [
+              {
+                "close": {
+                  "begin": 4106,
+                  "changes": 38,
+                  "returned": 4144
+                },
+                "closed": true,
+                "lastEventSequence": 4106,
+                "maximumObservedCounts": {
+                  "APPLICATION": 7,
+                  "CONTROL": 66,
+                  "GENERATION": 2,
+                  "JOURNAL": 1,
+                  "MISC": 1,
+                  "SOURCE": 6,
+                  "WAITER": 2
+                },
+                "maximumObservedReservations": {
+                  "leases": 78,
+                  "metadata": 36242906,
+                  "queued": 2108841,
+                  "staging": 268725010
+                },
+                "node": "node-1",
+                "transitions": 4145
+              },
+              {
+                "close": {
+                  "begin": 3642,
+                  "changes": 28,
+                  "returned": 3670
+                },
+                "closed": true,
+                "lastEventSequence": 3640,
+                "maximumObservedCounts": {
+                  "APPLICATION": 7,
+                  "CONTROL": 49,
+                  "GENERATION": 2,
+                  "JOURNAL": 1,
+                  "MISC": 1,
+                  "SOURCE": 6,
+                  "WAITER": 3
+                },
+                "maximumObservedReservations": {
+                  "leases": 65,
+                  "metadata": 36241974,
+                  "queued": 1125235,
+                  "staging": 268724078
+                },
+                "node": "node-2",
+                "transitions": 3671
+              },
+              {
+                "close": {
+                  "begin": 2333,
+                  "changes": 40,
+                  "returned": 2373
+                },
+                "closed": true,
+                "lastEventSequence": 2332,
+                "maximumObservedCounts": {
+                  "APPLICATION": 7,
+                  "CONTROL": 48,
+                  "GENERATION": 2,
+                  "JOURNAL": 1,
+                  "MISC": 1,
+                  "SOURCE": 6,
+                  "WAITER": 3
+                },
+                "maximumObservedReservations": {
+                  "leases": 64,
+                  "metadata": 36241974,
+                  "queued": 1125235,
+                  "staging": 268724078
+                },
+                "node": "node-3",
+                "transitions": 2374
+              },
+              {
+                "close": {
+                  "begin": 46,
+                  "changes": 13,
+                  "returned": 59
+                },
+                "closed": true,
+                "lastEventSequence": 45,
+                "maximumObservedCounts": {
+                  "APPLICATION": 6,
+                  "CONTROL": 5,
+                  "GENERATION": 1,
+                  "JOURNAL": 1,
+                  "MISC": 1,
+                  "SOURCE": 1
+                },
+                "maximumObservedReservations": {
+                  "leases": 15,
+                  "metadata": 35744126,
+                  "queued": 362557,
+                  "staging": 268466404
+                },
+                "node": "node-4",
+                "transitions": 60
+              }
+            ],
+            "pid": 502129,
+            "terminal": "CLOSED"
+          }
+        ],
+        "normalOwnerCloses": 4,
+        "observedAccountingQualified": true,
+        "ownerLifetimes": 8,
+        "phase3Complete": false,
+        "physicalStorageQualified": false,
+        "postCutTailObserved": false,
+        "status": "PARTIAL",
+        "wholeRuntimeResourcesQualified": false
+      }
+    },
+    {
+      "bytes": 45117381,
+      "cut": "ACCEPT_RENAMED",
+      "files": 5058,
+      "inventory": {
+        "path": "target/v53-carried-process-resources/intent-inventory.json",
+        "sha256": "a25d331d0b0cd866f7590c575242c6c59ca2dda81e63b3b329820e6f142cb337"
+      },
+      "kind": "INTENT",
+      "mode": "halt",
+      "native": {
+        "path": "target/v53-carried-process-resources/native-intent.log",
+        "sha256": "e4bcbf151e5f17f653f6e09cbb90544e3851a83f2a9859d2ef8be23d4975b920"
+      },
+      "negativeCases": 23,
+      "newNativeExecution": true,
+      "path": "general-search-engine-replication/target/v53-native-carried-resources/run-6ce44588-8431-4480-80ba-6e9ea98b2d6d",
+      "portable": {
+        "path": "target/v53-carried-process-resources/intent-portable-v3.json",
+        "sha256": "8c08652caac3914eb819fd9a526dcab61ac440cbb3c13dde0b7b198ad974c201"
+      },
+      "progress": {
+        "path": "target/v53-carried-process-resources/intent-qualify-v3.stderr",
+        "sha256": "7a6e37e38999e3aeb6408ee19f829853fa1f72814d897335bd2f685d915f8835"
+      },
+      "qualification": {
+        "path": "target/v53-carried-process-resources/intent-qualify-v3.json",
+        "sha256": "10c6b45b6f5e6fe6416d7819a03fee1ceb5915f280f7868b2442a23cf7a4b290"
+      },
+      "resources": {
+        "cohortAdmitted": false,
+        "crashedOwnerPrefixes": 4,
+        "lifetimes": [
+          {
+            "events": 551,
+            "life": 1,
+            "maximumPerOwnerReservations": {
+              "leases": 44,
+              "metadata": 35825792,
+              "queued": 1027891,
+              "staging": 268472812
+            },
+            "owners": [
+              {
+                "close": null,
+                "closed": false,
+                "lastEventSequence": 501,
+                "maximumObservedCounts": {
+                  "APPLICATION": 7,
+                  "CONTROL": 33,
+                  "GENERATION": 2,
+                  "JOURNAL": 1,
+                  "MISC": 1,
+                  "SOURCE": 4
+                },
+                "maximumObservedReservations": {
+                  "leases": 44,
+                  "metadata": 35825792,
+                  "queued": 1027891,
+                  "staging": 268472812
+                },
+                "node": "node-1",
+                "transitions": 502
+              },
+              {
+                "close": null,
+                "closed": false,
+                "lastEventSequence": 371,
+                "maximumObservedCounts": {
+                  "APPLICATION": 6,
+                  "CONTROL": 25,
+                  "GENERATION": 2,
+                  "JOURNAL": 1,
+                  "MISC": 1,
+                  "SOURCE": 4,
+                  "WAITER": 1
+                },
+                "maximumObservedReservations": {
+                  "leases": 37,
+                  "metadata": 35825792,
+                  "queued": 550240,
+                  "staging": 268443608
+                },
+                "node": "node-2",
+                "transitions": 374
+              },
+              {
+                "close": null,
+                "closed": false,
+                "lastEventSequence": 371,
+                "maximumObservedCounts": {
+                  "APPLICATION": 6,
+                  "CONTROL": 25,
+                  "GENERATION": 2,
+                  "JOURNAL": 1,
+                  "MISC": 1,
+                  "SOURCE": 4,
+                  "WAITER": 1
+                },
+                "maximumObservedReservations": {
+                  "leases": 37,
+                  "metadata": 35825792,
+                  "queued": 588758,
+                  "staging": 268443608
+                },
+                "node": "node-3",
+                "transitions": 374
+              },
+              {
+                "close": null,
+                "closed": false,
+                "lastEventSequence": 21,
+                "maximumObservedCounts": {
+                  "APPLICATION": 6,
+                  "CONTROL": 5,
+                  "GENERATION": 1,
+                  "JOURNAL": 1,
+                  "MISC": 1,
+                  "SOURCE": 1
+                },
+                "maximumObservedReservations": {
+                  "leases": 15,
+                  "metadata": 35696108,
+                  "queued": 362077,
+                  "staging": 268443608
+                },
+                "node": "node-4",
+                "transitions": 24
+              }
+            ],
+            "pid": 516207,
+            "terminal": "CUT_PREFIX"
+          },
+          {
+            "events": 8962,
+            "life": 2,
+            "maximumPerOwnerReservations": {
+              "leases": 80,
+              "metadata": 36114943,
+              "queued": 2122985,
+              "staging": 268650097
+            },
+            "owners": [
+              {
+                "close": {
+                  "begin": 6794,
+                  "changes": 38,
+                  "returned": 6832
+                },
+                "closed": true,
+                "lastEventSequence": 6794,
+                "maximumObservedCounts": {
+                  "APPLICATION": 7,
+                  "CONTROL": 66,
+                  "GENERATION": 2,
+                  "JOURNAL": 1,
+                  "MISC": 1,
+                  "SOURCE": 6,
+                  "WAITER": 2
+                },
+                "maximumObservedReservations": {
+                  "leases": 80,
+                  "metadata": 36114943,
+                  "queued": 2122985,
+                  "staging": 268650097
+                },
+                "node": "node-1",
+                "transitions": 6833
+              },
+              {
+                "close": {
+                  "begin": 5941,
+                  "changes": 28,
+                  "returned": 5969
+                },
+                "closed": true,
+                "lastEventSequence": 5939,
+                "maximumObservedCounts": {
+                  "APPLICATION": 7,
+                  "CONTROL": 49,
+                  "GENERATION": 2,
+                  "JOURNAL": 1,
+                  "MISC": 1,
+                  "SOURCE": 6,
+                  "WAITER": 3
+                },
+                "maximumObservedReservations": {
+                  "leases": 65,
+                  "metadata": 36114943,
+                  "queued": 1134337,
+                  "staging": 268650097
+                },
+                "node": "node-2",
+                "transitions": 5970
+              },
+              {
+                "close": {
+                  "begin": 4634,
+                  "changes": 38,
+                  "returned": 4672
+                },
+                "closed": true,
+                "lastEventSequence": 4633,
+                "maximumObservedCounts": {
+                  "APPLICATION": 7,
+                  "CONTROL": 48,
+                  "GENERATION": 2,
+                  "JOURNAL": 1,
+                  "MISC": 1,
+                  "SOURCE": 6,
+                  "WAITER": 3
+                },
+                "maximumObservedReservations": {
+                  "leases": 64,
+                  "metadata": 36114943,
+                  "queued": 1161330,
+                  "staging": 268650097
+                },
+                "node": "node-3",
+                "transitions": 4673
+              },
+              {
+                "close": {
+                  "begin": 73,
+                  "changes": 13,
+                  "returned": 86
+                },
+                "closed": true,
+                "lastEventSequence": 72,
+                "maximumObservedCounts": {
+                  "APPLICATION": 6,
+                  "CONTROL": 5,
+                  "GENERATION": 1,
+                  "JOURNAL": 1,
+                  "MISC": 1,
+                  "SOURCE": 1
+                },
+                "maximumObservedReservations": {
+                  "leases": 15,
+                  "metadata": 35696108,
+                  "queued": 362557,
+                  "staging": 268443608
+                },
+                "node": "node-4",
+                "transitions": 87
+              }
+            ],
+            "pid": 520428,
+            "terminal": "CLOSED"
+          }
+        ],
+        "normalOwnerCloses": 4,
+        "observedAccountingQualified": true,
+        "ownerLifetimes": 8,
+        "phase3Complete": false,
+        "physicalStorageQualified": false,
+        "postCutTailObserved": false,
+        "status": "PARTIAL",
+        "wholeRuntimeResourcesQualified": false
+      }
+    }
+  ],
+  "paidCloud": false,
+  "phase3Complete": false,
+  "priorNetworkRegression": {
+    "path": "target/v53-carried-process-resources/prior-network-regression.json",
+    "sha256": "cbcbf0731329aa0cfbbb47a4996c5e04fbdd1ee5cd998bde27bde9de4e8780a6"
+  },
+  "producerBuild": {
+    "path": "target/v53-carried-process-resources/producer-build.json",
+    "sha256": "59cc6d3e7b3f58949d0eb79436a7ed627a0b809af086e0fd900098eff2acc6e6"
+  },
+  "pushed": false,
+  "schema": "gse-v53-carried-process-resources-development-v1",
+  "sourceFiles": [
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipNodeOwner.java",
+      "sha256": "40909ac3a9af7020c87d4a412ce5f0d7578facd606d5bae516bd6de951a3ea2e"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessTest.java",
+      "sha256": "8a6e0971979c5b0caa1ae75176e2ac5e7976bc9fd2e66a63081f24748e0c505b"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessWorker.java",
+      "sha256": "25d063fa03363c33f57b72d2ac8346b66508f2d612b948a0ad2d7683cc753f44"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeProcessWorker.java",
+      "sha256": "58ac090572007c7332d83eec35dc905c997fad904410bc72bbe91482589101c1"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedResourceProcessTest.java",
+      "sha256": "bc6296ce66d7e897f9a48e6d8daa0ca25bbd4f0e94dc422b434f3d316a38e304"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeResourceCapture.java",
+      "sha256": "059fcfe6ca0a2c6d3fa6bbd186839ea95f7384566acfbaf8ead6cabc2e08f97c"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeResourceCaptureTest.java",
+      "sha256": "4d35c66b8ce661a152ec08ec6b68f2e7cdbfc4ad25c99436453ba2e0ff654e2f"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTraceFiles.java",
+      "sha256": "59d5929dbae1809d9d17e11f67653a4af8e17c3b65074efd477b239cd9d945c0"
+    },
+    {
+      "path": "scripts/v53/native_carried_resource_evidence.py",
+      "sha256": "2487f04f6ec68b677ebed10fb2fb6e436ebf017d046ddd8bea6933ac7f555f1f"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_resource_evidence.py",
+      "sha256": "2bf6303802795cb4278af0fd192d581a011b2cc5b0e7a20bd92064e8caf38003"
+    },
+    {
+      "path": "scripts/v53/resource_transitions.py",
+      "sha256": "54fded1c26505c9270e0246a235e3cf120aba852e9716213090b3e8fc4bc21e5"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_retention.py",
+      "sha256": "eb544453f250a71ffacbdce7d32a1dc3a76d13616165e1beb6b8ceec6e56f40d"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_network.py",
+      "sha256": "cac84a5d2f1384c6c583394048f194dc333f54e3a129d65482c06ce5b0c5dbf4"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_transition_network.py",
+      "sha256": "9a56367bf207e01df45484d4f70b29992e4a26261bbd9858d8af13c712ee691e"
+    }
+  ],
+  "status": "PARTIAL",
+  "supersededReaderChecks": [
+    {
+      "path": "target/v53-carried-process-resources/final-qualify.json",
+      "sha256": "94acaf33b78f24bcc2718ec403f95c8d717d2d4339f7f554357a24fd813b8425"
+    },
+    {
+      "path": "target/v53-carried-process-resources/final-portable.json",
+      "sha256": "cb1ebd62154a43612fb4539dcfa3da0cf801ab5a7b712e70921fd857ca9b6d37"
+    },
+    {
+      "path": "target/v53-carried-process-resources/unit-related.log",
+      "sha256": "997857a3187ad82d07ca107d9379546853b00b26881dc7efcdac589597abb9a2"
+    },
+    {
+      "path": "target/v53-carried-process-resources/unit-optimized.log",
+      "sha256": "95ad8ef6089fabe042a619cd827fbdec69bed57b0af706d3fbee06815d36dd0f"
+    }
+  ],
+  "tools": {
+    "path": "target/v53-carried-process-resources/tools.json",
+    "sha256": "73f4fbb8920f361d65a9d0b53770a60fad31a8ac8b8c37375e387218fadb54e7"
+  },
+  "unchangedCatalogue": {
+    "archives": 486,
+    "executionGroups": 246,
+    "histories": 552,
+    "subsets": 12,
+    "workflowJobs": 516
+  },
+  "validation": {
+    "crashedOwnerPrefixes": 8,
+    "focusedJava": {
+      "path": "target/v53-carried-process-resources/java-focused-network.log",
+      "sha256": "e9997007887113802b3fac5c6ee9ebd8112ef1b24e41777c0d53d12e6e32ce05"
+    },
+    "focusedJavaTests": 21,
+    "nativeJavaTests": 2,
+    "negativeCases": 46,
+    "networkNegativeCases": 21,
+    "newPythonTests": 17,
+    "normalOwnerCloses": 8,
+    "observedEvents": 15857,
+    "observedOwnerLifetimes": 16,
+    "optimizedPythonTests": 51,
+    "optimizedUnit": {
+      "path": "target/v53-carried-process-resources/unit-optimized-v3.log",
+      "sha256": "38ba7df90ab428919fe844bd7bfaaac6e9253b904ea33b99e16420889049d91f"
+    },
+    "portableDriver": {
+      "path": "target/v53-carried-process-resources/portable-v3.py",
+      "sha256": "b0e1c036f16c2642571f44596701d19ca77d1be70eeaf8e45f9f456a885f59f6"
+    },
+    "relatedPythonTests": 114,
+    "resourceChanges": 31634,
+    "unit": {
+      "path": "target/v53-carried-process-resources/unit-related-v3.log",
+      "sha256": "e6ebff80e7b5adcb1ac5713130de1e65d5383255d366f722b7a26ef893d09364"
+    }
+  }
+}

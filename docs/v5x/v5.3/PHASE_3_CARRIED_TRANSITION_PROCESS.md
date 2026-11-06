@@ -11,6 +11,15 @@ and FLOOR lifetimes. Continuous peer/future revision replay now composes those
 same originals across both JVMs; transient-file capture remains separate.
 They do not add accepted members to the twelve hosted subsets.
 
+A separate [actual node-budget observer](PHASE_3_CARRIED_PROCESS_RESOURCES.md)
+now wraps the same process fixture without changing its original history format.
+It binds per-child resource transitions and event checkpoints, distinguishes the
+first child's retained crash prefix from the second child's successful owner
+closes, and requires this entire original-history chain before accounting replay.
+These new observed histories do not replace the earlier retained originals.
+Unobserved post-cut changes, transient physical files and full resource
+composition remain outside that component's acceptance scope.
+
 ## Original history and process ownership
 
 The [eight explicit cases](../../../general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedTransitionProcessTest.java)

@@ -1,5 +1,14 @@
 # V5.3 — controlled cluster operations
 
+[Carried-process resource observations](PHASE_3_CARRIED_PROCESS_RESOURCES.md)
+now bind the actual node budgets to original child events through group death and
+same-directory restart. Crash prefixes remain distinct from the successor's
+actual close invocation/return and final zero leases. Independent accounting
+replay requires the existing complete original-history components first; exact
+resource negatives and portable optimized replay qualify this narrower scope.
+Transient physical bytes, whole-runtime resource composition and Phase 3
+acceptance remain OPEN. The default path and configured limits are unchanged.
+
 [Carried transition process cases](PHASE_3_CARRIED_TRANSITION_PROCESS.md) now
 exercise whole-group death during original INTENT/FINAL recovery and restart on
 unchanged directories. The process reader checks the admitted prefix and original

@@ -23,10 +23,15 @@ class V53NativeCarriedProcessTest {
     }
     void run(String point,String mode)throws Exception {run(point,mode,"DATA");}
     void run(String point,String mode,String kind)throws Exception {
+        run(point,mode,kind,false);
+    }
+    void run(String point,String mode,String kind,boolean observeResources)throws Exception {
         assertTrue(Set.of("DATA","INTENT","FINAL").contains(kind));
         boolean data=kind.equals("DATA");int size=data?3:4,index=data?1:kind.equals("INTENT")?5:6;
 
-        Path raw=Files.createDirectories(Path.of("target/"+(data?"v53-native-carried-process":"v53-native-carried-transition-process")+"/run-"+UUID.randomUUID()));
+        Path container=observeResources?Files.createDirectories(Path.of("target/v53-native-carried-resources/run-"+UUID.randomUUID())):null;
+        Path raw=observeResources?Files.createDirectory(container.resolve("history")):Files.createDirectories(Path.of("target/"+(data?"v53-native-carried-process":"v53-native-carried-transition-process")+"/run-"+UUID.randomUUID()));
+        if(observeResources){Files.createDirectory(container.resolve("resources"));System.out.println("v53NativeCarriedResourcesEvidence="+container.toAbsolutePath());}
         System.out.println("v53NativeCarriedProcessEvidence="+raw.toAbsolutePath());
         var f=new V53BootstrapPublicationTest.Fixture(raw,V53OwnedCrossViewTest.networkRequest(Files.createDirectory(temp.resolve("group")),size,false));
         f.ownedHistory=true;f.nativeApplication=true;
@@ -46,8 +51,10 @@ class V53NativeCarriedProcessTest {
                 for(int life:List.of(1,2)) {
                     System.out.println("v53NativeCarriedProcessStage="+life+"-start "+point+" "+mode);
                     var stopped=new CountDownLatch(1);Path stdout=process.resolve("life-"+life+".jsonl"),stderr=process.resolve("life-"+life+".stderr");
-                    Process child=new ProcessBuilder(Path.of(System.getProperty("java.home"),"bin/java").toString(),"-cp",System.getProperty("java.class.path"),
-                            V53NativeCarriedProcessWorker.class.getName(),spec.toAbsolutePath().toString(),Integer.toString(life),point,mode)
+                    var command=new ArrayList<>(List.of(Path.of(System.getProperty("java.home"),"bin/java").toString(),"-cp",System.getProperty("java.class.path"),
+                            V53NativeCarriedProcessWorker.class.getName(),spec.toAbsolutePath().toString(),Integer.toString(life),point,mode));
+                    if(observeResources)command.add(container.resolve("resources/life-"+life).toAbsolutePath().toString());
+                    Process child=new ProcessBuilder(command)
                             .redirectError(stderr.toFile()).start();children.add(child);
                     var record=new TreeMap<String,Object>();record.put("life",life);record.put("pid",child.pid());records.add(record);
                     Future<?> reader=readers.submit(()->{

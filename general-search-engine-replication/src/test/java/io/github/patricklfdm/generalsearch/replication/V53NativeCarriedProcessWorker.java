@@ -29,7 +29,10 @@ public final class V53NativeCarriedProcessWorker {
         var root=decode(Files.readAllBytes(Path.of((String)paths.getFirst().get("replica")).resolve("root.gsr")),"records","ROOT");
         var history=new MembershipRoot(new ReplicationGroupId(UUID.fromString((String)root.value().get("groupId"))),
                 UUID.fromString((String)root.value().get("historyId")),root.rootDigest());
-        var sink=new V53NodeProcessWorker.Pipe();var owners=new ArrayList<MembershipNodeOwner<Integer,Doc>>();
+        var pipe=new V53NodeProcessWorker.Pipe();
+        var capture=args.length==5?new V53NodeResourceCapture(Path.of(args[4]),history.manifestDigest(),life,pipe):null;
+        V53NodeProcessWorker.Sink sink=capture==null?pipe:capture;
+        var owners=new ArrayList<MembershipNodeOwner<Integer,Doc>>();
         var activeSlot=new AtomicLong();var installations=new AtomicLong();var cut=new AtomicBoolean();
         var defaults=ReplicationBounds.defaults();
         var bounds=data?defaults:new ReplicationBounds(defaults.maxFrameBytes(),defaults.maxEntriesPerAppend(),defaults.maxInFlightPerPeer(),
@@ -60,7 +63,8 @@ public final class V53NativeCarriedProcessWorker {
                 },original.slot());
                 Path scratch=Path.of((String)path.get("scratch"));
                 var owner=new MembershipNodeOwner<>(config,builder().configuration(),scratch.resolve("incoming"),scratch.resolve("outgoing"),
-                        System::nanoTime,TimeUnit.SECONDS.toNanos(seconds),hooks);
+                        System::nanoTime,TimeUnit.SECONDS.toNanos(seconds),hooks,capture!=null);
+                if(capture!=null)capture.register(identity,owner);
                 owners.add(owner);owner.open();
                 if(owner.serviceState().orElseThrow()!=MembershipAutomaticOwner.State.NEW)throw new AssertionError("restored READY");
                 try{owner.readiness();throw new AssertionError("readiness before fresh barrier");}catch(IllegalArgumentException expected){}
@@ -86,8 +90,10 @@ public final class V53NativeCarriedProcessWorker {
         }
         finally {
             IOException closing=null;
-            for(var owner:owners.reversed())try{owner.close();if(owner.usage().leases()!=0)throw new IOException("native carried resource leak");}
+            for(var owner:owners.reversed())try{if(capture==null)owner.close();else capture.closeOwner(owner);if(owner.usage().leases()!=0)throw new IOException("native carried resource leak");}
             catch(IOException error){if(closing==null)closing=error;else closing.addSuppressed(error);}
+            if(capture!=null)try{capture.save(primary==null && closing==null?"CLOSED":"FAILED");}
+            catch(IOException|RuntimeException error){if(primary!=null)primary.addSuppressed(error);else if(closing!=null)closing.addSuppressed(error);else throw error;}
             if(primary!=null && closing!=null)primary.addSuppressed(closing);else if(closing!=null)throw closing;
         }
         sink.accept("closed",Map.of("life",life,"elapsedNanos",System.nanoTime()-started,"clientCalls",0));
