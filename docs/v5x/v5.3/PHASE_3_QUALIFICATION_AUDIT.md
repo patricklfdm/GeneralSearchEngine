@@ -1,5 +1,11 @@
 # Phase 3 qualification inventory and remaining work
 
+[Carried control replay capture](PHASE_3_CARRIED_REPLAY_CAPTURE.md) adds exact
+scratch/claim/input/deletion inventories and continuous two-slot completion
+reservation binding. Two short real writers pass 46 file checks and 18 exact
+negatives. Full native composition, DATA/internal-core interruptions and complete
+simultaneous resource maxima remain OPEN.
+
 [Carried peer/future ledger capture](PHASE_3_CARRIED_LEDGER_CAPTURE.md) adds
 continuous revision-bound file writes and cold reseals. The short real-writer
 component passes 40 prefix checks and 12 exact negatives; composed native

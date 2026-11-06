@@ -20,6 +20,7 @@ from . import allocator_evidence as allocator
 from . import native_campaign_files as campaign_files
 from . import native_vote_files as vote_files
 from . import native_completion_files as completion_files
+from . import native_replay_files as replay_files
 
 p=physical;process=p.process;native=process.process
 c,d,e,f,need=p.c,p.d,p.e,p.f,p.need
@@ -348,7 +349,21 @@ def slot_completions(rows,before,applied_group,published,voters,collector):
             collector.append((row,kind,state))
 
 
-def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None,floor_prefixes=None,vote_prefixes=None,completion_prefixes=None):
+def slot_replays(rows,applied_group,voters,collector):
+    if collector is None:return
+    for node,files in applied_group.items():
+        plan=[]
+        if node in voters:
+            initial={k:v for k,v in files.items() if k!='applied-end' and not k.startswith('applied-end/')}
+            plan=replay_files.transaction(initial,files)
+        actual=[row for row in rows if row.get('node')==node and row['event'].startswith('REPLAY_')]
+        need(len(actual)==len(plan),'transition forces complete replay prefix count')
+        for row,(kind,point,state) in zip(actual,plan):
+            need(row['event']==point,'transition forces original replay prefix boundary')
+            collector.append((row,kind,state))
+
+
+def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None,floor_prefixes=None,vote_prefixes=None,completion_prefixes=None,replay_prefixes=None):
     chosen=f.decode(c.current(before['node-1'])[1]['selected.gsr'],'records','SELECTED')
     voters=[v['voter'] for v in chosen['sources']];stats=[]
     accepting=copy.deepcopy(before)
@@ -399,12 +414,14 @@ def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None,fl
              'transition forces all future quorums before publish')
     else:
         for node in before:ledger_order(rows,node,before[node][d.s.FILE],published[node][d.s.FILE])
-    if point is None:slot_completions(rows,before,applied_group,published,voters,completion_prefixes)
+    if point is None:
+        slot_completions(rows,before,applied_group,published,voters,completion_prefixes)
+        slot_replays(rows,applied_group,voters,replay_prefixes)
     slot_votes(rows,before,accepting,applied_group,published,voters,first,point,vote_prefixes)
     return stats
 
 
-def replay(root,kind,point,*,prefixes=None,floor_prefixes=None,campaign_prefixes=None,vote_prefixes=None,completion_prefixes=None):
+def replay(root,kind,point,*,prefixes=None,floor_prefixes=None,campaign_prefixes=None,vote_prefixes=None,completion_prefixes=None,replay_prefixes=None):
     root=Path(root);result=process.read(root/'process/result.json');children=native.children(result,kind=kind)
     lives,_,_,_,_=process.observations(root,result,children);index,_,_=p.t.shape(kind);stats=[]
     for life,rows in enumerate(lives,1):
@@ -413,6 +430,7 @@ def replay(root,kind,point,*,prefixes=None,floor_prefixes=None,campaign_prefixes
         campaigns=[] if campaign_prefixes is not None else None
         votes=[] if vote_prefixes is not None else None
         completions=[] if completion_prefixes is not None else None
+        replays=[] if replay_prefixes is not None else None
         cold(rows,group(root,'before-network' if life==1 else 'before-reopen'),vote_prefixes=votes)
         start=max(i for i,v in enumerate(rows) if v['event']=='NODE_OPEN')
         covered=set(range(start+1))
@@ -426,11 +444,11 @@ def replay(root,kind,point,*,prefixes=None,floor_prefixes=None,campaign_prefixes
             elif event=='ROUND_SLOT_BEGIN':slot_start=at
             elif event=='ROUND_SLOT_COMPLETE':
                 published=group(root,f'life-2-published-{index+ordinal-1}')
-                stats+=slot(rows[slot_start+1:at],installed,group(root,f'life-2-applied-{index+ordinal-1}'),published,first=ordinal==1,prefixes=collected,floor_prefixes=floors,vote_prefixes=votes,completion_prefixes=completions)
+                stats+=slot(rows[slot_start+1:at],installed,group(root,f'life-2-applied-{index+ordinal-1}'),published,first=ordinal==1,prefixes=collected,floor_prefixes=floors,vote_prefixes=votes,completion_prefixes=completions,replay_prefixes=replays)
                 covered.update(range(slot_start+1,at))
                 before=published;start=at
         if life==1:
-            stats+=slot(rows[slot_start+1:],installed,None,group(root,'at-cut'),first=True,point=point,prefixes=collected,floor_prefixes=floors,vote_prefixes=votes,completion_prefixes=completions)
+            stats+=slot(rows[slot_start+1:],installed,None,group(root,'at-cut'),first=True,point=point,prefixes=collected,floor_prefixes=floors,vote_prefixes=votes,completion_prefixes=completions,replay_prefixes=replays)
             covered.update(range(slot_start+1,len(rows)))
         for at,row in enumerate(rows):
             if row['event'].startswith(TRACKED) and row['event']!='FLOOR_COPY_BEFORE_RETURN':
@@ -463,6 +481,12 @@ def replay(root,kind,point,*,prefixes=None,floor_prefixes=None,campaign_prefixes
                  'transition forces unbound completion prefix')
             completion_prefixes.extend(dict(life=life,eventIndex=positions[id(row)],node=row['node'],point=row['event'],kind=kind_,files=state)
                 for row,kind_,state in sorted(completions,key=lambda v:positions[id(v[0])]))
+        if replay_prefixes is not None:
+            positions={id(row):at for at,row in enumerate(rows)};used=[positions[id(row)] for row,_,_ in replays]
+            need(len(set(used))==len(used) and set(used)=={at for at,row in enumerate(rows) if row['event'].startswith('REPLAY_')},
+                 'transition forces unbound replay prefix')
+            replay_prefixes.extend(dict(life=life,eventIndex=positions[id(row)],node=row['node'],point=row['event'],kind=kind_,files=state)
+                for row,kind_,state in sorted(replays,key=lambda v:positions[id(v[0])]))
     return dict(status='PARTIAL',scope='carried-transition-storage-callbacks',coldOwners=8,
         campaigns=1+p.t.shape(kind)[1],generationRetirements=sum(v.get('generations',0) for v in stats),
         sourceRetirements=sum(v.get('sources',0) for v in stats),observedStorageCallbacks=True,

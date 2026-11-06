@@ -23,7 +23,9 @@ final class V53RemoveRetirementCapture {
     static final String PROCESS_COMPLETION_SCHEMA="gse-v53-carried-process-completion-capture-v1";
     static final String LEDGER_SCHEMA="gse-v53-carried-ledger-capture-v1";
     static final String PROCESS_LEDGER_SCHEMA="gse-v53-carried-process-ledger-capture-v1";
-    enum Mode { RETIREMENT, FLOOR, CAMPAIGN, VOTE, COMPLETION, LEDGER }
+    static final String REPLAY_SCHEMA="gse-v53-carried-replay-capture-v1";
+    static final String PROCESS_REPLAY_SCHEMA="gse-v53-carried-process-replay-capture-v1";
+    enum Mode { RETIREMENT, FLOOR, CAMPAIGN, VOTE, COMPLETION, LEDGER, REPLAY }
     final Path raw,root;
     private final Mode mode;
     private final Path objects;
@@ -47,13 +49,15 @@ final class V53RemoveRetirementCapture {
         objects=Files.createDirectory(root.resolve("objects"));
     }
     synchronized void at(String node,Path replica,String point,int eventIndex)throws IOException {
-        boolean floorOnly=mode==Mode.FLOOR,campaign=mode==Mode.CAMPAIGN,vote=mode==Mode.VOTE,completion=mode==Mode.COMPLETION,ledger=mode==Mode.LEDGER;
+        boolean floorOnly=mode==Mode.FLOOR,campaign=mode==Mode.CAMPAIGN,vote=mode==Mode.VOTE,completion=mode==Mode.COMPLETION,ledger=mode==Mode.LEDGER,replay=mode==Mode.REPLAY;
         boolean generation=point.startsWith("RETIREMENT_"),source=point.startsWith("SOURCE_RETIREMENT_");
         String campaignKind=campaign?campaignKind(point):null;
         String voteKind=vote?voteKind(point):null;
         String completionKind=completion?completionKind(point,active.get(node)):null;
         String ledgerKind=ledger?ledgerKind(point):null;
-        if(ledger) {
+        if(replay) {
+            if(!point.startsWith("REPLAY_"))return;
+        } else if(ledger) {
             if(ledgerKind==null)return;
         } else if(completion) {
             if(completionKind==null)return;
@@ -65,8 +69,8 @@ final class V53RemoveRetirementCapture {
             if(!point.startsWith("FLOOR_") || point.equals("FLOOR_COPY_BEFORE_RETURN"))return;
         } else if(!generation && !source && !(point.startsWith("JOURNAL_ROTATION_") && "source".equals(active.get(node))))return;
         require(!finished && eventIndex>=0 && eventIndex>previous.getOrDefault(node,-1),"REMOVE capture event lifetime");
-        String kind=ledger?ledgerKind:completion?completionKind:vote?voteKind:campaign?campaignKind:floorOnly?(point.startsWith("FLOOR_RELEASE_")?"floor-release":"floor"):(generation?"generation":"source");
-        if(ledger?point.endsWith("_BEFORE_WRITE") || Set.of("RETENTION_RECOVERY_ACTIVE_FORCED","FUTURE_RETENTION_RECOVERY_FORCED").contains(point):completion?Set.of("APPLY_VALIDATED","PUBLICATION_VALIDATED").contains(point):vote?point.endsWith("_VALIDATED"):campaign?Set.of("ALLOCATOR_BEFORE_WRITE","PROMISE_BEFORE_WRITE","SELECTED_BEFORE_WRITE").contains(point):
+        String kind=replay?"replay":ledger?ledgerKind:completion?completionKind:vote?voteKind:campaign?campaignKind:floorOnly?(point.startsWith("FLOOR_RELEASE_")?"floor-release":"floor"):(generation?"generation":"source");
+        if(replay?point.equals("REPLAY_RESERVED"):ledger?point.endsWith("_BEFORE_WRITE") || Set.of("RETENTION_RECOVERY_ACTIVE_FORCED","FUTURE_RETENTION_RECOVERY_FORCED").contains(point):completion?Set.of("APPLY_VALIDATED","PUBLICATION_VALIDATED").contains(point):vote?point.endsWith("_VALIDATED"):campaign?Set.of("ALLOCATOR_BEFORE_WRITE","PROMISE_BEFORE_WRITE","SELECTED_BEFORE_WRITE").contains(point):
                 point.equals(floorOnly?"FLOOR_RESERVED":"RETIREMENT_OLD_FILES_FORCED") ||
                 point.equals(floorOnly?"FLOOR_RELEASE_AUTHORITY_CREATED":"SOURCE_RETIREMENT_CREATED")) {
             require(!active.containsKey(node),"REMOVE capture overlapping transaction");active.put(node,kind);
@@ -83,14 +87,14 @@ final class V53RemoveRetirementCapture {
             else {charge(value.length);Files.write(target,value,StandardOpenOption.CREATE_NEW);}
         }
         require(before.equals(V53GrantCapture.inventory(replica)),"REMOVE capture original changed");
-        var metadata=new TreeMap<String,Object>();metadata.put("schema",ledger?LEDGER_SCHEMA:completion?COMPLETION_SCHEMA:vote?VOTE_SCHEMA:campaign?CAMPAIGN_SCHEMA:floorOnly?FLOOR_SCHEMA:SCHEMA);metadata.put("node",node);
+        var metadata=new TreeMap<String,Object>();metadata.put("schema",replay?REPLAY_SCHEMA:ledger?LEDGER_SCHEMA:completion?COMPLETION_SCHEMA:vote?VOTE_SCHEMA:campaign?CAMPAIGN_SCHEMA:floorOnly?FLOOR_SCHEMA:SCHEMA);metadata.put("node",node);
         metadata.put("point",point);metadata.put("eventIndex",eventIndex);metadata.put("kind",kind);
         metadata.put("files",before.entrySet().stream().map(e->Map.of("name",e.getKey(),"identity",e.getValue())).toList());
         byte[] encoded=canonical(metadata,1024*1024);charge(encoded.length);
         Files.write(root.resolve(String.format(Locale.ROOT,"capture-%04d.json",++count)),encoded,StandardOpenOption.CREATE_NEW);
         previous.put(node,eventIndex);lastPoint.put(node,point);
         if(campaign && point.equals("SELECTED_BEFORE_RETURN"))active.put(node,"install");
-        else if(ledger?Set.of("RETENTION_PARENT_FORCED","RETENTION_RECOVERY_PARENT_FORCED","FUTURE_RETENTION_PARENT_FORCED","FUTURE_RETENTION_RECOVERY_PARENT_FORCED").contains(point):completion?Set.of("APPLY_BEFORE_RETURN","PUBLICATION_BEFORE_RETURN").contains(point):vote?point.endsWith("_BEFORE_RETURN"):campaign?Set.of("ALLOCATOR_BEFORE_RETURN","GRANT_BEFORE_RETURN","INSTALL_BEFORE_RETURN").contains(point):
+        else if(replay?point.equals("REPLAY_BEFORE_RETURN"):ledger?Set.of("RETENTION_PARENT_FORCED","RETENTION_RECOVERY_PARENT_FORCED","FUTURE_RETENTION_PARENT_FORCED","FUTURE_RETENTION_RECOVERY_PARENT_FORCED").contains(point):completion?Set.of("APPLY_BEFORE_RETURN","PUBLICATION_BEFORE_RETURN").contains(point):vote?point.endsWith("_BEFORE_RETURN"):campaign?Set.of("ALLOCATOR_BEFORE_RETURN","GRANT_BEFORE_RETURN","INSTALL_BEFORE_RETURN").contains(point):
                 point.equals(floorOnly?"FLOOR_BEFORE_RETURN":"RETIREMENT_BEFORE_RETURN") ||
                 point.equals(floorOnly?"FLOOR_RELEASE_BEFORE_RETURN":"SOURCE_RETIREMENT_BEFORE_RETURN"))active.remove(node);
     }
@@ -149,7 +153,7 @@ final class V53RemoveRetirementCapture {
                 "process retirement original terminal");
         // INTENT/ACCEPT can die before the first retirement. Empty coverage is
         // explicit and must match the original callback inventory in replay.
-        String schema=switch(mode){case RETIREMENT->PROCESS_SCHEMA;case FLOOR->PROCESS_FLOOR_SCHEMA;case CAMPAIGN->PROCESS_CAMPAIGN_SCHEMA;case VOTE->PROCESS_VOTE_SCHEMA;case COMPLETION->PROCESS_COMPLETION_SCHEMA;case LEDGER->PROCESS_LEDGER_SCHEMA;};
+        String schema=switch(mode){case RETIREMENT->PROCESS_SCHEMA;case FLOOR->PROCESS_FLOOR_SCHEMA;case CAMPAIGN->PROCESS_CAMPAIGN_SCHEMA;case VOTE->PROCESS_VOTE_SCHEMA;case COMPLETION->PROCESS_COMPLETION_SCHEMA;case LEDGER->PROCESS_LEDGER_SCHEMA;case REPLAY->PROCESS_REPLAY_SCHEMA;};
         Files.write(root.resolve("collection.json"),canonical(Map.of("schema",schema,"root",history,
                 "life",life,"pid",ProcessHandle.current().pid(),"terminal",terminal,"eventsSha256",hash(events),
                 "captures",count,"storedBytes",bytes),4096),StandardOpenOption.CREATE_NEW);

@@ -1,0 +1,201 @@
+{
+  "acceptancePlan": {
+    "path": "docs/v5x/v5.3/acceptance-plan.json",
+    "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+  },
+  "base": "489f2f68b57b8b0b715bb3c94b12627c21beed48",
+  "cohortAdmitted": false,
+  "componentSummary": {
+    "path": "target/v53-carried-replay-prefixes/component-summary.json",
+    "sha256": "f1a4e3a7fb8d7f775dd8b751b51c59faa43ab47677e318d5371b47c4f3de7427"
+  },
+  "derivedNativePrefixes": 299,
+  "derivedPrefixesAreCaptures": false,
+  "historicalIndexesUnchanged": 383,
+  "hostedExecuted": false,
+  "limitations": [
+    "Short real writers have conditional protocol provisioning; the native composed collector has not run.",
+    "Original FINAL/INTENT histories supply 299 expected prefixes and continuous reservation bindings, not new byte captures.",
+    "Only fresh INTENT/FINAL/BARRIER replay callbacks are modeled; internal core writes, interrupted scratch and DATA output are not qualified.",
+    "Full native composition, simultaneous resources, six other process axes, application-ACK recovery and final-source admission remain open."
+  ],
+  "nativeFullNegativeCasesDefined": 25,
+  "nativeFullNegativeCasesQualified": 0,
+  "nativeLongEntryCompiled": true,
+  "nativeLongEntryExecuted": false,
+  "nativeReplayBytesQualified": false,
+  "nativeReplayReaderImplemented": true,
+  "originalComponents": [
+    {
+      "inventory": {
+        "path": "target/v53-carried-replay-prefixes/component-5-inventory.json",
+        "sha256": "033caf6252bdf385d8588a966c50b9ba84c2ae3bdcf182d6026c48821a0c5f0c"
+      },
+      "path": "general-search-engine-replication/target/v53-replay-prefix-component/run-3dabd2de-8444-49f8-84e3-c87add71cb49",
+      "portable": {
+        "path": "target/v53-carried-replay-prefixes/portable-5.json",
+        "sha256": "93e19f2bb38ca22911d0b0a722fe27d8662f5f34456817a20aba51ed34a575a8"
+      },
+      "qualification": {
+        "path": "target/v53-carried-replay-prefixes/component-5.json",
+        "sha256": "be94c45e464469560060cd7bd631e2bc6768c3d5b516a24008f06510a1081162"
+      }
+    },
+    {
+      "inventory": {
+        "path": "target/v53-carried-replay-prefixes/component-6-inventory.json",
+        "sha256": "7fe7b5be83a7c2ae817640e1631763a9d72a3f40033aee00384ce338c3e7a116"
+      },
+      "path": "general-search-engine-replication/target/v53-replay-prefix-component/run-98c00745-14c3-4102-a9b7-3ee0d422ff0b",
+      "portable": {
+        "path": "target/v53-carried-replay-prefixes/portable-6.json",
+        "sha256": "b519034f88db474da5e678dba4c2e85f7b80d90eb69b85be37381150d4a7385c"
+      },
+      "qualification": {
+        "path": "target/v53-carried-replay-prefixes/component-6.json",
+        "sha256": "88b03f8be1e4a994bfac6dff49f0422fe1509a110adbbdc5cb4ff5b37478d428"
+      }
+    }
+  ],
+  "originalDerivedProbe": {
+    "path": "target/v53-carried-replay-prefixes/original-projection.json",
+    "sha256": "454bdbb5e5785e95b30f47636a7608c5941d606ad461abe2a88e3d3cee713f22"
+  },
+  "originalProbeScript": {
+    "path": "target/v53-carried-replay-prefixes/probe-originals.py",
+    "sha256": "f55e0f001100dd9aa15e1e25771ca949b2e543554239e9aaa5cc2879f9c238b4"
+  },
+  "originalResourceNegatives": {
+    "path": "target/v53-carried-replay-prefixes/resource-negatives.json",
+    "sha256": "004672d42c7ef99faa80024c6eec9ff65b97ec20555a05f24eebf9cd4389fbef"
+  },
+  "paidCloud": false,
+  "phase3Complete": false,
+  "previousLedgerComponent": {
+    "path": "docs/v5x/v5.3/phase3-evidence/carried-ledger-prefix-development.json",
+    "sha256": "2241424b1e9ff03158c341868f8c132fd9eb7110e15475a188e0ce0d241bbfc2"
+  },
+  "pushed": false,
+  "resourceNegativeScript": {
+    "path": "target/v53-carried-replay-prefixes/probe-resource-negatives.py",
+    "sha256": "28f609cd69112e7563aee111a452c3cbd23e33aca76f7d189c0531b987f1eccc"
+  },
+  "runtimeChanged": false,
+  "schema": "gse-v53-carried-replay-prefix-development-v1",
+  "sourceFiles": [
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessTest.java",
+      "sha256": "e48df3c1040b7e0dffc3053e5d30b21eb3510e7291fad98d17b63725dcc4b052"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessWorker.java",
+      "sha256": "8542b45b0df71b61d46d7184f6d41cf47a394c0ae50c8bc8dfcc23d56fd8bd58"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedReplayPrefixProcessTest.java",
+      "sha256": "3d18117201a3ca7abe3fbe47c7f5efe3abd0040e843e90104fc8d4a1089a42cf"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeResourceCapture.java",
+      "sha256": "6a019de0e2e63c8a56d0cc0fce8dbf2d10cda0eb21b2bacc1d45cac5e370d6e3"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeResourceCaptureTest.java",
+      "sha256": "f09acd02af5e1ee2e99de7b889adbd661b5f7cb05bdfe99c3899438430b67573"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RemoveRetirementCapture.java",
+      "sha256": "11601cd19ee136e6b5b90fcdbca6a6fb3b63f3bc1e7f60d9f29716d96359477c"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ReplayPrefixCaptureTest.java",
+      "sha256": "0eec4a0e2bb371e80e1ce5feb88683c064073621f6d2719b6d6baa4d2e13c8a8"
+    },
+    {
+      "path": "scripts/v53/native_carried_replay_prefixes.py",
+      "sha256": "44bf68816f67dbddfb4908755c7e65f875a4b32fda5d320b2e05b35178204f65"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_forces.py",
+      "sha256": "a0cb397b93aed4bfb5f2767f19f359edd30eee0a2c170b8a17e3c934e32c5f9e"
+    },
+    {
+      "path": "scripts/v53/native_replay_files.py",
+      "sha256": "8ba88c79b26bb9a2f65f29c964f36644f47fecce8e9e1a3d304baef5b291c4a7"
+    },
+    {
+      "path": "scripts/v53/replay_prefix_component.py",
+      "sha256": "3bc040dce9f29ce9ea4926d2cc19c662bd35aab2199ca43da47460d20bc56429"
+    },
+    {
+      "path": "scripts/v53/replay_resource_binding.py",
+      "sha256": "9b08a17c9b0a4aa29ae0a96edcf314e97b4fae01c9237b71a56f210b4b7a5de0"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_replay_prefixes.py",
+      "sha256": "c975838f6553534bbe119238bbcc6eb487c34afdf4e2229f4d4b71c00fa2ebc6"
+    },
+    {
+      "path": "scripts/v53/test_native_replay_files.py",
+      "sha256": "c4c1ec523bdd33eb59285b4dd2eeb9daf89bc1889294a5e39df9aa90d461e082"
+    },
+    {
+      "path": "scripts/v53/test_replay_prefix_component.py",
+      "sha256": "1c72400a4ded5e7bf82e4ae93dc6a4f7bac69f3358ead41445c154962af60046"
+    },
+    {
+      "path": "scripts/v53/test_replay_resource_binding.py",
+      "sha256": "13e82afbc42ad7ec3c2a96b6f0221c6abf13bb09d0f231c680fe4286cbffc034"
+    }
+  ],
+  "status": "PARTIAL",
+  "unchangedCatalogue": {
+    "archives": 486,
+    "executionGroups": 246,
+    "histories": 552,
+    "subsets": 12,
+    "workflowJobs": 516
+  },
+  "validation": {
+    "componentCapturedPrefixes": 46,
+    "componentPhysicalNegatives": 18,
+    "currentNewTests": {
+      "path": "target/v53-carried-replay-prefixes/unit-current.log",
+      "sha256": "073ada331d3ea575cecd28438b58cb8527fdc5a15bb7af29904a04340e8997db"
+    },
+    "distinctFocusedJavaTests": 27,
+    "javaInvocations": [
+      {
+        "log": {
+          "path": "target/v53-carried-replay-prefixes/java-focused.log",
+          "sha256": "fa1a2fa3c3aa845a24ba5795629215803f1e06dce39dc8f4e48b6bfb1b0fcf64"
+        },
+        "tests": 25
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-replay-prefixes/java-shared-final.log",
+          "sha256": "4edc7cc5c44678ab621014fa2084c0dbb0e9c69018e07852b16fd68f9db13a03"
+        },
+        "tests": 7
+      }
+    ],
+    "optimizedPython": {
+      "path": "target/v53-carried-replay-prefixes/unit-optimized-current.log",
+      "sha256": "11443ad767262a05365d4306a8c2ee28989e8ac1c77c3c9aae8438f820c1c9a1"
+    },
+    "optimizedPythonTests": 20,
+    "originalReservationNegatives": 12,
+    "originalReservationTransactions": 13,
+    "python": {
+      "path": "target/v53-carried-replay-prefixes/unit-final.log",
+      "sha256": "4e5dfc3f3d12ebf4208cea06d0ccaeffa4df77923efff3e2e4e0a6cae34e9e4a"
+    },
+    "pythonModules": {
+      "path": "target/v53-carried-replay-prefixes/python-modules.json",
+      "sha256": "a26493b9079097e7e90cb0204a3f898c4fe057249474a64de0431e56669db59b"
+    },
+    "relatedPythonTests": 279
+  },
+  "workflowChanged": false
+}
