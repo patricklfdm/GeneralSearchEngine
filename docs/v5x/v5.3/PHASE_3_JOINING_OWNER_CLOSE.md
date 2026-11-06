@@ -59,9 +59,11 @@ a focused regression before the correction.
 Twelve joining-close mutations check missing/foreign/reordered markers, early
 returns, hidden allocations, nonquiescent starts and work after the final return.
 The [required-four entry](PHASE_3_REQUIRED_FOUR_ENTRY.md) also makes the existing
-twelve network-close negatives mandatory. It now requires **71 exact negatives**:
+twelve network-close negatives mandatory. This close integration requires **71 exact negatives**:
 15 accounting + 19 handoff + 13 file custody + 12 network close + 12 joining close.
 Complete original physical/network/resource replay precedes all mutations.
+The later [export admission](PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md) adds eighteen
+allocation-proof cases on the same original, bringing the current entry to 89.
 
 The new entry pins both `v53.resource.owner.close=true` and
 `v53.resource.joined.close=true`. An old original without the new markers fails

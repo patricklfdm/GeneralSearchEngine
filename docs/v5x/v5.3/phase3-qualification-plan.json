@@ -823,7 +823,8 @@
         "scripts/v53/test_required_four_resource_run.py",
         "scripts/v53/test_required_four_resources.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningOwnerCloseTest.java",
-        "scripts/v53/test_joining_owner_close.py"
+        "scripts/v53/test_joining_owner_close.py",
+        "scripts/v53/test_export_allocation_negatives.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -936,7 +937,8 @@
         "scripts/v53/required_four_resource_run.py",
         "scripts/v53/required_four_resources.py",
         "scripts/v53/joining_owner_close.py",
-        "scripts/v53/joining_owner_close_negatives.py"
+        "scripts/v53/joining_owner_close_negatives.py",
+        "scripts/v53/export_allocation_negatives.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -1053,7 +1055,8 @@
         "docs/v5x/v5.3/PHASE_3_JOINED_FILE_RESOURCES.md",
         "docs/v5x/v5.3/phase3-evidence/joined-file-resources.json",
         "docs/v5x/v5.3/PHASE_3_REQUIRED_FOUR_ENTRY.md",
-        "docs/v5x/v5.3/PHASE_3_JOINING_OWNER_CLOSE.md"
+        "docs/v5x/v5.3/PHASE_3_JOINING_OWNER_CLOSE.md",
+        "docs/v5x/v5.3/PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md"
       ],
       "cohorts": [
         "profiles",
@@ -1330,7 +1333,7 @@
       "id": "combined-resources",
       "status": "OPEN",
       "dependsOn": [],
-      "work": "Native same-callback measurements establish nonempty GENERATION/SOURCE/APPLICATION counts 2/6/7, not the full byte envelope. The real SOURCE receiver refusal producer preserves original charges and admitted recovery; carried-transition v5 adds its two complete histories, but final-source execution remains pending. Complete feasible combined byte pressure, remaining resource categories and broader learner lifetimes, plus final-source execution of the locally qualified full operation-231 continuation (34 exact negatives and 163 original owner lifetimes; its historical prefix remains conditional). Conditional capacity-completion entries, overlap summaries and earlier failed external-copy probes cannot substitute for original native lifetime evidence; see PHASE_3_NATIVE_COUNT_REFUSAL.md, PHASE_3_NATIVE_APPLICATION_OVERLAP.md and PHASE_3_QUALIFICATION_AUDIT.md. The retained-cancellation member now binds actual learner ownership through four native campaigns, READY/CANCEL and same-file cold recovery, including three same-original byte-pressure cold lifetimes and 62 exact negatives. Final-source execution of that strengthened member remains required; see PHASE_3_NATIVE_LEARNER_BYTE_PRESSURE.md. The strict required-four file/custody entry now derives original placed-file identities and the actual predecessor/successor pairs. Final-source resource qualification must retain its storage-transfer sidecar and run the 13 exact negatives; this does not replace intermediate-write, shutdown, death or maximum-pressure evidence. See PHASE_3_JOINED_FILE_RESOURCES.md. Collect a new whole required-four original after the ROOT/INTENT request-digest corrections; the earlier placed-file mapping remains conditional because its complete resource replay failed. Require the original-first thirteen file-transfer negatives before admitting this opt-in scope to a final-source cohort. The supplementary required-four-resources hosted entry now collects one immutable complete original and independently replays all 71 accounting/handoff/file/close negatives. Execute it on the corrected final source; its orchestration tests and historical transport validation are not native acceptance. The twelve-subset catalogue is unchanged; see PHASE_3_REQUIRED_FOUR_ENTRY.md. Five joining journal open/close lifetimes and the original network closes are now mandatory in that entry. Real-journal component replay checks the observer only; collect the complete marked native history on the corrected source before crediting these close intervals.",
+      "work": "Native same-callback measurements establish nonempty GENERATION/SOURCE/APPLICATION counts 2/6/7, not the full byte envelope. The real SOURCE receiver refusal producer preserves original charges and admitted recovery; carried-transition v5 adds its two complete histories, but final-source execution remains pending. Complete feasible combined byte pressure, remaining resource categories and broader learner lifetimes, plus final-source execution of the locally qualified full operation-231 continuation (34 exact negatives and 163 original owner lifetimes; its historical prefix remains conditional). Conditional capacity-completion entries, overlap summaries and earlier failed external-copy probes cannot substitute for original native lifetime evidence; see PHASE_3_NATIVE_COUNT_REFUSAL.md, PHASE_3_NATIVE_APPLICATION_OVERLAP.md and PHASE_3_QUALIFICATION_AUDIT.md. The retained-cancellation member now binds actual learner ownership through four native campaigns, READY/CANCEL and same-file cold recovery, including three same-original byte-pressure cold lifetimes and 62 exact negatives. Final-source execution of that strengthened member remains required; see PHASE_3_NATIVE_LEARNER_BYTE_PRESSURE.md. The strict required-four file/custody entry now derives original placed-file identities and the actual predecessor/successor pairs. Final-source resource qualification must retain its storage-transfer sidecar and run the 13 exact negatives; this does not replace intermediate-write, shutdown, death or maximum-pressure evidence. See PHASE_3_JOINED_FILE_RESOURCES.md. Collect a new whole required-four original after the ROOT/INTENT request-digest corrections; the earlier placed-file mapping remains conditional because its complete resource replay failed. Require the original-first thirteen file-transfer negatives before admitting this opt-in scope to a final-source cohort. The supplementary required-four-resources hosted entry now collects one immutable complete original and independently replays all 89 accounting/handoff/file/close/export negatives. Execute it on the corrected final source; its orchestration tests and historical transport validation are not native acceptance. The twelve-subset catalogue is unchanged; see PHASE_3_REQUIRED_FOUR_ENTRY.md. Five joining journal open/close lifetimes and the original network closes are now mandatory in that entry. Real-journal component replay checks the observer only; collect the complete marked native history on the corrected source before crediting these close intervals. The same complete resource entry now requires original source cleanup and all session/direct/probe export bindings, including eighteen exact binding mutations. Full corrected-source execution remains pending; no proof map or receipt can replace original derivation. See PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md.",
       "acceptance": "Retain actual peak owner/lease/byte observations and independent physical replay at/over the bound, including admitted FINAL/recovery completion and stable DATA after membership exhaustion. Arithmetic alone does not qualify this obligation."
     },
     {

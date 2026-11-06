@@ -112,7 +112,7 @@ class RequiredFourResourceHostedTest(unittest.TestCase):
         self.assertEqual(1,call.call_count);self.assertIn('/verify/original/data/producer/',str(call.call_args.args[0]))
         self.assertEqual('PASS',value['status']);self.assertTrue(value['observedResourcesQualified'])
         self.assertFalse(value['combinedResourcesQualified']);self.assertFalse(value['phase3Complete'])
-        self.assertEqual(71,sum(map(len,value['qualification']['qualification']['negatives'].values())))
+        self.assertEqual(89,sum(map(len,value['qualification']['qualification']['negatives'].values())))
 
     def test_wrong_stage_context_pins_profile_seed_and_producer_receipt_are_rejected(self):
         data,bundle=self.raw();path=data/'hosted-member.json';original=w.m.read(path)

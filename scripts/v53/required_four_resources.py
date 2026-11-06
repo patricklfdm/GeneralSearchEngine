@@ -1,4 +1,4 @@
-"""One complete required-four original before all three resource negative sets.
+"""One complete required-four original before every resource negative family.
 
 The history, live leases and custody transitions are indivisible. This entry
 qualifies observed ownership; it does not claim the simultaneous byte maximum.
@@ -9,13 +9,16 @@ from . import joined_handoff_negatives as handoff
 from . import native_resource_negatives as accounting
 from . import owner_close_negatives as network_close
 from . import joining_owner_close_negatives as joining_close
+from . import export_allocation_negatives as exports
+from . import control_close_evidence
 
 native=files.native
 need=native.need
 PROFILE='5-REPLACE-required-four'
 SCHEMA='gse-v53-required-four-resources-v1'
 NEGATIVES={'accounting':accounting.NEGATIVES,'handoff':handoff.NEGATIVES,'files':files.NEGATIVES,
-           'network-close':network_close.NEGATIVES,'joining-close':joining_close.NEGATIVES}
+           'network-close':network_close.NEGATIVES,'joining-close':joining_close.NEGATIVES,
+           'export-allocations':exports.NEGATIVES}
 
 
 def check_original(value):
@@ -27,10 +30,19 @@ def check_original(value):
     for key,flag in (('joinedHandoffResources','continuousHandoffQualified'),
                      ('joinedFileResources','originalFileCustodyQualified'),
                      ('ownerCloseResources','ownerCloseIntervalsQualified'),
-                     ('joinedOwnerCloses','joiningCloseIntervalsQualified')):
+                     ('joinedOwnerCloses','joiningCloseIntervalsQualified'),
+                     ('sourceCleanupIntervals','nativeServiceCleanupIntervalsQualified'),
+                     ('exportAllocationCoverage','allObservedExportAllocationsQualified')):
         part=value.get(key)
         need(type(part) is dict and part.get('status')=='PASS' and part.get(flag) is True and
              part.get('phase3Complete') is False,'required-four resources complete original '+key)
+    coverage=value['exportAllocationCoverage'];scopes=coverage.get('byScope')
+    need(type(scopes) is dict and set(scopes)==set(exports.r.SCOPES) and
+         all(type(v) is int and v>0 for v in scopes.values()) and
+         type(coverage.get('allocations')) is int and coverage['allocations']==sum(scopes.values()) and
+         coverage.get('unclaimedAllocations')==[] and
+         all(coverage.get(k) is False for k in ('failedConstructorExportsQualified','allExportFailurePathsQualified','wholeRuntimeResourcesQualified')),
+         'required-four resources complete original export scope')
 
 
 def check_result(value):
@@ -46,10 +58,14 @@ def check_result(value):
 
 def qualify(root,progress=None):
     root=Path(root);before=native.collection.inventory(root)
-    original=native.validate(root,PROFILE,progress,joined_files=True,joined_closes=True)
+    bindings={}
+    original=native.validate(root,PROFILE,progress,joined_files=True,joined_closes=True,complete_exports=True,export_bindings_out=bindings)
     check_original(original)
     if progress:progress(dict(stage='complete-resource-original',status='PASS'))
     index,traces,boundaries,events=native.load(root)
+    closes=control_close_evidence.load(root,index)
+    coverage=exports.r.replay(traces,closes,bindings)
+    need(coverage==original['exportAllocationCoverage'],'required-four resources original export binding output')
     identities={v['identity']['node']:v['identity'] for v in index['owners']}
     physical=handoff.r.original(root);reader=files.maintenance.Replay(root);reader.run()
     # Derive both mappings from this original. Never use a previous run's plan.
@@ -60,6 +76,7 @@ def qualify(root,progress=None):
         'files':files.replay((plan,events,traces,boundaries,files.r.transfers.load(root,index)),progress),
         'network-close':network_close.replay((index,traces,boundaries,events,set(identities)-{plan['node']}),progress),
         'joining-close':joining_close.replay((events,traces,boundaries,plan['node']),progress),
+        'export-allocations':exports.replay(traces,closes,bindings,progress),
     }
     need(native.collection.inventory(root)==before,'required-four resources original changed')
     result=dict(schema=SCHEMA,status='PASS',profile=PROFILE,original=original,negatives=cases,

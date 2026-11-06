@@ -90,7 +90,9 @@ def bind_publications(transactions,boundaries):
     return count
 
 
-def validate(directory,profile='stable',progress=None,*,source_control=False,control_closes=False,export_ownership=False,direct_exports=False,joining_requests=False,joining_extents=False,published_probe=False,session_extents=False,complete_exports=False,voting_control=False,slot_control=False,activation_control=False,joined_files=False,joined_closes=False):
+def validate(directory,profile='stable',progress=None,*,source_control=False,control_closes=False,export_ownership=False,direct_exports=False,joining_requests=False,joining_extents=False,published_probe=False,session_extents=False,complete_exports=False,voting_control=False,slot_control=False,activation_control=False,joined_files=False,joined_closes=False,export_bindings_out=None):
+    need(export_bindings_out is None or type(export_bindings_out) is dict and not export_bindings_out and complete_exports is True,
+         'native resources empty complete-export output only')
     need(type(joined_closes) is bool and (not joined_closes or profile=='5-REPLACE-required-four'), 'native resources joined closes policy')
     need(type(joined_files) is bool and (not joined_files or profile=='5-REPLACE-required-four'), 'native resources joined files policy')
     need(type(activation_control) is bool and (not activation_control or profile=='stable'), 'native resources activation control policy')
@@ -217,6 +219,11 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
         activation=activation_control_resources.replay(events,wires,traces,boundaries,identities,authority,
                 slot_control_resources.publications(rounds,selection,identities),transactions)
     need(collection.inventory(root)==before,'native resources original changed')
+    if export_bindings_out is not None:
+        need(result['status']=='PASS' and cleanup['status']=='PASS','native resources complete original before binding output')
+        # Output only after all original readers and final immutability pass.
+        # No caller-supplied proof is accepted; failures publish nothing.
+        export_allocation_coverage.publish(export_bindings_out,list(export_bindings.values()))
     return dict(result,status=cleanup['status'] if cleanup else result['status'],scope='native-owner-accounting-with-original-publication-boundaries',profile=profile,
                 precondition=preceding,publicationResources=physical,publicationBoundaries=count,publicationGenerationResources=generations,transportResources=transport,
                 floorResources=floors,receivingResources=receiving,basisResources=bases,ownerCloseResources=closed,joinedOwnerCloses=joining_closed,joinedHandoffResources=joined,joinedFileResources=files,

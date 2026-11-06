@@ -1,5 +1,11 @@
 # V5.3 bounded resources and lifetime
 
+[Complete required-four export admission](PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md)
+now requires source/control/export capture and exact session/direct/probe bindings
+on the same whole original. Eighteen allocation-proof negatives bring the entry
+to 89 cases. No complete new native original has run; full resource maxima and
+final-source admission remain OPEN.
+
 [Five joining journal closes](PHASE_3_JOINING_OWNER_CLOSE.md) now have explicit
 original open/begin/return observations. The resource entry binds persistent
 BASIS storage through each actual close invocation; terminal zero totals alone

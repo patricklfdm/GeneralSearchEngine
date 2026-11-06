@@ -1,6 +1,6 @@
 """Source-bound whole required-four execution, collection and resource admission.
 
-The producer returns PARTIAL. Independent complete replay and all 71 exact
+The producer returns PARTIAL. Independent complete replay and all 89 exact
 negatives are mandatory. No retries, shortened profile or CI dispatch occurs.
 """
 import argparse
@@ -37,7 +37,8 @@ def command(profile):
             '-Dv53.joining.requiredFour=true','-Dv53.publication.resources=true',
             '-Dv53.resource.transitions=true','-Dv53.transport.connections=true',
             '-Dv53.resource.storage.transfers=true','-Dv53.resource.owner.close=true',
-            '-Dv53.resource.joined.close=true','test']
+            '-Dv53.resource.joined.close=true','-Dv53.resource.source.control=true',
+            '-Dv53.resource.control.close=true','-Dv53.resource.export.ownership=true','test']
 
 
 def junit(reports,profile):
@@ -67,7 +68,7 @@ def collect(raw,profile):
     # FINAL, BARRIER, cold reopen and ownership from physical original bytes.
     for name in ('events.json','wire.json','original-plan.gsbp','joining-continuation-result.json'):
         need(name in before['files'],'required-four run missing observations: '+name)
-    for name in ('resource-transition-captures','storage-transfer-captures'):
+    for name in ('resource-transition-captures','storage-transfer-captures','control-close-captures'):
         need(name+'/index.json' in before['files'],'required-four run missing capture: '+name)
     need(h.inventory(raw,maximum=RAW_BYTES)==before,'required-four run changed during collection')
     return dict(schema=SCHEMA,status='PARTIAL',profile=profile,collectionComplete=True,
