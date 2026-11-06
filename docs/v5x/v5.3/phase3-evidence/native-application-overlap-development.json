@@ -1,0 +1,226 @@
+{
+  "atOrOverBoundRefusalQualified": false,
+  "byteLimitQualified": false,
+  "cohortAdmitted": false,
+  "currentFiles": [
+    {
+      "path": "scripts/v53/native_application_overlap.py",
+      "sha256": "f65325a0153e8df18bb0aeeb109ce4a2374c8a37d018dab17803ef76baefd194"
+    },
+    {
+      "path": "scripts/v53/test_native_application_overlap.py",
+      "sha256": "cbc17ffca5b2d00c8511d348c587cc2d1f247f3b7e61a07f90ca9c7ef1d464f5"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_NATIVE_APPLICATION_OVERLAP.md",
+      "sha256": "7ff18a463d02fdf936b36d3fa37efc582093da99bc1877c7a1f0340f668c4e73"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "cb17c0b869f37ddb0a5616277bb5c95cfacbb043b91ca110f060c7c4f0e84bca"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_QUALIFICATION_AUDIT.md",
+      "sha256": "972350388579eea22d5aff75345f27897dea69d71f9efe5d08f2f5f8f191c482"
+    },
+    {
+      "path": "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
+      "sha256": "637215e965a6d31e3f1e2038c46a35bdef36cd354ab5d9e6d10e516eec2034ca"
+    },
+    {
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "0cb994d5f1092d3b04fdf9963b470ef823f8b5df05c75bdd3d5fdd15a82354be"
+    }
+  ],
+  "finalSourceQualified": false,
+  "generator": {
+    "path": "target/v53-native-application-overlap/index-evidence.py",
+    "sha256": "a235879562cd8f5a0d41cd6c7a8f3c6b11417d1327d80af046411f3753c17590"
+  },
+  "historicalIndexes": {
+    "count": 527,
+    "inventory": {
+      "path": "target/v53-native-application-overlap/historical-indexes.json",
+      "sha256": "fab612e78ea888634ff4bb5c06b1c28a2e012e6f497802039a58c6948e1714aa"
+    },
+    "unchanged": true
+  },
+  "hostedExecuted": false,
+  "limitations": [
+    "No new Java native execution, current-source cohort admission, hosted dispatch or paid-cloud action.",
+    "SOURCE counts storage owners, including retirement/FLOOR metadata; it does not count selected voter authorities.",
+    "Each observed peak is one original callback. Neither across-owner simultaneity nor unobserved writes are qualified.",
+    "The nine-family positive prerequisite is replayed before the twenty derived-witness negatives. Existing physical mutation suites are not rerun here.",
+    "Combined byte limits, refusal with admitted completion, actual learner lifetime, operation-231 continuation and final-source execution remain open."
+  ],
+  "nativeHistoriesExecuted": 0,
+  "observed": {
+    "boundedResultBytes": 80322,
+    "callbacks": 3301,
+    "chargedOverlapCallbacks": 268,
+    "countVector": {
+      "APPLICATION": 7,
+      "GENERATION": 2,
+      "SOURCE": 6
+    },
+    "first": {
+      "chargedCounts": {
+        "APPLICATION": 7,
+        "CONTROL": 31,
+        "GENERATION": 2,
+        "JOURNAL": 1,
+        "MISC": 1,
+        "SOURCE": 6
+      },
+      "eventIndex": 969,
+      "life": 1,
+      "node": "node-1",
+      "physicalBytes": 405475,
+      "physicalBytesByUnit": {
+        "APPLICATION": 5859,
+        "GENERATION": 117744,
+        "JOURNAL": 18918,
+        "MISC": 9541,
+        "SOURCE": 253413
+      },
+      "physicalOwnerCounts": {
+        "APPLICATION": 7,
+        "GENERATION": 2,
+        "JOURNAL": 1,
+        "MISC": 1,
+        "SOURCE": 6
+      },
+      "point": "RETIREMENT_BORROW_PREFIX_WRITTEN",
+      "sequence": 1144,
+      "usage": {
+        "counts": {
+          "APPLICATION": 7,
+          "CONTROL": 31,
+          "GENERATION": 2,
+          "JOURNAL": 1,
+          "MISC": 1,
+          "SOURCE": 6
+        },
+        "leases": 48,
+        "metadata": 36086356,
+        "queued": 1077796,
+        "staging": 67430914
+      }
+    },
+    "maximumPhysicalBytes": {
+      "chargedCounts": {
+        "APPLICATION": 7,
+        "CONTROL": 25,
+        "GENERATION": 2,
+        "JOURNAL": 1,
+        "MISC": 1,
+        "SOURCE": 6,
+        "WAITER": 1
+      },
+      "eventIndex": 2229,
+      "life": 2,
+      "node": "node-2",
+      "physicalBytes": 628258,
+      "physicalBytesByUnit": {
+        "APPLICATION": 5859,
+        "GENERATION": 144931,
+        "JOURNAL": 17708,
+        "MISC": 12285,
+        "SOURCE": 447475
+      },
+      "physicalOwnerCounts": {
+        "APPLICATION": 7,
+        "GENERATION": 2,
+        "JOURNAL": 1,
+        "MISC": 1,
+        "SOURCE": 6
+      },
+      "point": "RETIREMENT_AUTHORITY_WRITTEN",
+      "sequence": 1743,
+      "usage": {
+        "counts": {
+          "APPLICATION": 7,
+          "CONTROL": 25,
+          "GENERATION": 2,
+          "JOURNAL": 1,
+          "MISC": 1,
+          "SOURCE": 6,
+          "WAITER": 1
+        },
+        "leases": 43,
+        "metadata": 36243990,
+        "queued": 802653,
+        "staging": 67561361
+      }
+    },
+    "negativeCases": 20,
+    "negativeScope": "in-memory-derived-witness",
+    "seconds": 113.071,
+    "simultaneousSaturatedCallbacks": 176
+  },
+  "originalDevelopment": {
+    "path": "docs/v5x/v5.3/phase3-evidence/carried-application-transients-development.json",
+    "sha256": "29d6fdd82d594f411660aca7086042d1e807770b32de4624f5bc3782fc37cf0a"
+  },
+  "originalPreserved": true,
+  "originalSource": {
+    "path": "target/v53-carried-application-custody/producer/source.json",
+    "sha256": "f4323b84b93049226fdebaa56d2e50d0b426a0c2980546d18bba79d13ad4be11"
+  },
+  "phase3Complete": false,
+  "retainedReader": {
+    "independentSummary": {
+      "path": "target/v53-native-application-overlap/reference-summary.json",
+      "sha256": "82af73fccca2775feedf89757c5b4b78dd396bd345f221162e3e62f247bb796a"
+    },
+    "inventory": {
+      "path": "target/v53-native-application-overlap/retained-inventory.json",
+      "sha256": "8e808b48ad63e5790df9edc92a998cafdee0592120ebb7d9aaf1a99c4e55e4fe"
+    },
+    "log": {
+      "path": "target/v53-native-application-overlap/retained-replay.log",
+      "sha256": "622671660b7ab6cb0ef0492b6f3b5e47353f007d2c3a36ff0fac1c1fe11214a8"
+    },
+    "receipt": {
+      "path": "target/v53-native-application-overlap/qualification/receipt.json",
+      "sha256": "647ab9aab1b28449aab7e130707abcf566de8deaebca44d1e1fc08576c027512"
+    },
+    "result": {
+      "path": "target/v53-native-application-overlap/qualification/qualification.json",
+      "sha256": "114e45a2dff55174a7acd14a5352e7d671161a49d6536574e5fdd830ec54e49f"
+    },
+    "script": {
+      "path": "target/v53-native-application-overlap/replay-retained.py",
+      "sha256": "0608a866209ed341d020d379df94a8c010109c6f61feff29c1f9955767dd1cbd"
+    },
+    "summary": {
+      "path": "target/v53-native-application-overlap/retained-summary.json",
+      "sha256": "bc4f619f2d92d247a3357d19631d5e7491fdec8f821ac7c393de06980afa5a4e"
+    }
+  },
+  "schema": "gse-v53-native-application-overlap-development-v1",
+  "scope": "nonempty physical owner counts at the same callback of a retained development application-ACK original",
+  "status": "PARTIAL",
+  "tests": {
+    "assertionsDisabled": {
+      "count": 15,
+      "log": {
+        "path": "target/v53-native-application-overlap/optimized-tests.log",
+        "sha256": "a2dc3c137a58e07b1fd7b3c8f9e51920dcf77b1e278bedb9dc1292f27cdb7160"
+      }
+    },
+    "documentation": {
+      "path": "target/v53-native-application-overlap/contract.json",
+      "sha256": "78147b47fb67bb0ebe7e9134e5fb010dd94c3b4cbd851b8f7bad660524474aec"
+    },
+    "related": {
+      "count": 69,
+      "log": {
+        "path": "target/v53-native-application-overlap/related-tests.log",
+        "sha256": "639ab0dee8c6deb8e9c26c35aa02d38329c1bd57f53becb6a1011c2bb80d4b13"
+      }
+    },
+    "suitesOverlap": true
+  },
+  "wholeRuntimeResourcesQualified": false
+}

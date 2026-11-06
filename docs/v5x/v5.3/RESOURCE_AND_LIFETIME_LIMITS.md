@@ -284,6 +284,13 @@ Physical replay checks every copy, the failed packet's retained charge and
 release after cleanup. Full metadata maximum and admitted FINAL/publication
 completion under combined pressure remain separate, unclosed obligations.
 
+The [native application overlap reader](PHASE_3_NATIVE_APPLICATION_OVERLAP.md)
+additionally binds simultaneous nonempty GENERATION/SOURCE/APPLICATION owner
+counts to one original callback and its exact live charges. Independent peak
+callbacks are retained separately; reservations and empty paths cannot be counted
+as physical bytes or nonempty owners. This remains development count-overlap
+evidence, not byte-limit saturation, refusal or full native envelope admission.
+
 The [opt-in transition pressure probe](PHASE_3_COMBINED_RESOURCE_PROBE.md) retains
 a failed original at the seven-image floor-copy boundary. Its external receiving
 copies deliberately outlive the native controllers; normal-runtime reachability

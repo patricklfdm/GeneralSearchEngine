@@ -30,7 +30,7 @@ missing do not undo later implementations.
 | Remaining work | Existing prerequisite | Evidence still needed |
 | --- | --- | --- |
 | Native component coverage | Twelve implemented source-bound catalogues; carried-transition v4 has fourteen histories | Actual complete source-bound originals; all twelve carried crash axes at matching capture/admission scope |
-| Combined resources | Native ownership/readers and conditional capacity-completion v4 | Feasible simultaneous native overlap, at/over-bound refusal, admitted completion and full operation-231 continuation |
+| Combined resources | Native ownership/readers, [same-callback nonempty counts](PHASE_3_NATIVE_APPLICATION_OVERLAP.md) and conditional capacity-completion v4 | Feasible combined byte boundary, at/over-bound refusal, admitted completion and full operation-231 continuation on final-source originals |
 | Requirement coverage | Twenty exact witnesses and complete source negative catalogue | Original-derived applicability and rejection evidence for each Phase 3 requirement |
 | Cohort admission | Seed, whole-history replay, workflow observer and attested entries | Complete actual source/build/toolchain set, exact attempts and failed-history review |
 | Final execution | 564 histories, 258 execution groups, 498 raw archives and 540 selected jobs | Final-source execution plus independent downloaded replay; not inferred from component runs |

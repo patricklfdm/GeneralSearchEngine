@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Native application resource overlap](PHASE_3_NATIVE_APPLICATION_OVERLAP.md)
+now measures nonempty GENERATION/SOURCE/APPLICATION counts at the same original
+callback, with complete owner/sequence/physical-inventory binding. This supplements
+the existing original-first verifier; byte saturation, refusal/completion and
+final-source resource qualification remain OPEN.
+
 The current [v4 carried-transition catalogue](PHASE_3_CARRIED_APPLICATION_COHORT.md)
 adds all four application-ACK halt/SIGKILL combinations to the ten existing
 histories, with nine captured families and 268 exact negatives per new original.
