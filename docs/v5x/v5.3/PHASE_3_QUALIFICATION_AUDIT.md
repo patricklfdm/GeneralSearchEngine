@@ -1,5 +1,11 @@
 # Phase 3 qualification inventory and remaining work
 
+Use the concise [current entry and closure checklist](PHASE_3_ENTRY_PLAN.md)
+for the twelve obligations, five gaps and acceptance order. The former entry's
+complete text is retained byte-for-byte in
+[development history](PHASE_3_DEVELOPMENT_HISTORY.md); its earlier pending-work
+statements are historical, not overrides of subsequent implementation or gates.
+
 [Maximum-image source-bound execution](PHASE_3_MAXIMUM_TRANSITION_EXECUTION.md)
 now supplies one immutable whole-history producer and independent downloaded
 replay with sixteen exact negatives. The manual-only workflow selects a
