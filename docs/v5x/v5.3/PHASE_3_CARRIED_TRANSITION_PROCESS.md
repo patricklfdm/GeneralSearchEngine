@@ -194,7 +194,7 @@ name an independently derived original intent, its actual recording trace,
 unselected recipient and bounded write interval. Unanswered heartbeat requests
 are also retained separately. Other unexplained unanswered requests are refused.
 
-The [network development index](phase3-evidence/carried-transition-network.json)
+The [network development index](phase3-evidence/carried-transition-process-network.json)
 binds the same FINAL and INTENT originals, with 751/1,109 responses and 760/1,125
 request writes respectively. The 9/16 unanswered attempts remain distinct from
 ACKs. Twenty exact wire/event mutations per original reject after the unchanged

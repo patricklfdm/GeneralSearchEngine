@@ -1,0 +1,246 @@
+{
+  "base": "275adf82e208040fbce84c912497c743e379de21",
+  "declaredProcessCases": 8,
+  "executedOriginalProcessCases": 2,
+  "hostedExecuted": false,
+  "limitations": [
+    "Transfer framing, original bytes and control ACKs do not establish every exporter capability lifetime or maintenance source inventory.",
+    "Full force/transient-byte replay, complete scratch inventory and application-ACK crash recovery remain open.",
+    "Six declared process histories remain unexecuted; final-source hosted admission and complete resource closure remain open."
+  ],
+  "newNativeExecutions": 0,
+  "originals": [
+    {
+      "bytes": 34504046,
+      "cut": "PROOF_RENAMED",
+      "files": 5688,
+      "inventory": {
+        "path": "target/v53-carried-transition-network/final-inventory.json",
+        "sha256": "a14e2872e9b62e092de9a02734648800ff7b6ad6a00c9ed5b5933ae1224a8eaf"
+      },
+      "kind": "FINAL",
+      "mode": "kill",
+      "negativeCases": 20,
+      "network": {
+        "boundInstallReplies": 5,
+        "boundPhaseResponses": 17,
+        "committedTransfers": 229,
+        "completeSlotStorageCallbacks": 700,
+        "exactTransferRetries": 0,
+        "exchanges": 751,
+        "exportAuthorityQualified": false,
+        "fullWireReplay": false,
+        "futureTargets": 3,
+        "heartbeatReplies": 11,
+        "heartbeatSamples": 4,
+        "interruptedVoteReplies": 2,
+        "originalGrants": 8,
+        "ownedSlotTransactions": 5,
+        "phase3Complete": false,
+        "proposerInstallations": 3,
+        "rejectedTransferAttempts": 0,
+        "requests": 760,
+        "scope": "carried-transition-network-components",
+        "silent": [
+          {
+            "attempts": 3,
+            "kind": "FUTURE_RETENTION_INTENT"
+          },
+          {
+            "attempts": 3,
+            "kind": "FUTURE_RETENTION_INTENT"
+          },
+          {
+            "attempts": 3,
+            "kind": "FUTURE_RETENTION_INTENT"
+          }
+        ],
+        "silentRequests": 9,
+        "slots": 2,
+        "status": "PARTIAL",
+        "statusReplies": 24,
+        "transferSessions": 113,
+        "transferredBytes": 2022478
+      },
+      "newNativeExecution": false,
+      "originalUnchanged": true,
+      "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-2c0544f6-6c32-474e-a0ed-394c348ae6ef",
+      "portable": {
+        "path": "target/v53-carried-transition-network/final-portable.json",
+        "sha256": "70d827c7b17b3666d547eeee0b3dbe5ee021ba41a8b5bf052c785f3290b1ce7b"
+      },
+      "producerSource": "77c851f22770ef445413615db22c91dc5a3141cf",
+      "progress": {
+        "path": "target/v53-carried-transition-network/final-qualify.stderr",
+        "sha256": "624dc791cacc0556d1bb3839e378039ae75eeeb1806410a6bda86cfeea7278ea"
+      },
+      "qualification": {
+        "path": "target/v53-carried-transition-network/final-qualify.json",
+        "sha256": "6a8e2eb1ea1e66eff58abe1bcce686303a2e66138f127e19af4c700a17235d3d"
+      }
+    },
+    {
+      "bytes": 33638420,
+      "cut": "ACCEPT_RENAMED",
+      "files": 5042,
+      "inventory": {
+        "path": "target/v53-carried-transition-network/intent-inventory.json",
+        "sha256": "2d123456292889812ed26738cdb13cc344f2da73feede372467c36b419b30838"
+      },
+      "kind": "INTENT",
+      "mode": "halt",
+      "negativeCases": 20,
+      "network": {
+        "boundInstallReplies": 7,
+        "boundPhaseResponses": 29,
+        "committedTransfers": 339,
+        "completeSlotStorageCallbacks": 1120,
+        "exactTransferRetries": 0,
+        "exchanges": 1109,
+        "exportAuthorityQualified": false,
+        "fullWireReplay": false,
+        "futureTargets": 5,
+        "heartbeatReplies": 15,
+        "heartbeatSamples": 6,
+        "interruptedVoteReplies": 0,
+        "originalGrants": 11,
+        "ownedSlotTransactions": 8,
+        "phase3Complete": false,
+        "proposerInstallations": 4,
+        "rejectedTransferAttempts": 0,
+        "requests": 1125,
+        "scope": "carried-transition-network-components",
+        "silent": [
+          {
+            "attempts": 2,
+            "kind": "FUTURE_RETENTION_INTENT"
+          },
+          {
+            "attempts": 3,
+            "kind": "FUTURE_RETENTION_INTENT"
+          },
+          {
+            "attempts": 1,
+            "kind": "HEARTBEAT"
+          },
+          {
+            "attempts": 3,
+            "kind": "FUTURE_RETENTION_INTENT"
+          },
+          {
+            "attempts": 3,
+            "kind": "FUTURE_RETENTION_INTENT"
+          },
+          {
+            "attempts": 1,
+            "kind": "HEARTBEAT"
+          },
+          {
+            "attempts": 3,
+            "kind": "FUTURE_RETENTION_INTENT"
+          }
+        ],
+        "silentRequests": 16,
+        "slots": 3,
+        "status": "PARTIAL",
+        "statusReplies": 34,
+        "transferSessions": 167,
+        "transferredBytes": 2334886
+      },
+      "newNativeExecution": false,
+      "originalUnchanged": true,
+      "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-8375ac2d-af1b-41df-b46d-900f6e2e5060",
+      "portable": {
+        "path": "target/v53-carried-transition-network/intent-portable.json",
+        "sha256": "03ddc09c66b7f0d1940b5fd1c3b3bdca8abda159660261c6e8bba434f26a69f5"
+      },
+      "producerSource": "77c851f22770ef445413615db22c91dc5a3141cf",
+      "progress": {
+        "path": "target/v53-carried-transition-network/intent-qualify.stderr",
+        "sha256": "624dc791cacc0556d1bb3839e378039ae75eeeb1806410a6bda86cfeea7278ea"
+      },
+      "qualification": {
+        "path": "target/v53-carried-transition-network/intent-qualify.json",
+        "sha256": "045b68153a1c4878a9dcaf95df1184fb412f608ca057909b6b475cbc7776f405"
+      }
+    }
+  ],
+  "paidCloud": false,
+  "phase3Complete": false,
+  "pushed": false,
+  "readerDevelopmentFailures": [
+    {
+      "path": "target/v53-carried-transition-network/final-first.stderr",
+      "sha256": "f72ed1197aa3aa03201c87b5f606730cd5f99ff934acf01e8bb26b48dfd12d3a"
+    },
+    {
+      "path": "target/v53-carried-transition-network/final-network-only.stderr",
+      "sha256": "f5b046f77e8bd0cecabb2dec25658a0589e33b9b2c47c123dc2f6987ca16fde0"
+    }
+  ],
+  "schema": "gse-v53-carried-transition-process-network-development-v1",
+  "sourceFiles": [
+    {
+      "path": "scripts/v53/native_carried_transition_network.py",
+      "sha256": "1eacfde8711815f30d9d70e2489a9204f75782bb5a8ac275fbd018e3bc509f0e"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_transition_network.py",
+      "sha256": "73af19242f03c79070cf66455d195c1cc1f43544a0b42a0fc19c2ffe9db11712"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_forces.py",
+      "sha256": "d1a3c0849fd54321734a5390b441839d4ce43cf42533647ceb93b7720e8b56e5"
+    },
+    {
+      "path": "scripts/v53/native_carried_network.py",
+      "sha256": "d34738b26a66b66a55579a19b53065067bae141fac0afe0138196aaa33f24134"
+    },
+    {
+      "path": "scripts/v53/node_owner_network.py",
+      "sha256": "bed0bb9992df288111a04da8cec33e2045357706e34fb0ec6545826989bd23e6"
+    },
+    {
+      "path": "scripts/v53/remove_network_evidence.py",
+      "sha256": "073fe45eec10c7b428c0822868ad5a5cc4af18d3682adcbb5090df986459ce78"
+    },
+    {
+      "path": "scripts/v53/joining_phase_evidence.py",
+      "sha256": "e3ad070ae4ff40825eb97c45f9e130b830de39f7ac82e5cab8e44cba82f1c244"
+    },
+    {
+      "path": "scripts/v53/joining_transcript.py",
+      "sha256": "18deea88b6bb9837757aae36d2c1781ea49beb157483d0ff13ed0e359131b93a"
+    }
+  ],
+  "status": "PARTIAL",
+  "unchangedCatalogue": {
+    "archives": 486,
+    "executionGroups": 246,
+    "histories": 552,
+    "subsets": 12,
+    "workflowJobs": 516
+  },
+  "validation": {
+    "networkNegativeCases": 40,
+    "newRegressionTests": 10,
+    "optimizedPythonTests": 21,
+    "optimizedUnit": {
+      "path": "target/v53-carried-transition-network/unit-optimized.log",
+      "sha256": "1a046e39b1bca734d4329433e75e1def31c8ee7f9b79dfded9eb9fd1dc193175"
+    },
+    "portable": {
+      "path": "target/v53-carried-transition-network/portable.json",
+      "sha256": "1264d2aa79d14a26bf38e4063808629e18798137935aea61fe9bc41be414c2bc"
+    },
+    "portableDriver": {
+      "path": "target/v53-carried-transition-network/portable.py",
+      "sha256": "1fdd7e562840917623a3b5bcf0081ddd171e9a5b53782c1fcc5c35f9e70c84af"
+    },
+    "relatedPythonTests": 103,
+    "unit": {
+      "path": "target/v53-carried-transition-network/unit-related.log",
+      "sha256": "5301567bc301b56a234cad07551943ce59393e2b1215016eac7a5f6dfdc1ec42"
+    }
+  }
+}
