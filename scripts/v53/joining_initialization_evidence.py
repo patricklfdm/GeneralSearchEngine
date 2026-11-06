@@ -153,9 +153,19 @@ def retained_order(events, *, joining):
         'SOURCE_IMAGE_CREATED', 'SOURCE_IMAGE_PREFIX_WRITTEN', 'SOURCE_IMAGE_WRITTEN', 'SOURCE_IMAGE_FORCED',
         'SOURCE_FILES_DIRECTORY_FORCED', 'SOURCE_DIRECTORY_FORCED', 'BASIS_BEFORE_WRITE', 'BASIS_PREFIX_WRITTEN', 'BASIS_WRITTEN', 'BASIS_FORCED',
         'CAPTURE_INTENT_DELETED', 'CAPTURE_INTENT_CLEARED', 'GRANT_BEFORE_RETURN', 'FLOOR_COPY_BEFORE_RETURN']
-    need([v for _, v in rows['retaining-owner']] == recovery+allocator+grant, 'joining initialization original first grant order')
-    need([v for _, v in rows['repeated-basis-owner']] == recovery+['CURRENT_BEFORE_CAPTURE']+allocator,
-         'joining initialization original repeated basis order')
+    for scope, operations, reason in (
+        ('retaining-owner', allocator+grant, 'joining initialization original first grant order'),
+        ('repeated-basis-owner', ['CURRENT_BEFORE_CAPTURE']+allocator, 'joining initialization original repeated basis order'),
+    ):
+        # Optional observation wraps the actual journal after recovery and before
+        # close. Do not drop arbitrary markers: accept only the exact complete
+        # wrapper, retaining every protocol force and its original position.
+        # The resource reader separately binds these markers to lease releases.
+        actual = [v for _, v in rows[scope]]
+        plain = recovery+operations
+        observed = recovery+['JOINING_OWNER_OPEN_RETURNED']+operations+[
+            'JOINING_OWNER_CLOSE_BEGIN', 'JOINING_OWNER_CLOSE_RETURNED']
+        need(actual == plain or actual == observed, reason)
 
 
 def confirm_old_learners(root, owner, group, *, replay, voters):

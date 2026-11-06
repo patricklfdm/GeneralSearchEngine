@@ -33,6 +33,34 @@ def fixture(completed=False):
 
 
 class ControlCloseEvidenceTest(unittest.TestCase):
+    def test_reusable_round_and_slot_labels_are_not_unique_cleanup_handles(self):
+        data=fixture();rows=data[0]['node-1']['changes']
+        for name in ('native-round-owner','native-slot-owner','slot-payload','round-input'):
+            for _ in range(2):
+                value=charge('CONTROL',name,10)
+                rows.extend([dict(event='RESERVE',added=[value],removed=[]),dict(event='RELEASE',added=[],removed=[value])])
+        data[0]['node-1']=recount(rows);result=r.replay(*data[:2])
+        self.assertEqual(3,result['cleanupIntervals'])
+        self.assertEqual(4,len(result['owners']['node-1']['lifetimes']))
+        self.assertFalse(result['wholeRuntimeResourcesQualified'])
+
+    def test_reusable_protocol_label_cannot_supply_a_cleanup_parent_or_child(self):
+        for parent in (False,True):
+            data=fixture();value=charge('CONTROL','native-round-owner',10);rows=data[0]['node-1']['changes']
+            rows.extend([dict(event='RESERVE',added=[value],removed=[]),dict(event='RELEASE',added=[],removed=[value])])
+            data[0]['node-1']=recount(rows)
+            data[1]['node-1']['rows'][0]['owner' if parent else 'children']='native-round-owner' if parent else ['native-round-owner']
+            with self.subTest(parent=parent),self.assertRaises(ValueError):r.replay(*data[:2])
+
+    def test_service_export_and_unknown_handle_reuse_still_fails(self):
+        for name in ('transfer-service-reused','source-session-reused','source-export-reused','native-round-owner-extra','unknown-control'):
+            data=fixture();rows=data[0]['node-1']['changes']
+            for _ in range(2):
+                value=charge('CONTROL',name,10)
+                rows.extend([dict(event='RESERVE',added=[value],removed=[]),dict(event='RELEASE',added=[],removed=[value])])
+            data[0]['node-1']=recount(rows)
+            with self.subTest(name=name),self.assertRaisesRegex(ValueError,'reused allocation'):r.replay(*data[:2])
+
     def test_actual_active_and_completed_intervals_have_different_nesting(self):
         for completed in (False,True):
             result=r.component(*fixture(completed));self.assertEqual(3,result['cleanupIntervals'])

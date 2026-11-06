@@ -37,7 +37,7 @@ is rejected. Failure retains the original, without a measurement retry.
 [`required_four_resource_run.py`](../../../scripts/v53/required_four_resource_run.py)
 accepts only `V53JoiningIntentExportTest#requiredFourVotersCompleteReplacementFinalAndStableBarrier`
 with all ten observation properties enabled: `joining.requiredFour`,
-`publication.resources`, `resource.transitions`, `transport.connections`,
+`publication.resources`, `resource.transitions`, `transport.connections`, `transport.unsent`,
 `resource.storage.transfers`, `resource.owner.close`, `resource.joined.close`,
 `resource.source.control`, `resource.control.close`, and `resource.export.ownership`. A prefix, missing flag, extra JUnit test, skipped
 test or Surefire rerun is rejected. Full source, generated classes, reader code,
@@ -111,3 +111,12 @@ After development, an authorized hosted execution must produce a new complete
 history on the corrected source and obtain all 89 exact negatives. The final
 Phase 3 audit must bind that result to its complete source cohort; the entry's
 existence or its orchestration tests do not close that requirement.
+
+The later [complete local integration](PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md#local-complete-integration-and-observer-order-correction)
+executed successfully once, but its pinned reader rejected the added journal
+open/close observations. The corrected-reader replay exposed omitted unsent
+attempts and two narrower reader gaps. Both failed complete replays and the
+scoped follow-up checks are retained separately. The producer now requires
+unsent observation, including failed pre-connect allocations. Missing original
+observations cannot be reconstructed or credited by a successful later retry.
+This does not replace corrected-source cohort admission.

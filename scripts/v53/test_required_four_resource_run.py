@@ -68,7 +68,7 @@ class RequiredFourResourceRunTest(unittest.TestCase):
     def test_exact_method_flags_and_no_short_retry_or_budget_override(self):
         command=m.command(m.PROFILE)
         self.assertEqual('-Dtest='+m.CLASS+'#'+m.METHOD,next(v for v in command if v.startswith('-Dtest=')))
-        for option in ('joining.requiredFour','publication.resources','resource.transitions','transport.connections','resource.storage.transfers','resource.owner.close','resource.joined.close','resource.source.control','resource.control.close','resource.export.ownership'):
+        for option in ('joining.requiredFour','publication.resources','resource.transitions','transport.connections','transport.unsent','resource.storage.transfers','resource.owner.close','resource.joined.close','resource.source.control','resource.control.close','resource.export.ownership'):
             self.assertIn('-Dv53.'+option+'=true',command)
         self.assertFalse(any('retry' in v.lower() or 'timeout' in v.lower() or 'skipTests' in v for v in command))
         for wrong in ('stable','5-REPLACE','3-ADD',True):
@@ -83,6 +83,10 @@ class RequiredFourResourceRunTest(unittest.TestCase):
             p=raw/directory/'index.json';data=p.read_bytes();p.unlink()
             with self.assertRaisesRegex(ValueError,'missing capture'):m.collect(raw,m.PROFILE)
             p.write_bytes(data)
+
+    def test_historical_command_without_unsent_observation_cannot_be_admitted(self):
+        self.edit('receipt.json',lambda value:value['command'].remove('-Dv53.transport.unsent=true'))
+        with self.assertRaisesRegex(ValueError,'exact complete command'):m.member(self.path,m.PROFILE,self.pins)
 
     def test_original_and_existing_output_cannot_be_overwritten(self):
         raw=m.locate(self.path/'workspace',m.PROFILE);out=self.root/'collection.json';m.collect_to(out,raw,m.PROFILE)

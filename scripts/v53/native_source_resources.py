@@ -111,8 +111,13 @@ def replay(events,wires,traces,boundaries,identities,root,*,require_complete=Tru
     for pos,event in enumerate(events):
         if event.get('event') not in network.SENDS|{'NETWORK_UNSENT_FAILED'}:continue
         kind,q=network.t.wire(event['bytes'])
-        if kind not in ('CHUNK','TRANSFER_COMMIT'):continue
+        if kind not in ('CHUNK','TRANSFER_COMMIT','STATUS_PROBE'):continue
         raw=base64.b64decode(event['bytes'],validate=True);h=component.physical.e.digest(raw)
+        # Learner discovery owns its STATUS_PROBE through the same logical
+        # request buffer as ROOT acquisition. Ordinary status callers do not.
+        # Match the exact original sender/digest; never infer a source buffer
+        # from frame size or assign an unobserved reservation to a later retry.
+        if kind=='STATUS_PROBE' and not by_type.get((q['sender']['node'],'source-request',h)):continue
         need(event['node']==q['sender']['node'] and q['root']==root and q['sender']==identities.get(event['node']) and
              q['recipient'] in identities.values() and event['request']==h and event['kind']==kind,'native source resources original request')
         if event['event']=='NETWORK_UNSENT_FAILED':

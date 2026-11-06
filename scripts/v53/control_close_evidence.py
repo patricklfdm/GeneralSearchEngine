@@ -23,6 +23,10 @@ DIRECT_EVENTS={phase+'_BORROW_'+event:(phase,event) for phase in DIRECT_ROLES
                for event in ('ACQUIRED','CLOSE_BEGIN','RETURNED')}
 PROBE_EVENTS={'PROBE_BORROW_ACQUIRED','PROBE_BORROW_CLOSE_BEGIN','PROBE_BORROW_RETURNED'}
 EXPORT_EVENTS=frozenset(DIRECT_EVENTS)|ROLLBACK_EVENTS|PROBE_EVENTS
+# These protocol buffers reuse a label after release across slots/campaigns.
+# The full journal still checks every reservation, but they are not source
+# cleanup/export handles and cannot supply a parent, child or close interval.
+PROTOCOL_LABELS=frozenset(('native-round-owner','native-slot-owner','slot-payload','round-input'))
 
 
 def role(owner):
@@ -54,12 +58,12 @@ def allocations(trace):
     for row in trace['changes']:
         if row['event']=='RESERVE':
             for value in row['added']:
-                if value['unit']!='CONTROL':continue
+                if value['unit']!='CONTROL' or value['owner'] in PROTOCOL_LABELS:continue
                 name=value['owner'];need(name not in result,'control close reused allocation')
                 result[name]=dict(start=row['sequence'],end=None)
         elif row['event']=='RELEASE':
             for value in row['removed']:
-                if value['unit']=='CONTROL':result[value['owner']]['end']=row['sequence']
+                if value['unit']=='CONTROL' and value['owner'] not in PROTOCOL_LABELS:result[value['owner']]['end']=row['sequence']
     return result
 
 

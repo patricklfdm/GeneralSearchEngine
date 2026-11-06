@@ -8,7 +8,9 @@ Phase 3 and the combined byte/resource envelope remain OPEN.
 
 ## Collection and original-first admission
 
-The producer additionally enables `v53.resource.source.control`,
+The producer enables `v53.transport.unsent` alongside connection observations
+so every allocated request that fails before SEND retains its original bytes,
+invocation and failure terminal. It additionally enables `v53.resource.source.control`,
 `v53.resource.control.close` and `v53.resource.export.ownership`. These existing
 fixture options apply to the original network owners and the joining pool.
 Collection requires `control-close-captures/index.json` alongside the resource
@@ -71,8 +73,60 @@ configuration failure remains retained. The corrected stable run omits only this
 required-four-specific observation; no reader rule or required-four flag is relaxed.
 All 237 related Python tests and 52 optimized-mode tests pass.
 Detailed logs and hashes are retained under `target/v53-required-four-export-entry/`.
-The complete corrected-source required-four run remains deferred to the hosted
-batch. No long original, source identity or historical evidence is relabelled.
+The complete source-bound qualification remains deferred to the hosted batch.
+The later local integration below retains its own source and outcome; it does
+not relabel earlier evidence or satisfy final-source admission.
+
+## Local complete integration and observer-order correction
+
+One complete local original at `97e86afcfe125740931733abef9db790342b9325`
+executed once in 1,506.534 seconds, with one passing JUnit test and no retries.
+It reached FINAL and the new stable barrier at index 11 and cold-reopened the
+joining voter. All capture flags above were enabled. Its 7,020 files comprise
+125,500,316 bytes, including 38,816 event boundaries and five joining owner
+lifetimes. These are producer observations, not independent acceptance.
+
+The original pinned-reader verification failed at
+`joining initialization original first grant order`: the earlier exact sequence
+did not recognize the new journal open/close observations. The correction accepts
+either the unchanged historical sequence or that exact sequence wrapped by
+`JOINING_OWNER_OPEN_RETURNED` after recovery and the two close markers after the
+operation. It does not discard unknown markers or protocol events. Missing,
+duplicated, moved or foreign-owner observations still fail, as do missing or
+reordered durability events. The complete resource reader separately requires
+all five intervals and their exact lease releases.
+
+The corrected-reader replay then passed the physical/ledger prefix but failed
+strict source binding. Investigation found three discovery `STATUS_PROBE`
+buffers and eighteen reserved requests without send observations. Discovery
+status now uses exact original sender/digest, size, copied-buffer identity and
+lifetime matching; ordinary status calls do not invent source buffers. The
+eighteen other requests failed before SEND while `v53.transport.unsent` was
+disabled. The entry now mandates that existing observer flag. Those missing
+observations cannot be recreated from the old resource journal, nor matched to
+an equal-size or later successful request. Strict admission still fails that
+original; none of the 89 complete-entry negatives receives credit.
+
+A separately scoped downstream check exposed four reusable protocol labels
+(`native-round-owner`, `native-slot-owner`, `slot-payload`, `round-input`) in the
+cleanup handle index. These released-and-reacquired buffers are now kept out of
+that unique-handle index while the complete budget journal still validates
+them. They cannot supply a cleanup parent, child or interval. Service/export
+handle reuse and unknown duplicate names still fail. This does not qualify the
+protocol buffers' whole-runtime lifetimes.
+
+The unchanged original's cleanup/handle component now passes: 1,736 cleanup
+intervals, 786 sessions and 865 export handles (792 session, 72 direct, one probe),
+with no unattached export. Content/extent binding, complete source coverage,
+failed constructors and the full resource entry are separate obligations. This
+component result cannot override the missing-request failure.
+
+The retained original, both failed complete verifications and narrower diagnostic
+results are separate under `target/v53-required-four-integrated/`. The
+[development evidence index](phase3-evidence/required-four-integrated.json)
+records their hashes and scopes. Changed reader pins and a producer command
+missing unsent observation remain rejected by the source-bound entry. Final-source
+execution, the combined byte envelope and Phase 3 closure remain pending.
 
 Rollback removes this entry's three additional capture flags, required cleanup
 sidecar, strict export call/output and eighteen-case family together. Keep the

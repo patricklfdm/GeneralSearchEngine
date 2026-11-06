@@ -35,7 +35,7 @@ def command(profile):
     return ['-o','-B','-ntp','-f','reactor/pom.xml','-pl','../'+h.MODULE,'-am',
             '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+CLASS+'#'+METHOD,
             '-Dv53.joining.requiredFour=true','-Dv53.publication.resources=true',
-            '-Dv53.resource.transitions=true','-Dv53.transport.connections=true',
+            '-Dv53.resource.transitions=true','-Dv53.transport.connections=true','-Dv53.transport.unsent=true',
             '-Dv53.resource.storage.transfers=true','-Dv53.resource.owner.close=true',
             '-Dv53.resource.joined.close=true','-Dv53.resource.source.control=true',
             '-Dv53.resource.control.close=true','-Dv53.resource.export.ownership=true','test']

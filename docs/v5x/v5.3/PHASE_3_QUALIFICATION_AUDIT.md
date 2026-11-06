@@ -24,8 +24,16 @@ full metadata pressure or automatic runtime completion. All five gaps stay OPEN.
 [Complete required-four export admission](PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md)
 now requires source/control/export capture and exact session/direct/probe bindings
 on the same whole original. Eighteen allocation-proof negatives bring the entry
-to 89 cases. No complete new native original has run; full resource maxima and
-final-source admission remain OPEN.
+to 89 cases. A complete local original at `97e86afc` has now executed once in
+1,506.534 seconds. Its pinned reader rejected the new journal open/close markers;
+the [exact observer-order correction](PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md#local-complete-integration-and-observer-order-correction)
+and diagnostic replay retain that failed verification separately. A subsequent
+strict replay exposed unobserved pre-send requests; the entry now requires the
+existing unsent observer. Discovery STATUS buffer and reusable protocol-label
+readers are corrected with focused regressions. Narrow cleanup/handle replay
+passes, but missing original observations still block the complete resource
+entry and all 89 negatives. Full resource maxima and final-source admission
+remain OPEN.
 
 [Joining journal close intervals](PHASE_3_JOINING_OWNER_CLOSE.md) now bind all
 five joining owner lifetimes to actual open/close calls and resource sequences.
@@ -38,8 +46,9 @@ complete corrected-source native execution and Phase 3 closure remain pending.
 an immutable producer and independent downloaded replay for one complete
 required-four history. The original must pass physical/network/resource and
 file-custody checks before all 89 exact accounting/handoff/file/close/export negatives.
-The corrected-source native execution is deferred to the hosted batch; local
-orchestration and historical transport checks confer no native credit. This
+The corrected-source qualification is deferred to the hosted batch; local
+orchestration, historical transport and changed-reader diagnostic checks confer
+no final-source admission. This
 supplementary three-job entry changes no existing catalogue counts or limits.
 All five Phase 3 closure gaps remain OPEN.
 

@@ -1,0 +1,300 @@
+{
+  "baseHead": "49e7d5b7d23e76677e6ddbcf1bcb59a53bb3d1c4",
+  "cleanupHandleComponent": {
+    "cleanup": {
+      "childReferences": 2409,
+      "cleanupIntervals": 1736,
+      "phase3Complete": false,
+      "probeIntervals": 1,
+      "rollbackIntervals": 0,
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    },
+    "elapsedSeconds": 4.411,
+    "exports": {
+      "allExportFamiliesQualified": false,
+      "completeExportAllocationInventory": true,
+      "declaredSessionExportReleaseQualified": true,
+      "directFamilies": {
+        "ACTIVATION": 6,
+        "MAINTENANCE": 53,
+        "SELECTED": 13
+      },
+      "directOwnedAllocations": 72,
+      "exportContentExtentsQualified": false,
+      "failedConstructorExportsQualified": false,
+      "families": {
+        "joining-checkpoint-export": 3,
+        "joining-completion-export": 2,
+        "joining-intent": 2,
+        "joining-preparation-export": 1,
+        "joining-retention-export": 3,
+        "learner-root-export": 1,
+        "prefix-export": 240,
+        "record-export": 263,
+        "source-export": 42,
+        "vote-export": 229
+      },
+      "joiningExportRequestsQualified": false,
+      "ownedAllocations": 865,
+      "phase3Complete": false,
+      "probeFamilies": {
+        "prefix-export": 1
+      },
+      "probeOwnedAllocations": 1,
+      "revokedBeforeAttachment": 0,
+      "rollbackFamilies": {},
+      "rollbackOwnedAllocations": 0,
+      "scope": "observed-session-and-local-export-handles",
+      "sessionOwnedAllocations": 792,
+      "sessions": 786,
+      "status": "PASS",
+      "unattachedExports": [],
+      "wholeRuntimeResourcesQualified": false
+    },
+    "phase3Complete": false,
+    "scope": "original-cleanup-and-export-handle-components",
+    "sourceBoundAdmission": false,
+    "status": "PASS"
+  },
+  "combinedResourcesQualified": false,
+  "correctedReaderVerification": {
+    "elapsedSeconds": 302.996,
+    "failure": {
+      "message": "native source resources unobserved source reservations",
+      "type": "ValueError"
+    },
+    "originalProducerReceiptSha256": "442513e2c55882d93b7f6d4f3156d1cd4e4a41ec2f52be0847fb5dfecf41bffb",
+    "originalSource": "97e86afcfe125740931733abef9db790342b9325",
+    "phase3Complete": false,
+    "readerSha256": "2e354f9fa8088bfd3ec67eba1043ad3705c0ba10f76868d006c230aa9e4a7514",
+    "scope": "corrected-reader-development-replay",
+    "sourceBoundAdmission": false,
+    "status": "FAIL"
+  },
+  "native": {
+    "execution": {
+      "elapsedSeconds": 1506.534,
+      "exit": 0
+    },
+    "files": 7020,
+    "junit": {
+      "className": "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest",
+      "errors": 0,
+      "failures": 0,
+      "method": "requiredFourVotersCompleteReplacementFinalAndStableBarrier",
+      "retries": 0,
+      "skipped": 0,
+      "tests": 1
+    },
+    "originalPreserved": true,
+    "producerStatus": "PARTIAL",
+    "profile": "5-REPLACE-required-four",
+    "raw": "target/v53-required-four-integrated/producer/workspace/general-search-engine-replication/target/v53-native-dispatch/run-5fef5df1-f481-41d4-abc5-6f958c80aaa1",
+    "rawBytes": 125500316,
+    "rawInventorySha256": "e94c13bd86dacfeb304a8dd694edf9340d65632de631fd26e0ed8baa36471c23",
+    "source": "97e86afcfe125740931733abef9db790342b9325"
+  },
+  "originalPinnedVerification": {
+    "failure": {
+      "message": "joining initialization original first grant order",
+      "type": "ValueError"
+    },
+    "phase3Complete": false,
+    "profile": "5-REPLACE-required-four",
+    "schema": "gse-v53-required-four-resources-execution-v1",
+    "status": "FAIL"
+  },
+  "phase3Complete": false,
+  "productionJavaChanged": false,
+  "remaining": [
+    "new complete original with unsent observation on corrected source",
+    "all 89 original-first strict resource negatives",
+    "final-source cohort and broader resource/coverage obligations"
+  ],
+  "reports": [
+    {
+      "path": "target/v53-required-four-integrated/producer/receipt.json",
+      "sha256": "442513e2c55882d93b7f6d4f3156d1cd4e4a41ec2f52be0847fb5dfecf41bffb"
+    },
+    {
+      "path": "target/v53-required-four-integrated/producer/pins.json",
+      "sha256": "07708ddf4830b9703e9cb7936b958fbd1154451adf45225af0d231d856b05c28"
+    },
+    {
+      "path": "target/v53-required-four-integrated/producer/source.json",
+      "sha256": "f6d763303dd6f5e25e2a9084943f3ed88ed27927057c86549623c085a01ccade"
+    },
+    {
+      "path": "target/v53-required-four-integrated/producer/build.json",
+      "sha256": "fa3d26b2d28cb8a6e962dd49542f50e08a9d3715f3b5054435bf29e1e064b447"
+    },
+    {
+      "path": "target/v53-required-four-integrated/producer/toolchain.json",
+      "sha256": "9deaa07f3fb3c6b08277913428c76c011d239c880e6ba6f2d08d0ad7029cddb7"
+    },
+    {
+      "path": "target/v53-required-four-integrated/producer/reader.json",
+      "sha256": "8bdc96b9f959fdced1a76a9ed8875ccbeb709491fe20abb4b5eec5340f314b22"
+    },
+    {
+      "path": "target/v53-required-four-integrated/producer/collection.json",
+      "sha256": "e94c13bd86dacfeb304a8dd694edf9340d65632de631fd26e0ed8baa36471c23"
+    },
+    {
+      "path": "target/v53-required-four-integrated/capture.log",
+      "sha256": "c22b9dd008d94aad5cd1f8347d2a8e611906fdbbba45c5c4a833f0a72a3bf437"
+    },
+    {
+      "path": "target/v53-required-four-integrated/verify.log",
+      "sha256": "c2a1326abcbc7cfedb17887fe0eca9a70e878d322af66329a2e58275254eee89"
+    },
+    {
+      "path": "target/v53-required-four-integrated/verify-execution.json",
+      "sha256": "f227e7f28ea3d7407e06d034a6e4e6fb36b3b2a938be25905ba589541c504e23"
+    },
+    {
+      "path": "target/v53-required-four-integrated/qualification/receipt.json",
+      "sha256": "99d111ded9c4cdd279396cb47ba233e84166bb7d6f1d60640df570c7572445be"
+    },
+    {
+      "path": "target/v53-required-four-integrated/repaired-diagnostic.log",
+      "sha256": "6f7cacde9ebbc727e09cc26880b1906ee5d8e1aa46963288fe75980118e48289"
+    },
+    {
+      "path": "target/v53-required-four-integrated/repaired-diagnostic.json",
+      "sha256": "c293dae5cc97a2086b41fbc5bee9d1e20ab079e103a102c73dd422b4ec87b25d"
+    },
+    {
+      "path": "target/v53-required-four-integrated/diagnostic-admission-check.json",
+      "sha256": "39db6968288d06f804bb1917feafbd0c2ceb84738bfd4c81850587ad0828ee1d"
+    },
+    {
+      "path": "target/v53-required-four-integrated/source-reservation-diagnostic.json",
+      "sha256": "ff3f6c0302412228fc412e72f021dc902410f332e4ad4d977198464c65935827"
+    },
+    {
+      "path": "target/v53-required-four-integrated/unbound-request-events.json",
+      "sha256": "d12f5659065139fe0aed87e6d63a5d019cec71c0d3ede131424d26b6d67f8f55"
+    },
+    {
+      "path": "target/v53-required-four-integrated/source-reservation-corrected.json",
+      "sha256": "b71c7772076e6b3eaebac303f2b74c09f5e20d1cdaeee23e035ccac47a4597d6"
+    },
+    {
+      "path": "target/v53-required-four-integrated/source-reservation-corrected.log",
+      "sha256": "317fb4eb24751369c2a69053e048923d26d8f0ef43948046ffcf4244a3b2d4a9"
+    },
+    {
+      "path": "target/v53-required-four-integrated/control-close-component.json",
+      "sha256": "835294adc938f9ae8830ce93886055b6c78e97448c34e5243048950613ea9bc7"
+    },
+    {
+      "path": "target/v53-required-four-integrated/control-close-component.log",
+      "sha256": "c05d5b1b4414349ec2610708578ad1e1ec9e2f526c3deaa619de3d6580d6c5a1"
+    },
+    {
+      "path": "target/v53-required-four-integrated/close-regression-before.log",
+      "sha256": "26b03c4b3c895bd1a8e44bf1fccb95eda8c76b47eaa5fbc8198f0441d245f191"
+    },
+    {
+      "path": "target/v53-required-four-integrated/source-regression-before.log",
+      "sha256": "b5370b942e9ad8f3f57d9e3261c6735b7c63ad0211f66b17b610ecdd44ac62f8"
+    },
+    {
+      "path": "target/v53-required-four-integrated/control-close-before.log",
+      "sha256": "4208c38374c31685098dad9a551022b59715a54c5b30a9599acf99622b883ecb"
+    },
+    {
+      "path": "target/v53-required-four-integrated/final-regressions.log",
+      "sha256": "c676787577a9ad9d9dcb92933e4181fb7fc1bd2f637b2610fea21866cb27a3c5"
+    },
+    {
+      "path": "target/v53-required-four-integrated/final-optimized.log",
+      "sha256": "9255eff7e608a191e979f414b89ab356a75b2678d5aa8aacec936fa6a6a53b26"
+    },
+    {
+      "path": "target/v53-required-four-integrated/unsent-native-smoke.log",
+      "sha256": "b021f72f034bb26fd8b02a1c4f8c5ac2c7a4ce2cf29fdde6f1ea734c434e2cee"
+    },
+    {
+      "path": "target/v53-required-four-integrated/unsent-native-replay.json",
+      "sha256": "5d8c08e85ae1082ee5d9fc6ee5d749e8b303d47a28aa9ec3cb28165dcf050e50"
+    },
+    {
+      "path": "target/v53-required-four-integrated/unsent-native-negatives.json",
+      "sha256": "47de55b23f1aad9d703cc571d7e07a53fdf46c1db6585c6badfde3dbfbc039e9"
+    },
+    {
+      "path": "target/v53-required-four-integrated/unsent-native-negatives.log",
+      "sha256": "ac099755d184556f289db5704b97b5c1265c8b1382cb908b52e8d50878a10878"
+    },
+    {
+      "path": "target/v53-required-four-integrated/contracts.log",
+      "sha256": "e8b1d85bf6ff284dc3e84057545fe1f5c6fd5ff5ab6d3befd75c779256403d93"
+    },
+    {
+      "path": "target/v53-required-four-integrated/final-contract.json",
+      "sha256": "c45a1e18f4eaab2e0ab020ed69abce206811fe62d5a1a307c3011e28e2004e65"
+    },
+    {
+      "path": "target/v53-required-four-integrated/plan-final/receipt.json",
+      "sha256": "46c84e773da9208fb410d635a1aead6e6fb2500b1d698bf5bdbf68633a28e8cb"
+    },
+    {
+      "path": "target/v53-required-four-integrated/plan-final.log",
+      "sha256": "5831b8e36275da84da0e202da185f006cc2344cfe2957800ad1243ec23394286"
+    }
+  ],
+  "schema": "gse-v53-required-four-integrated-development-v1",
+  "sourceBindingDiagnostic": {
+    "completeOriginal": false,
+    "discoveryProbesNowBound": 3,
+    "remainingUnobservedRequests": 18,
+    "strictAdmission": false
+  },
+  "sourceBoundAdmission": false,
+  "sources": [
+    {
+      "path": "scripts/v53/joining_initialization_evidence.py",
+      "sha256": "926b8ce4bd3ac9c4f5de6b53ceadacc6596812eebec2733ab070a840d4f13f83"
+    },
+    {
+      "path": "scripts/v53/native_source_resources.py",
+      "sha256": "c03d7bdcad1031f42947b6373fe7cce6baf94b287e7a64327be86b19d123600a"
+    },
+    {
+      "path": "scripts/v53/control_close_evidence.py",
+      "sha256": "8e58fb1ffa023cd88a394674dbf6cd88d4e17ecb5758e24f209e41079438f2ca"
+    },
+    {
+      "path": "scripts/v53/required_four_resource_run.py",
+      "sha256": "f4af73831e573239a4dcfe6597ddbb13b745f30b01875d918ff1409b8f87676e"
+    },
+    {
+      "path": "scripts/v53/test_joining_profile_initialization_evidence.py",
+      "sha256": "d425e993b2793c04a3d20bc36c8bd8954548625119675d3d3431a0169d73ce9a"
+    },
+    {
+      "path": "scripts/v53/test_native_source_resources.py",
+      "sha256": "3fd729be98457d3b95c36db0c90cbb71e9adb58d3af5e78120b09b471ce8f460"
+    },
+    {
+      "path": "scripts/v53/test_control_close_evidence.py",
+      "sha256": "87789f7dbce38684a28f4037708fe7c911e277823fd8fe07c04883268206e957"
+    },
+    {
+      "path": "scripts/v53/test_required_four_resource_run.py",
+      "sha256": "c766f6594512e4e63550d44ce6def0fb7ebe9bdb25c254b7d76ebfa1aebb6442"
+    }
+  ],
+  "strictEntryNegativeCasesExecuted": 0,
+  "tests": {
+    "contractTests": 22,
+    "nativeUnsentCases": 4,
+    "nativeUnsentNegatives": 48,
+    "optimizedPython": 74,
+    "python": 327,
+    "shortNative": 8
+  }
+}

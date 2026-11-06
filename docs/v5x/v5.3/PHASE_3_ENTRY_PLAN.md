@@ -71,8 +71,10 @@ catalogue total:
   `5-REPLACE-required-four` original, including file handoff, five joining
   journal close intervals, network closes and complete session/direct/probe
   export bindings; all **89** exact negatives are required. It is a supplementary
-  three-job entry outside the twelve-subset count. Complete corrected-source
-  native qualification is still pending.
+  three-job entry outside the twelve-subset count. One complete local JVM run
+  passed, but strict replay exposed observer-order and missing-request evidence
+  gaps; the [integration corrections](PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md#local-complete-integration-and-observer-order-correction)
+  preserve those failures. Complete corrected-source qualification is pending.
 - [Maximum-image transition](PHASE_3_MAXIMUM_TRANSITION_EXECUTION.md): one exact
   67,108,832-byte image history, real same-pool receiver refusal, REMOVE/FINAL
   and stable continuation, followed by **16** exact negatives. Its manual-only

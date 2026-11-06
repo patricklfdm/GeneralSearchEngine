@@ -1,5 +1,6 @@
 """Native ownership policy and strict legacy/connection compatibility."""
 import copy
+import base64
 import unittest
 from unittest.mock import patch
 from . import native_source_resources as r
@@ -8,9 +9,97 @@ from . import native_source_resource_negatives as negatives
 from .test_source_control_resource_evidence import lifetime
 from .test_transport_resource_evidence import recount
 from .test_connection_transcript import trace,overlap
+from . import test_transport_resource_evidence as transport_fixture
+from .test_resource_transitions import charge
+
+
+def discovery_probe():
+    """One observed STATUS_PROBE with a source-owned logical request buffer."""
+    events,wires,identities,root=trace()
+    _,q=r.network.t.wire(wires[0]['request']);_,a=r.network.t.wire(wires[0]['response'])
+    q['payload']=dict(nonce=q['trace']);a['payload']=dict(reason='NOT_READY',promised=q['ballot'])
+    f=r.component.physical.e.f
+    request=f.encode('wire','STATUS_PROBE',q);response=f.encode('wire','REJECT',a)
+    digest=r.component.physical.e.digest(request);answer=r.component.physical.e.digest(response)
+    wires[0].update(request=base64.b64encode(request).decode(),response=base64.b64encode(response).decode())
+    for row in events:
+        row.update(kind='STATUS_PROBE',request=digest)
+        if 'bytes' in row:row['bytes']=wires[0]['request']
+        if 'response' in row:row.update(response=answer,responseKind='REJECT')
+    with patch.object(transport_fixture.network_fixture,'trace',return_value=(events,wires,identities,root)):
+        data=transport_fixture.fixture()
+    rows=data[2]['node-1']['changes']
+    logical=charge('CONTROL','source-request-'+digest+'-00000000-0000-0000-0000-000000000001',len(request))
+    rows.insert(1,dict(event='RESERVE',added=[logical],removed=[]))
+    rows.append(dict(event='RELEASE',added=[],removed=[logical]))
+    data[2]['node-1']=recount(rows)
+    for boundary in data[3]:
+        if boundary['node']=='node-1':
+            boundary['sequence']+=1;boundary['usage']=copy.deepcopy(rows[boundary['sequence']]['usage'])
+    return data
+
+
+def unsent_discovery_probe():
+    data=discovery_probe();sent=data[0][0];node=sent['node'];source=data[2][node]['changes'][1]['added'][0]
+    rows=[dict(event='START',added=[],removed=[]),dict(event='RESERVE',added=[source],removed=[])]
+    events=[];boundaries=[]
+    for i in range(2):
+        identifier=f'00000000-0000-0000-0000-{80+i:012d}'
+        copied=charge('CONTROL','transport-request-send-'+identifier,source['bytes'])
+        rows.extend([dict(event='RESERVE',added=[copied],removed=[]),dict(event='RELEASE',added=[],removed=[copied])])
+        events.append(dict(node=node,event='NETWORK_UNSENT_FAILED',invocation=identifier,reason='IO',
+                           request=sent['request'],kind=sent['kind'],bytes=sent['bytes']))
+        boundaries.append(dict(eventIndex=i,node=node,sequence=len(rows)-1))
+    rows.append(dict(event='RELEASE',added=[],removed=[source]));traces={node:recount(rows)}
+    for boundary in boundaries:boundary['usage']=copy.deepcopy(rows[boundary['sequence']]['usage'])
+    return events,[],traces,boundaries,data[4],data[5]
 
 
 class NativeSourceResourcesTest(unittest.TestCase):
+    def test_discovery_status_probe_binds_its_original_logical_request_and_copy(self):
+        data=discovery_probe();before=copy.deepcopy(data);result=r.replay(*data)
+        self.assertEqual(1,result['logicalRequests']);self.assertEqual(1,result['boundReservations'])
+        self.assertTrue(result['allObservedSourceBuffersBound']);self.assertEqual([],result['unobservedReservations'])
+        self.assertEqual(before,data)
+
+    def test_discovery_probe_cannot_borrow_another_request_hash_size_or_copy(self):
+        for mutation in ('hash','size','copy'):
+            data=discovery_probe();rows=data[2]['node-1']['changes']
+            for row in rows:
+                for value in row['removed']+row['added']:
+                    if value['owner'].startswith('source-request-'):
+                        if mutation=='hash':value['owner']='source-request-'+'f'*64+value['owner'][-37:]
+                        elif mutation=='size':value['bytes']+=1
+                    elif mutation=='copy' and value['owner'].startswith('transport-request-send-'):
+                        value['owner']='transport-request-send-00000000-0000-0000-0000-000000000099'
+            data[2]['node-1']=recount(rows)
+            for boundary in data[3]:
+                if boundary['node']=='node-1':boundary['usage']=copy.deepcopy(rows[boundary['sequence']]['usage'])
+            with self.subTest(mutation=mutation),self.assertRaises(ValueError):r.replay(*data)
+
+    def test_unobserved_original_request_stays_a_gap_even_when_size_matches(self):
+        data=discovery_probe();rows=data[2]['node-1']['changes'];other=copy.deepcopy(rows[1]['added'][0])
+        other['owner']=other['owner'][:-1]+'2'
+        rows.extend([dict(event='RESERVE',added=[other],removed=[]),dict(event='RELEASE',added=[],removed=[other])])
+        data[2]['node-1']=recount(rows)
+        with self.assertRaisesRegex(ValueError,'unobserved source reservations'):r.replay(*data)
+        self.assertEqual(1,len(r.replay(*data,require_complete=False)['unobservedReservations']))
+
+    def test_discovery_unsent_retries_bind_each_copy_to_one_logical_request(self):
+        data=unsent_discovery_probe();before=copy.deepcopy(data)
+        result=r.replay(*data);transport=r.frames.replay(*data)
+        self.assertEqual((1,2),(result['logicalRequests'],result['originalSourceAttempts']))
+        self.assertTrue(result['allObservedSourceBuffersBound']);self.assertEqual(2,len(transport['unsentAttempts']))
+        self.assertEqual(before,data)
+
+    def test_unsent_source_observations_cannot_be_omitted_or_borrow_a_later_copy(self):
+        for mode in ('missing','late-copy','hash'):
+            data=unsent_discovery_probe()
+            if mode=='missing':data[0].clear();data[3].clear()
+            elif mode=='late-copy':data[0][0]['invocation']=data[0][1]['invocation']
+            else:data[0][0]['request']='f'*64
+            with self.subTest(mode=mode),self.assertRaises(ValueError):r.replay(*data)
+
     def test_cancelled_logical_request_may_end_before_its_transport_copy(self):
         logical=dict(start=1,end=3,initial=1200,growth=[]);copied=dict(start=2,end=7,initial=1200,growth=[])
         r.request_handoff(logical,copied,1200)

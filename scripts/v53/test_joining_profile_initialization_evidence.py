@@ -102,6 +102,49 @@ class JoiningProfileInitializationEvidenceTest(unittest.TestCase):
             rows, joining = self.lifetimes(profile)
             with self.subTest(profile=profile):j.local_order(rows, joining=joining)
 
+    def observed_lifetimes(self, profile):
+        rows, joining = self.lifetimes(profile)
+        for scope in ('retaining-owner', 'repeated-basis-owner'):
+            at = next(i for i, row in enumerate(rows) if row['scope'] == scope and
+                      row['event'] == 'ACCEPT_ACTIVE_PARENT_FORCED') + 1
+            rows.insert(at, dict(node=joining, scope=scope, event='JOINING_OWNER_OPEN_RETURNED'))
+            at = max(i for i, row in enumerate(rows) if row['scope'] == scope) + 1
+            rows[at:at] = [dict(node=joining, scope=scope, event=event) for event in
+                          ('JOINING_OWNER_CLOSE_BEGIN', 'JOINING_OWNER_CLOSE_RETURNED')]
+        return rows, joining
+
+    def test_optional_close_observations_preserve_exact_recovery_and_grant_order(self):
+        for profile in e.PROFILES:
+            rows, joining = self.observed_lifetimes(profile)
+            with self.subTest(profile=profile):j.local_order(rows, joining=joining)
+
+    def test_close_observation_cannot_hide_missing_reordered_or_extra_protocol_events(self):
+        for profile in e.PROFILES:
+            for scope, event in (('retaining-owner', 'BASIS_FORCED'),
+                                 ('repeated-basis-owner', 'ALLOCATOR_FORCED')):
+                for mutation in ('missing', 'reordered', 'extra'):
+                    rows, joining = self.observed_lifetimes(profile)
+                    at = next(i for i, row in enumerate(rows) if row['scope'] == scope and row['event'] == event)
+                    if mutation == 'missing':rows.pop(at)
+                    elif mutation == 'reordered':rows[at-1], rows[at] = rows[at], rows[at-1]
+                    else:rows.insert(at, dict(rows[at], event='UNRECOGNIZED_PROTOCOL_EVENT'))
+                    with self.subTest(profile=profile, scope=scope, mutation=mutation), self.assertRaises(ValueError):
+                        j.local_order(rows, joining=joining)
+
+    def test_close_observations_must_be_complete_and_in_their_exact_lifetime_positions(self):
+        for scope in ('retaining-owner', 'repeated-basis-owner'):
+            for event in ('JOINING_OWNER_OPEN_RETURNED', 'JOINING_OWNER_CLOSE_BEGIN', 'JOINING_OWNER_CLOSE_RETURNED'):
+                for mutation in ('missing', 'duplicate', 'reordered', 'wrong-owner', 'unknown'):
+                    rows, joining = self.observed_lifetimes('5-REPLACE')
+                    at = next(i for i, row in enumerate(rows) if row['scope'] == scope and row['event'] == event)
+                    if mutation == 'missing':rows.pop(at)
+                    elif mutation == 'duplicate':rows.insert(at, dict(rows[at]))
+                    elif mutation == 'reordered':rows[at-1], rows[at] = rows[at], rows[at-1]
+                    elif mutation == 'wrong-owner':rows[at]['node'] = 'node-1'
+                    else:rows[at]['event'] = 'JOINING_OWNER_UNKNOWN'
+                    with self.subTest(scope=scope, event=event, mutation=mutation), self.assertRaises(ValueError):
+                        j.local_order(rows, joining=joining)
+
     def test_old_node_four_cannot_supply_joining_five_or_six_force(self):
         for profile in ('4-ADD', '4-REPLACE', '5-REPLACE'):
             rows, joining = self.lifetimes(profile); rows[0]['node'] = 'node-4'
