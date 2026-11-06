@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Interrupted application captures](PHASE_3_CARRIED_APPLICATION_PREFIXES.md) adds
+an explicit ACK-force crash sidecar and original-first file replay. It preserves
+the normal completion collector and does not qualify the remaining recovery
+capture families or the complete application cohort.
+
 [Application recovery resources](PHASE_3_CARRIED_APPLICATION_RESOURCES.md) adds
 original resource journals and close boundaries to the application-ACK recovery
 chain. Complete transient capture, cohort admission and Phase 3 closure remain

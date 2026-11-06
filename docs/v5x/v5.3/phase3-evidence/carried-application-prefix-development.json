@@ -1,0 +1,336 @@
+{
+  "acceptancePlan": {
+    "path": "docs/v5x/v5.3/acceptance-plan.json",
+    "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+  },
+  "base": "297e22946a287c6e1c16613cbe64947a7cf64bbc",
+  "cohortAdmitted": false,
+  "currentSources": [
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ApplicationCutCaptureTest.java",
+      "sha256": "3f9c64076523d8c5ce385d11295c2bb6ce5c04dde0f91a829eac34acdc40e937"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedApplicationPrefixProcessTest.java",
+      "sha256": "6abb49b658b33d76a146b63f1781c7d795c135a59a52f2bc5f694741f69ecc60"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessTest.java",
+      "sha256": "1b88a7b00a428b672a762819c5a2cc39f4f0aa130bb803a0e65392dfa81c7d5b"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessWorker.java",
+      "sha256": "6123292b560011379c9de5e723fd9c52a8a08c994767bff793d4657d6ed1aa96"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeResourceCapture.java",
+      "sha256": "4debbbb08df4f63b657d720095cc45f891dae69f4a33ac4f8e933cc18a240525"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RemoveRetirementCapture.java",
+      "sha256": "fb35f6fc1f65da61b7a77df43480cf6ea1ce615866dde5584eb1d3ac768995e5"
+    },
+    {
+      "path": "scripts/v53/native_carried_application_prefixes.py",
+      "sha256": "d2857f3a1e44e79062778b97ed518986a5329bd9a3a584c704cbf3278effcab9"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_application_prefixes.py",
+      "sha256": "6380f60abec3aa79c980a805e7360a53dbd4649dc1db535254918b07d41b455e"
+    }
+  ],
+  "existingIndexes": {
+    "count": 392,
+    "inventory": {
+      "path": "target/v53-carried-application-prefixes/historical-indexes.json",
+      "sha256": "b84bad66befd8844f3028214ae5bffcd1db421f6eaaa38f7cbefc626266bc88f"
+    },
+    "unchanged": true
+  },
+  "frozenParametersChanged": false,
+  "fullTransientBytesQualified": false,
+  "hostedExecuted": false,
+  "limitations": [
+    "Development snapshot records baseline 297e2294 plus four modified and four new capture/test/reader files. It is not an exact-commit or final-source hosted cohort.",
+    "Only FINAL/SIGKILL was executed for this new capture. Three other declared methods compiled but were not executed.",
+    "The sidecar qualifies only the first lifetime interrupted application writes; complete recovery transient families and physical charge binding remain pending.",
+    "No full reactor suite, hosted workflow, paid cloud, budget relaxation or workload retry was used. Earlier original evidence remains intact."
+  ],
+  "native": {
+    "build": {
+      "path": "target/v53-carried-application-prefixes/producer/build.json",
+      "sha256": "973ea36627912ff03176580d0a3b1c12951a0762599ee589f0194bfd2cde69a7"
+    },
+    "log": {
+      "path": "target/v53-carried-application-prefixes/producer/maven.log",
+      "sha256": "6b4e017c23e2cdc91f3757f74bd7a6b01683c2c626568f92c7ebc9ace38db929"
+    },
+    "producerReceipt": {
+      "path": "target/v53-carried-application-prefixes/producer/receipt.json",
+      "sha256": "4dcf31e2428fd45fefc9a46630c578556c791b2420d16e000957cc50d7d5f200"
+    },
+    "retries": 0,
+    "seconds": 621.22,
+    "source": {
+      "path": "target/v53-carried-application-prefixes/producer/source.json",
+      "sha256": "06f168d0795839bcb621921dd2b7b79acd06a32ffc49a0ec87f15ae2b471c759"
+    },
+    "sourceOrigin": {
+      "path": "target/v53-carried-application-prefixes/source-origin.json",
+      "sha256": "32a9afc8e2130beeede0ded4d8235744b22a176e0e728d92960d2b5bf9beafce"
+    },
+    "status": "PASS",
+    "suites": [
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53ApplicationCutCaptureTest",
+        "junit": {
+          "path": "target/v53-carried-application-prefixes/producer/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ApplicationCutCaptureTest.xml",
+          "sha256": "288412935f5885d87e12ab5ed24d0b21933e4fcb1230bae71b1a6c5c58f4e363"
+        },
+        "methods": [
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53ApplicationCutCaptureTest",
+            "name": "wrongOwnerMissingAckOtherOpenOwnerAndNormalReturnRefuse",
+            "time": "0.017"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53ApplicationCutCaptureTest",
+            "name": "wrongTerminalLifetimeAndLaterEventsCannotSealPrefix",
+            "time": "0.004"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53ApplicationCutCaptureTest",
+            "name": "explicitInterruptedTerminalCannotBeRelabelledAsNormalCompletion",
+            "time": "0.002"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53ApplicationCutCaptureTest",
+            "name": "anotherCollectorModeCannotClaimApplicationInterruption",
+            "time": "0.002"
+          }
+        ],
+        "tests": 4
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53CompletionPrefixCaptureTest",
+        "junit": {
+          "path": "target/v53-carried-application-prefixes/producer/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53CompletionPrefixCaptureTest.xml",
+          "sha256": "af837a54960a0dbc191ae4ee26ac3a536d72cde0323ec193b637696f3f899a74"
+        },
+        "methods": [
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53CompletionPrefixCaptureTest",
+            "name": "dataIntentAndFinalRetainOriginalApplicationAndPublicationPrefixes",
+            "time": "22.088"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53CompletionPrefixCaptureTest",
+            "name": "completedOwnersAndEmptyPreApplicationCrashKeepTheirOriginalTerminals",
+            "time": "0.003"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53CompletionPrefixCaptureTest",
+            "name": "installationOutsidePublicationIsNotRelabelledAndPartialEndCannotClose",
+            "time": "0.002"
+          }
+        ],
+        "tests": 3
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53NativeCarriedApplicationPrefixProcessTest",
+        "junit": {
+          "path": "target/v53-carried-application-prefixes/producer/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeCarriedApplicationPrefixProcessTest.xml",
+          "sha256": "c31867c6f781c8f795abb6baddb3bfc7795097c4c972ff109bb5700086709f93"
+        },
+        "methods": [
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53NativeCarriedApplicationPrefixProcessTest",
+            "name": "killFinalApplicationPrefixes",
+            "time": "568.165"
+          }
+        ],
+        "tests": 1
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest",
+        "junit": {
+          "path": "target/v53-carried-application-prefixes/producer/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest.xml",
+          "sha256": "951fa28d6e92a87dae08ca120b41c69b19a31f0683b581779b00fae71b55e6a3"
+        },
+        "methods": [
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest",
+            "name": "captureBindsOriginalCallbacksAndRealSuccessfulClose",
+            "time": "3.146"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest",
+            "name": "registrationRejectsReusedOpenedOrUnobservedOwners",
+            "time": "3.136"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest",
+            "name": "optionalFileObserverSharesExactEventBytesAndOriginalOwnerRegistration",
+            "time": "3.28"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest",
+            "name": "crashCaptureIsWrittenBeforeCutAndNeverClaimsDrain",
+            "time": "3.121"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest",
+            "name": "realNodeUsesSameLimitsAndOnlyObservedBudgetsExposeTraces",
+            "time": "3.004"
+          }
+        ],
+        "tests": 5
+      }
+    ],
+    "toolchain": {
+      "path": "target/v53-carried-application-prefixes/producer/toolchain.json",
+      "sha256": "16f388d094dfa4f4a210ee5e55dfa443e70f5fb97c9bed8bc30205f8395b4047"
+    }
+  },
+  "paidCloudExecuted": false,
+  "phase3Complete": false,
+  "plan": {
+    "path": "docs/v5x/v5.3/phase3-qualification-plan.json",
+    "sha256": "67ba4bd3cb1d3ee2886832ca93ae24a2ee21758195f58459557c7f7bc6ddc7e3"
+  },
+  "qualification": {
+    "bytes": 44067858,
+    "capturedPrefixes": 32,
+    "children": [
+      {
+        "exit": 137,
+        "life": 1,
+        "pid": 1804492
+      },
+      {
+        "exit": 0,
+        "life": 2,
+        "pid": 1811629
+      }
+    ],
+    "cohortAdmitted": false,
+    "files": 5764,
+    "hostedExecuted": false,
+    "inventory": {
+      "path": "target/v53-carried-application-prefixes/qualification/inventory.json",
+      "sha256": "b462707966547f488c2a9dc65d0ba92f7f7125f830f482acf0f8ca0a7bcd5d15"
+    },
+    "javaTests": 13,
+    "log": {
+      "path": "target/v53-carried-application-prefixes/qualification.log",
+      "sha256": "61316c2400d4166f7887cd8fc499d7987b89d5dd146d484e8e1303e34b53ddbb"
+    },
+    "nativeReplaySeconds": 38.67426914401585,
+    "nativeSeconds": 568.165,
+    "negativeCases": 24,
+    "normalCompletionComponents": [
+      {
+        "at": 5,
+        "capturedPrefixes": 90,
+        "negativeCases": 13,
+        "originalPreserved": true
+      },
+      {
+        "at": 6,
+        "capturedPrefixes": 90,
+        "negativeCases": 13,
+        "originalPreserved": true
+      },
+      {
+        "at": 0,
+        "capturedPrefixes": 90,
+        "negativeCases": 13,
+        "originalPreserved": true
+      }
+    ],
+    "normalCompletionResults": [
+      {
+        "path": "target/v53-carried-application-prefixes/qualification/normal-completion-0-result.json",
+        "sha256": "caa75c0bc40846f8a56511d827cb1a6d006e5d2567196d3f605c31d16d8e0675"
+      },
+      {
+        "path": "target/v53-carried-application-prefixes/qualification/normal-completion-5-result.json",
+        "sha256": "1d98883a33faa5e7c9f7907d2a08214e282fee7de5130275ea96543c67feeaaf"
+      },
+      {
+        "path": "target/v53-carried-application-prefixes/qualification/normal-completion-6-result.json",
+        "sha256": "83fd84127950820cff9f3606ada6209367ba860fac36303b3040460986bd47ed"
+      }
+    ],
+    "original": "workspace/general-search-engine-replication/target/v53-native-carried-application-prefixes/run-b441a74d-5c1d-4eec-869d-d3264adbed72",
+    "originalPreserved": true,
+    "ownerLifetimes": 8,
+    "phase3Complete": false,
+    "portable": "qualification/final-kill",
+    "result": {
+      "path": "target/v53-carried-application-prefixes/qualification/result.json",
+      "sha256": "debd6595db543e7e727d2b651cca6d789fa6e15a7b91d80fccff7bdc4c6e2d8d"
+    },
+    "seconds": 46.10419450199697,
+    "status": "PASS",
+    "summary": {
+      "path": "target/v53-carried-application-prefixes/qualification/summary.json",
+      "sha256": "121007e1cb285748507ed6b1cf56e29924de9b129b3d75e18b521ca10e9d79c2"
+    }
+  },
+  "runtimeJavaChanged": false,
+  "schema": "gse-v53-carried-application-prefix-development-v1",
+  "scripts": [
+    {
+      "path": "target/v53-carried-application-prefixes/capture.py",
+      "sha256": "1e53238163d5cdc4802edd536f5ab6f1aa56b2e68e88c645a14d0825388e5265"
+    },
+    {
+      "path": "target/v53-carried-application-prefixes/qualify.py",
+      "sha256": "5d5b7cf04c4ce035526e0e790fc1c556ec2ae4f45c36ce7b7a2bb1385c41f7c1"
+    },
+    {
+      "path": "target/v53-carried-application-prefixes/index-evidence.py",
+      "sha256": "670f32a62e9f30bc4792bca45d7af73ccac8aaa50fc73625564d8aa19fd3c585"
+    }
+  ],
+  "tests": {
+    "documentationContract": {
+      "path": "target/v53-carried-application-prefixes/contract.json",
+      "sha256": "9041446a57d5b0b865179767001e5dc8d5ec1e38c21306eeeb5c79de92f528bf"
+    },
+    "status": "PASS",
+    "suites": [
+      {
+        "log": {
+          "path": "target/v53-carried-application-prefixes/unit-tests.log",
+          "sha256": "d82ac3b585ce37392f2426d57e166fcd49b168418cf4a57392f2b369fdfe1032"
+        },
+        "tests": 11
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-prefixes/related-tests.log",
+          "sha256": "16013e8dd5c9a03045d71d25d94c6fee7c29ee344a391cd5d4f7b013c43e84d9"
+        },
+        "tests": 250
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-prefixes/planning-tests.log",
+          "sha256": "c92b0e08bf355355cb8e4a8d6cf16ee66c30a221e69e7c28fbd4532179e1125b"
+        },
+        "tests": 51
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-prefixes/optimized-tests.log",
+          "sha256": "ecbb61f1b55a6dc24342abaffc89abeae0ea11fd01c34de44855f92680ff78ff"
+        },
+        "tests": 11
+      }
+    ],
+    "suitesOverlap": true
+  },
+  "wholeRuntimeResourcesQualified": false
+}

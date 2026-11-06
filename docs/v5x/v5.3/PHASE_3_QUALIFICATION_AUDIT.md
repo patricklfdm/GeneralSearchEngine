@@ -24,6 +24,11 @@ owned by Phase 5; public operations/reads remain Phase 4.
 
 ## Development record
 
+[Interrupted application captures](PHASE_3_CARRIED_APPLICATION_PREFIXES.md) adds
+an explicit ACK-force crash sidecar and original-first file replay. It preserves
+the normal completion collector and does not qualify the remaining recovery
+capture families or the complete application cohort.
+
 [Application recovery resources](PHASE_3_CARRIED_APPLICATION_RESOURCES.md) binds
 per-owner accounting to the existing application storage/protocol/ownership
 chain. The same resource negatives preserve the complete original history.

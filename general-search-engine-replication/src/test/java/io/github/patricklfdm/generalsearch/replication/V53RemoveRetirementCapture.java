@@ -21,6 +21,7 @@ final class V53RemoveRetirementCapture {
     static final String PROCESS_VOTE_SCHEMA="gse-v53-carried-process-vote-capture-v1";
     static final String COMPLETION_SCHEMA="gse-v53-carried-completion-capture-v1";
     static final String PROCESS_COMPLETION_SCHEMA="gse-v53-carried-process-completion-capture-v1";
+    static final String APPLICATION_CUT_SCHEMA="gse-v53-carried-application-cut-capture-v1";
     static final String LEDGER_SCHEMA="gse-v53-carried-ledger-capture-v1";
     static final String PROCESS_LEDGER_SCHEMA="gse-v53-carried-process-ledger-capture-v1";
     static final String REPLAY_SCHEMA="gse-v53-carried-replay-capture-v1";
@@ -157,6 +158,22 @@ final class V53RemoveRetirementCapture {
         Files.write(root.resolve("collection.json"),canonical(Map.of("schema",schema,"root",history,
                 "life",life,"pid",ProcessHandle.current().pid(),"terminal",terminal,"eventsSha256",hash(events),
                 "captures",count,"storedBytes",bytes),4096),StandardOpenOption.CREATE_NEW);
+        finished=true;
+    }
+    /** Explicit interrupted application observation, never a successful completion.
+     * The normal completion entry continues to refuse every unfinished end. */
+    synchronized void finishApplicationCut(String history,int life,String terminal,List<Map<String,Object>> events)throws IOException {
+        MembershipValidation.digest(history);
+        String owner="node-1",point="APPLY_ACK_DIRECTORY_FORCED";int at=events.size()-1;
+        require(mode==Mode.COMPLETION && !finished && life==1 && terminal.equals("CUT_PREFIX") && count>0 &&
+                active.equals(Map.of(owner,"application")) && point.equals(lastPoint.get(owner)) &&
+                at>=0 && previous.getOrDefault(owner,-1)==at && owner.equals(events.get(at).get("node")) &&
+                point.equals(events.get(at).get("event")),"application capture exact interrupted ACK boundary");
+        byte[] observed=V53EvidenceArray.encode(events,32*1024*1024);
+        Files.write(root.resolve("collection.json"),canonical(Map.of("schema",APPLICATION_CUT_SCHEMA,"root",history,
+                "life",life,"pid",ProcessHandle.current().pid(),"terminal",terminal,"eventsSha256",hash(observed),
+                "captures",count,"storedBytes",bytes,"interrupted",Map.of("node",owner,"point",point,"eventIndex",at)),4096),
+                StandardOpenOption.CREATE_NEW);
         finished=true;
     }
     private void finish(String schema,String profile,String resultName)throws IOException {

@@ -418,7 +418,10 @@
         "scripts/v53/test_native_carried_storage_coverage.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedApplicationResourceProcessTest.java",
         "scripts/v53/test_native_carried_application_resources.py",
-        "scripts/v53/test_native_completion_files.py"
+        "scripts/v53/test_native_completion_files.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ApplicationCutCaptureTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedApplicationPrefixProcessTest.java",
+        "scripts/v53/test_native_carried_application_prefixes.py"
       ],
       "readers": [
         "scripts/v53/carried_process_evidence.py",
@@ -437,7 +440,8 @@
         "scripts/v53/native_carried_capture_history.py",
         "scripts/v53/native_carried_storage_coverage.py",
         "scripts/v53/native_carried_application_resources.py",
-        "scripts/v53/native_completion_files.py"
+        "scripts/v53/native_completion_files.py",
+        "scripts/v53/native_carried_application_prefixes.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_CARRIED_SLOTS.md",
@@ -455,7 +459,8 @@
         "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_HOSTED.md",
         "docs/v5x/v5.3/PHASE_3_PUBLICATION_RESERVATION.md",
         "docs/v5x/v5.3/PHASE_3_GENERATION_RELOAD.md",
-        "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_RESOURCES.md"
+        "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_RESOURCES.md",
+        "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_PREFIXES.md"
       ],
       "cohorts": [
         "node-renames",
@@ -748,7 +753,10 @@
         "scripts/v53/test_native_carried_capture_history.py",
         "scripts/v53/test_native_carried_storage_coverage.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedApplicationResourceProcessTest.java",
-        "scripts/v53/test_native_carried_application_resources.py"
+        "scripts/v53/test_native_carried_application_resources.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ApplicationCutCaptureTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedApplicationPrefixProcessTest.java",
+        "scripts/v53/test_native_carried_application_prefixes.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -838,7 +846,8 @@
         "scripts/v53/capacity_completion_resources.py",
         "scripts/v53/native_carried_capture_history.py",
         "scripts/v53/native_carried_storage_coverage.py",
-        "scripts/v53/native_carried_application_resources.py"
+        "scripts/v53/native_carried_application_resources.py",
+        "scripts/v53/native_carried_application_prefixes.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -938,7 +947,8 @@
         "docs/v5x/v5.3/phase3-evidence/capacity-completion-hosted.json",
         "docs/v5x/v5.3/phase3-evidence/capacity-completion-resources.json",
         "docs/v5x/v5.3/phase3-evidence/capacity-completion-close.json",
-        "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_RESOURCES.md"
+        "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_RESOURCES.md",
+        "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_PREFIXES.md"
       ],
       "cohorts": [
         "profiles",
@@ -1204,7 +1214,7 @@
       "id": "component-cohorts",
       "status": "OPEN",
       "dependsOn": [],
-      "work": "The twelve admitted source/build/toolchain/reader-bound catalogues now declare 560 whole histories in 254 execution groups. Existing profiles, learner, transfer, round, DATA, automatic and joint-floor entries are implemented and must not be redeveloped. Carried-transition v3 retains the original INTENT/FINAL pair and adds all eight INTENT/FINAL x ACCEPT/PROOF x halt/SIGKILL combinations with complete seven-family captured bytes and physical owner binding. The historical FINAL pilot passes all 210 capture/owner negatives. The exact-3cff6932 INTENT/ACCEPT/halt original also passes v2 member admission after relocation, including 210 exact negatives and unchanged source/build/original inventories. Neither local result substitutes for the complete final-source v3 cohort. All eight ACCEPT/PROOF cases need final-source execution; application-ACK histories still need the same complete capture/admission scope; application-ACK physical, protocol, export and retention readers already exist. Two development application-ACK resource originals now pass complete original-chain replay and 23 resource negatives each after relocation. Their exact interrupted-end projection matches actual callbacks, but it is not transient file capture or source-bound cohort admission. Review remaining native payload/profile and lifecycle obligations against their actual original histories. Conditional Phase 2 fixtures cannot replace native ownership. Do not equate the declared matrices or component successes with full Phase 3 acceptance.",
+      "work": "The twelve admitted source/build/toolchain/reader-bound catalogues now declare 560 whole histories in 254 execution groups. Existing profiles, learner, transfer, round, DATA, automatic and joint-floor entries are implemented and must not be redeveloped. Carried-transition v3 retains the original INTENT/FINAL pair and adds all eight INTENT/FINAL x ACCEPT/PROOF x halt/SIGKILL combinations with complete seven-family captured bytes and physical owner binding. The historical FINAL pilot passes all 210 capture/owner negatives. The exact-3cff6932 INTENT/ACCEPT/halt original also passes v2 member admission after relocation, including 210 exact negatives and unchanged source/build/original inventories. Neither local result substitutes for the complete final-source v3 cohort. All eight ACCEPT/PROOF cases need final-source execution; application-ACK histories still need the same complete capture/admission scope; application-ACK physical, protocol, export and retention readers already exist. Two development application-ACK resource originals now pass complete original-chain replay and 23 resource negatives each after relocation. Their exact interrupted-end projection matches actual callbacks, but it is not transient file capture or source-bound cohort admission. Review remaining native payload/profile and lifecycle obligations against their actual original histories. Conditional Phase 2 fixtures cannot replace native ownership. Do not equate the declared matrices or component successes with full Phase 3 acceptance. A separate application-ACK first-lifetime file capture and original-first decoder are now implemented; they cannot replace recovery retirement/campaign/vote/FLOOR/ledger/publication transient composition or full cohort admission. One unretried FINAL/SIGKILL development original now passes that dedicated application-prefix reader after relocation (32 captures and 24 exact negatives). The existing normal completion reader separately passes its three conditional components and 39 physical negatives; neither result is a complete application-ACK cohort.",
       "acceptance": "Exact source/build/toolchain/reader-bound originals and independent original-first replay. Missing observations, unsupported histories or an original deadline failure remain failures. Whole ownership and revision histories stay indivisible."
     },
     {

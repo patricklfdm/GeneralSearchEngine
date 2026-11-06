@@ -47,6 +47,12 @@ class V53NativeCarriedProcessTest {
         run(point,mode,kind,observeResources,observeRetirement,observeFloor,observeCampaign,observeVotes,observeCompletion,observeLedgers,false);
     }
     void run(String point,String mode,String kind,boolean observeResources,boolean observeRetirement,boolean observeFloor,boolean observeCampaign,boolean observeVotes,boolean observeCompletion,boolean observeLedgers,boolean observeReplay)throws Exception {
+        run(point,mode,kind,observeResources,observeRetirement,observeFloor,observeCampaign,observeVotes,observeCompletion,observeLedgers,observeReplay,false);
+    }
+    void runApplicationCut(String mode,String kind)throws Exception {
+        run("APPLY_ACK_DIRECTORY_FORCED",mode,kind,true,false,false,false,false,false,false,false,true);
+    }
+    private void run(String point,String mode,String kind,boolean observeResources,boolean observeRetirement,boolean observeFloor,boolean observeCampaign,boolean observeVotes,boolean observeCompletion,boolean observeLedgers,boolean observeReplay,boolean observeApplicationCut)throws Exception {
         assertTrue(Set.of("DATA","INTENT","FINAL").contains(kind));
         boolean data=kind.equals("DATA");int size=data?3:4,index=data?1:kind.equals("INTENT")?5:6;
         assertTrue(!observeRetirement || observeResources && !data,"retirement requires original context resources");
@@ -56,6 +62,9 @@ class V53NativeCarriedProcessTest {
         assertTrue(!observeCompletion || observeVotes,"completion observation requires original vote prefixes");
         assertTrue(!observeLedgers || observeCompletion,"ledger observation requires original completion prefixes");
         assertTrue(!observeReplay || observeLedgers,"replay observation requires original ledger prefixes");
+        assertTrue(!observeApplicationCut || observeResources && !observeRetirement && !data && point.equals("APPLY_ACK_DIRECTORY_FORCED"),"application capture explicit original resource history");
+        Path applicationCut=observeApplicationCut?Files.createDirectories(Path.of("target/v53-native-carried-application-prefixes/run-"+UUID.randomUUID())):null;
+        if(observeApplicationCut)System.out.println("v53NativeCarriedApplicationPrefixesEvidence="+applicationCut.toAbsolutePath());
         Path replay=observeReplay?Files.createDirectories(Path.of("target/v53-native-carried-replay-prefixes/run-"+UUID.randomUUID())):null;
         if(observeReplay){Files.createDirectory(replay.resolve("replay"));System.out.println("v53NativeCarriedReplayPrefixesEvidence="+replay.toAbsolutePath());}
         Path ledgers=observeReplay?Files.createDirectory(replay.resolve("previous")):observeLedgers?Files.createDirectories(Path.of("target/v53-native-carried-ledger-prefixes/run-"+UUID.randomUUID())):null;
@@ -73,7 +82,7 @@ class V53NativeCarriedProcessTest {
         Path prefix=observeFloor?Files.createDirectory(floors.resolve("prefixes")):
                 observeRetirement?Files.createDirectories(Path.of("target/v53-native-carried-prefixes/run-"+UUID.randomUUID())):null;
         if(observeRetirement){Files.createDirectory(prefix.resolve("retirement"));System.out.println("v53NativeCarriedPrefixesEvidence="+prefix.toAbsolutePath());}
-        Path container=observeRetirement?Files.createDirectory(prefix.resolve("observed")):
+        Path container=observeApplicationCut?Files.createDirectory(applicationCut.resolve("observed")):observeRetirement?Files.createDirectory(prefix.resolve("observed")):
                 observeResources?Files.createDirectories(Path.of("target/v53-native-carried-resources/run-"+UUID.randomUUID())):null;
         Path raw=observeResources?Files.createDirectory(container.resolve("history")):Files.createDirectories(Path.of("target/"+(data?"v53-native-carried-process":"v53-native-carried-transition-process")+"/run-"+UUID.randomUUID()));
         if(observeResources){Files.createDirectory(container.resolve("resources"));System.out.println("v53NativeCarriedResourcesEvidence="+container.toAbsolutePath());}
@@ -106,6 +115,7 @@ class V53NativeCarriedProcessTest {
                     if(observeCompletion)command.add(completion.resolve("completion/life-"+life).toAbsolutePath().toString());
                     if(observeLedgers)command.add(ledgers.resolve("ledgers/life-"+life).toAbsolutePath().toString());
                     if(observeReplay)command.add(replay.resolve("replay/life-"+life).toAbsolutePath().toString());
+                    if(observeApplicationCut && life==1)command.addAll(List.of("--application-cut-capture",applicationCut.resolve("application").toAbsolutePath().toString()));
                     Process child=new ProcessBuilder(command)
                             .redirectError(stderr.toFile()).start();children.add(child);
                     var record=new TreeMap<String,Object>();record.put("life",life);record.put("pid",child.pid());records.add(record);
