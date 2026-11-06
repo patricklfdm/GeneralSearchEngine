@@ -21,10 +21,11 @@ from . import carried_transition_retention as retention
 from . import carried_transition_retirement as retirement
 from . import carried_transition_prefixes as prefixes
 from . import native_carried_capture_history as process
+from . import native_carried_application_capture_history as application
 
 need=h.need;read=shared.read;reader_manifest=shared.reader_manifest;BUILDS=shared.BUILDS
-SCHEMA='gse-v53-carried-transition-history-execution-v3'
-COHORT='gse-v53-carried-transition-history-cohort-v3'
+SCHEMA='gse-v53-carried-transition-history-execution-v4'
+COHORT='gse-v53-carried-transition-history-cohort-v4'
 PACKAGE='io.github.patricklfdm.generalsearch.replication.'
 METHODS={
     'intent':('V53CarriedTransitionDriverTest','carriedIntentFinishesBeforeFreshStableBarrier','v53-native-dispatch'),
@@ -38,7 +39,15 @@ METHODS={
     'final-accept-kill':('V53NativeCarriedReplayPrefixProcessTest','finalAcceptKill','v53-native-carried-replay-prefixes'),
     'final-proof-halt':('V53NativeCarriedReplayPrefixProcessTest','finalProofHalt','v53-native-carried-replay-prefixes'),
 }
+METHODS.update({case:('V53NativeCarriedApplicationTransientPrefixTest',mode+kind.title()+'ApplicationTransientPrefixes',
+                      'v53-native-carried-application-transient-prefixes')
+                for case,(kind,_,mode) in application.CASES.items()})
 CASES=tuple(METHODS)
+
+
+def adapter(case):
+    selected(case)
+    return application if case in application.CASES else process if case in process.CASES else None
 
 
 def selected(case):
@@ -63,7 +72,8 @@ def junit(reports,case):
     return dict(className=cls,method=method,tests=1,failures=0,errors=0,skipped=0,retries=0)
 
 
-def phase(case):selected(case);return process.selected(case)[0] if case in process.CASES else case.upper()
+def phase(case):
+    reader=adapter(case);return reader.selected(case)[0] if reader else case.upper()
 
 
 def histories(case):selected(case);return [case]
@@ -73,7 +83,8 @@ STAGES=('physical','network','exports','retention','retirement','prefixes')
 
 
 def negative_cases(case):
-    if case in process.CASES:return process.negative_cases(case)
+    reader=adapter(case)
+    if reader:return reader.negative_cases(case)
     kind=phase(case);rows=[]
     for suite,values in (('physical',physical.negative_cases(kind)),('network',network.NEGATIVES),('exports',exports.NEGATIVES)):
         for name,reason in values.items():
@@ -94,15 +105,16 @@ def sidecar(raw):
 
 
 def capture_names(raw,case):
-    return {raw.name} if case in process.CASES else {raw.name,sidecar(raw).name}
+    return {raw.name} if adapter(case) else {raw.name,sidecar(raw).name}
 
 
 def capture_path(raw,case,output):
-    return None if case in process.CASES else sidecar(raw).relative_to(output).as_posix()
+    return None if adapter(case) else sidecar(raw).relative_to(output).as_posix()
 
 
 def collect(raw,case):
-    if case in process.CASES:return process.collect(raw,case)
+    reader=adapter(case)
+    if reader:return reader.collect(raw,case)
     kind=phase(case);raw=Path(raw);before=h.inventory(raw);index,count,_=physical.shape(kind)
     entry=h.snapshot.s.regular(raw/f'entry-{index}.gsr',h.snapshot.MIB)
     expected=dict(status='PASS',kind=kind,oldIndex=index,oldEntry=h.digest(entry),activations=count,
@@ -127,7 +139,8 @@ def original_chain(original):
 
 
 def replay(raw,case):
-    if case in process.CASES:return process.replay(raw,case)
+    reader=adapter(case)
+    if reader:return reader.replay(raw,case)
     kind=phase(case);raw=Path(raw);before=collect(raw,case)
     # The complete unmodified composition must pass before ANY mutation runs.
     original=prefixes.validate(raw,sidecar(raw),kind);expected=original_chain(original);rows=[]
@@ -228,7 +241,8 @@ def member(path,case,source,build,toolchain,reader):
 
 
 def check_result(value,case):
-    if case in process.CASES:return process.check_result(value,case)
+    reader=adapter(case)
+    if reader:return reader.check_result(value,case)
     kind=phase(case);index,count,_=physical.shape(kind)
     need(type(value) is dict and set(value)=={'original','negatives','originalPreserved'} and value['originalPreserved'] is True,
          'carried transition preserved original replay')

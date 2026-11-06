@@ -1,7 +1,7 @@
 # Native carried INTENT / FINAL admission
 
 Phase 3 remains **OPEN**. The [cohort entry](../../../scripts/v53/carried_transition_history.py)
-binds ten complete four-voter REMOVE histories to one recorded source, compiled
+binds fourteen complete four-voter REMOVE histories to one recorded source, compiled
 build, portable toolchain and reader. It composes the existing physical,
 network, export, ledger, retirement and [actual-prefix readers](PHASE_3_CARRIED_TRANSITION_PREFIXES.md).
 It does not turn older development receipts into final-source admission.
@@ -15,6 +15,7 @@ It does not turn older development receipts into final-source admission.
 | `intent-accept-halt` | INTENT at index 5 | Group halt after ACCEPT rename, reopen original disks, fresh BARRIER | 210 |
 | `final-proof-kill` | FINAL at index 6 | Group SIGKILL after PROOF rename, reopen original disks, fresh BARRIER | 210 |
 | Other six INTENT/FINAL × ACCEPT/PROOF × halt/SIGKILL combinations | Index 5 or 6 | Same full-capture fixture, exact original directories and fresh BARRIER | 210 each |
+| Four INTENT/FINAL × application-ACK × halt/SIGKILL combinations | Index 5 or 6 | Nine-family capture, original disk recovery and fresh BARRIER | 268 each |
 
 The first two histories use one exact, unretried `V53CarriedTransitionDriverTest` method
 with `-Dv53.carried.retirement.captures=true`. The original vote, selected
@@ -29,7 +30,7 @@ exact command, a single passing JUnit method without reruns/skips, successful
 native and frozen-source collection exits, actual compiled classes and immutable
 source files. For an ordinary history, the raw parent contains exactly one original and
 its own retirement sidecar. Each process history instead contains its full nested
-seven-family capture tree under a single original root. Missing, swapped, linked or changed sidecars cannot be reconstructed
+seven- or nine-family capture tree under a single original root. Missing, swapped, linked or changed sidecars cannot be reconstructed
 from callbacks or borrowed from the other case.
 
 The complete unmodified composition must pass before **any** mutation runs.
@@ -51,7 +52,8 @@ inflated scope block admission. Original and sidecar inventories are checked
 again after replay. Distinct producer directories and bootstrap plans are
 required. These first two histories retain **602 checks**. The [eight process
 histories](PHASE_3_CARRIED_CAPTURE_COHORT.md) add 1,680 capture/owner checks after
-the complete original process/storage/protocol/resource chain: **2,282 total**.
+the complete original process/storage/protocol/resource chain: 2,282 checks. The four [application-ACK histories](PHASE_3_CARRIED_APPLICATION_COHORT.md)
+add 1,072 checks, giving **3,354 total**.
 
 ## Local entry
 
@@ -66,7 +68,9 @@ python3 -B -m scripts.v53.carried_transition_history capture "$OUT/inputs/intent
 python3 -B -m scripts.v53.carried_transition_history capture "$OUT/inputs/final" \
   --case final --maven /opt/maven/bin/mvn --source-from "$OUT/inputs/intent"
 for CASE in intent-accept-halt final-proof-kill intent-accept-kill intent-proof-halt \
-            intent-proof-kill final-accept-halt final-accept-kill final-proof-halt; do
+            intent-proof-kill final-accept-halt final-accept-kill final-proof-halt \
+            intent-application-halt intent-application-kill \
+            final-application-halt final-application-kill; do
   python3 -B -m scripts.v53.carried_transition_history capture "$OUT/inputs/$CASE" \
     --case "$CASE" --maven /opt/maven/bin/mvn --source-from "$OUT/inputs/intent"
 done
@@ -108,11 +112,11 @@ pending for the final implementation source.
 
 ## Scope and rollback
 
-A component PASS qualifies this declared ten-history set only. Public readiness,
+A component PASS qualifies this declared fourteen-history set only. Public readiness,
 process-death, other membership profiles, combined resource peaks, autonomous
 competition, complete physical fault coverage, power loss and Phase 3 closure
 remain false. Other carried payload/process axes remain separate obligations.
 No runtime Java, POM, protocol limit, Required job or cloud workflow changes.
-For the v3 expansion, rollback restores the previous four-case adapter, receipt
+For the v4 expansion, rollback restores the previous ten-case adapter, receipt
 versions, tests and catalogue bindings together. Preserve the existing readers
 and every original development receipt.

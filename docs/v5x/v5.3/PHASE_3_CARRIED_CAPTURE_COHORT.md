@@ -1,7 +1,9 @@
 # Phase 3 — source-bound carried process captures
 
 Phase 3 remains **OPEN**. The existing carried-transition cohort now declares
-ten whole histories. Its original `intent` and `final` members retain all six
+fourteen whole histories. This page records the historical v3 ACCEPT/PROOF
+expansion; the current v4 catalogue additionally requires all four
+[application-ACK histories](PHASE_3_CARRIED_APPLICATION_COHORT.md). Its original `intent` and `final` members retain all six
 reader layers and 602 exact negatives. Eight process members use the shared
 `V53NativeCarriedReplayPrefixProcessTest` methods without changing Java runtime,
 storage formats, resource limits, workload parameters or the crash schedule.
@@ -25,7 +27,7 @@ in one archive. No job boundary splits one authority or continuous history.
 
 ## Admission
 
-The local execution/cohort and hosted receipt schemas advance to v3. Earlier
+That expansion advanced the local execution/cohort and hosted receipt schemas to v3. Earlier
 v1 two-member or v2 four-member successes cannot satisfy the larger catalogue. The dynamic workflow
 matrix uses all ten cases while retaining maximum parallelism two, pinned
 tools/actions, offline dependencies, no native retries, once-per-minute progress,
@@ -74,7 +76,7 @@ remains in the original archive and is replayed on download. Summary generation
 changes no original and raises no read limit; a test exercises an oversized
 mapping and validates the result through the existing bounded reader.
 
-The whole subset therefore requires ten distinct originals and **2,282 exact
+The historical v3 subset therefore required ten distinct originals and **2,282 exact
 negative results**. The broader source catalogue remains twelve subsets, now
 **560 histories, 254 execution groups, 494 raw archives and 532 selected jobs**.
 The qualification plan and complete negative-selector hash change together;
@@ -103,7 +105,7 @@ is 85,573 bytes.
 
 This is one v2 local member, not a complete v2 or v3 cohort and not hosted
 execution. Its recorded Ubuntu OpenJDK 21.0.12.1 / Maven 3.9.11 toolchain is
-retained explicitly; it cannot replace the hosted seed. The current v3 expansion
+retained explicitly; it cannot replace the hosted seed. The historical v3 expansion
 passes 410 related Python tests, 53 focused tests with assertions disabled,
 85 orchestration tests (overlapping the related suite), Java test compilation
 and the documentation contract. None of the six new native methods was executed
@@ -128,16 +130,17 @@ The collected inventory itself occupies 2,045,407 bytes and also passes the
 bounded JSON round trip. Test logs and digest references are in the
 [development receipt](phase3-evidence/carried-capture-cohort-development.json).
 
-Final-source native execution/downloaded replay of all ten members is pending.
+Final-source native execution/downloaded replay of the v4 fourteen-member set is pending.
 Each process axis requires its own exact original; no successful result is
-inferred from a different kind, cut, death mode or earlier catalogue version. Other crash/profile axes, application-ACK
-captures, continuous full runtime resource maxima, remaining coverage
+inferred from a different kind, cut, death mode or earlier catalogue version. Application-ACK capture/admission wiring is now implemented separately; its
+final-source execution, other crash/profile axes, continuous full runtime resource maxima, remaining coverage
 obligations and phase-wide hosted attestation remain open. Existing broad
 `processDeathQualified`, `wholeRuntimeResourcesQualified` and `phase3Complete`
 flags stay false. This batch neither dispatches workflows nor runs paid cloud.
 
 Use the existing [local cohort commands](PHASE_3_CARRIED_TRANSITION_COHORT.md)
 or [opt-in hosted entry](PHASE_3_CARRIED_TRANSITION_HOSTED.md) on one frozen source.
-Rollback restores the previous four-case adapter, receipt versions, tests and
-catalogue hashes together. Preserve all original and failed artifacts; no Java
+The historical v3 rollback restores the previous four-case adapter, receipt
+versions, tests and catalogue hashes together. Current v4 rollback is documented
+in the application cohort notes. Preserve all original and failed artifacts; no Java
 runtime rollback or persisted-data migration is involved.

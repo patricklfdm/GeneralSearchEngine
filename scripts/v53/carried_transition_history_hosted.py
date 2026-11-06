@@ -1,4 +1,4 @@
-"""Ten whole native carried transition histories, isolated execution and downloaded replay.
+"""Fourteen whole native carried transition histories, isolated execution and downloaded replay.
 
 Exact source/run/attempt binds every artifact. No JVM history is split, retried
 or reconstructed from a successful fragment. The scope is not Phase 3 closure.
@@ -15,7 +15,7 @@ from . import remove_process_hosted as shared
 h=m.h;need=m.need;tc=shared.tc
 WORKFLOW='.github/workflows/v53-carried-transition-histories.yml'
 BRANCH='refs/heads/experiment/v53-carried-transition-histories'
-SCHEMA='gse-v53-carried-transition-history-hosted-v3'
+SCHEMA='gse-v53-carried-transition-history-hosted-v4'
 MAX_BYTES=shared.MAX_BYTES
 pins=shared.pins
 # Each old INTENT/FINAL vote, carried completion and fresh BARRIER is indivisible.
@@ -157,7 +157,7 @@ def aggregate(seed_bundle,inputs,output,ctx,execute_result,verify_result, *, off
             **{name+'Sha256':value for name,value in zip(('source','build','toolchain','reader'),pins(seed))},
             declaredCarriedTransitionHistoriesQualified=True,processDeathQualified=False,allMembershipProfilesQualified=False,combinedPeakResourcesQualified=False,
             autonomousCompetitionQualified=False,completePhysicalQualified=False,powerLossQualified=False,
-            acceptanceAuthority='all exact-attempt workflow stages plus ten whole-history downloaded original-first verifier receipts')
+            acceptanceAuthority='all exact-attempt workflow stages plus fourteen whole-history downloaded original-first verifier receipts')
         shared.complete_aggregate(receipt, offline_replay)
     except BaseException as error:receipt.update(status='FAIL',failure=dict(type=type(error).__name__,message=str(error)));raise
     finally:h.save(output/'receipt.json',receipt)
@@ -165,8 +165,8 @@ def aggregate(seed_bundle,inputs,output,ctx,execute_result,verify_result, *, off
 
 
 def summary(path,ctx,command,case,result):
-    rows=[('Source',ctx['source']),('Run / attempt',ctx['run']+' / '+ctx['attempt']),('Carried transition phase',case or 'all ten histories'),
-          ('Status',result['status']),('Scope','Two carried phases and eight group-death axes through fresh BARRIER'),('Phase 3 complete',False)]
+    rows=[('Source',ctx['source']),('Run / attempt',ctx['run']+' / '+ctx['attempt']),('Carried transition phase',case or 'all fourteen histories'),
+          ('Status',result['status']),('Scope','Two carried phases and twelve group-death axes through fresh BARRIER'),('Phase 3 complete',False)]
     for name in ('wholeOwnershipHistories','nativeCases','negativeCases','rejected'):
         if name in result:rows.append((name,result[name]))
     for name in ('sourceSha256','buildSha256','toolchainSha256','readerSha256'):

@@ -1,0 +1,210 @@
+{
+  "catalogue": {
+    "executionGroups": 258,
+    "members": 14,
+    "negativeCases": 3354,
+    "phase3Histories": 564,
+    "rawArchives": 498,
+    "schema": "v4",
+    "selectedJobs": 540
+  },
+  "cohortAdmitted": false,
+  "currentFiles": [
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_COHORT.md",
+      "sha256": "ddd7469f219e39dfd8122178614ffb868e7ba2d1e8ad03d4ed3c88099f18580d"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_CARRIED_CAPTURE_COHORT.md",
+      "sha256": "ed732db263b53da9777c657c238a5f39bb7ec7ff8358ca295c106d638e9e98d7"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_COHORT.md",
+      "sha256": "658ccbdf2bc56cc0c94443836ebd41815415cf813bf31cff01a43307a290f90f"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_HOSTED.md",
+      "sha256": "876e37ad138f8747a3b5ef3994162b34a192c070370f95f67bf87778b1fefe84"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "ab11eab4776a797beb8583cc7b311190dc925144dcc297cc57a255b0d06bd109"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_QUALIFICATION_AUDIT.md",
+      "sha256": "32a017f824f866100e8009ab4e7778443ade6371db78d3577de9d73e80155337"
+    },
+    {
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "a245e73f4ecac8f9cf3f859650ee94ebf9c3ad09280f3542908af922fc9fcbc8"
+    },
+    {
+      "path": "docs/v5x/v5.3/phase3-coverage-witnesses.json",
+      "sha256": "c3d688484f618d8a676cd991d2ff96199fd6f7cadeb4c2f483851eda55f7f1d7"
+    },
+    {
+      "path": "docs/v5x/v5.3/phase3-qualification-plan.json",
+      "sha256": "46631925d2752a29a2d1e706149b4efe666bec13fc37ac62818dd07a9f86180f"
+    },
+    {
+      "path": "scripts/v53/carried_transition_history.py",
+      "sha256": "c9bea99d1f88c08f6815d089a61ffcfdf41016137583231a88071fa040d141bd"
+    },
+    {
+      "path": "scripts/v53/carried_transition_history_hosted.py",
+      "sha256": "42b7f9dba18085867258a99947e30a0fdf60b1904d0b251e75893f8508c37b04"
+    },
+    {
+      "path": "scripts/v53/native_carried_application_capture_history.py",
+      "sha256": "d0cbf80ee28dfe84216b69f2f138e644504cb0564aba6f23a1e66de3dc127573"
+    },
+    {
+      "path": "scripts/v53/test_carried_transition_history.py",
+      "sha256": "4d6b21e13588ddd9892aba0d9492d953bb0a01efc95ff97da5fb68793c1dc8bc"
+    },
+    {
+      "path": "scripts/v53/test_carried_transition_history_hosted.py",
+      "sha256": "2280acdd259daef053da2d969a24b1c768a2219095334aea9c163f5a94862b63"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_application_capture_history.py",
+      "sha256": "694dcb9d3a5104ac77947cc6c928ac6aea947f73fdc7576a5c9f897416be13ad"
+    },
+    {
+      "path": "scripts/v53/test_phase3_coverage.py",
+      "sha256": "a9db95ef318c98c934cf9ab1cb7fe9529b5cf32ce272bfbc1d6f7713ed5f6cd7"
+    },
+    {
+      "path": "scripts/v53/test_phase3_history_cohort.py",
+      "sha256": "770644bd73922d5e6fe77565fb7ec04d865f4dbc0b461343cbdb733eb89a9fcb"
+    },
+    {
+      "path": "scripts/v53/test_phase3_qualification_plan.py",
+      "sha256": "0fda005273bf3344cda0db8e4e04c99a7a430752c292e625391e28119f0b0d61"
+    },
+    {
+      "path": "scripts/v53/test_phase3_seed_cohort.py",
+      "sha256": "955b19862c3b4257976e8ba7a30d54f164f1b78ea731fb48c0cc9716fc089794"
+    },
+    {
+      "path": "scripts/v53/test_phase3_witness_observations.py",
+      "sha256": "e074263bfda82df45a6f5b29d940bc66c448e12147e1a4375d05aef5c5e669e2"
+    },
+    {
+      "path": "scripts/v53/test_phase3_workflow_cohort.py",
+      "sha256": "8969b400572f470f233c47232c7507b014c39ef0a398db6d2a67abc78f9a7fc1"
+    }
+  ],
+  "finalSourceQualified": false,
+  "generator": {
+    "path": "target/v53-carried-application-cohort/index-evidence.py",
+    "sha256": "8a0da2cf752a2a872696fbe04e77294032629dc015d40f11a35071a27df89222"
+  },
+  "historicalIndexes": {
+    "count": 526,
+    "inventory": {
+      "path": "target/v53-carried-application-cohort/historical-indexes.json",
+      "sha256": "2b2a50d3df3938577a596a2c48e62d95c9a3a7460f69ace3a5138dcc3d75eca2"
+    },
+    "unchanged": true
+  },
+  "hostedExecuted": false,
+  "limitations": [
+    "No new Java native execution, workflow dispatch or final-source cohort admission. Retained original source is unchanged.",
+    "Positive physical/protocol/export/retention/resource chain precedes all 268 captured-file/owner negatives; lower-level negative catalogues are not rerun.",
+    "Both original owner projections replay in full before compaction. Bounded summaries bind original callback/owner digests but do not replace raw archives.",
+    "All five Phase 3 gaps remain OPEN. Frozen Phase 5 correctness rows and Required CI are unchanged."
+  ],
+  "nativeHistoriesExecuted": 0,
+  "originalDevelopment": {
+    "path": "docs/v5x/v5.3/phase3-evidence/carried-application-transients-development.json",
+    "sha256": "29d6fdd82d594f411660aca7086042d1e807770b32de4624f5bc3782fc37cf0a"
+  },
+  "originalSource": {
+    "path": "target/v53-carried-application-custody/producer/source.json",
+    "sha256": "f4323b84b93049226fdebaa56d2e50d0b426a0c2980546d18bba79d13ad4be11"
+  },
+  "phase3Complete": false,
+  "planning": {
+    "coverage": {
+      "path": "target/v53-carried-application-cohort/coverage-final/receipt.json",
+      "sha256": "56a091d039376370d43e3a9e0ac3a045d68a48432568fc4d0b7c1e0e1eb58a72"
+    },
+    "qualification": {
+      "path": "target/v53-carried-application-cohort/plan-final/receipt.json",
+      "sha256": "99d6804b5f7e28cba52e0e94aa960d7a8388374008e938cd94039a63f9d27498"
+    }
+  },
+  "retainedReader": {
+    "boundedResultBytes": 98308,
+    "inventory": {
+      "path": "target/v53-carried-application-cohort/retained-inventory.json",
+      "sha256": "8e808b48ad63e5790df9edc92a998cafdee0592120ebb7d9aaf1a99c4e55e4fe"
+    },
+    "log": {
+      "path": "target/v53-carried-application-cohort/retained-reader.log",
+      "sha256": "055d9a7de116d57b5f9735d0746085ce5f798980980eb74ccc53081fd75cd7d1"
+    },
+    "negativeCases": 268,
+    "rawBytes": 80274926,
+    "rawFiles": 10599,
+    "result": {
+      "path": "target/v53-carried-application-cohort/retained-reader-result.json",
+      "sha256": "d158beeb71981c4055b4adecd93ad720ea017e163f154578ead549d9314acf1b"
+    },
+    "script": {
+      "path": "target/v53-carried-application-cohort/replay-retained.py",
+      "sha256": "533ca37e0675fea80159db12fbe3fa697584487b0aa6a11335a3580c08d28f8c"
+    },
+    "seconds": 496.5509697809757,
+    "summary": {
+      "path": "target/v53-carried-application-cohort/retained-reader-summary.json",
+      "sha256": "a3df207088df214f308f639c9fd5e523f18f557fdef02d2547cebfac2ea0c15e"
+    }
+  },
+  "schema": "gse-v53-carried-application-cohort-development-v1",
+  "scope": "four-axis catalogue and original-first reader integration; retained FINAL/SIGKILL development original only",
+  "status": "PARTIAL",
+  "tests": {
+    "documentation": {
+      "path": "target/v53-carried-application-cohort/contract-final.json",
+      "sha256": "c7259165470e53a9a8edd51be05fbfd8fa9d1dbd943763d649587231cdf19e37"
+    },
+    "initialDevelopmentFailure": {
+      "path": "target/v53-carried-application-cohort/entry-tests-initial.log",
+      "sha256": "355041122894512640cbc32888065d473e4d6ef80a268ab206b8a90d22243061"
+    },
+    "suites": [
+      {
+        "log": {
+          "path": "target/v53-carried-application-cohort/entry-tests.log",
+          "sha256": "2dc3fd1453c9fea38e9177702541cb71e03dc5d7ad258afd8956365fc909dba7"
+        },
+        "tests": 52
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-cohort/planning-tests.log",
+          "sha256": "da9eb4a7adc1d388df55260631a46ed209272c37e82bac3cdcb89f3b14b19d24"
+        },
+        "tests": 85
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-cohort/related-tests.log",
+          "sha256": "fce63bd8ed7e129c0af565b2647ffb4ef525bd0e87c2782ec46de68f84ba01b3"
+        },
+        "tests": 503
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-cohort/optimized-tests.log",
+          "sha256": "406fa85a9fa870a57931b57997db5822735d4a43f433941a011d05c8fc767eaa"
+        },
+        "tests": 55
+      }
+    ],
+    "suitesOverlap": true
+  },
+  "wholeRuntimeResourcesQualified": false
+}

@@ -1,5 +1,14 @@
 # V5.3 — controlled cluster operations
 
+The current [v4 carried-transition catalogue](PHASE_3_CARRIED_APPLICATION_COHORT.md)
+adds all four application-ACK halt/SIGKILL combinations to the ten existing
+histories, with nine captured families and 268 exact negatives per new original.
+Both owner projections are compacted only after full original-first replay;
+all original bytes remain retained. Current scheduling totals are **564 whole
+histories, 258 execution groups, 498 raw archives and 540 selected jobs**.
+Final-source execution of the complete catalogue remains pending. Earlier
+batch notes below retain their historical implementation/evidence scope.
+
 [Carried application transient composition](PHASE_3_CARRIED_APPLICATION_TRANSIENTS.md)
 adds vote, recovery completion, ledger and replay captures to the original ACK
 crash history, with exact overlap checks and original resource-owner binding.
@@ -40,7 +49,7 @@ pending.
 INTENT/FINAL × ACCEPT/PROOF × halt/SIGKILL process histories in the existing
 carried-transition entry. Seven captured families and original storage ownership
 are replayed before 210 exact negatives per new history. The ten-history subset
-keeps all prior checks; the twelve-subset plan now declares 560 histories, 254
+keeps all prior checks; the then-current v3 plan declared 560 histories, 254
 execution groups and 494 raw archives. Final-source execution and Phase 3 closure
 remain pending.
 

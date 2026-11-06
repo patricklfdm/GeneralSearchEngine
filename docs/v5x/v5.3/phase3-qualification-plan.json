@@ -429,7 +429,8 @@
         "scripts/v53/test_native_carried_application_maintenance_plans.py",
         "scripts/v53/test_native_carried_application_maintenance_prefixes.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ApplicationMaintenanceCaptureTest.java",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedApplicationMaintenancePrefixTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedApplicationMaintenancePrefixTest.java",
+        "scripts/v53/test_native_carried_application_capture_history.py"
       ],
       "readers": [
         "scripts/v53/carried_process_evidence.py",
@@ -453,7 +454,8 @@
         "scripts/v53/native_application_retirement_files.py",
         "scripts/v53/native_carried_application_retirement_prefixes.py",
         "scripts/v53/native_carried_application_maintenance_plans.py",
-        "scripts/v53/native_carried_application_maintenance_prefixes.py"
+        "scripts/v53/native_carried_application_maintenance_prefixes.py",
+        "scripts/v53/native_carried_application_capture_history.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_CARRIED_SLOTS.md",
@@ -475,7 +477,8 @@
         "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_PREFIXES.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_RETIREMENT_PREFIXES.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_MAINTENANCE_PLANS.md",
-        "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_MAINTENANCE_PREFIXES.md"
+        "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_MAINTENANCE_PREFIXES.md",
+        "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_COHORT.md"
       ],
       "cohorts": [
         "node-renames",
@@ -784,7 +787,8 @@
         "scripts/v53/test_native_carried_application_storage_coverage.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedApplicationTransientPrefixTest.java",
         "scripts/v53/test_native_carried_application_transients.py",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ApplicationReopenCustodyTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ApplicationReopenCustodyTest.java",
+        "scripts/v53/test_native_carried_application_capture_history.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -882,7 +886,8 @@
         "scripts/v53/native_carried_application_maintenance_prefixes.py",
         "scripts/v53/native_carried_application_storage_coverage.py",
         "scripts/v53/native_carried_application_transient_plans.py",
-        "scripts/v53/native_carried_application_transient_prefixes.py"
+        "scripts/v53/native_carried_application_transient_prefixes.py",
+        "scripts/v53/native_carried_application_capture_history.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -988,7 +993,8 @@
         "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_MAINTENANCE_PLANS.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_MAINTENANCE_PREFIXES.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_STORAGE.md",
-        "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_TRANSIENTS.md"
+        "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_TRANSIENTS.md",
+        "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_COHORT.md"
       ],
       "cohorts": [
         "profiles",
@@ -1234,8 +1240,8 @@
       "status": "ENTRY_READY_EXECUTION_PENDING"
     },
     "carried-transition-histories": {
-      "members": 10,
-      "casesSha256": "f5a00cd9bfc4f3b4d0470af5f5f836ffc1e2a6f870024385a2487a2cf8fea7c7",
+      "members": 14,
+      "casesSha256": "0318e9d0e3aba243f83d3fcfc1b91d77fe1947cd98e367355ef040f4ee660851",
       "status": "ENTRY_READY_EXECUTION_PENDING"
     },
     "automatic-histories": {
@@ -1254,7 +1260,7 @@
       "id": "component-cohorts",
       "status": "OPEN",
       "dependsOn": [],
-      "work": "The twelve admitted source/build/toolchain/reader-bound catalogues now declare 560 whole histories in 254 execution groups. Existing profiles, learner, transfer, round, DATA, automatic and joint-floor entries are implemented and must not be redeveloped. Carried-transition v3 retains the original INTENT/FINAL pair and adds all eight INTENT/FINAL x ACCEPT/PROOF x halt/SIGKILL combinations with complete seven-family captured bytes and physical owner binding. The historical FINAL pilot passes all 210 capture/owner negatives. The exact-3cff6932 INTENT/ACCEPT/halt original also passes v2 member admission after relocation, including 210 exact negatives and unchanged source/build/original inventories. Neither local result substitutes for the complete final-source v3 cohort. All eight ACCEPT/PROOF cases need final-source execution; application-ACK histories still need the same complete capture/admission scope; application-ACK physical, protocol, export and retention readers already exist. Two development application-ACK resource originals now pass complete original-chain replay and 23 resource negatives each after relocation. Their exact interrupted-end projection matches actual callbacks, but it is not transient file capture or source-bound cohort admission. Review remaining native payload/profile and lifecycle obligations against their actual original histories. Conditional Phase 2 fixtures cannot replace native ownership. Do not equate the declared matrices or component successes with full Phase 3 acceptance. A separate application-ACK first-lifetime file capture and original-first decoder are now implemented; they cannot replace recovery retirement/campaign/vote/FLOOR/ledger/publication transient composition or full cohort admission. One unretried FINAL/SIGKILL development original now passes that dedicated application-prefix reader after relocation (32 captures and 24 exact negatives). The existing normal completion reader separately passes its three conditional components and 39 physical negatives; neither result is a complete application-ACK cohort. The same-history application retirement capture and original-first byte oracle are now implemented, including certificate reseal, old-input scratch and derived-end deletion. This remains one additional family, not full application-ACK transient composition or cohort admission. One unretried INTENT/halt development original now passes both same-history readers after relocation: 32 interrupted application prefixes, 54 old-end retirement prefixes and 53 exact negatives; all eight owner lifetimes and original inventories remain bound. Other transient families and final-source cohort execution remain OPEN. Application campaign/FLOOR/ordinary-retirement file projections now preserve staged owners and original local pins through both process lifetimes. These expected states are not captured-byte evidence; actual composition and application cohort admission remain OPEN. Independent original-first replay of the retained INTENT/halt and FINAL/SIGKILL histories now derives 5,074 exact indexed maintenance/campaign states; original file inventories remain unchanged and capturedBytesQualified remains false. A composed native entry and original-first reader now bind campaign/FLOOR/ordinary-retirement sidecars to the same application-ACK original and its interrupted/old-end capture prerequisites. The FLOOR decoder recognizes the four existing local-pin callbacks; 84 unchanged family negatives and five pin-specific physical mutations are declared. Other transient families, physical charge composition and application cohort admission remain OPEN. One unretried FINAL/SIGKILL development original now qualifies the composed maintenance captures after relocation: 2,131 maintenance states, 32 first-ACK and 54 old-end prefixes, with all 142 exact capture negatives and 8,677 original files unchanged. This does not supply full transient composition or final-source cohort admission. A nine-family application capture entry now composes original votes, normal recovery completion, continuous peer/future ledgers and typed replay with the preceding five captured families. Only exact old-end/general-replay duplicates can be counted once. Original resource-owner binding remains mandatory. Native qualification is recorded separately; source-bound application cohort admission and the complete simultaneous resource envelope remain OPEN. The corrected-source FINAL/SIGKILL development original now passes all nine captured families, 3301 unique callbacks, eight owner lifetimes and 268 exact file/owner negatives after relocation. Its 23 old-end/general-replay overlaps agree exactly, and all 10599 original files remain unchanged. The preceding source remains a retained physical-ownership failure at two peer-ledger reseal callbacks. This corrected development success is not exact-commit/final-source cohort admission or a full resource-envelope result.",
+      "work": "The twelve admitted source/build/toolchain/reader-bound catalogues now declare 564 whole histories in 258 execution groups. Existing profiles, learner, transfer, round, DATA, automatic and joint-floor entries are implemented and must not be redeveloped. Carried-transition v3 retains the original INTENT/FINAL pair and adds all eight INTENT/FINAL x ACCEPT/PROOF x halt/SIGKILL combinations with complete seven-family captured bytes and physical owner binding. The historical FINAL pilot passes all 210 capture/owner negatives. The exact-3cff6932 INTENT/ACCEPT/halt original also passes v2 member admission after relocation, including 210 exact negatives and unchanged source/build/original inventories. Neither local result substitutes for the complete final-source v3 cohort. All eight ACCEPT/PROOF cases need final-source execution; application-ACK histories still need the same complete capture/admission scope; application-ACK physical, protocol, export and retention readers already exist. Two development application-ACK resource originals now pass complete original-chain replay and 23 resource negatives each after relocation. Their exact interrupted-end projection matches actual callbacks, but it is not transient file capture or source-bound cohort admission. Review remaining native payload/profile and lifecycle obligations against their actual original histories. Conditional Phase 2 fixtures cannot replace native ownership. Do not equate the declared matrices or component successes with full Phase 3 acceptance. A separate application-ACK first-lifetime file capture and original-first decoder are now implemented; they cannot replace recovery retirement/campaign/vote/FLOOR/ledger/publication transient composition or full cohort admission. One unretried FINAL/SIGKILL development original now passes that dedicated application-prefix reader after relocation (32 captures and 24 exact negatives). The existing normal completion reader separately passes its three conditional components and 39 physical negatives; neither result is a complete application-ACK cohort. The same-history application retirement capture and original-first byte oracle are now implemented, including certificate reseal, old-input scratch and derived-end deletion. This remains one additional family, not full application-ACK transient composition or cohort admission. One unretried INTENT/halt development original now passes both same-history readers after relocation: 32 interrupted application prefixes, 54 old-end retirement prefixes and 53 exact negatives; all eight owner lifetimes and original inventories remain bound. Other transient families and final-source cohort execution remain OPEN. Application campaign/FLOOR/ordinary-retirement file projections now preserve staged owners and original local pins through both process lifetimes. These expected states are not captured-byte evidence; actual composition and application cohort admission remain OPEN. Independent original-first replay of the retained INTENT/halt and FINAL/SIGKILL histories now derives 5,074 exact indexed maintenance/campaign states; original file inventories remain unchanged and capturedBytesQualified remains false. A composed native entry and original-first reader now bind campaign/FLOOR/ordinary-retirement sidecars to the same application-ACK original and its interrupted/old-end capture prerequisites. The FLOOR decoder recognizes the four existing local-pin callbacks; 84 unchanged family negatives and five pin-specific physical mutations are declared. Other transient families, physical charge composition and application cohort admission remain OPEN. One unretried FINAL/SIGKILL development original now qualifies the composed maintenance captures after relocation: 2,131 maintenance states, 32 first-ACK and 54 old-end prefixes, with all 142 exact capture negatives and 8,677 original files unchanged. This does not supply full transient composition or final-source cohort admission. A nine-family application capture entry now composes original votes, normal recovery completion, continuous peer/future ledgers and typed replay with the preceding five captured families. Only exact old-end/general-replay duplicates can be counted once. Original resource-owner binding remains mandatory. Native qualification is recorded separately; source-bound application cohort admission and the complete simultaneous resource envelope remain OPEN. The corrected-source FINAL/SIGKILL development original now passes all nine captured families, 3301 unique callbacks, eight owner lifetimes and 268 exact file/owner negatives after relocation. Its 23 old-end/general-replay overlaps agree exactly, and all 10599 original files remain unchanged. The preceding source remains a retained physical-ownership failure at two peer-ledger reseal callbacks. This corrected development success is not exact-commit/final-source cohort admission or a full resource-envelope result. Carried-transition v4 now declares fourteen histories, adding all four INTENT/FINAL x application-ACK x halt/SIGKILL originals with nine captured families and 268 exact negatives each. Both original owner projections remain bound in compact receipts. Earlier development results exercise readers only; all fourteen final-source native executions and downloaded replays remain pending.",
       "acceptance": "Exact source/build/toolchain/reader-bound originals and independent original-first replay. Missing observations, unsupported histories or an original deadline failure remain failures. Whole ownership and revision histories stay indivisible."
     },
     {
