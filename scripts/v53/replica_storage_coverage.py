@@ -20,7 +20,8 @@ MISC_FILES={'root.gsr','node.gsr','replica.lock','genesis.gsr','selector.gsr','s
 GENERATION_MEMBERS={'generation.gsr','source.gscp','promise.gsr','basis.gsr','selected.gsr','ancestry.gsr',
                     'owned-tail.gsr','selected-sources.gsr','selected-coverage.json','adoption.gsr'}
 END_MEMBERS={'plan.json','selector.gsr','certificate.gsr','catalog.gsr','statement.gsr','ack.gsr',
-             'parent-statement.gsr','parent-ack.gsr',*(f'ancestor-{i}-{kind}.gsr' for i in range(5) for kind in ('statement','ack'))}
+             'parent-statement.gsr','parent-ack.gsr','retirement.gsat','retirement.gsat.next',
+             *(f'ancestor-{i}-{kind}.gsr' for i in range(5) for kind in ('statement','ack'))}
 BACKUP={'gse-backup-checkpoint','gse-backup-manifest','gse-backup-metadata'}
 
 

@@ -1,9 +1,9 @@
 # Phase 3 qualification inventory and remaining work
 
 [Application maintenance storage ownership](PHASE_3_CARRIED_APPLICATION_STORAGE.md)
-joins the existing captured files to original live resource owners at each
-callback. It retains a distinct partial scope; remaining capture families,
-application/old-end charge mapping and final-source Phase 3 admission stay open.
+joins maintenance, interrupted application and old-end retirement captures to
+original live resource owners at each callback. Remaining capture families,
+simultaneous resource limits and final-source Phase 3 admission stay open.
 
 ## Current closure blockers
 

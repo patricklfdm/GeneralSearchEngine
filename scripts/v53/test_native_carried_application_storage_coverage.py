@@ -105,5 +105,63 @@ class NativeCarriedApplicationStorageCoverageTest(unittest.TestCase):
                  patch.object(p.shared.coverage.t,'read',return_value=(b'',trace)),patch.object(p.shared.coverage,'bind',side_effect=error):
                 with self.assertRaisesRegex(ValueError,reason):p.qualify(temp)
 
+    def test_extended_plans_bind_original_application_lifetime_without_mutating_input(self):
+        first=[dict(eventIndex=8,node='node-1',point='APPLY_ACK_DIRECTORY_FORCED',files={})]
+        old=[dict(life=2,eventIndex=9,node='node-1',point='STAGED_RETIREMENT_BEFORE_RETURN',files={})]
+        with patch.object(p.prerequisite,'plans',return_value={key:[key] for key in p.prerequisite.FAMILIES}),\
+             patch.object(p.prerequisite.prerequisite.prerequisite,'plans',return_value=first) as interrupted,\
+             patch.object(p.prerequisite.prerequisite,'plans',return_value=old) as retired:
+            parts=p.application_plans('/original')
+        self.assertEqual(1,parts['application'][0]['life']);self.assertNotIn('life',first[0]);self.assertEqual(old,parts['old-end'])
+        interrupted.assert_called_once_with('/original');retired.assert_called_once_with('/original')
+        with patch.object(p.prerequisite,'plans',return_value={key:[key] for key in p.prerequisite.FAMILIES}),\
+             patch.object(p.prerequisite.prerequisite.prerequisite,'plans',return_value=[]),\
+             patch.object(p.prerequisite.prerequisite,'plans',return_value=old),self.assertRaisesRegex(ValueError,'nonempty captured families'):
+            p.application_plans('/original')
+
+    def test_extended_projection_rejects_missing_family_swapped_counts_and_shared_callback(self):
+        names=[*p.prerequisite.FAMILIES,'application','old-end']
+        parts={key:[dict(life=2,node='node-1',eventIndex=i,point='POINT',files={'root.gsr':{'bytes':1,'sha256':'a'*64}})] for i,key in enumerate(names)}
+        original={'maintenance':{'families':{key:{'capturedPrefixes':1} for key in p.prerequisite.FAMILIES}},
+                  'original':{'original':{'application':{'capturedPrefixes':1}},'retirement':{'lifetime':{'capturedPrefixes':1}}}}
+        for case,reason in (('missing','exact five families'),('counts','exact family capture counts'),('duplicate','ordered unique callbacks')):
+            changed=copy.deepcopy(parts)
+            if case=='missing':changed.pop('application')
+            elif case=='counts':changed['old-end'].extend(changed.pop('application'));changed['application']=[]
+            else:changed['application'][0]['eventIndex']=changed['old-end'][0]['eventIndex']
+            with self.subTest(case=case),patch.object(p.shared.resource,'read') as read,self.assertRaisesRegex(ValueError,reason):
+                p.captured_projection('/original',changed,original)
+            read.assert_not_called()
+
+    def test_extended_entry_keeps_five_captures_distinct_from_full_seven_and_runtime(self):
+        with tempfile.TemporaryDirectory() as temp,patch.object(p.prerequisite,'validate',return_value={'original':True}),\
+             patch.object(p,'application_plans',return_value={'five':'families'}),\
+             patch.object(p,'captured_projection',return_value={'expectedCallbacks':2217}) as project,\
+             patch.object(p.shared,'project') as maintenance:
+            result=p.validate(temp,include_application=True)
+        project.assert_called_once_with(Path(temp)/'previous/previous/observed',{'five':'families'},{'original':True})
+        maintenance.assert_not_called();self.assertTrue(result['applicationAndRetirementChargeBindingQualified'])
+        self.assertEqual('application-five-captured-families',result['captureScope'])
+        for field in ('allSevenFamiliesCaptured','wholeRuntimeResourcesQualified','cohortAdmitted','phase3Complete'):self.assertFalse(result[field])
+
+    def test_extended_original_failure_never_reaches_any_projection(self):
+        with tempfile.TemporaryDirectory() as temp,patch.object(p.prerequisite,'validate',side_effect=ValueError('invalid five-family original')),\
+             patch.object(p,'application_plans') as plans,patch.object(p,'captured_projection') as project:
+            with self.assertRaisesRegex(ValueError,'invalid five-family original'):p.qualify(temp,include_application=True)
+        plans.assert_not_called();project.assert_not_called()
+
+    def test_extended_qualification_uses_complete_owner_vocabulary_and_real_balanced_replay(self):
+        rows,trace,events,bounds,projected,targets=self.negative_fixture()
+        with tempfile.TemporaryDirectory() as temp,patch.object(p,'validate',return_value={'coverage':projected}) as original,\
+             patch.object(p,'application_plans',return_value={'synthetic':rows}),\
+             patch.object(p.shared,'ownership_targets',return_value=targets) as choose,\
+             patch.object(p.shared.resource,'read',side_effect=lambda _,name,*args:events if name=='events.json' else bounds),\
+             patch.object(p.shared.coverage.t,'read',return_value=(b'',trace)):
+            result=p.qualify(temp,include_application=True)
+        original.assert_called_once_with(Path(temp),include_application=True)
+        choose.assert_called_once_with(projected)
+        self.assertEqual(sorted(targets),[v['case'] for v in result['negatives']])
+        self.assertTrue(all(v['balancedOriginalTotals'] for v in result['negatives']))
+
 
 if __name__=='__main__':unittest.main()

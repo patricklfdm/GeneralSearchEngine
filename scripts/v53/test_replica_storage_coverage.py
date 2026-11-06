@@ -92,6 +92,40 @@ class StorageCoverageTest(unittest.TestCase):
             else:charges[m.JOURNAL]['owner']='another'
             with self.subTest(change=change),self.assertRaises(ValueError):m.compare(files,charges,ordinals)
 
+    def test_applied_retirement_candidates_and_authority_use_shared_journal(self):
+        for marker in ('retirement.gsat','retirement.gsat.next'):
+            for size in (0,13):
+                files={'grants.gsr':file(5),'applied-end':D,'applied-end/'+marker:file(size),
+                       'applied-end/application.image':file(17)}
+                charges=[charge('JOURNAL','membership-grants',5+size),charge('APPLICATION','applied-end',17)]
+                with self.subTest(marker=marker,size=size):
+                    result=m.compare(files,{m.t.key(v):v for v in charges},{})
+                    journal=next(v for v in result['required'] if v['unit']=='JOURNAL')
+                    self.assertEqual(5+size,journal['bytes']);self.assertIn('applied-end/'+marker,journal['paths'])
+                    self.assertEqual(22+size,result['physicalBytes'])
+
+    def test_retirement_marker_cannot_borrow_the_application_reservation(self):
+        for marker in ('retirement.gsat','retirement.gsat.next'):
+            files={'grants.gsr':file(5),'applied-end':D,'applied-end/'+marker:file(13)}
+            for journal in (None,5):
+                charges=[charge('APPLICATION','applied-end',m.t.MIB)]
+                if journal is not None:charges.append(charge('JOURNAL','membership-grants',journal))
+                with self.subTest(marker=marker,journal=journal),self.assertRaisesRegex(ValueError,
+                        'original charge owner' if journal is None else 'simultaneous owner extent'):
+                    m.compare(files,{m.t.key(v):v for v in charges},{})
+
+    def test_empty_retirement_marker_still_requires_original_journal_owner(self):
+        for marker in ('retirement.gsat','retirement.gsat.next'):
+            with self.subTest(marker=marker),self.assertRaisesRegex(ValueError,'original charge owner'):
+                m.compare({'applied-end':D,'applied-end/'+marker:file(0)}, {}, {})
+
+    def test_exact_retirement_marker_names_do_not_admit_arbitrary_members(self):
+        for marker in ('retirement.gsat.other','retirement.gsat.next.next','retirement.tmp'):
+            with self.subTest(marker=marker),self.assertRaisesRegex(ValueError,'applied member'):
+                m.owners({'applied-end':D,'applied-end/'+marker:file()}, {})
+        with self.assertRaisesRegex(ValueError,'exact file or directory'):
+            m.owners({'applied-end':D,'applied-end/retirement.gsat':D}, {})
+
 
 def row(at,point,files,node='node-1',life=2):return dict(life=life,node=node,eventIndex=at,point=point,files=files)
 

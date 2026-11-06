@@ -1,0 +1,167 @@
+{
+  "acceptancePlan": {
+    "path": "docs/v5x/v5.3/acceptance-plan.json",
+    "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+  },
+  "base": "ba62cd936ca6ff9760527ffc8ac7fb7852fc62ea",
+  "cohortAdmitted": false,
+  "frozenParametersChanged": false,
+  "generator": {
+    "path": "target/v53-carried-application-end-storage/index-evidence.py",
+    "sha256": "1bc151a8780b27fe34a12ad77ce13306d94a5ebafd04c5dc91771af63254346e"
+  },
+  "historicalIndexes": {
+    "count": 397,
+    "inventory": {
+      "path": "target/v53-carried-application-end-storage/historical-indexes.json",
+      "sha256": "45220d095eceac05c216cc94fe2388e65bccc6142dbbabbcab8b0ecd5e1699c3"
+    },
+    "unchanged": true
+  },
+  "hostedExecuted": false,
+  "limitations": [
+    "The original producer is the preceding development snapshot, not a new exact-commit or final-source cohort. The reader is a separate ba62cd93 development snapshot plus four Python files.",
+    "Only the existing FINAL/SIGKILL original was replayed. No native workload, Maven build, workflow or paid-cloud execution was repeated.",
+    "Physical charge binding covers three maintenance families plus the original first-ACK and old-end retirement callbacks. Remaining transient families, full simultaneous resource limits and final-source admission remain open.",
+    "Reported file peaks are one original owner at one observed callback, not a sum of separate peaks, filesystem allocation, RAM or a full resource envelope."
+  ],
+  "newNativeExecuted": false,
+  "paidCloudExecuted": false,
+  "phase3Complete": false,
+  "plan": {
+    "path": "docs/v5x/v5.3/phase3-qualification-plan.json",
+    "sha256": "c11aafffa9efd5c712f649c73d8bf97bbc7de393a0c593e27b15502612bb87cd"
+  },
+  "producer": {
+    "build": {
+      "path": "target/v53-carried-application-maintenance-prefixes/producer/build.json",
+      "sha256": "e655f2cfa763a87a84c4ff35bfc602e4a8c6837d4fd73edc87c922d2ae03e562"
+    },
+    "precedingCaptureQualification": {
+      "path": "target/v53-carried-application-maintenance-prefixes/qualification/summary.json",
+      "sha256": "032e3085e8ee2eb84583cfd8af4826e0d790502ce419ed174abad287f0d532ae"
+    },
+    "precedingNegativesNotRepeated": 142,
+    "priorDevelopmentIndex": {
+      "path": "docs/v5x/v5.3/phase3-evidence/carried-application-maintenance-prefix-development.json",
+      "sha256": "e881cabb9e9c15df096c7f654e1ef64feebdae90307658dae15af9eb48706f32"
+    },
+    "receipt": {
+      "path": "target/v53-carried-application-maintenance-prefixes/producer/receipt.json",
+      "sha256": "988105cc2edb4744c250dfaf5d8f0c9606533bb8db2b6382f9a56449994be568"
+    },
+    "source": {
+      "path": "target/v53-carried-application-maintenance-prefixes/producer/source.json",
+      "sha256": "1c753f80e0eb895304d60ba6bedf848fb4a28ebe6fe0a5a79d569578c085c594"
+    }
+  },
+  "qualification": {
+    "applicationAndRetirementChargeBindingQualified": true,
+    "bytes": 67206586,
+    "callbacks": 2217,
+    "captureScope": "application-five-captured-families",
+    "capturedFamilyCounts": {
+      "application": 32,
+      "campaigns": 457,
+      "floors": 1077,
+      "old-end": 54,
+      "retirement": 597
+    },
+    "files": 8677,
+    "inventory": {
+      "path": "target/v53-carried-application-end-storage/qualification/inventory.json",
+      "sha256": "821f32390c75f708289a51a5c0a788c5070b1a26bb4757d395f751f70a3d2c35"
+    },
+    "log": {
+      "path": "target/v53-carried-application-end-storage/qualification.log",
+      "sha256": "090a233b4c6f6880ed0335ab6c3851508871d94b3f51cb3e821107d7aee68a23"
+    },
+    "negativeCases": 10,
+    "originalPreserved": true,
+    "ownerLifetimes": 8,
+    "result": {
+      "path": "target/v53-carried-application-end-storage/qualification/result.json",
+      "sha256": "72bb1ec7e909d83b135125906ea825cd0419ec5b731c85442dd8f288a6b9df13"
+    },
+    "script": {
+      "path": "target/v53-carried-application-end-storage/qualify.py",
+      "sha256": "c9f9c1be0eab8dc082305e7b71611eb1b91d3c9209b195c3676c5b0bcb721481"
+    },
+    "seconds": 60.22485196799971,
+    "status": "PASS",
+    "summary": {
+      "path": "target/v53-carried-application-end-storage/qualification/summary.json",
+      "sha256": "23fe6e36b681df12be3ccb0247364578f01571fc0627b6a6be9d28064f90a4b4"
+    }
+  },
+  "reader": {
+    "currentFiles": [
+      {
+        "path": "scripts/v53/native_carried_application_storage_coverage.py",
+        "sha256": "847936a3fd56d88fed61efcda0cc8c382abc9731c3ebb3dc05dcfa9f26723b79"
+      },
+      {
+        "path": "scripts/v53/replica_storage_coverage.py",
+        "sha256": "223e03fcb29c406d2dd4fbce9b18dce508f1d0b2278a7f3eb3c0433e377a6ba7"
+      },
+      {
+        "path": "scripts/v53/test_native_carried_application_storage_coverage.py",
+        "sha256": "56ca9aa3688d42d03eea978454876232b62e13173367584b6d15599fe25d914c"
+      },
+      {
+        "path": "scripts/v53/test_replica_storage_coverage.py",
+        "sha256": "bc0dee33520f6377b9e1baeebd80a6a85f80593266e29a69c75dcf1f44282f2d"
+      }
+    ],
+    "origin": {
+      "path": "target/v53-carried-application-end-storage/reader/source-origin.json",
+      "sha256": "633829e055990d0c028049f9402b937341cf85af7a0f260436adde4cbddeed2d"
+    },
+    "source": {
+      "path": "target/v53-carried-application-end-storage/reader/source.json",
+      "sha256": "b2648749016b57821e14d4b05b8d58a839ef71e08a850868d6ef6ccd6a0e8f07"
+    },
+    "toolchain": {
+      "path": "target/v53-carried-application-end-storage/reader/toolchain.json",
+      "sha256": "620f18f099771c2e20ea06a98645dfc5c551cbae8f63cf9a4d9617045c69da23"
+    }
+  },
+  "runtimeJavaChanged": false,
+  "schema": "gse-v53-carried-application-end-storage-development-v1",
+  "status": "PARTIAL",
+  "tests": {
+    "documentationContract": {
+      "path": "target/v53-carried-application-end-storage/contract.json",
+      "sha256": "4ef1bb3dcf3987071392acf7e196abf9213b7ffabba634642465691a3f633aa4"
+    },
+    "precedingMapping": {
+      "path": "target/v53-carried-application-end-storage/preceding-mapping.log",
+      "sha256": "fb8b23f4277a077adb6b89ec6724633ca3ad87d79a24733550768f659da4e665"
+    },
+    "suites": [
+      {
+        "log": {
+          "path": "target/v53-carried-application-end-storage/unit-tests.log",
+          "sha256": "d6badef8b98a863aa03a0f2d5a0aa7889008e0a6485d4a49cf76cc0fc5285af2"
+        },
+        "tests": 59
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-end-storage/optimized-tests.log",
+          "sha256": "fa25cf854691d8d903d9dc9687c77ddcc769598874e00caa6924d6052c25ef48"
+        },
+        "tests": 59
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-end-storage/planning-tests.log",
+          "sha256": "b3a7e3c559c040584f65fe5773e154888047d225d94a9745e119d221c67848f3"
+        },
+        "tests": 34
+      }
+    ],
+    "suitesOverlap": true
+  },
+  "wholeRuntimeResourcesQualified": false
+}
