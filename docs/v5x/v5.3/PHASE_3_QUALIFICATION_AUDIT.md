@@ -1,5 +1,12 @@
 # Phase 3 qualification inventory and remaining work
 
+[Maximum-image transition entry](PHASE_3_MAXIMUM_TRANSITION.md) now connects the
+existing exact native image fixture to a real same-pool receiver refusal and
+an admitted REMOVE/FINAL/stable continuation. The complete small-image original
+and sixteen exact negatives pass; maximum-image and final-source execution
+remain pending. Its storage probe does not establish an admitted learner,
+full metadata pressure or automatic runtime completion. All five gaps stay OPEN.
+
 [Complete required-four export admission](PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md)
 now requires source/control/export capture and exact session/direct/probe bindings
 on the same whole original. Eighteen allocation-proof negatives bring the entry

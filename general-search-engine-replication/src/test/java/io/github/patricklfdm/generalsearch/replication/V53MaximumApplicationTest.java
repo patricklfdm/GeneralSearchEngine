@@ -19,11 +19,8 @@ class V53MaximumApplicationTest {
         result.add(new Doc(1023,"y".repeat(finalBytes)));return result;
     }
     static void progress(String stage){System.out.println("v53MaximumApplicationProgress="+stage);System.out.flush();}
-    @Test void exactMaximumSurvivesAdmittedCapturePublicationAndSevenImageRetirement()throws Exception {
-        // Only retained copies may use an external evidence disk. The admitted
-        // owner and materialization remain on the original Linux test filesystem.
-        Path out=Path.of(System.getProperty("v53.maximum.output","target/v53-max-application"),"run-"+UUID.randomUUID());Files.createDirectories(out);
-        System.out.println("v53MaximumApplicationEvidence="+out.toAbsolutePath());progress("calibrate");
+    record Seed(Path source,byte[] image,int extra) {}
+    static Seed captureMaximum(Path temp,Path out)throws Exception {
         var config=builder().configuration();var core=storage(temp.resolve("core-anchor"),2);
         var base=new DurableApplicationState<>(HISTORY,41,documents(0),config.indexes());
         byte[] calibration=MembershipApplicationImage.capture(config,core,base,temp.resolve("calibration"));
@@ -43,6 +40,16 @@ class V53MaximumApplicationTest {
         assertEquals(DurableOperationException.Reason.CAPACITY_EXCEEDED,failure.reason());assertEquals(original,V53ReplayFilesTest.files(source));
         byte[] oversized=Arrays.copyOf(full,MembershipApplicationImage.MAXIMUM+1);Path refused=temp.resolve("oversized-read");
         assertThrows(IllegalArgumentException.class,()->MembershipApplicationImage.read(config,core,oversized,refused));assertFalse(Files.exists(refused));
+        return new Seed(source,full,extra);
+    }
+    @Test void exactMaximumSurvivesAdmittedCapturePublicationAndSevenImageRetirement()throws Exception {
+        // Only retained copies may use an external evidence disk. The admitted
+        // owner and materialization remain on the original Linux test filesystem.
+        Path out=Path.of(System.getProperty("v53.maximum.output","target/v53-max-application"),"run-"+UUID.randomUUID());Files.createDirectories(out);
+        System.out.println("v53MaximumApplicationEvidence="+out.toAbsolutePath());progress("calibrate");
+        var seed=captureMaximum(temp,out);var config=builder().configuration();
+        Path source=seed.source();byte[] full=seed.image();int extra=seed.extra(),administration=32,nativeImageLimit=full.length;
+        var state=new DurableApplicationState<>(HISTORY,41,documents(extra),config.indexes());
         progress("public-bootstrap");var helper=new V53BootstrapSeedTest();helper.temp=temp;
         var request=helper.request(temp.resolve("group"),5,source);Path raw=Files.createDirectory(out.resolve("publication"));
         var f=new V53BootstrapPublicationTest.Fixture(raw,request);assertEquals(nativeImageLimit,f.original.seed.application().length);

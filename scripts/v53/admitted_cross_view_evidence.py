@@ -193,6 +193,10 @@ class Walk:
         self.snapshot(f'slot-{slot}-published',published);self.group=self.settle(f'slot-{slot}-settled',published,nodes)
         for phase in ('accept','proof','certificate','apply','publish'):self.phase(f'{phase}-{slot}',nodes)
 
+    def installed_packet(self,members,packet,root_record):
+        """Historical storage histories preserve all original packet objects."""
+        return members['source.gscp']
+
     def campaign(self,names=None):
         self.counter+=1;counter=self.counter;names=names or self.active;prepared=dict(self.group);rows={};members,packet,cap,_=self.state()
         local=e.f.decode(self.group[names[0]]['node.gsr'],'records','NODE')['identity'];ballot=dict(counter=counter,proposer=names[0],incarnation=local['storage'])
@@ -211,7 +215,7 @@ class Walk:
         chosen=dict(prepared);installed=dict(prepared)
         for n in names:
             chosen[n]=dict(prepared[n],**{'grants.gsr':prepared[n]['grants.gsr']+selected})
-            prefix,old,_=c.current(self.group[n]);files=dict(zip(('promise.gsr','basis.gsr','selected.gsr','selected-sources.gsr','source.gscp'),(rows[n][0][1],rows[n][1][1],selected,b''.join(rows[v][1][1] for v in names),members['source.gscp'])))
+            prefix,old,_=c.current(self.group[n]);files=dict(zip(('promise.gsr','basis.gsr','selected.gsr','selected-sources.gsr','source.gscp'),(rows[n][0][1],rows[n][1][1],selected,b''.join(rows[v][1][1] for v in names),self.installed_packet(members,packet,self.group[n]['root.gsr']))))
             ancestry=retained_campaign_ancestry(members,packet,e.f.decode(old['basis.gsr'],'records','BASIS')['cut'])
             if ancestry:files['ancestry.gsr']=ancestry
             files.update({h+'.image':members[h+'.image'] for h in packet['images']});selector,generation=c.generation(files,cap,n,'b' if prefix=='generations/a/' else 'a',None)
@@ -219,6 +223,9 @@ class Walk:
         self.snapshot(f'campaign-{counter}-selected',chosen);self.snapshot(f'campaign-{counter}-installed',installed)
         self.group=self.settle(f'campaign-{counter}-settled',installed,names);self.first=None
         for phase in ('prepare','select','install'):self.phase(f'{phase}-{counter}',names)
+
+    def adoption_ancestry(self,files,members,packet):
+        return b''
 
     def removed(self,number,node):
         files=self.group[node];prefix,old,packet=c.current(files);members,remote,cap,_=self.state();slot='b' if prefix=='generations/a/' else 'a'
@@ -228,6 +235,8 @@ class Walk:
         promise=e.f.encode('records','PROMISE',dict(root=cap['root'],view=certificate['authority'],ballot=certificate['ballot'],basisId=None))
         values={'promise.gsr':promise,'source.gscp':members['source.gscp'],'adopted-certificate.gsr':cert}
         values.update({h+'.image':members[h+'.image'] for h in remote['images']})
+        ancestry=self.adoption_ancestry(files,old,remote)
+        if ancestry:values['ancestry.gsr']=ancestry
         manifest=e.f.encode('records','GENERATION',dict(root=cap['root'],node=node,generation=slot,cut=cap['cut'],catalog=cap['catalog'],application=cap['application'],capsule=e.digest(remote['capsuleBytes']),promise=e.digest(promise),basis=None,selection=None,ownedTail=None,files=[dict(path=k,size=len(v),sha256=e.digest(v)) for k,v in sorted(values.items())]))
         values['generation.gsr']=manifest;selector=e.f.encode('records','SELECTOR',dict(root=cap['root'],node=node,generation=slot,digest=e.digest(manifest)))
         self.group[node]=dict(files,**{'selector.gsr':selector,'grants.gsr':files['grants.gsr']+promise,'generations/'+slot:None},**{'generations/'+slot+'/'+k:v for k,v in values.items()})
