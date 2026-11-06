@@ -42,6 +42,19 @@ class CoveredStagingTest(unittest.TestCase):
         for event in ('APPLY_ACK_FORCED','APPLY_BEFORE_RETURN'):
             with self.assertRaisesRegex(ValueError,'old ACK'):q.no_ack(['STAGED_RETIREMENT_BEFORE_RETURN',event])
 
+    def test_optional_prefixes_preserve_default_result_and_each_delete_state(self):
+        before,marker=self.original();prefixes=[]
+        expected=q.cleanup(before,marker);self.assertEqual(expected,q.cleanup(before,marker,prefixes=prefixes))
+        self.assertEqual(expected[1],[point for point,_ in prefixes]);self.assertEqual(before,prefixes[0][1])
+        self.assertEqual(expected[0],prefixes[-1][1])
+        self.assertEqual(len(prefixes),len({id(files) for _,files in prefixes}))
+        for i,(point,files) in enumerate(prefixes):
+            if point=='SUPERSEDED_END_FILE_DELETED':self.assertEqual(1,len(prefixes[i-1][1].keys()-files.keys()))
+        cut='SUPERSEDED_END_RETIREMENT_PREFIX_WRITTEN';stopped=[]
+        state,events=q.cleanup(before,marker,cut,prefixes=stopped)
+        self.assertEqual((cut,state),stopped[-1]);self.assertEqual(events,[point for point,_ in stopped])
+        self.assertEqual(before,self.original()[0])
+
     def test_invalid_original_cannot_count_as_negative_rejections(self):
         with patch.object(q,'validate',side_effect=ValueError('invalid original')),patch.object(q.shutil,'copytree') as copytree:
             with self.assertRaisesRegex(ValueError,'invalid original'):q.qualify('profiles','interruptions')

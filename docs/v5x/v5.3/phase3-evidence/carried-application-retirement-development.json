@@ -1,0 +1,349 @@
+{
+  "acceptancePlan": {
+    "path": "docs/v5x/v5.3/acceptance-plan.json",
+    "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+  },
+  "base": "7db0c3467494c2ad84c52460e700e9eec6ffabe4",
+  "cohortAdmitted": false,
+  "currentSources": [
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ApplicationRetirementCaptureTest.java",
+      "sha256": "5b9457d9eba20b0793f6db5aeb6d87985c6503413b81314c6868fb728ff97f14"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedApplicationRecoveryPrefixTest.java",
+      "sha256": "229a92881c634a6245e806975edbe09c6a10428849f33825868063ac08fab0da"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessTest.java",
+      "sha256": "6f7ba21992931a022c7930996c74cdf22b45d65ca92cf71f94c68fc5ee8e20ff"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessWorker.java",
+      "sha256": "671437b25c94e5d5096e61b9eb5aeee435a0f1b4489be3857f33ab721ba8cab8"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeResourceCapture.java",
+      "sha256": "6e14e3df2ff7a95446480e7fb058834a381a9aa007a1c8a430fa8b50b25cb8ed"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RemoveRetirementCapture.java",
+      "sha256": "a842d9889bc104348b044fc7ca852e1a5285ccdeee1c96e71d4e9eb96b672d7b"
+    },
+    {
+      "path": "scripts/v53/covered_staging_evidence.py",
+      "sha256": "150413740eb7a9e26e8722c9bd43bb92b258c84d5e386579f3ca862b4c6e0990"
+    },
+    {
+      "path": "scripts/v53/native_application_retirement_files.py",
+      "sha256": "658a89ae3e7fc341d6de31bd1c26f07c5a54733e21397398ba6f7b9d396c06f1"
+    },
+    {
+      "path": "scripts/v53/native_carried_application_retirement_prefixes.py",
+      "sha256": "096d6ede6fda0cdd17581091f1ce08999c0219b0a8e683ec9097951b9d2fa341"
+    },
+    {
+      "path": "scripts/v53/test_covered_staging.py",
+      "sha256": "c5cff73ca6c0ec4e9ed7e31b6e1433accd3f7ce7525949506b5297e13bce6c4f"
+    },
+    {
+      "path": "scripts/v53/test_native_application_retirement_files.py",
+      "sha256": "b740008badc193b5ee54da9fbf6c1badf904e3658481aa1078ed830c3f2b6adf"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_application_retirement_prefixes.py",
+      "sha256": "5cc48fae811de44a1b8d25b8b9ab0b2293480576c45cd6be7a7f3cb672400810"
+    }
+  ],
+  "existingIndexes": {
+    "count": 393,
+    "inventory": {
+      "path": "target/v53-carried-application-retirement/historical-indexes.json",
+      "sha256": "b0d11c477ac683f617c62629a85da3f67543e3d7a120925b5d13446731528496"
+    },
+    "unchanged": true
+  },
+  "frozenParametersChanged": false,
+  "fullTransientBytesQualified": false,
+  "historicalProjection": {
+    "capturedBytesQualified": false,
+    "plans": [
+      {
+        "path": "target/v53-carried-application-retirement/intent-halt-projected-plan.json",
+        "sha256": "ca96d80f823a093befd9345be881a95730707881c34dde433c5794230da85737"
+      },
+      {
+        "path": "target/v53-carried-application-retirement/final-kill-projected-plan.json",
+        "sha256": "a709379d1edff2ccbb839cf9b88683cac9aedc9158432b458fa724cf9231784a"
+      }
+    ],
+    "result": {
+      "path": "target/v53-carried-application-retirement/prior-original-projection.json",
+      "sha256": "81b86c95f668b0b37b361d4a0d23eb23adb6cd046802867eaec89dae6daddbce"
+    }
+  },
+  "hostedExecuted": false,
+  "limitations": [
+    "Development snapshot records baseline 7db0c346 plus six modified and six new capture/test/reader files. It is not an exact-commit or final-source hosted cohort.",
+    "Only INTENT/halt was executed for the new retirement capture. Three other declared methods compiled but were not executed.",
+    "The same history qualifies first-lifetime interrupted application writes and recovery old-end retirement; other capture families, physical charge binding and full application cohort admission remain pending.",
+    "No full reactor suite, hosted workflow, paid cloud, budget relaxation or workload retry was used. Earlier original evidence remains intact."
+  ],
+  "native": {
+    "build": {
+      "path": "target/v53-carried-application-retirement/producer/build.json",
+      "sha256": "0ea8d4939d31f96b26786002e0fadc1ad37cbf9e4fb3b2fffe00a7860aa8c360"
+    },
+    "log": {
+      "path": "target/v53-carried-application-retirement/producer/maven.log",
+      "sha256": "c5662fa30c904318eacddfd9d5c01cfc8cdfcafe1eb29191d336a893dde6ca79"
+    },
+    "producerReceipt": {
+      "path": "target/v53-carried-application-retirement/producer/receipt.json",
+      "sha256": "d00b6e9c07c40636e7560db1854c389cc1b3438a578f258b9b0974f2822fea28"
+    },
+    "retries": 0,
+    "seconds": 729.087,
+    "source": {
+      "path": "target/v53-carried-application-retirement/producer/source.json",
+      "sha256": "1abb728719ed4437b6b25bc9af8cb174cec93313eda472085d6e274d6a802364"
+    },
+    "sourceOrigin": {
+      "path": "target/v53-carried-application-retirement/source-origin.json",
+      "sha256": "ce8f031965256115aa13f26cd7d5a07ec4372d3a7412c1d2c885b0050974abab"
+    },
+    "status": "PASS",
+    "suites": [
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53ApplicationCutCaptureTest",
+        "junit": {
+          "path": "target/v53-carried-application-retirement/producer/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ApplicationCutCaptureTest.xml",
+          "sha256": "78d2d61e573618e3ae8ae59edb777ba2e26365a72cd6f1a535c20c137367f4f7"
+        },
+        "methods": [
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53ApplicationCutCaptureTest",
+            "name": "wrongOwnerMissingAckOtherOpenOwnerAndNormalReturnRefuse",
+            "time": "0.1"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53ApplicationCutCaptureTest",
+            "name": "wrongTerminalLifetimeAndLaterEventsCannotSealPrefix",
+            "time": "0.006"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53ApplicationCutCaptureTest",
+            "name": "explicitInterruptedTerminalCannotBeRelabelledAsNormalCompletion",
+            "time": "0.011"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53ApplicationCutCaptureTest",
+            "name": "anotherCollectorModeCannotClaimApplicationInterruption",
+            "time": "0.003"
+          }
+        ],
+        "tests": 4
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53ApplicationRetirementCaptureTest",
+        "junit": {
+          "path": "target/v53-carried-application-retirement/producer/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ApplicationRetirementCaptureTest.xml",
+          "sha256": "ebca4be06ce27e6ae877b1c00e88af926900ba0b182b5b5c2bbacd3804cba52d"
+        },
+        "methods": [
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53ApplicationRetirementCaptureTest",
+            "name": "missingStartOpenOwnerAndSecondStartCannotSealRecovery",
+            "time": "0.011"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53ApplicationRetirementCaptureTest",
+            "name": "exactRetirementKeepsReplayInsideItsOwningTransaction",
+            "time": "0.023"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53ApplicationRetirementCaptureTest",
+            "name": "coldAndFreshApplicationForcesCannotMasqueradeAsRetirement",
+            "time": "0.004"
+          }
+        ],
+        "tests": 3
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53NativeCarriedApplicationRecoveryPrefixTest",
+        "junit": {
+          "path": "target/v53-carried-application-retirement/producer/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeCarriedApplicationRecoveryPrefixTest.xml",
+          "sha256": "da7b6f25386b80f3eb07818658e49b26eab9c20af77d5fddae8b1d45a5aefea2"
+        },
+        "methods": [
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53NativeCarriedApplicationRecoveryPrefixTest",
+            "name": "haltIntentApplicationRecoveryPrefixes",
+            "time": "681.231"
+          }
+        ],
+        "tests": 1
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest",
+        "junit": {
+          "path": "target/v53-carried-application-retirement/producer/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest.xml",
+          "sha256": "4e473d5ff0e1771e7f9899531d2c4b4ae9b8bbd2cb77ec1e49fe720e0e547017"
+        },
+        "methods": [
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest",
+            "name": "captureBindsOriginalCallbacksAndRealSuccessfulClose",
+            "time": "6.861"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest",
+            "name": "registrationRejectsReusedOpenedOrUnobservedOwners",
+            "time": "5.641"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest",
+            "name": "optionalFileObserverSharesExactEventBytesAndOriginalOwnerRegistration",
+            "time": "6.229"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest",
+            "name": "crashCaptureIsWrittenBeforeCutAndNeverClaimsDrain",
+            "time": "6.497"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest",
+            "name": "realNodeUsesSameLimitsAndOnlyObservedBudgetsExposeTraces",
+            "time": "6.182"
+          }
+        ],
+        "tests": 5
+      }
+    ],
+    "toolchain": {
+      "path": "target/v53-carried-application-retirement/producer/toolchain.json",
+      "sha256": "67d0e7f2c2cffa81619244ad2cb1794ba354c92d417a16bf86d3a1ba6f6c26f6"
+    }
+  },
+  "paidCloudExecuted": false,
+  "phase3Complete": false,
+  "plan": {
+    "path": "docs/v5x/v5.3/phase3-qualification-plan.json",
+    "sha256": "613cffbd9e25f73e18f3306962290804161bcee986c74135679edca00dbf22d0"
+  },
+  "qualification": {
+    "applicationNegatives": 24,
+    "applicationPrefixes": 32,
+    "applicationResult": {
+      "path": "target/v53-carried-application-retirement/qualification/application-result.json",
+      "sha256": "224d237c5245a852c0774707ec296ace94bb2989ad246a6fa1e6fe1851cb5ea3"
+    },
+    "bytes": 46887506,
+    "children": [
+      {
+        "exit": 73,
+        "life": 1,
+        "pid": 1882028
+      },
+      {
+        "exit": 0,
+        "life": 2,
+        "pid": 1895904
+      }
+    ],
+    "cohortAdmitted": false,
+    "files": 5190,
+    "hostedExecuted": false,
+    "inventory": {
+      "path": "target/v53-carried-application-retirement/qualification/inventory.json",
+      "sha256": "13488671ec4a796417a5cfb8c2b62c777c2995b78679a26ee6626fa8d4efd78e"
+    },
+    "javaTests": 13,
+    "log": {
+      "path": "target/v53-carried-application-retirement/qualification.log",
+      "sha256": "dfbf2cabaf8d22fa2d4e51fb6dcc8653d467ce311faacf015597f61aa95ba4e0"
+    },
+    "nativeSeconds": 681.231,
+    "negativeCases": 53,
+    "original": "workspace/general-search-engine-replication/target/v53-native-carried-application-retirement-prefixes/run-5f875c1f-7e3d-44bd-8bc4-dbea70af14f2",
+    "originalPreserved": true,
+    "ownerLifetimes": 8,
+    "phase3Complete": false,
+    "portable": "qualification/intent-halt",
+    "retirementNegatives": 29,
+    "retirementPrefixes": 54,
+    "retirementReplaySeconds": 50.34010372098419,
+    "retirementResult": {
+      "path": "target/v53-carried-application-retirement/qualification/retirement-result.json",
+      "sha256": "ad11d6baf62e25148b1e1efa3c74332e3db93c9dae7c3a69ce8334e6d5ba8975"
+    },
+    "seconds": 96.4682086899993,
+    "status": "PASS",
+    "summary": {
+      "path": "target/v53-carried-application-retirement/qualification/summary.json",
+      "sha256": "1dc37544568416218bef33ec627fa6cfbd2b83e933175adf955800ba0733a623"
+    }
+  },
+  "runtimeJavaChanged": false,
+  "schema": "gse-v53-carried-application-retirement-development-v1",
+  "scripts": [
+    {
+      "path": "target/v53-carried-application-retirement/capture.py",
+      "sha256": "b45ae32f6cee86a9bd871301ff841f24bbc17c911d9bb1f83d7ef87c0676f1db"
+    },
+    {
+      "path": "target/v53-carried-application-retirement/qualify.py",
+      "sha256": "41f98d3a2226ddf866a61c1e799ade7d7f69762566e8db31d00b825374cfced9"
+    },
+    {
+      "path": "target/v53-carried-application-retirement/index-evidence.py",
+      "sha256": "2e75e826cb0457f59c2cc78c9e4d90ab0b0fa6820abfa90aa2d2f34d45c1b84c"
+    }
+  ],
+  "tests": {
+    "documentationContract": {
+      "path": "target/v53-carried-application-retirement/contract.json",
+      "sha256": "a6c5f50f641608737a6d763db926832ce648aa477cb967f069a55d7e6705e800"
+    },
+    "status": "PASS",
+    "suites": [
+      {
+        "log": {
+          "path": "target/v53-carried-application-retirement/model-tests.log",
+          "sha256": "8aff1453b274dd8d7edc29519e5bc73ee6bd89637c4b89e4b6b1c37dc42df7fa"
+        },
+        "tests": 25
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-retirement/decoder-tests.log",
+          "sha256": "d3f8b85dd932ff7c60f87d3112bf4d9f16aaf0fbfb12dd57359ec73d2daa556e"
+        },
+        "tests": 11
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-retirement/optimized-tests.log",
+          "sha256": "9ea53ebcd19504727dd47608dfa01b1276bca6c9ac1f9f27e98513b7222bc768"
+        },
+        "tests": 24
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-retirement/related-tests.log",
+          "sha256": "a4b874a128949b712ab205fb2f7edaf50913b9cf58fc4e8bff54b97dd4ddf4fc"
+        },
+        "tests": 261
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-retirement/planning-tests.log",
+          "sha256": "c8286177359f134c621dbfbbb043d2fcefb8d122929e33877a3b642024472291"
+        },
+        "tests": 34
+      }
+    ],
+    "suitesOverlap": true
+  },
+  "wholeRuntimeResourcesQualified": false
+}

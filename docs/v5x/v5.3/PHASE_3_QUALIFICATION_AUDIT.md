@@ -24,6 +24,11 @@ owned by Phase 5; public operations/reads remain Phase 4.
 
 ## Development record
 
+[Application retirement captures](PHASE_3_CARRIED_APPLICATION_RETIREMENT_PREFIXES.md)
+adds the old certificate, typed replay scratch and derived-end deletion family to
+the same application-ACK process history. Complete transient composition, physical
+charge ownership and Phase 3 closure remain pending.
+
 [Interrupted application captures](PHASE_3_CARRIED_APPLICATION_PREFIXES.md) adds
 an explicit ACK-force crash sidecar and original-first file replay. It preserves
 the normal completion collector and does not qualify the remaining recovery

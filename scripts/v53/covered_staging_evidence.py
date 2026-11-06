@@ -58,12 +58,13 @@ def authority(before,after):
     return marker
 
 
-def cleanup(initial,marker,stop=None):
+def cleanup(initial,marker,stop=None,*,prefixes=None):
     """Simulate only derived-end retirement. Replay scratch is checked separately."""
     files=dict(initial);events=[]
     class Stop(Exception):pass
     def event(name):
         events.append(name)
+        if prefixes is not None:prefixes.append((name,dict(files)))
         if name==stop:raise Stop()
     try:
         if 'applied-end' not in files:return files,events
