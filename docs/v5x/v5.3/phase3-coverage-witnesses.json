@@ -3,7 +3,7 @@
   "status": "PLANNED",
   "phase3Complete": false,
   "acceptancePlanSha256": "cdb67a09eb2acc2b2f7d7348204d4a2e4cebc7996aaeacdec6145864f5f846f1",
-  "sourceCatalogueSha256": "14b0efb306e9f96381f118ffbcb0f63b24e6d33f70bb7ac1108159d84b5b4c66",
+  "sourceCatalogueSha256": "32f95cc87dfa4434a88cf53a11a6eea02999437728a96f79689c341d23554b5f",
   "requirements": [
     {
       "id": "3A-activation",
@@ -446,7 +446,7 @@
           "scope": "A complete declared TCP matrix must be present before any negative is accepted."
         }
       ],
-      "openWork": "The 12-seed, 486-archive, 552-history replay must actually run at final source. Exact-attempt workflow attestation, complete coverage and combined resources are separate requirements."
+      "openWork": "The 12-seed, 488-archive, 554-history replay must actually run at final source. Exact-attempt workflow attestation, complete coverage and combined resources are separate requirements."
     }
   ]
 }

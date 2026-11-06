@@ -1,0 +1,122 @@
+{
+  "base": "fe5c083dab9d3da30b78bd22aa0f8ef55c37105e",
+  "cohortAdmitted": false,
+  "collection": {
+    "path": "target/v53-carried-capture-cohort/real-collection.json",
+    "sha256": "ee680ac83a1065f7d516ee5038e0dc9b8a7b74e479fc6ff4d23726d062ab0efa"
+  },
+  "declaration": {
+    "carriedTransitionCases": [
+      "intent",
+      "final",
+      "intent-accept-halt",
+      "final-proof-kill"
+    ],
+    "executionGroups": 248,
+    "finalSourceExecution": "PENDING",
+    "histories": 554,
+    "plannedNegativeCases": 1022,
+    "rawArchives": 488,
+    "selectedJobs": 520,
+    "subsets": 12
+  },
+  "documentationContract": {
+    "path": "target/v53-carried-capture-cohort/final-contract.json",
+    "sha256": "1626e7b720eb03ada3fe15d3f8b28c976505a83a795cd57b69bc0a71985155b2"
+  },
+  "frozenParametersChanged": false,
+  "hostedExecuted": false,
+  "integrity": {
+    "path": "target/v53-carried-capture-cohort/integrity.json",
+    "sha256": "b86ca2e572c19974e0074afde7b6da68a9df390b01ebd6adf1ab0eb878b38cb8"
+  },
+  "limitations": [
+    "No native JVM or hosted workflow was rerun; the original reader vectors replay unchanged historical bytes.",
+    "The real original was checked during adapter development; final compact output was independently checked with the final adapter.",
+    "INTENT/halt seven-family execution, all four final-source members, remaining crash axes and full runtime resource envelope remain pending.",
+    "Capture/owner negatives do not claim execution of every lower-level negative matrix."
+  ],
+  "nativeExecutionRerun": false,
+  "paidCloudExecuted": false,
+  "phase3Complete": false,
+  "planBindings": [
+    {
+      "path": "docs/v5x/v5.3/phase3-qualification-plan.json",
+      "sha256": "b2688eee93ff1e5eb5fbefd3c0cbf5924d283838330e9340e080574d512b0e2a"
+    },
+    {
+      "path": "docs/v5x/v5.3/phase3-coverage-witnesses.json",
+      "sha256": "20be371c4ad7f8a8deb6b81edd11fbaec0895f3b224ea781579f5a4fa9af55f9"
+    },
+    {
+      "path": "docs/v5x/v5.3/acceptance-plan.json",
+      "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+    }
+  ],
+  "python": {
+    "focusedTestsAreSubset": true,
+    "optimizedFocusedTests": 53,
+    "optimizedLog": {
+      "path": "target/v53-carried-capture-cohort/checked-optimized-tests.log",
+      "sha256": "d0b312a76fb02a5a9ca5bbef79941e9459a8a5e086e98dd7560c388ee8369181"
+    },
+    "relatedLog": {
+      "path": "target/v53-carried-capture-cohort/checked-related-tests.log",
+      "sha256": "2142bc6ae4a63aa41c19d99c772a198eb630456efb6f5c658fe58e71f66b20b4"
+    },
+    "relatedTests": 410,
+    "status": "PASS"
+  },
+  "realReplay": {
+    "boundedCurrentAdapterResult": {
+      "path": "target/v53-carried-capture-cohort/real-compact-replay.json",
+      "sha256": "9e67d62c56567fe8a116a1c0c16ff76d75ad4ab8b05531c664795ed16c41cfcb"
+    },
+    "capturedCallbacks": 3082,
+    "case": "final-proof-kill",
+    "fullDevelopmentResult": {
+      "path": "target/v53-carried-capture-cohort/real-replay.json.gz",
+      "sha256": "679c5b336fffa2c6a80e30b103d580fc0457a3cd28851a3db125b07bf4e3bd21"
+    },
+    "log": {
+      "path": "target/v53-carried-capture-cohort/real-replay.log",
+      "sha256": "04c0978b0a9ba322c9bffab636a9a4db333c1ef43aca01e4afd5b9769eff638c"
+    },
+    "negativeCases": 210,
+    "originalSource": "historical pilot; not final-source cohort evidence",
+    "owningReadersBase": "fe5c083d",
+    "status": "PASS",
+    "summary": {
+      "path": "target/v53-carried-capture-cohort/replay-summary.json",
+      "sha256": "4a905db2a679b62f0aa22fb923338603a298d9eaa9cfbc36fd427a22e0f32a65"
+    }
+  },
+  "runtimeJavaChanged": false,
+  "schema": "gse-v53-carried-capture-cohort-development-v1",
+  "sources": [
+    {
+      "path": "scripts/v53/native_carried_capture_history.py",
+      "sha256": "346032c5f0868ecde942831b9ab02c8b6660904454d68c7a875e6699d0e104fd"
+    },
+    {
+      "path": "scripts/v53/carried_transition_history.py",
+      "sha256": "0076e52f0245a701926e7eef0cd41b3e19478d3ca5c36fd9bb4b1790af68194a"
+    },
+    {
+      "path": "scripts/v53/carried_transition_history_hosted.py",
+      "sha256": "44b201e81ab14700907cb0510944c56ac65dd8849aa4c49689b5d4aff70c09df"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_capture_history.py",
+      "sha256": "59ed0ceee6d1047b7f3c2d51b938f1a94dba4b30cfbbb7f13436eb9eb733e512"
+    },
+    {
+      "path": "scripts/v53/test_carried_transition_history.py",
+      "sha256": "a5033c82c8e402459de57e52bd3e9cb32eaac5e54c21f4a262c9619b8fee8164"
+    },
+    {
+      "path": "scripts/v53/test_carried_transition_history_hosted.py",
+      "sha256": "20f2c8bfa04bd38d7b23aa6280235975d0636e2d89e8e1626a0d9e83f8ef0c52"
+    }
+  ]
+}

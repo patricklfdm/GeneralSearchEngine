@@ -1,7 +1,7 @@
 # Native carried INTENT / FINAL admission
 
 Phase 3 remains **OPEN**. The [cohort entry](../../../scripts/v53/carried_transition_history.py)
-binds two complete four-voter REMOVE histories to one recorded source, compiled
+binds four complete four-voter REMOVE histories to one recorded source, compiled
 build, portable toolchain and reader. It composes the existing physical,
 network, export, ledger, retirement and [actual-prefix readers](PHASE_3_CARRIED_TRANSITION_PREFIXES.md).
 It does not turn older development receipts into final-source admission.
@@ -12,8 +12,10 @@ It does not turn older development receipts into final-source admission.
 | --- | --- | --- | ---: |
 | `intent` | INTENT at index 5 | Carried INTENT, FINAL, fresh stable BARRIER | 301 |
 | `final` | FINAL at index 6 | Carried FINAL, fresh stable BARRIER | 301 |
+| `intent-accept-halt` | INTENT at index 5 | Group halt after ACCEPT rename, reopen original disks, fresh BARRIER | 210 |
+| `final-proof-kill` | FINAL at index 6 | Group SIGKILL after PROOF rename, reopen original disks, fresh BARRIER | 210 |
 
-Each history uses one exact, unretried `V53CarriedTransitionDriverTest` method
+The first two histories use one exact, unretried `V53CarriedTransitionDriverTest` method
 with `-Dv53.carried.retirement.captures=true`. The original vote, selected
 sources, all native publications, continuous ledgers, file retirement and close
 remain indivisible. Request and round limits, membership profile and workload
@@ -24,8 +26,9 @@ Collection binds the original result, entry, plan, events, exact node identities
 and sidecar objects. It returns `PARTIAL`. Admission additionally requires the
 exact command, a single passing JUnit method without reruns/skips, successful
 native and frozen-source collection exits, actual compiled classes and immutable
-source files. The raw parent contains exactly one original and its own retirement
-sidecar. Missing, swapped, linked or changed sidecars cannot be reconstructed
+source files. For an ordinary history, the raw parent contains exactly one original and
+its own retirement sidecar. Each process history instead contains its full nested
+seven-family capture tree under a single original root. Missing, swapped, linked or changed sidecars cannot be reconstructed
 from callbacks or borrowed from the other case.
 
 The complete unmodified composition must pass before **any** mutation runs.
@@ -44,8 +47,10 @@ The positive result from every stage must equal the corresponding prerequisite
 inside the complete prefix result. Exact negative rows retain their original
 reasons and prerequisites; truncation, unrelated failures, changed authority or
 inflated scope block admission. Original and sidecar inventories are checked
-again after replay. Both distinct producer directories and bootstrap plans are
-required, yielding **602 checks** for this declared pair.
+again after replay. Distinct producer directories and bootstrap plans are
+required. These first two histories retain **602 checks**. The [two process
+histories](PHASE_3_CARRIED_CAPTURE_COHORT.md) add 420 capture/owner checks after
+the complete original process/storage/protocol/resource chain: **1,022 total**.
 
 ## Local entry
 
@@ -59,6 +64,10 @@ python3 -B -m scripts.v53.carried_transition_history capture "$OUT/inputs/intent
   --case intent --maven /opt/maven/bin/mvn
 python3 -B -m scripts.v53.carried_transition_history capture "$OUT/inputs/final" \
   --case final --maven /opt/maven/bin/mvn --source-from "$OUT/inputs/intent"
+for CASE in intent-accept-halt final-proof-kill; do
+  python3 -B -m scripts.v53.carried_transition_history capture "$OUT/inputs/$CASE" \
+    --case "$CASE" --maven /opt/maven/bin/mvn --source-from "$OUT/inputs/intent"
+done
 ```
 
 Review and freeze the first producer's source, build and reader hashes. Derive
@@ -74,10 +83,10 @@ python3 -B -m scripts.v53.carried_transition_history aggregate "$OUT/aggregate" 
 ```
 
 Replay workers operate on separate whole originals. The CLI emits a heartbeat
-each minute and retains failed member results while checking the other member.
+each minute and retains failed member results while checking all other members.
 For long final-source qualification use the [hosted entry](PHASE_3_CARRIED_TRANSITION_HOSTED.md).
 
-## Development validation
+## Historical two-history development validation
 
 The [development receipt](phase3-evidence/carried-transition-cohort.json) records
 both retained prefix originals replayed through this complete six-reader entry:
@@ -97,7 +106,7 @@ pending for the final implementation source.
 
 ## Scope and rollback
 
-A component PASS qualifies this declared pair only. Public readiness,
+A component PASS qualifies this declared four-history set only. Public readiness,
 process-death, other membership profiles, combined resource peaks, autonomous
 competition, complete physical fault coverage, power loss and Phase 3 closure
 remain false. Other carried payload/process axes remain separate obligations.

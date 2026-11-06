@@ -2,22 +2,22 @@
 
 Phase 3 remains **OPEN**. The [workflow](../../../.github/workflows/v53-carried-transition-histories.yml)
 and [adapter](../../../scripts/v53/carried_transition_history_hosted.py) prepare
-the [two-history cohort](PHASE_3_CARRIED_TRANSITION_COHORT.md) for isolated execution
+the [four-history cohort](PHASE_3_CARRIED_TRANSITION_COHORT.md) for isolated execution
 and independent downloaded replay. This implementation batch does not dispatch it.
 
 ## Execution graph
 
 One preparation freezes the exact source, compiled classes, toolchain, reader
-and offline Maven dependencies. Two execution jobs each run one complete native
+and offline Maven dependencies. Four execution jobs each run one complete native
 history exactly once. Both original and retirement sidecar travel together in
 the raw artifact. Their continuous ownership, revision and publication history
 is never split between jobs.
 
-Two verifier jobs download those complete originals and the same seed, validate
-their provenance, then run the six original-first readers and all 301 exact
-negative checks for each history. Preparation, execution and verification return
-`PARTIAL`. Component acceptance requires both execution jobs and both verifier
-jobs to succeed, all 602 negative results, exact input inventories and distinct
+Four verifier jobs download those complete originals and the same seed, validate
+their provenance, then run the applicable original-first readers: 301 exact checks for each
+ordinary history and 210 capture/owner checks for each process history. Preparation, execution and verification return
+`PARTIAL`. Component acceptance requires all four execution jobs and all four verifier
+jobs to succeed, all 1,022 negative results, exact input inventories and distinct
 original plans, archives and producer receipts.
 
 Every artifact name and manifest binds the workflow, source, run, attempt, role
@@ -47,7 +47,7 @@ gh workflow run v53-carried-transition-histories.yml \
 ```
 
 Existing Required CI and all other subset workflows are unchanged. The source
-inventory now has **ten optional subsets and 462 planned whole histories**.
+inventory now has **twelve optional subsets and 554 planned whole histories**.
 These are scheduling counts, not successful final-source executions or covered
 rows in the frozen S matrix. Final Phase 3 admission across subsets remains open.
 
@@ -60,7 +60,7 @@ plans and incomplete aggregates. They test orchestration, not native acceptance.
 The native capture/readers already have their separate development evidence;
 neither historical evidence nor these synthetic tests fills final-source slots.
 
-Local implementation checks passed: 2525 V5.3 Python tests, 59 focused tests in
+Historical two-history implementation checks passed: 2525 V5.3 Python tests, 59 focused tests in
 normal and optimized Python, four declared workflow jobs and five checked shell
 blocks. The [development receipt](phase3-evidence/carried-transition-cohort.json)
 also records 602 exact negative replays over unchanged older native originals.

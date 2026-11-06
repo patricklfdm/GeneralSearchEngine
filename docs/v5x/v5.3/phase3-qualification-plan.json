@@ -149,14 +149,18 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53OwnedCrossViewTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53OwnedAdoptionProcessTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53OwnedRecoveryTest.java",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessTest.java",
+        "scripts/v53/test_native_carried_capture_history.py",
+        "scripts/v53/test_native_carried_storage_coverage.py"
       ],
       "readers": [
         "scripts/v53/owned_cross_view_evidence.py",
         "scripts/v53/native_carried_recovery_evidence.py",
         "scripts/v53/native_carried_process_evidence.py",
         "scripts/v53/native_carried_network.py",
-        "scripts/v53/carried_data_history.py"
+        "scripts/v53/carried_data_history.py",
+        "scripts/v53/native_carried_capture_history.py",
+        "scripts/v53/native_carried_storage_coverage.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_OWNED_CROSS_VIEW.md",
@@ -409,7 +413,9 @@
         "scripts/v53/test_carried_transition_history_hosted.py",
         "scripts/v53/test_carried_transition_history_workflow.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationReservationTest.java",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationReloadTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationReloadTest.java",
+        "scripts/v53/test_native_carried_capture_history.py",
+        "scripts/v53/test_native_carried_storage_coverage.py"
       ],
       "readers": [
         "scripts/v53/carried_process_evidence.py",
@@ -424,7 +430,9 @@
         "scripts/v53/carried_transition_retirement.py",
         "scripts/v53/carried_transition_prefixes.py",
         "scripts/v53/carried_transition_history.py",
-        "scripts/v53/carried_transition_history_hosted.py"
+        "scripts/v53/carried_transition_history_hosted.py",
+        "scripts/v53/native_carried_capture_history.py",
+        "scripts/v53/native_carried_storage_coverage.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_CARRIED_SLOTS.md",
@@ -730,7 +738,9 @@
         "scripts/v53/test_capacity_completion_hosted.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53EnvelopeResourceCapture.java",
         "scripts/v53/test_capacity_completion_resources.py",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53EnvelopeCloseCaptureTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53EnvelopeCloseCaptureTest.java",
+        "scripts/v53/test_native_carried_capture_history.py",
+        "scripts/v53/test_native_carried_storage_coverage.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -817,7 +827,9 @@
         "scripts/v53/activation_control_resource_negatives.py",
         "scripts/v53/capacity_completion_evidence.py",
         "scripts/v53/capacity_completion_run.py",
-        "scripts/v53/capacity_completion_resources.py"
+        "scripts/v53/capacity_completion_resources.py",
+        "scripts/v53/native_carried_capture_history.py",
+        "scripts/v53/native_carried_storage_coverage.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -1162,8 +1174,8 @@
       "status": "ENTRY_READY_EXECUTION_PENDING"
     },
     "carried-transition-histories": {
-      "members": 2,
-      "casesSha256": "7209e51ab95a9de69ff9f00e4cb410ae98e95feb0c494e1b5bb7afb785de7487",
+      "members": 4,
+      "casesSha256": "501205e0fb7e3727d3048c0bc02165c0068e02001f2a835531a129a5832a6412",
       "status": "ENTRY_READY_EXECUTION_PENDING"
     },
     "automatic-histories": {
@@ -1199,7 +1211,7 @@
         "component-cohorts",
         "combined-resources"
       ],
-      "work": "The exact source-selector audit now binds twenty candidate witnesses for all twelve Phase 3 requirements and pins the complete 486-archive catalogue. Complete Phase 3 schedule and rejection-family coverage still require original selectors, applicability and final-source replay; no coverage is inferred from substrings or counts. The frozen 3310 S rows remain Phase 5 requirements.",
+      "work": "The exact source-selector audit now binds twenty candidate witnesses for all twelve Phase 3 requirements and pins the complete 488-archive catalogue. Complete Phase 3 schedule and rejection-family coverage still require original selectors, applicability and final-source replay; no coverage is inferred from substrings or counts. The frozen 3310 S rows remain Phase 5 requirements.",
       "acceptance": "No family closes from substring matches, aggregate pass counts or a related profile. Explicit refusal evidence for inapplicable rows, expected negative reasons and owner-phase boundaries must remain reviewable."
     },
     {
@@ -1210,7 +1222,7 @@
         "combined-resources",
         "frozen-coverage"
       ],
-      "work": "Implement final Phase 3 admission across all required subsets after the missing entries and precise coverage are known. Current per-workflow aggregates are scoped subset gates, not a phase-wide aggregate. An offline all-twelve seed gate now checks complete Git source, actual class inventories, portable tools, dependencies and each owning reader/run/attempt without requiring distinct reader sets to have the same hash. It returns PARTIAL with no runtime/workflow attestation. Original-history replay, precise coverage and final workflow attestation remain separate prerequisites. The offline history-cohort entry now reopens every declared raw artifact through the owning verifier and aggregate, with exact all-twelve seed reconciliation and input drift checks. Its PARTIAL receipt never attests workflow execution, frozen coverage or combined physical maxima. Development validation is synthetic orchestration/reader-contract testing; a complete actual final-source set has not been replayed. A read-only workflow observer now binds all twelve source workflows and 516 exact selected jobs/critical steps to the explicit run/attempt index, retaining all prior attempts and complete paginated jobs. The attested entry collects before and after original-first whole-history replay, refuses execution drift, and rechecks seeds/raw archives. Synthetic API/orchestration tests qualify the entry implementation only; actual workflow observations, missing resource/coverage obligations and failed-history review remain pending.",
+      "work": "Implement final Phase 3 admission across all required subsets after the missing entries and precise coverage are known. Current per-workflow aggregates are scoped subset gates, not a phase-wide aggregate. An offline all-twelve seed gate now checks complete Git source, actual class inventories, portable tools, dependencies and each owning reader/run/attempt without requiring distinct reader sets to have the same hash. It returns PARTIAL with no runtime/workflow attestation. Original-history replay, precise coverage and final workflow attestation remain separate prerequisites. The offline history-cohort entry now reopens every declared raw artifact through the owning verifier and aggregate, with exact all-twelve seed reconciliation and input drift checks. Its PARTIAL receipt never attests workflow execution, frozen coverage or combined physical maxima. Development validation is synthetic orchestration/reader-contract testing; a complete actual final-source set has not been replayed. A read-only workflow observer now binds all twelve source workflows and 520 exact selected jobs/critical steps to the explicit run/attempt index, retaining all prior attempts and complete paginated jobs. The attested entry collects before and after original-first whole-history replay, refuses execution drift, and rechecks seeds/raw archives. Synthetic API/orchestration tests qualify the entry implementation only; actual workflow observations, missing resource/coverage obligations and failed-history review remain pending.",
       "acceptance": "Bind exact source and actual build/toolchain/readers, each workflow/run/attempt and complete declared inventories; reconcile independent seed provenance. Reject missing/failed/mixed originals. No acceptance from this planning report."
     },
     {

@@ -1,5 +1,13 @@
 # Phase 3 qualification inventory and remaining work
 
+[Carried capture cohort](PHASE_3_CARRIED_CAPTURE_COHORT.md) adds two complete
+process histories to the existing carried-transition entry: INTENT/ACCEPT/halt
+and FINAL/PROOF/SIGKILL. Seven captured families and original storage ownership
+are replayed before 210 exact negatives per new history. The four-history subset
+keeps all prior checks; the twelve-subset plan now declares 554 histories, 248
+execution groups and 488 raw archives. Final-source execution and Phase 3 closure
+remain pending.
+
 [Carried application ownership](PHASE_3_CARRIED_APPLICATION_OWNERSHIP.md)
 composes temporal exports, complete-copy FLOOR acquisition and continuous
 peer/future revisions for the existing application-ACK crash originals. PROOF
@@ -378,11 +386,11 @@ the backlog as a new feature.
 | [Transfer lifetime/process matrices](PHASE_3_TRANSFER_HISTORY_HOSTED.md) | 21 | 2 | Three continuous owner histories and eighteen two-process recoveries |
 | [Native carried/stable rounds](PHASE_3_NATIVE_ROUND_HOSTED.md) | 7 | 7 | Four carried BARRIER phases and three guarded round histories |
 | [Native carried DATA](PHASE_3_CARRIED_DATA_HOSTED.md) | 12 | 12 | Four old DATA phases and eight whole-group process histories, original carry and fresh BARRIER |
-| [Native carried INTENT/FINAL](PHASE_3_CARRIED_TRANSITION_HOSTED.md) | 2 | 2 | Complete carried transitions through stable BARRIER, six reader layers and actual retirement bytes |
+| [Native carried INTENT/FINAL](PHASE_3_CARRIED_TRANSITION_HOSTED.md) | 4 | 4 | Two ordinary transitions plus two seven-family group-death captures through fresh BARRIER |
 | [Automatic lifecycle components](PHASE_3_AUTOMATIC_HISTORY_HOSTED.md) | 50 | 3 | Competition, higher-ballot restart and the complete 48-case PROMISE reply-revocation matrix |
 | [Joint-floor process histories](PHASE_3_PROCESS_JOINT_HOSTED.md) | 32 | 32 | Four copy ordinals, four cut callbacks, halt/SIGKILL, same-scratch recovery and full continuation |
 
-These **552 planned native histories** are complementary subsets. This is neither
+These **554 planned native histories** are complementary subsets. This is neither
 a pass count nor a count of covered rows in the frozen S matrix. The inspector
 reads their actual Python catalogues and checks declared counts and ordered-case
 hashes. Joining groups must partition all 360 whole histories exactly; transfer

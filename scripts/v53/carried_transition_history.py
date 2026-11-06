@@ -1,4 +1,4 @@
-"""Capture two complete native carried transition histories without replaying a client.
+"""Capture complete native carried transition histories without replaying a client.
 
 Old INTENT/FINAL votes, new-ballot completion and the fresh stable
 BARRIER remain one original. Full physical replay precedes every exact negative.
@@ -20,14 +20,17 @@ from . import carried_transition_exports as exports
 from . import carried_transition_retention as retention
 from . import carried_transition_retirement as retirement
 from . import carried_transition_prefixes as prefixes
+from . import native_carried_capture_history as process
 
 need=h.need;read=shared.read;reader_manifest=shared.reader_manifest;BUILDS=shared.BUILDS
-SCHEMA='gse-v53-carried-transition-history-execution-v1'
-COHORT='gse-v53-carried-transition-history-cohort-v1'
+SCHEMA='gse-v53-carried-transition-history-execution-v2'
+COHORT='gse-v53-carried-transition-history-cohort-v2'
 PACKAGE='io.github.patricklfdm.generalsearch.replication.'
 METHODS={
     'intent':('V53CarriedTransitionDriverTest','carriedIntentFinishesBeforeFreshStableBarrier','v53-native-dispatch'),
     'final':('V53CarriedTransitionDriverTest','carriedFinalFinishesBeforeFreshStableBarrier','v53-native-dispatch'),
+    'intent-accept-halt':('V53NativeCarriedReplayPrefixProcessTest','intentAcceptHalt','v53-native-carried-replay-prefixes'),
+    'final-proof-kill':('V53NativeCarriedReplayPrefixProcessTest','finalProofKill','v53-native-carried-replay-prefixes'),
 }
 CASES=tuple(METHODS)
 
@@ -54,7 +57,7 @@ def junit(reports,case):
     return dict(className=cls,method=method,tests=1,failures=0,errors=0,skipped=0,retries=0)
 
 
-def phase(case):selected(case);return case.upper()
+def phase(case):selected(case);return process.selected(case)[0] if case in process.CASES else case.upper()
 
 
 def histories(case):selected(case);return [case]
@@ -64,6 +67,7 @@ STAGES=('physical','network','exports','retention','retirement','prefixes')
 
 
 def negative_cases(case):
+    if case in process.CASES:return process.negative_cases(case)
     kind=phase(case);rows=[]
     for suite,values in (('physical',physical.negative_cases(kind)),('network',network.NEGATIVES),('exports',exports.NEGATIVES)):
         for name,reason in values.items():
@@ -83,7 +87,16 @@ def sidecar(raw):
     raw=Path(raw);return raw.with_name('retirement-captures-'+raw.name)
 
 
+def capture_names(raw,case):
+    return {raw.name} if case in process.CASES else {raw.name,sidecar(raw).name}
+
+
+def capture_path(raw,case,output):
+    return None if case in process.CASES else sidecar(raw).relative_to(output).as_posix()
+
+
 def collect(raw,case):
+    if case in process.CASES:return process.collect(raw,case)
     kind=phase(case);raw=Path(raw);before=h.inventory(raw);index,count,_=physical.shape(kind)
     entry=h.snapshot.s.regular(raw/f'entry-{index}.gsr',h.snapshot.MIB)
     expected=dict(status='PASS',kind=kind,oldIndex=index,oldEntry=h.digest(entry),activations=count,
@@ -108,6 +121,7 @@ def original_chain(original):
 
 
 def replay(raw,case):
+    if case in process.CASES:return process.replay(raw,case)
     kind=phase(case);raw=Path(raw);before=collect(raw,case)
     # The complete unmodified composition must pass before ANY mutation runs.
     original=prefixes.validate(raw,sidecar(raw),kind);expected=original_chain(original);rows=[]
@@ -142,8 +156,8 @@ def capture(output,maven,case,source_from=None):
         receipt['buildSha256']=h.digest((output/'build.json').read_bytes())
         roots=list((work/h.MODULE/'target'/selected(case)[2]).glob('run-*'))
         need(len(roots)==1,'carried transition history exact raw directory');raw=roots[0];receipt['raw']=raw.relative_to(output).as_posix()
-        need({v.name for v in raw.parent.iterdir()}=={raw.name,sidecar(raw).name},'carried transition history exact original and captures')
-        receipt['captures']=sidecar(raw).relative_to(output).as_posix()
+        need({v.name for v in raw.parent.iterdir()}==capture_names(raw,case),'carried transition history exact original and captures')
+        receipt['captures']=capture_path(raw,case,output)
         collected=h.execute([sys.executable,'-B','-m','scripts.v53.carried_transition_history','collect',str(output/'collection.json'),
             '--case',case,'--raw',str(raw)],work,output/'collection.log',stage='carried-transition-collection-'+case)
         h.save(output/'collection-execution.json',collected);receipt['collectionExecution']=collected
@@ -198,8 +212,8 @@ def member(path,case,source,build,toolchain,reader):
     need(type(name) is str and re.fullmatch(base+r'/run-[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}',name),
          'carried transition cohort exact raw path')
     need(all((path/p).is_dir() and not (path/p).is_symlink() for p in Path(name).parents),'carried transition cohort linked raw parent')
-    raw=path/name;need({v.name for v in raw.parent.iterdir()}=={raw.name,sidecar(raw).name},'carried transition cohort exactly one original run and captures')
-    need(receipt.get('captures')==sidecar(raw).relative_to(path).as_posix(),'carried transition cohort exact captures path')
+    raw=path/name;need({v.name for v in raw.parent.iterdir()}==capture_names(raw,case),'carried transition cohort exactly one original run and captures')
+    need('captures' in receipt and receipt['captures']==capture_path(raw,case,path),'carried transition cohort exact captures path')
     collection=collect(raw,case)
     need(receipt.get('collectionSha256')==h.digest((path/'collection.json').read_bytes()) and
          h.snapshot.f.canonical(read(path/'collection.json'))==h.snapshot.f.canonical(collection),
@@ -208,6 +222,7 @@ def member(path,case,source,build,toolchain,reader):
 
 
 def check_result(value,case):
+    if case in process.CASES:return process.check_result(value,case)
     kind=phase(case);index,count,_=physical.shape(kind)
     need(type(value) is dict and set(value)=={'original','negatives','originalPreserved'} and value['originalPreserved'] is True,
          'carried transition preserved original replay')
@@ -248,7 +263,7 @@ def qualify_member(path,case,*pins):
 
 def aggregate(paths,*pins,workers=1,progress=None):
     check_pins(*pins);need(type(workers) is int and 1<=workers<=4,'carried transition cohort replay workers')
-    need(type(paths) is dict and set(paths)==set(CASES),'carried transition cohort complete two histories')
+    need(type(paths) is dict and set(paths)==set(CASES),'carried transition cohort complete declared histories')
     need(len({Path(v).resolve() for v in paths.values()})==len(CASES),'carried transition cohort distinct producers')
     originals={k:member(paths[k],k,*pins) for k in CASES};plans=[v for k in CASES for v in originals[k]['plans'].values()]
     need(len(plans)==len(set(plans))==len(CASES),'carried transition cohort distinct complete original histories')

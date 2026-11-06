@@ -13,6 +13,9 @@ from .test_process_toolchain import record
 
 
 def raw_tree(raw,case):
+    if case in m.process.CASES:
+        from .test_native_carried_capture_history import raw_tree as native
+        return native(raw,case)
     from . import test_remove_retirement_prefixes as fixtures
     raw.parent.mkdir(parents=True,exist_ok=True)
     with tempfile.TemporaryDirectory(dir=raw.parent) as temp:
@@ -36,6 +39,9 @@ def reports(work,case):
 
 
 def replay(case):
+    if case in m.process.CASES:
+        from .test_native_carried_capture_history import replay as native
+        return native(case)
     kind=m.phase(case);index,count,_=m.physical.shape(kind)
     base=dict(kind=kind,status='PARTIAL',phase3Complete=False,publicReady=False,processDeathQualified=False)
     physical=dict(base,status='PASS',physicalQualified=True,publicationBoundaryQualified=True,internalReady=True,
@@ -71,7 +77,7 @@ class CarriedTransitionHistoryTest(unittest.TestCase):
         for name in ('execution','collection-execution'):m.h.save(path/(name+'.json'),dict(exit=0))
         m.h.save(path/'receipt.json',dict(schema=m.SCHEMA,status='PARTIAL',executionStatus='PASS',case=case,collectionComplete=True,
             nativeHistoryQualified=False,phase3Complete=False,retries=0,execution=dict(exit=0),collectionExecution=dict(exit=0),
-            baseHead='a'*40,readerSha256=self.reader['sha256'],command=['mvn',*m.command(case)],junit=jr,raw=raw.relative_to(path).as_posix(),captures=m.sidecar(raw).relative_to(path).as_posix(),
+            baseHead='a'*40,readerSha256=self.reader['sha256'],command=['mvn',*m.command(case)],junit=jr,raw=raw.relative_to(path).as_posix(),captures=m.capture_path(raw,case,path),
             **{k+'Sha256':m.h.digest((path/f).read_bytes()) for k,f in [('source','source.json'),('build','build.json'),('toolchain','toolchain.json'),('collection','collection.json')]}))
 
     def raw(self,path=None):
@@ -83,7 +89,7 @@ class CarriedTransitionHistoryTest(unittest.TestCase):
         with patch.object(m,'ProcessPoolExecutor',ThreadPoolExecutor):return m.aggregate(self.paths if paths is None else paths,*self.pins,**kwargs)
 
     def test_catalogue_uses_complete_native_methods_without_retry_or_case_filter(self):
-        self.assertEqual(2,len(m.CASES));self.assertEqual((1,)*2,tuple(len(m.histories(k)) for k in m.CASES))
+        self.assertEqual(4,len(m.CASES));self.assertEqual((1,)*4,tuple(len(m.histories(k)) for k in m.CASES))
         for case,(cls,method,_) in m.METHODS.items():
             text=(m.h.ROOT/m.h.MODULE/('src/test/java/'+m.PACKAGE.replace('.','/')+cls+'.java')).read_text()
             self.assertIn('void '+method+'()',text)
@@ -152,7 +158,7 @@ class CarriedTransitionHistoryTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'exactly one original'):self.member()
 
     def test_missing_pair_aliases_and_reused_bootstraps_refuse(self):
-        with self.assertRaisesRegex(ValueError,'complete two histories'):self.aggregate({self.case:self.path})
+        with self.assertRaisesRegex(ValueError,'complete declared histories'):self.aggregate({self.case:self.path})
         with self.assertRaisesRegex(ValueError,'distinct producers'):self.aggregate(dict.fromkeys(m.CASES,self.path))
         other=self.paths['final'];raw=self.raw(other);source=raw/'original-plan.gsbp'
         source.write_bytes((self.raw()/'original-plan.gsbp').read_bytes());m.h.save(other/'collection.json',m.collect(raw,'final'))
@@ -161,8 +167,8 @@ class CarriedTransitionHistoryTest(unittest.TestCase):
 
     def test_complete_two_histories_replay_once_and_preserve_scope(self):
         with patch.object(m,'replay',side_effect=lambda raw,case:replay(case)) as reader:result=self.aggregate(workers=4)
-        self.assertEqual(2,reader.call_count);self.assertEqual('PASS',result['status'])
-        self.assertEqual(2,result['nativeCases']);self.assertEqual(2,result['wholeOwnershipHistories']);self.assertEqual(602,result['negativeCases'])
+        self.assertEqual(4,reader.call_count);self.assertEqual('PASS',result['status'])
+        self.assertEqual(4,result['nativeCases']);self.assertEqual(4,result['wholeOwnershipHistories']);self.assertEqual(1022,result['negativeCases'])
         for key in ('phase3Complete','combinedPeakResourcesQualified','autonomousCompetitionQualified','completePhysicalQualified','powerLossQualified','processDeathQualified'):
             self.assertIs(False,result[key])
 
@@ -171,11 +177,11 @@ class CarriedTransitionHistoryTest(unittest.TestCase):
             if case==self.case:raise ValueError('original failed')
             return replay(case)
         with patch.object(m,'replay',side_effect=failed) as reader:result=self.aggregate(workers=4)
-        self.assertEqual(2,reader.call_count);self.assertEqual('FAIL',result['status'])
+        self.assertEqual(4,reader.call_count);self.assertEqual('FAIL',result['status'])
         self.assertEqual('original failed',result['cases'][0]['failure']['message']);self.assertTrue(all(v['status']=='PASS' for v in result['cases'][1:]))
 
     def test_missing_negatives_stages_or_inflated_scope_never_pass(self):
-        for case in m.CASES:
+        for case in ('intent','final'):
             changes=[lambda v:v['negatives'].pop(),lambda v:v['negatives'][0].update(reason='other'),lambda v:v.update(originalPreserved=False),
                      lambda v:v['original'].update(phase3Complete=True),lambda v:v['original'].update(allMembershipProfilesQualified=True),
                      lambda v:v['original'].update(capturedPrefixes=True),lambda v:v['original'].update(capturedPrefixes=3),
@@ -218,6 +224,23 @@ class CarriedTransitionHistoryTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'Maven failed'):m.capture(output,'mvn',self.case,self.path)
         execute.assert_called_once();self.assertEqual('FAIL',m.read(output/'receipt.json')['status']);self.assertTrue((output/'workspace/retained-failure').is_file())
         with self.assertRaises(FileExistsError):m.capture(output,'mvn',self.case,self.path)
+
+    def test_process_capture_uses_the_same_frozen_collector_and_provenance_gate(self):
+        self.case='final-proof-kill'
+        self.test_capture_uses_frozen_collector_one_command_and_preserves_source()
+
+    def test_old_two_case_schema_cannot_satisfy_the_expanded_catalogue(self):
+        self.receipt(schema='gse-v53-carried-transition-history-execution-v1')
+        with self.assertRaisesRegex(ValueError,'successful unretried producer'):self.member()
+
+    def test_native_member_rejects_external_sidecar_and_mixed_axes(self):
+        self.case='final-proof-kill';self.path=self.paths[self.case]
+        self.member();self.receipt(captures='external-sidecar')
+        with self.assertRaisesRegex(ValueError,'exact captures path'):self.member()
+        self.receipt(captures=None)
+        path=self.raw()/m.process.OBSERVED/'history/process/result.json'
+        value=m.read(path);value['mode']='halt';m.h.save(path,value)
+        with self.assertRaisesRegex(ValueError,'producer scope'):self.member()
 
     def test_complete_original_failure_stops_before_any_negative(self):
         with patch.object(m.prefixes,'validate',side_effect=ValueError('bad original')) as original,patch.object(m.physical,'qualify') as negatives:
