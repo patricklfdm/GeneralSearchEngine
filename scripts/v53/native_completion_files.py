@@ -2,6 +2,8 @@
 
 The caller must independently validate the complete history and snapshots first.
 This models bytes at callbacks, not crash durability or partial-end recovery.
+An explicit application-ACK stop preserves the original unfinished transaction;
+the default still requires complete returns from every owner.
 """
 from .native_campaign_files import physical
 from .generation_install_evidence import transaction as install
@@ -16,8 +18,10 @@ KINDS={'application':('APPLY_',),'publication':PUBLICATION+('INSTALL_','CURRENT_
 LEDGERS=('peer-retention.gspr','future-retention.gsft')
 
 
-def observed(rows):
+def observed(rows,*,interrupted_application=None):
     """INSTALL/CURRENT are publication only inside that owner's publication."""
+    need(interrupted_application is None or type(interrupted_application) is str and bool(interrupted_application),
+         'completion interrupted application owner')
     active={};result=[]
     for at,row in enumerate(rows):
         node,point=row.get('node'),row['event']
@@ -32,12 +36,18 @@ def observed(rows):
         elif not (kind=='publication' and point.startswith(('INSTALL_','CURRENT_'))):continue
         result.append((at,kind,row))
         if point in ('APPLY_BEFORE_RETURN','PUBLICATION_BEFORE_RETURN'):del active[node]
-    need(not active,'completion incomplete transaction')
+    if interrupted_application is None:
+        need(not active,'completion incomplete transaction')
+    else:
+        need(active=={interrupted_application:'application'} and rows and
+             rows[-1].get('node')==interrupted_application and rows[-1]['event']=='APPLY_ACK_DIRECTORY_FORCED',
+             'completion exact interrupted application boundary')
     return result
 
 
-def application(initial,applied):
+def application(initial,applied,*,stop=None):
     """Fresh full end, including optional parent/ancestor and nonvoting forms."""
+    need(stop in (None,'APPLY_ACK_DIRECTORY_FORCED'),'completion supported application stop')
     need(not any(k=='applied-end' or k.startswith('applied-end/') for k in initial),
          'completion fresh application end')
     end={k.removeprefix('applied-end/'):v for k,v in applied.items() if k.startswith('applied-end/')}
@@ -58,6 +68,7 @@ def application(initial,applied):
         acks += [(f'ancestor-{i}-ack.gsr',f'APPLY_ANCESTOR_{i}_ACK') for i in ancestors]
     need(set(end)=={n for n,_ in order+acks} and all(type(v) is bytes and len(v)>0 for v in end.values()),
          'completion exact end inventory')
+    need(stop is None or bool(acks),'completion interrupted application requires ACK')
     need(dict(initial,**{'applied-end':None},**{'applied-end/'+k:v for k,v in end.items()})==applied,
          'completion application outside end')
     state=dict(initial);steps=[]
@@ -71,7 +82,8 @@ def application(initial,applied):
     event('APPLY_END_FORCED')
     for name,label in acks:write(name,label)
     event('APPLY_ACK_DIRECTORY_FORCED' if acks else 'APPLY_NONVOTING_DIRECTORY_FORCED')
-    event('APPLY_BEFORE_RETURN');return steps
+    if stop is None:event('APPLY_BEFORE_RETURN')
+    return steps
 
 
 def publication(initial,published):

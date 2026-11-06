@@ -24,6 +24,12 @@ owned by Phase 5; public operations/reads remain Phase 4.
 
 ## Development record
 
+[Application recovery resources](PHASE_3_CARRIED_APPLICATION_RESOURCES.md) binds
+per-owner accounting to the existing application storage/protocol/ownership
+chain. The same resource negatives preserve the complete original history.
+Physical charge/capture composition and the application-ACK hosted cohort remain
+open; this does not qualify the full simultaneous resource envelope.
+
 [Carried capture cohort](PHASE_3_CARRIED_CAPTURE_COHORT.md) declares all eight
 INTENT/FINAL × ACCEPT/PROOF × halt/SIGKILL process histories in the existing
 carried-transition entry. Seven captured families and original storage ownership

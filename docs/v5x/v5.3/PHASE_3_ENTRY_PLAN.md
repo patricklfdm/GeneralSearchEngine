@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Application recovery resources](PHASE_3_CARRIED_APPLICATION_RESOURCES.md) adds
+original resource journals and close boundaries to the application-ACK recovery
+chain. Complete transient capture, cohort admission and Phase 3 closure remain
+pending.
+
 [Carried capture cohort](PHASE_3_CARRIED_CAPTURE_COHORT.md) declares all eight
 INTENT/FINAL × ACCEPT/PROOF × halt/SIGKILL process histories in the existing
 carried-transition entry. Seven captured families and original storage ownership

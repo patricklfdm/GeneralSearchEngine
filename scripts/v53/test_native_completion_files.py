@@ -96,5 +96,40 @@ class NativeCompletionFilesTest(unittest.TestCase):
                     [dict(node='node-1',event='COVERED_END_VALIDATED')],rows[:4]+[rows[2]]):
             with self.assertRaises(ValueError):m.observed(bad)
 
+    def test_declared_application_ack_stop_keeps_full_forced_end_without_return(self):
+        initial=self.initial();end=self.applied(**{'parent-statement.gsr':b'parent','parent-ack.gsr':b'parent ack'})
+        complete=m.application(initial,end)
+        stopped=m.application(initial,end,stop='APPLY_ACK_DIRECTORY_FORCED')
+        self.assertEqual(complete[:-1],stopped)
+        self.assertEqual(('application','APPLY_ACK_DIRECTORY_FORCED'),stopped[-1][:2])
+        self.assertEqual(m.physical(end),stopped[-1][2])
+        self.assertFalse(any(p=='APPLY_BEFORE_RETURN' for _,p,_ in stopped))
+        rows=[dict(node='node-1',event=point) for _,point,_ in stopped]
+        with self.assertRaisesRegex(ValueError,'incomplete transaction'):m.observed(rows)
+        observed=m.observed(rows,interrupted_application='node-1')
+        self.assertEqual(list(range(len(rows))),[at for at,_,_ in observed])
+        self.assertTrue(all(row is rows[at] for at,_,row in observed))
+
+    def test_application_stop_cannot_admit_nonvoting_or_another_write_boundary(self):
+        end=self.applied();del end['applied-end/ack.gsr']
+        with self.assertRaisesRegex(ValueError,'requires ACK'):
+            m.application(self.initial(),end,stop='APPLY_ACK_DIRECTORY_FORCED')
+        for stop in ('APPLY_ACK_FORCED','APPLY_BEFORE_RETURN',False,''):
+            with self.subTest(stop=stop),self.assertRaisesRegex(ValueError,'supported application stop'):
+                m.application(self.initial(),self.applied(),stop=stop)
+
+    def test_declared_stop_cannot_hide_later_or_other_owner_activity(self):
+        rows=[dict(node='node-1',event=p) for _,p,_ in m.application(self.initial(),self.applied(),stop='APPLY_ACK_DIRECTORY_FORCED')]
+        variants=[rows[:-1],rows+[dict(node='node-1',event='APPLY_BEFORE_RETURN')],
+                  rows+[dict(node='node-2',event='WIRE_RESPONSE')],
+                  [dict(node='node-2',event='APPLY_VALIDATED')]+rows]
+        for variant in variants:
+            with self.subTest(variant=variant[-1]),self.assertRaisesRegex(ValueError,'exact interrupted application boundary'):
+                m.observed(variant,interrupted_application='node-1')
+        with self.assertRaisesRegex(ValueError,'exact interrupted application boundary'):
+            m.observed(rows,interrupted_application='node-2')
+        for owner in (False,True,'',0):
+            with self.assertRaisesRegex(ValueError,'interrupted application owner'):m.observed(rows,interrupted_application=owner)
+
 
 if __name__=='__main__':unittest.main()
