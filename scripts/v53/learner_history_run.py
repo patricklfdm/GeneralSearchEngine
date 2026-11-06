@@ -12,6 +12,7 @@ import xml.etree.ElementTree as ET
 from . import joining_history_run as h
 from . import learner_cycles_evidence as cycles
 from . import learner_cancellation_evidence as cancellation
+from . import native_learner_resources as resources
 from . import process_toolchain as tc
 from . import remove_process_matrix as shared
 
@@ -19,12 +20,21 @@ SCHEMA = 'gse-v53-learner-history-execution-v1'
 PACKAGE = 'io.github.patricklfdm.generalsearch.replication.'
 METHODS = {
     'alternating-slots': ('V53LearnerAlternationNetworkTest', 'nativeSixRevisionsAlternateFixedSlotsAndColdReopenWithinOneReservation'),
-    'retained-cancellation': ('V53LearnerCancellationQualification', 'nativeReadyCancellationRetainsItsPreparedAncestorAndColdReopensWithoutVoting'),
+    'retained-cancellation': ('V53NativeLearnerResourcesQualification', 'admittedCancellationAndColdReopenPreserveOriginalResourceLifetimes'),
 }
 CASES = tuple(METHODS)
 BUILDS = shared.BUILDS
 reader_manifest = shared.reader_manifest
 RESULTS = {'alternating-slots':'current-head-result.json', 'retained-cancellation':'learner-cancellation-result.json'}
+
+
+def directory(case):
+    selected(case)
+    return 'v53-native-dispatch' if case=='alternating-slots' else 'v53-native-learner-resources'
+
+
+def original(raw,case):
+    selected(case);return Path(raw) if case=='alternating-slots' else Path(raw)/'original'
 
 
 def selected(case):
@@ -70,16 +80,30 @@ def fixture(result, case):
 
 def collect(raw, case):
     selected(case); raw = Path(raw); before = h.inventory(raw)
-    (cycles if case == 'alternating-slots' else cancellation).inventory(raw)
-    result = h.read_json(raw, RESULTS[case], 65536); fixture(result, case)
-    rows = {name:h.read_json(raw, name+'.json', maximum) for name,maximum in
+    path=original(raw,case);observations={}
+    if case=='alternating-slots':cycles.inventory(path)
+    else:
+        h.need({v.name for v in raw.iterdir()}=={'original','resources'} and
+               {v.name for v in (raw/'resources').iterdir()}=={'index.json','trace.json','boundaries.json'},
+               'learner history complete original resource wrapper')
+        index=h.read_json(raw,'resources/index.json',65536)
+        h.need(type(index) is dict and set(index)=={'schema','status','pid','planSha256','wholeRuntimeResourcesQualified','phase3Complete'} and
+               index['schema']==resources.SCHEMA and index['status']=='PARTIAL' and type(index['pid']) is int and index['pid']>0 and
+               index['planSha256']==h.digest(h.snapshot.s.regular(path/'learner-plan.gslp',h.snapshot.MIB)) and
+               index['wholeRuntimeResourcesQualified'] is False and index['phase3Complete'] is False,'learner history resource capture index')
+        _,trace=resources.t.read(raw/'resources/trace.json');bounds=shared.read(raw/'resources/boundaries.json')
+        h.need(type(bounds) is list and 1<=len(bounds)<=4096,'learner history resource boundary collection')
+        observations.update(resourceTransitions=len(trace['changes']),resourceBoundaries=len(bounds))
+        cancellation.inventory(path,current_retention=True)
+    result = h.read_json(path, RESULTS[case], 65536); fixture(result, case)
+    rows = {name:h.read_json(path, name+'.json', maximum) for name,maximum in
             (('events',h.EVENT_BYTES), ('wire',h.WIRE_BYTES), ('calls',8*h.snapshot.MIB), ('failures',h.snapshot.MIB))}
     h.need(all(type(v) is list and all(type(row) is dict for row in v) for v in rows.values()) and
            all(rows[k] for k in ('events', 'wire', 'calls')), 'learner history complete observation containers')
     h.need(h.inventory(raw) == before, 'learner history changed during collection')
     return dict(status='PARTIAL', case=case, collectionComplete=True, nativeHistoryQualified=False,
                 phase3Complete=False, scope='learner-history-observations-only', fixture=result,
-                observations={k:len(v) for k,v in rows.items()}, inventory=before)
+                observations=dict(observations,**{k:len(v) for k,v in rows.items()}), inventory=before)
 
 
 def run(output, maven, case, *, source_from=None):
@@ -104,7 +128,7 @@ def run(output, maven, case, *, source_from=None):
         receipt['junit'] = junit(work/h.MODULE/'target/surefire-reports', case); receipt['executionStatus'] = 'PASS'
         h.save(output/'build.json', {name:h.inventory(work/name) for name in BUILDS})
         receipt['buildSha256'] = h.digest((output/'build.json').read_bytes())
-        roots = list((work/h.MODULE/'target/v53-native-dispatch').iterdir())
+        roots = list((work/h.MODULE/'target'/directory(case)).iterdir())
         h.need(len(roots) == 1, 'learner history exact original directory')
         raw = roots[0]; receipt['raw'] = raw.relative_to(output).as_posix()
         # Freeze the collector too: do not read a concurrently edited live checkout.

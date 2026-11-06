@@ -157,9 +157,9 @@ class HistoryCohortTest(unittest.TestCase):
         self.assertFalse(list(self.output.rglob('scratch-*')))
         self.assertEqual(260, len(list(self.output.glob('*/groups/*/progress.jsonl'))))
         coverage = c.seeds.read(self.output/'coverage.json')
-        self.assertEqual((17, 3), (coverage['rejected'], coverage['notApplicable']))
+        self.assertEqual((18, 3), (coverage['rejected'], coverage['notApplicable']))
         self.assertEqual('PARTIAL', coverage['status']); self.assertFalse(coverage['phase3Complete'])
-        self.assertEqual(20, len(coverage['witnesses']))
+        self.assertEqual(21, len(coverage['witnesses']))
         self.assertEqual(c.shared.tc.file_hash(self.output/'coverage.json'), value['candidateWitnesses']['sha256'])
         self.assertEqual(c.witnesses.prepare()[0], (self.output/'coverage-plan.json').read_bytes())
 

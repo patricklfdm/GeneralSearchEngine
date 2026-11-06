@@ -4,8 +4,9 @@
 now bind actual READY/CANCEL and same-file cold recovery to continuous original
 charges, forced generation handoffs and six real close intervals. The explicit
 current-retention reader derives all four campaigns and eight publications.
-This component remains development evidence; full byte pressure, source-bound
-catalogue integration and final-source resource qualification remain OPEN.
+The existing source-bound cancellation member now requires all 50 resource/
+physical negatives without adding another native history. Local evidence stays
+development-only; full byte pressure and final-source qualification remain OPEN.
 
 [Native SOURCE-count refusal](PHASE_3_NATIVE_COUNT_REFUSAL.md) adds an optional
 real-receiver probe inside the application-ACK crash/recovery history. Its reader

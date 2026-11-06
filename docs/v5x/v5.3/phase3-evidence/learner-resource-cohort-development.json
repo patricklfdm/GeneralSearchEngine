@@ -1,0 +1,214 @@
+{
+  "catalogue": {
+    "additionalHistories": 0,
+    "additionalWorkflowJobs": 0,
+    "cancellationNegativeCases": 50,
+    "candidateWitnesses": 21,
+    "coverageInspection": {
+      "path": "target/v53-learner-resource-cohort/coverage/receipt.json",
+      "sha256": "5c95b6efcf316a30a49387dbb49559c676364783027c26d21eaf0c1becdc22c2"
+    },
+    "executionGroups": 260,
+    "histories": 566,
+    "learnerHistories": 2,
+    "learnerNegativeCases": 62,
+    "plan": {
+      "path": "docs/v5x/v5.3/phase3-qualification-plan.json",
+      "sha256": "d571b9b8cbc16d389c801b8709df51fae1f95ffeb72505c416d8b5ebe4ceae0b"
+    },
+    "planInspection": {
+      "path": "target/v53-learner-resource-cohort/plan/receipt.json",
+      "sha256": "55529cca992da48f70e08632ce6264e2e621c6ac81f17bc181837f883031bd8c"
+    },
+    "rawArchives": 500,
+    "selectedJobs": 544,
+    "subsets": 12,
+    "witnesses": {
+      "path": "docs/v5x/v5.3/phase3-coverage-witnesses.json",
+      "sha256": "71b219cf2d3cc90c2a227b2ef8ad2a21e20cfd8dccb48349a2ba2acb0481eb57"
+    }
+  },
+  "cohortAdmitted": false,
+  "currentFiles": [
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "ba7a5229e844f15a7048d624beaabc5d0bcb9d75e3f92cc52396604598864bd4"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_LEARNER_HISTORY_COHORT.md",
+      "sha256": "35a84f6236dd6cea8fa1f1e5219f01f88b1b14a8a2f8fc1fd7bf91a1b9519f53"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_NATIVE_LEARNER_RESOURCES.md",
+      "sha256": "69fed6dd7dbece4eaf1c9831e918158bbfe11206ada861ac8e784665d046d2ee"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_QUALIFICATION_AUDIT.md",
+      "sha256": "f546e280d7eb8935ba0ed38c6c49a32e9653330a3febe52674de4a82910faf87"
+    },
+    {
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "76781e421e8bc27deb60cec147ac753c31e61c366e4dd459905ace89f6330a41"
+    },
+    {
+      "path": "docs/v5x/v5.3/phase3-coverage-witnesses.json",
+      "sha256": "71b219cf2d3cc90c2a227b2ef8ad2a21e20cfd8dccb48349a2ba2acb0481eb57"
+    },
+    {
+      "path": "docs/v5x/v5.3/phase3-qualification-plan.json",
+      "sha256": "d571b9b8cbc16d389c801b8709df51fae1f95ffeb72505c416d8b5ebe4ceae0b"
+    },
+    {
+      "path": "scripts/v53/learner_history_cohort.py",
+      "sha256": "4ae47f2357a31b5385ba66528479aa09a350f29523a23604c0c941b4692b2b90"
+    },
+    {
+      "path": "scripts/v53/learner_history_run.py",
+      "sha256": "ecae6ea4049e496a5f21542d3663b0cf1f9abfa22910de9b7deb8a27c7e20996"
+    },
+    {
+      "path": "scripts/v53/phase3_coverage.py",
+      "sha256": "2438381a4c96b58b5141a1032af0a801535b96e6bbc75466a7ebfc490eac4e9a"
+    },
+    {
+      "path": "scripts/v53/test_learner_history_cohort.py",
+      "sha256": "4c63e70b76d42831ae5834655adce8d2833ef4e0deb6453954840c6aaa313162"
+    },
+    {
+      "path": "scripts/v53/test_learner_history_hosted.py",
+      "sha256": "5271b8eed69910828de705756469018aa9690ae4dca7607025117ee009928f9f"
+    },
+    {
+      "path": "scripts/v53/test_phase3_coverage.py",
+      "sha256": "d4d159f37a032da10df1ce7fea22b9a1615c3be09420c80bb3dc7ffa7d1b5ba3"
+    },
+    {
+      "path": "scripts/v53/test_phase3_history_cohort.py",
+      "sha256": "121838fd5d80d8b941a66affc163c9747feedd993db235e85fb4ef5e4e61f6b0"
+    },
+    {
+      "path": "scripts/v53/test_phase3_witness_observations.py",
+      "sha256": "4f831c9afc1691d8e6aacb81474bea277f293e0b3b3a212a6cc73c77af664b17"
+    }
+  ],
+  "currentSourceExecution": false,
+  "finalSourceQualified": false,
+  "generator": {
+    "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-learner-resource-cohort/index-evidence.py",
+    "sha256": "01a35e5949533bd03384533a3c020a955ba8ceb8434a5b3b8506a68e71a5e59c"
+  },
+  "historicalIndexes": {
+    "count": 531,
+    "inventory": {
+      "path": "target/v53-learner-resource-cohort/historical-indexes.json",
+      "sha256": "4e8e030d8d1a58c4b06e47e843b85d861801b8217b819626bb9ec8f8edd7dcd2"
+    },
+    "unchanged": true
+  },
+  "limitations": [
+    "The old development original is replayed without changing its source/build/class provenance. It cannot fill the strengthened exact-method source-bound member.",
+    "No new native Java, Maven build, hosted workflow, paid cloud or final-source cohort executed in this integration batch.",
+    "The existing cancellation history is strengthened in place; global scheduling counts are unchanged and full final-source execution remains pending.",
+    "Scoped learner ownership and copied-evidence negatives do not establish full byte pressure, all runtime resources, all learner lifetimes, process death or Phase 3 closure.",
+    "Frozen acceptance limits, production Java, POM, workflow and Required CI remain unchanged. All five closure gaps remain OPEN."
+  ],
+  "newNativeExecutions": 0,
+  "phase3Complete": false,
+  "replay": {
+    "bytes": 11117038,
+    "collection": {
+      "path": "target/v53-learner-resource-cohort/replay/collection.json",
+      "sha256": "b8d42d6db48581345bd01088b3622a67f80016b575103947d8850700c6f82075"
+    },
+    "files": 2330,
+    "log": {
+      "path": "target/v53-learner-resource-cohort/replay.log",
+      "sha256": "a43c8fe147e510d51a12dee3a62d2e74331a54a3018795f449f57deb0102f45b"
+    },
+    "negativeCases": 50,
+    "originalPreserved": true,
+    "qualification": {
+      "path": "target/v53-learner-resource-cohort/replay/qualification.json",
+      "sha256": "2aff405c4f91a6983a807994ee955be890359b0760bfe77aa7aff7f77eb541df"
+    },
+    "reader": {
+      "path": "target/v53-learner-resource-cohort/replay/reader.json",
+      "sha256": "a28ff4942bcbc95e7479e04585a6d836dad7a97cd21c14b21e6d41e33a4b1856"
+    },
+    "receipt": {
+      "path": "target/v53-learner-resource-cohort/replay/receipt.json",
+      "sha256": "f95e488a6257553a5f4a7ebe5fcce1036105012874e74cee3b91d0b10b8d7f5d"
+    },
+    "script": {
+      "path": "target/v53-learner-resource-cohort/replay.py",
+      "sha256": "9fe86526428cdd70cf4c3e23d43c89d4e425c70b2773e0313da5b2f7a9b5a356"
+    },
+    "seconds": 88.589
+  },
+  "retainedProducer": {
+    "build": {
+      "path": "target/v53-native-learner-resources/producer/build.json",
+      "sha256": "9a5c3c8eb71cc06a00a2f0c56a378fc5eecd2e582720d81389d9b8a313bf054c"
+    },
+    "formalMember": false,
+    "index": {
+      "path": "docs/v5x/v5.3/phase3-evidence/native-learner-resources-development.json",
+      "sha256": "a03f6880e1fd1d045f589c45d6607bea9c6edfd3d6f66f3acd3934004eb58c36"
+    },
+    "originalSourceUnchanged": true,
+    "receipt": {
+      "path": "target/v53-native-learner-resources/producer/receipt.json",
+      "sha256": "0d27528b98dd14abd4573d2127e5f39100b896137028ee52949a8e80f880f2f8"
+    },
+    "source": {
+      "path": "target/v53-native-learner-resources/producer/source.json",
+      "sha256": "1b02e34c40949a78ec98c60e259f6bd004a7add698582efdb08de83393496720"
+    },
+    "toolchain": {
+      "path": "target/v53-native-learner-resources/producer/toolchain.json",
+      "sha256": "d9d255ecd9455dff9a5e773a568fdb1c6be3dcb09e4719085bc61da95455803f"
+    }
+  },
+  "schema": "gse-v53-learner-resource-cohort-development-v1",
+  "scope": "source-bound cancellation member integration and retained-original adapter replay",
+  "status": "PARTIAL",
+  "tests": {
+    "admissionAndPlanning": {
+      "count": 125,
+      "log": {
+        "path": "target/v53-learner-resource-cohort/tests-pass.log",
+        "sha256": "7efe130af15b44b4bbcb3ba5998993e5b2e863955368e6282636078e465265d4"
+      }
+    },
+    "assertionsDisabled": {
+      "count": 49,
+      "log": {
+        "path": "target/v53-learner-resource-cohort/tests-optimized.log",
+        "sha256": "0ea24a16e41fe9597730a90e5685da0f93a405625649408f9365d1f5c14c3e30"
+      },
+      "overlaps": true
+    },
+    "documentation": {
+      "path": "target/v53-learner-resource-cohort/contract.json",
+      "sha256": "0f5cf1f9ca85cef975757a73be149093155e070c809c169e74e26f357b86f4c6"
+    },
+    "retainedDevelopmentFailures": [
+      {
+        "path": "target/v53-learner-resource-cohort/tests-01.log",
+        "sha256": "78d40320b1e78be3e1a6dad1c107e0f81bbef3e83bd72566ab98bd382d14bb7b"
+      },
+      {
+        "path": "target/v53-learner-resource-cohort/tests-02.log",
+        "sha256": "75b42ca7fd8a8bd421d49d82cd7c23f039ad606bebaaa115670826cffdb74523"
+      },
+      {
+        "path": "target/v53-learner-resource-cohort/tests-03.log",
+        "sha256": "6a3d0ab64aac681538547cc64f65e04ee26c4889a438c17c5a1d6fa238adb255"
+      },
+      {
+        "path": "target/v53-learner-resource-cohort/tests-final.log",
+        "sha256": "482404893c50bd075db7d15ea719b8fbbd05092b9a505fcfae492784748449c6"
+      }
+    ]
+  }
+}

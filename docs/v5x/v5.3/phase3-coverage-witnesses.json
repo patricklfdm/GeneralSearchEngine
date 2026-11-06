@@ -3,7 +3,7 @@
   "status": "PLANNED",
   "phase3Complete": false,
   "acceptancePlanSha256": "cdb67a09eb2acc2b2f7d7348204d4a2e4cebc7996aaeacdec6145864f5f846f1",
-  "sourceCatalogueSha256": "40c0c5c1443c8ddabffc5a29794b21f254d7a355d9e6f4ad33f43be4c905268a",
+  "sourceCatalogueSha256": "21d0b521505e701eaf99250c646a13e8a41c729ad875273789a729566971c115",
   "requirements": [
     {
       "id": "3A-activation",
@@ -171,6 +171,22 @@
           "reason": "admitted exact after-close: node-1",
           "condition": "always",
           "scope": "Original cancelled learner retention through owner close."
+        },
+        {
+          "id": "cancelled-learner-resource-ownership",
+          "cohort": "learner-histories",
+          "unit": "retained-cancellation",
+          "histories": [
+            "retained-cancellation"
+          ],
+          "selector": {
+            "suite": "resource-observations",
+            "case": "release-reacquire-gap",
+            "variant": "default"
+          },
+          "reason": "learner resources continuous original ownership",
+          "condition": "always",
+          "scope": "Actual admitted learner ownership survives the complete READY/CANCEL history; copied accounting mutation is not additional native execution."
         }
       ],
       "openWork": "The two learner histories are focused 3-ADD cases; other learner profiles and simultaneous runtime resources are not established by them."

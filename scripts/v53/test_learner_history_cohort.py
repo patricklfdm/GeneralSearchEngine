@@ -23,7 +23,14 @@ def fixture(case):
 
 
 def history(raw,case):
-    raw.mkdir(parents=True); (raw/'original-plan.gsbp').write_bytes(case.encode())
+    raw.mkdir(parents=True); wrapper=raw;raw=m.run.original(raw,case);raw.mkdir(exist_ok=True)
+    (raw/'original-plan.gsbp').write_bytes(case.encode())
+    if case=='retained-cancellation':
+        from .test_native_learner_resources import observations
+        observed=observations();folder=wrapper/'resources';folder.mkdir();(raw/'learner-plan.gslp').write_bytes(b'synthetic plan')
+        (folder/'trace.json').write_bytes(m.h.snapshot.f.canonical(observed[0]));m.h.save(folder/'boundaries.json',observed[1])
+        (folder/'index.json').write_bytes(m.h.snapshot.f.canonical(dict(schema=m.run.resources.SCHEMA,status='PARTIAL',pid=1,
+            planSha256=m.h.digest(b'synthetic plan'),wholeRuntimeResourcesQualified=False,phase3Complete=False)))
     for name in ('events','wire','calls','failures'):
         (raw/(name+'.json')).write_bytes(m.h.snapshot.f.canonical([] if name == 'failures' else [dict(synthetic=True)]))
     (raw/m.run.RESULTS[case]).write_bytes(m.h.snapshot.f.canonical(fixture(case)))
@@ -44,9 +51,15 @@ def replay(case):
                         learnerAcquisitionQualified=True,selectedHeadQualified=True,fullNetworkQualification=False)
     else:
         original.update(scope='native-learner-cancellation',coldReopenQualified=True,autonomous=False,
-                        learnerRetention=dict(quorums=2,forcedUpdates=4,sourceExposures=2,wireACKs=2,failedAttempts=0),
+                        renewalHistory=dict(campaigns=4,slots=8),learnerRetention=dict(quorums=2,forcedUpdates=4,sourceExposures=2,wireACKs=2,failedAttempts=0),
                         acquisition=dict(exchanges=31,originalFiles=9,peer='node-1'),progress=dict(exchanges=28,originalFiles=9,peer='node-1'))
-    return dict(original=original,negatives=[dict(case=k,status='REJECTED',reason=v) for k,v in m.negative_cases(case).items()])
+    result=dict(original=original,negatives=[dict(case=k,status='REJECTED',reason=v) for k,v in m.negative_cases(case).items()])
+    if case=='retained-cancellation':
+        from .test_native_learner_resources import observations
+        resources=m.run.resources.bind(*observations())
+        resources['snapshots']={name:dict(physicalBytes=100,typedBackupBytes=10,miscBytes=20,inventorySha256='a'*64) for name in m.run.cancellation.STAGES}
+        result.update(resources=resources,originalPreserved=True)
+    return result
 
 
 class LearnerHistoryCohortTest(unittest.TestCase):
@@ -71,7 +84,7 @@ class LearnerHistoryCohortTest(unittest.TestCase):
             directory = work/name; directory.mkdir(parents=True); (directory/'original.class').write_bytes(b'synthetic classes')
         m.h.save(path/'build.json',{name:m.h.inventory(work/name) for name in m.BUILDS})
         m.h.save(path/'toolchain.json',record()); junit = m.run.junit(reports(work,case),case)
-        raw = work/m.h.MODULE/'target/v53-native-dispatch/run-00000000-0000-0000-0000-000000000001'; history(raw,case)
+        raw = work/m.h.MODULE/'target'/m.run.directory(case)/'run-00000000-0000-0000-0000-000000000001'; history(raw,case)
         m.h.save(path/'collection.json',m.run.collect(raw,case)); m.h.save(path/'execution.json',dict(exit=0))
         m.h.save(path/'receipt.json',dict(schema=m.run.SCHEMA,status='PARTIAL',executionStatus='PASS',case=case,
             collectionComplete=True,nativeHistoryQualified=False,phase3Complete=False,retries=0,
@@ -93,8 +106,8 @@ class LearnerHistoryCohortTest(unittest.TestCase):
         with patch.object(m,'ProcessPoolExecutor',ThreadPoolExecutor):
             return m.validate(self.paths if paths is None else paths,*self.pins,**kwargs)
 
-    def test_two_declared_whole_native_methods_and_exact_43_negatives(self):
-        self.assertEqual((12,31),tuple(len(m.negative_cases(case)) for case in m.KINDS))
+    def test_two_declared_whole_native_methods_and_exact_62_negatives(self):
+        self.assertEqual((12,50),tuple(len(m.negative_cases(case)) for case in m.KINDS))
         for case,(cls,method) in m.run.METHODS.items():
             source = m.h.ROOT/m.h.MODULE/('src/test/java/'+m.run.PACKAGE.replace('.','/')+cls+'.java')
             self.assertIn('void '+method+'()',source.read_text())
@@ -193,10 +206,10 @@ class LearnerHistoryCohortTest(unittest.TestCase):
     def test_complete_pair_runs_each_original_first_once_and_retains_partial_scope(self):
         progress = []
         with patch.object(m.run.cycles,'qualify',return_value=replay('alternating-slots')) as cycles, \
-             patch.object(m.run.cancellation,'qualify',return_value=replay('retained-cancellation')) as cancel:
+             patch.object(m,'replay_cancellation',return_value=replay('retained-cancellation')) as cancel:
             result = self.matrix(workers=2,progress=progress.append)
-        cycles.assert_called_once(); cancel.assert_called_once_with(self.raw(self.paths['retained-cancellation']),retained_learners=True)
-        self.assertEqual(2,len(progress)); self.assertEqual(43,result['negativeCases']); self.assertEqual('PASS',result['status'])
+        cycles.assert_called_once(); cancel.assert_called_once_with(self.raw(self.paths['retained-cancellation']))
+        self.assertEqual(2,len(progress)); self.assertEqual(62,result['negativeCases']); self.assertEqual('PASS',result['status'])
         self.assertIs(True,result['declaredLearnerHistoryPairQualified'])
         for key in ('phase3Complete','allMembershipProfilesQualified','processDeathQualified','fullNetworkQualification','combinedPeakResourcesQualified'):
             self.assertIs(False,result[key])
@@ -204,14 +217,14 @@ class LearnerHistoryCohortTest(unittest.TestCase):
     def test_missing_alias_and_duplicate_original_cannot_fill_pair(self):
         with self.assertRaisesRegex(ValueError,'complete pair'): self.matrix({self.case:self.path})
         with self.assertRaisesRegex(ValueError,'distinct producer directories'): self.matrix(dict.fromkeys(m.KINDS,self.path))
-        other = self.paths['retained-cancellation']; (self.raw(other)/'original-plan.gsbp').write_bytes(self.case.encode())
+        other = self.paths['retained-cancellation']; (m.run.original(self.raw(other),'retained-cancellation')/'original-plan.gsbp').write_bytes(self.case.encode())
         m.h.save(other/'collection.json',m.run.collect(self.raw(other),'retained-cancellation'))
         receipt = m.read(other/'receipt.json'); receipt['collectionSha256'] = m.h.digest((other/'collection.json').read_bytes()); m.h.save(other/'receipt.json',receipt)
         with self.assertRaisesRegex(ValueError,'distinct original histories'): self.matrix()
 
     def test_failure_is_retained_and_other_history_still_checked_without_retry(self):
         with patch.object(m.run.cycles,'qualify',side_effect=ValueError('invalid original')) as cycles, \
-             patch.object(m.run.cancellation,'qualify',return_value=replay('retained-cancellation')) as cancel:
+             patch.object(m,'replay_cancellation',return_value=replay('retained-cancellation')) as cancel:
             result = self.matrix(workers=2)
         cycles.assert_called_once(); cancel.assert_called_once(); self.assertEqual('FAIL',result['status'])
         self.assertEqual('invalid original',result['cases'][0]['failure']['message'])
@@ -225,6 +238,46 @@ class LearnerHistoryCohortTest(unittest.TestCase):
                 with self.subTest(case=case),self.assertRaises(ValueError): m.check_result(value,case)
         value = replay('retained-cancellation'); value['original']['learnerRetention']['quorums'] = 1
         with self.assertRaisesRegex(ValueError,'retention rounds'): m.check_result(value,'retained-cancellation')
+
+    def test_cancellation_requires_original_resource_sidecars(self):
+        path=self.raw(self.paths['retained-cancellation']);sidecar=path/'resources/index.json'
+        saved=sidecar.read_bytes();sidecar.unlink()
+        with self.assertRaisesRegex(ValueError,'complete original resource wrapper'):m.run.collect(path,'retained-cancellation')
+        sidecar.write_bytes(saved);value=m.read(sidecar);value['planSha256']='0'*64
+        sidecar.write_bytes(m.h.snapshot.f.canonical(value))
+        with self.assertRaisesRegex(ValueError,'resource capture index'):m.run.collect(path,'retained-cancellation')
+
+    def test_old_cancellation_method_cannot_be_used_for_resource_admission(self):
+        path=self.paths['retained-cancellation'];receipt=m.read(path/'receipt.json')
+        receipt['command']=[v if not v.startswith('-Dtest=') else '-Dtest=V53LearnerCancellationQualification#nativeReadyCancellationRetainsItsPreparedAncestorAndColdReopensWithoutVoting' for v in receipt['command']]
+        m.h.save(path/'receipt.json',receipt)
+        with self.assertRaisesRegex(ValueError,'exact whole command'):m.member(path,'retained-cancellation',*self.pins)
+
+    def test_missing_forged_or_overclaimed_resource_summary_never_aggregates(self):
+        mutations=(lambda v:v.pop('resources'),lambda v:v.update(originalPreserved=False),
+            lambda v:v['resources'].update(wholeRuntimeResourcesQualified=True),
+            lambda v:v['resources'].update(closeIntervals=5),lambda v:v['resources'].update(callbacks=True),
+            lambda v:v['resources'].update(continuousOwnershipQualified=False),
+            lambda v:v['resources'].update(generationSelections=[2,2]),
+            lambda v:v['resources']['snapshots'].pop('learner-closed'),
+            lambda v:v['resources']['snapshots']['learner-prepared'].update(typedBackupBytes=1000),
+            lambda v:v['original'].update(renewalHistory=dict(campaigns=1,slots=5)))
+        for mutation in mutations:
+            value=replay('retained-cancellation');mutation(value)
+            with self.subTest(value=value),self.assertRaises(ValueError):m.check_result(value,'retained-cancellation')
+
+    def test_cancellation_adapter_preserves_all_original_negative_suites(self):
+        base=replay('retained-cancellation')
+        negatives=[dict(suite=suite,case=name,status='REJECTED',reason=reason) for suite,cases in (
+            ('resource-observations',m.run.resources.NEGATIVES),('original-history',dict(m.run.cancellation.NEGATIVES,**m.retention.NEGATIVES)),
+            ('renewal-history',m.run.resources.HISTORY_NEGATIVES)) for name,reason in cases.items()]
+        value=dict(original=dict(status='PARTIAL',original=base['original'],resources=base['resources'],phase3Complete=False),
+            negatives=negatives,originalPreserved=True,phase3Complete=False)
+        with patch.object(m.run.resources,'qualify',return_value=value) as qualify:
+            got=m.replay_cancellation('/synthetic');m.check_result(got,'retained-cancellation')
+            qualify.assert_called_once_with('/synthetic');self.assertEqual(base,got)
+            value['negatives'][0]['suite']='original-history'
+            with self.assertRaisesRegex(ValueError,'complete resource negative suites'):m.replay_cancellation('/synthetic')
 
     def test_original_mutation_during_replay_is_rejected(self):
         def changed(raw):

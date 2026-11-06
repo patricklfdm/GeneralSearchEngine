@@ -9,8 +9,10 @@ The result remains **PARTIAL**. It does not qualify the simultaneous runtime byt
 limit, transient physical-file maximum, process death, autonomous membership,
 operation 231 or the final-source Phase 3 cohort. The learner never votes and
 never opens public service. The current catalogue still has 566 histories,
-260 execution groups, 500 raw archives and 544 selected jobs; this development
-execution has not been added to that source-bound catalogue.
+260 execution groups, 500 raw archives and 544 selected jobs; the strengthened
+source-bound `retained-cancellation` member now requires these observations
+without adding another history. This local development execution is not an
+admitted member of the final-source set.
 
 ## Original capture and independent replay
 
@@ -106,5 +108,5 @@ python3 -B -m scripts.v53.native_learner_resources \
 Use the actual emitted `run-UUID`; output must not already exist. Replay emits a
 minute heartbeat, preserves original files and retains failure receipts. A
 failed original does not receive negative credit or an automatic rerun.
-Source-bound catalogue integration, broader resource pressure and final-source
-execution remain separate work. No hosted workflow or paid cloud was triggered.
+Source-bound integration is described in the learner cohort document. Broader
+resource pressure and final-source execution remain separate work. No hosted workflow or paid cloud was triggered.

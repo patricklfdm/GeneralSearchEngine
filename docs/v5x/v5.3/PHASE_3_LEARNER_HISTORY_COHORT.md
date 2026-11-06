@@ -9,7 +9,7 @@ in this batch. Phase 3 remains **OPEN**.
 | Case | Existing native method | Required independent replay |
 | --- | --- | --- |
 | `alternating-slots` | `V53LearnerAlternationNetworkTest#nativeSixRevisionsAlternateFixedSlotsAndColdReopenWithinOneReservation` | Six PREPARE revisions, 25 retained snapshots, selected/retired A/B slots, final CANCEL and 12 exact negatives |
-| `retained-cancellation` | `V53LearnerCancellationQualification#nativeReadyCancellationRetainsItsPreparedAncestorAndColdReopensWithoutVoting` | Native READY/CANCEL, original prepared ancestor, two forced retention rounds, nonvoting cold reopen and 31 exact negatives |
+| `retained-cancellation` | `V53NativeLearnerResourcesQualification#admittedCancellationAndColdReopenPreserveOriginalResourceLifetimes` | Native READY/CANCEL, original prepared ancestor, two forced retention rounds, nonvoting cold reopen, four complete campaigns, original resource lifetimes and 50 exact negatives |
 
 The pair is a focused **3-ADD** component qualification. It does not cover all
 five joining profiles, process death, autonomous membership, the complete native
@@ -17,10 +17,39 @@ network schedule or maximum simultaneous resources. All those claims, and
 `phase3Complete`, remain false even after this pair passes.
 
 The existing 900-second revision-history and 600-second cancellation-history
-fixtures are unchanged. The [earlier final-CANCEL timeout](PHASE_3_LEARNER_CYCLE_REPLAY.md)
+budgets are unchanged. The cancellation method now captures the same admitted
+learner resource pool and real close boundaries. The [earlier final-CANCEL timeout](PHASE_3_LEARNER_CYCLE_REPLAY.md)
 remains a failed original. This entry neither retries it nor extends its deadline.
 The [historical retained-cancellation success](PHASE_3_LEARNER_RETENTION_REPLAY.md)
 belongs to its earlier source and cannot fill a final-source cohort slot.
+
+## Original resource integration
+
+The cancellation member now uses the [native learner resource wrapper](PHASE_3_NATIVE_LEARNER_RESOURCES.md).
+Collection preserves `original/` and all three `resources/` sidecars; the exact
+JUnit method and case-specific output directory are required. Source/build/
+toolchain/reader pins and the original plan still bind the entire indivisible
+history. A legacy producer without observations cannot fill this member.
+
+Its downloaded replay validates all original voter, learner, transfer and
+retention evidence before any resource negative receives credit. Aggregation
+requires the original four-campaign/eight-slot summary, two generation handoffs,
+six exact closes, every physical snapshot extent, preserved originals and all
+50 exact negatives (15 resource observations, 31 existing physical/retention,
+four renewal-history mutations). Missing traces, different suites, early release
+or an overclaim of full runtime resources reject acceptance.
+
+The pair remains two native executions and two downloaded replays. No workflow
+job or additional expensive history is added; the optional workflow consumes
+the updated catalogue dynamically. The phase-wide source witness map distinguishes
+in-memory accounting mutations from physical evidence mutations. All global
+scheduling counts are unchanged. Final-source execution and acceptance remain
+pending; the local development original cannot satisfy the new exact method
+and source/build pins.
+
+The [integration index](phase3-evidence/learner-resource-cohort-development.json)
+retains adapter replay and provenance tests. The earlier development receipts
+below preserve their original scope and are not rewritten.
 
 ## Capture and admission
 
@@ -44,9 +73,10 @@ original. The same original plan cannot fill both slots. Recorded absolute paths
 remain data for the independent reader; relocating an archive does not relocate
 its authority.
 
-The existing revision reader and retained-cancellation reader validate the
+The existing revision reader and composed resource/cancellation reader validate the
 unmodified original before any evidence mutation. Cancellation always uses
-`retained_learners=True`; legacy diagnosis is not an accepted substitute. All 43
+`retained_learners=True` and `current_retention=True`; legacy diagnosis or a
+legacy five-slot history is not an accepted substitute. All 62
 negative entries must match their exact case/status/reason vector. An invalid
 original or unrelated rejection fails. Producers and reader pins are checked
 again after replay; mutations cannot escape into the retained original.

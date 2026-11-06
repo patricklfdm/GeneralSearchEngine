@@ -48,7 +48,7 @@ class LearnerHistoryHostedTest(unittest.TestCase):
             with patch.object(w.tc,'capture',return_value=record()),patch.object(w.m.run,'run',side_effect=self.produce) as run:
                 result=w.execute(self.bundle,output,'mvn',case,self.ctx)
             run.assert_called_once();self.assertEqual(case,run.call_args.args[2]);self.assertEqual('PARTIAL',result['status'])
-            with patch.object(w.m.run.cycles if case=='alternating-slots' else w.m.run.cancellation,'qualify',return_value=fixtures.replay(case)) as replay:
+            with patch.object(w.m.run.cycles if case=='alternating-slots' else w.m,'qualify' if case=='alternating-slots' else 'replay_cancellation',return_value=fixtures.replay(case)) as replay:
                 result=w.verify(self.bundle,output/'artifact',self.root/('verify-'+w.m.slug(case)),case,self.ctx)
             replay.assert_called_once();self.assertIn('original/data/producer',str(replay.call_args.args[0]))
             self.assertTrue(result['originalFirstDownloadedReplay']);self.assertEqual('PARTIAL',result['status'])
@@ -92,7 +92,7 @@ class LearnerHistoryHostedTest(unittest.TestCase):
 
     def test_aggregate_requires_two_exact_originals_and_all_negative_results(self):
         result=w.aggregate(self.bundle,self.verified(),self.root/'aggregate',self.ctx,'success','success')
-        self.assertEqual('PASS',result['status']);self.assertEqual(2,result['wholeHistories']);self.assertEqual(43,result['negativeCases'])
+        self.assertEqual('PASS',result['status']);self.assertEqual(2,result['wholeHistories']);self.assertEqual(62,result['negativeCases'])
         self.assertTrue(result['declaredLearnerHistoryPairQualified']);self.assertFalse(result['phase3Complete'])
 
     def test_bad_stage_or_missing_verifier_cannot_aggregate(self):

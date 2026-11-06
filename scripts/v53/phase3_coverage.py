@@ -59,6 +59,10 @@ def negative_selectors(name, unit):
         return (rows(m.gate.NEGATIVES, 'authority', condition='original-authority-applicability') +
                 rows(m.physical.NEGATIVES, 'physical') + rows(m.physical.transaction.NEGATIVES, 'transaction'))
     if name == 'learner-histories':
+        if unit=='retained-cancellation':
+            return (rows(m.run.resources.NEGATIVES,'resource-observations')+
+                    rows(dict(m.run.cancellation.NEGATIVES,**m.retention.NEGATIVES),'physical')+
+                    rows(m.run.resources.HISTORY_NEGATIVES,'renewal-history'))
         return rows(m.negative_cases(unit), 'physical')
     if name in ('round-histories', 'carried-data-histories', 'carried-transition-histories', 'joint-floor-process'):
         return authored(m.negative_cases(unit))

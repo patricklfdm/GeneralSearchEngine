@@ -64,7 +64,7 @@ def member(path, case, source, build, toolchain, reader):
     need(receipt.get('toolchainSha256') == tools_hash and tc.pin((path/'toolchain.json').read_bytes()) == toolchain,
          'learner cohort portable toolchain')
     name = receipt.get('raw')
-    need(type(name) is str and re.fullmatch('workspace/'+h.MODULE+r'/target/v53-native-dispatch/run-[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}',name),
+    need(type(name) is str and re.fullmatch('workspace/'+h.MODULE+'/target/'+run.directory(case)+r'/run-[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}',name),
          'learner cohort original history path')
     raw = path/name
     need(all((path/p).is_dir() and not (path/p).is_symlink() for p in Path(name).parents), 'learner cohort linked history parent')
@@ -73,19 +73,22 @@ def member(path, case, source, build, toolchain, reader):
     need(receipt.get('collectionSha256') == h.digest((path/'collection.json').read_bytes()) and
          h.snapshot.f.canonical(collection) == h.snapshot.f.canonical(run.collect(raw,case)) and collection.get('inventory') == inventory,
          'learner cohort independently recollected original')
-    plan = h.digest(h.snapshot.s.regular(raw/'original-plan.gsbp',h.snapshot.MIB))
+    plan = h.digest(h.snapshot.s.regular(run.original(raw,case)/'original-plan.gsbp',h.snapshot.MIB))
     return dict(raw=raw, plan=plan, inventory=inventory, receiptSha256=h.digest((path/'receipt.json').read_bytes()))
 
 
 def negative_cases(case):
     run.selected(case)
     if case == 'alternating-slots': return dict(run.cycles.NEGATIVES)
-    need(not (set(run.cancellation.NEGATIVES)&set(retention.NEGATIVES)), 'learner cohort negative catalogue collision')
-    return dict(run.cancellation.NEGATIVES, **retention.NEGATIVES)
+    parts=(run.resources.NEGATIVES,run.cancellation.NEGATIVES,retention.NEGATIVES,run.resources.HISTORY_NEGATIVES)
+    result={key:value for part in parts for key,value in part.items()}
+    need(len(result)==sum(map(len,parts)), 'learner cohort negative catalogue collision')
+    return result
 
 
 def check_result(value, case):
-    run.selected(case); need(type(value) is dict and set(value) == {'original','negatives'}, 'learner cohort replay envelope')
+    run.selected(case); need(type(value) is dict and set(value) == ({'original','negatives'} if case=='alternating-slots' else
+        {'original','negatives','resources','originalPreserved'}), 'learner cohort replay envelope')
     original = value['original']
     need(type(original) is dict and original.get('status') == 'PASS' and
          all(original.get(k) is True for k in ('physicalQualification','forceOrderQualified')) and
@@ -100,10 +103,13 @@ def check_result(value, case):
              type(original.get('exchanges')) is int and original['exchanges'] > 0, 'learner cohort complete six revisions')
     else:
         need(set(original) == {'status','scope','acquisition','progress','physicalQualification','forceOrderQualified',
-                              'coldReopenQualified','processDeathQualified','autonomous','phase3Complete','learnerRetention'} and
+                              'coldReopenQualified','processDeathQualified','autonomous','phase3Complete','learnerRetention','renewalHistory'} and
              original.get('scope') == 'native-learner-cancellation' and original.get('coldReopenQualified') is True and
              original.get('autonomous') is False and type(original.get('learnerRetention')) is dict and
              original['learnerRetention'], 'learner cohort retained cancellation')
+        need(h.snapshot.f.canonical(original['renewalHistory'])==h.snapshot.f.canonical(dict(campaigns=4,slots=8)),
+             'learner cohort complete original renewal history')
+        check_resources(value['resources']);need(value['originalPreserved'] is True,'learner cohort original resource preservation')
         retained = original['learnerRetention']
         need(set(retained) == {'quorums','forcedUpdates','sourceExposures','wireACKs','failedAttempts'} and
              all(type(v) is int for v in retained.values()) and
@@ -117,11 +123,45 @@ def check_result(value, case):
          'learner cohort exact negative vector')
 
 
+def check_resources(value):
+    fields={'status','boundaries','callbacks','closeIntervals','transitions','generationSelections','continuousOwnershipQualified',
+        'originalTransferBindingQualified','explicitCloseIntervalsQualified','wholeRuntimeResourcesQualified','transientPhysicalBytesQualified',
+        'phase3Complete','snapshots'}
+    need(type(value) is dict and set(value)==fields and value['status']=='PARTIAL' and
+         all(value[k] is True for k in ('continuousOwnershipQualified','originalTransferBindingQualified','explicitCloseIntervalsQualified')) and
+         all(value[k] is False for k in ('wholeRuntimeResourcesQualified','transientPhysicalBytesQualified','phase3Complete')) and
+         all(type(value[k]) is int for k in ('boundaries','callbacks','closeIntervals','transitions')) and
+         1<=value['boundaries']<=4096 and value['boundaries']==value['callbacks']+18 and value['callbacks']>0 and
+         value['closeIntervals']==6 and 1<=value['transitions']<=262144,'learner cohort complete resource summary')
+    selected=value['generationSelections'];need(type(selected) is list and len(selected)==2 and
+        all(type(v) is int and 0<v<value['transitions'] for v in selected) and selected[0]<selected[1],
+        'learner cohort exact resource handoffs')
+    snapshots=value['snapshots'];need(type(snapshots) is dict and set(snapshots)==set(run.cancellation.STAGES),'learner cohort exact physical resource stages')
+    for row in snapshots.values():
+        need(type(row) is dict and set(row)=={'physicalBytes','typedBackupBytes','miscBytes','inventorySha256'} and
+             shared.hash_field(row['inventorySha256']) and all(type(row[k]) is int for k in ('physicalBytes','typedBackupBytes','miscBytes')) and
+             0<row['typedBackupBytes']<=64*h.snapshot.MIB and 0<row['miscBytes']<=2*h.snapshot.MIB and
+             row['typedBackupBytes']+row['miscBytes']<=row['physicalBytes']<=512*h.snapshot.MIB,'learner cohort physical resource extents')
+
+
+def replay_cancellation(raw):
+    value=run.resources.qualify(raw)
+    need(type(value) is dict and set(value)=={'original','negatives','originalPreserved','phase3Complete'} and
+         value.get('originalPreserved') is True and value.get('phase3Complete') is False and
+         value['original']['status']=='PARTIAL' and value['original']['phase3Complete'] is False,'learner cohort resource original-first result')
+    expected=[dict(suite=suite,case=name,status='REJECTED',reason=reason) for suite,cases in (
+        ('resource-observations',run.resources.NEGATIVES),('original-history',dict(run.cancellation.NEGATIVES,**retention.NEGATIVES)),
+        ('renewal-history',run.resources.HISTORY_NEGATIVES)) for name,reason in cases.items()]
+    need(value['negatives']==expected,'learner cohort complete resource negative suites')
+    return dict(original=value['original']['original'],resources=value['original']['resources'],originalPreserved=True,
+        negatives=[{k:v for k,v in row.items() if k!='suite'} for row in value['negatives']])
+
+
 def qualify_member(path, case, source, build, toolchain, reader):
     before = member(path,case,source,build,toolchain,reader)
     # Both drivers validate the unmodified original before the first mutation.
     result = (run.cycles.qualify(before['raw']) if case == 'alternating-slots'
-              else run.cancellation.qualify(before['raw'],retained_learners=True))
+              else replay_cancellation(before['raw']))
     check_result(result,case)
     need(member(path,case,source,build,toolchain,reader) == before, 'learner cohort producer changed during replay')
     check_pins(source,build,toolchain,reader)
