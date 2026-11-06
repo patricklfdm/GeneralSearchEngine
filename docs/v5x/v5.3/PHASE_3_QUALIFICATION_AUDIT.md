@@ -1,5 +1,13 @@
 # Phase 3 qualification inventory and remaining work
 
+[Maximum-image source-bound execution](PHASE_3_MAXIMUM_TRANSITION_EXECUTION.md)
+now supplies one immutable whole-history producer and independent downloaded
+replay with sixteen exact negatives. The manual-only workflow selects a
+dedicated native Linux runner; no runner was configured or execution dispatched.
+Streaming inventory and relocated diagnostic replay pass, but neither provides
+maximum-image acceptance. This supplementary entry leaves catalogue counts
+unchanged and all five closure gaps OPEN.
+
 [Maximum-image transition entry](PHASE_3_MAXIMUM_TRANSITION.md) now connects the
 existing exact native image fixture to a real same-pool receiver refusal and
 an admitted REMOVE/FINAL/stable continuation. The complete small-image original

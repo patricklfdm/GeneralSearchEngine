@@ -18,6 +18,10 @@ from .selected_prefix_evidence import prefix
 e, c, b, t, selection = q.e, q.c, q.b, q.t, q.selection
 SMALL = [(7, 'original'), (2, '你好')]
 MODES = ('maximum', 'diagnostic')
+NEGATIVE_NAMES = ('wrong-reason', 'foreign-packet', 'packet-digest', 'packet-bytes', 'retained-scratch',
+                  'missing-authority', 'changed-authority', 'duplicate-authority', 'missing-close',
+                  'reordered-states', 'eighth-image', 'borrowed-source-category', 'uncharged-packet',
+                  'uncharged-records', 'leaked-close', 'boolean-leases')
 CRITICAL = {
     'accept': ['ACCEPT_ACTIVE_FORCED', 'ACCEPT_BEFORE_RETURN', 'ACCEPT_BEFORE_RETURN'],
     'proof': ['PROOF_CANDIDATE_FORCED', 'PROOF_PARENT_FORCED', 'PROOF_BEFORE_RETURN'],
@@ -268,6 +272,7 @@ def receiver_negatives(original, files, extent):
     change('uncharged-records', lambda v: v['states'][1]['usage'].update(queued=0))
     change('leaked-close', lambda v: v['states'][2]['usage'].update(leases=17))
     change('boolean-leases', lambda v: v['states'][0]['usage'].update(leases=True))
+    e.need(tuple(name for name, _ in changes) == NEGATIVE_NAMES, 'maximum transition negative catalogue')
     result = []
     for name, value in changes:
         try: receiver(value, files, extent)

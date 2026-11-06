@@ -44,18 +44,19 @@ def artifact_name(ctx,kind,case=None):
     return 'v53-remove-'+kind+'-'+ctx['run']+'-'+ctx['attempt']+'-'+ctx['source']+suffix
 
 
-def pack(root,output,ctx,kind,case=None,*,schema=SCHEMA,maximum=MAX_BYTES):
+def pack(root,output,ctx,kind,case=None,*,schema=SCHEMA,maximum=MAX_BYTES,inventory_fn=None):
     # Caller-owned transport bound; never derived from an artifact manifest.
     need(type(maximum) is int and maximum>0,'hosted archive explicit byte bound')
     root=Path(root);output=Path(output);output.mkdir(parents=True,exist_ok=False)
-    before=h.inventory(root,maximum=maximum);archive=output/'bundle.tar.gz'
+    inventory=inventory_fn or h.inventory
+    before=inventory(root,maximum=maximum);archive=output/'bundle.tar.gz'
     with tarfile.open(archive,'x:gz') as stream:stream.add(root,arcname='data')
-    need(h.inventory(root,maximum=maximum)==before,'REMOVE hosted inputs changed while packing')
+    need(inventory(root,maximum=maximum)==before,'REMOVE hosted inputs changed while packing')
     value=dict(schema=schema,context=ctx,kind=kind,case=case,inventory=before,archiveSha256=tc.file_hash(archive))
     h.save(output/'manifest.json',value);return value
 
 
-def unpack(bundle,output,ctx,kind,case=None,*,schema=SCHEMA,maximum=MAX_BYTES):
+def unpack(bundle,output,ctx,kind,case=None,*,schema=SCHEMA,maximum=MAX_BYTES,inventory_fn=None):
     need(type(maximum) is int and maximum>0,'hosted archive explicit byte bound')
     bundle=Path(bundle);output=Path(output);manifest=m.read(bundle/'manifest.json');archive=bundle/'bundle.tar.gz'
     need(set(manifest)=={'schema','context','kind','case','inventory','archiveSha256'} and
@@ -78,7 +79,8 @@ def unpack(bundle,output,ctx,kind,case=None,*,schema=SCHEMA,maximum=MAX_BYTES):
                 target.parent.mkdir(parents=True,exist_ok=True)
                 with target.open('xb') as dest:shutil.copyfileobj(stream.extractfile(item),dest,1024*1024)
                 target.chmod(0o755 if item.mode & 0o111 else 0o644)
-    need(h.inventory(output/'data',maximum=maximum)==manifest['inventory'],'REMOVE hosted extracted inventory')
+    inventory=inventory_fn or h.inventory
+    need(inventory(output/'data',maximum=maximum)==manifest['inventory'],'REMOVE hosted extracted inventory')
     return output/'data',manifest
 
 

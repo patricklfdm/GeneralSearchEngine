@@ -3,6 +3,11 @@
 Status: **implementation and small-image diagnostic validated; maximum-image
 execution pending**. Phase 3 and all five closure gaps remain OPEN.
 
+The subsequent [source-bound execution entry](PHASE_3_MAXIMUM_TRANSITION_EXECUTION.md)
+now provides a manual-only three-job pipeline and dedicated large-runner
+capacity checks. Its orchestration and diagnostic transport are validated;
+the complete maximum-image workload has not run.
+
 This reuses the [Phase 2 native maximum image](PHASE_2_MAXIMUM_APPLICATION.md).
 Its typed backup, 1024 documents, 32-byte request-ID administration and exact
 67,108,832-byte image limit are unchanged. The calibration and one-byte-over
@@ -77,8 +82,9 @@ maximum extent for those copies alone projects about **64.25 GiB**, excluding
 other backup files, active owner directories and temporary workspace. This is
 a capacity-planning estimate, not a measured maximum run. Do not dispatch this
 whole history to a hosted job without sufficient disk and execution time;
-final-source execution must preserve its continuous history. No job is added
-or dispatched in this batch.
+final-source execution must preserve its continuous history. The original
+component batch added no job. The subsequent execution entry above supplies
+the manual workflow; it has not been dispatched.
 
 ```bash
 mvn -B -ntp -f reactor/pom.xml -pl ../general-search-engine-replication -am \
@@ -124,7 +130,8 @@ are under `target/v53-maximum-transition-entry/`.
 
 Maximum execution and independent replay on the final source remain pending,
 followed by source/build/toolchain-bound cohort admission. This component adds
-no hosted job, Required check or paid-cloud action; the existing catalogue's
+no Required check or paid-cloud action; its supplementary execution workflow
+is documented separately. The existing catalogue's
 566 histories, 260 execution groups, 500 archives and 544 selected jobs are
 unchanged. Rollback removes this qualification and its reader/tests/docs,
 restores the shared seed helper inline and removes the two reader hooks; no
