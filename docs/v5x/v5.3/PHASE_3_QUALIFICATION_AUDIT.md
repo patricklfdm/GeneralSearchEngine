@@ -6,6 +6,19 @@ complete text is retained byte-for-byte in
 [development history](PHASE_3_DEVELOPMENT_HISTORY.md); its earlier pending-work
 statements are historical, not overrides of subsequent implementation or gates.
 
+[Frozen-source selector overlap](PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md#frozen-source-across-a-same-authority-selector)
+records the second complete required-four original at `feeb7241`, with all
+required observation flags, 7,020 raw files and one unretried passing JVM run.
+Initial pinned replay rejects one frozen BASIS offer crossing a same-authority
+selector replacement. The reader now checks the complete intervening authority
+chain while retaining strict current-generation checks for mutable bytes.
+The original failed verification, producer pins and corrected-reader diagnostic
+remain separate. The full diagnostic passes all original resource checks and
+89 exact negatives; a later cold-owner guard preserves this original's complete
+generation edges and 42 frozen-source authorizations. These validations retain
+their distinct reader hashes. Final matching-source admission and all five gaps stay OPEN;
+later diagnostics do not replace either earlier failed original.
+
 [Maximum-image source-bound execution](PHASE_3_MAXIMUM_TRANSITION_EXECUTION.md)
 now supplies one immutable whole-history producer and independent downloaded
 replay with sixteen exact negatives. The manual-only workflow selects a

@@ -72,10 +72,13 @@ class Replay(c.Replay):
         for values in self.groups:
             q=values[0]['offer']['request'];first=values[0]['offer'];last=values[-1]['commit']['offered']
             if q['sender']['node']!=self.model.joining:continue
-            # Classify against the owner that issued the first offer. Frozen
-            # source sessions have their own prerequisite authorization and may
-            # outlive this generation; only learner aliases require its permit
-            # throughout the complete session.
+            # A verified frozen BASIS is not a learner alias. Its initial offer
+            # can itself span a same-authority selector replacement, so use its
+            # original source authorization before consulting mutable current.
+            if e.record_kind(values[0]['raw'])=='BASIS':
+                e.authorize_source(values,self.windows,self.sources);continue
+            # Learner aliases require the current generation's permit through
+            # the complete session, not merely through the initial offer.
             own=self.current(q['recipient']['node'],first['received'],first['offered']);cap=own['packet']['capsule']
             if cap['cut']['view']['operation'] is None and e.learner_alias(own,q):
                 self.current(q['recipient']['node'],first['received'],last)

@@ -32,6 +32,8 @@ class JoiningProfileExportTest(unittest.TestCase):
             node=joining if Path(path).name=='replica' else Path(path).name
             return {'node.gsr':node.encode(),'g/generation.gsr':b'original manifest'}
         def decode(raw, *_):return records[raw] if raw in records else dict(identity=dict(node=raw.decode()))
+        for row in events:
+            if row.get('node')==joining:row['scope']='initial-owner'
         return model,nodes,events,inventory,decode
 
     def windows(self,profile,*,lagging=False,change=None):
@@ -60,6 +62,35 @@ class JoiningProfileExportTest(unittest.TestCase):
         self.assertLess(joined[-2]['end'],joined[-1]['start'])
         with self.assertRaisesRegex(ValueError,'^joining export inactive current generation$'):
             e.current(windows,model.joining,joined[-2]['end'],joined[-1]['start'])
+
+    def test_source_predecessors_require_observed_continuous_journal_ownership(self):
+        windows,model,_=self.windows('5-REPLACE')
+        joined=[v for v in windows if v['node']==model.joining]
+        self.assertNotIn('sourcePredecessor',joined[0])
+        for before,after in zip(joined,joined[1:]):
+            self.assertEqual((before['start'],before['end']),after['sourcePredecessor'])
+        def close(events,model):
+            at=next(i for i,v in enumerate(events) if v.get('node')==model.joining and v['event']=='INSTALL_SELECTOR_RENAMED')
+            events.insert(at,dict(node=model.joining,scope='initial-owner',event='JOINING_OWNER_CLOSE_BEGIN'))
+        windows,model,_=self.windows('5-REPLACE',change=close)
+        joined=[v for v in windows if v['node']==model.joining]
+        self.assertNotIn('sourcePredecessor',joined[1])
+        def reopen(events,model):
+            for row in events:
+                if row.get('node')==model.joining and row['event']=='INSTALL_BEFORE_RETURN':row['scope']='continuation-owner'
+        windows,model,_=self.windows('5-REPLACE',change=reopen)
+        joined=[v for v in windows if v['node']==model.joining]
+        self.assertTrue(all('sourcePredecessor' not in v for v in joined))
+
+    def test_old_voter_cold_scope_cannot_be_joined_to_its_previous_owner(self):
+        def cold(events,model):
+            for row in events:
+                if row['node']==model.old[0] and row['event']=='PUBLICATION_BEFORE_RETURN':
+                    row['scope']='joint-floor-reopened'
+        windows,model,_=self.windows('5-REPLACE',change=cold)
+        old=[v for v in windows if v['node']==model.old[0]]
+        self.assertEqual((old[0]['start'],old[0]['end']),old[1]['sourcePredecessor'])
+        self.assertNotIn('sourcePredecessor',old[2])
 
     def test_observed_adoption_cannot_invent_a_generation_if_joiner_is_current(self):
         def extra(events,model):

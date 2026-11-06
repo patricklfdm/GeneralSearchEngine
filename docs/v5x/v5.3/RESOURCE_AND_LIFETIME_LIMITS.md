@@ -3,8 +3,14 @@
 [Complete required-four export admission](PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md)
 now requires source/control/export capture and exact session/direct/probe bindings
 on the same whole original. Eighteen allocation-proof negatives bring the entry
-to 89 cases. One complete native original has executed, but its strict replay
-failed on missing request observations; the corrected producer must run again.
+to 89 cases. The earlier complete native original fails strict replay on missing
+request observations. A second complete original includes those observations;
+its pinned replay exposes a [frozen-source selector overlap](PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md#frozen-source-across-a-same-authority-selector).
+The correction binds the intervening generations to the same authority and
+permanent owner. Complete diagnostic replay passes all 89 exact negatives;
+the subsequent conservative owner-scope guard preserves the same original's
+generation edges and 42 frozen-source authorizations. Their reader hashes are
+separate; final matching-source qualification remains pending.
 [Downstream component diagnostics](PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md#downstream-integration-diagnostic)
 pass exact export extents and file/custody lifetimes on that unchanged original
 without overriding the failure. Full resource maxima and final-source admission

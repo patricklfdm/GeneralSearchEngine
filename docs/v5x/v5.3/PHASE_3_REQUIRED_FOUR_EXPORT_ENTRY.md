@@ -6,6 +6,70 @@ It collects one complete original, including the five joining journal lifetimes,
 and never combines session, direct-operation or probe evidence across histories.
 Phase 3 and the combined byte/resource envelope remain OPEN.
 
+## Frozen source across a same-authority selector
+
+A second complete native original at `feeb7241` enables the required unsent
+observer. Its single JVM execution passes in 1,435.139 seconds with no retry,
+retaining 7,020 raw files (126,091,273 bytes). Both the original producer and an
+independent relocated copy retain their source/build/tool/reader pins and exact
+inventories. Initial pinned replay fails after 176.941 seconds at
+`joining export inactive current generation`; that failure remains retained.
+
+The original event order isolates one of 42 frozen BASIS sessions on `node-3`:
+request received at 31,694; selector renamed at 31,723; install returned at
+31,754; offer emitted at 31,782. The before/after physical snapshots are
+`published-9/node-3` and `continuation-installed-9/node-3`, with the same root,
+authority and permanent owner. The BASIS is still retained. The network
+callbacks bracket a synchronized storage call, so they need not both belong to
+one current generation. `MembershipGrantJournal.exportTransfer` checks current
+authority when opening the borrow; `exportSource` then pins the original BASIS
+independently of later current-generation replacements.
+
+A first corrected-reader diagnostic passes that content check, then exposes the
+same assumption in the learner-retention quorum classifier (200.559 seconds).
+That failed receipt is retained too. The classifier now independently verifies
+the complete BASIS transfer before treating it as a frozen-source session;
+record kind alone never exempts a transfer. Genuine learner aliases still need
+their original current-generation permit for the entire session.
+
+The reader now permits this overlap only across consecutive, physically derived
+selector transitions. Both callback endpoints must still belong to unique
+completed generation windows, and every intervening generation must keep the
+request's exact root, authority and permanent recipient. Explicit predecessor
+edges prevent borrowing unrelated or missing historical windows. Owner-scope
+changes (including old-voter cold reopen) or joining close markers prevent an
+edge across a journal restart.
+Frozen-source capture/retirement, original ballot, exact bytes and receiver image
+availability remain mandatory. Mutable current-generation exports still require
+one current window throughout their complete transfer. Missing or ambiguous
+windows, real authority changes and owner changes remain rejected.
+
+The [diagnostic evidence index](phase3-evidence/required-four-source-window.json)
+keeps this original, its failed pinned verification and corrected-reader replay
+separate. A changed reader cannot satisfy the producer's original reader pin;
+matching-source whole-entry qualification remains required in the later hosted
+batch. No native workload, Java runtime, limit, negative requirement or workflow
+changes in this correction.
+
+The complete corrected-reader diagnostic passes in **810.233 seconds**. It binds
+all 10,652 observed source reservations with no unobserved reservations, all
+19,584 observed transport frame lifetimes, and all 865 export allocations
+(792 session, 72 direct, one probe). Original file custody, handoff and all five
+joining journal close intervals pass before **89 exact negatives**: 15 accounting,
+19 handoff, 13 file, 12 network-close, 12 joining-close and 18 export-allocation
+cases. Both producer inventories remain unchanged. This is the first complete
+resource diagnostic on this new original; it does not repair the earlier
+original's 18 missing observations or grant it any negative credit.
+
+Validation before the final old-voter scope guard includes 311 focused tests and
+the complete diagnostic above. The scope guard then passes 111 focused owner,
+process and export tests, and 68 tests with Python assertions disabled. A separate
+same-original comparison proves every derived generation edge unchanged and
+reauthorizes all 42 frozen-source sessions after that guard. The full 89-case
+diagnostic was not repeated after this conservative guard; its reader hash and
+the later guard's hash are recorded separately. Final matching-source full
+qualification remains a hosted-batch obligation, not a claim of this diagnostic.
+
 ## Downstream integration diagnostic
 
 The [downstream diagnostic index](phase3-evidence/required-four-downstream.json)
@@ -39,10 +103,11 @@ combined maxima. Original content replay's intermediate `PARTIAL` result is
 retained separately from the subsequent original control authorization. All
 component scope flags and the failed complete verification remain visible.
 
-The next complete execution must use the corrected producer command with
+At that historical diagnostic, the next complete execution had to use the corrected producer command with
 `v53.transport.unsent`, matching compiled source/readers/tools and the unchanged
-independent resource gate. It remains part of the deferred whole-history
-acceptance batch; these diagnostics cannot fill its slot. Fifty-seven existing
+independent resource gate. The subsequent `feeb7241` original above supplies those
+observations but exposes the separate source-window reader issue. Final matching-source
+acceptance remains deferred; these diagnostics cannot fill its slot. Fifty-seven existing
 focused session/direct/probe/allocation reader tests also passed. No Java,
 workflow, frozen limit, workload or acceptance condition changed in this batch.
 

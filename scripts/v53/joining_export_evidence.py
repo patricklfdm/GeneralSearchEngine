@@ -70,13 +70,23 @@ def generation_windows(root,events,replay,*,recovery=None,nodes=None,final_adopt
             need(len(starts)==1,'joining export initial joining generation force')
             start=starts[0];path='joining-originals-native/replica'
         else:start=-1;path='before-network/'+node
+        previous=None
         def add(path,start,end):
+            nonlocal previous
             need(start<end,'joining export generation lifetime')
             files=disk.inventory(Path(root)/path);prefix,members,packet=disk.current(files)
             identity=f.decode(files['node.gsr'],'records','NODE')['identity']
             need(identity['node']==node,'joining export generation owner')
-            result.append(dict(node=node,start=start,end=end,path=path,members=members,packet=packet,
-                               manifest=files[prefix+'generation.gsr'],identity=identity))
+            window=dict(node=node,start=start,end=end,path=path,members=members,packet=packet,
+                        manifest=files[prefix+'generation.gsr'],identity=identity)
+            # Only this complete, physically derived selector timeline supplies
+            # an edge. A journal close/reopen must not join two borrow lifetimes.
+            previous_scope=events[previous['start']].get('scope') if previous is not None and previous['start']>=0 else None
+            if previous is not None and previous_scope==events[start].get('scope') and not any(
+                    row.get('node')==node and row['event'] in ('JOINING_OWNER_CLOSE_BEGIN','JOINING_OWNER_CLOSE_RETURNED')
+                    for row in events[previous['start']+1:start+1]):
+                window['sourcePredecessor']=(previous['start'],previous['end'])
+            result.append(window);previous=window
         add(path,start,renames[0] if renames else len(events))
         for i,((_,path),(at,_)) in enumerate(zip(changes,returns)):
             need(renames[i]<at and (i==0 or returns[i-1][0]<renames[i]),'joining export selector completion order')
@@ -87,6 +97,30 @@ def generation_windows(root,events,replay,*,recovery=None,nodes=None,final_adopt
 def current(windows,node,lower,upper):
     found=[v for v in windows if v['node']==node and v['start']<lower<=upper<v['end']]
     need(len(found)==1,'joining export inactive current generation');return found[0]
+
+
+def source_authority(windows,request,lower,upper):
+    """Frozen BASIS bytes survive a same-authority selector replacement.
+
+    The received/offer callbacks bracket the synchronized export operation, not
+    one immutable current generation. Require both endpoints plus every proven
+    intervening selector edge to retain the exact authority and permanent owner.
+    Missing edges and owner restarts remain unavailable; mutable current bytes
+    still use current() over the entire transfer.
+    """
+    node=request['recipient']['node']
+    first=current(windows,node,lower,lower);last=current(windows,node,upper,upper)
+    need(lower<=upper,'joining export inactive current generation')
+    chain=sorted((w for w in windows if w['node']==node and
+                  first['start']<=w['start']<=last['start']),key=lambda w:w['start'])
+    for before,after in zip(chain,chain[1:]):
+        need(before['end']<after['start'] and after.get('sourcePredecessor')==(before['start'],before['end']),
+             'joining export inactive current generation')
+    for own in chain:
+        cap=own['packet']['capsule']
+        need(own['identity']==request['recipient'] and cap['root']==request['root'] and
+             n.s.catalog.authority(cap['root'],cap['cut']['view'])==request['view'],
+             'joining export original source view/ballot')
 
 
 def source_windows(root,events):
@@ -180,9 +214,8 @@ def authorize_source(values,windows,sources):
     matches=[v for v in sources if v['node']==node and sha(v['basis'])==q['payload']['digest']]
     need(len(matches)==1,'joining export original source alias');source=matches[0]
     need(source['start']<first['received']<=last['offered']<source['end'],'joining export inactive frozen source')
-    own=current(windows,node,first['received'],first['offered'])
-    cap=own['packet']['capsule'];view=n.s.catalog.authority(cap['root'],cap['cut']['view'])
-    need(q['view']==source['value']['view']==view and q['ballot']==source['value']['ballot'],
+    source_authority(windows,q,first['received'],first['offered'])
+    need(q['view']==source['value']['view'] and q['ballot']==source['value']['ballot'],
          'joining export original source view/ballot')
     members=source['members'];packet=source['packet']
     expected=[(sha(source['basis']),source['basis'],'RECORD'),(sha(source['promise']),source['promise'],'RECORD'),

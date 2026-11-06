@@ -1,0 +1,597 @@
+{
+  "capture": {
+    "elapsedSeconds": 1435.139,
+    "exit": 0
+  },
+  "cause": {
+    "failedSessions": 1,
+    "firstOffered": 31782,
+    "firstReceived": 31694,
+    "lastOffered": 31829,
+    "node": "node-3",
+    "totalFrozenSourceSessions": 42,
+    "windows": [
+      {
+        "cut": {
+          "entry": "c415d7c31ebecf7c56460edec2812ffaa214e230f2004bafcceac23eb90fd480",
+          "index": 9,
+          "view": {
+            "generation": 0,
+            "new": [
+              "node-1",
+              "node-2",
+              "node-4",
+              "node-5",
+              "node-6"
+            ],
+            "old": [
+              "node-1",
+              "node-2",
+              "node-3",
+              "node-4",
+              "node-5"
+            ],
+            "operation": "c7ae75dcbbb0dc398a17ffe7a9bec2d5715ecc7e14821b9f5494d4913f4c11c8"
+          }
+        },
+        "end": 31723,
+        "node": "node-3",
+        "path": "published-9/node-3",
+        "start": 26241,
+        "view": "3d34b1a6eb9e7e01cb78a6e43c5a8222001198fc15f93e37d910353cf2c8c350"
+      },
+      {
+        "cut": {
+          "entry": "c415d7c31ebecf7c56460edec2812ffaa214e230f2004bafcceac23eb90fd480",
+          "index": 9,
+          "view": {
+            "generation": 0,
+            "new": [
+              "node-1",
+              "node-2",
+              "node-4",
+              "node-5",
+              "node-6"
+            ],
+            "old": [
+              "node-1",
+              "node-2",
+              "node-3",
+              "node-4",
+              "node-5"
+            ],
+            "operation": "c7ae75dcbbb0dc398a17ffe7a9bec2d5715ecc7e14821b9f5494d4913f4c11c8"
+          }
+        },
+        "end": 35167,
+        "node": "node-3",
+        "path": "continuation-installed-9/node-3",
+        "start": 31754,
+        "view": "3d34b1a6eb9e7e01cb78a6e43c5a8222001198fc15f93e37d910353cf2c8c350"
+      }
+    ]
+  },
+  "combinedResourcesQualified": false,
+  "components": {
+    "joinedFileResources": {
+      "custodySequence": 844,
+      "distinctImageDigests": 1,
+      "distinctImageFiles": 4,
+      "finalSourceCohortQualified": false,
+      "intermediateFileLifetimesQualified": false,
+      "mappingSha256": "4f20479b1776e519a3ceebbd8c055e37a63b12d051d6ad5e8500d58c36ae20e5",
+      "node": "node-6",
+      "originalFileBytes": 240764,
+      "originalFileCustodyQualified": true,
+      "originalFiles": 65,
+      "phase3Complete": false,
+      "physicalPeakQualified": false,
+      "postCustodyCompletionFiles": 3,
+      "predecessorLeases": 11,
+      "scope": "original-placed-files-and-actual-custody-transfer",
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    },
+    "joinedHandoffResources": {
+      "continuousHandoffQualified": true,
+      "custodySequence": 844,
+      "deletedMembers": 46,
+      "deletionCallbacks": 138,
+      "explicitJoiningCloseIntervalsQualified": false,
+      "finalSourceCohortQualified": false,
+      "lifecyclePoints": 10,
+      "nativeLeases": 4,
+      "nativeSequence": 845,
+      "nativeUsage": {
+        "counts": {
+          "APPLICATION": 1,
+          "GENERATION": 1,
+          "JOURNAL": 1,
+          "MISC": 1
+        },
+        "leases": 4,
+        "metadata": 35695017,
+        "queued": 0,
+        "staging": 837
+      },
+      "node": "node-6",
+      "observedAccountingClosed": true,
+      "phase3Complete": false,
+      "physicalPeakQualified": false,
+      "predecessorLeases": 11,
+      "predecessorUsage": {
+        "counts": {
+          "APPLICATION": 5,
+          "GENERATION": 2,
+          "JOURNAL": 1,
+          "LEARNER": 1,
+          "MISC": 1,
+          "SOURCE": 1
+        },
+        "leases": 11,
+        "metadata": 9007296,
+        "queued": 0,
+        "staging": 67201089
+      },
+      "processDeathQualified": false,
+      "scope": "required-four-original-learner-native-handoff",
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    },
+    "joinedOwnerCloses": {
+      "joiningCloseIntervalsQualified": true,
+      "lifetimes": {
+        "continuation-owner": {
+          "begin": 39029,
+          "beginSequence": 7063,
+          "openSequence": 1064,
+          "opened": 27839,
+          "released": 8,
+          "returned": 39030,
+          "returnedSequence": 7071
+        },
+        "initial-owner": {
+          "begin": 27735,
+          "beginSequence": 1030,
+          "openSequence": 845,
+          "opened": 26880,
+          "released": 4,
+          "returned": 27736,
+          "returnedSequence": 1034
+        },
+        "repeated-basis-owner": {
+          "begin": 27820,
+          "beginSequence": 1052,
+          "openSequence": 1052,
+          "opened": 27811,
+          "released": 6,
+          "returned": 27821,
+          "returnedSequence": 1058
+        },
+        "retaining-owner": {
+          "begin": 27792,
+          "beginSequence": 1040,
+          "openSequence": 1038,
+          "opened": 27754,
+          "released": 6,
+          "returned": 27793,
+          "returnedSequence": 1046
+        },
+        "stable-cold-owner": {
+          "begin": 39050,
+          "beginSequence": 7081,
+          "openSequence": 7081,
+          "opened": 39048,
+          "released": 8,
+          "returned": 39051,
+          "returnedSequence": 7089
+        }
+      },
+      "node": "node-6",
+      "phase3Complete": false,
+      "physicalShutdownOrderQualified": false,
+      "releasedLeases": 32,
+      "scope": "five-original-joining-journal-close-intervals",
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    },
+    "ownerCloseResources": {
+      "checkedChanges": 32,
+      "ownerCloseIntervalsQualified": true,
+      "owners": {
+        "node-1": {
+          "begin": 39053,
+          "beginSequence": 28492,
+          "released": 8,
+          "returned": 39054,
+          "returnedSequence": 28500
+        },
+        "node-2": {
+          "begin": 39055,
+          "beginSequence": 24015,
+          "released": 8,
+          "returned": 39056,
+          "returnedSequence": 24023
+        },
+        "node-3": {
+          "begin": 39057,
+          "beginSequence": 21653,
+          "released": 8,
+          "returned": 39058,
+          "returnedSequence": 21661
+        },
+        "node-4": {
+          "begin": 39059,
+          "beginSequence": 6,
+          "released": 4,
+          "returned": 39060,
+          "returnedSequence": 10
+        },
+        "node-5": {
+          "begin": 39061,
+          "beginSequence": 6,
+          "released": 4,
+          "returned": 39062,
+          "returnedSequence": 10
+        }
+      },
+      "phase3Complete": false,
+      "physicalShutdownOrderQualified": false,
+      "releasedLeases": 32,
+      "scope": "quiescent-original-network-owner-close-accounting",
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    }
+  },
+  "correctedReaderExecution": {
+    "elapsedSeconds": 810.233,
+    "exit": 0
+  },
+  "correctedReaderReplay": {
+    "combinedResourcesQualified": false,
+    "diagnosticReaderSha256": "8ba74edea7e842d9e56484683db90cab34c69d04a0f82a793094fb66bcee9d61",
+    "finalSourceCohortQualified": false,
+    "negativeCases": 89,
+    "originalPinsStillRejected": "required-four admission pinned reader",
+    "originalPreserved": true,
+    "originalSource": "feeb7241f302a08f5c51232b608fbacbce4624e1",
+    "phase3Complete": false,
+    "producerPins": {
+      "buildSha256": "fa3d26b2d28cb8a6e962dd49542f50e08a9d3715f3b5054435bf29e1e064b447",
+      "readerSha256": "75a7e2578c0359b72f45f63ed62c5bc64d3efb4bb8f5fbd91cb9009eab52a11d",
+      "sourceSha256": "957778640dc62e95fa8d2bdcada1d1f5d8e0c7186a16107b3808f30ccc047d89",
+      "toolchainSha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+    },
+    "qualificationSha256": "02c36c41b21d1d109fba6de21cd4f6c03ef7a3b23ef15a56fe1ce5ba4c3c0d01",
+    "readerPreserved": true,
+    "scope": "corrected-reader-v2-diagnostic-on-unchanged-original",
+    "sourceBoundAdmission": false,
+    "status": "PASS",
+    "workflowExecutionAttested": false
+  },
+  "exportAllocationCoverage": {
+    "allExportFailurePathsQualified": false,
+    "allObservedExportAllocationsQualified": true,
+    "allocationBindingsSha256": "40179eb6e758dfcd165a9853547ac45b9de94490c720f50fbcd752c9f393a445",
+    "allocations": 865,
+    "byRole": {
+      "joining-checkpoint-export": 3,
+      "joining-completion-export": 2,
+      "joining-intent": 2,
+      "joining-preparation-export": 1,
+      "joining-retention-export": 3,
+      "learner-root-export": 1,
+      "prefix-export": 300,
+      "record-export": 263,
+      "source-export": 61,
+      "vote-export": 229
+    },
+    "byScope": {
+      "direct": 72,
+      "probe": 1,
+      "session": 792
+    },
+    "exportInventory": {
+      "allExportFamiliesQualified": false,
+      "completeExportAllocationInventory": true,
+      "declaredSessionExportReleaseQualified": true,
+      "directFamilies": {
+        "ACTIVATION": 6,
+        "MAINTENANCE": 53,
+        "SELECTED": 13
+      },
+      "directOwnedAllocations": 72,
+      "exportContentExtentsQualified": false,
+      "failedConstructorExportsQualified": false,
+      "families": {
+        "joining-checkpoint-export": 3,
+        "joining-completion-export": 2,
+        "joining-intent": 2,
+        "joining-preparation-export": 1,
+        "joining-retention-export": 3,
+        "learner-root-export": 1,
+        "prefix-export": 240,
+        "record-export": 263,
+        "source-export": 42,
+        "vote-export": 229
+      },
+      "joiningExportRequestsQualified": false,
+      "ownedAllocations": 865,
+      "phase3Complete": false,
+      "probeFamilies": {
+        "prefix-export": 1
+      },
+      "probeOwnedAllocations": 1,
+      "revokedBeforeAttachment": 0,
+      "rollbackFamilies": {},
+      "rollbackOwnedAllocations": 0,
+      "scope": "observed-session-and-local-export-handles",
+      "sessionOwnedAllocations": 792,
+      "sessions": 786,
+      "status": "PASS",
+      "unattachedExports": [],
+      "wholeRuntimeResourcesQualified": false
+    },
+    "failedConstructorExportsQualified": false,
+    "otherControlAllocations": 32847,
+    "phase3Complete": false,
+    "scope": "complete-observed-export-allocation-content-and-ownership",
+    "status": "PASS",
+    "unclaimedAllocations": [],
+    "wholeRuntimeResourcesQualified": false
+  },
+  "finalOriginalsPreserved": true,
+  "finalSourceCohortQualified": false,
+  "firstCorrectedReaderExecution": {
+    "elapsedSeconds": 200.559,
+    "exit": 1
+  },
+  "firstCorrectedReaderFailure": {
+    "combinedResourcesQualified": false,
+    "diagnosticReaderSha256": "c345134479f27f1e0a17450ce489e150b9792013fd42212286a1be9c09d81c55",
+    "failure": {
+      "message": "joining export inactive current generation",
+      "type": "ValueError"
+    },
+    "finalSourceCohortQualified": false,
+    "originalPinsStillRejected": "required-four admission pinned reader",
+    "originalPreserved": true,
+    "originalSource": "feeb7241f302a08f5c51232b608fbacbce4624e1",
+    "phase3Complete": false,
+    "producerPins": {
+      "buildSha256": "fa3d26b2d28cb8a6e962dd49542f50e08a9d3715f3b5054435bf29e1e064b447",
+      "readerSha256": "75a7e2578c0359b72f45f63ed62c5bc64d3efb4bb8f5fbd91cb9009eab52a11d",
+      "sourceSha256": "957778640dc62e95fa8d2bdcada1d1f5d8e0c7186a16107b3808f30ccc047d89",
+      "toolchainSha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+    },
+    "readerPreserved": true,
+    "scope": "corrected-reader-diagnostic-on-unchanged-original",
+    "sourceBoundAdmission": false,
+    "status": "FAIL",
+    "workflowExecutionAttested": false
+  },
+  "focusedTests": 311,
+  "fullGateRepeatedAfterScopeGuard": false,
+  "junit": {
+    "className": "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest",
+    "errors": 0,
+    "failures": 0,
+    "method": "requiredFourVotersCompleteReplacementFinalAndStableBarrier",
+    "retries": 0,
+    "skipped": 0,
+    "tests": 1
+  },
+  "negativeCounts": {
+    "accounting": 15,
+    "export-allocations": 18,
+    "files": 13,
+    "handoff": 19,
+    "joining-close": 12,
+    "network-close": 12
+  },
+  "optimizedTests": 67,
+  "originalPins": {
+    "buildSha256": "fa3d26b2d28cb8a6e962dd49542f50e08a9d3715f3b5054435bf29e1e064b447",
+    "readerSha256": "75a7e2578c0359b72f45f63ed62c5bc64d3efb4bb8f5fbd91cb9009eab52a11d",
+    "sourceSha256": "957778640dc62e95fa8d2bdcada1d1f5d8e0c7186a16107b3808f30ccc047d89",
+    "toolchainSha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+  },
+  "originalRaw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-075a37a3-acbe-40a8-ac5f-fee44aa77704",
+  "originalSource": "feeb7241f302a08f5c51232b608fbacbce4624e1",
+  "originalSourceDiagnosticSha256": "865c58a0038cd01fd2471be7603244481f728d3815bca555c222455ad6968e48",
+  "phase3Complete": false,
+  "postDiagnosticScopeGuard": {
+    "frozenSourceSessions": 42,
+    "phase3Complete": false,
+    "readerSha256": "b414d87d11c0153f782a147f9ae3c59ad743f35a8516d945e7528d7153368dc9",
+    "sameOriginalEdgesAndSources": true,
+    "scope": "same-original-generation-edges-and-frozen-source-authority",
+    "sourceBoundAdmission": false,
+    "status": "PASS"
+  },
+  "postGuardFocusedTests": 111,
+  "postGuardOptimizedTests": 68,
+  "rawBytes": 126091273,
+  "rawFiles": 7020,
+  "retainedFilesSha256": {
+    "cold-scope-after.log": "265f542e960e57bcaa9c2256f96fb44f30d1f17f4b01e2277675441ff922f02b",
+    "cold-scope-before.log": "d3d243ac7bbd389f1590da2c352e70b847b64d0e663167d54f7bda704d00de98",
+    "cold-scope-optimized.log": "3379f6cb64c993ef4e1c229ab36cddcce0d7f2b3485b08a291654f2d7c120316",
+    "corrected-reader-manifest.json": "bf33d575bee329ec09324ae88a82ee05bb56753cba2adcc09e6c9e415224126f",
+    "corrected-reader-v2-manifest.json": "fa58a8ba25e1663c4c5ea143157ee2d455a6fa87f2593a4c45d3473d01337e59",
+    "corrected-reader-v2.log": "ea484bdff2a6d455bc114f901dc7a8a6b4c905989719ebe78be65953531c905d",
+    "corrected-reader.log": "95e5cc05369079793a313e553ee760b9e4764875a699eaacad99685cc0e97f2e",
+    "final-focused-tests.log": "aef45de4b045ab02555ecb5d2715962c099d468fee628f9ec64e56028136e4a2",
+    "original-producer-inventory.json": "e16b47db02ef9dbe9e90d608c2a6309a942b3e787b7cf22282f55c67b3b6db46",
+    "producer/receipt.json": "e5a2c5644ef626a769e430e2f3330737d2334957c147f2bf0a132b18512470cc",
+    "scope-guard-after.json": "c83585465096cee70cabceadb4f082426f7e9d85d2468a83a1c3e6f6649c81bf",
+    "scope-guard-before.json": "f0f8f09b2a81d68ab8f52714f770663f1825c538a09f7f986b8594b58c944262",
+    "verification.log": "9c2d3feae701b25fec6a76bf47b4bdf0bc9e354ca1d57eed369b210181252477"
+  },
+  "retainedRoot": "target/v53-required-four-corrected",
+  "schema": "gse-v53-development-evidence-v1",
+  "scope": "required-four-frozen-source-selector-diagnostic",
+  "sourceBoundAdmission": false,
+  "sourceCleanupIntervals": {
+    "childReferences": 2409,
+    "cleanupIntervals": 1736,
+    "exportOwnership": {
+      "allExportFamiliesQualified": false,
+      "completeExportAllocationInventory": true,
+      "declaredSessionExportReleaseQualified": true,
+      "directFamilies": {
+        "ACTIVATION": 6,
+        "MAINTENANCE": 53,
+        "SELECTED": 13
+      },
+      "directOwnedAllocations": 72,
+      "exportContentExtentsQualified": false,
+      "failedConstructorExportsQualified": false,
+      "families": {
+        "joining-checkpoint-export": 3,
+        "joining-completion-export": 2,
+        "joining-intent": 2,
+        "joining-preparation-export": 1,
+        "joining-retention-export": 3,
+        "learner-root-export": 1,
+        "prefix-export": 240,
+        "record-export": 263,
+        "source-export": 42,
+        "vote-export": 229
+      },
+      "joiningExportRequestsQualified": false,
+      "ownedAllocations": 865,
+      "phase3Complete": false,
+      "probeFamilies": {
+        "prefix-export": 1
+      },
+      "probeOwnedAllocations": 1,
+      "revokedBeforeAttachment": 0,
+      "rollbackFamilies": {},
+      "rollbackOwnedAllocations": 0,
+      "scope": "observed-session-and-local-export-handles",
+      "sessionOwnedAllocations": 792,
+      "sessions": 786,
+      "status": "PASS",
+      "unattachedExports": [],
+      "wholeRuntimeResourcesQualified": false
+    },
+    "joiningCheckpointServices": 1,
+    "listenerDrainQualified": false,
+    "nativeServiceCleanupIntervalsQualified": true,
+    "phase3Complete": false,
+    "responsesAtClose": 786,
+    "scope": "native-source-cleanup-performing-invocations",
+    "services": 164,
+    "sessionContentExtents": {
+      "allExportFamiliesQualified": false,
+      "allObservedSessionContentExtentsQualified": true,
+      "exportInventory": {
+        "allExportFamiliesQualified": false,
+        "completeExportAllocationInventory": true,
+        "declaredSessionExportReleaseQualified": true,
+        "directFamilies": {
+          "ACTIVATION": 6,
+          "MAINTENANCE": 53,
+          "SELECTED": 13
+        },
+        "directOwnedAllocations": 72,
+        "exportContentExtentsQualified": false,
+        "failedConstructorExportsQualified": false,
+        "families": {
+          "joining-checkpoint-export": 3,
+          "joining-completion-export": 2,
+          "joining-intent": 2,
+          "joining-preparation-export": 1,
+          "joining-retention-export": 3,
+          "learner-root-export": 1,
+          "prefix-export": 240,
+          "record-export": 263,
+          "source-export": 42,
+          "vote-export": 229
+        },
+        "joiningExportRequestsQualified": false,
+        "ownedAllocations": 865,
+        "phase3Complete": false,
+        "probeFamilies": {
+          "prefix-export": 1
+        },
+        "probeOwnedAllocations": 1,
+        "revokedBeforeAttachment": 0,
+        "rollbackFamilies": {},
+        "rollbackOwnedAllocations": 0,
+        "scope": "observed-session-and-local-export-handles",
+        "sessionOwnedAllocations": 792,
+        "sessions": 786,
+        "status": "PASS",
+        "unattachedExports": [],
+        "wholeRuntimeResourcesQualified": false
+      },
+      "families": {
+        "joining-checkpoint-export": 3,
+        "joining-completion-export": 2,
+        "joining-intent": 2,
+        "joining-preparation-export": 1,
+        "joining-retention-export": 3,
+        "learner-root-export": 1,
+        "prefix-export": 240,
+        "record-export": 263,
+        "source-export": 42,
+        "vote-export": 229
+      },
+      "ownedAllocations": 792,
+      "phase3Complete": false,
+      "scope": "original-content-to-all-successful-session-export-charges",
+      "sessions": 786,
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    },
+    "sessions": 786,
+    "status": "PASS",
+    "wholeRuntimeResourcesQualified": false
+  },
+  "sourceReservations": {
+    "allObservedSourceBuffersBound": true,
+    "boundReservations": 10652,
+    "boundaryChecks": 28082,
+    "completedCaches": 741,
+    "legacyReservations": 0,
+    "logicalReleaseBeforeTransportTerminal": 0,
+    "logicalRequests": 4553,
+    "originalSourceAttempts": 4589,
+    "otherControlReservations": 23085,
+    "peakConcurrentSessions": {
+      "node-1": 7,
+      "node-2": 4,
+      "node-3": 4,
+      "node-4": 0,
+      "node-5": 0,
+      "node-6": 5
+    },
+    "phase3Complete": false,
+    "responseBuffers": 4527,
+    "serviceCloseIntervalsQualified": false,
+    "sessions": 786,
+    "status": "PASS",
+    "traces": 786,
+    "unobservedReservations": [],
+    "wholeRuntimeResourcesQualified": false
+  },
+  "status": "DIAGNOSTIC_PASS",
+  "strictVerification": {
+    "failure": {
+      "message": "joining export inactive current generation",
+      "type": "ValueError"
+    },
+    "phase3Complete": false,
+    "profile": "5-REPLACE-required-four",
+    "schema": "gse-v53-required-four-resources-execution-v1",
+    "status": "FAIL"
+  },
+  "strictVerificationExecution": {
+    "elapsedSeconds": 176.941,
+    "exit": 1
+  },
+  "strictVerificationSha256": "abd8a7fcb4dd3afd130b62bc28587fa6c7592446b2b25cc7008b0e811e09ee1e",
+  "transportFrameLifetimes": 19584
+}

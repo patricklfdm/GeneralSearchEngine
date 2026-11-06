@@ -5,6 +5,7 @@ import unittest
 from unittest.mock import patch
 
 from . import joining_profile_control_evidence as p
+from . import test_joining_export_evidence as export_fixture
 
 
 def row(peer,delivered,*,trace='round',owner='node-1',intent='original',sent=2):
@@ -59,7 +60,7 @@ class ProfileControlTest(unittest.TestCase):
             own_by_round['round-'+str(ordinal)]=own
             for peer,at in (('node-2',10*ordinal),('node-3',10*ordinal+3)):
                 reader.rows.append(row(peer,at,trace='round-'+str(ordinal),intent='original-'+str(ordinal)))
-            reader.groups.append([dict(offer=dict(received=40,request=dict(sender=dict(node='node-5'),recipient=dict(node='node-1'),marker=ordinal)),commit=dict(offered=41))])
+            reader.groups.append([dict(raw=b'learner content',offer=dict(received=40,request=dict(sender=dict(node='node-5'),recipient=dict(node='node-1'),marker=ordinal)),commit=dict(offered=41))])
         if split:reader.rows[1]['request']['trace']='separate-round'
         if mixed:reader.rows[1]['request']['payload']['intent']='different'
         def derive(r):
@@ -103,7 +104,7 @@ class ProfileControlTest(unittest.TestCase):
 
     def test_frozen_source_transfer_uses_its_own_authority_across_generation_switch(self):
         reader=self.grouped();current=reader.current
-        reader.groups.append([dict(offer=dict(received=70,offered=71,request=dict(sender=dict(node='node-5'),recipient=dict(node='node-1'),marker=3)),
+        reader.groups.append([dict(raw=b'other content',offer=dict(received=70,offered=71,request=dict(sender=dict(node='node-5'),recipient=dict(node='node-1'),marker=3)),
                                    commit=dict(offered=90))])
         def window(node,start,end):
             if start!=70:return current(node,start,end)
@@ -113,6 +114,27 @@ class ProfileControlTest(unittest.TestCase):
         with patch.object(reader,'local_recording'),patch.object(p.e,'learner_alias',side_effect=lambda own,q: 'prefix' if q['marker']<3 else None), \
              patch.object(p.c.disk,'anchor',side_effect=lambda cap:dict(marker=cap['marker'])):
             reader.quorum();self.assertEqual(2,len(reader.recordings))
+
+    def frozen_group(self):
+        reader=self.grouped();windows,q,source,values=export_fixture.JoiningExportEvidenceTest().switching_source()
+        schema=p.e.f.catalog();basis=p.e.f.sample(schema['records']['BASIS']['schema'],schema['types'])
+        basis.update(root=q['root'],view=q['view'],ballot=q['ballot'])
+        source['basis']=p.e.f.encode('records','BASIS',basis);source['value']=basis
+        values[0]['raw']=source['basis'];values[0]['offer']['request']['payload']['digest']=p.e.sha(source['basis'])
+        reader.model.joining=q['sender']['node']
+        for group in reader.groups:group[0]['offer']['request']['sender']=q['sender']
+        reader.windows=windows;reader.sources=[source];reader.groups.append(values)
+        current=reader.current
+        reader.current=lambda node,start,end: p.e.current(windows,node,start,end) if node==q['recipient']['node'] else current(node,start,end)
+        return reader
+
+    def test_quorum_classifies_verified_frozen_basis_without_borrowing_current_generation(self):
+        reader=self.frozen_group();self.grouped_run(reader)
+        self.assertEqual(2,len(reader.recordings))
+
+    def test_basis_kind_alone_cannot_skip_quorum_source_authorization(self):
+        reader=self.frozen_group();reader.groups[-1][1]['raw']=b'foreign promise'
+        with self.assertRaisesRegex(ValueError,'^joining export exact frozen source$'):self.grouped_run(reader)
 
     def test_actual_learner_export_cannot_cross_generation_switch(self):
         reader=self.grouped();current=reader.current

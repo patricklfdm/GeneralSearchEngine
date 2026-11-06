@@ -71,13 +71,19 @@ catalogue total:
   `5-REPLACE-required-four` original, including file handoff, five joining
   journal close intervals, network closes and complete session/direct/probe
   export bindings; all **89** exact negatives are required. It is a supplementary
-  three-job entry outside the twelve-subset count. One complete local JVM run
+  three-job entry outside the twelve-subset count. An earlier complete local JVM run
   passed, but strict replay exposed observer-order and missing-request evidence
   gaps; the [integration corrections](PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md#local-complete-integration-and-observer-order-correction)
   preserve those failures. Subsequent independent downstream replay passes all
   865 export allocations and the original file/handoff/close components; missing
-  source observations still block the full gate. Complete corrected-source
-  qualification is pending.
+  source observations still block that original's full gate. A second complete
+  original at `feeb7241` includes the unsent observations; its pinned replay
+  exposed a frozen-source request crossing a same-authority selector replacement.
+  The [source-window correction](PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md#frozen-source-across-a-same-authority-selector)
+  retains this failure and a separate complete corrected-reader diagnostic with
+  all 89 exact negatives. A later conservative cold-owner guard preserves the
+  original's generation edges and all 42 frozen-source authorizations. Complete
+  matching-source qualification is pending.
 - [Maximum-image transition](PHASE_3_MAXIMUM_TRANSITION_EXECUTION.md): one exact
   67,108,832-byte image history, real same-pool receiver refusal, REMOVE/FINAL
   and stable continuation, followed by **16** exact negatives. Its manual-only

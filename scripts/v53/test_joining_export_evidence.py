@@ -91,6 +91,73 @@ class JoiningExportEvidenceTest(unittest.TestCase):
         windows,q,source,values=self.source();values[0]['offer']['request']['view']='f'*64
         with self.assertRaisesRegex(ValueError,'^joining export original source view/ballot$'):e.authorize_source(values,windows,[source])
 
+    def switching_source(self):
+        windows,q,source,values=self.source()
+        before=dict(windows[1],end=12)
+        after=copy.deepcopy(windows[1]);after.update(start=15,sourcePredecessor=(0,12))
+        # The retained BASIS stays unchanged; the new current generation need
+        # not have the same manifest or cut index. Only its authority persists.
+        after['manifest']=b'new current manifest';after['packet']['capsule']['cut']['index']+=1
+        values[0]['offer']['offered']=16;values[0]['commit']['offered']=17
+        for value in values[1:]:
+            for key in ('sent','received','offered'):value['offer'][key]+=8
+            value['commit']['offered']+=8
+        return [windows[0],before,after],q,source,values
+
+    def test_frozen_basis_offer_can_overlap_a_proven_same_authority_install(self):
+        windows,q,source,values=self.switching_source()
+        self.assertIs(source,e.authorize_source(values,windows,[source]))
+        # A retained source is independent of subsequent current generations.
+        windows[-1]['end']=18
+        self.assertIs(source,e.authorize_source(values,windows,[source]))
+
+    def test_frozen_source_cannot_bridge_unknown_or_ambiguous_generation_changes(self):
+        windows,q,source,values=self.switching_source()
+        for change in ('no-link','wrong-link','overlap','duplicate','missing-before','missing-after'):
+            changed=copy.deepcopy(windows)
+            if change=='no-link':changed[-1].pop('sourcePredecessor')
+            elif change=='wrong-link':changed[-1]['sourcePredecessor']=(1,12)
+            elif change=='overlap':changed[-1]['start']=11
+            elif change=='duplicate':changed.append(copy.deepcopy(changed[-1]))
+            elif change=='missing-before':changed.pop(1)
+            else:changed.pop()
+            with self.subTest(change=change),self.assertRaisesRegex(ValueError,'inactive current generation'):
+                e.authorize_source(values,changed,[source])
+
+    def test_source_offer_cannot_cross_an_authority_or_owner_change(self):
+        windows,q,source,values=self.switching_source()
+        for change in ('view','root','identity'):
+            changed=copy.deepcopy(windows);after=changed[-1]
+            if change=='view':after['packet']['capsule']['cut']['view']['old']=['node-1']
+            elif change=='root':after['packet']['capsule']['root']='f'*64
+            else:after['identity']['storage']='00000000-0000-0000-0000-000000000099'
+            with self.subTest(change=change),self.assertRaisesRegex(ValueError,'original source view/ballot'):
+                e.authorize_source(values,changed,[source])
+
+    def test_source_offer_cannot_hide_an_intermediate_authority_or_missing_selector(self):
+        windows,q,source,values=self.switching_source();windows[1]['end']=11
+        middle=copy.deepcopy(windows[-1]);middle.update(start=12,end=13,sourcePredecessor=(0,11))
+        windows[-1].update(start=14,sourcePredecessor=(12,13));windows.insert(2,middle)
+        self.assertIs(source,e.authorize_source(values,windows,[source]))
+        # Equal endpoint authorities do not excuse a different intermediate view.
+        changed=copy.deepcopy(windows);changed[2]['packet']['capsule']['cut']['view']['old']=['node-1']
+        with self.assertRaisesRegex(ValueError,'original source view/ballot'):e.authorize_source(values,changed,[source])
+        with self.assertRaisesRegex(ValueError,'inactive current generation'):e.authorize_source(values,windows[:2]+windows[3:],[source])
+
+    def test_same_authority_transition_does_not_extend_source_or_receiver_authority(self):
+        windows,q,source,values=self.switching_source()
+        with self.assertRaisesRegex(ValueError,'inactive frozen source'):
+            e.authorize_source(values,windows,[dict(source,end=values[-1]['commit']['offered'])])
+        windows[0]['end']=values[-1]['commit']['offered']
+        with self.assertRaisesRegex(ValueError,'inactive current generation'):
+            e.authorize_source(values,windows,[source])
+
+    def test_current_generation_bytes_still_cannot_cross_same_authority_install(self):
+        windows,q,source,values=self.switching_source();own=windows[1]
+        values=self.values(q,e.native.maintenance_generations(own['manifest'],own['members'],own['packet'])[1])
+        with self.assertRaisesRegex(ValueError,'inactive current generation'):
+            e.authorize_generation(values,windows)
+
     def test_empty_ancestry_is_not_a_malformed_frame(self):
         windows,q=self.inputs();self.assertEqual({},e.current_records(windows[1]))
 
