@@ -291,6 +291,13 @@ callbacks are retained separately; reservations and empty paths cannot be counte
 as physical bytes or nonempty owners. This remains development count-overlap
 evidence, not byte-limit saturation, refusal or full native envelope admission.
 
+The [native SOURCE-count refusal fixture](PHASE_3_NATIVE_COUNT_REFUSAL.md) now
+attempts one additional private receiver at a real 2/6/7 storage callback, checks
+its exact rejection and temporary CONTROL return, and retains the same complete
+crash/recovery history. It adds no long-lived pressure owner. Native execution,
+independent replay and source-cohort admission are recorded separately; the full
+combined byte/learner/resource envelope remains open.
+
 The [opt-in transition pressure probe](PHASE_3_COMBINED_RESOURCE_PROBE.md) retains
 a failed original at the seven-image floor-copy boundary. Its external receiving
 copies deliberately outlive the native controllers; normal-runtime reachability

@@ -21,7 +21,10 @@ public final class V53NativeCarriedProcessWorker {
             throw new IllegalArgumentException("native carried explicit application capture layout");
     }
     public static void main(String[] args)throws Exception {
-        Path applicationCut=null,applicationRetirement=null;
+        Path applicationCut=null,applicationRetirement=null,refusals=null;
+        if(args.length>=2 && args[args.length-2].equals("--resource-refusal-capture")) {
+            refusals=Path.of(args[args.length-1]);args=Arrays.copyOf(args,args.length-2);
+        }
         if(args.length>=2 && args[args.length-2].equals("--application-cut-capture")) {
             applicationCut=Path.of(args[args.length-1]);args=Arrays.copyOf(args,args.length-2);
         } else if(args.length>=2 && args[args.length-2].equals("--application-retirement-capture")) {
@@ -49,6 +52,11 @@ public final class V53NativeCarriedProcessWorker {
         var capture=args.length>=5?new V53NodeResourceCapture(Path.of(args[4]),history.manifestDigest(),life,pipe,
                 args.length>=6?Path.of(args[5]):null,args.length>=7?Path.of(args[6]):null,args.length>=8?Path.of(args[7]):null,
                 args.length>=9?Path.of(args[8]):null,args.length>=10 && applicationCut==null?Path.of(args[9]):null,args.length>=11?Path.of(args[10]):null,args.length==12?Path.of(args[11]):null,applicationCut,applicationRetirement):null;
+        if(refusals!=null) {
+            if(args.length!=12 || applicationCut==null && applicationRetirement==null)
+                throw new IllegalArgumentException("native refusal requires complete application captures");
+            capture.enableRefusals(refusals);
+        }
         V53NodeProcessWorker.Sink sink=capture==null?pipe:capture;
         var owners=new ArrayList<MembershipNodeOwner<Integer,Doc>>();
         var activeSlot=new AtomicLong();var installations=new AtomicLong();var cut=new AtomicBoolean();

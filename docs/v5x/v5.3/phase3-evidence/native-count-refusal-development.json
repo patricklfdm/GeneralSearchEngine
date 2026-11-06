@@ -1,0 +1,315 @@
+{
+  "byteLimitQualified": false,
+  "cohortAdmitted": false,
+  "currentFiles": [
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessTest.java",
+      "sha256": "d8d4afb1d46f7c72cbef57afd93c7c87078176662b89630b737e068cd1047c7a"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessWorker.java",
+      "sha256": "a0d09917101bbce80597d8d0bae959b9429e4e6efadf20de81ab4163ac8dbe1b"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeResourceCapture.java",
+      "sha256": "cd0cad981b1da8a8ae78377438498a74b0840bb72b2d1e80a31c92084bc5bac8"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeApplicationRefusalTest.java",
+      "sha256": "9c7504d7bdaa318eceb2e85587c5498e7c5e3673157b4f0fe017cba8c3f81d5c"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeResourceRefusalCapture.java",
+      "sha256": "eb87a5c51a073415740e11ee757ca13723f70530bde3aaf20b03407306575520"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeResourceRefusalCaptureTest.java",
+      "sha256": "7a31aae178f106c1127bc35e9b340450e1b47ed48431bbe393a011e12dfaf1c7"
+    },
+    {
+      "path": "scripts/v53/native_application_refusal.py",
+      "sha256": "ba3100e84e22acd6a1dd726806753ed1d26eef49d273186abf6bd1f750b8618c"
+    },
+    {
+      "path": "scripts/v53/test_native_application_refusal.py",
+      "sha256": "ade1e6449089900174f113b95ada771cfeaebb6be75ee71bc2dffe866012444c"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_NATIVE_COUNT_REFUSAL.md",
+      "sha256": "d598ad340bdb7cbadf1ad2292243094dd0a97e00fab4e1eade1b5bac423cf605"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "7a57b81eb6fb2c88a11689da0172cd99d5acf6aac726c92eef0256b931d35eef"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_QUALIFICATION_AUDIT.md",
+      "sha256": "917e236cc3ab2c3fc49e1045cb6f9387f8724abb4a36720054184e72258fce98"
+    },
+    {
+      "path": "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
+      "sha256": "4f89bcc41268cd82db1f38cedb1f05b34865c2f8a1ed4b5f18878bc5f51d6460"
+    }
+  ],
+  "failedAttempts": [
+    {
+      "acceptanceCredit": false,
+      "log": {
+        "path": "target/v53-native-application-refusal/producer/maven.log",
+        "sha256": "ab38f78e9e292f01b2b2ff698bafb5d131685ed413a1dcf7a16715b24b1af934"
+      },
+      "reason": "sandbox local sockets unavailable",
+      "receipt": {
+        "path": "target/v53-native-application-refusal/producer/receipt.json",
+        "sha256": "872630ab352259cda83086f8309143b877e118bbeae0323eb9ff0adf7568933b"
+      },
+      "source": {
+        "path": "target/v53-native-application-refusal/producer/source.json",
+        "sha256": "f35302769ebcd64277be463bddee646cc74907f4bf4b7d63d8082a18ebc6a8b5"
+      }
+    },
+    {
+      "acceptanceCredit": false,
+      "log": {
+        "path": "target/v53-native-application-refusal/producer-local-sockets/maven.log",
+        "sha256": "bab4709ce19a7f31a88eda33cda81544eb81b04c80330ce6c96c2212930f5eb4"
+      },
+      "reason": "new test collector encoded physical paths as restricted JSON object keys",
+      "receipt": {
+        "path": "target/v53-native-application-refusal/producer-local-sockets/receipt.json",
+        "sha256": "77699ee8bf1a51190ef9696b1d9682d722953016c1f0bea8d53ab0230be1a224"
+      },
+      "source": {
+        "path": "target/v53-native-application-refusal/producer-local-sockets/source.json",
+        "sha256": "f35302769ebcd64277be463bddee646cc74907f4bf4b7d63d8082a18ebc6a8b5"
+      }
+    }
+  ],
+  "finalSourceQualified": false,
+  "generator": {
+    "path": "target/v53-native-application-refusal/index-evidence.py",
+    "sha256": "a2f1ced13e511761afea6035f7d2ff0c53c299de6e8440e4c4bcd40c8d68dffc"
+  },
+  "historicalIndexes": {
+    "count": 528,
+    "inventory": {
+      "path": "target/v53-native-application-refusal/historical-indexes.json",
+      "sha256": "c5fd9de57090b327d31b1972c4218d1625e460bbe37ca27b7b8eae6cfd55c41f"
+    },
+    "unchanged": true
+  },
+  "limitations": [
+    "Only one successful FINAL/SIGKILL original executed here. INTENT/halt, source-bound cohort integration and final-source execution remain pending.",
+    "The test uses the native node pool through read-only reflection under its monitor. It performs private receiver construction, not a network admission request.",
+    "The full original nine-family positive verifier precedes twelve probe-record negatives. The existing 268 captured-file/owner mutations are not rerun here.",
+    "This qualifies a SOURCE-count refusal with recovery continuation in one development history, not full byte pressure, learner lifetime or the complete runtime resource envelope.",
+    "No runtime source, POM, workflow, frozen limits, phase catalogue, Required CI or paid-cloud behavior changed."
+  ],
+  "native": {
+    "build": {
+      "path": "target/v53-native-application-refusal/producer-recorded-paths/build.json",
+      "sha256": "15f7ae9352d3db9f7f292f5135c8d01c3e795d1ed8e019527ecb5a9fba097c07"
+    },
+    "case": "final-application-kill",
+    "commandSeconds": 702.517,
+    "log": {
+      "path": "target/v53-native-application-refusal/producer-recorded-paths/maven.log",
+      "sha256": "4e236cb4a566465d6469fdedf21a2b9852943079afc04a055ee3323cd09e1976"
+    },
+    "nativeTestSeconds": 669.4,
+    "receipt": {
+      "path": "target/v53-native-application-refusal/producer-recorded-paths/receipt.json",
+      "sha256": "bba087eeed013320d08cf0a109465ece07e512f8e136495136b82c79db7363ef"
+    },
+    "script": {
+      "path": "target/v53-native-application-refusal/capture-recorded-paths.py",
+      "sha256": "b3e18a3ed604afb1734242228d3aa56fc28f4b58cd4f4726808f12724cdf54e9"
+    },
+    "selectedJavaTests": 14,
+    "source": {
+      "path": "target/v53-native-application-refusal/producer-recorded-paths/source.json",
+      "sha256": "627fd2b30873cd60b3e1b7658d0e15dc80a78ed30d0b5c0fdf2ec69c9a017f4f"
+    },
+    "successfulHistories": 1,
+    "toolchain": {
+      "path": "target/v53-native-application-refusal/producer-recorded-paths/toolchain.json",
+      "sha256": "f1f9ac3318874dd66af31baa074ed8ea8c113e3c2758fa534a3835857b1ca944"
+    }
+  },
+  "phase3Complete": false,
+  "replay": {
+    "callbacks": 3301,
+    "inventory": {
+      "path": "target/v53-native-application-refusal/original-inventory.json",
+      "sha256": "7ce812ae3fb713b78a251d67bfff7e74cdc1aa4a6e31f7e6df6ec3bed976aa94"
+    },
+    "log": {
+      "path": "target/v53-native-application-refusal/replay.log",
+      "sha256": "2ca8ff64e99f057e4243efbe06afd6dbd4a649e3f419c59c30cc1715a2d88c56"
+    },
+    "negativeCases": 12,
+    "originalBytes": 80637985,
+    "originalFiles": 10613,
+    "originalPreserved": true,
+    "probes": [
+      {
+        "afterSequence": 1146,
+        "beforeSequence": 1144,
+        "callbackSequence": 1144,
+        "eventIndex": 969,
+        "life": 1,
+        "node": "node-1",
+        "nonemptyPhysicalOwnerCounts": {
+          "APPLICATION": 7,
+          "GENERATION": 2,
+          "SOURCE": 6
+        },
+        "originalChargesPreserved": true,
+        "originalFilesSha256": "990d344fefa82c1d3bf5cbb56052548ead899243f67f0e35500a5afce5e6777a",
+        "packetSha256": "631b10170615bf7cd16777b79e72f0216c3f55da9b3a0a2d852ecbad8744a624",
+        "physicalBytes": 405475,
+        "point": "RETIREMENT_BORROW_PREFIX_WRITTEN",
+        "temporaryControlReturned": true
+      },
+      {
+        "afterSequence": 1209,
+        "beforeSequence": 1207,
+        "callbackSequence": 1207,
+        "eventIndex": 1598,
+        "life": 1,
+        "node": "node-2",
+        "nonemptyPhysicalOwnerCounts": {
+          "APPLICATION": 7,
+          "GENERATION": 2,
+          "SOURCE": 6
+        },
+        "originalChargesPreserved": true,
+        "originalFilesSha256": "c2e404d08472a18225dee45d21a86342176eddc9056c16136603bb05a4a88a7b",
+        "packetSha256": "6dff717fdeb6fd8372749d4c76c8e485b35a926d604d028cad54f64138d59be8",
+        "physicalBytes": 405475,
+        "point": "RETIREMENT_BORROW_PREFIX_WRITTEN",
+        "temporaryControlReturned": true
+      },
+      {
+        "afterSequence": 1209,
+        "beforeSequence": 1207,
+        "callbackSequence": 1207,
+        "eventIndex": 1599,
+        "life": 1,
+        "node": "node-3",
+        "nonemptyPhysicalOwnerCounts": {
+          "APPLICATION": 7,
+          "GENERATION": 2,
+          "SOURCE": 6
+        },
+        "originalChargesPreserved": true,
+        "originalFilesSha256": "80fe9fbf995b6dd869cbd2cd6a5e71ce66e4caec87614282c1ab108123227320",
+        "packetSha256": "34e5d585dfb2cb433e87f23c6fcba8cf54832a5b286685a56cf445b3c3a3b9fa",
+        "physicalBytes": 405475,
+        "point": "RETIREMENT_BORROW_PREFIX_WRITTEN",
+        "temporaryControlReturned": true
+      },
+      {
+        "afterSequence": 1476,
+        "beforeSequence": 1474,
+        "callbackSequence": 1474,
+        "eventIndex": 1601,
+        "life": 2,
+        "node": "node-1",
+        "nonemptyPhysicalOwnerCounts": {
+          "APPLICATION": 7,
+          "GENERATION": 2,
+          "SOURCE": 6
+        },
+        "originalChargesPreserved": true,
+        "originalFilesSha256": "6d10e0b9c975d974e018bbcbbc6904df75f2caa63e36b4e3cc7edf75c35f40b9",
+        "packetSha256": "78de7a60d22753cba68e98ee742523620572073985687ea64818e9ba3f421a83",
+        "physicalBytes": 513474,
+        "point": "RETIREMENT_BORROW_PREFIX_WRITTEN",
+        "temporaryControlReturned": true
+      },
+      {
+        "afterSequence": 1745,
+        "beforeSequence": 1743,
+        "callbackSequence": 1743,
+        "eventIndex": 2186,
+        "life": 2,
+        "node": "node-2",
+        "nonemptyPhysicalOwnerCounts": {
+          "APPLICATION": 7,
+          "GENERATION": 2,
+          "SOURCE": 6
+        },
+        "originalChargesPreserved": true,
+        "originalFilesSha256": "0a657525873e0cc422d2ec8e5d01d9c92a39d138e061641762a419db8a8410f6",
+        "packetSha256": "6dff717fdeb6fd8372749d4c76c8e485b35a926d604d028cad54f64138d59be8",
+        "physicalBytes": 570691,
+        "point": "RETIREMENT_BORROW_PREFIX_WRITTEN",
+        "temporaryControlReturned": true
+      },
+      {
+        "afterSequence": 1745,
+        "beforeSequence": 1743,
+        "callbackSequence": 1743,
+        "eventIndex": 2183,
+        "life": 2,
+        "node": "node-3",
+        "nonemptyPhysicalOwnerCounts": {
+          "APPLICATION": 7,
+          "GENERATION": 2,
+          "SOURCE": 6
+        },
+        "originalChargesPreserved": true,
+        "originalFilesSha256": "54797bcae4aabbc81ef2697d0e196515bd930491a6b5c9bd424eef2edd791db8",
+        "packetSha256": "d376a6bc650b7aa8636db4b562c2850f5d72bea0a436460920890d4324e8fb32",
+        "physicalBytes": 570691,
+        "point": "RETIREMENT_BORROW_PREFIX_WRITTEN",
+        "temporaryControlReturned": true
+      }
+    ],
+    "receipt": {
+      "path": "target/v53-native-application-refusal/qualification/receipt.json",
+      "sha256": "634cc2ca03111547067b745f5dc408e2e42414af7ee638c9148068d8e6a154fc"
+    },
+    "result": {
+      "path": "target/v53-native-application-refusal/qualification/qualification.json",
+      "sha256": "11af325173f11d2db108a034923d917fe5743ff0a68397fcbc4dd0bbde303c81"
+    },
+    "resultBytes": 57124,
+    "script": {
+      "path": "target/v53-native-application-refusal/verify-retained.py",
+      "sha256": "04369c1041c203cc305211e5e50f3b45b5da4ec176a68853859ad882a538e8a8"
+    },
+    "seconds": 116.755,
+    "summary": {
+      "path": "target/v53-native-application-refusal/replay-summary.json",
+      "sha256": "7a42b42b2dac35ceaa57d50cc2dd5c7d4b2d3677ffdf436591d3a0d97c8260ff"
+    }
+  },
+  "schema": "gse-v53-native-count-refusal-development-v1",
+  "scope": "private SOURCE receiver count refusal inside a complete native FINAL/application-ACK SIGKILL recovery original",
+  "status": "PARTIAL",
+  "tests": {
+    "assertionsDisabled": {
+      "count": 25,
+      "log": {
+        "path": "target/v53-native-application-refusal/optimized-tests-final.log",
+        "sha256": "eccb296f0b722a2fb19fba47f02ed739ad4f1cd3bdb24b0208dd71cc7b5e6868"
+      }
+    },
+    "documentation": {
+      "path": "target/v53-native-application-refusal/contract-final.json",
+      "sha256": "7fc9e382648aea0b45cec2b665adafa6100acf4e864635ecec44bdd3064d1523"
+    },
+    "related": {
+      "count": 79,
+      "log": {
+        "path": "target/v53-native-application-refusal/related-tests-final.log",
+        "sha256": "84d0f4a8ec405d3349d3417b2f95face02be5dc5534416a9a234a65b436b2272"
+      }
+    },
+    "suitesOverlap": true
+  },
+  "wholeRuntimeResourcesQualified": false,
+  "wireAdmissionQualified": false
+}

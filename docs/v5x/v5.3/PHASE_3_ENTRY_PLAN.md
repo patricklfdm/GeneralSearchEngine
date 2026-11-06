@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Native SOURCE-count refusal](PHASE_3_NATIVE_COUNT_REFUSAL.md) adds an optional
+real-receiver probe inside the application-ACK crash/recovery history. Its reader
+requires unchanged original files/charges and a returned temporary CONTROL
+reservation before granting rejection credit. Source-cohort integration and full
+combined resource qualification remain OPEN.
+
 [Native application resource overlap](PHASE_3_NATIVE_APPLICATION_OVERLAP.md)
 now measures nonempty GENERATION/SOURCE/APPLICATION counts at the same original
 callback, with complete owner/sequence/physical-inventory binding. This supplements

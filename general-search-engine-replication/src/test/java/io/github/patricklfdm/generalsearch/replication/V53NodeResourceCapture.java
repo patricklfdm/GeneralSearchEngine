@@ -19,6 +19,11 @@ final class V53NodeResourceCapture implements V53NodeProcessWorker.Sink {
     private final List<Map<String,Object>> events=new ArrayList<>(),boundaries=new ArrayList<>(),closes=new ArrayList<>();
     private final Set<String> closing=new HashSet<>(),closed=new HashSet<>();
     private boolean saved;
+    private V53NativeResourceRefusalCapture refusals;
+    synchronized void enableRefusals(Path output)throws IOException {
+        require(!saved && owners.isEmpty() && refusals==null,"native refusal original capture registration");
+        refusals=new V53NativeResourceRefusalCapture(output,life);
+    }
     V53NodeResourceCapture(Path directory,String root,int life,V53NodeProcessWorker.Sink sink)throws IOException {
         this(directory,root,life,sink,null);
     }
@@ -97,6 +102,8 @@ final class V53NodeResourceCapture implements V53NodeProcessWorker.Sink {
                 replay.at((String)event.get("node"),owner.replica,(String)event.get("event"),events.size()-1);
             if(ledger!=null && action.equals("event"))
                 ledger.at((String)event.get("node"),owner.replica,(String)event.get("event"),events.size()-1);
+            if(refusals!=null && action.equals("event"))
+                refusals.at(owner.identity,owner.node,owner.replica,(String)event.get("event"),events.size()-1,point.sequence());
         }
         if(action.equals("cut"))save("CUT_PREFIX");
         sink.accept(action,value);
@@ -132,6 +139,7 @@ final class V53NodeResourceCapture implements V53NodeProcessWorker.Sink {
         Files.write(directory.resolve("index.json"),canonical(Map.of("schema","gse-v53-node-resource-lifetime-v1","root",root,"life",life,
                 "pid",ProcessHandle.current().pid(),"terminal",terminal,"owners",refs,"eventsSha256",hash(observed),
                 "boundariesSha256",hash(points),"closesSha256",hash(closing)),16384),StandardOpenOption.CREATE_NEW);
+        if(refusals!=null)refusals.finish(terminal);
         if(retirement!=null && !terminal.equals("FAILED"))retirement.finishProcess(root,life,terminal,observed);
         if(floor!=null && !terminal.equals("FAILED"))floor.finishProcess(root,life,terminal,observed);
         if(campaign!=null && !terminal.equals("FAILED"))campaign.finishProcess(root,life,terminal,observed);
