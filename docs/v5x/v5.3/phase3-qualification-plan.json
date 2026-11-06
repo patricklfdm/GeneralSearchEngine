@@ -779,7 +779,8 @@
         "scripts/v53/test_native_carried_application_maintenance_plans.py",
         "scripts/v53/test_native_carried_application_maintenance_prefixes.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ApplicationMaintenanceCaptureTest.java",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedApplicationMaintenancePrefixTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedApplicationMaintenancePrefixTest.java",
+        "scripts/v53/test_native_carried_application_storage_coverage.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -874,7 +875,8 @@
         "scripts/v53/native_application_retirement_files.py",
         "scripts/v53/native_carried_application_retirement_prefixes.py",
         "scripts/v53/native_carried_application_maintenance_plans.py",
-        "scripts/v53/native_carried_application_maintenance_prefixes.py"
+        "scripts/v53/native_carried_application_maintenance_prefixes.py",
+        "scripts/v53/native_carried_application_storage_coverage.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -978,7 +980,8 @@
         "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_PREFIXES.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_RETIREMENT_PREFIXES.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_MAINTENANCE_PLANS.md",
-        "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_MAINTENANCE_PREFIXES.md"
+        "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_MAINTENANCE_PREFIXES.md",
+        "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_STORAGE.md"
       ],
       "cohorts": [
         "profiles",
@@ -1251,7 +1254,7 @@
       "id": "combined-resources",
       "status": "OPEN",
       "dependsOn": [],
-      "work": "Existing native accounting, storage/control/transfer ownership readers, seven-family carried capture composition, native partial joint-floor recovery and the 32-case joint-floor process entry are implemented prerequisites. They do not establish the full feasible simultaneous resource envelope. The earlier externally imposed receiving-copy probe remains a retained diagnostic failure, not an automatic-runtime reachability proof. Qualification must use original live-owner overlap and configured shared limits, including exact or over-bound refusal, admitted INTENT/FINAL/recovery completion, normal close and interrupted retention. Do not require independent category maxima to coexist when the shared byte limit prohibits that combination, or use arithmetic alone as evidence. Supplemental conditional capacity-completion v4 has per-open accounting, actual publication bytes and close intervals, immutable capture/admission and a separate operation-231 hosted entry. Only its operation-1 smoke is qualified; full operation-231 execution/downloaded replay remains pending. Conditional capacity history cannot replace native historical/learner authority, full physical shutdown ordering or complete simultaneous native maxima. Application-ACK journals now observe same-owner/same-sequence overlap of two generations, six sources and seven application slots; these identify physical capture targets only. Their metadata peaks are below 37 MB, so neither those counts nor the complete accounting replay establish the full metadata envelope or physical charge mapping.",
+      "work": "Existing native accounting, storage/control/transfer ownership readers, seven-family carried capture composition, native partial joint-floor recovery and the 32-case joint-floor process entry are implemented prerequisites. They do not establish the full feasible simultaneous resource envelope. The earlier externally imposed receiving-copy probe remains a retained diagnostic failure, not an automatic-runtime reachability proof. Qualification must use original live-owner overlap and configured shared limits, including exact or over-bound refusal, admitted INTENT/FINAL/recovery completion, normal close and interrupted retention. Do not require independent category maxima to coexist when the shared byte limit prohibits that combination, or use arithmetic alone as evidence. Supplemental conditional capacity-completion v4 has per-open accounting, actual publication bytes and close intervals, immutable capture/admission and a separate operation-231 hosted entry. Only its operation-1 smoke is qualified; full operation-231 execution/downloaded replay remains pending. Conditional capacity history cannot replace native historical/learner authority, full physical shutdown ordering or complete simultaneous native maxima. Application-ACK journals now observe same-owner/same-sequence overlap of two generations, six sources and seven application slots; these identify physical capture targets only. Their metadata peaks are below 37 MB, so neither those counts nor the complete accounting replay establish the full metadata envelope or physical charge mapping. An original-first application maintenance storage reader now binds the three captured maintenance families to their exact live resource charges in both process lifetimes. Its nine balanced owner substitutions have a separate partial scope; the seven-family default still requires ten owner cases. Interrupted application and old-end callback charge mapping, all remaining transient families and simultaneous native limits remain OPEN. The same retained FINAL/SIGKILL original now passes portable three-family physical ownership replay: 2,131 callbacks, eight owner lifetimes and nine exact balanced-owner negatives, with original files/source/build unchanged. No new native execution or full resource-envelope claim is made.",
       "acceptance": "Retain actual peak owner/lease/byte observations and independent physical replay at/over the bound, including admitted FINAL/recovery completion and stable DATA after membership exhaustion. Arithmetic alone does not qualify this obligation."
     },
     {

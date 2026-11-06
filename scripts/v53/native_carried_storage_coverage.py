@@ -73,8 +73,10 @@ OWNER_CASES={'GENERATION','SOURCE','JOURNAL','MISC','generation-image','floor-im
              'source-image','retirement-image','replay-input','applied-end'}
 
 
-def ownership_targets(projected):
+def ownership_targets(projected,*,families='all-seven'):
     """Pick actual required charges, never unbound reservations or invented files."""
+    need(families in ('all-seven','retirement-floor-campaign'),'storage ownership supported family scope')
+    required=OWNER_CASES if families=='all-seven' else OWNER_CASES-{'replay-input'}
     result={}
     for owner in projected['owners']:
         for point in owner['snapshots']:
@@ -91,7 +93,7 @@ def ownership_targets(projected):
                 need(label in OWNER_CASES,'storage coverage supported original owner case')
                 result.setdefault(label,dict(life=owner['life'],node=owner['node'],unit=unit,owner=name,
                                             eventIndex=point['eventIndex'],point=point['point']))
-    need(set(result)==OWNER_CASES,'storage coverage complete original owner cases')
+    need(set(result)==required,'storage coverage complete original owner cases')
     return result
 
 

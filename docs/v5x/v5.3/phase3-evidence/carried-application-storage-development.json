@@ -1,0 +1,151 @@
+{
+  "acceptancePlan": {
+    "path": "docs/v5x/v5.3/acceptance-plan.json",
+    "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+  },
+  "base": "fba8c41d1b781c1fe24dcdb8fe19f6ccef6e5188",
+  "cohortAdmitted": false,
+  "frozenParametersChanged": false,
+  "generator": {
+    "path": "target/v53-carried-application-storage/index-evidence.py",
+    "sha256": "02fec165b58c5aec166d5ea0fb771a1f76f0750b2cf853d826d3b171023e6c45"
+  },
+  "historicalIndexes": {
+    "count": 396,
+    "inventory": {
+      "path": "target/v53-carried-application-storage/historical-indexes.json",
+      "sha256": "87a65ff97970330cdc6e9a27b08f799c25aa068f88c4224349433677d79f0529"
+    },
+    "unchanged": true
+  },
+  "hostedExecuted": false,
+  "limitations": [
+    "The original producer is the preceding development snapshot, not a new exact-commit or final-source cohort. The reader is a separate fba8c41d development snapshot plus three Python files.",
+    "Only the existing FINAL/SIGKILL original was replayed. No native workload, Maven build, workflow or paid-cloud execution was repeated.",
+    "Physical charge binding covers three maintenance families only. Interrupted application and old-end retirement callback charge mapping, remaining transient families, full simultaneous resource limits and final-source admission remain open.",
+    "Reported file peaks are one original owner at one observed callback, not a sum of separate peaks, filesystem allocation, RAM or a full resource envelope."
+  ],
+  "newNativeExecuted": false,
+  "paidCloudExecuted": false,
+  "phase3Complete": false,
+  "plan": {
+    "path": "docs/v5x/v5.3/phase3-qualification-plan.json",
+    "sha256": "d2f95806d2a3d51aae8fc23b16cbe4ddd9f78e13a811588cda15b61d686ece4d"
+  },
+  "producer": {
+    "build": {
+      "path": "target/v53-carried-application-maintenance-prefixes/producer/build.json",
+      "sha256": "e655f2cfa763a87a84c4ff35bfc602e4a8c6837d4fd73edc87c922d2ae03e562"
+    },
+    "precedingCaptureQualification": {
+      "path": "target/v53-carried-application-maintenance-prefixes/qualification/summary.json",
+      "sha256": "032e3085e8ee2eb84583cfd8af4826e0d790502ce419ed174abad287f0d532ae"
+    },
+    "precedingNegativesNotRepeated": 142,
+    "priorDevelopmentIndex": {
+      "path": "docs/v5x/v5.3/phase3-evidence/carried-application-maintenance-prefix-development.json",
+      "sha256": "e881cabb9e9c15df096c7f654e1ef64feebdae90307658dae15af9eb48706f32"
+    },
+    "receipt": {
+      "path": "target/v53-carried-application-maintenance-prefixes/producer/receipt.json",
+      "sha256": "988105cc2edb4744c250dfaf5d8f0c9606533bb8db2b6382f9a56449994be568"
+    },
+    "source": {
+      "path": "target/v53-carried-application-maintenance-prefixes/producer/source.json",
+      "sha256": "1c753f80e0eb895304d60ba6bedf848fb4a28ebe6fe0a5a79d569578c085c594"
+    }
+  },
+  "qualification": {
+    "bytes": 67206586,
+    "callbacks": 2131,
+    "captureScope": "application-maintenance-three-families",
+    "files": 8677,
+    "inventory": {
+      "path": "target/v53-carried-application-storage/qualification/inventory.json",
+      "sha256": "821f32390c75f708289a51a5c0a788c5070b1a26bb4757d395f751f70a3d2c35"
+    },
+    "log": {
+      "path": "target/v53-carried-application-storage/qualification.log",
+      "sha256": "301664f849187f57a72a0e7d8f234e52d1b807fcd02ec2bc2ecd811ee421d27a"
+    },
+    "negativeCases": 9,
+    "originalPreserved": true,
+    "ownerLifetimes": 8,
+    "result": {
+      "path": "target/v53-carried-application-storage/qualification/result.json",
+      "sha256": "322886600874349bb53d05112de54e6eb52bbcb0cf4fac90eb1b4c2d914c4226"
+    },
+    "script": {
+      "path": "target/v53-carried-application-storage/qualify.py",
+      "sha256": "cf0370585b7b4de28dac38ffb1e8b7b957d1d0d6ddcff0c5bd065e842bf9c30f"
+    },
+    "seconds": 59.129212211992126,
+    "status": "PASS",
+    "summary": {
+      "path": "target/v53-carried-application-storage/qualification/summary.json",
+      "sha256": "9431594c3f39750c1ac20f23685629a4311254b2d7a5b999e20bada3449990f0"
+    }
+  },
+  "reader": {
+    "currentFiles": [
+      {
+        "path": "scripts/v53/native_carried_application_storage_coverage.py",
+        "sha256": "4dc658190e2ef19d69532c1b0128f95f9afc9bdf50bbe28262aa428882a8f3db"
+      },
+      {
+        "path": "scripts/v53/native_carried_storage_coverage.py",
+        "sha256": "8a38b45c9c8d789d718fd056f27feee0c5fafe6c8ee167a5b0a885a0e2730dc4"
+      },
+      {
+        "path": "scripts/v53/test_native_carried_application_storage_coverage.py",
+        "sha256": "130a23152b85cee57ecb89e036966caa5f4b12f08364605751ab188d5df24080"
+      }
+    ],
+    "origin": {
+      "path": "target/v53-carried-application-storage/reader/source-origin.json",
+      "sha256": "6b23483a9347a2aede962db8d9e542bcafbc8adc1ef2ab4b1642ce9ac06fdf1f"
+    },
+    "source": {
+      "path": "target/v53-carried-application-storage/reader/source.json",
+      "sha256": "50ab8fc260a15fac8441ed7082538601da20bbf14fa09263825924c6cd2dc5de"
+    },
+    "toolchain": {
+      "path": "target/v53-carried-application-storage/reader/toolchain.json",
+      "sha256": "620f18f099771c2e20ea06a98645dfc5c551cbae8f63cf9a4d9617045c69da23"
+    }
+  },
+  "runtimeJavaChanged": false,
+  "schema": "gse-v53-carried-application-storage-development-v1",
+  "status": "PARTIAL",
+  "tests": {
+    "documentationContract": {
+      "path": "target/v53-carried-application-storage/contract.json",
+      "sha256": "ca702b1f73bde635fe621a014b927da0ed1abd579cab2ca42d18272e552a7031"
+    },
+    "suites": [
+      {
+        "log": {
+          "path": "target/v53-carried-application-storage/unit-tests.log",
+          "sha256": "6f96a34a96e80ef05dd8c390e40b7e7256f14bc2f7725c286f7b6af2e7147637"
+        },
+        "tests": 50
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-storage/optimized-tests.log",
+          "sha256": "f57c28a37306b25fb9a1bd64334975faf5155b16b2e73995a7e06d8e531efbef"
+        },
+        "tests": 50
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-storage/planning-tests.log",
+          "sha256": "50da43ed63b1ced784ddd083dc8d944c49e23df999e33baeb218027e9cfec92c"
+        },
+        "tests": 34
+      }
+    ],
+    "suitesOverlap": true
+  },
+  "wholeRuntimeResourcesQualified": false
+}

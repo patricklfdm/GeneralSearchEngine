@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Application maintenance storage ownership](PHASE_3_CARRIED_APPLICATION_STORAGE.md)
+joins the existing captured files to original live resource owners at each
+callback. It retains a distinct partial scope; remaining capture families,
+application/old-end charge mapping and final-source Phase 3 admission stay open.
+
 [Application maintenance captures](PHASE_3_CARRIED_APPLICATION_MAINTENANCE_PREFIXES.md)
 compose actual campaign, FLOOR and ordinary-retirement files with the same
 application-ACK crash/recovery history. Other transient families, physical charge
