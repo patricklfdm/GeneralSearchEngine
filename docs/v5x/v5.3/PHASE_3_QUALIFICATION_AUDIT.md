@@ -1,5 +1,13 @@
 # Phase 3 qualification inventory and remaining work
 
+[Carried transition process cases](PHASE_3_CARRIED_TRANSITION_PROCESS.md) now
+exercise whole-group death during original INTENT/FINAL recovery and restart on
+unchanged directories. The new reader checks the admitted prefix and original
+process observations; complete interrupted storage/network replay and hosted
+admission remain OPEN. The twelve-subset catalogue is unchanged.
+Two retained originals exposed source accumulation after restart; the campaign-only
+correction now passes both focused process cases. These remain component checks.
+
 [Workflow execution observations](PHASE_3_WORKFLOW_COHORT.md) now bind the
 complete twelve-subset index to 516 expected jobs, actual source workflow steps
 and every prior attempt. A new entry observes those stages around original-first
@@ -303,12 +311,12 @@ the backlog as a new feature.
 | [Continuous learner histories](PHASE_3_LEARNER_HISTORY_COHORT.md) | 2 | 2 | Six revisions and retained READY/CANCEL, complete cold reopen |
 | [Transfer lifetime/process matrices](PHASE_3_TRANSFER_HISTORY_HOSTED.md) | 21 | 2 | Three continuous owner histories and eighteen two-process recoveries |
 | [Native carried/stable rounds](PHASE_3_NATIVE_ROUND_HOSTED.md) | 7 | 7 | Four carried BARRIER phases and three guarded round histories |
-| [Native carried DATA](PHASE_3_CARRIED_DATA_HOSTED.md) | 4 | 4 | Four old DATA phases, carried completion and the next fresh BARRIER |
+| [Native carried DATA](PHASE_3_CARRIED_DATA_HOSTED.md) | 12 | 12 | Four old DATA phases and eight whole-group process histories, original carry and fresh BARRIER |
 | [Native carried INTENT/FINAL](PHASE_3_CARRIED_TRANSITION_HOSTED.md) | 2 | 2 | Complete carried transitions through stable BARRIER, six reader layers and actual retirement bytes |
 | [Automatic lifecycle components](PHASE_3_AUTOMATIC_HISTORY_HOSTED.md) | 50 | 3 | Competition, higher-ballot restart and the complete 48-case PROMISE reply-revocation matrix |
 | [Joint-floor process histories](PHASE_3_PROCESS_JOINT_HOSTED.md) | 32 | 32 | Four copy ordinals, four cut callbacks, halt/SIGKILL, same-scratch recovery and full continuation |
 
-These **544 planned native histories** are complementary subsets. This is neither
+These **552 planned native histories** are complementary subsets. This is neither
 a pass count nor a count of covered rows in the frozen S matrix. The inspector
 reads their actual Python catalogues and checks declared counts and ordered-case
 hashes. Joining groups must partition all 360 whole histories exactly; transfer

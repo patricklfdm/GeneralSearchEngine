@@ -48,7 +48,7 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
         this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);this.link=Objects.requireNonNull(link);
         this.guard=Objects.requireNonNull(guard);this.scratch=Objects.requireNonNull(scratch);this.clock=Objects.requireNonNull(clock);
         this.started=started;this.budget=budget;original=beforeGrant?null:owner.voting(resources);
-        published=beforeGrant?owner.preGrantMaintenance(resources):null;
+        published=beforeGrant?owner.campaignMaintenance(resources):null;
         context=beforeGrant?published.context:original.before.context;ballot=beforeGrant?published.ballot:original.ballot;check();
     }
     private void check()throws IOException {
@@ -89,7 +89,7 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
     }
     void run()throws IOException {
         synchronized(this){require(!used && !closed,"native maintenance single use/closed");used=true;}
-        check();if(!(published==null?owner.nativeGenerationMaintenanceRequired():owner.preGrantMaintenanceRequired()))return;
+        check();if(!(published==null?owner.nativeGenerationMaintenanceRequired():owner.campaignMaintenanceRequired()))return;
         var own=owner.floorCopyCurrent();var pending=owner.pendingFloorProposal();
         var required=new TreeMap<String,Map<String,Object>>();
         if(pending.isPresent())for(Object value:MembershipFormat.list(pending.get().value().get("sources"))) {

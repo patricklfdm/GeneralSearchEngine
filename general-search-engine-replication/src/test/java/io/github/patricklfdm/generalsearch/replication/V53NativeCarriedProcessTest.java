@@ -14,25 +14,31 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*
 /** Actual old applied DATA, whole-group death during carry, same-directory recovery. */
 class V53NativeCarriedProcessTest {
     @TempDir Path temp;
-    static void await(CountDownLatch boundary,Future<?> reader,Process child,Path stderr)throws Exception {
+    static void await(CountDownLatch boundary,Future<?> reader,Process child,Path stderr,long seconds)throws Exception {
         long start=System.nanoTime();
         while(!boundary.await(100,TimeUnit.MILLISECONDS)) {
             if(reader.isDone()){reader.get();fail("child ended before declared cut, exit="+(child.isAlive()?"live":child.exitValue())+"; "+stderr+"\n"+Files.readString(stderr));}
-            assertTrue(System.nanoTime()-start<TimeUnit.SECONDS.toNanos(210),"native carried child cut timeout");
+            assertTrue(System.nanoTime()-start<TimeUnit.SECONDS.toNanos(seconds),"native carried child cut timeout");
         }
     }
-    void run(String point,String mode)throws Exception {
-        Path raw=Files.createDirectories(Path.of("target/v53-native-carried-process/run-"+UUID.randomUUID()));
+    void run(String point,String mode)throws Exception {run(point,mode,"DATA");}
+    void run(String point,String mode,String kind)throws Exception {
+        assertTrue(Set.of("DATA","INTENT","FINAL").contains(kind));
+        boolean data=kind.equals("DATA");int size=data?3:4,index=data?1:kind.equals("INTENT")?5:6;
+
+        Path raw=Files.createDirectories(Path.of("target/"+(data?"v53-native-carried-process":"v53-native-carried-transition-process")+"/run-"+UUID.randomUUID()));
         System.out.println("v53NativeCarriedProcessEvidence="+raw.toAbsolutePath());
-        var f=new V53BootstrapPublicationTest.Fixture(raw,V53OwnedCrossViewTest.networkRequest(Files.createDirectory(temp.resolve("group")),3,false));
+        var f=new V53BootstrapPublicationTest.Fixture(raw,V53OwnedCrossViewTest.networkRequest(Files.createDirectory(temp.resolve("group")),size,false));
         f.ownedHistory=true;f.nativeApplication=true;
         for(var target:f.request.targets())try(var journal=f.open(target,"initialize-retention")){journal.initializePeerRetention();journal.initializeFutureRetention();}
-        V53CarriedSlotDriverTest.prepare(f,"APPLIED",true);f.snapshot("before-network");
-        byte[] original=Files.readAllBytes(raw.resolve("entry-1.gsr")),payload=Files.readAllBytes(raw.resolve("payload-1.bin"));
+        if(data)V53CarriedSlotDriverTest.prepare(f,"APPLIED",true);
+        else V53TransitionRoundDriverTest.prepare(f,"CARRIED_"+kind,size);
+        f.snapshot("before-network");
+        byte[] original=Files.readAllBytes(raw.resolve("entry-"+index+".gsr")),payload=Files.readAllBytes(raw.resolve("payload-"+index+".bin"));
         Path process=Files.createDirectory(raw.resolve("process"));var paths=new ArrayList<Map<String,Object>>();
         for(var t:f.request.targets())paths.add(Map.of("replica",t.replicaDirectory().toString(),"application",t.materialization().directory().toString(),
                 "scratch",Files.createDirectory(temp.resolve(t.identity().nodeId().value()+"-scratch")).toString()));
-        Path spec=process.resolve("spec.json");Files.write(spec,canonical(Map.of("nodes",paths),65536));
+        Path spec=process.resolve("spec.json");Files.write(spec,canonical(data?Map.of("nodes",paths):Map.of("nodes",paths,"kind",kind),65536));
         var events=new ArrayList<Map<String,Object>>();var wire=new ArrayList<Map<String,Object>>();
         var records=new ArrayList<Map<String,Object>>();var children=new ArrayList<Process>();boolean passed=false;
         try(var readers=Executors.newCachedThreadPool()) {
@@ -76,7 +82,7 @@ class V53NativeCarriedProcessTest {
                             }
                         }return null;
                     });
-                    await(stopped,reader,child,stderr);if(life==1 && mode.equals("kill"))child.destroyForcibly();
+                    await(stopped,reader,child,stderr,data?210:630);if(life==1 && mode.equals("kill"))child.destroyForcibly();
                     assertTrue(child.waitFor(15,TimeUnit.SECONDS),"child terminal timeout");reader.get(10,TimeUnit.SECONDS);
                     record.put("exit",child.exitValue());assertEquals(life==2?0:mode.equals("halt")?73:137,child.exitValue(),Files.readString(stderr));
                     if(life==1) {
@@ -87,14 +93,20 @@ class V53NativeCarriedProcessTest {
                     System.out.println("v53NativeCarriedProcessStage="+life+"-closed");
                 }
                 f.snapshot("after-close");
-                assertArrayEquals(original,Files.readAllBytes(raw.resolve("entry-1.gsr")));assertArrayEquals(payload,Files.readAllBytes(raw.resolve("payload-1.bin")));
+                assertArrayEquals(original,Files.readAllBytes(raw.resolve("entry-"+index+".gsr")));assertArrayEquals(payload,Files.readAllBytes(raw.resolve("payload-"+index+".bin")));
                 var target=f.request.targets().getFirst();var before=V53ReplayFilesTest.files(target.replicaDirectory());
                 try(var owner=f.open(target,"inspect-final")) {
                     var copy=owner.floorCopyCurrent();var context=copy.capsule.context;
-                    assertEquals(2L,context.cut.get("index"));assertEquals(1L,context.catalog.get("applicationSequence"));assertEquals(1L,context.catalog.get("lastDataIndex"));
+                    assertEquals(data?2L:7L,context.cut.get("index"));assertEquals(data?1L:0L,context.catalog.get("applicationSequence"));
+                    if(data)assertEquals(1L,context.catalog.get("lastDataIndex"));
+                    else {
+                        assertNull(context.catalog.get("active"));assertNull(context.view.get("operation"));
+                        assertEquals(List.of("node-1","node-2","node-3"),list(context.view.get("new")));
+                        assertEquals("COMPLETED",object(list(context.catalog.get("results")).getLast()).get("phase"));
+                    }
                     var image=MembershipApplicationImage.read(builder().configuration(),target.materialization(),
                             copy.fileBytes(copy.capsule.terminal().application()+".image"),temp.resolve("inspect-image"));
-                    assertEquals(List.of(new Doc(303,"admitted-original")),image.documents());
+                    assertEquals(data?List.of(new Doc(303,"admitted-original")):List.of(),image.documents());
                 }
                 assertEquals(before,V53ReplayFilesTest.files(target.replicaDirectory()));passed=true;
             } finally {
@@ -102,7 +114,7 @@ class V53NativeCarriedProcessTest {
                 Files.write(raw.resolve("events.json"),V53EvidenceArray.encode(events,16*1024*1024));Files.write(raw.resolve("wire.json"),V53EvidenceArray.encode(wire,32*1024*1024));
                 V53NativeApplicationTest.save(f);
                 Files.write(process.resolve("result.json"),canonical(Map.of("status",passed?"PARTIAL":"FAIL","producerPassed",passed,"phase3Complete",false,
-                        "mode",mode,"cut",point,"oldPhase","APPLIED","carriedKind","DATA","children",records,"clientCalls",0,"powerLoss",false),65536));
+                        "mode",mode,"cut",point,"oldPhase",data?"APPLIED":"ACCEPTED","carriedKind",kind,"children",records,"clientCalls",0,"powerLoss",false),65536));
             }
         }
     }

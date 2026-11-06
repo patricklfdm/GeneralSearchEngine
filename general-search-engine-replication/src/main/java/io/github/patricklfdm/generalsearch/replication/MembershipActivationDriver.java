@@ -109,7 +109,7 @@ final class MembershipActivationDriver implements AutoCloseable {
         synchronized(lifecycle){require(!used && !closed,"activation driver single use/closed");used=true;runner=Thread.currentThread();started=originalStarted;}
         String deferred=null;PeerUnavailable lastUnavailable=null;
         try {
-            if(nativeHistory && owner.preGrantMaintenanceRequired()) {
+            if(nativeHistory && owner.campaignMaintenanceRequired()) {
                 maintainPublished(()->{});
             }
             while(campaigns<maximumCampaigns) {

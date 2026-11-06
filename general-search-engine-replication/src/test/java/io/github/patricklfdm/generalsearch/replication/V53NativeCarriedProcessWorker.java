@@ -18,7 +18,11 @@ public final class V53NativeCarriedProcessWorker {
             throw new IllegalArgumentException("native carried process case");
         var input=object(parse(Files.readAllBytes(spec),65536));
         var paths=list(input.get("nodes")).stream().map(MembershipFormat::object).toList();
-        if(paths.size()!=3)throw new IllegalArgumentException("native carried process fixed topology");
+        String kind=(String)input.getOrDefault("kind","DATA");boolean data=kind.equals("DATA");
+        if(!Set.of("DATA","INTENT","FINAL").contains(kind) || paths.size()!=(data?3:4) ||
+                !data && point.equals("NATIVE_RETIREMENT_CERTIFICATE_RETAINED"))
+            throw new IllegalArgumentException("native carried process fixed topology/kind");
+        int carriedIndex=data?1:kind.equals("INTENT")?5:6;long seconds=data?180:600;
         var identities=new ArrayList<MembershipIdentity>();
         for(var path:paths)identities.add(MembershipContext.identity(object(decode(Files.readAllBytes(
                 Path.of((String)path.get("replica")).resolve("node.gsr")),"records","NODE").value().get("identity"))));
@@ -27,11 +31,15 @@ public final class V53NativeCarriedProcessWorker {
                 UUID.fromString((String)root.value().get("historyId")),root.rootDigest());
         var sink=new V53NodeProcessWorker.Pipe();var owners=new ArrayList<MembershipNodeOwner<Integer,Doc>>();
         var activeSlot=new AtomicLong();var installations=new AtomicLong();var cut=new AtomicBoolean();
-        var bounds=ReplicationBounds.defaults();long started=System.nanoTime();
+        var defaults=ReplicationBounds.defaults();
+        var bounds=data?defaults:new ReplicationBounds(defaults.maxFrameBytes(),defaults.maxEntriesPerAppend(),defaults.maxInFlightPerPeer(),
+                defaults.maxPendingClientOperations(),defaults.maxRetryAttempts(),30_000,defaults.retryBackoffMillis(),
+                defaults.snapshotChunkBytes(),defaults.maxRetainedLogBytes(),defaults.maxSnapshotStagingBytes());
+        long started=System.nanoTime();
         sink.accept("started",Map.of("pid",ProcessHandle.current().pid(),"life",life,"mode",mode,"cut",point));
         Throwable primary=null;
         try {
-            for(int index=0;index<3;index++) {
+            for(int index=0;index<paths.size();index++) {
                 var identity=identities.get(index);String name=identity.nodeId().value();var path=paths.get(index);
                 Path replica=Path.of((String)path.get("replica")),application=Path.of((String)path.get("application"));
                 var config=new MembershipReplicaConfig<>(history,identity,identities.stream().filter(v->!v.equals(identity)).toList(),
@@ -42,7 +50,7 @@ public final class V53NativeCarriedProcessWorker {
                 });
                 var hooks=new MembershipNodeOwner.Hooks(event->{
                     original.storage().at(event);
-                    if(life==1 && name.equals("node-1") && activeSlot.get()==1 && event.equals(point) && cut.compareAndSet(false,true))
+                    if(life==1 && name.equals("node-1") && activeSlot.get()==carriedIndex && event.equals(point) && cut.compareAndSet(false,true))
                         V53NodeProcessWorker.crash(sink,point,mode);
                 },original.network(),(event,record)->{
                     if(name.equals("node-1") && event.equals("SLOT_BEGIN"))activeSlot.set(number(record.value().get("index")));
@@ -52,7 +60,7 @@ public final class V53NativeCarriedProcessWorker {
                 },original.slot());
                 Path scratch=Path.of((String)path.get("scratch"));
                 var owner=new MembershipNodeOwner<>(config,builder().configuration(),scratch.resolve("incoming"),scratch.resolve("outgoing"),
-                        System::nanoTime,V53NodeOwnerNetworkTest.BUDGET,hooks);
+                        System::nanoTime,TimeUnit.SECONDS.toNanos(seconds),hooks);
                 owners.add(owner);owner.open();
                 if(owner.serviceState().orElseThrow()!=MembershipAutomaticOwner.State.NEW)throw new AssertionError("restored READY");
                 try{owner.readiness();throw new AssertionError("readiness before fresh barrier");}catch(IllegalArgumentException expected){}
@@ -60,7 +68,7 @@ public final class V53NativeCarriedProcessWorker {
                 sink.accept("event",Map.of("node",name,"incarnation",life,"event","NODE_OPEN","counts",counts));
             }
             sink.accept("opened",life);
-            var ready=owners.getFirst().start().await(180,TimeUnit.SECONDS);
+            var ready=owners.getFirst().start().await(seconds,TimeUnit.SECONDS);
             if(life==1)throw new AssertionError("declared carried boundary not reached");
             sink.accept("snapshot","life-2-ready");
             sink.accept("ready",Base64.getEncoder().encodeToString(ready.bytes()));

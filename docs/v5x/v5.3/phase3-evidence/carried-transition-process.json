@@ -1,0 +1,271 @@
+{
+  "base": "3cec8987d11ade576c816b155fbcd24f10fffc96",
+  "baselineLog": {
+    "path": "target/v53-carried-transition-process/java-native.log",
+    "sha256": "3df8c7d97aa9bf09cd9a33ed2514290332576564dd4e2eb6cde1f0129f58e023"
+  },
+  "baselineRuntimeSource": {
+    "path": "target/v53-carried-transition-process/baseline-runtime-source.json",
+    "sha256": "e88b2d58465f22d9c37d69bfa025973621d95fcf2e5ec121fc4761d4eb37152a"
+  },
+  "declaredProcessCases": 8,
+  "diagnosticOnlyProbe": {
+    "path": "target/v53-carried-transition-process/probe-fixed-4.log",
+    "sha256": "0bd49b3a3e6c9f3b24c833f4cff94ede9b3f22bc728b29dae817be6649394831"
+  },
+  "environmentFailure": {
+    "path": "target/v53-carried-transition-process/java-first.log",
+    "sha256": "baedf14de748e563c7d1850621be030583c5a892fb11083be8b5f400cada9537"
+  },
+  "executedCorrectedProcessCases": 2,
+  "failurePrefixReplay": {
+    "path": "target/v53-carried-transition-process/failed-original-prefixes-fixed.json",
+    "sha256": "642daac68b737a77bb6a950805ca3c2a9138c42fbb04c282c013bf65714f18c1"
+  },
+  "hostedExecuted": false,
+  "limitations": [
+    "The process reader derives the admitted prefix and binds original process/round observations; full interrupted storage and TCP/export reduction remain open.",
+    "Only the two listed whole-group cases ran on the corrected runtime. Six other ACCEPT/PROOF histories are declared but unexecuted.",
+    "Application-ACK crash recovery is a separate missing axis. This campaign permit refuses staged application work.",
+    "No source-bound hosted cohort admission, complete combined resource qualification, physical power-loss evidence or Phase 3 closure is claimed.",
+    "Original failed executions remain failures. Diagnostic replay of copied original files is not a new native history."
+  ],
+  "originals": [
+    {
+      "cohortAdmitted": false,
+      "completePhysicalReplay": false,
+      "component": "PARTIAL",
+      "cut": "PROOF_RENAMED",
+      "fullWireReplay": false,
+      "inventory": {
+        "path": "target/v53-carried-transition-process/inventories/run-2c0544f6-6c32-474e-a0ed-394c348ae6ef-complete.json",
+        "sha256": "a14e2872e9b62e092de9a02734648800ff7b6ad6a00c9ed5b5933ae1224a8eaf"
+      },
+      "kind": "FINAL",
+      "mode": "kill",
+      "negativeCases": 14,
+      "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-2c0544f6-6c32-474e-a0ed-394c348ae6ef",
+      "portable": {
+        "path": "target/v53-carried-transition-process/final-proof-kill-portable.json",
+        "sha256": "d6d8db7beb78922b90bfa00b4c6b551d03b8ee987669ac9b495e66e2599cf2cc"
+      },
+      "producer": "PASS",
+      "replay": {
+        "path": "target/v53-carried-transition-process/final-proof-kill-replay-fixed.json",
+        "sha256": "edca68475ce955d68028409e17077ce310651c89dc064d8870a5d629614e726e"
+      },
+      "successorElapsedSeconds": 226.838666314,
+      "successorSourceRetirements": {
+        "node-1": 3,
+        "node-2": 3,
+        "node-3": 1
+      }
+    },
+    {
+      "cohortAdmitted": false,
+      "completePhysicalReplay": false,
+      "component": "PARTIAL",
+      "cut": "ACCEPT_RENAMED",
+      "fullWireReplay": false,
+      "inventory": {
+        "path": "target/v53-carried-transition-process/inventories/run-8375ac2d-af1b-41df-b46d-900f6e2e5060-complete.json",
+        "sha256": "2d123456292889812ed26738cdb13cc344f2da73feede372467c36b419b30838"
+      },
+      "kind": "INTENT",
+      "mode": "halt",
+      "negativeCases": 14,
+      "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-8375ac2d-af1b-41df-b46d-900f6e2e5060",
+      "portable": {
+        "path": "target/v53-carried-transition-process/intent-accept-halt-portable.json",
+        "sha256": "80b026e3944959a11bf2df52876f001888e9565829dbca547328d452379eed93"
+      },
+      "producer": "PASS",
+      "replay": {
+        "path": "target/v53-carried-transition-process/intent-accept-halt-replay-fixed.json",
+        "sha256": "e3b416ed19fb7d16b3eb7295f440acb462da0318c2c9d0e36143a71bd30143ae"
+      },
+      "successorElapsedSeconds": 308.763310802,
+      "successorSourceRetirements": {
+        "node-1": 4,
+        "node-2": 4,
+        "node-3": 3
+      }
+    }
+  ],
+  "paidCloud": false,
+  "phase3Complete": false,
+  "pushed": false,
+  "readerDevelopmentFailures": [
+    {
+      "path": "target/v53-carried-transition-process/reader-development-failure.json",
+      "sha256": "33f2da1e98dc71116434f72425d663a3f40c04d5ddf84febe94bcfd3530619ca"
+    },
+    {
+      "path": "target/v53-carried-transition-process/final-proof-kill-replay.stderr",
+      "sha256": "af0e4611658171a15c6ffddff80fbbef638f4d36ed5c1348a7ece9a8a3413d2d"
+    }
+  ],
+  "retainedFailedOriginals": [
+    {
+      "cut": "PROOF_RENAMED",
+      "inventory": {
+        "path": "target/v53-carried-transition-process/inventories/run-f32e295f-2f3f-40b8-9706-baaa02a6cf00.json",
+        "sha256": "02f32694eecdb64be7955df8a581296161bf946fdfb8d46966cae499f8c3f3e5"
+      },
+      "kind": "FINAL",
+      "mode": "kill",
+      "node1Sources": {
+        "at-cut": 2,
+        "before-network": 1,
+        "before-reopen": 2,
+        "life-2-failed": 5,
+        "life-2-opened": 2
+      },
+      "original": "general-search-engine-replication/target/v53-native-carried-transition-process/run-f32e295f-2f3f-40b8-9706-baaa02a6cf00",
+      "status": "FAIL"
+    },
+    {
+      "cut": "ACCEPT_RENAMED",
+      "inventory": {
+        "path": "target/v53-carried-transition-process/inventories/run-1a8a0f18-7f95-4595-b132-8ae13ee5aebe.json",
+        "sha256": "5756c59e4154554fcd7348f405d8143ddbb1f934d364e5998d7908f200112205"
+      },
+      "kind": "INTENT",
+      "mode": "halt",
+      "node1Sources": {
+        "at-cut": 2,
+        "before-network": 1,
+        "before-reopen": 2,
+        "life-2-failed": 5,
+        "life-2-opened": 2
+      },
+      "original": "general-search-engine-replication/target/v53-native-carried-transition-process/run-1a8a0f18-7f95-4595-b132-8ae13ee5aebe",
+      "status": "FAIL"
+    }
+  ],
+  "schema": "gse-v53-carried-transition-process-development-v1",
+  "sourceFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationDriver.java": "19c45d0136e11d66613ba1e537d22865077c676c3b07b4f811394980424f26aa",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java": "cd44c27106076c49eb0451a48d70dec8729cdc3c6492318272fcde28b19d387e",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java": "03c3107ca0474a40bba30ff54761aa1bab14678f44068490ff07666692147b24",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "a199762e5cecf077aab0f1111cd6240a4149eb07c44f8afb0d435142471ec34d",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessTest.java": "168df419da5604299bf3ed75cd12136f9f53c65765ca9c68699dc1686b5f01fa",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessWorker.java": "4552c35f689d82087cd0fc1421f37facbfd74264e81e5b3adf48de075ded6aae",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedTransitionProcessTest.java": "45ed9414eb443c531e9356c1d182d9c4362f09d527f2d44d75541cbbfc0719a2",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransitionRoundDriverTest.java": "aa16a4767d8eba48a57da51d782146455147c0cc0d79526dbfe6b9da38020132",
+    "scripts/v53/native_carried_process_evidence.py": "8c354b3c0fbeb0d84873cb6292817b665de1a2ee7f1349f21cab718a847c6085",
+    "scripts/v53/native_carried_transition_process.py": "d732ca224d4712f76897559ef4d48722c84ec02b4ccfa909f84e3ee189a9d7c8",
+    "scripts/v53/test_native_carried_transition_process.py": "9d348d3eebfd509097fb6c33f72594ba8495c1b5cb9c494ace5710655e1f1d24"
+  },
+  "status": "PARTIAL",
+  "unchangedCatalogue": {
+    "archives": 486,
+    "executionGroups": 246,
+    "histories": 552,
+    "subsets": 12,
+    "workflowJobs": 516
+  },
+  "unexecutedProcessCases": 6,
+  "validation": {
+    "continuousFinalPhysicalReplay": {
+      "path": "target/v53-carried-transition-process/continuous-final-replay.json",
+      "sha256": "0cc67ab43f3af4b66b0337703d443e64539d1bee06e0e0eb76a7c2d21efcf733"
+    },
+    "contract": {
+      "path": "target/v53-carried-transition-process/contract-final.json",
+      "sha256": "9ee5ae55ed737f62b99ba5438f7abf8770872b7239e72883678c82525346b90e"
+    },
+    "coverage": {
+      "path": "target/v53-carried-transition-process/coverage-final.log",
+      "sha256": "dd6437fa328b9310609b82e283e57ec1589258ae79c993e2819ebdbd7cd88f5f"
+    },
+    "dataProcessAndNetworkReplay": {
+      "path": "target/v53-carried-transition-process/data-control-network-replay.json",
+      "sha256": "f7fa650ddcaa88dd434c7d772f097b705977923c116d505e437d9b2c8abd20dd"
+    },
+    "java": {
+      "log": {
+        "path": "target/v53-carried-transition-process/java-fixed.log",
+        "sha256": "08e335cad2fc926b254bcf4a0774ce0b4f123f0d1680150a569b2dfcdfebe269"
+      },
+      "reports": [
+        {
+          "elapsedSeconds": 296.238,
+          "methods": [
+            "carriedFinalFinishesBeforeFreshStableBarrier"
+          ],
+          "path": "target/v53-carried-transition-process/surefire/TEST-io.github.patricklfdm.generalsearch.replication.V53CarriedTransitionDriverTest.xml",
+          "sha256": "4e3727a15848789832a56ec6cdbc6142209e20598126e202d3f1feee0b3c9307",
+          "tests": 1
+        },
+        {
+          "elapsedSeconds": 1131.266,
+          "methods": [
+            "haltIntentAcceptRename",
+            "killFinalProofRename"
+          ],
+          "path": "target/v53-carried-transition-process/surefire/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeCarriedTransitionProcessTest.xml",
+          "sha256": "acc910c0e732e1692436d08bba7f15c891c6dbb2b9db5da859a3be504b95479d",
+          "tests": 2
+        },
+        {
+          "elapsedSeconds": 132.408,
+          "methods": [
+            "haltAfterCarriedAcceptRename"
+          ],
+          "path": "target/v53-carried-transition-process/surefire/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeCarriedProcessTest.xml",
+          "sha256": "6dcaef7c6c81e56c0b539f89e27d8e8a59c2c7f1484526d7102b98c4297be443",
+          "tests": 1
+        },
+        {
+          "elapsedSeconds": 19.31,
+          "methods": [
+            "originalCarriedRecoveryTransfersOnlyAcceptanceAndIsIdempotent"
+          ],
+          "path": "target/v53-carried-transition-process/surefire/TEST-io.github.patricklfdm.generalsearch.replication.V53CarriedSlotDriverTest.xml",
+          "sha256": "39d3115d01af2ebc7f2b020c7c5dc5ca5cf1329469f689c232e7cdbee7c9ca6b",
+          "tests": 1
+        },
+        {
+          "elapsedSeconds": 17.501,
+          "methods": [
+            "preGrantMaintenanceCannotBorrowPendingVoteAuthority",
+            "preGrantMaintenanceRetainsTheOriginalObservedFence"
+          ],
+          "path": "target/v53-carried-transition-process/surefire/TEST-io.github.patricklfdm.generalsearch.replication.V53ContinuousTransitionTest.xml",
+          "sha256": "cffe36c80035439068c2e571262024b58aaa04cb04b12013b78fe4095939dc67",
+          "tests": 2
+        }
+      ],
+      "tests": 7
+    },
+    "optimizedPython": {
+      "log": {
+        "path": "target/v53-carried-transition-process/python-optimized-reader.log",
+        "sha256": "c5d26ff48b2255e3a5f805752b3a795093000ff28ce7bd586c4d869e928f4891"
+      },
+      "tests": 22
+    },
+    "python": {
+      "log": {
+        "path": "target/v53-carried-transition-process/python-final-reader.log",
+        "sha256": "d44d97c0536e89b2550adae24288b2946de01c3a064f043b923f2c66be26f1b1"
+      },
+      "tests": 114
+    },
+    "tools": [
+      {
+        "path": "target/v53-carried-transition-process/java-version.txt",
+        "sha256": "f2cd23c52a518f94e2950b9bed898639933c0b2ee04c5d14deb6906176a84af8"
+      },
+      {
+        "path": "target/v53-carried-transition-process/maven-version.txt",
+        "sha256": "76491158c17a80a30a3e9a573bf6d349cb0568dc8ddcb348f7c4d5e34b1b87cd"
+      },
+      {
+        "path": "target/v53-carried-transition-process/python-version.txt",
+        "sha256": "b1d173e941dbfa8bbabe0c832c75d9449f31942f882d76510e027fa02de2cae0"
+      }
+    ]
+  }
+}

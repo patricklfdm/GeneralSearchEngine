@@ -2660,30 +2660,36 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     /** Ordinary published maintenance cannot borrow a pending vote's authority. */
     synchronized boolean publishedMaintenanceRequired()throws IOException {
-        return preGrantMaintenanceRequired(false);
+        return preGrantMaintenanceRequired(false,false);
     }
     /** Before a fresh grant, the exact transferred carried vote can also retain
      * the old unresolved entry while governing copies retire its generation. */
     synchronized boolean preGrantMaintenanceRequired()throws IOException {
-        return preGrantMaintenanceRequired(true);
+        return preGrantMaintenanceRequired(true,false);
     }
-    private boolean preGrantMaintenanceRequired(boolean carried)throws IOException {
+    /** Only an actual fresh campaign may reclaim obsolete context-command
+     * sources. Ordinary in-flight voting keeps its existing retention lifetime. */
+    synchronized boolean campaignMaintenanceRequired()throws IOException {
+        return preGrantMaintenanceRequired(true,true);
+    }
+    private boolean preGrantMaintenanceRequired(boolean carried,boolean contextCarried)throws IOException {
         boolean generations=nativeGenerationMaintenanceRequired();
-        if(!generations && !sameCutSourceMaintenanceRequired())return false;
-        return (pendingAccept==null || !pendingAccept.pending() && (pendingAccept.active()==null || carried && transferredCarriedVote()))
+        boolean transferred=carried && transferredCarriedVote(contextCarried);
+        if(!generations && !sameCutSourceMaintenanceRequired(transferred))return false;
+        return (pendingAccept==null || !pendingAccept.pending() && (pendingAccept.active()==null || transferred))
                 && (pendingContext==null || !pendingContext.pending() && pendingContext.active().isEmpty())
                 && (appliedEnd==null || !appliedEnd.present() && !replayFiles.present());
     }
-    private boolean transferredCarriedVote() {
+    private boolean transferredCarriedVote(boolean contextCarried) {
         var vote=pendingAccept==null?null:pendingAccept.active();
         // A later forced grant may already exist after an interrupted startup.
         // It fences new voting, but does not erase this installed vote's exact
         // retirement succession. The permit separately pins the latest grant.
         return vote!=null && !pendingAccept.pending()
-                // Context-changing commands retain their existing context and
-                // published-maintenance lifetimes. This permission is only for
-                // ordinary carried application/no-op recovery.
-                && Set.of("DATA","BARRIER").contains(vote.entry().value().get("kind"))
+                // Context permission is restricted to a fresh campaign, before
+                // any new grant, with no pending context or application work.
+                && (Set.of("DATA","BARRIER").contains(vote.entry().value().get("kind"))
+                    || contextCarried && Set.of("INTENT","FINAL").contains(vote.entry().value().get("kind")))
                 && vote.selected().digest().equals(current.manifest.value().get("selection"))
                 && vote.promise().digest().equals(current.manifest.value().get("promise"))
                 && vote.selected().value().get("cut").equals(current.capsule.context.cut)
@@ -2693,11 +2699,11 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** A fresh grant can supersede an intermediate same-cut source before it
      * installs another generation. This is only a scheduling hint: deletion
      * still requires original governing copies and the normal retirement plan. */
-    private boolean sameCutSourceMaintenanceRequired() {
+    private boolean sameCutSourceMaintenanceRequired(boolean transferred) {
         if(promise==null)return false;
         for(String id:sources.retainedIdentities()) {
             var prior=promises.get(id);var frozen=bases.get(id);
-            if(prior==null || frozen==null || frozen.value().get("accepted")!=null
+            if(prior==null || frozen==null || frozen.value().get("accepted")!=null && !transferred
                     || !current.capsule.context.cut.equals(frozen.value().get("cut")))continue;
             if(!prior.digest().equals(current.manifest.value().get("promise"))
                     && !frozen.digest().equals(current.manifest.value().get("basis"))
@@ -2706,23 +2712,26 @@ final class MembershipGrantJournal implements AutoCloseable {
         return false;
     }
     final class PublishedMaintenance {
+        private final boolean contextCarried;
+        private PublishedMaintenance(boolean contextCarried){this.contextCarried=contextCarried;}
         private final MembershipGrantJournal owningJournal=MembershipGrantJournal.this;
         private final MembershipCurrentGeneration generation=current;
         private final String originalPromise=promise==null?null:promise.digest(),originalSelection=selection==null?null:selection.digest();
         private final String originalVote=pendingAccept==null || pendingAccept.active()==null?null:hash(pendingAccept.active().bytes());
         final MembershipContext context=current.capsule.context;
         final Map<String,Object> ballot=Map.copyOf(observed.get());
-        private PublishedMaintenance() { }
         void check()throws IOException {
             synchronized(MembershipGrantJournal.this) {
                 checkOwner();applicationReferencesIdle();contextTransactionIdle();
+                if(contextCarried)require(pendingContext==null || pendingContext.active().isEmpty(),
+                        "campaign maintenance cannot replace pending context");
                 require(current==generation && Objects.equals(originalPromise,promise==null?null:promise.digest())
                         && Objects.equals(originalSelection,selection==null?null:selection.digest()),
                         "published maintenance authority changed");
                 if(originalVote==null)require(pendingAccept==null || !pendingAccept.pending() && pendingAccept.active()==null,
                         "published maintenance cannot retire pending vote");
                 else {
-                    require(transferredCarriedVote() && originalVote.equals(hash(pendingAccept.active().bytes())),
+                    require(transferredCarriedVote(contextCarried) && originalVote.equals(hash(pendingAccept.active().bytes())),
                             "carried maintenance vote changed");
                     verifyVote(pendingAccept.active());
                 }
@@ -2735,11 +2744,17 @@ final class MembershipGrantJournal implements AutoCloseable {
         return preGrantMaintenance(budget);
     }
     synchronized PublishedMaintenance preGrantMaintenance(MembershipResources budget)throws IOException {
-        require(resources==budget && preGrantMaintenanceRequired(),"pre-grant maintenance requires owned generation and exact vote");
+        return preGrantMaintenance(budget,false);
+    }
+    synchronized PublishedMaintenance campaignMaintenance(MembershipResources budget)throws IOException {
+        return preGrantMaintenance(budget,true);
+    }
+    private PublishedMaintenance preGrantMaintenance(MembershipResources budget,boolean contextCarried)throws IOException {
+        require(resources==budget && preGrantMaintenanceRequired(true,contextCarried),"pre-grant maintenance requires owned generation and exact vote");
         // Read-only maintenance may acquire the missing joining copy before a
         // new grant. The ledger changes only after that governing floor forces.
         rotationIdle();applicationReferencesIdle();
-        var permit=new PublishedMaintenance();permit.check();return permit;
+        var permit=new PublishedMaintenance(contextCarried);permit.check();return permit;
     }
     /** Candidates are only older durable promises that neither the current
      * generation nor its governing floor references. The existing retirement
@@ -3244,7 +3259,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             maintenance.run(deferred);
             synchronized(this) {
                 entry.check();deferred.check();floorIdle();
-                require(!inactive.exists() && !floors.exists() && !sameCutSourceMaintenanceRequired(),
+                require(!inactive.exists() && !floors.exists() && !sameCutSourceMaintenanceRequired(false),
                         "deferred grant source maintenance incomplete");
                 return prepareBound(voteCapsule(),incoming,voteAccepted(),current.images(),deferred);
             }

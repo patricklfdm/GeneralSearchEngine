@@ -25,7 +25,9 @@ class V53TransitionRoundDriverTest {
         var helper=new V53NativeDispatchTest();helper.temp=temp;var b=ReplicationBounds.defaults();
         var bounds=new ReplicationBounds(b.maxFrameBytes(),b.maxEntriesPerAppend(),b.maxInFlightPerPeer(),b.maxPendingClientOperations(),
                 b.maxRetryAttempts(),30_000,b.retryBackoffMillis(),b.snapshotChunkBytes(),b.maxRetainedLogBytes(),b.maxSnapshotStagingBytes());
-        return helper.new Network(size,bounds,TimeUnit.MINUTES.toNanos(10),f->{
+        return helper.new Network(size,bounds,TimeUnit.MINUTES.toNanos(10),f->prepare(f,phase,size));
+    }
+    static void prepare(V53BootstrapPublicationTest.Fixture f,String phase,int size)throws Exception {
             var walk=new V53AdmittedCrossViewTest.Walk(f);
             var request=Map.of("root",f.result.root().manifestDigest(),"expected",walk.current().authority(),"number",1L,"kind","REMOVE",
                     "target",f.request.targets().subList(0,size-1).stream().map(t->MembershipBootstrapSeed.identity(t.identity())).toList());
@@ -46,8 +48,8 @@ class V53TransitionRoundDriverTest {
                 finally {f.observer=(target,operation,event)->{};}
                 f.observations.clear();
             }
-        });
     }
+
     MembershipRoundDriver<?,?> driver(V53NativeDispatchTest.Network n,AtomicInteger ordinal,
             MembershipRoundDriver.Events callback)throws Exception {
         return driver(n,ordinal,callback,0);

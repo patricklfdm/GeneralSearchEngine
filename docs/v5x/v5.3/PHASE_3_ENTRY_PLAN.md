@@ -1,5 +1,13 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Carried transition process cases](PHASE_3_CARRIED_TRANSITION_PROCESS.md) now
+exercise whole-group death during original INTENT/FINAL recovery and restart on
+unchanged directories. The new reader checks the admitted prefix and original
+process observations; complete interrupted storage/network replay and hosted
+admission remain OPEN. The twelve-subset catalogue is unchanged.
+Two retained originals exposed source accumulation after restart; the campaign-only
+correction now passes both focused process cases. These remain component checks.
+
 [Workflow execution observations](PHASE_3_WORKFLOW_COHORT.md) now bind the
 complete twelve-subset index to 516 expected jobs, actual source workflow steps
 and every prior attempt. A new entry observes those stages around original-first

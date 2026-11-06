@@ -258,7 +258,11 @@
       ],
       "implementation": [
         "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJointContinuation.java",
-        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRoundDriver.java"
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRoundDriver.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationDriver.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java"
       ],
       "tests": [
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransitionRoundDriverTest.java",
@@ -292,7 +296,9 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerEndpointConnectionTest.java",
         "scripts/v53/test_required_four_exports.py",
         "scripts/v53/test_required_four_maintenance.py",
-        "scripts/v53/test_required_four_ledgers.py"
+        "scripts/v53/test_required_four_ledgers.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedTransitionProcessTest.java",
+        "scripts/v53/test_native_carried_transition_process.py"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -315,7 +321,8 @@
         "scripts/v53/required_four_network.py",
         "scripts/v53/required_four_exports.py",
         "scripts/v53/required_four_maintenance.py",
-        "scripts/v53/required_four_ledgers.py"
+        "scripts/v53/required_four_ledgers.py",
+        "scripts/v53/native_carried_transition_process.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_JOINT_COORDINATION.md",
@@ -346,7 +353,9 @@
         "docs/v5x/v5.3/PHASE_3_REQUIRED_FOUR_MAINTENANCE.md",
         "docs/v5x/v5.3/phase3-evidence/required-four-maintenance.json",
         "docs/v5x/v5.3/PHASE_3_REQUIRED_FOUR_LEDGERS.md",
-        "docs/v5x/v5.3/phase3-evidence/required-four-ledgers.json"
+        "docs/v5x/v5.3/phase3-evidence/required-four-ledgers.json",
+        "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_PROCESS.md",
+        "docs/v5x/v5.3/phase3-evidence/carried-transition-process.json"
       ],
       "cohorts": [
         "profiles",
@@ -1173,7 +1182,7 @@
       "id": "component-cohorts",
       "status": "OPEN",
       "dependsOn": [],
-      "work": "The focused 3-ADD learner pair and complete TCP lifetime/process matrices have source-bound capture, admission and hosted entries. Seven native carried/stable round histories now have source-bound local admission and an independent seven-job hosted entry. Four carried DATA phases now have a source-bound local entry with immutable payload, derived application state and next-BARRIER qualification; its four-member hosted adapter is prepared, with final-source execution pending. Two four-voter REMOVE carried INTENT/FINAL originals now have independent physical/lifecycle replay and 60 exact negatives, including portable optimized replay. Two new request-observed originals now add complete attempted transport, durable activation/slot replies and 153 exact network negatives per kind. Older response-only records are explicitly refused for this scope. The same originals now have temporal export authorization and complete-copy floor lifetime replay (416 transfers, 20 floors, 44 exact negatives). Continuous peer/future revision composition and complete observed retirement callbacks now add 154 exact negatives on those same originals. Two new originals now retain 1176 actual retirement file prefixes with 38 exact negatives and portable replay. The carried transition pair now has source/build/toolchain/reader-bound whole-history capture/admission and a two-job hosted execution/downloaded-replay entry requiring all 602 negative checks. Final-source execution, carried process-death histories and other profiles remain open. Continue other carried payload/process axes, competing owners, transition recovery and uncovered learner profiles. Phase 2 conditional process fixtures cannot substitute for Phase 3 native originals. Final-source execution remains pending; reuse existing producers/readers. Automatic competition, higher-ballot restart and the complete 48-case PROMISE reply-revocation matrix now have a three-group hosted adapter. All 50 original plans must share the seed and source/build/toolchain/reader, with complete downloaded original-first replay and exact shape-dependent negative vectors. Final-source execution and broader lifecycle/export coverage remain pending. The 32 joint-floor process histories now have a v2 local cohort gate and a hosted adapter with one immutable seed, whole native execution and independent downloaded replay. Their 1544 cut-specific negatives are fixed before mutation; complete final-source execution remains pending. The carried DATA v2 subset now includes eight whole-group carried DATA halt/SIGKILL methods in addition to the four original states. Each two-child history remains one execution/archive; all twelve require 587 exact negatives, with final-source execution still pending.",
+      "work": "The focused 3-ADD learner pair and complete TCP lifetime/process matrices have source-bound capture, admission and hosted entries. Seven native carried/stable round histories now have source-bound local admission and an independent seven-job hosted entry. Four carried DATA phases now have a source-bound local entry with immutable payload, derived application state and next-BARRIER qualification; its four-member hosted adapter is prepared, with final-source execution pending. Two four-voter REMOVE carried INTENT/FINAL originals now have independent physical/lifecycle replay and 60 exact negatives, including portable optimized replay. Two new request-observed originals now add complete attempted transport, durable activation/slot replies and 153 exact network negatives per kind. Older response-only records are explicitly refused for this scope. The same originals now have temporal export authorization and complete-copy floor lifetime replay (416 transfers, 20 floors, 44 exact negatives). Continuous peer/future revision composition and complete observed retirement callbacks now add 154 exact negatives on those same originals. Two new originals now retain 1176 actual retirement file prefixes with 38 exact negatives and portable replay. The carried transition pair now has source/build/toolchain/reader-bound whole-history capture/admission and a two-job hosted execution/downloaded-replay entry requiring all 602 negative checks. Final-source execution, carried process-death histories and other profiles remain open. Continue other carried payload/process axes, competing owners, transition recovery and uncovered learner profiles. Phase 2 conditional process fixtures cannot substitute for Phase 3 native originals. Final-source execution remains pending; reuse existing producers/readers. Automatic competition, higher-ballot restart and the complete 48-case PROMISE reply-revocation matrix now have a three-group hosted adapter. All 50 original plans must share the seed and source/build/toolchain/reader, with complete downloaded original-first replay and exact shape-dependent negative vectors. Final-source execution and broader lifecycle/export coverage remain pending. The 32 joint-floor process histories now have a v2 local cohort gate and a hosted adapter with one immutable seed, whole native execution and independent downloaded replay. Their 1544 cut-specific negatives are fixed before mutation; complete final-source execution remains pending. The carried DATA v2 subset now includes eight whole-group carried DATA halt/SIGKILL methods in addition to the four original states. Each two-child history remains one execution/archive; all twelve require 587 exact negatives, with final-source execution still pending. Eight explicit whole-group INTENT/FINAL process cases now reuse actual admitted REMOVE preparation and original directories. Their component reader independently checks the original admitted prefix and process/round observations; complete interrupted storage/network reduction and source-bound hosted admission are still pending. These development cases are not added to the twelve admitted native catalogues. Two development originals reproduced obsolete-source accumulation after INTENT/FINAL restart. The same two whole-group cases now complete on the corrected runtime with campaign-only maintenance under the original governing-floor and exact-vote rules. The original failures remain retained; complete interrupted storage/network qualification and pending application recovery remain open.",
       "acceptance": "Exact source/build/toolchain/reader-bound originals and independent original-first replay. Missing observations, unsupported histories or an original deadline failure remain failures. Whole ownership and revision histories stay indivisible."
     },
     {

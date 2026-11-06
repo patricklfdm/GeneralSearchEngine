@@ -43,12 +43,13 @@ def inventory(root):
          (root/'carried-phase.txt').read_bytes() == b'APPLIED', 'native carried original markers')
 
 
-def children(result):
+def children(result, *, kind='DATA'):
+    need(kind in ('DATA','INTENT','FINAL'), 'native carried exact command kind')
     need(type(result) is dict and set(result) == {'status','producerPassed','phase3Complete','mode','cut',
         'oldPhase','carriedKind','children','clientCalls','powerLoss'} and result['mode'] in ('halt','kill')
         and result['cut'] in CUTS, 'native carried producer scope')
     expected = dict(result, status='PARTIAL', producerPassed=True, phase3Complete=False,
-                    oldPhase='APPLIED', carriedKind='DATA', clientCalls=0, powerLoss=False)
+                    oldPhase='APPLIED' if kind=='DATA' else 'ACCEPTED', carriedKind=kind, clientCalls=0, powerLoss=False)
     exact(result, expected, 'native carried producer scope')
     rows = result['children']
     need(type(rows) is list and len(rows) == 2 and all(type(v) is dict for v in rows), 'native carried child pair')
