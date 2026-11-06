@@ -1,5 +1,11 @@
 # Phase 3 qualification inventory and remaining work
 
+[Carried-process campaign prefixes](PHASE_3_CARRIED_PROCESS_CAMPAIGNS.md) now
+qualify 1080 original allocator, grant, selection and selected-installation file
+inventories across two crash/reopen histories, with 70 exact negative rejections.
+Vote/application/ledger transients, publication installation, scratch, combined
+resource maxima and final-source acceptance remain OPEN.
+
 [Carried-process FLOOR prefixes](PHASE_3_CARRIED_PROCESS_FLOORS.md) now compose
 creation/release file observations with the
 [retirement-prefix](PHASE_3_CARRIED_PROCESS_PREFIXES.md) and

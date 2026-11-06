@@ -446,7 +446,7 @@
           "scope": "A complete declared TCP matrix must be present before any negative is accepted."
         }
       ],
-      "openWork": "The 12-seed, 478-archive, 544-history replay must actually run at final source. Exact-attempt workflow attestation, complete coverage and combined resources are separate requirements."
+      "openWork": "The 12-seed, 486-archive, 552-history replay must actually run at final source. Exact-attempt workflow attestation, complete coverage and combined resources are separate requirements."
     }
   ]
 }

@@ -1,0 +1,494 @@
+{
+  "acceptancePlan": {
+    "path": "docs/v5x/v5.3/acceptance-plan.json",
+    "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+  },
+  "base": "f02214428b6e80c6b01d028057746ac2af4ecad3",
+  "cohortAdmitted": false,
+  "declaredProcessCases": 8,
+  "developmentDiagnostics": {
+    "fixtureEntryCorrection": {
+      "path": "target/v53-carried-process-campaigns/java-focused.log",
+      "sha256": "2975e87841104c4d0046f828f3652f2e7114ba0c8e05ac91644992b9c9b3fed3"
+    },
+    "fixtureMethodCorrection": {
+      "path": "target/v53-carried-process-campaigns/java-focused-v2.log",
+      "sha256": "44a2ff24348140dafdb8c3e652a7cb5794ba70f79aa0b364882b6de01064106e"
+    },
+    "preparationEnumeration": {
+      "path": "target/v53-carried-process-campaigns/preparation-scan.json",
+      "sha256": "e3c04b2aadf1b6f5e6dee9a829bf2dd979fc8f0f93aa572f5b462fb9c7531ba9"
+    }
+  },
+  "executedProcessAxes": 2,
+  "fullTransientBytesQualified": false,
+  "historicalIndexesUnchanged": 379,
+  "hostedExecuted": false,
+  "limitations": [
+    "Only allocator/grant/selection/selected-installation prefixes in two process cases are added.",
+    "Later publication installation, vote/application/ledger transient writes and scratch still need composition.",
+    "First-child capture ends before process death; unobserved tails and normal close are not inferred.",
+    "Six other carried-process cases, application-ACK recovery and final-source cohort admission remain open.",
+    "Writer-held capture adds test I/O and is not a performance measurement."
+  ],
+  "mutatedPrerequisiteReplayed": false,
+  "nativeRetries": 0,
+  "negativePrecondition": "complete original maintenance/resource/process/storage chain; independent unchanged campaign plan",
+  "newNativeExecutions": 2,
+  "originals": [
+    {
+      "bytes": 63556806,
+      "campaigns": {
+        "capturedPrefixes": 457,
+        "cohortAdmitted": false,
+        "coreScratchInventoryReplay": false,
+        "fullTransientBytesQualified": false,
+        "lifetimes": [
+          {
+            "byKind": {
+              "allocator": 7,
+              "grant": 81,
+              "install": 72,
+              "selected": 12
+            },
+            "capturedPrefixes": 172,
+            "life": 1,
+            "pid": 745322,
+            "storedBytes": 1509341,
+            "terminal": "CUT_PREFIX"
+          },
+          {
+            "byKind": {
+              "allocator": 14,
+              "grant": 135,
+              "install": 116,
+              "selected": 20
+            },
+            "capturedPrefixes": 285,
+            "life": 2,
+            "pid": 750269,
+            "storedBytes": 2604846,
+            "terminal": "CLOSED"
+          }
+        ],
+        "phase3Complete": false,
+        "postCutTailObserved": false,
+        "status": "PARTIAL",
+        "transientCampaignBytesQualified": true,
+        "wholeRuntimeResourcesQualified": false
+      },
+      "cut": "PROOF_RENAMED",
+      "files": 8397,
+      "floors": {
+        "capturedPrefixes": 998,
+        "cohortAdmitted": false,
+        "coreScratchInventoryReplay": false,
+        "fullTransientBytesQualified": false,
+        "lifetimes": [
+          {
+            "byKind": {
+              "floor": 66,
+              "floor-release": 36
+            },
+            "capturedPrefixes": 102,
+            "life": 1,
+            "pid": 745322,
+            "storedBytes": 1144209,
+            "terminal": "CUT_PREFIX"
+          },
+          {
+            "byKind": {
+              "floor": 576,
+              "floor-release": 320
+            },
+            "capturedPrefixes": 896,
+            "life": 2,
+            "pid": 750269,
+            "storedBytes": 8107193,
+            "terminal": "CLOSED"
+          }
+        ],
+        "phase3Complete": false,
+        "postCutTailObserved": false,
+        "status": "PARTIAL",
+        "transientFloorBytesQualified": true,
+        "wholeRuntimeResourcesQualified": false
+      },
+      "inventory": {
+        "path": "target/v53-carried-process-campaigns/final-inventory.json",
+        "sha256": "fbc0bd3b6ace709895aa50ff75766dafc36e74a78d3cb75a3cba94f7f8c6a75b"
+      },
+      "kind": "FINAL",
+      "mode": "kill",
+      "negativeCases": 35,
+      "negativeProgress": {
+        "path": "target/v53-carried-process-campaigns/final-qualify.stderr",
+        "sha256": "1c0b1efde5fcb141e9825215a74f9a3290c51115811f64cf91bd56387654d8a2"
+      },
+      "path": "general-search-engine-replication/target/v53-native-carried-campaign-prefixes/run-8bb4d437-ca3f-4a0a-ab4a-c8e0ccf46be4",
+      "portable": {
+        "path": "target/v53-carried-process-campaigns/final-portable.json",
+        "sha256": "bafdc1e4e57b6e5157c3402ef7c990f2a55030ebd05f41db5e408374d809c24b"
+      },
+      "processChildren": [
+        {
+          "allLocksHeldBeforeDeath": true,
+          "allLocksReleasedAfterDeath": true,
+          "exit": 137,
+          "life": 1,
+          "opened": true,
+          "pid": 745322,
+          "started": {
+            "cut": "PROOF_RENAMED",
+            "life": 1,
+            "mode": "kill",
+            "pid": 745322
+          }
+        },
+        {
+          "closed": {
+            "clientCalls": 0,
+            "elapsedNanos": 269047787502,
+            "life": 2
+          },
+          "exit": 0,
+          "life": 2,
+          "opened": true,
+          "pid": 750269,
+          "started": {
+            "cut": "PROOF_RENAMED",
+            "life": 2,
+            "mode": "kill",
+            "pid": 750269
+          }
+        }
+      ],
+      "qualification": {
+        "path": "target/v53-carried-process-campaigns/final-qualify.json",
+        "sha256": "48633f57cf1fbbc02228607f6e64da6865e8a15d5a348e80362a150bd6de8c98"
+      },
+      "retirement": {
+        "capturedPrefixes": 595,
+        "cohortAdmitted": false,
+        "coreScratchInventoryReplay": false,
+        "fullTransientBytesQualified": false,
+        "lifetimes": [
+          {
+            "byKind": {
+              "generation": 47,
+              "source": 0
+            },
+            "capturedPrefixes": 47,
+            "life": 1,
+            "pid": 745322,
+            "storedBytes": 871441,
+            "terminal": "CUT_PREFIX"
+          },
+          {
+            "byKind": {
+              "generation": 443,
+              "source": 105
+            },
+            "capturedPrefixes": 548,
+            "life": 2,
+            "pid": 750269,
+            "storedBytes": 7067780,
+            "terminal": "CLOSED"
+          }
+        ],
+        "phase3Complete": false,
+        "postCutTailObserved": false,
+        "status": "PARTIAL",
+        "transientRetirementBytesQualified": true,
+        "wholeRuntimeResourcesQualified": false
+      }
+    },
+    {
+      "bytes": 74615072,
+      "campaigns": {
+        "capturedPrefixes": 623,
+        "cohortAdmitted": false,
+        "coreScratchInventoryReplay": false,
+        "fullTransientBytesQualified": false,
+        "lifetimes": [
+          {
+            "byKind": {
+              "allocator": 7,
+              "grant": 81,
+              "install": 72,
+              "selected": 12
+            },
+            "capturedPrefixes": 172,
+            "life": 1,
+            "pid": 765423,
+            "storedBytes": 1179669,
+            "terminal": "CUT_PREFIX"
+          },
+          {
+            "byKind": {
+              "allocator": 21,
+              "grant": 216,
+              "install": 182,
+              "selected": 32
+            },
+            "capturedPrefixes": 451,
+            "life": 2,
+            "pid": 769490,
+            "storedBytes": 3603407,
+            "terminal": "CLOSED"
+          }
+        ],
+        "phase3Complete": false,
+        "postCutTailObserved": false,
+        "status": "PARTIAL",
+        "transientCampaignBytesQualified": true,
+        "wholeRuntimeResourcesQualified": false
+      },
+      "cut": "ACCEPT_RENAMED",
+      "files": 8908,
+      "floors": {
+        "capturedPrefixes": 1481,
+        "cohortAdmitted": false,
+        "coreScratchInventoryReplay": false,
+        "fullTransientBytesQualified": false,
+        "lifetimes": [
+          {
+            "byKind": {
+              "floor": 0,
+              "floor-release": 0
+            },
+            "capturedPrefixes": 0,
+            "life": 1,
+            "pid": 765423,
+            "storedBytes": 0,
+            "terminal": "CUT_PREFIX"
+          },
+          {
+            "byKind": {
+              "floor": 954,
+              "floor-release": 527
+            },
+            "capturedPrefixes": 1481,
+            "life": 2,
+            "pid": 769490,
+            "storedBytes": 12751673,
+            "terminal": "CLOSED"
+          }
+        ],
+        "phase3Complete": false,
+        "postCutTailObserved": false,
+        "status": "PARTIAL",
+        "transientFloorBytesQualified": true,
+        "wholeRuntimeResourcesQualified": false
+      },
+      "inventory": {
+        "path": "target/v53-carried-process-campaigns/intent-inventory.json",
+        "sha256": "c9594569ed90313d447513a282df77b05b43926c797c6abc29346a816e74dd1e"
+      },
+      "kind": "INTENT",
+      "mode": "halt",
+      "negativeCases": 35,
+      "negativeProgress": {
+        "path": "target/v53-carried-process-campaigns/intent-qualify.stderr",
+        "sha256": "1c0b1efde5fcb141e9825215a74f9a3290c51115811f64cf91bd56387654d8a2"
+      },
+      "path": "general-search-engine-replication/target/v53-native-carried-campaign-prefixes/run-029f4f5c-9cea-43fc-b0ac-59766d7df27b",
+      "portable": {
+        "path": "target/v53-carried-process-campaigns/intent-portable.json",
+        "sha256": "21792d2aca654e47e3799af552471774bda803dfa9662d0e95103c1e7adad1e2"
+      },
+      "processChildren": [
+        {
+          "allLocksHeldBeforeDeath": true,
+          "allLocksReleasedAfterDeath": true,
+          "exit": 73,
+          "life": 1,
+          "opened": true,
+          "pid": 765423,
+          "started": {
+            "cut": "ACCEPT_RENAMED",
+            "life": 1,
+            "mode": "halt",
+            "pid": 765423
+          }
+        },
+        {
+          "closed": {
+            "clientCalls": 0,
+            "elapsedNanos": 387804662342,
+            "life": 2
+          },
+          "exit": 0,
+          "life": 2,
+          "opened": true,
+          "pid": 769490,
+          "started": {
+            "cut": "ACCEPT_RENAMED",
+            "life": 2,
+            "mode": "halt",
+            "pid": 769490
+          }
+        }
+      ],
+      "qualification": {
+        "path": "target/v53-carried-process-campaigns/intent-qualify.json",
+        "sha256": "50f06573c505e700940f45e5babe25765beb891b402f5f29f845faf83e4f8f9d"
+      },
+      "retirement": {
+        "capturedPrefixes": 977,
+        "cohortAdmitted": false,
+        "coreScratchInventoryReplay": false,
+        "fullTransientBytesQualified": false,
+        "lifetimes": [
+          {
+            "byKind": {
+              "generation": 0,
+              "source": 0
+            },
+            "capturedPrefixes": 0,
+            "life": 1,
+            "pid": 765423,
+            "storedBytes": 0,
+            "terminal": "CUT_PREFIX"
+          },
+          {
+            "byKind": {
+              "generation": 812,
+              "source": 165
+            },
+            "capturedPrefixes": 977,
+            "life": 2,
+            "pid": 769490,
+            "storedBytes": 11933445,
+            "terminal": "CLOSED"
+          }
+        ],
+        "phase3Complete": false,
+        "postCutTailObserved": false,
+        "status": "PARTIAL",
+        "transientRetirementBytesQualified": true,
+        "wholeRuntimeResourcesQualified": false
+      }
+    }
+  ],
+  "paidCloud": false,
+  "phase3Complete": false,
+  "postCutTailObserved": false,
+  "producerBuild": {
+    "path": "target/v53-carried-process-campaigns/producer-build.json",
+    "sha256": "1c07b5c949e9ad621babb9ec9fd6db1ea3c2365fdb29b9e8619c402499d79361"
+  },
+  "pushed": false,
+  "readerSources": {
+    "path": "target/v53-carried-process-campaigns/reader-sources.json",
+    "sha256": "6a37c7c674eda506dabb57fa0e4c002349eb0a11b27d07fb8a83a5f5baf95ea5"
+  },
+  "runtimeChanged": false,
+  "schema": "gse-v53-carried-process-campaign-development-v1",
+  "sourceFiles": [
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CampaignPrefixCaptureTest.java",
+      "sha256": "e968f9b2bb0f1c81770c184e07d6a6f61ae00a8156ac031d6e81fe51b5a2e3af"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedCampaignPrefixProcessTest.java",
+      "sha256": "16ac328bbbac9d82d0e974099015187e5d1bf857826442c735c7e7037108caea"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessTest.java",
+      "sha256": "07425a3579268b6d0d9b9202656a6fd0b27fdd3031b32b766dea9400c0ad4ca9"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessWorker.java",
+      "sha256": "31812f050df31b82950b44a2f9fef181723d5efbb13f4178b235acb6e66492fd"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeResourceCapture.java",
+      "sha256": "f942eb12cb8b7ddc352b9edf163ad1ea153c8f1458952bab0ab1fb301b8ad584"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RemoveRetirementCapture.java",
+      "sha256": "8fe985a0b64b596ae51873ca5f564bfdc7f1839f73a86bef2f9d219123c38dba"
+    },
+    {
+      "path": "scripts/v53/native_campaign_files.py",
+      "sha256": "88543555ef19638b8cd4b4ad62474840a5d1d43230502ee0d22674f1b40ce9b7"
+    },
+    {
+      "path": "scripts/v53/native_carried_campaign_prefixes.py",
+      "sha256": "0dddb66abbe85a8782f2acf3fbadd08df6540c8e9429cb8a21e8a63b30b09355"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_forces.py",
+      "sha256": "32b8c45a709ae493e214def6ed3cb10c38011b29d1c260f43d10d68dfa612ea9"
+    },
+    {
+      "path": "scripts/v53/test_native_campaign_files.py",
+      "sha256": "6867a32f37c741202b7dada4fe28fbd55f3ba8d225f46021b4129d4f8e1e5620"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_campaign_prefixes.py",
+      "sha256": "280afd98c3abd7c05384c020b517040b2884ebfd927fe2deaacf8b96e227d35a"
+    }
+  ],
+  "status": "PARTIAL",
+  "tools": {
+    "path": "target/v53-carried-process-campaigns/tools.json",
+    "sha256": "0d69707593c135faa3b87c3e85d825c6321138c3097a6bfccdf04dc09f17c88d"
+  },
+  "transientCampaignBytesQualified": true,
+  "unchangedCatalogue": {
+    "archives": 486,
+    "executionGroups": 246,
+    "histories": 552,
+    "subsets": 12,
+    "workflowJobs": 516
+  },
+  "validation": {
+    "capturedPrefixes": 1080,
+    "coverageAudit": {
+      "path": "target/v53-carried-process-campaigns/coverage-audit-current/receipt.json",
+      "sha256": "71cb5294d9a500de8f26a48ebfce42f79ab961cac735ff8103369f256081ae4a"
+    },
+    "coverageProseCorrection": {
+      "path": "target/v53-carried-process-campaigns/coverage-prose-correction.json",
+      "sha256": "48df4ffccc18b0c2c6fa04fa658e8cc12e2229be49796225eaa54f53a92676d9"
+    },
+    "coveragePythonTests": 34,
+    "coverageUnit": {
+      "path": "target/v53-carried-process-campaigns/unit-coverage.log",
+      "sha256": "a3175f40a7c4f635d0411a24e17c68574351bf078735f111d69aa1d860c01c6a"
+    },
+    "focusedJava": {
+      "path": "target/v53-carried-process-campaigns/java-focused-v3.log",
+      "sha256": "ad158757b09d9aedf59689d6268b33015bc071f1ac4a8a414ce1142410c9b186"
+    },
+    "focusedJavaTests": 15,
+    "native": {
+      "path": "target/v53-carried-process-campaigns/native.log",
+      "sha256": "fe495a0dd6b897a90335b4756154fcca9c84414c8f5dab704c47298fac5e73aa"
+    },
+    "nativeJavaTests": 2,
+    "negativeCases": 70,
+    "optimizedPythonTests": 68,
+    "optimizedUnit": {
+      "path": "target/v53-carried-process-campaigns/unit-optimized-final.log",
+      "sha256": "e21b9f10b2069b7875f4a2aa89bb3edd5bd77fa418b29f6239d6c053296d4861"
+    },
+    "portableDriver": {
+      "path": "target/v53-carried-process-campaigns/portable.py",
+      "sha256": "898c083e4d42810b33b8f0104a206a5f276ca381adc8e06ca5721a992a383915"
+    },
+    "previousReceipts": {
+      "path": "target/v53-carried-process-campaigns/previous-receipts.json",
+      "sha256": "6e152d486fd0f3836a70b825369362640142d8ee6b8354db0bf49341aee2c1a4"
+    },
+    "relatedPythonTests": 438,
+    "unit": {
+      "path": "target/v53-carried-process-campaigns/unit-related-final.log",
+      "sha256": "8c05b8eab5fa818da1cb0a8d6b37ebdb7d1226fef32e94a13bad91fc17d1d9a4"
+    }
+  },
+  "wholeRuntimeResourcesQualified": false,
+  "workflowChanged": false
+}

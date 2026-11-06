@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Carried-process campaign prefixes](PHASE_3_CARRIED_PROCESS_CAMPAIGNS.md) now
+qualify 1080 original allocator, grant, selection and selected-installation file
+inventories across two crash/reopen histories, with 70 exact negative rejections.
+Vote/application/ledger transients, publication installation, scratch, combined
+resource maxima and final-source acceptance remain OPEN.
+
 [Carried-process FLOOR prefixes](PHASE_3_CARRIED_PROCESS_FLOORS.md) add
 writer-held creation and release inventories to the original retirement/resource
 chain. Expected bytes derive from original copies and release authority. Other
