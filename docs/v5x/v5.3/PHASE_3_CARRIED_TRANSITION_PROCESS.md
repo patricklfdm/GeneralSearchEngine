@@ -168,6 +168,54 @@ python3.11 -B -m scripts.v53.native_carried_transition_forces \
   general-search-engine-replication/target/v53-native-carried-transition-process/run-<id> --qualify
 ```
 
+## Cross-lifetime transport and control replay
+
+The [network component](../../../scripts/v53/native_carried_transition_network.py)
+requires the original snapshot and callback readers before interpreting any wire
+message. Its phase schedule retains the first interrupted campaign/slot and all
+successor campaigns/slots. Each request uses the independently reduced current
+view for that phase. Every send, server read, response and client delivery must
+belong to that phase and the correct original JVM lifetime; a trace cannot be
+reused across phases or group death. Unanswered writes remain unanswered.
+
+The existing transfer validator checks every original offer, chunk, offset,
+extent, digest and commit. The existing grant/installation and slot readers
+bind delivered PREPARE, SELECTED, ACCEPT, PROOF, APPLY, FUTURE and PUBLISH responses
+to original storage and force ordering. This includes three-voter joint-view
+quorums and the final stable pair, rather than assuming the older DATA fixture's
+fixed pair. The interrupted PROOF-rename history must retain both original peer
+ACCEPT replies; ACCEPT-rename cannot have peer voting success. Slot sequence
+numbers and reported recording quorums must match the actual governing view.
+
+STATUS and heartbeat cuts follow the original selector/publication timeline.
+Heartbeat samples require actual contact with both governing majorities; they
+grant no voting or readiness authority. Each unanswered retention attempt must
+name an independently derived original intent, its actual recording trace,
+unselected recipient and bounded write interval. Unanswered heartbeat requests
+are also retained separately. Other unexplained unanswered requests are refused.
+
+The [network development index](phase3-evidence/carried-transition-network.json)
+binds the same FINAL and INTENT originals, with 751/1,109 responses and 760/1,125
+request writes respectively. The 9/16 unanswered attempts remain distinct from
+ACKs. Twenty exact wire/event mutations per original reject after the unchanged
+original passes; stored authority, applications, directory inventory and process
+metadata are protected from those mutations. Child transcripts and their merged
+wire/event projections change together, so a projection mismatch cannot earn
+network-negative credit. Optimized replay after relocation preserves the original
+inventories. These are replay checks, not new native executions.
+
+Results remain **PARTIAL** with `fullWireReplay=false` and
+`exportAuthorityQualified=false`. Complete transfer bytes and control ACKs do
+not establish the temporal ownership of every exported object, its original
+capability lifetime or the complete-copy maintenance source inventory. Those
+bindings, transient storage captures, application-ACK recovery and final-source
+hosted admission remain required. The hosted catalogue is unchanged.
+
+```bash
+python3.11 -B -m scripts.v53.native_carried_transition_network \
+  general-search-engine-replication/target/v53-native-carried-transition-process/run-<id> --qualify
+```
+
 ## Development checks and reproduction
 
 The retained [development index](phase3-evidence/carried-transition-process.json)

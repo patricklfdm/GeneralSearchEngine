@@ -8,8 +8,10 @@ four-owner snapshot across both JVMs, including exact cold votes, campaign sourc
 retirement and fresh stable publication; two retained originals and forty exact
 storage negatives pass. The storage callback component now checks both lifetimes'
 force/return ordering and exact maintenance transactions, with sixty-two callback
-negatives on the same originals. Transient byte capture, core scratch inventory,
-complete force/network replay and hosted admission remain
+negatives on the same originals. The network component now binds cross-JVM
+transport, changing-view control ACKs and unanswered requests; forty wire/event
+mutations reject. Transient byte capture, core scratch inventory, temporal export
+authority, complete force/network replay and hosted admission remain
 OPEN. The twelve-subset catalogue is unchanged.
 Two retained originals exposed source accumulation after restart; the campaign-only
 correction now passes both focused process cases. These remain component checks.
