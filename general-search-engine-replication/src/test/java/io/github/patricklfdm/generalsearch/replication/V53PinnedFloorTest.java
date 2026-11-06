@@ -42,6 +42,45 @@ class V53PinnedFloorTest {
         if(Files.exists(seed.path().resolve("sources").resolve(seed.oldSource())))owner.retireSource(seed.oldSource());
         owner.releaseFloor();
     }
+    @Test void threeVoterFloorWithThreeRetainedSourcesPinsTheOriginalAcrossReopen()throws Exception {
+        var f=new V53GenerationInstallFixture(4,6,6,false);
+        Path directory=Files.createDirectory(temp.resolve("three-sources")),path=directory.resolve("node-1");f.initial.provision(path);
+        var peers=new ArrayList<MembershipFloor.Copy>();
+        for(int node:List.of(2,3))peers.add(new V53FloorTest().copy(directory.resolve("node-"+node),4,6,node));
+        var used=V53SourceExchangeTest.resources();int[] peak={0};
+        MembershipBallotAllocator.Cut observe=e->{peak[0]=Math.max(peak[0],used.usage().counts().getOrDefault(MembershipResources.Unit.APPLICATION,0));};
+        Map<String,String> original;
+        try(var owner=MembershipGrantJournal.openCapturing(path,f.root(),V53DeclarationsTest.node(1),used,f::verify,observe)) {
+            for(long counter=20;counter<=22;counter++) {
+                owner.prepareCurrent(f.initial.fixture.source.ballot(counter));var offers=f.offers(owner,counter);
+                owner.selectCurrent(offers,List.of());owner.installCurrent(offers,List.of(),f.images());
+                var copies=new ArrayList<>(peers);copies.add(owner.floorCopyCurrent());
+                if(counter<22){owner.establishFloor(copies);owner.retireInactive();owner.releaseFloor();}
+                else {
+                    assertEquals(3,used.usage().counts().get(MembershipResources.Unit.SOURCE));
+                    assertEquals(5,used.usage().counts().get(MembershipResources.Unit.APPLICATION));
+                    original=V53ReplayFilesTest.files(path.resolve("generations"));
+                    var floor=owner.establishMaintenanceFloor(copies,null);
+                    assertEquals(3,list(floor.value().get("sources")).size());
+                    assertEquals(7,used.usage().counts().get(MembershipResources.Unit.APPLICATION));
+                    assertEquals(5,used.usage().counts().get(MembershipResources.Unit.SOURCE));
+                    assertEquals(original,V53ReplayFilesTest.files(path.resolve("generations")));
+                    assertArrayEquals(Files.readAllBytes(path.resolve("selector.gsr")),Files.readAllBytes(path.resolve("floor-copies/local.gsr")));
+                    assertFalse(Files.exists(path.resolve("floor-copies").resolve(owner.floorCopyCurrent().generation.digest())));
+                }
+            }
+        }
+        assertEquals(7,peak[0]);assertEquals(0,used.usage().leases());
+        try(var owner=MembershipGrantJournal.openCapturing(path,f.root(),V53DeclarationsTest.node(1),used,f::verify,observe)) {
+            assertEquals(3,list(owner.governingFloor().orElseThrow().value().get("sources")).size());
+            assertEquals(7,used.usage().counts().get(MembershipResources.Unit.APPLICATION));
+            owner.retireInactive();owner.releaseFloor();
+            assertFalse(Files.exists(path.resolve("floor-copies")));
+            assertEquals(4,used.usage().counts().get(MembershipResources.Unit.APPLICATION));
+            assertEquals(3,used.usage().counts().get(MembershipResources.Unit.SOURCE));
+        }
+        assertEquals(0,used.usage().leases());
+    }
     @Test void installedFourVoterFloorReusesOnlyTheChargedCurrentOriginal()throws Exception {
         var seed=provision("complete");var used=V53SourceExchangeTest.resources();int[] peak={0,0};
         Path evidence=Path.of("target/v53-pinned-floor/run-"+UUID.randomUUID());Files.createDirectories(evidence);

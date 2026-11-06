@@ -32,9 +32,11 @@ def replay(root,replay,expected=None):
         directory=Path(root)/f'resources/life-{life}'
         events=resource.read(directory,'events.json',32*1024*1024)
         boundaries=resource.read(directory,'boundaries.json',32*1024*1024)
+        membership_starts=binding.native_membership_starts(events)
         for node in r.forces.process.NODES:
             _,trace=binding.r.read(directory/(node+'.json'))
-            resources.append(dict(life=life,node=node,**binding.bind(trace,events,boundaries,node,closed=life==2)))
+            resources.append(dict(life=life,node=node,**binding.bind(trace,events,boundaries,node,closed=life==2,
+                membership_starts=membership_starts)))
     return dict(status='PARTIAL',resources=resources,lifetimes=lives,capturedPrefixes=sum(v['capturedPrefixes'] for v in lives),
         controlScratchBytesQualified=True,postCutTailObserved=False,fullTransientBytesQualified=False,
         controlReplayCallbackInventoryQualified=True,coreScratchInventoryReplay=False,internalCoreWritesObserved=False,

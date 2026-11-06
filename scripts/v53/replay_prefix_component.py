@@ -47,7 +47,9 @@ def validate(root,sidecar=None):
         p.need(p.model.physical(captured['files'])==state,'carried prefix exact original state: '+point)
     _,trace=p.binding.r.read(root/'resources.json')
     boundaries=p.shared.g.json_file(root/'boundaries.json')[1]
-    resources=p.binding.bind(trace,events,boundaries,'node-1',closed=True)
+    entry=physical.f.decode(physical.data.pending(before)[0]['ENTRY'],'records','ENTRY')
+    membership_starts={at for at,row in enumerate(events) if row['event']=='REPLAY_RESERVED' and entry['kind'] in ('INTENT','FINAL')}
+    resources=p.binding.bind(trace,events,boundaries,'node-1',closed=True,membership_starts=membership_starts)
     p.need(resources['callbacks']==len(plan),'replay component complete resource binding')
     p.need(p.collection.inventory(root)==original,'replay component original changed')
     return dict(status='PASS',at=result['at'],capturedPrefixes=len(plan),resources=resources,protocolAuthority='conditional-initial-history',

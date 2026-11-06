@@ -1,0 +1,288 @@
+{
+  "acceptancePlan": {
+    "path": "docs/v5x/v5.3/acceptance-plan.json",
+    "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+  },
+  "base": "21f61d9e82456bd067c924670284d25e4d8cf714",
+  "cohortAdmitted": false,
+  "compiledClasses": {
+    "path": "target/v53-carried-application-recovery/compiled-classes.json",
+    "sha256": "db1708af1d0ed089d2eba3642652ce72764c5578949743a18962e4dc108773e8"
+  },
+  "completeFixJavaSource": {
+    "path": "target/v53-carried-application-recovery/complete-fix-source.json",
+    "sha256": "f590a47fdceb4c60d9762b4341b6615c147f505fbc6e85395cfb7851f8f4774a"
+  },
+  "componentEvidence": [
+    {
+      "original": {
+        "path": "target/v53-carried-application-recovery/new-control-5.json",
+        "sha256": "a6266fe55b460c5c5a7db70574be3dce212cc79ddfce0e1d949619c46963638b"
+      },
+      "portable": {
+        "path": "target/v53-carried-application-recovery/portable-control-5.json",
+        "sha256": "a6266fe55b460c5c5a7db70574be3dce212cc79ddfce0e1d949619c46963638b"
+      }
+    },
+    {
+      "original": {
+        "path": "target/v53-carried-application-recovery/new-control-6.json",
+        "sha256": "a8a662756ebae553a4b185b2ea70d6df7702f70b1fe8e3cbfd9db8b94da19551"
+      },
+      "portable": {
+        "path": "target/v53-carried-application-recovery/portable-control-6.json",
+        "sha256": "a8a662756ebae553a4b185b2ea70d6df7702f70b1fe8e3cbfd9db8b94da19551"
+      }
+    }
+  ],
+  "frozenParametersChanged": false,
+  "historicalIndexesUnchanged": 385,
+  "hostedExecuted": false,
+  "legacyTwoSlotEvidence": [
+    {
+      "path": "target/v53-carried-application-recovery/legacy-intent-replay.json",
+      "sha256": "3316d71d3e9804747a9821a7bbc76bac0bed4e04fcb24321914bd66f53def18d"
+    },
+    {
+      "path": "target/v53-carried-application-recovery/legacy-final-replay.json",
+      "sha256": "5c37ec919e7ae19d8476e9d4a0d9ea9986fa8e6724c2f4422a0435fc63a7f24a"
+    }
+  ],
+  "limitations": [
+    "Two of four new application-ACK process axes executed; six other original ACCEPT/PROOF axes remain deferred.",
+    "No complete force/TCP replay, internal core writes/DATA output interruption or all-runtime simultaneous resource maxima for these new cases.",
+    "Short replay provisioning is conditional; historical two-slot results describe the earlier implementation.",
+    "The original three failures and the outdated-test failure remain retained; no failed producer supplies qualification.",
+    "No full reactor suite or final-source hosted cohort executed. Phase 3 remains open."
+  ],
+  "logs": [
+    {
+      "path": "target/v53-carried-application-recovery/original-final-kill.log",
+      "sha256": "392ab680d6ac0efa7970caa31ce3328cfe8487d8dd4f183858145d81a73119ef"
+    },
+    {
+      "path": "target/v53-carried-application-recovery/corrected-processes.log",
+      "sha256": "eafe270dfc8d800ae544cdca5491ec52b148649ddf872b82369841e25ee9f338"
+    },
+    {
+      "path": "target/v53-carried-application-recovery/corrected-components.log",
+      "sha256": "ad1d41c769492ad2c88e67b7e61eee255bc5898f9dd9e96f2374815e0d96f040"
+    },
+    {
+      "path": "target/v53-carried-application-recovery/complete-fix-processes.log",
+      "sha256": "e2fab7b3d0bf6a7950b4eb04c78b0bfedce2bb43b1ece2246bb180bf23b47c58"
+    },
+    {
+      "path": "target/v53-carried-application-recovery/related-python.log",
+      "sha256": "3df8c63542632725e11046d91ef6d103f538684d38f200b08e2eac3eddba8b38"
+    },
+    {
+      "path": "target/v53-carried-application-recovery/optimized-tests.log",
+      "sha256": "9d1f6031a8f9322581505901d874253199ee37a667880ae6ecd8f63e9841c2a6"
+    },
+    {
+      "path": "target/v53-carried-application-recovery/short-control-replay.log",
+      "sha256": "aa0d160cb0647a852190ade75c909c3581e78046cfa0310645bdc277f1514afd"
+    },
+    {
+      "path": "target/v53-carried-application-recovery/portable-controls.log",
+      "sha256": "1a3c81305520bb2f48601ef531fb060aeb09c628ae784fdb5ce412c1f647d314"
+    },
+    {
+      "path": "target/v53-carried-application-recovery/original-failure-prefix.log",
+      "sha256": "b9eb89a3ec8b53f6697c04a6b2db201411ff54aa9e03c009907e077012a1b1e4"
+    },
+    {
+      "path": "target/v53-carried-application-recovery/invariants.log",
+      "sha256": "6d1874ed155b2314f9dab684d8291fae759c9311f3ee48bf08df9bfec0a6c358"
+    }
+  ],
+  "nativeEvidence": [
+    {
+      "inventory": {
+        "path": "target/v53-carried-application-recovery/run-4af2dce4-961d-407a-8906-b20257d6f92a-inventory.json",
+        "sha256": "71eb163f9ad28c9db821fd68db065690bd61816141b36737550b119779657f7a"
+      },
+      "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-4af2dce4-961d-407a-8906-b20257d6f92a",
+      "result": {
+        "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-4af2dce4-961d-407a-8906-b20257d6f92a/process/result.json",
+        "sha256": "2ed49aa956d9ab9d9f1477454535d7fc719fdea2075f104ef8d4054d54d8550f"
+      },
+      "stage": "baseline-replay-input-plus-unneeded-output",
+      "status": "FAIL"
+    },
+    {
+      "inventory": {
+        "path": "target/v53-carried-application-recovery/run-a5fb023d-6153-4f14-9bd7-2b3dd47748ab-inventory.json",
+        "sha256": "0f21f27eaf480532b6d6fa11504185a83f6fca9212529b7779e5c43bf16767de"
+      },
+      "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-a5fb023d-6153-4f14-9bd7-2b3dd47748ab",
+      "result": {
+        "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-a5fb023d-6153-4f14-9bd7-2b3dd47748ab/process/result.json",
+        "sha256": "c50d42f907ab05be85a8a55dd778184834fd221d2cb5b54027aaee218d6efb32"
+      },
+      "stage": "one-slot-replay-before-three-source-floor-correction",
+      "status": "FAIL"
+    },
+    {
+      "inventory": {
+        "path": "target/v53-carried-application-recovery/run-a85b7bfd-9d73-40d4-8ab1-8c80b0812bd9-inventory.json",
+        "sha256": "aa1d14ae82f98b3e12e6e7e3734dc6bb3e1ecd9284f9dc4b9c888cf60c841ee1"
+      },
+      "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-a85b7bfd-9d73-40d4-8ab1-8c80b0812bd9",
+      "result": {
+        "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-a85b7bfd-9d73-40d4-8ab1-8c80b0812bd9/process/result.json",
+        "sha256": "083f50bf0c593fb0b7cc666238aeec36ea4b314656dc43e01688c7a7ab1a3ad0"
+      },
+      "stage": "one-slot-replay-before-three-source-floor-correction",
+      "status": "FAIL"
+    },
+    {
+      "inventory": {
+        "path": "target/v53-carried-application-recovery/final-inventory.json",
+        "sha256": "1ae4ba295dcc6b5314d874229dc36ea32096f4184f798c6536a9b62864ecc142"
+      },
+      "kind": "FINAL",
+      "mode": "kill",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-carried-transition-process/run-181afe57-6457-423c-adcf-8e20ffc6fd2c",
+      "portable": {
+        "path": "target/v53-carried-application-recovery/final-portable.json",
+        "sha256": "e5d4d6adc44db8f545cd32b7f6682ac2b8e0358fbe248272546663eb73bf1d9e"
+      },
+      "qualification": {
+        "path": "target/v53-carried-application-recovery/final-qualified.json",
+        "sha256": "5e72e4e9330e4e4c5e847a7f75079a38e2522dce6ed35e87052539b34de0330f"
+      },
+      "result": {
+        "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-carried-transition-process/run-181afe57-6457-423c-adcf-8e20ffc6fd2c/process/result.json",
+        "sha256": "65752cfc80f42d2039e3406afe9e63f2f39e9e0c6f32dcb7f4dacbee2f0cc219"
+      },
+      "stage": "complete-fix",
+      "status": "PARTIAL"
+    },
+    {
+      "inventory": {
+        "path": "target/v53-carried-application-recovery/intent-inventory.json",
+        "sha256": "8e05ef4a1735c13e3be57cda10ccffe735d2d75381891c9ba6ac6fe9c423c50b"
+      },
+      "kind": "INTENT",
+      "mode": "halt",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-carried-transition-process/run-9c6021b0-f9e4-42b9-b70d-638b43c7f8b0",
+      "portable": {
+        "path": "target/v53-carried-application-recovery/intent-portable.json",
+        "sha256": "d699b0aaa365d0b3b20fbb7aad58d64e3128d28ee1e407a2b2718261fc2dc6aa"
+      },
+      "qualification": {
+        "path": "target/v53-carried-application-recovery/intent-qualified.json",
+        "sha256": "2f8103acc5f2bcb384e58a6669e135b980e5a4311b70b78ff02de3da5cde7864"
+      },
+      "result": {
+        "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-carried-transition-process/run-9c6021b0-f9e4-42b9-b70d-638b43c7f8b0/process/result.json",
+        "sha256": "bcc54927c05741905d2b439a1f63f4c19124145b319191dfd987953b656c07ab"
+      },
+      "stage": "complete-fix",
+      "status": "PARTIAL"
+    }
+  ],
+  "paidCloud": false,
+  "phase3Complete": false,
+  "pushed": false,
+  "runtimeChanged": true,
+  "schema": "gse-v53-carried-application-recovery-development-v1",
+  "scope": "native-application-ack-process-and-snapshot-components",
+  "scripts": [
+    {
+      "path": "target/v53-carried-application-recovery/replay-processes.py",
+      "sha256": "e16b3e50197a6312b3f2b4a2e747bc31224dbbfcbf3aaf5a3ca0b27c6c4296db"
+    },
+    {
+      "path": "target/v53-carried-application-recovery/finalize.py",
+      "sha256": "9f8a3078e42ee7c4b32d9d2087e76cbf373b1fde781238d7bd4af65bf1b07abc"
+    }
+  ],
+  "sourceFiles": [
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "sha256": "a6aa0e8de7a404a7f3bcb783b33586891d9ea8778407b5080f169fe43d6023b4"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipReplayFiles.java",
+      "sha256": "5b2769ff91072d768a27c8f51e0dca8b13a7f6202098c5629958d1b0d3412311"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ControlReplayReservationTest.java",
+      "sha256": "8ae5a46f5b93a11c010a2a7fa7a45647d470f139429190e00ed3e05e52a36a93"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JournalApplicationTest.java",
+      "sha256": "5a1490e267cc4e6fc2212011718452b6885015973cfb9b2c358c21520e47682b"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedApplicationProcessTest.java",
+      "sha256": "cc9867bf06a7bc3275adb1fbd7c423a5df9ef97f19fb2ea4c9ada7624263e910"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PinnedFloorTest.java",
+      "sha256": "0eccb4d1fe66ad6fb046a595cdb0055d2dc9ad9a5bad0225fae5c474fef9720c"
+    },
+    {
+      "path": "scripts/v53/native_carried_application_evidence.py",
+      "sha256": "5babd4460ae0626d54e27ecf0b4a7e33e1bdb43a9d6bc58aeed0c8fd927df89e"
+    },
+    {
+      "path": "scripts/v53/native_carried_replay_prefixes.py",
+      "sha256": "c57fab7cd141334774ff543fda36d3a4e7b80041b6cc49677d79f9bc5e5a46b6"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_physical.py",
+      "sha256": "709e06b969aacf4571940fbee786cb771aca536f9bdc75fd4e76fd468230c449"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_process.py",
+      "sha256": "6961c394bfa615f68d73114ab3850ed89793eb7626f659bed92257ea4bd8a090"
+    },
+    {
+      "path": "scripts/v53/publication_generation_resources.py",
+      "sha256": "80ac3e934a6d91980fa0e77547c1e4e3db374690f65855b34b65c19cda1aad00"
+    },
+    {
+      "path": "scripts/v53/publication_resource_evidence.py",
+      "sha256": "442ce41db7f958e7d8ac340d264002f4894cc8b45c69256607650f9dde451f44"
+    },
+    {
+      "path": "scripts/v53/replay_prefix_component.py",
+      "sha256": "bc2fcd83bda0d8ef7b0f4b9a36fb82d51f89247d0c4bc5567c1ff4699e141dbc"
+    },
+    {
+      "path": "scripts/v53/replay_resource_binding.py",
+      "sha256": "04c852b815b8a2f04ea01492e644978054f89f18b1bc22d9f0a2b0a2ec2ffdcb"
+    },
+    {
+      "path": "scripts/v53/test_control_completion_resources.py",
+      "sha256": "946df3d3795f17b1551db067b71b9aa453c68f759ebd330887a62d3f6cb3bffb"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_application_evidence.py",
+      "sha256": "7507e25516d6dc26b8ca59af4315afb206378357d4c5a84a8aa13b005f5694d3"
+    }
+  ],
+  "validation": {
+    "controlFilePrefixes": 46,
+    "controlNegatives": 18,
+    "distinctFocusedJava": 30,
+    "finalInvocation": {
+      "includesCorrectedDepartureTest": true,
+      "nativeCases": 2,
+      "passed": 5,
+      "tests": 5
+    },
+    "firstFocusedInvocation": {
+      "passed": 25,
+      "staleDepartureExpectation": 1,
+      "tests": 26
+    },
+    "nativeSnapshotNegatives": 18,
+    "optimizedNewPython": 12,
+    "relatedPython": 285
+  }
+}

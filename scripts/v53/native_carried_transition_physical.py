@@ -97,7 +97,7 @@ def maintain(group,owners,*,campaign=False):
     return result
 
 
-def campaign(root,group,life,ordinal,counter,entry):
+def campaign(root,group,life,ordinal,counter,entry,*,maintenance=None):
     snapshot=f'life-{life}-installed-{ordinal}'
     chosen=(root/(snapshot+'.gsr')).read_bytes();observed=f.decode(chosen,'records','SELECTED')
     voters=tuple(v['voter'] for v in observed['sources'])
@@ -110,7 +110,7 @@ def campaign(root,group,life,ordinal,counter,entry):
         actual=c.inventory(root/snapshot/node)
         if node in voters or actual['grants.gsr']!=files['grants.gsr']:touched.append(node)
     reconciled=t.t.reconcile(group,touched)
-    group=maintain(reconciled,touched,campaign=True)
+    group=(maintain if maintenance is None else maintenance)(reconciled,touched,campaign=True)
     ballot=dict(counter=counter,proposer='node-1',incarnation=d.future.identity(group['node-1'])['storage'])
     prepared=copy.deepcopy(group);grants={};sources={};identifiers=set()
     for node in touched:

@@ -111,7 +111,17 @@ class V53JournalApplicationTest {
         for(int through:List.of(5,6)) {
             Path root=temp.resolve("cut-"+through);setup(root,3,through);var acks=new ArrayList<Decoded>();var owned=new HashSet<Owned>();MembershipCheckpointPlan plan=null;
             for(int node:f.f.nodes)try(var store=open(root,node,f.f.resources(),e->{})) {
-                if(through==6 && node==3){assertThrows(IllegalArgumentException.class,()->apply(store));assertFalse(Files.exists(f.f.node(root,node).resolve("applied-end/ack.gsr")));continue;}
+                if(through==6 && node==3) {
+                    // A09/A11 permits the departing original joint voter to
+                    // retain its applied end, but never a successor endorsement.
+                    var departed=apply(store);
+                    assertInstanceOf(MembershipAppliedEndFiles.Departure.class,departed.completion());
+                    assertTrue(departed.votingEnd().isEmpty());
+                    assertThrows(IllegalArgumentException.class,departed::endorsement);
+                    assertArrayEquals(base,departed.plan().application.image());
+                    assertEquals(41,departed.plan().application.sequence());
+                    assertFalse(Files.exists(f.f.node(root,node).resolve("applied-end/ack.gsr")));continue;
+                }
                 var result=apply(store);plan=result.plan();assertArrayEquals(base,plan.application.image());assertEquals(41,plan.application.sequence());
                 acks.add(result.endorsement().acknowledgement());owned.add(result.endorsement().owned());
             }

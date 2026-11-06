@@ -418,7 +418,8 @@ final class MembershipGrantJournal implements AutoCloseable {
             }
             if(withRetirement)journal.retirement=new MembershipRetirementFiles(path,resources,journal.floors,journal.sources);
             if(withApplication) {
-                journal.replayFiles=new MembershipReplayFiles(path.resolve(MembershipReplayFiles.DIRECTORY),resources);
+                journal.replayFiles=new MembershipReplayFiles(path.resolve(MembershipReplayFiles.DIRECTORY),resources,
+                        replayOutput(journal.pendingAccept.pending() || journal.pendingAccept.active()==null?null:journal.pendingAccept.active().entry()));
                 journal.appliedEnd=new MembershipAppliedEndFiles(path.resolve(MembershipAppliedEndFiles.DIRECTORY),resources,MembershipAppliedEndFiles.METADATA);
                 require(!journal.replayFiles.present() && !journal.appliedEnd.present() || journal.pendingAccept.active()!=null
                         && journal.pendingAccept.active().certificate()!=null,"application files without original local certificate");
@@ -1489,11 +1490,19 @@ final class MembershipGrantJournal implements AutoCloseable {
         try{guard.check();pendingContext.clearRedundant(exact,guard,cut);}
         catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
-    private void reserveApplicationCompletion() {
+    /** Membership edges preserve the typed application bytes and cannot create
+     * replay output. DATA, unknown and other command paths retain both slots. */
+    private static boolean replayOutput(Decoded entry) {
+        return entry==null || !Set.of("INTENT","FINAL").contains(entry.value().get("kind"));
+    }
+    private void reserveApplicationCompletion()throws IOException {
+        reserveApplicationCompletion(pendingAccept.pending() || pendingAccept.active()==null?null:pendingAccept.active().entry());
+    }
+    private void reserveApplicationCompletion(Decoded entry)throws IOException {
         if(appliedEnd==null)return;
         boolean end=appliedEnd.completionReserved(),replay=replayFiles.completionReserved();
-        try{appliedEnd.reserveCompletion();replayFiles.reserveCompletion();reservePublicationImage();}
-        catch(RuntimeException|Error error) {
+        try{appliedEnd.reserveCompletion();replayFiles.reserveCompletion(replayOutput(entry));reservePublicationImage();}
+        catch(IOException|RuntimeException|Error error) {
             // Failed admission must not consume the slots needed to finish maintenance.
             try{if(!replay)replayFiles.releaseCompletion();if(!end)appliedEnd.releaseEmptyCompletion();}
             catch(IOException|RuntimeException|Error cleanup){failed=true;error.addSuppressed(cleanup);}throw error;
@@ -1924,7 +1933,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                 && Arrays.equals(pendingAccept.active().bytes(),vote.bytes()),"staged application requires original certificate or covering publication");
         if(appliedEnd!=null && (pendingAccept.active()==null || !vote.sameAcceptance(pendingAccept.active())))
             publicationCapacity(vote,pendingAccept.pending()?AutomaticReplicationException.Outcome.INDETERMINATE:AutomaticReplicationException.Outcome.NOT_SUBMITTED);
-        reserveApplicationCompletion();
+        reserveApplicationCompletion(entry);
         if(pendingAccept.active()==null || !Arrays.equals(pendingAccept.active().bytes(),vote.bytes()) || pendingAccept.pending()) {
             int size=vote.bytes().length;
             long peak=Math.max((long)pendingAccept.activeLength()+size,2L*(size+MembershipPendingAccept.PROOF_MAXIMUM)+MembershipPendingAccept.CERTIFICATE_MAXIMUM);
@@ -2804,8 +2813,8 @@ final class MembershipGrantJournal implements AutoCloseable {
         return establishFloor(own,offered,handoff);
     }
     /** Installed-generation maintenance may pin the already forced local
-     * original, instead of duplicating a fourth floor copy over two generations
-     * and two sources. Every remote copy and the full governing quorum remain
+     * original when two generations, retained sources and copied floor images
+     * would exceed the image count. Every remote copy and the full governing quorum remain
      * required. Existing copied floors keep their original representation. */
     synchronized Decoded establishMaintenanceFloor(List<MembershipFloor.Copy> offered,MembershipFloorFiles.Handoff handoff)throws IOException {
         require(floors!=null,"floor storage owner required");checkOwner();applicationReferencesIdle();rotationIdle();
@@ -2813,7 +2822,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         var own=floorCopyCurrent();
         boolean pin=floors.pinsCurrent() || (!floors.exists() || floors.pending() && floors.pendingProposal(own).isEmpty())
                 && inactive.exists() && !inactive.pending() && current.manifest.value().get("selection")!=null
-                && offered.size()>=4 && sources.retainedIdentities().size()>=2;
+                && 2+offered.size()+sources.retainedIdentities().size()>MembershipResources.Unit.APPLICATION.count;
         if(!pin)return establishFloor(own,offered,handoff);
         try {
             if(replayFiles!=null && pendingAccept.active()!=null){replayFiles.releaseCompletion();appliedEnd.releaseEmptyCompletion();}

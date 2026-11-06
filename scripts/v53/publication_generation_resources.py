@@ -58,7 +58,8 @@ def plans(transactions, boundaries):
         need(sequences[0] > previous.get(node, -1), 'generation resources overlapping publication')
         previous[node] = sequences[-1]
         before, after = rows[0]['files'], rows[-1]['files']
-        for row, (point, files, charges) in zip(rows, p.derived(before, after)):
+        output=p.output_reserved(before,after,rows[0]['storage'])
+        for row, (point, files, charges) in zip(rows, p.derived(before, after,output=output)):
             need(row['point'] == point and row['files'] == files and row['storage'] == charges,
                  'generation resources admitted publication inventory')
         old, final = extents(before), extents(after)
@@ -69,7 +70,7 @@ def plans(transactions, boundaries):
         need(len(generations) == len(images) == 1 and len(added) == 2,
              'generation resources single new publication generation')
         result.append(dict(node=node, sequences=sequences, boundaries=[boundaries[row['eventIndex']] for row in rows], old=old, final=final,
-                           generation=generations[0], image=images[0]))
+                           generation=generations[0], image=images[0],output=output))
     need(result, 'generation resources missing publications')
     return result
 
@@ -77,8 +78,9 @@ def plans(transactions, boundaries):
 def bind(plan, changes, initial):
     """Check every mutation, including those between physical callbacks."""
     seq = plan['sequences']; generation, image = plan['generation'], plan['image']
+    temporaries=TEMPORARIES if plan['output'] else TEMPORARIES[:-1]
     expected = {**FIXED, **plan['old'], COMPLETION: MAXIMUM,
-                **dict.fromkeys(TEMPORARIES, MAXIMUM)}
+                **dict.fromkeys(temporaries, MAXIMUM)}
     state = dict(initial); reserved = transferred = reloaded = False; released = set(); checks = 0
     boundary = dict(zip(p.POINTS, seq))
 
@@ -103,7 +105,7 @@ def bind(plan, changes, initial):
             elif event == 'GENERATION_RELOAD' and set(removed) == set(added) == {image}:
                 need(transferred and not reloaded and seq[7] < at <= seq[8], 'generation resources reload interval')
                 reloaded = True; expected[image] = plan['final'][image]
-            elif event == 'RELEASE' and len(removed) == 1 and not added and next(iter(removed)) in TEMPORARIES:
+            elif event == 'RELEASE' and len(removed) == 1 and not added and next(iter(removed)) in temporaries:
                 key = next(iter(removed))
                 need(reloaded and key not in released and seq[8] < at <= seq[9], 'generation resources completion release interval')
                 released.add(key); del expected[key]
@@ -121,9 +123,9 @@ def bind(plan, changes, initial):
             if position != at: continue
             index = p.POINTS.index(point)
             need((index < 1 or reserved and transferred) and (index < 8 or reloaded) and
-                 (index < 9 or released == set(TEMPORARIES)), 'generation resources completed boundary handoff')
+                 (index < 9 or released == set(temporaries)), 'generation resources completed boundary handoff')
     need(seq[0] < seq[1] and seq[7] < seq[8] < seq[9] and reserved and transferred and reloaded and
-         released == set(TEMPORARIES), 'generation resources complete publication handoff')
+         released == set(temporaries), 'generation resources complete publication handoff')
     return checks+1
 
 

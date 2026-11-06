@@ -159,8 +159,16 @@ def rounds(root,kind,lives,installations,ready):
 
 
 def validate(directory):
+    return _validate(directory,CUTS)
+
+
+def validate_application(directory):
+    return _validate(directory,('APPLY_ACK_DIRECTORY_FORCED',))
+
+
+def _validate(directory,cuts):
     root=Path(directory);process.selection.inventory(root);result=read(root/'process/result.json')
-    kind=result.get('carriedKind');need(kind in t.KINDS and result.get('cut') in CUTS,'transition process explicit case')
+    kind=result.get('carriedKind');need(kind in t.KINDS and result.get('cut') in cuts,'transition process explicit case')
     layout(root,kind)
     # Reduce actual bootstrap, all original admitted publications and old ACCEPT
     # before considering the producer's process-success receipt.
@@ -177,7 +185,7 @@ def validate(directory):
     # These checks bind bytes to the observed crash boundary; full physical
     # reduction of all voters' interrupted work remains a distinct requirement.
     cut=c.inventory(root/'at-cut/node-1')
-    phases=() if result['cut']=='ACCEPT_RENAMED' else ('PROOF',)
+    phases=() if result['cut']=='ACCEPT_RENAMED' else ('PROOF','CERTIFICATE') if result['cut']=='APPLY_ACK_DIRECTORY_FORCED' else ('PROOF',)
     frames,values=c.pending(cut['pending.accept'],phases)
     need(frames['ENTRY']==entry and frames['PAYLOAD']==payload,'transition process original interrupted command')
     selected=f.decode(installations[0][0],'records','SELECTED')

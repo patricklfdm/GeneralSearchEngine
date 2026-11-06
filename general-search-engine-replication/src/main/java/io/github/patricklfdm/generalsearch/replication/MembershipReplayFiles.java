@@ -18,26 +18,45 @@ final class MembershipReplayFiles implements AutoCloseable {
     private final Path path;
     private final Map<String,Object> binding;
     private final MembershipResources resources;
-    private final List<MembershipResources.Lease> leases=new ArrayList<>();
+    private final Map<String,MembershipResources.Lease> leases=new LinkedHashMap<>();
     private Map<String,Member> members;
+    private boolean output;
     private boolean closed;
 
     MembershipReplayFiles(Path requested,MembershipResources resources)throws IOException {
+        this(requested,resources,true);
+    }
+    MembershipReplayFiles(Path requested,MembershipResources resources,boolean output)throws IOException {
         path=AdmissionPaths.safe(requested);binding=AdmissionPaths.binding(path);this.resources=Objects.requireNonNull(resources);
+        this.output=output;
         require(resources.usage().counts().getOrDefault(MembershipResources.Unit.JOURNAL,0)==1,"replay shared journal reservation");
         try {members=scan();if(!members.isEmpty())reserve();}catch(IOException|RuntimeException|Error error){close();throw error;}
     }
     void reserveCompletion(){require(!closed,"replay files closed");reserve();}
+    /** A verified control entry never creates a new application image. Changes
+     * to that demand are permitted only with no disposable files in flight. */
+    void reserveCompletion(boolean output)throws IOException {
+        check();
+        require(this.output==output || !present(),"replay completion kind changed with retained files");
+        reserve(output);
+        if(!output && leases.containsKey("output"))leases.remove("output").close();
+        this.output=output;
+    }
     boolean completionReserved(){return !leases.isEmpty();}
     void releaseCompletion()throws IOException {check();require(!present(),"replay files still present");release();}
     private void reserve() {
-        if(!leases.isEmpty())return;
-        try {
-            for(String name:List.of("input","output"))leases.add(resources.reserve(MembershipResources.Unit.APPLICATION,
-                    "application-replay-"+name,MembershipResources.Unit.APPLICATION.bytes));
-        }catch(RuntimeException|Error error){release();throw error;}
+        reserve(output);
     }
-    private void release(){leases.forEach(MembershipResources.Lease::close);leases.clear();}
+    private void reserve(boolean output) {
+        var added=new ArrayList<String>();
+        try {
+            for(String name:output?List.of("input","output"):List.of("input"))if(!leases.containsKey(name)) {
+                leases.put(name,resources.reserve(MembershipResources.Unit.APPLICATION,
+                        "application-replay-"+name,MembershipResources.Unit.APPLICATION.bytes));added.add(name);
+            }
+        }catch(RuntimeException|Error error){for(String name:added)leases.remove(name).close();throw error;}
+    }
+    private void release(){leases.values().forEach(MembershipResources.Lease::close);leases.clear();}
     boolean present(){return !members.isEmpty();}
     void check()throws IOException {
         require(!closed,"replay files closed");require(resources.usage().counts().getOrDefault(MembershipResources.Unit.JOURNAL,0)==1,"replay shared journal reservation");
@@ -52,6 +71,7 @@ final class MembershipReplayFiles implements AutoCloseable {
         require(names.contains(CLAIM),"replay work without claim");directory(result,WORK);var work=children(path.resolve(WORK),4);
         var stages=work.stream().filter(v->v.matches("\\.gse-v41-backup-[0-9a-f]{32}\\.staging")).toList();
         var markers=work.stream().filter(v->v.matches("\\.gse-v41-backup-[0-9a-f]{32}\\.staging\\.operation")).toList();
+        require(output || !work.contains("output") && stages.isEmpty() && markers.isEmpty(),"control replay cannot own output files");
         require(stages.size()<=1 && markers.size()<=1 && !(work.contains("output") && !stages.isEmpty()),"replay output inventory");
         var allowed=new HashSet<>(List.of("input","output"));allowed.addAll(stages);allowed.addAll(markers);require(allowed.containsAll(work),"replay unknown work member");
         if(!stages.isEmpty())require(markers.contains(stages.getFirst()+".operation"),"replay staging without marker");

@@ -1,5 +1,13 @@
 # Phase 3 qualification inventory and remaining work
 
+[Carried application recovery](PHASE_3_CARRIED_APPLICATION_RECOVERY.md) adds
+INTENT/FINAL death after the original application ACK. Its native failures exposed
+unnecessary replay-output reservations and missing three-copy/three-source FLOOR
+pinning. The correction preserves the seven-image ceiling, all governing copies
+and exact original authority; snapshot/process qualification is recorded
+separately from full force/wire/resource and hosted acceptance, which remain OPEN.
+Historical two-slot replay results below describe their earlier runtime source.
+
 [Carried file/resource composition](PHASE_3_CARRIED_STORAGE_COVERAGE.md) joins
 whole-replica inventories to the same owner's original resource checkpoint.
 Existing native captures cover 5,131 campaign/FLOOR/retirement boundaries; the

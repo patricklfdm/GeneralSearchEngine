@@ -134,7 +134,32 @@ def baseline(files):
     return dict(metadata=metadata,staging=staging,counts=counts,leases=sum(counts.values()))
 
 
-def derived(before, after):
+def membership_edge(files):
+    """Only an independently admitted exact certificate can omit replay output."""
+    frames,_=native.c.pending(files['pending.accept'],('PROOF','CERTIFICATE'))
+    entry=f.decode(frames['ENTRY'],'records','ENTRY')
+    cert=f.decode(frames['CERTIFICATE'],'records','CERTIFICATE')
+    need(cert['entry']==sha(frames['ENTRY']) and frames['CERTIFICATE']==files['applied-end/certificate.gsr'],
+         'publication resources completion original certificate')
+    return entry['kind'] in ('INTENT','FINAL')
+
+
+def output_reserved(before,after,observed):
+    # Preserve historical conservative two-slot evidence. The reduced form
+    # additionally requires exact original membership bytes, never a label.
+    full=next(derived(before,after))[2]
+    if observed==full:return True
+    reduced=dict(full,staging=full['staging']-64*MIB,leases=full['leases']-1,
+                 counts=dict(full['counts'],APPLICATION=full['counts']['APPLICATION']-1))
+    need(observed==reduced,'publication resources exact charges: '+POINTS[0])
+    try:edge=membership_edge(before)
+    except ValueError as error:raise ValueError('publication resources exact charges: '+POINTS[0]) from error
+    need(edge,'publication resources exact charges: '+POINTS[0])
+    need(observed==next(derived(before,after,output=False))[2],'publication resources exact charges: '+POINTS[0])
+    return False
+
+
+def derived(before, after, *, output=True):
     """Eleven observed boundaries of one new publication; no installed/idempotent shortcut."""
     selector = f.decode(after['selector.gsr'],'records','SELECTOR')
     slot = 'generations/'+selector['generation']
@@ -145,10 +170,11 @@ def derived(before, after):
     installed = dict(before, **generation, **{'selector.gsr':after['selector.gsr']})
     retired = {n:v for n,v in installed.items() if n != 'applied-end' and not n.startswith('applied-end/')}
     retired['pending.accept'] = disk.EMPTY
+    need(type(output) is bool and (output or membership_edge(before)), 'publication resources output demand')
     for at, point in enumerate(POINTS):
         files = before if at <= 1 else installed if at <= 8 else retired if at == 9 else after
         charged = baseline(before if at == 0 else installed)
-        maximum = 4 if at == 0 else 3 if at <= 8 else 0
+        maximum = (3+int(output)) if at == 0 else (2+int(output)) if at <= 8 else 0
         if 1 <= at <= 7: charged['staging'] += 64*MIB-len(image[0])
         charged['staging'] += maximum*64*MIB
         charged['counts']['APPLICATION'] += maximum
@@ -167,7 +193,8 @@ def compare(transactions, plans):
         key = first['node'],cert['index']
         need(key in pending, 'publication resources unique derived publication')
         before,after = pending.pop(key)
-        for row,(point,expected,charges) in zip(rows,derived(before,after)):
+        output=output_reserved(before,after,rows[0]['storage'])
+        for row,(point,expected,charges) in zip(rows,derived(before,after,output=output)):
             need(row['point'] == point and row['files'] == expected, 'publication resources exact inventory: '+point)
             need(row['storage'] == charges, 'publication resources exact charges: '+point)
             maxima['metadata'] = max(maxima['metadata'],charges['metadata'])
