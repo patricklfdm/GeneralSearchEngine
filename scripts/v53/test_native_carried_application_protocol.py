@@ -109,9 +109,9 @@ class NativeCarriedApplicationProtocolTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'unexpected retirement'):m.cold(rows,{'node-1':{}})
         with self.assertRaisesRegex(ValueError,'unexpected retirement'):m.campaign(rows,{}, {})
 
-    def test_optional_adapter_cannot_claim_transient_capture_coverage(self):
+    def test_optional_adapter_cannot_claim_unimplemented_transient_coverage(self):
         with self.assertRaisesRegex(ValueError,'transient collectors unsupported'):
-            m.slot([],{},None,{},first=True,prefixes=[])
+            m.slot([],{},None,{},first=True,vote_prefixes=[])
 
     def test_bad_original_cannot_produce_negative_credit(self):
         with patch.object(m.p.process.collection,'inventory',return_value={}),patch.object(m,'validate',side_effect=ValueError('bad original')),\

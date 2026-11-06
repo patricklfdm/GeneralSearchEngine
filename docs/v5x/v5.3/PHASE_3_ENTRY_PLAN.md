@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Application maintenance plans](PHASE_3_CARRIED_APPLICATION_MAINTENANCE_PLANS.md)
+now derive campaign, FLOOR and generation/source-retirement states through the
+original ACK crash and recovery. This is expected-state coverage; captured-byte
+composition, physical charge ownership and Phase 3 closure remain pending.
+
 [Application retirement captures](PHASE_3_CARRIED_APPLICATION_RETIREMENT_PREFIXES.md)
 adds the old certificate, typed replay scratch and derived-end deletion family to
 the same application-ACK process history. Complete transient composition, physical

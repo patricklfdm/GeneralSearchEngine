@@ -24,6 +24,11 @@ owned by Phase 5; public operations/reads remain Phase 4.
 
 ## Development record
 
+[Application maintenance plans](PHASE_3_CARRIED_APPLICATION_MAINTENANCE_PLANS.md)
+now derive campaign, FLOOR and generation/source-retirement states through the
+original ACK crash and recovery. This is expected-state coverage; captured-byte
+composition, physical charge ownership and Phase 3 closure remain pending.
+
 [Application retirement captures](PHASE_3_CARRIED_APPLICATION_RETIREMENT_PREFIXES.md)
 adds the old certificate, typed replay scratch and derived-end deletion family to
 the same application-ACK process history. Complete transient composition, physical

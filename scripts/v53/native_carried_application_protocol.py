@@ -44,7 +44,8 @@ def no_retirement(rows):
 
 def campaign(rows,before,installed,**kwargs):
     no_retirement(rows)
-    return forces.campaign(rows,before,installed,maintainer=maintenance,**kwargs)
+    return forces.campaign(rows,before,installed,maintainer=maintenance,
+                          maintenance_projection=application.maintain,**kwargs)
 
 
 def replay_order(events,initial,applied):
@@ -80,7 +81,7 @@ def retired(rows,before):
     return remaining,result
 
 
-def interrupted(rows,before,after):
+def interrupted(rows,before,after,*,prefixes=None,floor_prefixes=None):
     no_retirement(rows)
     selected=f.decode(c.current(before['node-1'])[1]['selected.gsr'],'records','SELECTED')
     voters=[v['voter'] for v in selected['sources']];accepting=copy.deepcopy(before);stats=[]
@@ -89,8 +90,12 @@ def interrupted(rows,before,after):
     for node in before:
         events=forces.names(rows,node)
         forces.exact(events,forces.GRANTS,[],'application protocol interrupted campaign overlap')
-        expected,detail=maintenance(accepting,node) if node in voters else ([],{})
+        local=[] if prefixes is not None else None
+        floors=[] if floor_prefixes is not None else None
+        expected,detail=maintenance(accepting,node,prefixes=local,floor_prefixes=floors) if node in voters else ([],{})
         forces.maintenance_order(rows,node,expected);stats.append(detail)
+        forces.bind_prefixes(rows,node,local,prefixes)
+        forces.bind_prefixes(rows,node,floors,floor_prefixes,floors=True)
         forces.ledger_order(rows,node,before[node][d.s.FILE],after[node][d.s.FILE])
         if node not in voters:
             forces.exact(events,TRACKED,[],'application protocol untouched interrupted owner');continue
@@ -120,15 +125,16 @@ def interrupted(rows,before,after):
     return stats
 
 
-def slot(rows,before,applied_group,published,*,first,point=None,**collectors):
-    # These adapters qualify callback order only. Transient collectors must not
-    # accidentally acquire apparent coverage through the application adapter.
+def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None,floor_prefixes=None,**collectors):
+    # Maintenance plans use the same staged-owner deferral and original pins as
+    # callback validation. Vote/application/replay collectors remain unsupported.
     need(all(v is None for v in collectors.values()),'application protocol transient collectors unsupported')
     if point is not None:
         need(point==application.CUT and first,'application protocol exact interrupted cut')
-        return interrupted(rows,before,published)
+        return interrupted(rows,before,published,prefixes=prefixes,floor_prefixes=floor_prefixes)
     rows,before=retired(rows,before)
-    stats=forces.slot(rows,before,applied_group,published,first=first,maintainer=maintenance)
+    stats=forces.slot(rows,before,applied_group,published,first=first,maintainer=maintenance,
+                      prefixes=prefixes,floor_prefixes=floor_prefixes)
     selected=f.decode(c.current(before['node-1'])[1]['selected.gsr'],'records','SELECTED')
     for source in selected['sources']:
         node=source['voter'];files=applied_group[node]

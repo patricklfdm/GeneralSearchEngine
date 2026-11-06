@@ -199,12 +199,13 @@ def cold(rows,before,*,vote_prefixes=None):
             bind_votes(rows[:end],node,plan,vote_prefixes)
 
 
-def campaign(rows,before,installed,*,prefixes=None,floor_prefixes=None,campaign_prefixes=None,maintainer=maintenance):
+def campaign(rows,before,installed,*,prefixes=None,floor_prefixes=None,campaign_prefixes=None,maintainer=maintenance,maintenance_projection=None):
     chosen=f.decode(c.current(installed['node-1'])[1]['selected.gsr'],'records','SELECTED')
     voters=[v['voter'] for v in chosen['sources']]
     touched=[n for n in before if n in voters or before[n]['grants.gsr']!=installed[n]['grants.gsr']]
     reconciled=p.t.t.reconcile(before,touched);stats=[]
-    maintained=p.maintain(reconciled,touched,campaign=True) if campaign_prefixes is not None else None
+    project=p.maintain if maintenance_projection is None else maintenance_projection
+    maintained=project(reconciled,touched,campaign=True) if campaign_prefixes is not None else None
     observed=campaign_files.observed(rows) if campaign_prefixes is not None else None
     for node in before:
         local=[] if prefixes is not None else None

@@ -1,0 +1,257 @@
+{
+  "acceptancePlan": {
+    "path": "docs/v5x/v5.3/acceptance-plan.json",
+    "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+  },
+  "base": "e3fd7d271696024e5c34850ade8ba32fcc58d15e",
+  "capturedBytesQualified": false,
+  "cohortAdmitted": false,
+  "currentSources": [
+    {
+      "path": "scripts/v53/native_carried_application_maintenance_plans.py",
+      "sha256": "b4ff34592600d54b8981e6975686dd07aa5d6963ed72262612624176b4d8abd6"
+    },
+    {
+      "path": "scripts/v53/native_carried_application_protocol.py",
+      "sha256": "debbaee9bec0d49b9a4217b67e02936142a33ca35b80415732ebd736ca4636c2"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_forces.py",
+      "sha256": "b2ced016f53f269b75f6c188656dbdffc109552c88f46ca94ca54cb19ba14579"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_application_maintenance_plans.py",
+      "sha256": "54ecb0e8acd90d70cb2fe642fb136349ef0ec297c66f80019eab7054ffd82212"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_application_protocol.py",
+      "sha256": "5c73e15f7fe4bdba163108b55c939e269ac2176c6b5359ff56c0270367414f73"
+    }
+  ],
+  "frozenParametersChanged": false,
+  "fullTransientBytesQualified": false,
+  "hostedExecuted": false,
+  "limitations": [
+    "Expected-state coverage uses unchanged original histories from distinct prior producer snapshots, not newly executed native histories or captured file bytes.",
+    "Complete same-history transient composition, physical charge binding and application-ACK cohort admission remain pending.",
+    "Only Python verification and documentation changed. No Maven, workflow, cloud, timing/budget relaxation or producer retry was used."
+  ],
+  "log": {
+    "path": "target/v53-carried-application-maintenance/replay.log",
+    "sha256": "975ee4043b4fc2b450765c63818414ff1f2d4bed195035c1dd7cf8b111514620"
+  },
+  "nativeExecuted": false,
+  "originals": [
+    {
+      "bytes": 46004583,
+      "families": {
+        "campaign": {
+          "lifetimes": [
+            {
+              "life": 1,
+              "prefixes": 172
+            },
+            {
+              "life": 2,
+              "prefixes": 451
+            }
+          ],
+          "prefixes": 623
+        },
+        "floor": {
+          "lifetimes": [
+            {
+              "life": 1,
+              "prefixes": 306
+            },
+            {
+              "life": 2,
+              "prefixes": 1037
+            }
+          ],
+          "prefixes": 1343
+        },
+        "retirement": {
+          "lifetimes": [
+            {
+              "life": 1,
+              "prefixes": 165
+            },
+            {
+              "life": 2,
+              "prefixes": 812
+            }
+          ],
+          "prefixes": 977
+        }
+      },
+      "files": 5023,
+      "inventory": {
+        "path": "target/v53-carried-application-maintenance/intent-halt-inventory.json",
+        "sha256": "817e7c304bf162dce931f77cf9a5ba5065215de4bbc593b2e3987957838e12bd"
+      },
+      "name": "intent-halt",
+      "originalUnchanged": true,
+      "plans": {
+        "path": "target/v53-carried-application-maintenance/intent-halt-plans.json",
+        "sha256": "eef01284f1f0b5d3933749f833a43f2e3e9b77e3ce64fb509860d6c9f99191e3"
+      },
+      "result": {
+        "path": "target/v53-carried-application-maintenance/intent-halt-result.json",
+        "sha256": "ab4ea12ad64938ac310b8c6be267675c1a9533f6d8539105e594de823609ba61"
+      },
+      "root": "target/v53-carried-application-retirement/producer/workspace/general-search-engine-replication/target/v53-native-carried-application-retirement-prefixes/run-5f875c1f-7e3d-44bd-8bc4-dbea70af14f2/previous/observed",
+      "seconds": 54.33037768199574
+    },
+    {
+      "bytes": 43735810,
+      "families": {
+        "campaign": {
+          "lifetimes": [
+            {
+              "life": 1,
+              "prefixes": 172
+            },
+            {
+              "life": 2,
+              "prefixes": 285
+            }
+          ],
+          "prefixes": 457
+        },
+        "floor": {
+          "lifetimes": [
+            {
+              "life": 1,
+              "prefixes": 306
+            },
+            {
+              "life": 2,
+              "prefixes": 771
+            }
+          ],
+          "prefixes": 1077
+        },
+        "retirement": {
+          "lifetimes": [
+            {
+              "life": 1,
+              "prefixes": 141
+            },
+            {
+              "life": 2,
+              "prefixes": 456
+            }
+          ],
+          "prefixes": 597
+        }
+      },
+      "files": 5696,
+      "inventory": {
+        "path": "target/v53-carried-application-maintenance/final-kill-inventory.json",
+        "sha256": "6353cd3355395c368e194da913b772579ce0e9c6b0f59f30cbb102653436f560"
+      },
+      "name": "final-kill",
+      "originalUnchanged": true,
+      "plans": {
+        "path": "target/v53-carried-application-maintenance/final-kill-plans.json",
+        "sha256": "bc84b5c07cab2208ac9d388f2b1237e8177b728c97fafacf5d92fc25d58493bd"
+      },
+      "result": {
+        "path": "target/v53-carried-application-maintenance/final-kill-result.json",
+        "sha256": "8dc79e5df8a5984bc5245fc48ed15a4d50fdb61df75b2699b08afde7b28f74e5"
+      },
+      "root": "target/v53-carried-application-resources/qualification/final-kill",
+      "seconds": 43.829195810016245
+    }
+  ],
+  "paidCloudExecuted": false,
+  "phase3Complete": false,
+  "plan": {
+    "path": "docs/v5x/v5.3/phase3-qualification-plan.json",
+    "sha256": "14306524efa1ab199fc4ae313747a7ba3c6cb0116f595b3f451e91ececd38eb1"
+  },
+  "priorIndexes": {
+    "count": 394,
+    "inventory": {
+      "path": "target/v53-carried-application-maintenance/historical-indexes.json",
+      "sha256": "49ab902abe3b6b6313cf35ca5802ce0d17f0d0fdff737d5bccc90b3ce425519d"
+    },
+    "unchanged": true
+  },
+  "producerIndexes": [
+    {
+      "path": "docs/v5x/v5.3/phase3-evidence/carried-application-retirement-development.json",
+      "sha256": "f086e3b81fc2af653c888d944d6c47d0c3b324be4b4c39c3c32ecccdac3b5b38"
+    },
+    {
+      "path": "docs/v5x/v5.3/phase3-evidence/carried-application-resources-development.json",
+      "sha256": "e73149db6df6932f58e379a4e26b542dd3aa61219351ce8c0d7ec6d0f859ad0b"
+    }
+  ],
+  "projectedCallbacks": 5074,
+  "runtimeJavaChanged": false,
+  "schema": "gse-v53-carried-application-maintenance-development-v1",
+  "scripts": [
+    {
+      "path": "target/v53-carried-application-maintenance/replay.py",
+      "sha256": "31729b96fc902fc0d5e8364b08f96f73160bfc5ecb7b9227bdaf2c35972ac561"
+    },
+    {
+      "path": "target/v53-carried-application-maintenance/index-evidence.py",
+      "sha256": "a41319330d5cc11fedd98911d2ec181c7d3a6a10b3dd977ea8027b1a13828e9f"
+    }
+  ],
+  "source": {
+    "path": "target/v53-carried-application-maintenance/source.json",
+    "sha256": "767e8083c1ef4e67bb74c7402bf0723d49d243dfb2f252ec0bbfee13898a4724"
+  },
+  "summary": {
+    "path": "target/v53-carried-application-maintenance/summary.json",
+    "sha256": "6d38fb17e77b4d7299d9786651aff866df73a916fbf1bc0ec42e0b2939e6f35d"
+  },
+  "tests": {
+    "documentationContract": {
+      "path": "target/v53-carried-application-maintenance/contract.json",
+      "sha256": "19aed420ee3b877272d22d6e9dda92f68c9dfc37201f40c964d7ae03423ab98b"
+    },
+    "precedingAdapterFailures": 4,
+    "precedingLog": {
+      "path": "target/v53-carried-application-maintenance/before-tests.log",
+      "sha256": "037c8ca680e5a1a1b7c894beaddeb9654096c6d2e6fc3c9c470555ef844078f5"
+    },
+    "status": "PASS",
+    "suites": [
+      {
+        "log": {
+          "path": "target/v53-carried-application-maintenance/unit-tests.log",
+          "sha256": "b2a85c8ad0ef868c43241ab4e106b535c65011aaf4a891cf8697b7369b4a6506"
+        },
+        "tests": 40
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-maintenance/optimized-tests.log",
+          "sha256": "91b7b8caf4613825f2dbd06a61f4d46a911a634cb7fce0e29122d922d477d89d"
+        },
+        "tests": 40
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-maintenance/related-tests.log",
+          "sha256": "141fd46a45acac8e311675ec4c748527eb1bc76f86c2ead62fb89357558c3ecf"
+        },
+        "tests": 270
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-maintenance/planning-tests.log",
+          "sha256": "939177440872f98a9829a18d132f1badffe4b482f8d52ca9efbc121975ceaddb"
+        },
+        "tests": 34
+      }
+    ],
+    "suitesOverlap": true
+  },
+  "wholeRuntimeResourcesQualified": false
+}
