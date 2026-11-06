@@ -1,5 +1,14 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Required-four resource execution](PHASE_3_REQUIRED_FOUR_ENTRY.md) now provides
+an immutable producer and independent downloaded replay for one complete
+required-four history. The original must pass physical/network/resource and
+file-custody checks before all 47 exact accounting/handoff/file negatives.
+The corrected-source native execution is deferred to the hosted batch; local
+orchestration and historical transport checks confer no native credit. This
+supplementary three-job entry changes no existing catalogue counts or limits.
+All five Phase 3 closure gaps remain OPEN.
+
 [Original file-to-custody binding](PHASE_3_JOINED_FILE_RESOURCES.md) now records
 actual predecessor/successor reservation pairs, including distinct equal-content
 images. One complete local producer exposed an exact PREPARE retry reader bug
