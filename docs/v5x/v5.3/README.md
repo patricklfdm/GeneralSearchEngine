@@ -2,9 +2,12 @@
 
 [Carried transition process cases](PHASE_3_CARRIED_TRANSITION_PROCESS.md) now
 exercise whole-group death during original INTENT/FINAL recovery and restart on
-unchanged directories. The new reader checks the admitted prefix and original
-process observations; complete interrupted storage/network replay and hosted
-admission remain OPEN. The twelve-subset catalogue is unchanged.
+unchanged directories. The process reader checks the admitted prefix and original
+process observations. A separate storage reducer now derives every retained
+four-owner snapshot across both JVMs, including exact cold votes, campaign source
+retirement and fresh stable publication; two retained originals and forty exact
+storage negatives pass. Complete force/network replay and hosted admission remain
+OPEN. The twelve-subset catalogue is unchanged.
 Two retained originals exposed source accumulation after restart; the campaign-only
 correction now passes both focused process cases. These remain component checks.
 

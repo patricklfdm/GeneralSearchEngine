@@ -34,7 +34,10 @@ def wrapped(promise, ledger, descriptor):
     return frame(0x47535250, s.part(promise)+s.part(ledger)+bytes.fromhex(e.digest(descriptor)), 2)
 
 
-def install(group, sources, grants, names, ballot, futures, extras, *, selected_prefix=None):
+def install(group, sources, grants, names, ballot, futures, extras, *, selected_prefix=None, merge_ledgers=None):
+    # The default keeps the older no-confirmation contract. Histories with
+    # original confirmation/renewal provenance must supply their owning reducer;
+    # neither a decoded response nor an observed final ledger is a substitute.
     longest = names[-1]; packet = sources[longest][1]; cap = packet['capsule']
     choices = []
     for node in names:
@@ -73,7 +76,7 @@ def install(group, sources, grants, names, ballot, futures, extras, *, selected_
         selector, generation = c.generation(members, s.p.decode(raw)['capsule'], node, 'b' if prefix=='generations/a/' else 'a', tail)
         selected_group[node] = dict(files, **{'grants.gsr':files['grants.gsr']+selected})
         result[node] = dict(selected_group[node], **generation, **{'selector.gsr':selector,
-            s.FILE:s.merged(files[s.FILE], [group[n][s.FILE] for n in names])})
+            s.FILE:(s.merged if merge_ledgers is None else merge_ledgers)(files[s.FILE], [group[n][s.FILE] for n in names])})
     return selected_group, result
 
 

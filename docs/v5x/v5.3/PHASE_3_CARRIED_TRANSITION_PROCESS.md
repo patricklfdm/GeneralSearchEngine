@@ -2,7 +2,8 @@
 
 Phase 3 remains **OPEN**. These development process cases extend the existing
 [carried transition pair](PHASE_3_CARRIED_TRANSITIONS.md). Complete interrupted
-storage/network replay and source-bound cohort admission are still required.
+force/network replay and source-bound cohort admission are still required. The
+original storage snapshot reduction described below is now implemented.
 They do not add accepted members to the twelve hosted subsets.
 
 ## Original history and process ownership
@@ -62,6 +63,60 @@ process reader must be completed before extending the hosted carried-transition
 catalogue. The existing 552 native histories / 246 groups / 486 archives and
 516 workflow jobs remain unchanged.
 
+## Original storage snapshot reduction
+
+The separate [physical component reader](../../../scripts/v53/native_carried_transition_physical.py)
+first requires the complete process component above. It then independently
+reduces the admitted prefix again and derives every retained snapshot of all four
+owners. It uses observed fresh source UUIDs and the selected voting cohort, but
+does not take expected votes, sources, catalogs, generations or ledgers from the
+observed snapshots. Both governing majorities are checked before installation.
+
+Cold reopening preserves a current vote's original phase. Transferring an older
+vote derives only the exact new ACCEPT for the original entry and payload; it
+does not carry over a previous ballot's PROOF or create an application ACK.
+The ACCEPT-rename cut changes only the local voter. At the PROOF-rename cut,
+the selected peers have accepted but only the local owner has the new proof and
+its preceding generation maintenance. Both the interrupted snapshot and the
+unchanged dead directories must equal this derived state.
+
+Each successor campaign derives governing FLOOR coverage, peer observations,
+generation retirement and source/journal pruning before its fresh grant. The
+campaign-only permission preserves the exact transferred context vote. Ordinary
+in-slot context maintenance retains its previous source/journal ownership. New
+promise/basis/selection records, source packets and generations are then derived
+from that state. The confirmation-aware ledger merge uses already-derived
+original provenance; older DATA/inherited-future callers keep their strict default
+merge. Unselected and removed owners remain part of every full comparison.
+
+The reducer preserves the original carried entry through application and
+publication, derives any remaining FINAL, and derives the new stable BARRIER.
+All captured applied ends, checkpoints, peer/FUTURE ledgers, ready and close
+inventories must match. Staged application crash recovery is still excluded.
+The component result stays **PARTIAL**, with `snapshotByteReplay=true` and
+`fullForceReplay=false`, `fullWireReplay=false`, `cohortAdmitted=false`.
+The unchanged process component's `completePhysicalReplay=false` describes its
+own narrower scope. Neither component establishes temporal export authority or
+the exact force/deletion prefixes between these snapshots.
+
+The [storage development index](phase3-evidence/carried-transition-physical.json)
+retains reader hashes, original inventories and receipts. The same two previously
+executed native histories pass snapshot reduction and twenty exact storage
+mutations each. The mutations cover cold votes, interrupted peers, original and
+reclaimed sources, applied catalogs/ACKs/images, publication ledgers, the fresh
+barrier and unselected owners. In two cases both dead-directory copies change
+together: their mutual equality still holds, but the derived original state
+rejects them. An invalid original or unrelated rejection cannot earn negative
+credit. Optimized Python replay after relocation preserves every original byte.
+No Java history was rerun for this reader batch; no additional process cases
+are claimed. Existing DATA full network replay and uninterrupted FINAL physical
+replay also pass after the shared helper change.
+
+```bash
+python3.11 -B -m scripts.v53.native_carried_transition_physical \
+  general-search-engine-replication/target/v53-native-carried-transition-process/run-<id> --qualify
+```
+
 ## Development checks and reproduction
 
 The retained [development index](phase3-evidence/carried-transition-process.json)
@@ -118,9 +173,9 @@ work is deliberately excluded from this new permission. The eight declared
 cases cover the earlier exact ACCEPT/PROOF cuts only.
 
 Before these eight cases enter the hosted catalogue, the owning reader must
-derive every cold-open vote transfer and interrupted file prefix, replay each
-fresh campaign's complete governing copies and source retirements, and qualify
-all original TCP/export lifetimes across both JVMs. Whole-history admission must
+extend the completed cold-vote and snapshot reduction through every exact
+force/deletion prefix, and qualify all original TCP/export lifetimes across
+both JVMs. Whole-history admission must
 then bind that replay to the exact source, build, tools and original archive.
 The application-ACK recovery axis needs its own implementation and evidence;
 the campaign-only permission does not authorize it.
