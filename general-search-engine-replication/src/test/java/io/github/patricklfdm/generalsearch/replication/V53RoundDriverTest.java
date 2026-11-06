@@ -46,11 +46,11 @@ class V53RoundDriverTest {
                     }
                     if(event.equals("SLOT_BEGIN"))n.events.add(Map.of("node","node-1","event",event,"index",record.value().get("index")));
                     callback.at(event,record);
-                },(event,record,voters)->{
+                },n.observeLocalSlots((event,record,voters)->{
                     if(event.equals("FUTURE_QUORUM_COMPLETE"))n.events.add(Map.of("node","node-1","event",event,"index",record.value().get("index"),"voters",voters.stream().sorted().toList()));
                     if(event.equals("APPLIED") || event.equals("PUBLISHED"))try{n.f.snapshot(event.toLowerCase(Locale.ROOT)+"-"+record.value().get("index"));}
                     catch(Exception error){throw new IOException(error);}
-                });
+                }));
     }
     byte[] data(V53NativeDispatchTest.Network n)throws Exception {
         try(var encoder=new ReplicaApplication<>(builder().configuration(),n.f.request.targets().getFirst().materialization(),n.bounds)) {
@@ -59,6 +59,17 @@ class V53RoundDriverTest {
     }
     @Test void activationFreshBarrierAndSequentialDataHaveOneGuardedOwner()throws Exception {
         stable(false);
+    }
+    @Test void roundFixtureCapturesOriginalLocalPublications()throws Exception {
+        String previous=System.getProperty("v53.resource.slot.control");System.setProperty("v53.resource.slot.control","true");
+        try(var n=network(null);var round=driver(n,MembershipRoundDriver.Events.NONE)) {
+            var barrier=round.start();n.assertLocalSlots(1);
+            var done=round.submit("DATA",data(n));n.assertLocalSlots(2);
+            var replies=n.events.stream().filter(e->e.get("event").equals("LOCAL_SLOT_RESPONSE")).toList();
+            assertArrayEquals(barrier.bytes(),Base64.getDecoder().decode((String)replies.getFirst().get("bytes")));
+            assertArrayEquals(done.bytes(),Base64.getDecoder().decode((String)replies.getLast().get("bytes")));
+            assertThrows(AssertionError.class,()->n.assertLocalSlots(3));
+        } finally {if(previous==null)System.clearProperty("v53.resource.slot.control");else System.setProperty("v53.resource.slot.control",previous);}
     }
     @Test void discoveredStartScansBeforeFreshActivationAndBarrier()throws Exception {
         stable(true);

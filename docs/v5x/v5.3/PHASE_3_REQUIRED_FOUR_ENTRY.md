@@ -8,7 +8,7 @@ BARRIER or cold reopen across jobs. The entire original is produced once, then
 downloaded and replayed by a separate job.
 
 The implementation is ready for later hosted execution. The corrected-source
-native original and its 89 original-first negative results are **pending**.
+native original and its 147 original-first negative results are **pending**.
 Historical diagnostic results cannot fill this slot. This supplementary entry
 is outside the twelve-subset catalogue (566 histories, 260 execution groups,
 500 raw archives and 544 selected jobs); it adds one original and three jobs
@@ -36,10 +36,11 @@ is rejected. Failure retains the original, without a measurement retry.
 
 [`required_four_resource_run.py`](../../../scripts/v53/required_four_resource_run.py)
 accepts only `V53JoiningIntentExportTest#requiredFourVotersCompleteReplacementFinalAndStableBarrier`
-with all ten observation properties enabled: `joining.requiredFour`,
+with all twelve observation properties enabled: `joining.requiredFour`,
 `publication.resources`, `resource.transitions`, `transport.connections`, `transport.unsent`,
 `resource.storage.transfers`, `resource.owner.close`, `resource.joined.close`,
-`resource.source.control`, `resource.control.close`, and `resource.export.ownership`. A prefix, missing flag, extra JUnit test, skipped
+`resource.source.control`, `resource.control.close`, `resource.export.ownership`, and
+`resource.slot.control`. A prefix, missing flag, extra JUnit test, skipped
 test or Surefire rerun is rejected. Full source, generated classes, reader code,
 portable toolchain and raw inventories are checked before and after replay.
 

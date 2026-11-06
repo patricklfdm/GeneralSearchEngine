@@ -44,8 +44,7 @@ class V53JoiningIntentExportTest {
     }
     static MembershipSlotDriver.Events slotObservations(V53NativeDispatchTest.Network n,
             MembershipLearnerPlan joining,Path materialization) {
-        return new MembershipSlotDriver.Events() {
-        @Override public void at(String event,Decoded record,Set<String> voters)throws java.io.IOException {
+        return n.observeLocalSlots((event,record,voters)->{
             n.events.add(Map.of("node","node-1","event","JOINING_SLOT_"+event,"index",record.value().get("index"),
                     "record",record.digest(),"voters",voters.stream().sorted().toList()));
             if(event.equals("APPLIED") || event.equals("PUBLISHED"))try {
@@ -53,14 +52,7 @@ class V53JoiningIntentExportTest {
                 n.f.snapshot(name);
                 if(joining!=null)joinedSnapshot(joining,materialization,n.f.raw.resolve("joining-"+name));
             }catch(Exception error){throw new java.io.IOException(error);}
-        }
-        private void local(String event,Decoded record) {
-            if(Boolean.getBoolean("v53.resource.slot.control"))n.events.add(Map.of("node","node-1","event",event,
-                    "record",record.digest(),"bytes",Base64.getEncoder().encodeToString(record.bytes())));
-        }
-        @Override public void localPublicationRequest(Decoded request){local("LOCAL_SLOT_REQUEST",request);}
-        @Override public void localPublicationResponse(Decoded response){local("LOCAL_SLOT_RESPONSE",response);}
-        };
+        });
     }
     static Decoded initial(MembershipLearnerRequest request,MembershipIdentity peer,Map<String,Object> cut) {
         return frame(request,peer,UUID.randomUUID(),1,"CHUNK",Map.of("id",UUID.randomUUID().toString(),"action","REQUEST",
@@ -691,7 +683,7 @@ class V53JoiningIntentExportTest {
                         System.out.println("v53JoiningContinuation=installed cut="+object(record.value().get("cut")).get("index"));
                     }
                 };
-                MembershipSlotDriver.Events slotEvents=(event,record,voters)->{
+                MembershipSlotDriver.Events slotEvents=n.observeLocalSlots((event,record,voters)->{
                     slotObservations(n,plan,config.materialization().directory()).at(event,record,voters);
                     if(event.equals("PUBLISHED"))System.out.println("v53JoiningContinuation=published index="+record.value().get("index"));
                     if(recoverAtFinal && event.equals("PUBLISHED") && number(record.value().get("index"))==stableIndex-1) {
@@ -713,7 +705,7 @@ class V53JoiningIntentExportTest {
                             System.out.println("v53JoiningContinuation=same-view-prefix-recovered cut="+(stableIndex-1));
                         }catch(Exception error){throw new java.io.IOException("same-view original FINAL prefix recovery",error);}
                     }
-                };
+                });
                 try(var coordinated=joiningService?new MembershipJointContinuation<>(n.owners.getFirst(),n.endpoints.getFirst(),n.resources.getFirst(),n.bounds,
                         n.transports.getFirst(),temp.resolve("joining-coordinated-round"),System::nanoTime,budget,2,
                         builder().configuration(),n.f.request.targets().getFirst().materialization(),roundEvents,slotEvents):null;
@@ -793,6 +785,7 @@ class V53JoiningIntentExportTest {
         trace.cut("stable-cold-owner").at("FIXTURE_CLOSE_RETURNED");
         assertEquals(0,resources.usage().leases());
         joinedSnapshot(plan,config.materialization().directory(),n.f.raw.resolve("joining-originals-stable-cold"));
+        n.assertLocalSlots(stableIndex);
         result.put("status","PASS");result.put("stableColdReopened",true);
         Files.write(n.f.raw.resolve("joining-continuation-result.json"),canonical(result,65536));
         System.out.println("v53JoiningContinuation=stable-cold-reopened");

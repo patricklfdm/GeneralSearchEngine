@@ -15,7 +15,7 @@ def fixture():
         certificate.update(index=index,ballot=copy.deepcopy(selected['ballot']),authority=selected['view'],entry=f'{index+10:064x}')
         phases.append({k:f.encode('records',k,v) for k,v in [('SELECTED',selected),('CERTIFICATE',certificate)]})
         for proof in certificate['proofs']:
-            node=proof['voter'];identities[node]=dict(node=node,incarnation=proof['incarnation'])
+            node=proof['voter'];identities[node]=dict(node=node,storage=proof['incarnation'],host='127.0.0.1',port=10000+int(node[-1]))
             images[index,node]={'generations/current/generation.gsr':f'{index}/{node}'.encode(),
                 'capsule':dict(cut=dict(index=index,entry=certificate['entry'],view=dict(generation=index)),catalog=f'{index+20:064x}',application=f'{index+30:064x}')}
     def owner(phase,index,node):
@@ -57,7 +57,7 @@ class MembershipControlPublicationsTest(unittest.TestCase):
             if mutation=='empty':model.phases=[]
             elif mutation=='missing':model.entries.pop()
             elif mutation in ('index','entry'):images[1,'node-2']['capsule']['cut'][mutation]=99 if mutation=='index' else 'f'*64
-            elif mutation=='identity':ids['node-2']['incarnation']='00000000-0000-0000-0000-000000000099'
+            elif mutation=='identity':ids['node-2']['storage']='00000000-0000-0000-0000-000000000099'
             else:ids.pop('node-2')
             with self.subTest(mutation=mutation),self.assertRaises(ValueError):self.replay(model,ids)
 

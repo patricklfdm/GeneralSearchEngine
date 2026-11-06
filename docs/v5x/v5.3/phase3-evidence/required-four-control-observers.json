@@ -1,0 +1,151 @@
+{
+  "archiveSha256": "827cf76920a67c6a13e987c3e6d7929699d94bc6941658569b4ca0e9fcd80adc",
+  "capture": {
+    "elapsedSeconds": 1434.086,
+    "exit": 0
+  },
+  "combinedResourcesQualified": false,
+  "completeNegativeCredit": 0,
+  "correctedReaderDiagnostic": {
+    "activation": {
+      "message": "activation resources unobserved allocation",
+      "status": "FAIL",
+      "type": "ValueError"
+    },
+    "slot": {
+      "message": "slot resources original waiter binding/extent",
+      "status": "FAIL",
+      "type": "ValueError"
+    },
+    "voting": {
+      "boundReservations": 138,
+      "connectedAttempts": 72,
+      "durableBoundaryChecks": 138,
+      "incomingVotingResourcesQualified": true,
+      "interruptedHandlersQualified": false,
+      "kinds": {
+        "ACCEPT": 23,
+        "APPLY": 23,
+        "PROOF": 23
+      },
+      "phase3Complete": false,
+      "repeatedIdenticalAttempts": 3,
+      "separatelyTracedFastAcks": 0,
+      "status": "PASS",
+      "waiterReservations": 69,
+      "wholeRuntimeResourcesQualified": false,
+      "writerControls": 69
+    }
+  },
+  "correctedReaderSha256": "1de8638726a46c62b37d2a5b17edc7570859d065f306a5d19242ba3485d50b59",
+  "correctedRoundReplay": {
+    "elapsedSeconds": 68.17498416000012,
+    "negativeCases": 58,
+    "originalFirst": true,
+    "originalPreserved": true,
+    "phase3Complete": false,
+    "requiredFourQualified": false,
+    "scope": "round-adapter-physical-network-control-component",
+    "status": "PASS",
+    "wholeRuntimeResourcesQualified": false
+  },
+  "finalSourceCohortQualified": false,
+  "firstReplay": "INTERRUPTED_WITHOUT_TERMINAL_RECEIPT",
+  "javaTests": {
+    "errors": 0,
+    "failures": 0,
+    "methods": [
+      "V53RoundDriverTest#roundFixtureCapturesOriginalLocalPublications",
+      "V53SlotDriverTest#localPublicationObservationsCarryActualBytesAcrossTwoSlots"
+    ],
+    "tests": 2
+  },
+  "observationGap": {
+    "localPublicationIndices": [
+      8,
+      9
+    ],
+    "localPublicationsExpected": 11,
+    "missingLocalIndices": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      10,
+      11
+    ],
+    "nativeExecution": "PASS",
+    "phase3Complete": false,
+    "physicalPublications": 34,
+    "rawBytes": 126094470,
+    "rawFiles": 7020,
+    "status": "OBSERVATION_GAP"
+  },
+  "phase3Complete": false,
+  "pythonTests": {
+    "failures": 0,
+    "focused": 152,
+    "optimized": 96
+  },
+  "raw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-f0382a93-0a41-49f0-889b-02a83069666c",
+  "resumedPinnedReplay": {
+    "execution": {
+      "elapsedSeconds": 462.309,
+      "exit": 1
+    },
+    "loadedReaderSha256": "026c65ed18c35abea57b47867e820cc697df199827bf5fe0d36dabc17199aa9b",
+    "note": "Reader pins matched before invocation. The slot projection module was loaded before its one-field correction; the traceback source line can reflect the subsequently edited live file. The retained immutable producer source and original KeyError identify the old field lookup. No qualification credit is claimed.",
+    "preservation": {
+      "elapsedSeconds": 470.735205944,
+      "originalPreserved": true,
+      "relocatedOriginalPreserved": true
+    },
+    "receipt": {
+      "failure": {
+        "message": "'incarnation'",
+        "type": "KeyError"
+      },
+      "phase3Complete": false,
+      "profile": "5-REPLACE-required-four",
+      "schema": "gse-v53-required-four-resources-execution-v1",
+      "status": "FAIL"
+    }
+  },
+  "retainedArtifacts": {
+    "target/v53-required-four-control-complete/V53RoundDriverTest.xml": "9bd075497c176072a0f1e477fd922ed3bd0dd12356ed19dba8f022271e7fb9e4",
+    "target/v53-required-four-control-complete/V53SlotDriverTest.xml": "a0e0a9c35e578800c17b428f76f0deb46bbdad3c750f603686beef11d877595c",
+    "target/v53-required-four-control-complete/artifact/manifest.json": "ee179dad1d5f4140943bb7fd4eb689e4a59c6214f744a97bcadd3b1a19404bfc",
+    "target/v53-required-four-control-complete/corrected-observed-components.json": "fd3bb4ecf44754fe4723211f0e94fb4a71b7b75b24023203ae3bd5b103560084",
+    "target/v53-required-four-control-complete/corrected-reader-manifest.json": "9892db3c69162a0c43a15403e1fd998f892951ab879e4b637fb14c15a2d68fb8",
+    "target/v53-required-four-control-complete/corrected-round-replay.json": "b6f5a29c6beb182132189a079f5a48ef4f2cbfd0e94e475edfcd155ff666feaf",
+    "target/v53-required-four-control-complete/corrected-slot-replay.json": "df8bbeb4e0861e7bbe3c25faf05f3a4c183b0aff123ee9d6c805eb5e7e2f533b",
+    "target/v53-required-four-control-complete/doc-contract.json": "298dc68115332c94d8be1f646d193671b43d58353e37fffd41780d3f0f0a49ce",
+    "target/v53-required-four-control-complete/focused-tests.log": "b74e0d0b3a690a4a1bdf453c46744d019b7485369cfe5bc58b316b2955cef3ea",
+    "target/v53-required-four-control-complete/observation-gap.json": "5c6ce19548fb360d95ba10efee21524fcbde927f64a624a2dedb3776a58c6ba5",
+    "target/v53-required-four-control-complete/observed-components.log": "3b2b8bc931cd584f003034bcf984f88777029b9456a7205907919085bb9ddbf4",
+    "target/v53-required-four-control-complete/observer-wiring-source.json": "71cb08eb1eba269ff791ac6ad767e4fd6427199f70b5d02859f50fd499278556",
+    "target/v53-required-four-control-complete/observer-wiring-tests.log": "1dfd078aa396926eda27d5a97fecab667dc17e128e87d078afa62bd67d92d874",
+    "target/v53-required-four-control-complete/optimized-tests.log": "c6e71c60268c809ae1f29673c99c061dcb8515ab1ec579f26684a5c81e226b77",
+    "target/v53-required-four-control-complete/original-producer-inventory.json": "7fb488b4891aa0579b75b5ce43d92cbcf0002d4c0282b3357ae7c1788463b9d0",
+    "target/v53-required-four-control-complete/plan-audit.log": "5831b8e36275da84da0e202da185f006cc2344cfe2957800ad1243ec23394286",
+    "target/v53-required-four-control-complete/portable-verification.log": "13a27ede6f6676dc23e0d1f7d882693b3aa7fa04d6c0bf88aa92732d3fe1d7ba",
+    "target/v53-required-four-control-complete/producer/build.json": "b205fb56716c0050953db1f8645db09d9e49b56fdef53e4a937deea9e7d52406",
+    "target/v53-required-four-control-complete/producer/collection.json": "87dc19467aaae6e016982403aff043243aebd4b5c60f5b47e5f28cd5209d11e7",
+    "target/v53-required-four-control-complete/producer/reader.json": "5e9af9010a3a4c9e13e3c2ff33cfcf5949d11096046d431f851a2db4c65052b3",
+    "target/v53-required-four-control-complete/producer/receipt.json": "bbf75257bf1ec3fd00f1a3b893532c1da9c4dba10cae208882f221e1cce3d5b1",
+    "target/v53-required-four-control-complete/producer/source.json": "61e25907f42d231e3f95e8fc67fc5684ac89529e433750ca2dee6422a3dc7d38",
+    "target/v53-required-four-control-complete/producer/toolchain.json": "6e0bfa1a29872b72dfb8a490681fb165343a926aba2253f369cace733890bcb1",
+    "target/v53-required-four-control-complete/qualification-resumed/receipt.json": "23a61e2c5d13d559161b1d46e507bdddd9c169a7c6215d0f594833b82f09d095",
+    "target/v53-required-four-control-complete/storage-identity-regression.json": "0b58de00ee0d5eaf503e37f265203f51ee6085d968a574c53d25ec9b63947662",
+    "target/v53-required-four-control-complete/verification-resumed-execution.json": "8e807f4a812dcaa69dd57d2c1e502c436710448e5ceaa34802f3e8ec858cfe28",
+    "target/v53-required-four-control-complete/verification-resumed-preservation.json": "9d6e9ae483d96dfd657cdabc46e5de3ddae206c905e801b2ba6212e263bfac02",
+    "target/v53-required-four-control-complete/verification-resumed.log": "acc89ac1dd231ca1a9c0a85cafacd4fc8877b91652cbb909ea0c28043b031a0d",
+    "target/v53-required-four-control-complete/verification.log": "e79bdef166a534f3c656ce797856cc86fe1b9d91693745e989472078e3cb1bb9"
+  },
+  "schema": "gse-v53-required-four-control-observers-v1",
+  "source": "42d85176b42bedb02310bcfd06d47a81f443121f",
+  "status": "FAILED_ORIGINAL_WITH_CORRECTED_COMPONENTS"
+}

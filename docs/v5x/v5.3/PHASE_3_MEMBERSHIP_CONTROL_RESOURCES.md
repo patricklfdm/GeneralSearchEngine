@@ -76,3 +76,48 @@ through bootstrap, learner, INTENT, joint voting, FINAL, new-view continuation,
 maintenance and close, then pass all 147 negatives. That long final-source
 execution remains pending for the hosted batch. Existing exact-attempt,
 relocation and original-first admission constraints still apply.
+
+## Complete execution exposed observer adapters
+
+The complete original at `42d85176` finishes its single unretried JVM execution
+in **1,434.086 seconds**, retaining 7,020 raw files / 126,094,470 bytes. It does
+not qualify the v2 resource gate. The original has 34 physical publication
+transactions and eleven local slots, but only slots 8 and 9 retain local
+PUBLISH requests/responses. The prelude round fixture and the continuation's
+event adapter discarded the newly added default hooks; the direct slot fixture
+used by the earlier two-slot test did forward them. No missing original event
+is reconstructed or inserted.
+
+The three fixture paths now share a local-call observer. The complete producer
+also checks all expected local request/response pairs before emitting its
+continuation PASS result. The new round fixture regression uses real activation,
+BARRIER and DATA, comparing captured replies to actual return bytes. It and the
+existing direct-slot capture regression pass. The direct-slot original also
+passes independent complete physical/resource replay after the fixture change.
+The round adapter's separate two-slot original passes independent physical,
+network and budget replay, then all 58 control negatives in 68.175 seconds,
+with both local calls and all four physical publications bound. Its inventory
+is unchanged. These are focused checks, not a replacement whole required-four
+execution.
+
+The real original additionally exposes a projection error: a certificate's
+`incarnation` must match the permanent identity's `storage` UUID. The previous
+new projection incorrectly looked for an `incarnation` field in the identity
+map; its synthetic regression used that same wrong shape. The fixture now uses
+the real wire identity structure. That test fails with the original projection
+and passes with the correction; a changed storage UUID remains rejected.
+
+The first archive-replay process stopped without a terminal receipt after its
+ballot stage. Its log remains retained as interrupted. Subsequent replay uses
+the same archive and exact raw inventory, never another JVM execution. Original
+pinned replay and corrected-reader diagnostics have separate results. See the
+[complete-attempt evidence index](phase3-evidence/required-four-control-observers.json).
+All five closure gaps remain OPEN; this original cannot supply the 147 negatives.
+
+The resumed reader terminates after 462.309 seconds with `KeyError: incarnation`;
+both the original and unpacked inventories remain unchanged. The corrected
+diagnostic passes the 138 voting reservations but rejects slot waiter binding
+and activation allocations lacking original local callers. The two corrected
+Java tests, 152 focused Python tests, 96 optimized-Python tests, document contract
+and qualification-plan inspection pass. No new full producer was run after
+these corrections, and no hosted or paid-cloud execution occurred.

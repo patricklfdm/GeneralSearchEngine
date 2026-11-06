@@ -221,6 +221,38 @@ class V53NativeDispatchTest {
             for(int i:voters)if(i!=0)send(i,request(i,"APPLY",Map.of("certificate",certificate.digest(),"selection",selected.digest())));
             f.snapshot("applied-"+certificate.value().get("index"));return certificate;
         }
+        MembershipSlotDriver.Events observeLocalSlots(MembershipSlotDriver.Events delegate) {
+            return new MembershipSlotDriver.Events() {
+                @Override public void at(String event,Decoded record,Set<String> voters)throws java.io.IOException{delegate.at(event,record,voters);}
+                private void local(String event,Decoded record) {
+                    if(Boolean.getBoolean("v53.resource.slot.control"))events.add(Map.of("node","node-1","event",event,
+                            "record",record.digest(),"bytes",Base64.getEncoder().encodeToString(record.bytes())));
+                }
+                @Override public void localPublicationRequest(Decoded request)throws java.io.IOException {
+                    local("LOCAL_SLOT_REQUEST",request);delegate.localPublicationRequest(request);
+                }
+                @Override public void localPublicationResponse(Decoded response)throws java.io.IOException {
+                    local("LOCAL_SLOT_RESPONSE",response);delegate.localPublicationResponse(response);
+                }
+            };
+        }
+        void assertLocalSlots(long expected) {
+            if(!Boolean.getBoolean("v53.resource.slot.control"))return;
+            var observed=events.stream().filter(e->e.get("event").toString().startsWith("LOCAL_SLOT_")).toList();
+            assertEquals(expected*2,observed.size(),"every local publication requires original request/response observations");
+            var certificates=new HashSet<String>();
+            for(int i=0;i<observed.size();i+=2) {
+                var q=observed.get(i);var a=observed.get(i+1);
+                assertEquals("LOCAL_SLOT_REQUEST",q.get("event"));assertEquals("LOCAL_SLOT_RESPONSE",a.get("event"));
+                var request=decode(Base64.getDecoder().decode((String)q.get("bytes")),"wire","PUBLISH");
+                var response=decode(Base64.getDecoder().decode((String)a.get("bytes")),"wire","PUBLISH_ACK");
+                assertEquals(request.digest(),q.get("record"));assertEquals(response.digest(),a.get("record"));
+                MembershipWire.correlated(request,response,"PUBLISH_ACK");
+                var certificate=(String)object(request.value().get("payload")).get("certificate");
+                assertEquals(certificate,object(response.value().get("payload")).get("certificate"));
+                assertTrue(certificates.add(certificate),"one observed original local publication per slot");
+            }
+        }
         void publish(Decoded certificate)throws Exception {
             var own=owners.getFirst();var applied=own.voting(resources.getFirst()).application().orElseThrow();
             // Match the slot driver: record every target while all governing

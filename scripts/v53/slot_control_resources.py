@@ -81,7 +81,7 @@ def required_four_publications(model, identities):
         digest = publication.sha(parts['CERTIFICATE'])
         voters = [v['voter'] for v in certificate['proofs']]
         need(len(set(voters)) == len(voters) and set(voters) <= set(identities), 'slot resources original publication voters')
-        need(all(v['incarnation'] == identities[v['voter']]['incarnation'] for v in certificate['proofs']),
+        need(all(v['incarnation'] == identities[v['voter']]['storage'] for v in certificate['proofs']),
              'slot resources original publication identity')
         for node in voters:
             files = model.owner('published', index, node)
