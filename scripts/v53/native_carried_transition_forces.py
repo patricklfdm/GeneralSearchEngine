@@ -19,6 +19,7 @@ from . import applied_end_evidence as applied
 from . import allocator_evidence as allocator
 from . import native_campaign_files as campaign_files
 from . import native_vote_files as vote_files
+from . import native_completion_files as completion_files
 
 p=physical;process=p.process;native=process.process
 c,d,e,f,need=p.c,p.d,p.e,p.f,p.need
@@ -324,7 +325,30 @@ def slot_votes(rows,before,accepting,applied_group,published,voters,first,point,
         bind_votes(rows,node,plan,collector)
 
 
-def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None,floor_prefixes=None,vote_prefixes=None):
+def slot_completions(rows,before,applied_group,published,voters,collector):
+    if collector is None:return
+    # Replay the same original future-ACK chain used by the physical reducer.
+    # Applied snapshots precede these ledgers; published snapshots follow them.
+    walk=p.NativeSlot.__new__(p.NativeSlot);walk.applied=applied_group;walk.voters=voters;walk.group=before
+    walk.entry=p.data.pending(applied_group['node-1'])[0]['ENTRY'];ledgers={}
+    need(walk.publication_group(copy.deepcopy(published),before_local_cleanup=ledgers)==published,
+         'transition forces original publication ledgers')
+    actual=completion_files.observed(rows)
+    for node in before:
+        plan=[]
+        if node in voters:
+            applied_files=applied_group[node]
+            initial={k:v for k,v in applied_files.items() if k!='applied-end' and not k.startswith('applied-end/')}
+            plan=completion_files.application(initial,applied_files)
+            plan+=completion_files.publication(dict(applied_files,**ledgers[node]),published[node])
+        found=[(kind,row) for _,kind,row in actual if row.get('node')==node]
+        need(len(found)==len(plan),'transition forces complete completion prefix count')
+        for (kind,row),(wanted,point,state) in zip(found,plan):
+            need((kind,row['event'])==(wanted,point),'transition forces original completion prefix boundary')
+            collector.append((row,kind,state))
+
+
+def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None,floor_prefixes=None,vote_prefixes=None,completion_prefixes=None):
     chosen=f.decode(c.current(before['node-1'])[1]['selected.gsr'],'records','SELECTED')
     voters=[v['voter'] for v in chosen['sources']];stats=[]
     accepting=copy.deepcopy(before)
@@ -375,11 +399,12 @@ def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None,fl
              'transition forces all future quorums before publish')
     else:
         for node in before:ledger_order(rows,node,before[node][d.s.FILE],published[node][d.s.FILE])
+    if point is None:slot_completions(rows,before,applied_group,published,voters,completion_prefixes)
     slot_votes(rows,before,accepting,applied_group,published,voters,first,point,vote_prefixes)
     return stats
 
 
-def replay(root,kind,point,*,prefixes=None,floor_prefixes=None,campaign_prefixes=None,vote_prefixes=None):
+def replay(root,kind,point,*,prefixes=None,floor_prefixes=None,campaign_prefixes=None,vote_prefixes=None,completion_prefixes=None):
     root=Path(root);result=process.read(root/'process/result.json');children=native.children(result,kind=kind)
     lives,_,_,_,_=process.observations(root,result,children);index,_,_=p.t.shape(kind);stats=[]
     for life,rows in enumerate(lives,1):
@@ -387,6 +412,7 @@ def replay(root,kind,point,*,prefixes=None,floor_prefixes=None,campaign_prefixes
         floors=[] if floor_prefixes is not None else None
         campaigns=[] if campaign_prefixes is not None else None
         votes=[] if vote_prefixes is not None else None
+        completions=[] if completion_prefixes is not None else None
         cold(rows,group(root,'before-network' if life==1 else 'before-reopen'),vote_prefixes=votes)
         start=max(i for i,v in enumerate(rows) if v['event']=='NODE_OPEN')
         covered=set(range(start+1))
@@ -400,11 +426,11 @@ def replay(root,kind,point,*,prefixes=None,floor_prefixes=None,campaign_prefixes
             elif event=='ROUND_SLOT_BEGIN':slot_start=at
             elif event=='ROUND_SLOT_COMPLETE':
                 published=group(root,f'life-2-published-{index+ordinal-1}')
-                stats+=slot(rows[slot_start+1:at],installed,group(root,f'life-2-applied-{index+ordinal-1}'),published,first=ordinal==1,prefixes=collected,floor_prefixes=floors,vote_prefixes=votes)
+                stats+=slot(rows[slot_start+1:at],installed,group(root,f'life-2-applied-{index+ordinal-1}'),published,first=ordinal==1,prefixes=collected,floor_prefixes=floors,vote_prefixes=votes,completion_prefixes=completions)
                 covered.update(range(slot_start+1,at))
                 before=published;start=at
         if life==1:
-            stats+=slot(rows[slot_start+1:],installed,None,group(root,'at-cut'),first=True,point=point,prefixes=collected,floor_prefixes=floors,vote_prefixes=votes)
+            stats+=slot(rows[slot_start+1:],installed,None,group(root,'at-cut'),first=True,point=point,prefixes=collected,floor_prefixes=floors,vote_prefixes=votes,completion_prefixes=completions)
             covered.update(range(slot_start+1,len(rows)))
         for at,row in enumerate(rows):
             if row['event'].startswith(TRACKED) and row['event']!='FLOOR_COPY_BEFORE_RETURN':
@@ -431,6 +457,12 @@ def replay(root,kind,point,*,prefixes=None,floor_prefixes=None,campaign_prefixes
                  'transition forces unbound vote prefix')
             vote_prefixes.extend(dict(life=life,eventIndex=positions[id(row)],node=row['node'],point=row['event'],kind=kind_,files=state)
                 for row,kind_,state in sorted(votes,key=lambda v:positions[id(v[0])]))
+        if completion_prefixes is not None:
+            positions={id(row):at for at,row in enumerate(rows)};used=[positions[id(row)] for row,_,_ in completions]
+            need(len(set(used))==len(used) and set(used)=={at for at,_,_ in completion_files.observed(rows)},
+                 'transition forces unbound completion prefix')
+            completion_prefixes.extend(dict(life=life,eventIndex=positions[id(row)],node=row['node'],point=row['event'],kind=kind_,files=state)
+                for row,kind_,state in sorted(completions,key=lambda v:positions[id(v[0])]))
     return dict(status='PARTIAL',scope='carried-transition-storage-callbacks',coldOwners=8,
         campaigns=1+p.t.shape(kind)[1],generationRetirements=sum(v.get('generations',0) for v in stats),
         sourceRetirements=sum(v.get('sources',0) for v in stats),observedStorageCallbacks=True,

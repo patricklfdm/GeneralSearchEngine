@@ -38,13 +38,19 @@ class V53NativeCarriedProcessTest {
         run(point,mode,kind,observeResources,observeRetirement,observeFloor,observeCampaign,false);
     }
     void run(String point,String mode,String kind,boolean observeResources,boolean observeRetirement,boolean observeFloor,boolean observeCampaign,boolean observeVotes)throws Exception {
+        run(point,mode,kind,observeResources,observeRetirement,observeFloor,observeCampaign,observeVotes,false);
+    }
+    void run(String point,String mode,String kind,boolean observeResources,boolean observeRetirement,boolean observeFloor,boolean observeCampaign,boolean observeVotes,boolean observeCompletion)throws Exception {
         assertTrue(Set.of("DATA","INTENT","FINAL").contains(kind));
         boolean data=kind.equals("DATA");int size=data?3:4,index=data?1:kind.equals("INTENT")?5:6;
         assertTrue(!observeRetirement || observeResources && !data,"retirement requires original context resources");
         assertTrue(!observeFloor || observeRetirement,"floor observation requires original retirement prefixes");
         assertTrue(!observeCampaign || observeFloor,"campaign observation requires original floor prefixes");
         assertTrue(!observeVotes || observeCampaign,"vote observation requires original campaign prefixes");
-        Path votes=observeVotes?Files.createDirectories(Path.of("target/v53-native-carried-vote-prefixes/run-"+UUID.randomUUID())):null;
+        assertTrue(!observeCompletion || observeVotes,"completion observation requires original vote prefixes");
+        Path completion=observeCompletion?Files.createDirectories(Path.of("target/v53-native-carried-completion-prefixes/run-"+UUID.randomUUID())):null;
+        if(observeCompletion){Files.createDirectory(completion.resolve("completion"));System.out.println("v53NativeCarriedCompletionPrefixesEvidence="+completion.toAbsolutePath());}
+        Path votes=observeCompletion?Files.createDirectory(completion.resolve("previous")):observeVotes?Files.createDirectories(Path.of("target/v53-native-carried-vote-prefixes/run-"+UUID.randomUUID())):null;
         if(observeVotes){Files.createDirectory(votes.resolve("votes"));System.out.println("v53NativeCarriedVotePrefixesEvidence="+votes.toAbsolutePath());}
         Path campaigns=observeVotes?Files.createDirectory(votes.resolve("previous")):
                 observeCampaign?Files.createDirectories(Path.of("target/v53-native-carried-campaign-prefixes/run-"+UUID.randomUUID())):null;
@@ -85,6 +91,7 @@ class V53NativeCarriedProcessTest {
                     if(observeFloor)command.add(floors.resolve("floors/life-"+life).toAbsolutePath().toString());
                     if(observeCampaign)command.add(campaigns.resolve("campaigns/life-"+life).toAbsolutePath().toString());
                     if(observeVotes)command.add(votes.resolve("votes/life-"+life).toAbsolutePath().toString());
+                    if(observeCompletion)command.add(completion.resolve("completion/life-"+life).toAbsolutePath().toString());
                     Process child=new ProcessBuilder(command)
                             .redirectError(stderr.toFile()).start();children.add(child);
                     var record=new TreeMap<String,Object>();record.put("life",life);record.put("pid",child.pid());records.add(record);

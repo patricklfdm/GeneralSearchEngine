@@ -1,0 +1,198 @@
+{
+  "acceptancePlan": {
+    "path": "docs/v5x/v5.3/acceptance-plan.json",
+    "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+  },
+  "base": "ecd063506b69517de59f8843b0ac28c643c127bf",
+  "cohortAdmitted": false,
+  "derivedNativePrefixes": 1170,
+  "derivedPrefixesAreCaptures": false,
+  "historicalIndexesUnchanged": 381,
+  "hostedExecuted": false,
+  "limitations": [
+    "Short real-writer component expected inputs are conditional complete snapshots; these checks do not establish native protocol authority or crash recovery.",
+    "The unchanged original histories supply 1170 expected prefixes only; no new native capture or process death is credited.",
+    "Native vote and completion composition and full-chain negative qualification remain unexecuted.",
+    "Intermediate retention-ledger and scratch bytes, complete resource maxima, other process axes, application-ACK recovery and final-source cohort remain open."
+  ],
+  "nativeCompletionBytesQualified": false,
+  "nativeCompletionReaderImplemented": true,
+  "nativeFullNegativeCasesDefined": 29,
+  "nativeFullNegativeCasesQualified": 0,
+  "nativeLongEntryCompiled": true,
+  "nativeLongEntryExecuted": false,
+  "originalComponents": [
+    {
+      "at": 0,
+      "inventory": {
+        "path": "target/v53-carried-completion-prefixes/inventory-0.json",
+        "sha256": "1ae90f7d17fab139c102445ef9bbace7169cbcf2af77868a9af832c780a01acc"
+      },
+      "path": "general-search-engine-replication/target/v53-completion-prefix-component/run-4704efa1-46c2-4dfe-a46a-ef9adb67880e",
+      "portable": {
+        "path": "target/v53-carried-completion-prefixes/portable-0.json",
+        "sha256": "9fa3ca2fc4ab7f6177af2c271cff7a3b8adfd2fb4266f89e82ae812fcba23961"
+      },
+      "qualification": {
+        "path": "target/v53-carried-completion-prefixes/component-0.json",
+        "sha256": "e5b3f0013280934ca6e41ee1b811bcea895927d05e9ad3ba8d019fad2f432679"
+      }
+    },
+    {
+      "at": 5,
+      "inventory": {
+        "path": "target/v53-carried-completion-prefixes/inventory-5.json",
+        "sha256": "db44085439fe46637453b64065e693d95303ce53a54e86df4e4e3bca10714e5b"
+      },
+      "path": "general-search-engine-replication/target/v53-completion-prefix-component/run-0b0cf81a-d4e5-492e-921d-f7a01fe55797",
+      "portable": {
+        "path": "target/v53-carried-completion-prefixes/portable-5.json",
+        "sha256": "ae8ecc6743da5efb8a8b4d01815ab17b1e169e3fe319bcbad2cd54a63612683d"
+      },
+      "qualification": {
+        "path": "target/v53-carried-completion-prefixes/component-5.json",
+        "sha256": "a36715ae9538e3f093a6b41d1da027370adfcdc335969d3ad4e5e90cc42aff88"
+      }
+    },
+    {
+      "at": 6,
+      "inventory": {
+        "path": "target/v53-carried-completion-prefixes/inventory-6.json",
+        "sha256": "0cef448bc4cbb82f4bbe90b8dc94f3e3524404c0d267eeb7490b7315bfcc3837"
+      },
+      "path": "general-search-engine-replication/target/v53-completion-prefix-component/run-b670fdfb-4bdf-4e37-91c9-736ad9c9b6d2",
+      "portable": {
+        "path": "target/v53-carried-completion-prefixes/portable-6.json",
+        "sha256": "01488953199796dc4aff98aa627b04a85768d50c0481dc18b5c41803d2a38840"
+      },
+      "qualification": {
+        "path": "target/v53-carried-completion-prefixes/component-6.json",
+        "sha256": "4c36e29074ffb91d263986c88a362eb214a631d97434f991a5a998bf78d0e7a7"
+      }
+    }
+  ],
+  "originalDerivedProbe": {
+    "path": "target/v53-carried-completion-prefixes/original-plan-probe.json",
+    "sha256": "843b4f1bb77572a65968c31ab3324d0f6c4ff035157b69cc54803aa68c043ec6"
+  },
+  "paidCloud": false,
+  "phase3Complete": false,
+  "previousVoteComponent": {
+    "path": "docs/v5x/v5.3/phase3-evidence/carried-vote-prefix-development.json",
+    "sha256": "551b9028a8656af0b007b1e46e77492d8ad02def80459d0af4ae58f5cc3e9476"
+  },
+  "pushed": false,
+  "retainedDevelopmentDiagnostics": [
+    {
+      "log": {
+        "path": "target/v53-carried-completion-prefixes/java-focused.log",
+        "sha256": "e2d2002910fb88477d5287c5fb326e9b27fa9b491d42bb15b6df0f99935dd4eb"
+      },
+      "reason": "New fixture appended node-1 ACK after peers; corrected to canonical order."
+    },
+    {
+      "log": {
+        "path": "target/v53-carried-completion-prefixes/component-data.log",
+        "sha256": "722ca54d512d6ffca7bffca1d9acd430b3e4fe043862a5a1bab4b40bc93b9a5b"
+      },
+      "reason": "New component reader used complete ROOT-frame SHA instead of validated manifest digest."
+    }
+  ],
+  "runtimeChanged": false,
+  "schema": "gse-v53-carried-completion-prefix-development-v1",
+  "sourceFiles": [
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CompletionPrefixCaptureTest.java",
+      "sha256": "1535d7a2008774aca548d0c824b084e721f7a99505b44141f95c6c3f995b4847"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedCompletionPrefixProcessTest.java",
+      "sha256": "6587373c25a99c91986118b6c3c1ccba9bfe7b4b6a9293e1d76f23a96ef642a7"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessTest.java",
+      "sha256": "5aa22227597963a1c9787980554fe44881e1112f7bc7c1483738d7741b5e15bb"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessWorker.java",
+      "sha256": "a3ef9302c3f3ab375567db7472223e71a2286ce9ca2178699397ee06e3e54c4d"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeResourceCapture.java",
+      "sha256": "06828eb4015991b67dcfbf2e72ff0b35826909372eafc18837400d29d6800b74"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeResourceCaptureTest.java",
+      "sha256": "0fc77dc735a1b7b490e8e8f6f2ac7a263dc014e528308fc747a5a6596d98ca13"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RemoveRetirementCapture.java",
+      "sha256": "4dcc6764e0c17840a7a2a31aed05714625c21d9d3de0996638c965ec6ad44416"
+    },
+    {
+      "path": "scripts/v53/completion_prefix_component.py",
+      "sha256": "67b7554afac48c9c43eef7290e18796ed4f0e3646a939cd5aa3da1628edfd31b"
+    },
+    {
+      "path": "scripts/v53/native_carried_completion_prefixes.py",
+      "sha256": "adae82cbce6a0e7b3f1a161b0969e7177af08c4b46d04c54591da37623d4fe45"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_forces.py",
+      "sha256": "dddec23e507019124a08a1c61c80bb05827e418cfc1758bc67246067a8548c70"
+    },
+    {
+      "path": "scripts/v53/native_completion_files.py",
+      "sha256": "81047f3de56c12e30e641c34abc6747fa3ae4850360ccd7aba10b9a4c63ea9fa"
+    },
+    {
+      "path": "scripts/v53/test_completion_prefix_component.py",
+      "sha256": "609fd64412181e620daa3a015f4a3435e032710b7999b84e1f72ba6d544ae9cd"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_completion_prefixes.py",
+      "sha256": "7a9748cb221a95a9b07d3f79fc296e33753a953563d96c93c6f3bd174acd4477"
+    },
+    {
+      "path": "scripts/v53/test_native_completion_files.py",
+      "sha256": "add51fba4b41c7b9b41506083c1413744e1067dca6c50c26fad5323a7411d8c0"
+    }
+  ],
+  "status": "PARTIAL",
+  "unchangedCatalogue": {
+    "archives": 486,
+    "executionGroups": 246,
+    "histories": 552,
+    "subsets": 12,
+    "workflowJobs": 516
+  },
+  "validation": {
+    "componentCapturedPrefixes": 270,
+    "componentCases": 3,
+    "componentPhysicalNegatives": 39,
+    "componentReplay": {
+      "path": "target/v53-carried-completion-prefixes/component-replay-final.log",
+      "sha256": "923490cf7f15bc9b8bd0668804d84b85760b6a06eef411ecb9de0bca993319c9"
+    },
+    "focusedJavaTests": 21,
+    "java": {
+      "path": "target/v53-carried-completion-prefixes/java-corrected.log",
+      "sha256": "2bb2378ad54ed43651ab5db98321a558a434cb5bc52865375f3a7d1c21e9b85d"
+    },
+    "optimizedPython": {
+      "path": "target/v53-carried-completion-prefixes/unit-optimized-final.log",
+      "sha256": "efb0600dcbf84813e24aca2bee5510fac5aaccb6506803e4265994d4038f6d57"
+    },
+    "optimizedPythonTests": 67,
+    "python": {
+      "path": "target/v53-carried-completion-prefixes/unit-final.log",
+      "sha256": "f8e27e8e19be113ee4e054a5de8e746b2a14f4dd3b7c40a212c5bd01b8eccca3"
+    },
+    "pythonModules": {
+      "path": "target/v53-carried-completion-prefixes/python-final-modules.json",
+      "sha256": "49c2d4c727888a8aa7b9fcc2940448fc5d204fc1af3e807f14c3452aa67958e3"
+    },
+    "relatedPythonTests": 237
+  },
+  "workflowChanged": false
+}

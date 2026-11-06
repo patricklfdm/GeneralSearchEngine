@@ -1,5 +1,10 @@
 # Phase 3 qualification inventory and remaining work
 
+[Carried application/publication capture](PHASE_3_CARRIED_COMPLETION_CAPTURE.md)
+adds exact end-write, publication-install and covered-cleanup inventories. Three
+conditional real-writer components check 270 prefixes and 39 exact negatives;
+the full native composition remains unexecuted and Phase 3 remains OPEN.
+
 [Carried-process vote capture](PHASE_3_CARRIED_VOTE_CAPTURE.md) implements original
 ACCEPT/PROOF/CERTIFICATE file-prefix collection and independent projection. The
 short three-owner writer fixture passes 81 prefix checks and 18 exact negatives;
