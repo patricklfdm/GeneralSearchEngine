@@ -1,0 +1,210 @@
+{
+  "acceptancePlan": {
+    "path": "docs/v5x/v5.3/acceptance-plan.json",
+    "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+  },
+  "base": "9dccb7f06a79155c07e7e639ee0c37201646bde9",
+  "capturedSummary": {
+    "path": "target/v53-carried-storage-coverage/captured-campaign-summary.json",
+    "sha256": "e973767307331b67ad2d50c2449b665b981435a0e110bc047bbc8cfc4e9ab2d6"
+  },
+  "cohortAdmitted": false,
+  "componentEvidence": [
+    {
+      "inventory": {
+        "path": "target/v53-carried-storage-coverage/component-5-inventory.json",
+        "sha256": "39f73e359444bdb87831240af174b40cff9d362a5d15e070d784c562eb8af8c3"
+      },
+      "original": {
+        "path": "target/v53-carried-storage-coverage/component-5.json",
+        "sha256": "08c01d01e86402b9be0a4062f321c48c92f0f1185593ee618e28bd024d3e61c5"
+      },
+      "portable": {
+        "path": "target/v53-carried-storage-coverage/portable-5.json",
+        "sha256": "08c01d01e86402b9be0a4062f321c48c92f0f1185593ee618e28bd024d3e61c5"
+      }
+    },
+    {
+      "inventory": {
+        "path": "target/v53-carried-storage-coverage/component-6-inventory.json",
+        "sha256": "8a86ac37f917d074afc2d87be216118e6a41ccc42f45742455994f4956d6f9e5"
+      },
+      "original": {
+        "path": "target/v53-carried-storage-coverage/component-6.json",
+        "sha256": "c2f4dc5e8de89bbe81a3402eaf853de8a8099a7efcbb1c641c9a42d84943da74"
+      },
+      "portable": {
+        "path": "target/v53-carried-storage-coverage/portable-6.json",
+        "sha256": "c2f4dc5e8de89bbe81a3402eaf853de8a8099a7efcbb1c641c9a42d84943da74"
+      }
+    }
+  ],
+  "componentSummary": {
+    "path": "target/v53-carried-storage-coverage/component-summary.json",
+    "sha256": "9532b582b4cbfba10c620339af45ddf483cf4bbfc6e4ae74fa50c98d70995406"
+  },
+  "crossNodeSimultaneousPeak": false,
+  "finalProjectionRecheck": {
+    "path": "target/v53-carried-storage-coverage/final-projection-recheck.json",
+    "sha256": "fd862f69f948810a41ee5cb1de6b42b1e1e39f1bc87d8d50971e7050947f4b3b"
+  },
+  "fullNativeSevenFamilyBytesQualified": false,
+  "fullNativeSevenFamilyEntryExecuted": false,
+  "fullNativeSevenFamilyEntryImplemented": true,
+  "historicalIndexesUnchanged": 384,
+  "hostedExecuted": false,
+  "limitations": [
+    "The 7795 expected inventories include 5131 already captured native callbacks; 2664 are projections only.",
+    "Short replay component provisioning is conditional; it is not native protocol evidence.",
+    "Single callback file lengths are not disk blocks, heap/RSS, unobserved writes, saturated worst-case or cross-node simultaneous maxima.",
+    "Native seven-family execution, internal core writes/DATA interruption, all-runtime resource maxima, six other process axes, application-ACK recovery and final-source admission remain open."
+  ],
+  "originalNativeEvidence": [
+    {
+      "capturedCoverage": {
+        "path": "target/v53-carried-storage-coverage/final-captured-coverage.json.gz",
+        "sha256": "3b4096abb8d05b88f7dbccf061638265423f0ae218670f301655b2c64d30fc53"
+      },
+      "derivedCoverage": {
+        "path": "target/v53-carried-storage-coverage/final-final-projection.json.gz",
+        "sha256": "3298dde42b29850d01981082999bacb19d804fb0a9aff75f0ad3e8f75aa39b4e"
+      },
+      "inventory": {
+        "path": "target/v53-carried-storage-coverage/final-inventory.json",
+        "sha256": "fbc0bd3b6ace709895aa50ff75766dafc36e74a78d3cb75a3cba94f7f8c6a75b"
+      },
+      "kind": "final",
+      "original": {
+        "path": "target/v53-carried-storage-coverage/final-original.json",
+        "sha256": "61e01262b2090d9d29259cf9741a8c88cc66233ef36c04888327af4adc1b694e"
+      },
+      "path": "general-search-engine-replication/target/v53-native-carried-campaign-prefixes/run-8bb4d437-ca3f-4a0a-ab4a-c8e0ccf46be4"
+    },
+    {
+      "capturedCoverage": {
+        "path": "target/v53-carried-storage-coverage/intent-captured-coverage.json.gz",
+        "sha256": "e7f63e11a596fae99235f5a9f52c9272aa366592eea0061d5b060d42aca166d9"
+      },
+      "derivedCoverage": {
+        "path": "target/v53-carried-storage-coverage/intent-final-projection.json.gz",
+        "sha256": "9ecd1b656fb2825fe4e56bb084e0c3701d2837c8a0a229bfab1a95fdcaca2fdc"
+      },
+      "inventory": {
+        "path": "target/v53-carried-storage-coverage/intent-inventory.json",
+        "sha256": "c9594569ed90313d447513a282df77b05b43926c797c6abc29346a816e74dd1e"
+      },
+      "kind": "intent",
+      "original": {
+        "path": "target/v53-carried-storage-coverage/intent-original.json",
+        "sha256": "19e198a23e426982e7e08a854544b268a0f70f48360d50057d05e567595dbf8a"
+      },
+      "path": "general-search-engine-replication/target/v53-native-carried-campaign-prefixes/run-029f4f5c-9cea-43fc-b0ac-59766d7df27b"
+    }
+  ],
+  "paidCloud": false,
+  "peakScope": "one-owner-observed-callback-logical-file-extents",
+  "phase3Complete": false,
+  "previousReplayComponent": {
+    "path": "docs/v5x/v5.3/phase3-evidence/carried-replay-prefix-development.json",
+    "sha256": "282b150066a1e45bf176533f2d3a06db3d04195bb5e637dc1940f46b91fe57c0"
+  },
+  "projectedSummary": {
+    "path": "target/v53-carried-storage-coverage/original-projection-summary.json",
+    "sha256": "3d90408e018ac5f298520a46fda2a7059eac06a178decf0c27ab1f92552e9501"
+  },
+  "pushed": false,
+  "resourceNegatives": {
+    "path": "target/v53-carried-storage-coverage/resource-negatives.json",
+    "sha256": "9d48a12498033184cd1c011057477141cee5618e2a0578198eabc101d4e26894"
+  },
+  "runtimeChanged": false,
+  "schema": "gse-v53-carried-storage-coverage-development-v1",
+  "scripts": [
+    {
+      "path": "target/v53-carried-storage-coverage/probe-originals.py",
+      "sha256": "60780b931ece96e58ec79176454ef7ee40488e3e7b211576c3586d3a15147de0"
+    },
+    {
+      "path": "target/v53-carried-storage-coverage/replay-components.py",
+      "sha256": "b5a3ec7481c6dd3461852972c9cb76ae039f5ffdf908037e5397a37a47cb3df1"
+    },
+    {
+      "path": "target/v53-carried-storage-coverage/captured-campaigns.py",
+      "sha256": "92ad64eb833cd988685c1bec9c83b2aaf34cf6e9bc765e284c8cf50e1899a6bc"
+    },
+    {
+      "path": "target/v53-carried-storage-coverage/recheck-projection.py",
+      "sha256": "5b9b5904d5e713947d4f03fc5fc78780f6404a6f12e448aa0ef9486300e5dea6"
+    },
+    {
+      "path": "target/v53-carried-storage-coverage/finalize.py",
+      "sha256": "b74b40756bad8bb40efe499d17ccafd47d076d295d69ac24d37ebfcd56a3e7a8"
+    }
+  ],
+  "sourceFiles": [
+    {
+      "path": "scripts/v53/campaign_storage_coverage.py",
+      "sha256": "cbcbc3484be484d933ca69e81be070cf6641a80502d1fc9deff516fa34fe8c21"
+    },
+    {
+      "path": "scripts/v53/native_carried_storage_coverage.py",
+      "sha256": "cd77ec88797fe887e18b725d69f473cc3dc122c7618848387b304dd0286d8c2a"
+    },
+    {
+      "path": "scripts/v53/replica_storage_coverage.py",
+      "sha256": "6db5d79e6bc191257f9def323372bad810502da6723ad7f1e560d36107562dd4"
+    },
+    {
+      "path": "scripts/v53/storage_coverage_component.py",
+      "sha256": "86be3a1374d5c5bf614b495bb24730f3ceb33b0a74a7841cef810af57eb8cd51"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_storage_coverage.py",
+      "sha256": "5113fb94cc6ecac3b32455ccbd01ee7d2d0a1bcfc375b81ea00fdb170cc3cb52"
+    },
+    {
+      "path": "scripts/v53/test_replica_storage_coverage.py",
+      "sha256": "f2b5f5b3125c063d578abc662af826a313e6db8f8d152e7201cee601d7e571f5"
+    },
+    {
+      "path": "scripts/v53/test_storage_coverage_binding.py",
+      "sha256": "5939a323d7305029bb5e405c4eb9a4a8e8e4675dafa80b44ceddf9c2937074ee"
+    }
+  ],
+  "status": "PARTIAL",
+  "unchangedCatalogue": {
+    "archives": 486,
+    "executionGroups": 246,
+    "histories": 552,
+    "subsets": 12,
+    "workflowJobs": 516
+  },
+  "validation": {
+    "capturedNativeCallbacks": 5131,
+    "conditionalComponentCallbacks": 46,
+    "expectedNativeCallbacks": 7795,
+    "expectedNotYetCapturedCallbacks": 2664,
+    "javaBuildRun": false,
+    "modules": {
+      "path": "target/v53-carried-storage-coverage/python-modules-final.json",
+      "sha256": "30d5b0c58373bc1a7264d33ce2f0dfc4be4fab911a8ef7e79006f96ecc44d897"
+    },
+    "nativeOwnerLifetimes": 16,
+    "newNativeHistoriesExecuted": 0,
+    "newPythonTests": 36,
+    "optimized": {
+      "path": "target/v53-carried-storage-coverage/unit-optimized-final.log",
+      "sha256": "2eb5a0795d25b89aa5d7e3572f2b8d04b606b4049f2d2d098e98a1046273a7f0"
+    },
+    "optimizedPythonTests": 36,
+    "originalResourceOwnershipNegatives": 16,
+    "originalsUnchanged": true,
+    "python": {
+      "path": "target/v53-carried-storage-coverage/unit-final.log",
+      "sha256": "46149ad8c8d0a35fe594331789d38e3edc7c197456e8e0f23f374b0d63b0ed96"
+    },
+    "relatedPythonTests": 391
+  },
+  "wholeRuntimeResourcesQualified": false,
+  "workflowChanged": false
+}

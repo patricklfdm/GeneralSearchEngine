@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Carried file/resource composition](PHASE_3_CARRIED_STORAGE_COVERAGE.md) joins
+whole-replica inventories to the same owner's original resource checkpoint.
+Existing native captures cover 5,131 campaign/FLOOR/retirement boundaries; the
+seven-family model projects 7,795 boundaries including those captures. Short
+control writers add 46 conditional checks. Full native seven-family execution
+and complete simultaneous runtime resource qualification remain OPEN.
+
 [Carried control replay capture](PHASE_3_CARRIED_REPLAY_CAPTURE.md) adds exact
 scratch/claim/input/deletion inventories and continuous two-slot completion
 reservation binding. Two short real writers pass 46 file checks and 18 exact
