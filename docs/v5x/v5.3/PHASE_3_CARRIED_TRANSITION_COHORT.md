@@ -1,7 +1,7 @@
 # Native carried INTENT / FINAL admission
 
 Phase 3 remains **OPEN**. The [cohort entry](../../../scripts/v53/carried_transition_history.py)
-binds fourteen complete four-voter REMOVE histories to one recorded source, compiled
+binds sixteen complete four-voter REMOVE histories to one recorded source, compiled
 build, portable toolchain and reader. It composes the existing physical,
 network, export, ledger, retirement and [actual-prefix readers](PHASE_3_CARRIED_TRANSITION_PREFIXES.md).
 It does not turn older development receipts into final-source admission.
@@ -16,6 +16,7 @@ It does not turn older development receipts into final-source admission.
 | `final-proof-kill` | FINAL at index 6 | Group SIGKILL after PROOF rename, reopen original disks, fresh BARRIER | 210 |
 | Other six INTENT/FINAL × ACCEPT/PROOF × halt/SIGKILL combinations | Index 5 or 6 | Same full-capture fixture, exact original directories and fresh BARRIER | 210 each |
 | Four INTENT/FINAL × application-ACK × halt/SIGKILL combinations | Index 5 or 6 | Nine-family capture, original disk recovery and fresh BARRIER | 268 each |
+| INTENT/halt and FINAL/SIGKILL with SOURCE-count refusal | Index 5 or 6 | Same complete original, actual pool refusal, admitted recovery and fresh BARRIER | 280 each |
 
 The first two histories use one exact, unretried `V53CarriedTransitionDriverTest` method
 with `-Dv53.carried.retirement.captures=true`. The original vote, selected
@@ -53,7 +54,9 @@ again after replay. Distinct producer directories and bootstrap plans are
 required. These first two histories retain **602 checks**. The [eight process
 histories](PHASE_3_CARRIED_CAPTURE_COHORT.md) add 1,680 capture/owner checks after
 the complete original process/storage/protocol/resource chain: 2,282 checks. The four [application-ACK histories](PHASE_3_CARRIED_APPLICATION_COHORT.md)
-add 1,072 checks, giving **3,354 total**.
+add 1,072 checks, giving 3,354 checks. The two [SOURCE-refusal histories](PHASE_3_NATIVE_REFUSAL_COHORT.md)
+add 560 checks, giving **3,914 total**. Their wrappers retain both complete
+originals and refusal sidecars under one inventory.
 
 ## Local entry
 
@@ -112,11 +115,11 @@ pending for the final implementation source.
 
 ## Scope and rollback
 
-A component PASS qualifies this declared fourteen-history set only. Public readiness,
+A component PASS qualifies this declared sixteen-history set only. Public readiness,
 process-death, other membership profiles, combined resource peaks, autonomous
 competition, complete physical fault coverage, power loss and Phase 3 closure
 remain false. Other carried payload/process axes remain separate obligations.
 No runtime Java, POM, protocol limit, Required job or cloud workflow changes.
-For the v4 expansion, rollback restores the previous ten-case adapter, receipt
+For the v5 expansion, rollback restores the previous fourteen-case adapter, receipt
 versions, tests and catalogue bindings together. Preserve the existing readers
 and every original development receipt.

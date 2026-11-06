@@ -59,8 +59,8 @@ class Phase3WorkflowCohortTest(unittest.TestCase):
         return values
 
     def test_all_actual_planners_match_the_complete_job_contract(self):
-        self.assertEqual(540,sum(len(v['jobs']) for v in self.contracts.values()))
-        self.assertEqual(258,sum(v['groups'] for v in self.contracts.values()))
+        self.assertEqual(544,sum(len(v['jobs']) for v in self.contracts.values()))
+        self.assertEqual(260,sum(v['groups'] for v in self.contracts.values()))
         for name,adapter in self.modules.items():
             with self.subTest(cohort=name),patch.object(adapter,'context',return_value=self.index['cohorts'][name]), \
                     patch('sys.argv',['hosted','plan']),redirect_stdout(io.StringIO()) as out:adapter.main()
@@ -71,7 +71,7 @@ class Phase3WorkflowCohortTest(unittest.TestCase):
 
     def test_complete_pages_and_all_attempts_retained_without_acceptance(self):
         before=copy.deepcopy(self.api);result=self.run_gate()
-        self.assertEqual(('PARTIAL',12,540,12),tuple(result[k] for k in ('status','subsets','selectedJobs','priorAttempts')))
+        self.assertEqual(('PARTIAL',12,544,12),tuple(result[k] for k in ('status','subsets','selectedJobs','priorAttempts')))
         self.assertTrue(result['workflowExecutionAttested']);self.assertTrue(result['priorAttemptsRequireReview'])
         for k in ('runtimeQualified','originalHistoriesReplayed','failedOriginalsReplayed','phase3Complete'):self.assertFalse(result[k])
         self.assertEqual(before,self.api)
@@ -177,7 +177,7 @@ class Phase3WorkflowCohortTest(unittest.TestCase):
         def replay(index,seeds,inputs,output):
             seen.append(len(self.calls));output.mkdir()
             result=dict(status='PARTIAL',allDeclaredHistoriesReplayed=True,workflowExecutionAttested=False,
-                source=self.sha,indexSha256=w.h.digest(self.index_path.read_bytes()),historiesReplayed=564,groupsReplayed=258,rawArchives=498,
+                source=self.sha,indexSha256=w.h.digest(self.index_path.read_bytes()),historiesReplayed=566,groupsReplayed=260,rawArchives=500,
                 candidateWitnesses=dict(rejected=16,notApplicable=4,phase3Complete=False),phase3Complete=False,runtimeQualified=False,
                 combinedPeakResourcesQualified=False,frozenScenarioCoverageQualified=False)
             w.h.save(output/'receipt.json',result);return result

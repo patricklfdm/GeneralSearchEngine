@@ -430,7 +430,8 @@
         "scripts/v53/test_native_carried_application_maintenance_prefixes.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ApplicationMaintenanceCaptureTest.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedApplicationMaintenancePrefixTest.java",
-        "scripts/v53/test_native_carried_application_capture_history.py"
+        "scripts/v53/test_native_carried_application_capture_history.py",
+        "scripts/v53/test_native_application_refusal_capture_history.py"
       ],
       "readers": [
         "scripts/v53/carried_process_evidence.py",
@@ -455,7 +456,8 @@
         "scripts/v53/native_carried_application_retirement_prefixes.py",
         "scripts/v53/native_carried_application_maintenance_plans.py",
         "scripts/v53/native_carried_application_maintenance_prefixes.py",
-        "scripts/v53/native_carried_application_capture_history.py"
+        "scripts/v53/native_carried_application_capture_history.py",
+        "scripts/v53/native_application_refusal_capture_history.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_CARRIED_SLOTS.md",
@@ -478,7 +480,8 @@
         "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_RETIREMENT_PREFIXES.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_MAINTENANCE_PLANS.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_MAINTENANCE_PREFIXES.md",
-        "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_COHORT.md"
+        "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_COHORT.md",
+        "docs/v5x/v5.3/PHASE_3_NATIVE_REFUSAL_COHORT.md"
       ],
       "cohorts": [
         "node-renames",
@@ -788,7 +791,12 @@
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedApplicationTransientPrefixTest.java",
         "scripts/v53/test_native_carried_application_transients.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ApplicationReopenCustodyTest.java",
-        "scripts/v53/test_native_carried_application_capture_history.py"
+        "scripts/v53/test_native_carried_application_capture_history.py",
+        "scripts/v53/test_native_application_refusal_capture_history.py",
+        "scripts/v53/test_native_application_overlap.py",
+        "scripts/v53/test_native_application_refusal.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeApplicationRefusalTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeResourceRefusalCaptureTest.java"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -887,7 +895,10 @@
         "scripts/v53/native_carried_application_storage_coverage.py",
         "scripts/v53/native_carried_application_transient_plans.py",
         "scripts/v53/native_carried_application_transient_prefixes.py",
-        "scripts/v53/native_carried_application_capture_history.py"
+        "scripts/v53/native_carried_application_capture_history.py",
+        "scripts/v53/native_application_refusal_capture_history.py",
+        "scripts/v53/native_application_overlap.py",
+        "scripts/v53/native_application_refusal.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -994,12 +1005,16 @@
         "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_MAINTENANCE_PREFIXES.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_STORAGE.md",
         "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_TRANSIENTS.md",
-        "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_COHORT.md"
+        "docs/v5x/v5.3/PHASE_3_CARRIED_APPLICATION_COHORT.md",
+        "docs/v5x/v5.3/PHASE_3_NATIVE_REFUSAL_COHORT.md",
+        "docs/v5x/v5.3/PHASE_3_NATIVE_APPLICATION_OVERLAP.md",
+        "docs/v5x/v5.3/PHASE_3_NATIVE_COUNT_REFUSAL.md"
       ],
       "cohorts": [
         "profiles",
         "joining-process",
-        "joint-floor-process"
+        "joint-floor-process",
+        "carried-transition-histories"
       ],
       "gaps": [
         "combined-resources",
@@ -1118,7 +1133,8 @@
         "scripts/v53/test_phase3_seed_cohort.py",
         "scripts/v53/test_phase3_history_cohort.py",
         "scripts/v53/test_phase3_witness_observations.py",
-        "scripts/v53/test_phase3_workflow_cohort.py"
+        "scripts/v53/test_phase3_workflow_cohort.py",
+        "scripts/v53/test_native_application_refusal_capture_history.py"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -1143,7 +1159,8 @@
         "scripts/v53/phase3_history_cohort.py",
         "scripts/v53/phase3_witness_observations.py",
         "scripts/v53/phase3_workflow_cohort.py",
-        "scripts/v53/phase3_attested_cohort.py"
+        "scripts/v53/phase3_attested_cohort.py",
+        "scripts/v53/native_application_refusal_capture_history.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md",
@@ -1171,7 +1188,8 @@
         "docs/v5x/v5.3/PHASE_3_COVERAGE_WITNESSES.md",
         "docs/v5x/v5.3/phase3-evidence/witness-observations.json",
         "docs/v5x/v5.3/PHASE_3_WORKFLOW_COHORT.md",
-        "docs/v5x/v5.3/phase3-evidence/workflow-cohort.json"
+        "docs/v5x/v5.3/phase3-evidence/workflow-cohort.json",
+        "docs/v5x/v5.3/PHASE_3_NATIVE_REFUSAL_COHORT.md"
       ],
       "cohorts": [
         "profiles",
@@ -1240,8 +1258,8 @@
       "status": "ENTRY_READY_EXECUTION_PENDING"
     },
     "carried-transition-histories": {
-      "members": 14,
-      "casesSha256": "0318e9d0e3aba243f83d3fcfc1b91d77fe1947cd98e367355ef040f4ee660851",
+      "members": 16,
+      "casesSha256": "092a8a11a441decb0666afdccb59dabc356b75ae5561028f585078030c68c13a",
       "status": "ENTRY_READY_EXECUTION_PENDING"
     },
     "automatic-histories": {
@@ -1260,14 +1278,14 @@
       "id": "component-cohorts",
       "status": "OPEN",
       "dependsOn": [],
-      "work": "The twelve admitted source/build/toolchain/reader-bound catalogues now declare 564 whole histories in 258 execution groups. Existing profiles, learner, transfer, round, DATA, automatic and joint-floor entries are implemented and must not be redeveloped. Carried-transition v3 retains the original INTENT/FINAL pair and adds all eight INTENT/FINAL x ACCEPT/PROOF x halt/SIGKILL combinations with complete seven-family captured bytes and physical owner binding. The historical FINAL pilot passes all 210 capture/owner negatives. The exact-3cff6932 INTENT/ACCEPT/halt original also passes v2 member admission after relocation, including 210 exact negatives and unchanged source/build/original inventories. Neither local result substitutes for the complete final-source v3 cohort. All eight ACCEPT/PROOF cases need final-source execution; application-ACK histories still need the same complete capture/admission scope; application-ACK physical, protocol, export and retention readers already exist. Two development application-ACK resource originals now pass complete original-chain replay and 23 resource negatives each after relocation. Their exact interrupted-end projection matches actual callbacks, but it is not transient file capture or source-bound cohort admission. Review remaining native payload/profile and lifecycle obligations against their actual original histories. Conditional Phase 2 fixtures cannot replace native ownership. Do not equate the declared matrices or component successes with full Phase 3 acceptance. A separate application-ACK first-lifetime file capture and original-first decoder are now implemented; they cannot replace recovery retirement/campaign/vote/FLOOR/ledger/publication transient composition or full cohort admission. One unretried FINAL/SIGKILL development original now passes that dedicated application-prefix reader after relocation (32 captures and 24 exact negatives). The existing normal completion reader separately passes its three conditional components and 39 physical negatives; neither result is a complete application-ACK cohort. The same-history application retirement capture and original-first byte oracle are now implemented, including certificate reseal, old-input scratch and derived-end deletion. This remains one additional family, not full application-ACK transient composition or cohort admission. One unretried INTENT/halt development original now passes both same-history readers after relocation: 32 interrupted application prefixes, 54 old-end retirement prefixes and 53 exact negatives; all eight owner lifetimes and original inventories remain bound. Other transient families and final-source cohort execution remain OPEN. Application campaign/FLOOR/ordinary-retirement file projections now preserve staged owners and original local pins through both process lifetimes. These expected states are not captured-byte evidence; actual composition and application cohort admission remain OPEN. Independent original-first replay of the retained INTENT/halt and FINAL/SIGKILL histories now derives 5,074 exact indexed maintenance/campaign states; original file inventories remain unchanged and capturedBytesQualified remains false. A composed native entry and original-first reader now bind campaign/FLOOR/ordinary-retirement sidecars to the same application-ACK original and its interrupted/old-end capture prerequisites. The FLOOR decoder recognizes the four existing local-pin callbacks; 84 unchanged family negatives and five pin-specific physical mutations are declared. Other transient families, physical charge composition and application cohort admission remain OPEN. One unretried FINAL/SIGKILL development original now qualifies the composed maintenance captures after relocation: 2,131 maintenance states, 32 first-ACK and 54 old-end prefixes, with all 142 exact capture negatives and 8,677 original files unchanged. This does not supply full transient composition or final-source cohort admission. A nine-family application capture entry now composes original votes, normal recovery completion, continuous peer/future ledgers and typed replay with the preceding five captured families. Only exact old-end/general-replay duplicates can be counted once. Original resource-owner binding remains mandatory. Native qualification is recorded separately; source-bound application cohort admission and the complete simultaneous resource envelope remain OPEN. The corrected-source FINAL/SIGKILL development original now passes all nine captured families, 3301 unique callbacks, eight owner lifetimes and 268 exact file/owner negatives after relocation. Its 23 old-end/general-replay overlaps agree exactly, and all 10599 original files remain unchanged. The preceding source remains a retained physical-ownership failure at two peer-ledger reseal callbacks. This corrected development success is not exact-commit/final-source cohort admission or a full resource-envelope result. Carried-transition v4 now declares fourteen histories, adding all four INTENT/FINAL x application-ACK x halt/SIGKILL originals with nine captured families and 268 exact negatives each. Both original owner projections remain bound in compact receipts. Earlier development results exercise readers only; all fourteen final-source native executions and downloaded replays remain pending.",
+      "work": "Execute the complete current source-bound catalogue: twelve subsets, 566 whole histories and 260 execution groups. Carried-transition v5 requires all sixteen originals, including twelve complete death/recovery histories and two SOURCE-count refusal/recovery histories, with all 3,914 exact negative results. Keep original-first nine-family and owner replay, exact tools/source/build and unretried execution bindings. Earlier development results and synthetic orchestration checks do not fill final-source slots; see PHASE_3_NATIVE_REFUSAL_COHORT.md and PHASE_3_QUALIFICATION_AUDIT.md.",
       "acceptance": "Exact source/build/toolchain/reader-bound originals and independent original-first replay. Missing observations, unsupported histories or an original deadline failure remain failures. Whole ownership and revision histories stay indivisible."
     },
     {
       "id": "combined-resources",
       "status": "OPEN",
       "dependsOn": [],
-      "work": "Existing native accounting, storage/control/transfer ownership readers, seven-family carried capture composition, native partial joint-floor recovery and the 32-case joint-floor process entry are implemented prerequisites. They do not establish the full feasible simultaneous resource envelope. The earlier externally imposed receiving-copy probe remains a retained diagnostic failure, not an automatic-runtime reachability proof. Qualification must use original live-owner overlap and configured shared limits, including exact or over-bound refusal, admitted INTENT/FINAL/recovery completion, normal close and interrupted retention. Do not require independent category maxima to coexist when the shared byte limit prohibits that combination, or use arithmetic alone as evidence. Supplemental conditional capacity-completion v4 has per-open accounting, actual publication bytes and close intervals, immutable capture/admission and a separate operation-231 hosted entry. Only its operation-1 smoke is qualified; full operation-231 execution/downloaded replay remains pending. Conditional capacity history cannot replace native historical/learner authority, full physical shutdown ordering or complete simultaneous native maxima. Application-ACK journals now observe same-owner/same-sequence overlap of two generations, six sources and seven application slots; these identify physical capture targets only. Their metadata peaks are below 37 MB, so neither those counts nor the complete accounting replay establish the full metadata envelope or physical charge mapping. An original-first application maintenance storage reader now binds the three captured maintenance families to their exact live resource charges in both process lifetimes. Its nine balanced owner substitutions have a separate partial scope; the seven-family default still requires ten owner cases. Interrupted application and old-end callback charge mapping, all remaining transient families and simultaneous native limits remain OPEN. The same retained FINAL/SIGKILL original now passes portable three-family physical ownership replay: 2,131 callbacks, eight owner lifetimes and nine exact balanced-owner negatives, with original files/source/build unchanged. No new native execution or full resource-envelope claim is made. The explicit five-captured-family option additionally maps original first-ACK and old-end retirement callbacks, including two exact retirement-marker names under the existing shared journal reservation. It requires ten actual owner categories while retaining partial capture and resource scope; generic remaining-family and full-envelope obligations stay OPEN. Its portable FINAL/SIGKILL replay now passes all 2,217 same-history captured callbacks and ten balanced-owner negatives; original files and producer source/build remain unchanged. This development replay does not qualify remaining transient families or final-source admission. A nine-family application capture entry now composes original votes, normal recovery completion, continuous peer/future ledgers and typed replay with the preceding five captured families. Only exact old-end/general-replay duplicates can be counted once. Original resource-owner binding remains mandatory. Native qualification is recorded separately; source-bound application cohort admission and the complete simultaneous resource envelope remain OPEN. The first complete application transient development original exposed two peer-ledger reseal callbacks before the retained application-image charge existed. The runtime now takes application replay/end custody before retention reseal; strict owner checks retain the original failure. Deterministic rollback tests and corrected-source native evidence must qualify this change separately. The corrected-source FINAL/SIGKILL development original now passes all nine captured families, 3301 unique callbacks, eight owner lifetimes and 268 exact file/owner negatives after relocation. Its 23 old-end/general-replay overlaps agree exactly, and all 10599 original files remain unchanged. The preceding source remains a retained physical-ownership failure at two peer-ledger reseal callbacks. This corrected development success is not exact-commit/final-source cohort admission or a full resource-envelope result.",
+      "work": "Native same-callback measurements establish nonempty GENERATION/SOURCE/APPLICATION counts 2/6/7, not the full byte envelope. The real SOURCE receiver refusal producer preserves original charges and admitted recovery; carried-transition v5 adds its two complete histories, but final-source execution remains pending. Complete feasible combined byte pressure, remaining resource categories and actual admitted learner lifetime, plus the full operation-231 continuation. Conditional capacity-completion entries, overlap summaries and earlier failed external-copy probes cannot substitute for original native lifetime evidence; see PHASE_3_NATIVE_COUNT_REFUSAL.md, PHASE_3_NATIVE_APPLICATION_OVERLAP.md and PHASE_3_QUALIFICATION_AUDIT.md.",
       "acceptance": "Retain actual peak owner/lease/byte observations and independent physical replay at/over the bound, including admitted FINAL/recovery completion and stable DATA after membership exhaustion. Arithmetic alone does not qualify this obligation."
     },
     {
@@ -1277,7 +1295,7 @@
         "component-cohorts",
         "combined-resources"
       ],
-      "work": "The exact source-selector audit now binds twenty candidate witnesses for all twelve Phase 3 requirements and pins the complete 494-archive catalogue. Complete Phase 3 schedule and rejection-family coverage still require original selectors, applicability and final-source replay; no coverage is inferred from substrings or counts. The frozen 3310 S rows remain Phase 5 requirements.",
+      "work": "Keep the twenty source-derived candidate witnesses and exact negative selectors bound to the current 500-archive catalogue. Replay actual selected original outcomes; never count planning rows or unrelated rejections as runtime evidence. The complete frozen S/N matrix remains Phase 5 work; Phase 3 witnesses and its open obligations are documented in PHASE_3_QUALIFICATION_AUDIT.md.",
       "acceptance": "No family closes from substring matches, aggregate pass counts or a related profile. Explicit refusal evidence for inapplicable rows, expected negative reasons and owner-phase boundaries must remain reviewable."
     },
     {
@@ -1288,7 +1306,7 @@
         "combined-resources",
         "frozen-coverage"
       ],
-      "work": "The all-twelve immutable-seed gate, original-first history-cohort replay, exact-attempt workflow observer and before/after attested-cohort entry are implemented. Their current contracts declare 494 raw archives, 560 histories, 254 groups and 532 selected jobs/critical steps. Each owning reader must validate its original and exact negative vector; independent seed provenance must reconcile source, actual class inventories, portable tools and dependencies without requiring distinct reader sets to share a hash. Complete workflow pagination and prior attempts remain retained. Current synthetic orchestration tests and local component replays do not attest a complete actual cohort. Final acceptance still needs the full final-source set, precise Phase 3 requirement witnesses, complete resource obligations and review of failed histories. Keep component/phase-wide scope flags conservative until those prerequisites are independently proved.",
+      "work": "Admit one complete source/build/toolchain/reader-bound set across all twelve subsets: 500 original archives, 566 whole histories, 260 execution groups and 544 selected workflow jobs. Require exact source, run and attempt, all declared unretried original executions, independent downloaded replay, immutable archive inventories, original witness outcomes and combined-resource prerequisites. Never mix prior development originals, old catalogue schemas, successful fragments, reruns or independent leases to fill missing slots. Offline source/seed/history/workflow gates exist but a final-source accepted set is still pending.",
       "acceptance": "Bind exact source and actual build/toolchain/readers, each workflow/run/attempt and complete declared inventories; reconcile independent seed provenance. Reject missing/failed/mixed originals. No acceptance from this planning report."
     },
     {

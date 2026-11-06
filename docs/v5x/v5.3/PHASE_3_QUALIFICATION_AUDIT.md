@@ -1,11 +1,12 @@
 # Phase 3 qualification inventory and remaining work
 
-The current [v4 carried-transition catalogue](PHASE_3_CARRIED_APPLICATION_COHORT.md)
-adds all four application-ACK halt/SIGKILL combinations to the ten existing
-histories, with nine captured families and 268 exact negatives per new original.
-Both owner projections are compacted only after full original-first replay;
-all original bytes remain retained. Current scheduling totals are **564 whole
-histories, 258 execution groups, 498 raw archives and 540 selected jobs**.
+The current [v5 carried-transition catalogue](PHASE_3_NATIVE_REFUSAL_COHORT.md)
+adds two complete SOURCE-count refusal/recovery histories to the fourteen existing
+histories. Each new original retains all 268 file/owner checks plus twelve
+probe-record checks. Both owner projections are compacted only after full
+original-first replay; all original bytes remain retained. Current scheduling
+totals are **566 whole histories, 260 execution groups, 500 raw archives and
+544 selected jobs**.
 Final-source execution of the complete catalogue remains pending. Earlier
 batch notes below retain their historical implementation/evidence scope.
 
@@ -29,11 +30,11 @@ missing do not undo later implementations.
 
 | Remaining work | Existing prerequisite | Evidence still needed |
 | --- | --- | --- |
-| Native component coverage | Twelve implemented source-bound catalogues; carried-transition v4 has fourteen histories | Actual complete source-bound originals; all twelve carried crash axes at matching capture/admission scope |
+| Native component coverage | Twelve implemented source-bound catalogues; carried-transition v5 has sixteen histories | Actual complete source-bound originals; all twelve carried crash axes at matching capture/admission scope |
 | Combined resources | Native ownership/readers, [same-callback nonempty counts](PHASE_3_NATIVE_APPLICATION_OVERLAP.md) and conditional capacity-completion v4; [native SOURCE refusal entry](PHASE_3_NATIVE_COUNT_REFUSAL.md) | Source-bound refusal/continuation admission, feasible combined byte boundary and full operation-231 continuation on final-source originals |
 | Requirement coverage | Twenty exact witnesses and complete source negative catalogue | Original-derived applicability and rejection evidence for each Phase 3 requirement |
 | Cohort admission | Seed, whole-history replay, workflow observer and attested entries | Complete actual source/build/toolchain set, exact attempts and failed-history review |
-| Final execution | 564 histories, 258 execution groups, 498 raw archives and 540 selected jobs | Final-source execution plus independent downloaded replay; not inferred from component runs |
+| Final execution | 566 histories, 260 execution groups, 500 raw archives and 544 selected jobs | Final-source execution plus independent downloaded replay; not inferred from component runs |
 
 The shared staging limit is the actual configured limit recorded by each owner.
 Independent category maxima cannot be assumed simultaneously attainable when the
@@ -456,11 +457,11 @@ the backlog as a new feature.
 | [Transfer lifetime/process matrices](PHASE_3_TRANSFER_HISTORY_HOSTED.md) | 21 | 2 | Three continuous owner histories and eighteen two-process recoveries |
 | [Native carried/stable rounds](PHASE_3_NATIVE_ROUND_HOSTED.md) | 7 | 7 | Four carried BARRIER phases and three guarded round histories |
 | [Native carried DATA](PHASE_3_CARRIED_DATA_HOSTED.md) | 12 | 12 | Four old DATA phases and eight whole-group process histories, original carry and fresh BARRIER |
-| [Native carried INTENT/FINAL](PHASE_3_CARRIED_TRANSITION_HOSTED.md) | 14 | 14 | Two ordinary transitions, eight ACCEPT/PROOF and four application-ACK group-death captures through fresh BARRIER |
+| [Native carried INTENT/FINAL](PHASE_3_CARRIED_TRANSITION_HOSTED.md) | 16 | 16 | Two ordinary transitions, eight ACCEPT/PROOF, four application-ACK group-death captures and two SOURCE-refusal recoveries through fresh BARRIER |
 | [Automatic lifecycle components](PHASE_3_AUTOMATIC_HISTORY_HOSTED.md) | 50 | 3 | Competition, higher-ballot restart and the complete 48-case PROMISE reply-revocation matrix |
 | [Joint-floor process histories](PHASE_3_PROCESS_JOINT_HOSTED.md) | 32 | 32 | Four copy ordinals, four cut callbacks, halt/SIGKILL, same-scratch recovery and full continuation |
 
-These **564 planned native histories** are complementary subsets. This is neither
+These **566 planned native histories** are complementary subsets. This is neither
 a pass count nor a count of covered rows in the frozen S matrix. The inspector
 reads their actual Python catalogues and checks declared counts and ordered-case
 hashes. Joining groups must partition all 360 whole histories exactly; transfer

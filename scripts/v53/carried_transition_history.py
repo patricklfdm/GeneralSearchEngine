@@ -22,10 +22,11 @@ from . import carried_transition_retirement as retirement
 from . import carried_transition_prefixes as prefixes
 from . import native_carried_capture_history as process
 from . import native_carried_application_capture_history as application
+from . import native_application_refusal_capture_history as refusal
 
 need=h.need;read=shared.read;reader_manifest=shared.reader_manifest;BUILDS=shared.BUILDS
-SCHEMA='gse-v53-carried-transition-history-execution-v4'
-COHORT='gse-v53-carried-transition-history-cohort-v4'
+SCHEMA='gse-v53-carried-transition-history-execution-v5'
+COHORT='gse-v53-carried-transition-history-cohort-v5'
 PACKAGE='io.github.patricklfdm.generalsearch.replication.'
 METHODS={
     'intent':('V53CarriedTransitionDriverTest','carriedIntentFinishesBeforeFreshStableBarrier','v53-native-dispatch'),
@@ -42,12 +43,15 @@ METHODS={
 METHODS.update({case:('V53NativeCarriedApplicationTransientPrefixTest',mode+kind.title()+'ApplicationTransientPrefixes',
                       'v53-native-carried-application-transient-prefixes')
                 for case,(kind,_,mode) in application.CASES.items()})
+METHODS.update({case:('V53NativeApplicationRefusalTest',mode+kind.title()+'WithSourceCountRefusal',
+                      'v53-native-application-refusals')
+                for case,(kind,_,mode) in refusal.CASES.items()})
 CASES=tuple(METHODS)
 
 
 def adapter(case):
     selected(case)
-    return application if case in application.CASES else process if case in process.CASES else None
+    return refusal if case in refusal.CASES else application if case in application.CASES else process if case in process.CASES else None
 
 
 def selected(case):

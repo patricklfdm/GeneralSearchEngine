@@ -56,7 +56,7 @@ physical paths as list values, not restricted protocol JSON object keys.
 
 ## Execution and acceptance scope
 
-The two development entries are:
+The two native entries are:
 
 - `V53NativeApplicationRefusalTest#haltIntentWithSourceCountRefusal`
 - `V53NativeApplicationRefusalTest#killFinalWithSourceCountRefusal`
@@ -72,10 +72,10 @@ python3 -u -m scripts.v53.native_application_refusal /path/to/original \
 ```
 
 The command prints progress every minute and preserves failure receipts. The
-result is `PARTIAL`; this batch does not add a hosted subset or dispatch a run.
-These entries still need source-bound cohort integration and complete final-source
-execution before contributing to Phase 3 admission. The existing twelve-subset
-catalogue and frozen Phase 5 scenarios are unchanged.
+result is `PARTIAL`. The subsequent [v5 cohort adapter](PHASE_3_NATIVE_REFUSAL_COHORT.md)
+adds these two complete originals to carried-transition admission, including all
+268 existing file/owner negatives. The twelve-subset boundary and frozen Phase 5
+scenarios are unchanged; complete final-source execution remains pending.
 
 ## Development execution
 

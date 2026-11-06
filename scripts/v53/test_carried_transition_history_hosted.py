@@ -92,7 +92,7 @@ class CarriedTransitionHistoryHostedTest(unittest.TestCase):
 
     def test_aggregate_requires_two_exact_originals_and_all_negative_results(self):
         result=w.aggregate(self.bundle,self.verified(),self.root/'aggregate',self.ctx,'success','success')
-        self.assertEqual('PASS',result['status']);self.assertEqual(14,result['wholeOwnershipHistories']);self.assertEqual(14,result['nativeCases']);self.assertEqual(3354,result['negativeCases'])
+        self.assertEqual('PASS',result['status']);self.assertEqual(16,result['wholeOwnershipHistories']);self.assertEqual(16,result['nativeCases']);self.assertEqual(3914,result['negativeCases'])
         self.assertTrue(result['declaredCarriedTransitionHistoriesQualified']);self.assertFalse(result['phase3Complete'])
 
     def test_bad_stage_or_missing_verifier_cannot_aggregate(self):
@@ -134,7 +134,7 @@ class CarriedTransitionHistoryHostedTest(unittest.TestCase):
             directory=inputs/w.artifact_name(self.ctx,'verified',case);directory.mkdir()
             shutil.copyfile(self.root/('replayed-'+case)/'receipt.json',directory/'receipt.json')
         result=w.aggregate(self.bundle,inputs,self.root/'roundtrip-aggregate',self.ctx,'success','success')
-        self.assertEqual((14,14,3354),(result['wholeOwnershipHistories'],result['nativeCases'],result['negativeCases']))
+        self.assertEqual((16,16,3914),(result['wholeOwnershipHistories'],result['nativeCases'],result['negativeCases']))
         for field in ('phase3Complete','processDeathQualified','combinedPeakResourcesQualified','allMembershipProfilesQualified','autonomousCompetitionQualified','powerLossQualified'):
             self.assertIs(False,result[field])
 

@@ -1,0 +1,236 @@
+{
+  "byteLimitQualified": false,
+  "catalogue": {
+    "carriedHistories": 16,
+    "carriedNegativeCases": 3914,
+    "coveragePlan": {
+      "path": "docs/v5x/v5.3/phase3-coverage-witnesses.json",
+      "sha256": "249dfc6637f47894c8d7e12617a5fbb43c72bcbbda5cfc6b531679ab1e077519"
+    },
+    "executionGroups": 260,
+    "histories": 566,
+    "inspection": {
+      "path": "target/v53-native-refusal-cohort/planning-inspection.json",
+      "sha256": "df9e20de289a7a46b8f15077833e168606a55392fe8635e0e4e1be02e0033acd"
+    },
+    "qualificationPlan": {
+      "path": "docs/v5x/v5.3/phase3-qualification-plan.json",
+      "sha256": "bd4ded0fa12b79c379456e77490918052440ea9cc58860bbf3718c999a5a7e48"
+    },
+    "rawArchives": 500,
+    "selectedJobs": 544,
+    "subsets": 12
+  },
+  "cohortAdmitted": false,
+  "currentFiles": [
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_COHORT.md",
+      "sha256": "eca2b9d8e7d6fdf2e36f7149367b21f094fa401dc468309e3247a6be522fb754"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_CARRIED_TRANSITION_HOSTED.md",
+      "sha256": "4c73745202be8726d5b47fa2d8fdad076fbce317fe53d28165de8ae3c66181df"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "e392d3508a53862f73307ea4a8a354e257c82b3a25c9ada41a43809d11eaebc2"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_NATIVE_COUNT_REFUSAL.md",
+      "sha256": "59b95e4feccf2d4379f8e9b1ef95bc9032dec8de2c2f974e337a8c32536b68d7"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_NATIVE_REFUSAL_COHORT.md",
+      "sha256": "d735412d28a73f81cd2c6f30530ee6751def311fad9bcbe4d4f5e3b952672286"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_QUALIFICATION_AUDIT.md",
+      "sha256": "f2394e5894db2735062c280d83ba8301f3ee40ee2781b23d9fa84cb64ce89a79"
+    },
+    {
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "d4f52b5840c6eddf4e5c52df550eaaf4f0e7780042ccc2e17296a40d916f2687"
+    },
+    {
+      "path": "docs/v5x/v5.3/phase3-coverage-witnesses.json",
+      "sha256": "249dfc6637f47894c8d7e12617a5fbb43c72bcbbda5cfc6b531679ab1e077519"
+    },
+    {
+      "path": "docs/v5x/v5.3/phase3-qualification-plan.json",
+      "sha256": "bd4ded0fa12b79c379456e77490918052440ea9cc58860bbf3718c999a5a7e48"
+    },
+    {
+      "path": "scripts/v53/carried_transition_history.py",
+      "sha256": "058108ece86dac3cead524590feba0f0c6c4a831741ca035cab03f71e8dbb61f"
+    },
+    {
+      "path": "scripts/v53/carried_transition_history_hosted.py",
+      "sha256": "01bb72e15f067248225b213f8ae83f356ad1b1c8f887e657035a61e1a8281372"
+    },
+    {
+      "path": "scripts/v53/native_application_refusal_capture_history.py",
+      "sha256": "2be5ccf2e7e0b9254a212ef31d6013feba8dd3a2fb3657a98a9b446314ae470d"
+    },
+    {
+      "path": "scripts/v53/test_carried_transition_history.py",
+      "sha256": "c3e612db773988032f9b6a55bb5e6179337631740fc42d42e45cd8ea698944d0"
+    },
+    {
+      "path": "scripts/v53/test_carried_transition_history_hosted.py",
+      "sha256": "a47f2b63e27aff637298d0deabb63feae04dfcaa170c1321d7deb993fcb78e2c"
+    },
+    {
+      "path": "scripts/v53/test_native_application_refusal_capture_history.py",
+      "sha256": "d62e11c1f79e358e8750287c03175a5285393dd41358cf525979b6732774b0b5"
+    },
+    {
+      "path": "scripts/v53/test_phase3_coverage.py",
+      "sha256": "a589880cc56b5e1d183a61596b7cfef54c708b94f7f797d0fffb9db7e95ace10"
+    },
+    {
+      "path": "scripts/v53/test_phase3_history_cohort.py",
+      "sha256": "aa1226cd433f9516fe96886ebbcc236fa164b8090ebed6e43464c1cdc0f18bdc"
+    },
+    {
+      "path": "scripts/v53/test_phase3_qualification_plan.py",
+      "sha256": "f40b8f43eb41f47a84b9f788a6191ddd20a0bc05570b38cbb8901f42dc28552c"
+    },
+    {
+      "path": "scripts/v53/test_phase3_seed_cohort.py",
+      "sha256": "9e57ea2544258f11f8dcd197a5b68bc09777f239be94ad9fe0eb49b9206ad964"
+    },
+    {
+      "path": "scripts/v53/test_phase3_witness_observations.py",
+      "sha256": "aee485e4ed5449ab6e66becdff86d4503a5f1ffd417ca9bd1a40695331ef3478"
+    },
+    {
+      "path": "scripts/v53/test_phase3_workflow_cohort.py",
+      "sha256": "93d75b385192e6d339c3af27469539f199bdc2f651e98134a5747b854158a764"
+    }
+  ],
+  "currentSourceExecution": false,
+  "finalSourceQualified": false,
+  "generator": {
+    "path": "target/v53-native-refusal-cohort/index-evidence.py",
+    "sha256": "6380327e4740b59f25af5270ad977bfde4e5802a0f4bfe8d668c3e4ff9fe511f"
+  },
+  "historicalIndexes": {
+    "count": 529,
+    "inventory": {
+      "path": "target/v53-native-refusal-cohort/all-historical-indexes.json",
+      "sha256": "b5e5bea822e7351d250d9d26ccf678fd301f3832ea02f54a35bbcbfba9c36075"
+    },
+    "unchanged": true
+  },
+  "historicalProducer": {
+    "build": {
+      "path": "target/v53-native-application-refusal/producer-recorded-paths/build.json",
+      "sha256": "15f7ae9352d3db9f7f292f5135c8d01c3e795d1ed8e019527ecb5a9fba097c07"
+    },
+    "developmentIndex": {
+      "path": "docs/v5x/v5.3/phase3-evidence/native-count-refusal-development.json",
+      "sha256": "d6cc04939981ddce4e12c49bcfb433449c9b037597fa251ec96561fa0c6e1900"
+    },
+    "formalMember": false,
+    "newNativeExecutions": 0,
+    "receipt": {
+      "path": "target/v53-native-application-refusal/producer-recorded-paths/receipt.json",
+      "sha256": "bba087eeed013320d08cf0a109465ece07e512f8e136495136b82c79db7363ef"
+    },
+    "source": {
+      "path": "target/v53-native-application-refusal/producer-recorded-paths/source.json",
+      "sha256": "627fd2b30873cd60b3e1b7658d0e15dc80a78ed30d0b5c0fdf2ec69c9a017f4f"
+    },
+    "toolchain": {
+      "path": "target/v53-native-application-refusal/producer-recorded-paths/toolchain.json",
+      "sha256": "f1f9ac3318874dd66af31baa074ed8ea8c113e3c2758fa534a3835857b1ca944"
+    }
+  },
+  "limitations": [
+    "No Java scenario, hosted workflow, paid cloud or final-source cohort executed in this batch.",
+    "Retained FINAL/SIGKILL data is replayed without changing the recorded original source or build; its prior multi-method development command cannot satisfy new single-method source-bound admission.",
+    "The two new whole histories require fresh final-source executions; INTENT/halt remains pending.",
+    "The twelve added negatives mutate in-memory probe records, not the physical captured files. All 268 original file/owner negatives remain.",
+    "SOURCE-count refusal and recovery continuation do not establish wire admission, full byte pressure, actual learner lifetime or Phase 3 closure.",
+    "All five closure gaps stay OPEN. Existing frozen limits, runtime Java, POM, Required CI and workflows are unchanged."
+  ],
+  "phase3Complete": false,
+  "replay": {
+    "callbacks": 3301,
+    "case": "final-application-kill-source-refusal",
+    "collection": {
+      "path": "target/v53-native-refusal-cohort/retained-collection.json",
+      "sha256": "9e3c3d429001551c75cbb1d7e3df9db800b8a048413008c15b2aa109c625dcec"
+    },
+    "fileAndOwnerNegatives": 268,
+    "inventory": {
+      "path": "target/v53-native-refusal-cohort/original-inventory.json",
+      "sha256": "7ce812ae3fb713b78a251d67bfff7e74cdc1aa4a6e31f7e6df6ec3bed976aa94"
+    },
+    "log": {
+      "path": "target/v53-native-refusal-cohort/replay.log",
+      "sha256": "02f524e9ab8a7fa225755315b90fd4bd88e65d742643552aa015a7ee19621b93"
+    },
+    "negativeCases": 280,
+    "originalBytes": 80637985,
+    "originalFiles": 10613,
+    "originalPreserved": true,
+    "probeRecordNegatives": 12,
+    "probes": 6,
+    "qualification": {
+      "path": "target/v53-native-refusal-cohort/qualification.json",
+      "sha256": "db0f447927e67d7f04a0323645b77dc4fda1454a558cd915778da9a450a2d11f"
+    },
+    "reader": {
+      "path": "target/v53-native-refusal-cohort/replay-reader.json",
+      "sha256": "ba3c2e940f7b05b6f84b534a3109700965ee4e262e075aada00d7f69998d5cc7"
+    },
+    "resultBytes": 105270,
+    "script": {
+      "path": "target/v53-native-refusal-cohort/replay-retained.py",
+      "sha256": "5a290187144ff087f31ce6c4c529a223ceeefaf1502c644d42d3cafd687f9d2c"
+    },
+    "seconds": 620.856,
+    "summary": {
+      "path": "target/v53-native-refusal-cohort/replay-summary.json",
+      "sha256": "8ed7b41d221d3b323d4f72d5311e36fa78c3941392538b73f5779c0d4d778d5b"
+    }
+  },
+  "schema": "gse-v53-native-refusal-cohort-development-v1",
+  "scope": "v5 source-bound catalogue integration and complete original-first reader validation over a retained development original",
+  "status": "PARTIAL",
+  "tests": {
+    "assertionsDisabled": {
+      "count": 28,
+      "log": {
+        "path": "target/v53-native-refusal-cohort/optimized-tests.log",
+        "sha256": "9dbf84b6f3e9a46199d67a62dfa0532e1763eaa7204d26e4615d68eb118bcd83"
+      }
+    },
+    "documentation": {
+      "path": "target/v53-native-refusal-cohort/contract.json",
+      "sha256": "e4dd63f23ac4743c27d4b154b9098bcf3c1f8a02dfdda0191beeba92bac45cdf"
+    },
+    "initialFixtureFailure": {
+      "path": "target/v53-native-refusal-cohort/fixture-missing-directory.log",
+      "sha256": "350545f37390275ea35d124c200a0a16a7671a555364b056f40609fba3aac3ff"
+    },
+    "optimizedSuiteOverlaps": true,
+    "planning": {
+      "count": 85,
+      "log": {
+        "path": "target/v53-native-refusal-cohort/planning-tests.log",
+        "sha256": "362ffe129704cce5084e1fbc5466cf10022f9c172706907874b9cf4e94fdecd5"
+      }
+    },
+    "related": {
+      "count": 89,
+      "log": {
+        "path": "target/v53-native-refusal-cohort/related-tests.log",
+        "sha256": "193d6e88026e924227ca3cd365ddb8d0c24562c3f0a264aa6e925858ef843f2a"
+      }
+    }
+  },
+  "wholeRuntimeResourcesQualified": false,
+  "wireAdmissionQualified": false
+}

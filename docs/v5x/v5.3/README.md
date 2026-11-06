@@ -6,12 +6,13 @@ callback, with complete owner/sequence/physical-inventory binding. This suppleme
 the existing original-first verifier; byte saturation, refusal/completion and
 final-source resource qualification remain OPEN.
 
-The current [v4 carried-transition catalogue](PHASE_3_CARRIED_APPLICATION_COHORT.md)
-adds all four application-ACK halt/SIGKILL combinations to the ten existing
-histories, with nine captured families and 268 exact negatives per new original.
-Both owner projections are compacted only after full original-first replay;
-all original bytes remain retained. Current scheduling totals are **564 whole
-histories, 258 execution groups, 498 raw archives and 540 selected jobs**.
+The current [v5 carried-transition catalogue](PHASE_3_NATIVE_REFUSAL_COHORT.md)
+adds two complete SOURCE-count refusal/recovery histories to the fourteen existing
+histories. Each new original retains all 268 file/owner checks plus twelve
+probe-record checks. Both owner projections are compacted only after full
+original-first replay; all original bytes remain retained. Current scheduling
+totals are **566 whole histories, 260 execution groups, 500 raw archives and
+544 selected jobs**.
 Final-source execution of the complete catalogue remains pending. Earlier
 batch notes below retain their historical implementation/evidence scope.
 

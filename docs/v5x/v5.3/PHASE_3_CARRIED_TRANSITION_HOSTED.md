@@ -2,24 +2,25 @@
 
 Phase 3 remains **OPEN**. The [workflow](../../../.github/workflows/v53-carried-transition-histories.yml)
 and [adapter](../../../scripts/v53/carried_transition_history_hosted.py) prepare
-the [fourteen-history cohort](PHASE_3_CARRIED_TRANSITION_COHORT.md) for isolated execution
+the [sixteen-history cohort](PHASE_3_CARRIED_TRANSITION_COHORT.md) for isolated execution
 and independent downloaded replay. This implementation batch does not dispatch it.
 
 ## Execution graph
 
 One preparation freezes the exact source, compiled classes, toolchain, reader
-and offline Maven dependencies. Fourteen execution jobs each run one complete native
+and offline Maven dependencies. Sixteen execution jobs each run one complete native
 history exactly once. Each ordinary original and its retirement sidecar travel
 together; each process original contains all seven or nine capture families internally.
 Their continuous ownership, revision and publication history is never split
 between jobs.
 
-Fourteen verifier jobs download those complete originals and the same seed, validate
+Sixteen verifier jobs download those complete originals and the same seed, validate
 their provenance, then run the applicable original-first readers: 301 exact checks for each
 ordinary history and 210 capture/owner checks for each ACCEPT/PROOF process history and 268 for each
-application-ACK process history. Preparation, execution and verification return
-`PARTIAL`. Component acceptance requires all fourteen execution jobs and all fourteen verifier
-jobs to succeed, all 3,354 negative results, exact input inventories and distinct
+application-ACK process history. Each of the two [SOURCE-refusal histories](PHASE_3_NATIVE_REFUSAL_COHORT.md)
+retains 268 file/owner checks plus twelve probe-record checks. Preparation, execution and verification return
+`PARTIAL`. Component acceptance requires all sixteen execution jobs and all sixteen verifier
+jobs to succeed, all 3,914 negative results, exact input inventories and distinct
 original plans, archives and producer receipts.
 
 Every artifact name and manifest binds the workflow, source, run, attempt, role
@@ -49,7 +50,7 @@ gh workflow run v53-carried-transition-histories.yml \
 ```
 
 Existing Required CI and all other subset workflows are unchanged. The source
-inventory now has **twelve optional subsets and 564 planned whole histories**.
+inventory now has **twelve optional subsets and 566 planned whole histories**.
 These are scheduling counts, not successful final-source executions or covered
 rows in the frozen S matrix. Final Phase 3 admission across subsets remains open.
 
@@ -71,6 +72,6 @@ That earlier implementation dispatched no workflow and produced no new native
 original. Current development execution is recorded separately in the
 [capture cohort notes](PHASE_3_CARRIED_CAPTURE_COHORT.md).
 
-For the current expansion, rollback restores the previous ten-case adapter,
+For the current expansion, rollback restores the previous fourteen-case adapter,
 receipt versions, tests and catalogue bindings together. Retain every original;
 no production rollback is needed.
