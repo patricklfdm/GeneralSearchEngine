@@ -1,0 +1,293 @@
+{
+  "acceptancePlan": {
+    "path": "docs/v5x/v5.3/acceptance-plan.json",
+    "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+  },
+  "base": "cb48fb5ceee069d1e1b34a659284e4ed4ac39e6e",
+  "cohortAdmitted": false,
+  "frozenParametersChanged": false,
+  "historicalIndexesUnchanged": 386,
+  "hostedExecuted": false,
+  "legacyOriginals": [
+    {
+      "path": "target/v53-carried-application-protocol/legacy-final.json",
+      "sha256": "fc4eb855f08c0cb0becbfe35d78ea3de8ed1089d5497d3f4fabfe492c2517176"
+    },
+    {
+      "path": "target/v53-carried-application-protocol/legacy-intent.json",
+      "sha256": "e98deb2a3191b4582af93388b87c3eef5d000dc9a69088d1a1da747b969ef94a"
+    }
+  ],
+  "limitations": [
+    "Only two retained application-ACK axes are qualified; no new native or hosted workload was run.",
+    "Callback and transport components do not establish transient bytes, complete export ownership or simultaneous runtime resource qualification.",
+    "Reader development failures and earlier producer failures remain retained. They earn no positive qualification.",
+    "Remaining crash axes, DATA/internal-core interruptions and final-source hosted acceptance remain open."
+  ],
+  "logs": [
+    {
+      "path": "target/v53-carried-application-protocol/related-final.log",
+      "sha256": "43a70ec22525442473e22965536574f6361ef58be41841d341d57362c6f9e254"
+    },
+    {
+      "path": "target/v53-carried-application-protocol/optimized-final.log",
+      "sha256": "0b6fd693fdbdae0282530d9fcdeec3cd5b8d950b044c1f2b261ec545b3cd9acb"
+    },
+    {
+      "path": "target/v53-carried-application-protocol/portable-final.log",
+      "sha256": "33e65f43e54681721a53975a5761943ceca97d65402695890a2c9f1cbabc6f30"
+    },
+    {
+      "path": "target/v53-carried-application-protocol/regressions.log",
+      "sha256": "a451db07bcba3bb06e823966918b6eefdeb77f2f8f01537c01c776652d8e6c61"
+    },
+    {
+      "path": "target/v53-carried-application-protocol/final-qualified.stderr",
+      "sha256": "8e91b884ed04ded127054ca9dfd7ce328af222fae6cf7193e01c4a2b816cebf6"
+    },
+    {
+      "path": "target/v53-carried-application-protocol/intent-qualified.stderr",
+      "sha256": "8e91b884ed04ded127054ca9dfd7ce328af222fae6cf7193e01c4a2b816cebf6"
+    },
+    {
+      "path": "target/v53-carried-application-protocol/focused-tests.log",
+      "sha256": "e6924c4205bb4099499580d231688f369c99bd30e1f91094ee67365c117b2593"
+    },
+    {
+      "path": "target/v53-carried-application-protocol/final-first.stderr",
+      "sha256": "ed9f3236093c4bd4cf99bf67690ee063e49558cda61bebb8ec74cf62f89da227"
+    },
+    {
+      "path": "target/v53-carried-application-protocol/final-second.stderr",
+      "sha256": "3ec90a5b934e353c63f232ea7cfa0b9a3177a343fb382f845ab4b7c057e7d5e2"
+    }
+  ],
+  "nativeCompiledClasses": {
+    "path": "target/v53-carried-application-recovery/compiled-classes.json",
+    "sha256": "db1708af1d0ed089d2eba3642652ce72764c5578949743a18962e4dc108773e8"
+  },
+  "nativeOriginals": [
+    {
+      "inventory": {
+        "path": "target/v53-carried-application-protocol/final-inventory.json",
+        "sha256": "1ae4ba295dcc6b5314d874229dc36ea32096f4184f798c6536a9b62864ecc142"
+      },
+      "negativeVariants": 42,
+      "observed": {
+        "boundInstallReplies": 5,
+        "boundPhaseResponses": 17,
+        "committedTransfers": 251,
+        "completeSlotStorageCallbacks": 700,
+        "deliveredHeartbeatReplies": 11,
+        "exactTransferRetries": 0,
+        "exchanges": 821,
+        "exportAuthorityQualified": false,
+        "fullWireReplay": false,
+        "futureTargets": 3,
+        "heartbeatReplies": 11,
+        "heartbeatSamples": 4,
+        "interruptedVoteReplies": 4,
+        "originalGrants": 8,
+        "ownedSlotTransactions": 5,
+        "phase3Complete": false,
+        "proposerInstallations": 3,
+        "rejectedTransferAttempts": 0,
+        "requests": 830,
+        "scope": "carried-transition-network-components",
+        "silent": [
+          {
+            "attempts": 3,
+            "kind": "FUTURE_RETENTION_INTENT"
+          },
+          {
+            "attempts": 3,
+            "kind": "FUTURE_RETENTION_INTENT"
+          },
+          {
+            "attempts": 3,
+            "kind": "FUTURE_RETENTION_INTENT"
+          }
+        ],
+        "silentRequests": 9,
+        "slots": 2,
+        "status": "PARTIAL",
+        "statusReplies": 26,
+        "transferSessions": 125,
+        "transferredBytes": 2142676,
+        "unreceivedHeartbeatReplies": 0
+      },
+      "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-181afe57-6457-423c-adcf-8e20ffc6fd2c",
+      "portable": {
+        "path": "target/v53-carried-application-protocol/final-portable.json",
+        "sha256": "4ad4e97057de21166d6b5fc5ccbf0289b443b14ff3c326eb97491924016185c8"
+      },
+      "positive": {
+        "path": "target/v53-carried-application-protocol/final-original.json",
+        "sha256": "4ad4e97057de21166d6b5fc5ccbf0289b443b14ff3c326eb97491924016185c8"
+      },
+      "process": {
+        "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-181afe57-6457-423c-adcf-8e20ffc6fd2c/process/result.json",
+        "sha256": "65752cfc80f42d2039e3406afe9e63f2f39e9e0c6f32dcb7f4dacbee2f0cc219"
+      },
+      "qualified": {
+        "path": "target/v53-carried-application-protocol/final-qualified.json",
+        "sha256": "9be5f654eb8b979061c7980c5d7d61989f7bd3afb91d03bc0cef58aca1cf879f"
+      }
+    },
+    {
+      "inventory": {
+        "path": "target/v53-carried-application-protocol/intent-inventory.json",
+        "sha256": "8e05ef4a1735c13e3be57cda10ccffe735d2d75381891c9ba6ac6fe9c423c50b"
+      },
+      "negativeVariants": 42,
+      "observed": {
+        "boundInstallReplies": 7,
+        "boundPhaseResponses": 29,
+        "committedTransfers": 357,
+        "completeSlotStorageCallbacks": 1120,
+        "deliveredHeartbeatReplies": 15,
+        "exactTransferRetries": 0,
+        "exchanges": 1167,
+        "exportAuthorityQualified": false,
+        "fullWireReplay": false,
+        "futureTargets": 5,
+        "heartbeatReplies": 15,
+        "heartbeatSamples": 6,
+        "interruptedVoteReplies": 4,
+        "originalGrants": 11,
+        "ownedSlotTransactions": 8,
+        "phase3Complete": false,
+        "proposerInstallations": 4,
+        "rejectedTransferAttempts": 0,
+        "requests": 1186,
+        "scope": "carried-transition-network-components",
+        "silent": [
+          {
+            "attempts": 3,
+            "kind": "FUTURE_RETENTION_INTENT"
+          },
+          {
+            "attempts": 3,
+            "kind": "FUTURE_RETENTION_INTENT"
+          },
+          {
+            "attempts": 1,
+            "kind": "HEARTBEAT"
+          },
+          {
+            "attempts": 3,
+            "kind": "HEARTBEAT"
+          },
+          {
+            "attempts": 3,
+            "kind": "FUTURE_RETENTION_INTENT"
+          },
+          {
+            "attempts": 3,
+            "kind": "FUTURE_RETENTION_INTENT"
+          },
+          {
+            "attempts": 3,
+            "kind": "FUTURE_RETENTION_INTENT"
+          }
+        ],
+        "silentRequests": 19,
+        "slots": 3,
+        "status": "PARTIAL",
+        "statusReplies": 34,
+        "transferSessions": 185,
+        "transferredBytes": 2353076,
+        "unreceivedHeartbeatReplies": 0
+      },
+      "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-9c6021b0-f9e4-42b9-b70d-638b43c7f8b0",
+      "portable": {
+        "path": "target/v53-carried-application-protocol/intent-portable.json",
+        "sha256": "b335b594048314ea757cd2d22a0ef309560b9027ac57050ca0729fd1eae50a25"
+      },
+      "positive": {
+        "path": "target/v53-carried-application-protocol/intent-original.json",
+        "sha256": "b335b594048314ea757cd2d22a0ef309560b9027ac57050ca0729fd1eae50a25"
+      },
+      "process": {
+        "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-9c6021b0-f9e4-42b9-b70d-638b43c7f8b0/process/result.json",
+        "sha256": "bcc54927c05741905d2b439a1f63f4c19124145b319191dfd987953b656c07ab"
+      },
+      "qualified": {
+        "path": "target/v53-carried-application-protocol/intent-qualified.json",
+        "sha256": "fa534af54db9f858b926ee7d6b0823c7ef1a0c739412d9de8832e61c2b3e9757"
+      }
+    }
+  ],
+  "nativeSource": {
+    "path": "target/v53-carried-application-recovery/complete-fix-source.json",
+    "sha256": "f590a47fdceb4c60d9762b4341b6615c147f505fbc6e85395cfb7851f8f4774a"
+  },
+  "newJavaProcesses": 0,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "pushed": false,
+  "runtimeChanged": false,
+  "schema": "gse-v53-carried-application-protocol-development-v1",
+  "scope": "original-application-retirement-callback-and-tcp-components",
+  "scripts": [
+    {
+      "path": "target/v53-carried-application-protocol/finalize.py",
+      "sha256": "a740cb0635a52f8a12745e90908773ef0a131ecb892f499b4d34b737a88a529e"
+    },
+    {
+      "path": "target/v53-carried-application-protocol/portable.py",
+      "sha256": "124e517d08bc080bb5244d05cd31352cdc27438dad04d724d1f4b65861d7b3c5"
+    },
+    {
+      "path": "target/v53-carried-application-protocol/regressions.py",
+      "sha256": "9d44d9a8ad7aa885220a402f55e74505ce03bf69dbb002629795ed20079b8b9c"
+    }
+  ],
+  "sourceFiles": [
+    {
+      "path": "scripts/v53/floor_evidence.py",
+      "sha256": "55dea7db405fd0d04e5964b90cb8762f0aeb1a03dcf4fb179af25396507e45b3"
+    },
+    {
+      "path": "scripts/v53/floor_release_evidence.py",
+      "sha256": "f59ed41d5c52950781a28145be627248319853b0db20b459289dc7e8cc38e7a2"
+    },
+    {
+      "path": "scripts/v53/native_carried_application_protocol.py",
+      "sha256": "42ec7bbd5773af4677c62da56ace05be622e845011c044474f05be0b67c3146b"
+    },
+    {
+      "path": "scripts/v53/native_carried_network.py",
+      "sha256": "1d3c62b9a3df8727cfeab822908af7a1cbbe205de008262e62d3338f4a31ad15"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_forces.py",
+      "sha256": "27b17e7489e84d724cd48439a35070726ec99cbd7cac1e5b3d1ea4a3ad50941e"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_network.py",
+      "sha256": "2aa3679b15f5aaae865edea416819c6cb7f856ad3f9c5b467e62da476c500260"
+    },
+    {
+      "path": "scripts/v53/native_replay_files.py",
+      "sha256": "1a9f502a9b25573c66fefab4955f1a5a9e0df1e60597f853085bf6d8fb8fcb3c"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_application_protocol.py",
+      "sha256": "990120354b420e3ad5c18a89cb4610a0781db1b9288afdf3e4650f5e49258869"
+    },
+    {
+      "path": "scripts/v53/test_native_replay_files.py",
+      "sha256": "0d8447b166c155e783bb5db1c8235551862d3d11944563ff60e8ab25b9fcd93b"
+    }
+  ],
+  "unchangedCompiledClasses": 1975,
+  "validation": {
+    "exactNegatives": 84,
+    "fullReactorExecuted": false,
+    "legacyOriginals": 2,
+    "optimizedFocusedPython": 22,
+    "portableOptimizedOriginals": 2,
+    "relatedPython": 544
+  }
+}

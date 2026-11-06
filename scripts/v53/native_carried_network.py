@@ -308,7 +308,7 @@ def mutate(root,name):
                     v['request']=e.digest(raw)
                     if v['event']=='NETWORK_SEND':v['bytes']=base64.b64encode(raw).decode()
         else:
-            kinds={'network-basis-reply':('PREPARE','basis'),'network-vote-receipt':('ACCEPT','receipt'),
+            kinds={'network-basis-reply':('PREPARE','basis'),'network-vote-receipt':('ACCEPT','receipt'),'network-proof-receipt':('PROOF','receipt'),
                 'network-apply-statement':('APPLY','statement'),'network-future-revision':('FUTURE_RETENTION_INTENT','revision'),
                 'network-future-digest':('FUTURE_RETENTION_INTENT','digest'),'network-install-reply':('SELECTED','selection'),
                 'network-publish-generation':('PUBLISH','generation'),'network-reply-identity':('PREPARE',None)}

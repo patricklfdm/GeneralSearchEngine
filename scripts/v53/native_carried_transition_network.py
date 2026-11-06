@@ -230,7 +230,7 @@ def slot_envelopes(history,events,rows):
              'transition network exact original recording quorums')
 
 
-def replay(root,kind):
+def replay(root,kind,*,interrupted_replay=interrupted,slot_projection=None):
     original=process.read(root/'events.json');history=History(root,kind,original)
     events,rows,sent,identities=transport(root,history,original)
     contents=[];transfers=network.transcript.transfers(rows,contents=contents)
@@ -238,11 +238,12 @@ def replay(root,kind):
     complete=[stage for stage in history.ranges if stage['kind']=='slot']
     def in_slot(at):return any(v['start']<at<v['stop'] for v in complete)
     slot_events=[v if in_slot(at) else dict(event='OUTSIDE_SLOT') for at,v in enumerate(events)]
+    if slot_projection is not None:slot_events=slot_projection(root,history,slot_events)
     slot_rows=[v for v in rows if in_slot(v['offered'])]
     blocks=network.phase.blocks(slot_events,history)
     slots=network.phase.phase_replay(slot_events,slot_rows,history,blocks)
     contact,heartbeat_silent=contacts(root,history,events,rows,sent)
-    interrupted_votes=interrupted(root,history,events,rows)
+    interrupted_votes=interrupted_replay(root,history,events,rows)
     silent=silents(history,events,rows,sent,heartbeat_silent,blocks)
     slot_envelopes(history,events,rows)
     need(all(v['kind'] in {'CHUNK','TRANSFER_COMMIT','PREPARE','SELECTED','STATUS_PROBE','HEARTBEAT','ACCEPT','PROOF','APPLY','PUBLISH','FUTURE_RETENTION_INTENT'} for v in rows),

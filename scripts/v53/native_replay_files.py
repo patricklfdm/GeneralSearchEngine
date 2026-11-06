@@ -24,12 +24,35 @@ def transaction(initial,applied):
     need('CERTIFICATE' in frames and frames['SELECTOR']==initial['selector.gsr'],'replay prefix original certificate')
     entry=f.decode(frames['ENTRY'],'records','ENTRY')
     need(entry['kind'] in ('INTENT','FINAL','BARRIER'),'replay prefix control record only')
+    _,members,packet=p.c.current(initial);image=members[packet['capsule']['application']+'.image']
+    need(applied.get('applied-end/application.image')==image,'replay prefix unchanged control image')
+    return _scratch(initial,frames,image)
+
+
+def retirement(initial):
+    """Replay the old certified input while the new selector remains installed."""
+    from . import native_carried_application_evidence as application
+    frames,phases=p.data.pending(initial)
+    need(phases==('PROOF','CERTIFICATE'),'replay retirement original certificate')
+    application.retire(initial,frames['ENTRY'],frames['PAYLOAD'])
+    need(f.decode(frames['ENTRY'],'records','ENTRY')['kind'] in ('INTENT','FINAL'),
+         'replay retirement control record only')
+    selector=f.decode(frames['SELECTOR'],'records','SELECTOR');prefix='generations/'+selector['generation']+'/'
+    raw=initial[prefix+'generation.gsr'];manifest=f.decode(raw,'records','GENERATION')
+    need(p.e.digest(raw)==selector['digest'] and manifest['root']==selector['root'] and
+         manifest['node']==selector['node'] and manifest['generation']==selector['generation'],
+         'replay retirement retained generation')
+    image=initial[prefix+manifest['application']+'.image']
+    need(initial['applied-end/application.image']==image,'replay retirement unchanged control image')
+    return _scratch(initial,frames,image)
+
+
+def _scratch(initial,frames,image):
+    need(not any(k==DIRECTORY or k.startswith(DIRECTORY+'/') for k in initial),'replay prefix fresh scratch')
     identity=f.decode(initial['node.gsr'],'records','NODE')['identity']
     selector=f.decode(frames['SELECTOR'],'records','SELECTOR')
     certificate=f.decode(frames['CERTIFICATE'],'records','CERTIFICATE')
     need(selector['node']==identity['node'] and selector['root']==certificate['root'],'replay prefix original binding')
-    _,members,packet=p.c.current(initial);image=members[packet['capsule']['application']+'.image']
-    need(applied.get('applied-end/application.image')==image,'replay prefix unchanged control image')
     claim=f.canonical(dict(schema='gse-v53-application-replay/1.3',root=selector['root'],node=identity['node'],
                            storage=identity['storage'],selector=p.e.digest(frames['SELECTOR']),
                            certificate=p.e.digest(frames['CERTIFICATE'])))

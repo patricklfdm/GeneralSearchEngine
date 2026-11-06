@@ -72,7 +72,7 @@ def floor_steps(initial,rows,files,writes,directories,*,peer_ledger=None):
     return steps
 
 
-def maintenance(group_,node,*,campaign=False,prefixes=None,floor_prefixes=None,floor_peer_ledger=None):
+def maintenance(group_,node,*,campaign=False,prefixes=None,floor_prefixes=None,floor_peer_ledger=None,pin_current=False):
     """Project every FLOOR, generation/source retirement and release callback."""
     expected=p.maintain(group_,(node,),campaign=campaign)[node]
     if expected==group_[node]:return [],dict(generations=0,sources=0,borrowed=0)
@@ -81,8 +81,13 @@ def maintenance(group_,node,*,campaign=False,prefixes=None,floor_prefixes=None,f
     for peer in voters:
         prefix,members,_=c.current(group_[peer]);manifest=group_[peer][prefix+'generation.gsr']
         copies[peer]=dict(members=dict(members,**{'generation.gsr':manifest}),manifest=manifest,identity=d.future.identity(group_[peer]))
+    selector=None
+    if pin_current:
+        selector=group_[node]['selector.gsr'];prefix='floor-copies/'+e.digest(copies[node]['manifest'])
+        files={k:v for k,v in files.items() if k!=prefix and not k.startswith(prefix+'/')}
+        files['floor-copies/local.gsr']=selector
     floor_rows,floor_files,writes,directories=floor.transaction({e.digest(v['manifest']):v['members'] for v in copies.values()},
-                                      files['floor-copies/floor.gsr'],handoff=True)
+                                      files['floor-copies/floor.gsr'],handoff=True,local_selector=selector)
     if floor_prefixes is not None:
         # The snapshot reducer reconciles a changed view before projecting the
         # whole maintenance result. Runtime persists that peer change only after
@@ -194,7 +199,7 @@ def cold(rows,before,*,vote_prefixes=None):
             bind_votes(rows[:end],node,plan,vote_prefixes)
 
 
-def campaign(rows,before,installed,*,prefixes=None,floor_prefixes=None,campaign_prefixes=None):
+def campaign(rows,before,installed,*,prefixes=None,floor_prefixes=None,campaign_prefixes=None,maintainer=maintenance):
     chosen=f.decode(c.current(installed['node-1'])[1]['selected.gsr'],'records','SELECTED')
     voters=[v['voter'] for v in chosen['sources']]
     touched=[n for n in before if n in voters or before[n]['grants.gsr']!=installed[n]['grants.gsr']]
@@ -204,7 +209,7 @@ def campaign(rows,before,installed,*,prefixes=None,floor_prefixes=None,campaign_
     for node in before:
         local=[] if prefixes is not None else None
         floors=[] if floor_prefixes is not None else None
-        events=names(rows,node);expected,detail=maintenance(reconciled,node,campaign=True,prefixes=local,
+        events=names(rows,node);expected,detail=maintainer(reconciled,node,campaign=True,prefixes=local,
             floor_prefixes=floors,floor_peer_ledger=before[node][d.s.FILE]) if node in touched else ([],{})
         exact(events,('ACCEPT_','PROOF_','CERTIFICATE_','APPLY_','PUBLICATION_','COVERED_','FUTURE_RETENTION_','REPLAY_'),[],
               'transition forces campaign cannot execute a slot')
@@ -363,7 +368,7 @@ def slot_replays(rows,applied_group,voters,collector):
             collector.append((row,kind,state))
 
 
-def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None,floor_prefixes=None,vote_prefixes=None,completion_prefixes=None,replay_prefixes=None):
+def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None,floor_prefixes=None,vote_prefixes=None,completion_prefixes=None,replay_prefixes=None,maintainer=maintenance):
     chosen=f.decode(c.current(before['node-1'])[1]['selected.gsr'],'records','SELECTED')
     voters=[v['voter'] for v in chosen['sources']];stats=[]
     accepting=copy.deepcopy(before)
@@ -379,7 +384,7 @@ def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None,fl
         maintained=node in voters and (point is None or point=='PROOF_RENAMED' and node=='node-1')
         local=[] if prefixes is not None else None
         floors=[] if floor_prefixes is not None else None
-        expected,detail=maintenance(accepting if first else before,node,prefixes=local,floor_prefixes=floors) if maintained else ([],{})
+        expected,detail=maintainer(accepting if first else before,node,prefixes=local,floor_prefixes=floors) if maintained else ([],{})
         maintenance_order(rows,node,expected);stats.append(detail)
         bind_prefixes(rows,node,local,prefixes)
         bind_prefixes(rows,node,floors,floor_prefixes,floors=True)
@@ -421,7 +426,8 @@ def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None,fl
     return stats
 
 
-def replay(root,kind,point,*,prefixes=None,floor_prefixes=None,campaign_prefixes=None,vote_prefixes=None,completion_prefixes=None,replay_prefixes=None):
+def replay(root,kind,point,*,prefixes=None,floor_prefixes=None,campaign_prefixes=None,vote_prefixes=None,completion_prefixes=None,replay_prefixes=None,handlers=None):
+    handlers=sys.modules[__name__] if handlers is None else handlers
     root=Path(root);result=process.read(root/'process/result.json');children=native.children(result,kind=kind)
     lives,_,_,_,_=process.observations(root,result,children);index,_,_=p.t.shape(kind);stats=[]
     for life,rows in enumerate(lives,1):
@@ -431,7 +437,7 @@ def replay(root,kind,point,*,prefixes=None,floor_prefixes=None,campaign_prefixes
         votes=[] if vote_prefixes is not None else None
         completions=[] if completion_prefixes is not None else None
         replays=[] if replay_prefixes is not None else None
-        cold(rows,group(root,'before-network' if life==1 else 'before-reopen'),vote_prefixes=votes)
+        handlers.cold(rows,group(root,'before-network' if life==1 else 'before-reopen'),vote_prefixes=votes)
         start=max(i for i,v in enumerate(rows) if v['event']=='NODE_OPEN')
         covered=set(range(start+1))
         marks=[(i,v['event']) for i,v in enumerate(rows) if v['event'].startswith('ROUND_')]
@@ -439,19 +445,19 @@ def replay(root,kind,point,*,prefixes=None,floor_prefixes=None,campaign_prefixes
         for at,event in marks:
             if event=='ROUND_INSTALLED':
                 ordinal+=1;installed=group(root,f'life-{life}-installed-{ordinal}')
-                stats+=campaign(rows[start+1:at],before,installed,prefixes=collected,floor_prefixes=floors,campaign_prefixes=campaigns)
+                stats+=handlers.campaign(rows[start+1:at],before,installed,prefixes=collected,floor_prefixes=floors,campaign_prefixes=campaigns)
                 covered.update(range(start+1,at))
             elif event=='ROUND_SLOT_BEGIN':slot_start=at
             elif event=='ROUND_SLOT_COMPLETE':
                 published=group(root,f'life-2-published-{index+ordinal-1}')
-                stats+=slot(rows[slot_start+1:at],installed,group(root,f'life-2-applied-{index+ordinal-1}'),published,first=ordinal==1,prefixes=collected,floor_prefixes=floors,vote_prefixes=votes,completion_prefixes=completions,replay_prefixes=replays)
+                stats+=handlers.slot(rows[slot_start+1:at],installed,group(root,f'life-2-applied-{index+ordinal-1}'),published,first=ordinal==1,prefixes=collected,floor_prefixes=floors,vote_prefixes=votes,completion_prefixes=completions,replay_prefixes=replays)
                 covered.update(range(slot_start+1,at))
                 before=published;start=at
         if life==1:
-            stats+=slot(rows[slot_start+1:],installed,None,group(root,'at-cut'),first=True,point=point,prefixes=collected,floor_prefixes=floors,vote_prefixes=votes,completion_prefixes=completions,replay_prefixes=replays)
+            stats+=handlers.slot(rows[slot_start+1:],installed,None,group(root,'at-cut'),first=True,point=point,prefixes=collected,floor_prefixes=floors,vote_prefixes=votes,completion_prefixes=completions,replay_prefixes=replays)
             covered.update(range(slot_start+1,len(rows)))
         for at,row in enumerate(rows):
-            if row['event'].startswith(TRACKED) and row['event']!='FLOOR_COPY_BEFORE_RETURN':
+            if row['event'].startswith(handlers.TRACKED) and row['event']!='FLOOR_COPY_BEFORE_RETURN':
                 need(at in covered,'transition forces storage callback outside operation')
                 if row['event']!='PUBLICATION_SEND_BOUNDARY':
                     need(set(row)=={'node','event','incarnation'},'transition forces callback shape')

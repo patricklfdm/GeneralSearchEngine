@@ -45,6 +45,7 @@ def transaction(initial,record):
         for name in sorted(state):
             if name.startswith('floor-copies/') and state[name].get('directory'):remove(name,'FLOOR_RELEASE_COPY_DELETED')
         if 'floor-copies/proposal.gsr' in state:remove('floor-copies/proposal.gsr','FLOOR_RELEASE_PROPOSAL_CLEARED')
+        if 'floor-copies/local.gsr' in state:remove('floor-copies/local.gsr','FLOOR_RELEASE_LOCAL_CLEARED')
         remove(RELEASE,'FLOOR_RELEASE_AUTHORITY_CLEARED')
     remove('floor-copies','FLOOR_RELEASE_CLEARED');event('FLOOR_RELEASE_BEFORE_RETURN');return steps
 

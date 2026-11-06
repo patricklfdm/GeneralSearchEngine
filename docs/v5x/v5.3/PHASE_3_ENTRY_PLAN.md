@@ -1,5 +1,13 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Carried application protocol replay](PHASE_3_CARRIED_APPLICATION_PROTOCOL.md)
+adds original storage-callback and TCP checks to the existing INTENT/halt and
+FINAL/SIGKILL application-ACK histories. Old certificate/end retirement, local
+FLOOR pinning and pre-crash PROOF replies are derived from original authority;
+42 exact negative variants per original exercise rejection boundaries. No new
+producer or runtime change is involved. Transient bytes, export ownership,
+simultaneous resources and final-source qualification remain OPEN.
+
 [Carried application recovery](PHASE_3_CARRIED_APPLICATION_RECOVERY.md) adds
 INTENT/FINAL death after the original application ACK. Its native failures exposed
 unnecessary replay-output reservations and missing three-copy/three-source FLOOR

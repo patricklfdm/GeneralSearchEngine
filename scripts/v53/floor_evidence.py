@@ -53,12 +53,26 @@ def plan(directory,case):
     return initial,manifest,peers,copies,floor
 
 
-def transaction(copies,floor,*,handoff=False):
+def transaction(copies,floor,*,handoff=False,local_selector=None):
     events=[];writes={};directories={};files={}
     def event(name):events.append(dict(event=name,node='node-1'))
     def write(name,raw,prefix):
         writes[name]=len(events);files[name]=raw;event(prefix+'_WRITTEN');event(prefix+'_FORCED')
     event('FLOOR_RESERVED');directories['floor-copies']=len(events);event('FLOOR_DIRECTORY_CREATED')
+    if local_selector is not None:
+        authority=g.f.decode(floor,'records','FLOOR');selector=g.f.decode(local_selector,'records','SELECTOR')
+        local=copies.get(selector['digest'])
+        need(selector['root']==authority['root'] and selector['node']==authority['node'] and local is not None,
+             'floor exact local selector')
+        manifest=g.f.decode(local['generation.gsr'],'records','GENERATION')
+        need(c.sha(local['generation.gsr'])==selector['digest'] and manifest['node']==selector['node'] and
+             manifest['root']==selector['root'] and manifest['generation']==selector['generation'] and
+             any(v['voter']==selector['node'] and v['generation']==selector['digest'] for v in authority['sources']),
+             'floor exact pinned original')
+        copies={k:v for k,v in copies.items() if k!=selector['digest']}
+        event('FLOOR_LOCAL_ORIGINAL_FORCED')
+        write('floor-copies/local.gsr',local_selector,'FLOOR_LOCAL_SELECTOR')
+        event('FLOOR_LOCAL_PARENT_FORCED')
     write('floor-copies/proposal.gsr',floor,'FLOOR_PROPOSAL')
     owner = g.f.decode(floor,'records','FLOOR')['node'] if handoff else None
     ordered = sorted(copies.items(), key=lambda pair: (g.f.decode(pair[1]['generation.gsr'],'records','GENERATION')['node']==owner, pair[0])) if handoff else sorted(copies.items())
