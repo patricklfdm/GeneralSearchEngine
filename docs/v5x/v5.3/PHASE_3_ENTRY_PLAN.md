@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Native admitted learner resource lifetimes](PHASE_3_NATIVE_LEARNER_RESOURCES.md)
+now bind actual READY/CANCEL and same-file cold recovery to continuous original
+charges, forced generation handoffs and six real close intervals. The explicit
+current-retention reader derives all four campaigns and eight publications.
+This component remains development evidence; full byte pressure, source-bound
+catalogue integration and final-source resource qualification remain OPEN.
+
 [Native SOURCE-count refusal](PHASE_3_NATIVE_COUNT_REFUSAL.md) adds an optional
 real-receiver probe inside the application-ACK crash/recovery history. Its reader
 requires unchanged original files/charges and a returned temporary CONTROL

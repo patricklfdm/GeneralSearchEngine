@@ -1,5 +1,12 @@
 # Phase 3 qualification inventory and remaining work
 
+[Native admitted learner resource lifetimes](PHASE_3_NATIVE_LEARNER_RESOURCES.md)
+now bind actual READY/CANCEL and same-file cold recovery to continuous original
+charges, forced generation handoffs and six real close intervals. The explicit
+current-retention reader derives all four campaigns and eight publications.
+This component remains development evidence; full byte pressure, source-bound
+catalogue integration and final-source resource qualification remain OPEN.
+
 The current [v5 carried-transition catalogue](PHASE_3_NATIVE_REFUSAL_COHORT.md)
 adds two complete SOURCE-count refusal/recovery histories to the fourteen existing
 histories. Each new original retains all 268 file/owner checks plus twelve

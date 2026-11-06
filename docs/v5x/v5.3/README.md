@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Native admitted learner resource lifetimes](PHASE_3_NATIVE_LEARNER_RESOURCES.md)
+now bind actual READY/CANCEL and same-file cold recovery to continuous original
+charges, forced generation handoffs and six real close intervals. The explicit
+current-retention reader derives all four campaigns and eight publications.
+This component remains development evidence; full byte pressure, source-bound
+catalogue integration and final-source resource qualification remain OPEN.
+
 [Native application resource overlap](PHASE_3_NATIVE_APPLICATION_OVERLAP.md)
 now measures nonempty GENERATION/SOURCE/APPLICATION counts at the same original
 callback, with complete owner/sequence/physical-inventory binding. This supplements

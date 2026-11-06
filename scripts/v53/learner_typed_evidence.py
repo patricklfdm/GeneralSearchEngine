@@ -37,7 +37,10 @@ def check_trace(rows,resume):
     need([v for v in rows if v.startswith('LEARNER_TYPED_')]==trace(resume),'learner typed exact force order')
 
 
-def physical_history(root,*,retained_learners=False):
+def physical_history(root,*,retained_learners=False,current_retention=False):
+    from . import remove_maintenance_evidence as maintenance
+    need(not current_retention or retained_learners,'learner current retention requires original learner ledgers')
+    maintain=(lambda group:maintenance.maintenance(group,VOTERS)) if current_retention else (lambda group:a.maintenance(group,VOTERS))
     group=d.s.initialize(b.original(root,3,False))
     group={n:dict(v,**{d.future.FILE:d.future.frame(d.future.initial(v),{})}) for n,v in group.items()}
     if retained_learners:
@@ -47,7 +50,8 @@ def physical_history(root,*,retained_learners=False):
     _,_,installed=d.s.campaign(root,{n:group[n] for n in VOTERS},2,'installed',selected_prefix=d.slot.prefix)
     group=dict(group,**installed);b.match(root,'installed',group)
     need((root/'selected.gsr').read_bytes()==c.current(group['node-1'])[1]['selected.gsr'],'learner typed original selection')
-    model=a.NativeSlot.__new__(a.NativeSlot)
+    cls=source.r.CurrentSlot if current_retention else a.NativeSlot
+    model=cls.__new__(cls)
     model.learner_retention=retained_learners
     model.root=root;model.group=group;model.active=list(VOTERS);model.voters=VOTERS
     model.required=set();model.slot=0;model.counter=2;model.first=None;model.observed=set();model.phases={};model.documents=[]
@@ -56,8 +60,29 @@ def physical_history(root,*,retained_learners=False):
     need(set(supplied)=={'request'} and request['kind']=='ADD' and request['number']==1 and len(request['target'])==4,
          'learner typed native request')
     learner=next(v for v in request['target'] if v['node']=='node-4')
+    def reconcile(ordinal):
+        # A full renewal set requires a fresh campaign before the next command.
+        # Derive every original grant/merge/ancestry byte, then the new BARRIER.
+        model.group=maintain(model.group)
+        group={n:model.group[n] for n in VOTERS};packet=c.current(group['node-1'])[2]
+        catalog=f.decode(packet['objects'][packet['capsule']['catalog']],'records','CATALOG')
+        identities={v['node']:v for v in catalog['identities']}
+        def merged(before,originals):
+            state=d.s.r.decode(before)
+            points=[point for files in group.values() for point in retention.decode(files[retention.FILE])['plan']['possible']]
+            plan=maintenance.confirmation.merge([d.s.r.decode(raw)['plan'] for raw in [before,*originals]],packet,identities,points)
+            return before if plan==state['plan'] else d.s.r.frame(dict(state,revision=state['revision']+1,previous=e.digest(before),plan=plan))
+        ancestry={n:c.current(files)[1].get('ancestry.gsr',b'') for n,files in group.items()}
+        _,_,installed=d.s.campaign(root,group,ordinal+1,'installed-'+str(ordinal),selected_prefix=d.slot.prefix,
+                                   merge_ledgers=merged,retained_ancestry=ancestry)
+        model.group.update(installed);b.match(root,'installed-'+str(ordinal),model.group)
+        need((root/('selected-'+str(ordinal)+'.gsr')).read_bytes()==c.current(model.group['node-1'])[1]['selected.gsr'],
+             'learner typed original renewal selection')
+        model.counter=ordinal+1;model.first=None
+        model.group=maintain(model.group);model.publish('BARRIER',None)
     for kind,command in [('BARRIER',None),('RESERVE',supplied),('PREPARE',dict(number=1,revision=1))]:
-        model.group=a.maintenance(model.group,VOTERS);model.publish(kind,command)
+        if current_retention and kind=='PREPARE':reconcile(2)
+        model.group=maintain(model.group);model.publish(kind,command)
     b.match(root,'before-learner-source',model.group)
     if retained_learners:
         model.group=dict(model.group,**{n:retention.offer(model.group[n],request,learner) for n in VOTERS})
@@ -73,7 +98,8 @@ def physical_history(root,*,retained_learners=False):
     ready=dict(number=1,receipt=receipt)
     need((root/'learner-ready-payload.bin').read_bytes()==f.canonical(ready),'learner typed ready uses original receipt')
     for kind,command in [('READY',ready),('CANCEL',dict(number=1))]:
-        model.group=a.maintenance(model.group,VOTERS);model.publish(kind,command)
+        if current_retention:reconcile(3 if kind=='READY' else 4)
+        model.group=maintain(model.group);model.publish(kind,command)
     if retained_learners:
         b.match(root,'after-cancel',model.group)
         model.group=dict(model.group,**{n:retention.offer(model.group[n],request,learner) for n in VOTERS})

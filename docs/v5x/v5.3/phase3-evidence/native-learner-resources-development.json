@@ -1,0 +1,270 @@
+{
+  "cohortAdmitted": false,
+  "currentCompilation": {
+    "log": {
+      "path": "target/v53-native-learner-resources/compile-current/maven.log",
+      "sha256": "9bf192741406e5c4a3950c3252f417f3c75b7af03feab4eaa698a6418bd1b0c5"
+    },
+    "receipt": {
+      "path": "target/v53-native-learner-resources/compile-current/receipt.json",
+      "sha256": "e1d7eae7ed9410e383dab7f8f588174418df0895aa6b1fa504a62b011de6b1bd"
+    },
+    "script": {
+      "path": "target/v53-native-learner-resources/check-compile.py",
+      "sha256": "a40527700cf4bc7414ed4894cf2552b0d5539656310c45ec10d15526f142b3f5"
+    },
+    "source": {
+      "path": "target/v53-native-learner-resources/compile-current/source.json",
+      "sha256": "ff59d115ff6e69f02266ef29bfcfae681f570c986b3d92cb68fd3afb69121710"
+    },
+    "tests": 1
+  },
+  "currentFiles": [
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "3bb0e7cabf83bb3b37eac6cc3391f800b5c7c57ab40058e65f8ad6954169b3d8"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_NATIVE_LEARNER_RESOURCES.md",
+      "sha256": "dba3a1b98092dfb38d0fdc2ac0a8ec77130d25a863797267512c628688856c2c"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_QUALIFICATION_AUDIT.md",
+      "sha256": "4c26f777565a9e29ad3cb5da36f62ca9ffa6505da78e5a8d234aa72ac209fde1"
+    },
+    {
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "4911b6721e05a01e4be694a745dfa7e17d729c45cb04ed1a977f7bf4a3bf31f7"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerCancellationQualification.java",
+      "sha256": "c563608f3b6e204b3d69931ce017212e4453674880c3adc221771efcc76cfe01"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerResourceCapture.java",
+      "sha256": "e74f7646cbae146c322b34751cbb207961720a2fe2f28301ba62d57040d8fbe1"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerResourceCaptureTest.java",
+      "sha256": "ffc69ae725b51db65a38b1f39cb9457fa3f0a9736e1c64e7fcdd3be0a6fb6db1"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeLearnerResourcesQualification.java",
+      "sha256": "f6acc1f6a5be5333f695af4eb7cd06dbf0ff94ec80107ec8220b83999cf6850c"
+    },
+    {
+      "path": "scripts/v53/learner_cancellation_evidence.py",
+      "sha256": "961228b8de6d139d89db182a13d5bdd76f1f95b3941f795e7b7b6fced2854f3b"
+    },
+    {
+      "path": "scripts/v53/learner_typed_evidence.py",
+      "sha256": "29e6f8d7c55b7740e2cb788a46ffd23873ee632593c29d7b803451572f764511"
+    },
+    {
+      "path": "scripts/v53/native_learner_resources.py",
+      "sha256": "189e4b08756a4934200431a94726225d70787eae5060f979dc5ee0dab092a278"
+    },
+    {
+      "path": "scripts/v53/test_native_learner_resources.py",
+      "sha256": "6c6e38ee0388dd91ae7a44d758e0e244f181b31149ff86e214397168a89fbab1"
+    }
+  ],
+  "currentSourceExecution": false,
+  "finalSourceQualified": false,
+  "generator": {
+    "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-learner-resources/index-evidence.py",
+    "sha256": "d6307cb63796ae029e8c2d64358d8b3806a7606f41f53767e19b175261d48785"
+  },
+  "historicalIndexes": {
+    "count": 530,
+    "inventory": {
+      "path": "target/v53-native-learner-resources/historical-indexes.json",
+      "sha256": "fd0a92f4bddcd56f72ef4c676aa1ffe9d3de7e686ef48b8b1308659beccd7dea"
+    },
+    "unchanged": true
+  },
+  "limitations": [
+    "One local development original, not the final-source or hosted catalogue.",
+    "The producer used the initial Test name; the same body was renamed to an explicit Qualification entry and separately compiled. No repeated native execution is claimed.",
+    "The legacy five-slot profile remains unchanged; the explicit current-retention profile derives four campaigns and eight slots including every extra physical snapshot.",
+    "15 added negatives mutate copied observations in memory; the 31 existing and four renewal negatives mutate copied physical evidence.",
+    "This proves scoped original resource lifetimes, not feasible simultaneous byte saturation, transient physical maxima, process death, autonomous membership, operation 231 or Phase 3 closure.",
+    "Runtime Java, POM, frozen limits, workflows and Required CI are unchanged. No push, Actions dispatch or paid cloud execution."
+  ],
+  "phase3Complete": false,
+  "producer": {
+    "build": {
+      "path": "target/v53-native-learner-resources/producer/build.json",
+      "sha256": "9a5c3c8eb71cc06a00a2f0c56a378fc5eecd2e582720d81389d9b8a313bf054c"
+    },
+    "finalClass": "V53NativeLearnerResourcesQualification",
+    "javaTests": 2,
+    "log": {
+      "path": "target/v53-native-learner-resources/producer/maven.log",
+      "sha256": "a62337cce3afa2584929c3d5d67ca3c2ed083851827198f0a26021d302d17c98"
+    },
+    "nativeExecutions": 1,
+    "nativeSeconds": 375.801,
+    "originalClass": "V53NativeLearnerResourcesTest",
+    "receipt": {
+      "path": "target/v53-native-learner-resources/producer/receipt.json",
+      "sha256": "0d27528b98dd14abd4573d2127e5f39100b896137028ee52949a8e80f880f2f8"
+    },
+    "script": {
+      "path": "target/v53-native-learner-resources/capture.py",
+      "sha256": "07d6fc10b2a5d6b35b22e4e0511f4662c3e9109880b86c19dfb1f5a30f2ccfa3"
+    },
+    "source": {
+      "path": "target/v53-native-learner-resources/producer/source.json",
+      "sha256": "1b02e34c40949a78ec98c60e259f6bd004a7add698582efdb08de83393496720"
+    },
+    "sourceUnchanged": true,
+    "toolchain": {
+      "path": "target/v53-native-learner-resources/producer/toolchain.json",
+      "sha256": "d9d255ecd9455dff9a5e773a568fdb1c6be3dcb09e4719085bc61da95455803f"
+    }
+  },
+  "replay": {
+    "baseHistoryNegatives": 31,
+    "inventory": {
+      "path": "target/v53-native-learner-resources/qualification-final/original-inventory.json",
+      "sha256": "e59b506631925c1146f4649dfbdac00aa429e11fd95d31b2fe9918a96227cf41"
+    },
+    "log": {
+      "path": "target/v53-native-learner-resources/replay-final.log",
+      "sha256": "df0063bba63815a83fc82c104f81818ae696dc66357b8df6f31f862c61c54745"
+    },
+    "negativeCases": 50,
+    "observation": {
+      "boundaries": 234,
+      "callbacks": 216,
+      "closeIntervals": 6,
+      "continuousOwnershipQualified": true,
+      "explicitCloseIntervalsQualified": true,
+      "generationSelections": [
+        247,
+        476
+      ],
+      "originalTransferBindingQualified": true,
+      "phase3Complete": false,
+      "snapshots": {
+        "learner-cancelled": {
+          "inventorySha256": "1428592bbd65fa4b293dea3c41f03ebacbd0ac344e1d28c1788f507081742bf0",
+          "miscBytes": 18282,
+          "physicalBytes": 81229,
+          "typedBackupBytes": 813
+        },
+        "learner-closed": {
+          "inventorySha256": "eb4ad5ebd8e31ad99998e7db12532cd2d248c9e2db9503f3060f888bada4bc93",
+          "miscBytes": 18282,
+          "physicalBytes": 81229,
+          "typedBackupBytes": 813
+        },
+        "learner-prepared": {
+          "inventorySha256": "ddfd9cb5365c5862a11f133490f327156c71ba93ad5c2a75b314e602e1fc748d",
+          "miscBytes": 15007,
+          "physicalBytes": 44372,
+          "typedBackupBytes": 813
+        },
+        "learner-reopened": {
+          "inventorySha256": "1428592bbd65fa4b293dea3c41f03ebacbd0ac344e1d28c1788f507081742bf0",
+          "miscBytes": 18282,
+          "physicalBytes": 81229,
+          "typedBackupBytes": 813
+        }
+      },
+      "status": "PARTIAL",
+      "transientPhysicalBytesQualified": false,
+      "transitions": 485,
+      "wholeRuntimeResourcesQualified": false
+    },
+    "originalBytes": 11117038,
+    "originalFiles": 2330,
+    "originalPreserved": true,
+    "qualification": {
+      "path": "target/v53-native-learner-resources/qualification-final/qualification.json",
+      "sha256": "6f786d24bcc5a48f540b5ba89101690bbc40105b563b89d47392a6a341992b9e"
+    },
+    "reader": {
+      "path": "target/v53-native-learner-resources/qualification-final/reader.json",
+      "sha256": "fbe0b470c69845a5884b9c4af27fef1548e20e2638386ddb950f3466c6d05118"
+    },
+    "receipt": {
+      "path": "target/v53-native-learner-resources/qualification-final/receipt.json",
+      "sha256": "2e89773297fc66eb6f0329535b5a64c84cba64c523214819b9f1878a0f8e59ed"
+    },
+    "renewalHistory": {
+      "campaigns": 4,
+      "slots": 8
+    },
+    "renewalHistoryNegatives": 4,
+    "resourceNegatives": 15,
+    "script": {
+      "path": "target/v53-native-learner-resources/replay-final.py",
+      "sha256": "501b4dfed6c539438eb11332a9bfec0fbad019573eb800137cbd5692b8abf0c7"
+    },
+    "seconds": 90.822
+  },
+  "retainedDiagnostics": [
+    {
+      "path": "target/v53-native-learner-resources/positive-01/qualification.json",
+      "sha256": "f333803039d893b4191e6d7891a0085e66d1576a7970e7efc52466eb89a55768"
+    },
+    {
+      "path": "target/v53-native-learner-resources/qualification-01/qualification.json",
+      "sha256": "3c29ec273f32ed39d45b21491352782ab3ed6c1b4dba64314894a749ffaa1c32"
+    },
+    {
+      "path": "target/v53-native-learner-resources/qualification-01.log",
+      "sha256": "febfd28cc85255688e6db6d78d3918a260e87fbd35a381c8d3308623dbe557e7"
+    },
+    {
+      "path": "target/v53-native-learner-resources/qualification-02/qualification.json",
+      "sha256": "e8318fa6fe3ec2d4219ce41adfbfda7c8e623b989121a29f748d38113657a7c0"
+    },
+    {
+      "path": "target/v53-native-learner-resources/qualification-02.log",
+      "sha256": "e2a5215f0199e7bba25e4b00abcc6124ce0f75071db2175971a6e7a211339b03"
+    }
+  ],
+  "schema": "gse-v53-native-learner-resources-development-v1",
+  "scope": "actual admitted learner resource lifetimes through READY/CANCEL and same-original cold reopen",
+  "status": "PARTIAL",
+  "tests": {
+    "assertionsDisabled": {
+      "count": 35,
+      "log": {
+        "path": "target/v53-native-learner-resources/tests-optimized.log",
+        "sha256": "c828baba277a1938a3f43831388d95f70f1669f4fa640b55918273cd3fc122f9"
+      },
+      "overlaps": true
+    },
+    "documentation": {
+      "path": "target/v53-native-learner-resources/contract.json",
+      "sha256": "e8d8c28f4f0f193166f49caeb6bdfc1cff1e78ccdaac198b32c154c563b69f86"
+    },
+    "documentationTests": {
+      "path": "target/v53-native-learner-resources/contract-tests.log",
+      "sha256": "c346f1228fe88f4ab3cb336ffa610dc3a34ec7c7bb7d05df7a1c222f2d928881"
+    },
+    "focused": {
+      "count": 35,
+      "log": {
+        "path": "target/v53-native-learner-resources/tests-final.log",
+        "sha256": "5260ba60e4339846ee98cb32d5d0184ee8276ed9172a885eff61835fa14a7e6c"
+      }
+    },
+    "planning": {
+      "path": "target/v53-native-learner-resources/planning-final/receipt.json",
+      "sha256": "1a4b873309a12db882bdaf16a718b031eca7e5ac6f4a5ce4528747ec06f739a9"
+    },
+    "related": {
+      "count": 70,
+      "log": {
+        "path": "target/v53-native-learner-resources/related-tests.log",
+        "sha256": "c73edb8708da1dbae65cbc9e2433bcf627689b84f5493024192ecceeafc9e6fb"
+      }
+    }
+  },
+  "wholeRuntimeResourcesQualified": false
+}
