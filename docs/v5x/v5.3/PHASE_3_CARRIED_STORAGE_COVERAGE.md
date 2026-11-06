@@ -4,6 +4,10 @@ Phase 3 remains **OPEN**. This batch joins whole-replica file inventories to
 the actual resource reservations at the same original callback. It reuses
 existing producers; it changes no runtime Java, POM, workflow or frozen limit.
 
+Subsequent native execution and the publication scheduling correction are
+tracked in [publication handoff](PHASE_3_PUBLICATION_HANDOFF.md). The unexecuted
+seven-family statements below describe this earlier batch, not that later pilot.
+
 ## One boundary, one owner
 
 The [coverage reader](../../../scripts/v53/replica_storage_coverage.py) first
@@ -65,6 +69,12 @@ python3 -B -m scripts.v53.campaign_storage_coverage \
 python3 -B -m scripts.v53.native_carried_storage_coverage \
   general-search-engine-replication/target/v53-native-carried-replay-prefixes/run-<id>
 ```
+
+The subsequent `--qualify` entry additionally renames ten actual required storage
+owners in memory while preserving accounting totals. It first requires the
+complete original seven-family chain and then demands the exact physical-owner
+rejection. These targeted accounting mutations do not claim that the deliberately
+changed trace passes the unmodified full prerequisite.
 
 Both keep Phase 3, cohort admission and whole-runtime resource qualification
 false. File equality derives from original transaction authority before the

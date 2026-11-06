@@ -1,0 +1,227 @@
+{
+  "acceptancePlan": {
+    "path": "docs/v5x/v5.3/acceptance-plan.json",
+    "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+  },
+  "base": "1014f510a4b6d29705d69091be1b054f819b40c5",
+  "captureNegatives": {
+    "cases": 14,
+    "completeNegativeMatricesExecuted": false,
+    "log": {
+      "path": "target/v53-native-seven-capture/corrected/family-negatives.log",
+      "sha256": "7d9a16281eef31e6f43aa6511c24c65567648dc2d8f4aeb03cc5b3de677c6978"
+    },
+    "result": {
+      "path": "target/v53-native-seven-capture/corrected/family-negatives.json",
+      "sha256": "2c4d29dae678c497486c3527856f90a00c75f755a89dd08fba0eff843fde9e71"
+    },
+    "scope": "two-predeclared-mutations-per-family",
+    "status": "PASS"
+  },
+  "cohortAdmitted": false,
+  "compiledClasses": {
+    "path": "target/v53-native-seven-capture/corrected-compiled-classes.json",
+    "sha256": "8e5f679cf6408a5086a78eb8e33a34129f87a38440ba48b0d5c3f6f32be032a5"
+  },
+  "documentationContract": {
+    "path": "target/v53-native-seven-capture/contract.json",
+    "sha256": "299f55ef710c5e4fb62d570c0b721d59e2b700faa26298064c7b2c9007c9c1c0"
+  },
+  "frozenParametersChanged": false,
+  "hostedExecuted": false,
+  "independentReplay": {
+    "capturedCallbacks": 3082,
+    "capturedFamilies": {
+      "campaigns": 457,
+      "completion": 450,
+      "floors": 998,
+      "ledgers": 298,
+      "prefixes": 595,
+      "replay": 115,
+      "votes": 169
+    },
+    "log": {
+      "path": "target/v53-native-seven-capture/corrected/qualification.log",
+      "sha256": "c7182a822045b1ef269a1388f2e6aaf5f8bbb3d25b99c97e4e926cac6000e681"
+    },
+    "originalOwnerNegatives": 10,
+    "ownerLifetimes": 8,
+    "result": {
+      "path": "target/v53-native-seven-capture/corrected/final-qualified.json.gz",
+      "sha256": "1e6260395cacc25ed105e28c7a46e3461bb1419d574967d105f95b84fd4cda6b"
+    },
+    "status": "PASS",
+    "summary": {
+      "path": "target/v53-native-seven-capture/corrected/qualification-summary.json",
+      "sha256": "8c36ac8badd7fff4d6416bdbf5fde3981565211980ffc612b5830b19fe9c7e0c"
+    }
+  },
+  "integrity": {
+    "compiledClassesUnchanged": 1976,
+    "correctedNativeOriginalsUnchanged": 10188,
+    "failedNativeOriginalsUnchanged": 8180,
+    "historicalIndexesUnchanged": 388,
+    "report": {
+      "path": "target/v53-native-seven-capture/integrity-summary.json",
+      "sha256": "1ea634d7066a82799603108a750327c28925b0848af98f3091c9ed4302ba3929"
+    },
+    "sourceFilesUnchanged": 1499,
+    "status": "PASS"
+  },
+  "java": {
+    "errors": 0,
+    "failures": 0,
+    "log": {
+      "path": "target/v53-native-seven-capture/pulse-after.log",
+      "sha256": "f357a1e41e8efc1792c3c7995910728acb6257b58e599a39a764fb49d70c12bc"
+    },
+    "report": {
+      "path": "target/v53-native-seven-capture/pulse-tests.json",
+      "sha256": "b95210a988ce54c5ecd0dc9f0e322e92f48793df99029baceb6e8b66edaeb514"
+    },
+    "skipped": 0,
+    "status": "PASS",
+    "tests": 13
+  },
+  "limitations": [
+    "The correction addresses obsolete cooperative sampling across the observed publication handoff, not every lost publication recovery path.",
+    "Original-first accounting owner substitutions do not claim that the deliberately modified trace passes the unmodified physical prerequisite.",
+    "The complete runtime resource envelope, DATA/internal-core interruptions, remaining process axes and final-source hosted qualification remain open."
+  ],
+  "nativeCorrected": {
+    "bytes": 75690709,
+    "capturedCallbackBytesQualified": true,
+    "cut": "PROOF_RENAMED",
+    "files": 10188,
+    "inventory": {
+      "path": "target/v53-native-seven-capture/corrected/inventory.json",
+      "sha256": "1e426fef7f938ea1f09d0c7090d968f92a5f633bcf57755b14dc861c7d6d8f2f"
+    },
+    "kind": "FINAL",
+    "log": {
+      "path": "target/v53-native-seven-capture/corrected/native.log",
+      "sha256": "1291b95d0ed3be983c29b82fe122ab1b88120a46f2767074fd8baa2f71cd2f8f"
+    },
+    "mode": "kill",
+    "producerPassed": true,
+    "qualificationStatus": "PASS",
+    "result": {
+      "path": "general-search-engine-replication/target/v53-native-carried-replay-prefixes/run-bd31b0d8-e44f-47e8-ac84-2e249354ed9f/previous/previous/previous/previous/maintenance/prefixes/observed/history/process/result.json",
+      "sha256": "15384149107e26332e76a0b48d5d966cbc8a6b88ddcdfc792cd8861cddb6f9ee"
+    },
+    "root": "general-search-engine-replication/target/v53-native-carried-replay-prefixes/run-bd31b0d8-e44f-47e8-ac84-2e249354ed9f",
+    "status": "PARTIAL",
+    "testSeconds": 595.443,
+    "wholeRuntimeResourcesQualified": false
+  },
+  "nativeOriginalFailure": {
+    "bytes": 58845658,
+    "diagnosis": {
+      "path": "target/v53-native-seven-capture/failure-diagnosis.json",
+      "sha256": "0b2a728160d167f85c64b0197a518f923cfbd84dc622552d06fd885122427fb8"
+    },
+    "files": 8180,
+    "inventory": {
+      "path": "target/v53-native-seven-capture/failed-native-inventory.json",
+      "sha256": "5a280c052cda51433b967746ab51d2a9be25a48fabb511f297ee7e0586b8be53"
+    },
+    "log": {
+      "path": "target/v53-native-seven-capture/final-native.log",
+      "sha256": "090c532eea94779b8ce01ce31d94002031ba05828894008f7f89938a51294c60"
+    },
+    "originalFirstRefusal": {
+      "path": "target/v53-native-seven-capture/failed-original-refusal.json",
+      "sha256": "1177c9ddf9b47890f236024e3b70f57d5678c568a76288d4f1a46f1cc08b790e"
+    },
+    "status": "FAIL"
+  },
+  "paidCloudExecuted": false,
+  "phase3Complete": false,
+  "portable": {
+    "exactOriginalResult": true,
+    "log": {
+      "path": "target/v53-native-seven-capture/corrected/portable.log",
+      "sha256": "1ff29da305d693e47b2bf059cf7a52404b4f22a5d10904c95fc841853e591e64"
+    },
+    "pythonAssertions": false,
+    "relocated": true,
+    "result": {
+      "path": "target/v53-native-seven-capture/corrected/portable.json.gz",
+      "sha256": "7306adf83f0e25193d1a0f4c43bf43f6ee7381e2c511ae79c80d61ad04e5c3aa"
+    },
+    "seconds": 96.48778719399706,
+    "status": "PASS",
+    "summary": {
+      "path": "target/v53-native-seven-capture/corrected/portable-summary.json",
+      "sha256": "7d353d357e919b93e228bbc70d2a4dd1ac1c4e6880447ece3ae466f33e26fab4"
+    }
+  },
+  "python": {
+    "focusedLog": {
+      "path": "target/v53-native-seven-capture/ownership-current.log",
+      "sha256": "737152334e5c351522b521ff8c54f8cbb7063c0c74397b24e5f001330b2f8d4e"
+    },
+    "focusedTests": 40,
+    "optimizedFocusedTests": 40,
+    "optimizedLog": {
+      "path": "target/v53-native-seven-capture/optimized-ownership-tests-final.log",
+      "sha256": "d859cd27fbf773f7a13f6b9db849e1be3fd0c417d0d7943ca8bed05df7b8e0dc"
+    },
+    "relatedTests": 397,
+    "report": {
+      "path": "target/v53-native-seven-capture/python-summary.json",
+      "sha256": "5941e020e6059be35898f8134b0fd6fad034b3d2f094a77428c96d0b95ce4747"
+    },
+    "status": "PASS"
+  },
+  "regressionBefore": {
+    "log": {
+      "path": "target/v53-native-seven-capture/pulse-before.log",
+      "sha256": "deaf603cb00db307fa167f0f9aae25812dab2fe4465e15202d7c41b8d9e77761"
+    },
+    "reason": "old-view liveness sampled after a transition publication could reach a peer",
+    "status": "EXPECTED_FAIL",
+    "tests": 1
+  },
+  "replayScripts": [
+    {
+      "path": "target/v53-native-seven-capture/corrected/analyze.py",
+      "sha256": "4e0b07aef8146e0df068119768971521215de8e8faa5acad702528fa7118c4d6"
+    },
+    {
+      "path": "target/v53-native-seven-capture/corrected/family_negatives.py",
+      "sha256": "c6b7d981d1a01178340de94f1dd8612def60b5a61a6e0742f7c9c9446220aff0"
+    },
+    {
+      "path": "target/v53-native-seven-capture/corrected/portable.py",
+      "sha256": "8a2a1b05898058116808a2219ed3a361e038e7d50c43e8eeb25d89cb508c9a57"
+    }
+  ],
+  "schema": "gse-v53-publication-handoff-development-v1",
+  "sourceSnapshot": {
+    "path": "target/v53-native-seven-capture/corrected-source.json",
+    "sha256": "1b28f7d225ce41a5658f7511b39c84988f9b45004400227cb6271aef9bef2aa8"
+  },
+  "sources": [
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSlotDriver.java",
+      "sha256": "a87ba538aeb38c6ca3a6e1bd998f9b80f165a114a19f91d65e7e8dcbf7bf4ff8"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationPulseTest.java",
+      "sha256": "55bdb10344289a0b67ae3978efec08ecd92b48a61440289b84a4f4e2eae68405"
+    },
+    {
+      "path": "scripts/v53/native_carried_storage_coverage.py",
+      "sha256": "ba9b67dc6f8322bf0092e9af5631785d808b4c06572116552bbd91e9952f275f"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_storage_coverage.py",
+      "sha256": "80de3dae3d9d6c078ce2b3ad664ed25880778c1bcd5d3d39ca6d06cc35c894c8"
+    }
+  ],
+  "toolchain": {
+    "path": "target/v53-native-seven-capture/toolchain.txt",
+    "sha256": "76491158c17a80a30a3e9a573bf6d349cb0568dc8ddcb348f7c4d5e34b1b87cd"
+  }
+}

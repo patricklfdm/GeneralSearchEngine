@@ -1,10 +1,12 @@
 from pathlib import Path
+import copy
 import tempfile
 import unittest
 from unittest.mock import patch
 from . import native_carried_storage_coverage as m
 from . import storage_coverage_component as component
 from . import campaign_storage_coverage as campaign
+from . import test_storage_coverage_binding as binding_fixture
 
 
 class NativeCarriedStorageCoverageTest(unittest.TestCase):
@@ -64,6 +66,53 @@ class NativeCarriedStorageCoverageTest(unittest.TestCase):
             self.assertEqual(Path(temp)/'previous/previous/previous/previous/maintenance/prefixes/observed',project.call_args.args[0])
             self.assertTrue(result['capturedCallbackBytesQualified']);self.assertFalse(result['wholeRuntimeResourcesQualified'])
             self.assertFalse(result['phase3Complete']);self.assertFalse(result['cohortAdmitted'])
+
+
+class NativeStorageOwnershipQualificationTest(unittest.TestCase):
+    def targets(self):
+        charges=[dict(unit=unit,owner='original-'+unit) for unit in ('GENERATION','SOURCE','JOURNAL','MISC')]
+        charges += [dict(unit='APPLICATION',owner=name) for name in
+                    ('generation-a:image','floor:copy:0','retirement:0','application-replay-input','applied-end',
+                     '00000000-0000-0000-0000-000000000001:'+('a'*64))]
+        return dict(owners=[dict(life=2,node='node-1',snapshots=[dict(eventIndex=19,point='CAPTURE',required=charges)])])
+
+    def test_every_owner_family_requires_an_actual_file_witness(self):
+        original=self.targets();targets=m.ownership_targets(original)
+        self.assertEqual(m.OWNER_CASES,set(targets))
+        self.assertEqual('applied-end',targets['applied-end']['owner'])
+        for offset in range(len(m.OWNER_CASES)):
+            changed=copy.deepcopy(original);changed['owners'][0]['snapshots'][0]['required'].pop(offset)
+            with self.subTest(offset=offset),self.assertRaisesRegex(ValueError,'complete original owner cases'):
+                m.ownership_targets(changed)
+        changed=copy.deepcopy(original);changed['owners'][0]['snapshots'][0]['required'].append(dict(unit='APPLICATION',owner='foreign'))
+        with self.assertRaisesRegex(ValueError,'supported original owner case'):m.ownership_targets(changed)
+
+    def test_balanced_trace_with_foreign_owner_cannot_cover_original_files(self):
+        fixture=binding_fixture.StorageCoverageBindingTest();rows,trace,events,boundaries=fixture.fixture()
+        original=copy.deepcopy(trace)
+        for closed in (True,False):
+            source=copy.deepcopy(trace)
+            if not closed:
+                source['changes']=source['changes'][:3];source['transitions']=3;source['current']=source['changes'][-1]['usage']
+            changed=m.rename_owner(source,'MISC','current-authority')
+            self.assertEqual(m.coverage.t.replay(source,require_closed=closed),m.coverage.t.replay(changed,require_closed=closed))
+            with self.assertRaisesRegex(ValueError,'^storage coverage original charge owner$'):
+                m.coverage.bind(rows,changed,events,boundaries,'node-1',2,closed=closed,ordinals=m.coverage.ordinal_plans(rows))
+        self.assertEqual(original,trace)
+
+    def test_mutation_cannot_invent_target_or_alias_an_existing_owner(self):
+        trace=binding_fixture.StorageCoverageBindingTest().fixture()[1]
+        with self.assertRaisesRegex(ValueError,'distinct original mutation owner'):m.rename_owner(trace,'MISC','absent')
+        changed=m.rename_owner(trace,'MISC','current-authority')
+        with self.assertRaisesRegex(ValueError,'distinct original mutation owner'):m.rename_owner(changed,'MISC','unrelated-storage')
+        changed['changes'][0]['added'].append(dict(unit='MISC',owner='current-authority',bytes=1,claimSource=''))
+        with self.assertRaisesRegex(ValueError,'distinct original mutation owner'):m.rename_owner(changed,'MISC','current-authority')
+
+    def test_failed_native_prerequisite_earns_no_negative_credit(self):
+        with tempfile.TemporaryDirectory() as temp,patch.object(m,'validate',side_effect=ValueError('original failure')),\
+             patch.object(m,'ownership_targets') as targets,patch.object(m,'rename_owner') as mutate:
+            with self.assertRaisesRegex(ValueError,'^original failure$'):m.qualify(temp)
+            targets.assert_not_called();mutate.assert_not_called()
 
 
 if __name__=='__main__':unittest.main()

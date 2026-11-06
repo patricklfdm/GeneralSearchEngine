@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Publication handoff](PHASE_3_PUBLICATION_HANDOFF.md) corrects an old-view
+heartbeat after remote INTENT/FINAL publication. The corrected FINAL/PROOF/SIGKILL
+pilot passes native recovery and independent seven-family replay: 3,082 captured
+file boundaries across eight owner lifetimes, plus ten original-owner negatives.
+The original failure remains retained. Complete runtime and final-source
+qualification remain OPEN.
+
 [Carried application ownership](PHASE_3_CARRIED_APPLICATION_OWNERSHIP.md)
 composes temporal exports, complete-copy FLOOR acquisition and continuous
 peer/future revisions for the existing application-ACK crash originals. PROOF

@@ -47,6 +47,7 @@ final class MembershipSlotDriver implements AutoCloseable {
     private Thread runner;
     private volatile boolean closed;
     private boolean used;
+    private boolean publicationHandoff;
     private Decoded published;
     <K,T> MembershipSlotDriver(MembershipGrantJournal owner,MembershipActivationEndpoint endpoint,MembershipResources resources,
             ReplicationBounds bounds,MembershipTransport transport,LongSupplier clock,long started,long budget,
@@ -83,7 +84,7 @@ final class MembershipSlotDriver implements AutoCloseable {
     private void progress()throws IOException {
         // Only the coordinator owns outbound liveness; peer workers continue
         // their normal validation but may never create a concurrent sample.
-        if(Thread.currentThread()==runner)pulse.check();
+        if(Thread.currentThread()==runner && !publicationHandoff)pulse.check();
     }
     private void fanout(PeerWork work)throws IOException {
         check();var completions=new ExecutorCompletionService<Void>(workers);var phase=new ArrayList<Future<Void>>();
@@ -167,6 +168,14 @@ final class MembershipSlotDriver implements AutoCloseable {
             synchronized(this){if(closed){recording.close();throw new IOException("slot future quorum closed");}recordings.add(recording);}
             var recorded=recording.record();check();events.at("FUTURE_QUORUM_COMPLETE",certificate,recorded.voters());check();ready.add(recorded);
         }
+        // A receiver can publish the new view before this proposer publishes.
+        // Its old-view heartbeat is then invalid, even though the exact pending
+        // publication is still valid. Stop only cooperative liveness sampling
+        // across this handoff; every local/future/transport check retains the
+        // original deadline, ballot fence, cancellation and application owner.
+        // Stable slots keep sampling. The outer round must install the new
+        // authority before it can sample again or create a fresh READY barrier.
+        check();publicationHandoff=!object(applied.plan().catalog.value().get("cut")).get("view").equals(voting.before.context.view);
         for(var recorded:ready){check();recorded.dispatch(transport);check();}
         check();var publish=request(owner.activationIdentity(),"PUBLISH",Map.of("certificate",certificate.digest()));
         var response=endpoint.handle(owner.activationIdentity(),publish);time();
