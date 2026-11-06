@@ -13,7 +13,7 @@ public final class V53NativeCarriedProcessWorker {
     static final Set<String> CUTS=Set.of("NATIVE_RETIREMENT_CERTIFICATE_RETAINED","ACCEPT_RENAMED",
             "PROOF_RENAMED","APPLY_ACK_DIRECTORY_FORCED");
     public static void main(String[] args)throws Exception {
-        if(args.length<4 || args.length>10)throw new IllegalArgumentException("native carried worker arguments");
+        if(args.length<4 || args.length>11)throw new IllegalArgumentException("native carried worker arguments");
         Path spec=Path.of(args[0]);int life=Integer.parseInt(args[1]);String point=args[2],mode=args[3];
         if((life!=1 && life!=2) || !CUTS.contains(point) || !Set.of("halt","kill").contains(mode))
             throw new IllegalArgumentException("native carried process case");
@@ -33,7 +33,7 @@ public final class V53NativeCarriedProcessWorker {
         var pipe=new V53NodeProcessWorker.Pipe();
         var capture=args.length>=5?new V53NodeResourceCapture(Path.of(args[4]),history.manifestDigest(),life,pipe,
                 args.length>=6?Path.of(args[5]):null,args.length>=7?Path.of(args[6]):null,args.length>=8?Path.of(args[7]):null,
-                args.length>=9?Path.of(args[8]):null,args.length==10?Path.of(args[9]):null):null;
+                args.length>=9?Path.of(args[8]):null,args.length>=10?Path.of(args[9]):null,args.length==11?Path.of(args[10]):null):null;
         V53NodeProcessWorker.Sink sink=capture==null?pipe:capture;
         var owners=new ArrayList<MembershipNodeOwner<Integer,Doc>>();
         var activeSlot=new AtomicLong();var installations=new AtomicLong();var cut=new AtomicBoolean();

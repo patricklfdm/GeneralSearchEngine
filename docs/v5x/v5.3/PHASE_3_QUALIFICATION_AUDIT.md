@@ -1,5 +1,10 @@
 # Phase 3 qualification inventory and remaining work
 
+[Carried peer/future ledger capture](PHASE_3_CARRIED_LEDGER_CAPTURE.md) adds
+continuous revision-bound file writes and cold reseals. The short real-writer
+component passes 40 prefix checks and 12 exact negatives; composed native
+qualification, core scratch and complete resource maxima remain OPEN.
+
 [Carried application/publication capture](PHASE_3_CARRIED_COMPLETION_CAPTURE.md)
 adds exact end-write, publication-install and covered-cleanup inventories. Three
 conditional real-writer components check 270 prefixes and 39 exact negatives;

@@ -1,0 +1,159 @@
+{
+  "acceptancePlan": {
+    "path": "docs/v5x/v5.3/acceptance-plan.json",
+    "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+  },
+  "base": "8a48e460d886bc3b32340ffdf4d34f29f5eaeb15",
+  "cohortAdmitted": false,
+  "derivedFileAnchorComparisons": 6711,
+  "derivedNativePrefixes": 785,
+  "derivedPrefixesAreCaptures": false,
+  "historicalIndexesUnchanged": 382,
+  "hostedExecuted": false,
+  "limitations": [
+    "Short real-writer expected inputs are conditional transaction snapshots; these checks do not establish native protocol authority or crash recovery.",
+    "The unchanged original histories supply 785 expected ledger prefixes only; no new native capture or process death is credited.",
+    "Native vote/completion/ledger composition and full-chain negative qualification remain unexecuted.",
+    "Core scratch files, complete resource maxima, other process axes, application-ACK recovery and final-source cohort remain open."
+  ],
+  "nativeFullNegativeCasesDefined": 28,
+  "nativeFullNegativeCasesQualified": 0,
+  "nativeLedgerBytesQualified": false,
+  "nativeLedgerReaderImplemented": true,
+  "nativeLongEntryCompiled": true,
+  "nativeLongEntryExecuted": false,
+  "originalComponent": {
+    "inventory": {
+      "path": "target/v53-carried-ledger-prefixes/component-inventory.json",
+      "sha256": "fd89e06b797bbafaeabc3405bd8a6b1079bdd391b9a1c74371f21524cb9baaa9"
+    },
+    "path": "general-search-engine-replication/target/v53-ledger-prefix-component/run-7e1588e4-9360-4b09-899f-c3e3336c6b0d",
+    "portable": {
+      "path": "target/v53-carried-ledger-prefixes/portable.json",
+      "sha256": "b157b881f55eadea0513ff8c0c4e10257be6e2510123ef415ebbccf7d2ca1cfb"
+    },
+    "qualification": {
+      "path": "target/v53-carried-ledger-prefixes/component-final.json",
+      "sha256": "812faf096a404be06af20d320946284d9b8ecf98dfa89e7874d9b53fc7294e5e"
+    },
+    "summary": {
+      "path": "target/v53-carried-ledger-prefixes/component-summary.json",
+      "sha256": "a2d5ad01dab7181dfa07c21f6c78ee4b29635eae6954edeb5a6e155adb15d5ea"
+    }
+  },
+  "originalDerivedProbe": {
+    "path": "target/v53-carried-ledger-prefixes/original-plan-final.json",
+    "sha256": "0aadfd08d3f39f3c09e88e474e712c5bb5fcb33a051cd7178498e289e6838671"
+  },
+  "originalProbeScript": {
+    "path": "target/v53-carried-ledger-prefixes/probe-originals.py",
+    "sha256": "e102a5735f248f98716b2463dfbad3c8d2581723ea6e3776c073b8dcaf998d5d"
+  },
+  "paidCloud": false,
+  "phase3Complete": false,
+  "previousCompletionComponent": {
+    "path": "docs/v5x/v5.3/phase3-evidence/carried-completion-prefix-development.json",
+    "sha256": "692ef8ffceaed432c8214a0ada33705d8dd52748a19e1293cfdfeca257b6648b"
+  },
+  "priorRetentionQualifications": [
+    {
+      "path": "target/v53-carried-process-campaigns/final-qualify.json",
+      "sha256": "48633f57cf1fbbc02228607f6e64da6865e8a15d5a348e80362a150bd6de8c98"
+    },
+    {
+      "path": "target/v53-carried-process-campaigns/intent-qualify.json",
+      "sha256": "50f06573c505e700940f45e5babe25765beb891b402f5f29f845faf83e4f8f9d"
+    }
+  ],
+  "pushed": false,
+  "runtimeChanged": false,
+  "schema": "gse-v53-carried-ledger-prefix-development-v1",
+  "sourceFiles": [
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LedgerPrefixCaptureTest.java",
+      "sha256": "9520d2278a960c27324b225c56ff448fd198a04904d03408400ea627446ea734"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedLedgerPrefixProcessTest.java",
+      "sha256": "54b000873a1ce554563aa4d34f12ccecb001b1dd0b42da9a8d1b18d62a99ec17"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessTest.java",
+      "sha256": "eed97f14767527c600098b41d474cceeece2e70646db7f000c787888da996283"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessWorker.java",
+      "sha256": "7080fa9f6bb1faddcc4e4d49a60b701b7c59898c8bcb2a6df461418c37460e75"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeResourceCapture.java",
+      "sha256": "747aaeed93cad4917cb603342ae398d9473ca833894dcccc9db08ea2aa8e3dbb"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeResourceCaptureTest.java",
+      "sha256": "af142161f25a8a1ade47b06fb9a0992044a5cba86dd458702911c170a6162907"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RemoveRetirementCapture.java",
+      "sha256": "9d7de86078e4fb7c4166b456fca250888096112aca2da4f9848851d2544bad8d"
+    },
+    {
+      "path": "scripts/v53/ledger_prefix_component.py",
+      "sha256": "0e314fcece32754d3a44b5b1fbc1d6a5555a72263cfb2bef3404c18592fdffcc"
+    },
+    {
+      "path": "scripts/v53/native_carried_ledger_prefixes.py",
+      "sha256": "6491902750f45252fd0b74585e05667a32d3063c39cf6b7116ae7dad11ffa5c6"
+    },
+    {
+      "path": "scripts/v53/native_ledger_files.py",
+      "sha256": "91f405e243539d0ea2cb2e004ece25f0b9efdc3c0cdc5dd93b0bbba70d30bd44"
+    },
+    {
+      "path": "scripts/v53/test_ledger_prefix_component.py",
+      "sha256": "c341104eadc47d03e22672ea61ffd5b46fbb56c5cc5adbd965a7a2fed9d3a713"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_ledger_prefixes.py",
+      "sha256": "34c5614a1ba57786c6a4f4e6a8001cb5bd44c283b71637eb794cc7275f8fce0c"
+    },
+    {
+      "path": "scripts/v53/test_native_ledger_files.py",
+      "sha256": "1f2cef960632de990ea2dcae69ecd98d5e59514d0bfd52a406c27623715c8f5b"
+    }
+  ],
+  "status": "PARTIAL",
+  "unchangedCatalogue": {
+    "archives": 486,
+    "executionGroups": 246,
+    "histories": 552,
+    "subsets": 12,
+    "workflowJobs": 516
+  },
+  "validation": {
+    "componentCapturedPrefixes": 40,
+    "componentPhysicalNegatives": 12,
+    "componentResealPairs": 6,
+    "componentWrites": 4,
+    "focusedJavaTests": 24,
+    "java": {
+      "path": "target/v53-carried-ledger-prefixes/java-focused.log",
+      "sha256": "5c02aa323c5c4ea2491213a2ffa501276a5646446eefad78bcdf3a07d6e5e502"
+    },
+    "optimizedPython": {
+      "path": "target/v53-carried-ledger-prefixes/unit-optimized-final.log",
+      "sha256": "c26377af2649565e4e787b1029e354db854c5fac019e2d98f9832d0a7a0bed3a"
+    },
+    "optimizedPythonTests": 66,
+    "python": {
+      "path": "target/v53-carried-ledger-prefixes/unit-final.log",
+      "sha256": "fa6977e4b239a05b330b60a2d0f4a026b7cc1b2d3204994a61933d90f1993124"
+    },
+    "pythonModules": {
+      "path": "target/v53-carried-ledger-prefixes/python-modules.json",
+      "sha256": "6164cd9d48343e79666a4ef4d8a7c843b087d9faa9bdb3b0aa16c0e356c071a4"
+    },
+    "relatedPythonTests": 259
+  },
+  "workflowChanged": false
+}
