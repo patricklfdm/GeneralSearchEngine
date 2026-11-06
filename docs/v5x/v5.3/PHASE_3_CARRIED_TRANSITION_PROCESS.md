@@ -4,8 +4,10 @@ Phase 3 remains **OPEN**. These development process cases extend the existing
 [carried transition pair](PHASE_3_CARRIED_TRANSITIONS.md). Complete interrupted
 force/network replay and source-bound cohort admission are still required. The
 original storage snapshot reduction described below is now implemented.
-The storage callback component also derives the observed force/return ordering;
-transient-file and complete TCP/export replay remain separate obligations.
+The storage callback component also derives the observed force/return ordering.
+Separate transport and temporal export components now bind the two retained
+originals; transient-file capture and complete maintenance composition remain
+separate obligations.
 They do not add accepted members to the twelve hosted subsets.
 
 ## Original history and process ownership
@@ -216,6 +218,54 @@ python3.11 -B -m scripts.v53.native_carried_transition_network \
   general-search-engine-replication/target/v53-native-carried-transition-process/run-<id> --qualify
 ```
 
+## Temporal export authority across group death
+
+The [temporal export reader](../../../scripts/v53/native_carried_transition_exports.py)
+requires all three original process/storage/callback and network components
+before deriving availability. Every selected installation and publication ends
+the previous generation at its selector rename. The next generation becomes
+servable only after the actual completion callback. All four owners have two
+separate open intervals. A transfer must finish, including delivery of its
+commit reply, within the original sender's and receiver's same lifetime.
+
+The parent-captured snapshots and actual grant/retirement callbacks bind each
+immutable frozen source. A durable source surviving death is available to a new
+successor transfer; it does not keep the dead JVM's original borrow alive.
+Current generation manifests, original packets, exact image reuse, journal
+records, native receipts and local applied checkpoints use the shared temporal
+authorizers. Control payloads are reconstructed from the installed original
+catalog, then checked against the retained ENTRY digest.
+
+The interrupted phase has its own derivation. An ACCEPT rename without a complete
+return supplies no receipt. At the PROOF-rename cut, the already completed local
+and peer ACCEPTs can serve their exact records, payload and ACCEPT observations.
+The unfinished PROOF does not become a receipt or application ACK. A fresh promise
+ends the live vote capability; group death ends every process-local capability.
+The complete successor slots retain their separate original force boundaries.
+
+The [process export index](phase3-evidence/carried-transition-process-exports.json)
+records the same two original histories, their unchanged inventories, reader
+hashes and portable optimized replay. Nine exact byte/timing mutations per
+history must first pass the full physical and attempted-network precondition.
+They cover aliases, generation bytes, source ballot/promise, native receipt
+identity and force timing, and completed checkpoint identity. Invalid originals
+and unrelated rejections never count as negative success. A wrong-view mutation
+is already refused by the transport precondition and earns no export-negative
+credit. Focused regressions separately exercise retirement, selector gaps and
+cross-death windows without claiming additional native histories.
+
+Receipts remain **PARTIAL**, with `observedExportAuthorityQualified=true`.
+Complete-copy floor composition, transient force bytes, application/scratch
+inventory and simultaneous resource accounting remain separate obligations.
+Callback observations do not establish unrecorded wall-clock expiry behavior.
+No Java history, cloud run or hosted catalogue entry is added by this reader.
+Six declared process cases and the application-ACK crash axis remain outstanding.
+
+```bash
+python3.11 -B -m scripts.v53.native_carried_transition_exports \
+  general-search-engine-replication/target/v53-native-carried-transition-process/run-<id> --qualify
+```
+
 ## Development checks and reproduction
 
 The retained [development index](phase3-evidence/carried-transition-process.json)
@@ -273,8 +323,8 @@ cases cover the earlier exact ACCEPT/PROOF cuts only.
 
 Before these eight cases enter the hosted catalogue, the owning reader must
 extend the completed cold-vote and snapshot reduction through every exact
-force/deletion prefix, and qualify all original TCP/export lifetimes across
-both JVMs. Whole-history admission must
+force/deletion prefix, and compose the observed TCP/export lifetimes with complete
+maintenance and resource authority across both JVMs. Whole-history admission must
 then bind that replay to the exact source, build, tools and original archive.
 The application-ACK recovery axis needs its own implementation and evidence;
 the campaign-only permission does not authorize it.

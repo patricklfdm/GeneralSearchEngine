@@ -1,0 +1,243 @@
+{
+  "acceptancePlan": {
+    "path": "docs/v5x/v5.3/acceptance-plan.json",
+    "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+  },
+  "base": "c28c4e73df6df604e418014d45396085734fccc6",
+  "declaredProcessCases": 8,
+  "executedOriginalProcessCases": 2,
+  "hostedExecuted": false,
+  "limitations": [
+    "Complete-copy floor acquisition/discovery composition remains open; callback and export components do not substitute for it.",
+    "Full force/transient bytes, scratch inventory, simultaneous resource bounds and unrecorded deadline expiry remain open.",
+    "Six declared process histories remain unexecuted; application-ACK crash recovery and final-source hosted admission remain open.",
+    "Wrong-view mutation is refused by the transport precondition and earns no export-negative credit; retirement/death gaps have focused regressions, not extra native histories."
+  ],
+  "newNativeExecutions": 0,
+  "originals": [
+    {
+      "bytes": 34504046,
+      "cut": "PROOF_RENAMED",
+      "exports": {
+        "boundSessions": {
+          "current-generation": 36,
+          "frozen-source": 14,
+          "journal": 10,
+          "native-applied-checkpoint": 3,
+          "native-vote-receipt": 28,
+          "pending-payload": 4,
+          "pending-record": 12,
+          "published-local-checkpoint": 1,
+          "published-record": 5
+        },
+        "boundTransfers": {
+          "current-generation": 124,
+          "frozen-source": 42,
+          "journal": 10,
+          "native-applied-checkpoint": 3,
+          "native-vote-receipt": 28,
+          "pending-payload": 4,
+          "pending-record": 12,
+          "published-local-checkpoint": 1,
+          "published-record": 5
+        },
+        "cohortAdmitted": false,
+        "completeCopyFloorLifetimesQualified": false,
+        "generationWindows": 21,
+        "kind": "FINAL",
+        "observedExportAuthorityQualified": true,
+        "ownerLifetimes": 8,
+        "phase3Complete": false,
+        "recordWindows": 85,
+        "sourceWindows": 12,
+        "status": "PARTIAL",
+        "transientBytesCaptured": false,
+        "unqualifiedTransfers": 0
+      },
+      "files": 5688,
+      "inventory": {
+        "path": "target/v53-carried-transition-process-exports/final-inventory.json",
+        "sha256": "a14e2872e9b62e092de9a02734648800ff7b6ad6a00c9ed5b5933ae1224a8eaf"
+      },
+      "kind": "FINAL",
+      "mode": "kill",
+      "negativeCases": 9,
+      "newNativeExecution": false,
+      "originalUnchanged": true,
+      "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-2c0544f6-6c32-474e-a0ed-394c348ae6ef",
+      "portable": {
+        "path": "target/v53-carried-transition-process-exports/final-portable.json",
+        "sha256": "a83284512893da202b28d7f5e599b410ac48f320b5a883a46d3829b22e9c3097"
+      },
+      "producerSource": "77c851f22770ef445413615db22c91dc5a3141cf",
+      "progress": {
+        "path": "target/v53-carried-transition-process-exports/final-qualify.stderr",
+        "sha256": "ffd286ea18a290fb844ce5ea5b5efeba21455d5edb024207f5c13de3a830b4e3"
+      },
+      "qualification": {
+        "path": "target/v53-carried-transition-process-exports/final-qualify.json",
+        "sha256": "c34c3afc63b5c3e448a367c9e0e4e85d618ac7897a3dd9895f4b8bf3a43decf2"
+      }
+    },
+    {
+      "bytes": 33638420,
+      "cut": "ACCEPT_RENAMED",
+      "exports": {
+        "boundSessions": {
+          "current-generation": 56,
+          "frozen-source": 20,
+          "journal": 14,
+          "native-applied-checkpoint": 6,
+          "native-vote-receipt": 42,
+          "pending-payload": 4,
+          "pending-record": 18,
+          "published-local-checkpoint": 4,
+          "published-record": 3
+        },
+        "boundTransfers": {
+          "current-generation": 188,
+          "frozen-source": 60,
+          "journal": 14,
+          "native-applied-checkpoint": 6,
+          "native-vote-receipt": 42,
+          "pending-payload": 4,
+          "pending-record": 18,
+          "published-local-checkpoint": 4,
+          "published-record": 3
+        },
+        "cohortAdmitted": false,
+        "completeCopyFloorLifetimesQualified": false,
+        "generationWindows": 27,
+        "kind": "INTENT",
+        "observedExportAuthorityQualified": true,
+        "ownerLifetimes": 8,
+        "phase3Complete": false,
+        "recordWindows": 112,
+        "sourceWindows": 15,
+        "status": "PARTIAL",
+        "transientBytesCaptured": false,
+        "unqualifiedTransfers": 0
+      },
+      "files": 5042,
+      "inventory": {
+        "path": "target/v53-carried-transition-process-exports/intent-inventory.json",
+        "sha256": "2d123456292889812ed26738cdb13cc344f2da73feede372467c36b419b30838"
+      },
+      "kind": "INTENT",
+      "mode": "halt",
+      "negativeCases": 9,
+      "newNativeExecution": false,
+      "originalUnchanged": true,
+      "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-8375ac2d-af1b-41df-b46d-900f6e2e5060",
+      "portable": {
+        "path": "target/v53-carried-transition-process-exports/intent-portable.json",
+        "sha256": "d6ee7237cf4e0701044b1237dfe1fee4f5837b98e2a3c62865c83df4efec10d7"
+      },
+      "producerSource": "77c851f22770ef445413615db22c91dc5a3141cf",
+      "progress": {
+        "path": "target/v53-carried-transition-process-exports/intent-qualify.stderr",
+        "sha256": "ffd286ea18a290fb844ce5ea5b5efeba21455d5edb024207f5c13de3a830b4e3"
+      },
+      "qualification": {
+        "path": "target/v53-carried-transition-process-exports/intent-qualify.json",
+        "sha256": "e600ec20fb00e2c11cd88c0861e8ad659f3c586890b4a987af11a099f785bf17"
+      }
+    }
+  ],
+  "paidCloud": false,
+  "phase3Complete": false,
+  "pushed": false,
+  "readerDevelopmentFailures": [
+    {
+      "path": "target/v53-carried-transition-process-exports/final-first.stderr",
+      "sha256": "68a2e1f8528502f2ed1d9708f357dd1d20115f2fa179c6884bf53e9fd055be79"
+    },
+    {
+      "path": "target/v53-carried-transition-process-exports/final-original.stderr",
+      "sha256": "37a3956e5cb4d07f1448ed35edd693fb3af9c54fa03d5a28cfca91d9672c2de5"
+    },
+    {
+      "path": "target/v53-carried-transition-process-exports/final-qualify-first.stderr",
+      "sha256": "c3c4b0c34a6e9d26189399d001a3b82c0c6a993377e2a22ffd82b246095892ff"
+    },
+    {
+      "path": "target/v53-carried-transition-process-exports/portable.log",
+      "sha256": "d9143abe582a6f1881756b36c2dc54e87743764ba80e40654aae29a5946e039d"
+    }
+  ],
+  "schema": "gse-v53-carried-transition-process-exports-development-v1",
+  "sourceFiles": [
+    {
+      "path": "scripts/v53/native_carried_transition_exports.py",
+      "sha256": "1464a226003b3eea75a4d56f5ac92698afc7ed91427164b66ddb636ca73c69d4"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_transition_exports.py",
+      "sha256": "51a1e74bf9f4dc5555e640ef9142407df953bc6a591e517786c917a15ee26f4f"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_network.py",
+      "sha256": "1eacfde8711815f30d9d70e2489a9204f75782bb5a8ac275fbd018e3bc509f0e"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_forces.py",
+      "sha256": "d1a3c0849fd54321734a5390b441839d4ce43cf42533647ceb93b7720e8b56e5"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_physical.py",
+      "sha256": "f155b2c9b5dc2b3e6804fd5878ad99b1d36f245bcf0dfa6b6b7336ec1ea4e303"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_process.py",
+      "sha256": "d732ca224d4712f76897559ef4d48722c84ec02b4ccfa909f84e3ee189a9d7c8"
+    },
+    {
+      "path": "scripts/v53/remove_process_exports.py",
+      "sha256": "bdc3718b14d7eb0d46de99f693c7dbabc5b90ff63611b91fc6da007bef28d3de"
+    },
+    {
+      "path": "scripts/v53/remove_export_evidence.py",
+      "sha256": "f01499205df86b6fd82ad9fb12710abb5bdfff7f3e111dc7905d8feac11f13d5"
+    },
+    {
+      "path": "scripts/v53/joining_export_evidence.py",
+      "sha256": "897f42758b4457369d7e28538772e2bfbd2deba0aa384f942569bfb599c81bfc"
+    },
+    {
+      "path": "scripts/v53/joining_phase_evidence.py",
+      "sha256": "e3ad070ae4ff40825eb97c45f9e130b830de39f7ac82e5cab8e44cba82f1c244"
+    }
+  ],
+  "status": "PARTIAL",
+  "unchangedCatalogue": {
+    "archives": 486,
+    "executionGroups": 246,
+    "histories": 552,
+    "subsets": 12,
+    "workflowJobs": 516
+  },
+  "validation": {
+    "exportNegativeCases": 18,
+    "newRegressionTests": 11,
+    "optimizedPythonTests": 21,
+    "optimizedUnit": {
+      "path": "target/v53-carried-transition-process-exports/unit-optimized.log",
+      "sha256": "93c68f947c1d9878f2075005152b672c255cf145ac202befb07bc93ed0e17656"
+    },
+    "originalSessions": 280,
+    "originalTransfers": 568,
+    "portable": {
+      "path": "target/v53-carried-transition-process-exports/portable.json",
+      "sha256": "7bb6806018a9953f486f87e8bbe154d39ad2cae562b4443d9d1b68e9ad48f5fe"
+    },
+    "portableDriver": {
+      "path": "target/v53-carried-transition-process-exports/portable.py",
+      "sha256": "913e8eb7e7e59992deac89657a5eadf65594465d5f07a6687f64ecdf704106ab"
+    },
+    "relatedPythonTests": 77,
+    "unit": {
+      "path": "target/v53-carried-transition-process-exports/unit-related.log",
+      "sha256": "63676f1017780df4d579b4db566a7abd35326b6c4be274242e1cb7a54b06d912"
+    }
+  }
+}
