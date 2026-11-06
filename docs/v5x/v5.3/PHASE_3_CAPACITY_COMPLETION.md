@@ -4,6 +4,34 @@ Phase 3 and combined-resource qualification remain **OPEN**. This is a
 conditional-prefix storage continuation, not an execution of the historical
 membership changes or their learner operations.
 
+## Current local full-boundary result
+
+The complete version-4 `capacity-231` original now passes local recorded-source
+admission, not just the short smoke. One unretried execution on `ed6e4378` took
+1117.230 JUnit seconds and retained 3,101 files (1,964,253,723 bytes). Three original
+common voters completed INTENT, fresh joint selection, FINAL, fresh stable
+selection, BARRIER and RETIRE. All three rejected the next RESERVE with
+CAPACITY_EXCEEDED / NOT_SUBMITTED, including on reopen, and subsequently published
+and read the typed DATA with application sequence 42.
+
+Independent replay of the unmodified original, all sixteen physical negatives,
+all eighteen resource/close negatives and an unchanged relocated copy passes.
+It checks five slots, two campaigns, 93 call observations, 54 ownership
+observations, 163 actual owner lifetimes and 165 publication boundaries. Source,
+classes, tools, readers and the complete original inventory are checked before
+and after replay. The [development index](phase3-evidence/capacity-boundary-original-development.json)
+retains exact pins, timings and observations; earlier failed originals remain
+unchanged.
+
+This qualifies the local conditional-prefix continuation at operation 231.
+The earlier 230 changes and learner receipt are still conditional; this is one
+JVM with original owner reopen/close, not native TCP or process-death evidence.
+Resource summary maxima are measured separately per dimension, not a claim that
+they occurred together. Complete feasible runtime pressure and final-source
+hosted attestation remain OPEN. This supplemental execution does not change the
+current native catalogue of 566 histories, 260 execution groups, 500 raw archives
+and 544 selected jobs. Older counts below describe their earlier batch.
+
 ## Fixed boundary and original owners
 
 The [publication capacity regression](../../../general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationCapacityTest.java)
@@ -94,9 +122,9 @@ not a full capacity result. An initial reader-development attempt failed by
 passing byte dictionaries to a JSON comparison helper; its failure is retained,
 and the correction compares original byte inventories directly.
 
-The current complete operation-231 producer has not been rerun. That expensive
-execution and independent full-boundary/resource qualification remain pending
-for hosted acceptance. The earlier
+At that earlier batch the complete operation-231 producer had not been rerun.
+The current local result above now supplies its original-first continuation and
+resource/close replay; final-source hosted acceptance remains pending. The earlier
 [development receipt](phase3-evidence/capacity-completion.json) distinguishes the
 successful storage execution, failed original evidence and corrected narrow
 checks. The [continuation replay receipt](phase3-evidence/capacity-completion-replay.json)

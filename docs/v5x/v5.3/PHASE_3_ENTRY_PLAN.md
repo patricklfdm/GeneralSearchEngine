@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[The full operation-231 continuation](PHASE_3_CAPACITY_COMPLETION.md#current-local-full-boundary-result)
+now passes one unretried local execution and complete original-first replay,
+including 34 exact negatives, 163 owner lifetimes, the next membership refusal
+and subsequent DATA on the same three original voters. The preceding history
+remains conditional; complete runtime pressure and final-source hosted
+qualification remain OPEN. No native catalogue or scheduling count changes.
+
 [Native admitted learner resource lifetimes](PHASE_3_NATIVE_LEARNER_RESOURCES.md)
 now bind actual READY/CANCEL and same-file cold recovery to continuous original
 charges, forced generation handoffs and six real close intervals. The explicit

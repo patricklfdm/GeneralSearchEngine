@@ -1,0 +1,172 @@
+{
+  "capacityBoundaryQualified": true,
+  "combinedResourcesQualified": false,
+  "continuationQualified": true,
+  "currentDocs": [
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_CAPACITY_COMPLETION.md",
+      "sha256": "18bcc883417ae011e37df3666300dae11c1a55a3684ed08470a19fa4bf316e13"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "c5bb14d6d02ae0da6f487b343ff138fefce88286c0411ef60ac6675a13e03ac2"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_QUALIFICATION_AUDIT.md",
+      "sha256": "55b885f77c682eab1429e68f85cc549168ab35e690660e871a41842a8eb9607d"
+    },
+    {
+      "path": "docs/v5x/v5.3/phase3-qualification-plan.json",
+      "sha256": "7fbe9fd65c141976083abe687c0d1817046e80dea1ad259ce32b6b513458ac83"
+    }
+  ],
+  "finalSourceQualified": false,
+  "generator": {
+    "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-capacity-boundary-current/index-evidence.py",
+    "sha256": "33fa376cc91dba39cb13a806143fbadbcd7705da5a6264f6ee36039b968c8832"
+  },
+  "historicalIndexes": {
+    "count": 534,
+    "inventory": {
+      "path": "target/v53-capacity-boundary-current/historical-indexes.json",
+      "sha256": "cfb31c737addaa4dca9a49489acee211e0ae1e783f68710d388dfbd976882d6f"
+    },
+    "unchanged": true
+  },
+  "historicalPrefixQualified": false,
+  "hostedExecuted": false,
+  "junit": {
+    "errors": 0,
+    "failures": 0,
+    "report": {
+      "path": "target/v53-capacity-boundary-current/producer/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PublicationCapacityTest.xml",
+      "sha256": "84356073cf40385ec558e682f6d2d62b9e453bda89433631b995970f7db0511b"
+    },
+    "seconds": 1117.23,
+    "skipped": 0,
+    "tests": 1
+  },
+  "limitations": [
+    "The SEALED prefix after 230 historical changes and its learner receipt remain conditional inputs, not executed history.",
+    "The five slots, two campaigns, refusal and following DATA use three original common voters across actual owner reopen/close intervals in one JVM.",
+    "Per-dimension resource maxima do not establish one simultaneous vector or the full feasible runtime envelope; whole-runtime resources remain OPEN.",
+    "This is one unretried local development original on the recorded immutable source, not final-source hosted workflow attestation.",
+    "Earlier failed capacity originals and all historical indexes remain intact. No runtime, reader, POM, workflow or frozen limit changed."
+  ],
+  "originalFirst": true,
+  "originalPreserved": true,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "pins": {
+    "buildSha256": "390d881e827c596198d79a3781cfce557062623e1cc84570cab91cbc901bc682",
+    "readerSha256": "89beb50e3659c5694acaba05598179a510e298ad11601247be8d142d5591ea15",
+    "sourceSha256": "7e5ad794b0f079cdc12c8228af31e7218bb74722e9301bf9012bd5f5fba6de6a",
+    "toolchainSha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+  },
+  "producer": {
+    "build": {
+      "path": "target/v53-capacity-boundary-current/producer/build.json",
+      "sha256": "390d881e827c596198d79a3781cfce557062623e1cc84570cab91cbc901bc682"
+    },
+    "collection": {
+      "path": "target/v53-capacity-boundary-current/producer/collection.json",
+      "sha256": "6aadce969a82121206bf50aebb1e902fef5bba32b27f21de1823f99e7b17646d"
+    },
+    "execution": {
+      "path": "target/v53-capacity-boundary-current/producer/execution.json",
+      "sha256": "ec4dba8079ffd6db30a30c6b913ae215653ab86e3751f3f311a766d097722c7d"
+    },
+    "pins": {
+      "path": "target/v53-capacity-boundary-current/producer/pins.json",
+      "sha256": "443d948872d0528cd2a28d1ce97d476fb2773dc5ee8a57db5c841ccb4acaabc5"
+    },
+    "reader": {
+      "path": "target/v53-capacity-boundary-current/producer/reader.json",
+      "sha256": "b5aa9c9f234d1c608f3459e0758382ea072551a4968661fb9c457466c8257fae"
+    },
+    "receipt": {
+      "path": "target/v53-capacity-boundary-current/producer/receipt.json",
+      "sha256": "7b6f6347bcf178f995ab5993ef306e3db6e44a0262f2073f87282272939ef718"
+    },
+    "source": {
+      "path": "target/v53-capacity-boundary-current/producer/source.json",
+      "sha256": "7e5ad794b0f079cdc12c8228af31e7218bb74722e9301bf9012bd5f5fba6de6a"
+    },
+    "toolchain": {
+      "path": "target/v53-capacity-boundary-current/producer/toolchain.json",
+      "sha256": "6295ec9cba17fdd264fe5d82d1d4325d26cbd5164162b7fbffbb42647e54912a"
+    }
+  },
+  "producerHead": "ed6e4378d9e563d1407ba75b16b034f8d96f571a",
+  "profile": "capacity-231",
+  "raw": "workspace/general-search-engine-replication/target/v53-publication-capacity/run-14babcb7-6930-4399-8b0c-4a3ad652fdd0-completion",
+  "rawBytes": 1964253723,
+  "rawFiles": 3101,
+  "replay": {
+    "callObservations": 93,
+    "campaigns": 2,
+    "driver": {
+      "path": "target/v53-capacity-boundary-current/replay-original.py",
+      "sha256": "8ba109389960de19d2ecf5ffbd1d9cb9ade55ac1817086c91fecab2169a0bcf9"
+    },
+    "duration": {
+      "path": "target/v53-capacity-boundary-current/qualification-duration.json",
+      "sha256": "ea4caa47f23f250c81acc9eb7209a16092e6eb95d3374b2d5b7150b7ad4d3713"
+    },
+    "log": {
+      "path": "target/v53-capacity-boundary-current/replay.log",
+      "sha256": "6e4e658eccc5f1de44c728abfa0c0f7e30cb1d23b082c4288cf688b6fd7ce486"
+    },
+    "ownedObservations": 54,
+    "owners": 3,
+    "physicalNegatives": 16,
+    "portableReplay": "PASS",
+    "receipt": {
+      "path": "target/v53-capacity-boundary-current/qualification/receipt.json",
+      "sha256": "2ae0a1b3b94f692eb23fa9f6b8e0325a52cddd7ea2a7a322a463676a27335f2d"
+    },
+    "resourceAndCloseNegatives": 18,
+    "resources": {
+      "closeCheckedChanges": 1326,
+      "closeIntervalsQualified": true,
+      "closeReleasedLeases": 1326,
+      "eventCheckpoints": 8280,
+      "maximumObservedCounts": {
+        "APPLICATION": 7,
+        "GENERATION": 2,
+        "JOURNAL": 1,
+        "MISC": 1,
+        "SOURCE": 6
+      },
+      "maximumObservedReservations": {
+        "leases": 17,
+        "metadata": 88423297,
+        "queued": 0,
+        "staging": 275029631
+      },
+      "maximumPublicationStorage": {
+        "applications": 6,
+        "metadata": 55477521,
+        "sources": 1,
+        "staging": 275029631
+      },
+      "mutations": 3640,
+      "observedAccountingQualified": true,
+      "ownerLifetimes": 163,
+      "phase3Complete": false,
+      "physicalShutdownOrderQualified": false,
+      "publicationBoundaries": 165,
+      "publicationStorageQualified": true,
+      "publications": 15,
+      "scope": "conditional-owner-accounting-and-publication-storage",
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    },
+    "seconds": 1117.596,
+    "slots": 5
+  },
+  "retries": 0,
+  "schema": "gse-v53-capacity-boundary-original-development-v1",
+  "scope": "complete operation-231 conditional-prefix storage continuation with original owner/resource replay",
+  "status": "PARTIAL"
+}

@@ -1,5 +1,12 @@
 # Phase 3 qualification inventory and remaining work
 
+[The full operation-231 continuation](PHASE_3_CAPACITY_COMPLETION.md#current-local-full-boundary-result)
+now passes one unretried local execution and complete original-first replay,
+including 34 exact negatives, 163 owner lifetimes, the next membership refusal
+and subsequent DATA on the same three original voters. The preceding history
+remains conditional; complete runtime pressure and final-source hosted
+qualification remain OPEN. No native catalogue or scheduling count changes.
+
 [Native admitted learner resource lifetimes](PHASE_3_NATIVE_LEARNER_RESOURCES.md)
 now bind actual READY/CANCEL and same-file cold recovery to continuous original
 charges, forced generation handoffs and six real close intervals. The explicit
@@ -42,7 +49,7 @@ missing do not undo later implementations.
 | Remaining work | Existing prerequisite | Evidence still needed |
 | --- | --- | --- |
 | Native component coverage | Twelve implemented source-bound catalogues; carried-transition v5 has sixteen histories | Actual complete source-bound originals; all twelve carried crash axes at matching capture/admission scope |
-| Combined resources | Native ownership/readers, [same-callback nonempty counts](PHASE_3_NATIVE_APPLICATION_OVERLAP.md), source-bound SOURCE refusal/recovery, same-original learner byte pressure and conditional capacity-completion v4 | Final-source refusal/continuation originals, feasible whole-runtime combined maxima and full operation-231 continuation |
+| Combined resources | Native ownership/readers, [same-callback nonempty counts](PHASE_3_NATIVE_APPLICATION_OVERLAP.md), source-bound SOURCE refusal/recovery, same-original learner byte pressure and locally qualified full operation-231 continuation | Final-source refusal/continuation originals and feasible whole-runtime combined maxima |
 | Requirement coverage | Twenty-two exact witnesses and complete source negative catalogue | Original-derived applicability and rejection evidence for each Phase 3 requirement |
 | Cohort admission | Seed, whole-history replay, workflow observer and attested entries | Complete actual source/build/toolchain set, exact attempts and failed-history review |
 | Final execution | 566 histories, 260 execution groups, 500 raw archives and 544 selected jobs | Final-source execution plus independent downloaded replay; not inferred from component runs |
