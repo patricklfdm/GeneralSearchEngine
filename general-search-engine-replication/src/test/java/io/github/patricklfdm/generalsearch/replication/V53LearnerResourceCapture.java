@@ -6,14 +6,18 @@ import java.util.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
 
-/** Test-only checkpoints of the one actual admitted learner pool. No synthetic
- * reservations, reflection, extra receiving copies or altered limits. */
+/** Test-only checkpoints of the actual admitted learner pool. A caller may set
+ * a cold pool's limit before opening; no live limits or charges are rewritten. */
 final class V53LearnerResourceCapture {
     final Path directory;
-    final MembershipResources resources=new MembershipResources(MembershipResources.METADATA_LIMIT,
-            512*MembershipResources.MIB,MembershipResources.QUEUE_LIMIT,MembershipResourceObservations.MAXIMUM);
+    final MembershipResources resources;
     final List<Map<String,Object>> rows=new ArrayList<>();
     V53LearnerResourceCapture(Path directory)throws IOException {
+        this(directory,512*MembershipResources.MIB);
+    }
+    V53LearnerResourceCapture(Path directory,long stagingLimit)throws IOException {
+        resources=new MembershipResources(MembershipResources.METADATA_LIMIT,stagingLimit,
+                MembershipResources.QUEUE_LIMIT,MembershipResourceObservations.MAXIMUM);
         this.directory=Files.createDirectory(directory);mark("POOL","start","");
     }
     synchronized void mark(String kind,String name,String point) {

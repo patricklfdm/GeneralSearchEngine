@@ -6,7 +6,10 @@ charges, forced generation handoffs and six real close intervals. The explicit
 current-retention reader derives all four campaigns and eight publications.
 The existing source-bound cancellation member now requires all 50 resource/
 physical negatives without adding another native history. Local evidence stays
-development-only; full byte pressure and final-source qualification remain OPEN.
+development-only. The [actual learner byte-boundary entry](PHASE_3_NATIVE_LEARNER_BYTE_PRESSURE.md)
+adds three same-original cold lifetimes with limits derived before opening, real
+SOURCE refusal and a complete-source positive control. Whole-runtime maximum
+pressure and final-source qualification remain OPEN.
 
 [Native SOURCE-count refusal](PHASE_3_NATIVE_COUNT_REFUSAL.md) adds an optional
 real-receiver probe inside the application-ACK crash/recovery history. Its reader

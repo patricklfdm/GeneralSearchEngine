@@ -17,6 +17,8 @@ import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*
 class V53LearnerCancellationQualification {
     @TempDir Path temp;
     Path retainedRaw;
+    MembershipLearnerPlan retainedPlan;
+    MembershipReplicaConfig<Integer,Doc> retainedConfig;
     static final long BUDGET=TimeUnit.SECONDS.toNanos(600);
     @Test void nativeReadyCancellationRetainsItsPreparedAncestorAndColdReopensWithoutVoting()throws Exception {run(null);}
     void run(V53LearnerResourceCapture capture)throws Exception {
@@ -42,6 +44,7 @@ class V53LearnerCancellationQualification {
                 var resources=capture==null?new MembershipResources(512*MembershipResources.MIB):capture.resources;
                 var config=new MembershipReplicaConfig<>(request.root(),joining,List.of(),request.replicaDirectory(),storage(temp.resolve("learner-core"),2),
                         n.bounds,AutomaticLeadershipPolicy.forBounds(n.bounds));
+                retainedConfig=config;
                 MembershipLearnerPlan summary;Decoded receipt;
                 // A listener cannot silently turn this nonvoting learner into a voter.
                 try(var unused=new ServerSocket(port,1,InetAddress.getByName("127.0.0.1"))) {
@@ -49,6 +52,7 @@ class V53LearnerCancellationQualification {
                             if(event.equals("AFTER_RESPONSE_READ"))sourceWire.add(V53SelectedPullTest.wire(q,a));
                         },()->{},System::nanoTime,System.nanoTime(),TimeUnit.SECONDS.toNanos(180))) {
                         copy(source.fetch(temp.resolve("receiving")),raw.resolve("learner-source-copy"));summary=source.plan(V53LearnerResourceCapture.events(capture,initialEvents,"initial"));
+                        retainedPlan=summary;
                         Files.write(raw.resolve("learner-plan.gslp"),Files.readAllBytes(request.operationDirectory().resolve(MembershipLearnerAdmissionFiles.FILE)));
                         try(var ownedStore=V53LearnerResourceCapture.own(capture,"initial-store",source.admit(summary,V53LearnerResourceCapture.events(capture,initialEvents,"initial")))) {
                             var store=ownedStore.value;

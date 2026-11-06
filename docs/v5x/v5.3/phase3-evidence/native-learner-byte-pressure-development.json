@@ -1,0 +1,234 @@
+{
+  "cohortAdmitted": false,
+  "currentFiles": [
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "05ef7f36bfb8ca3cc1222a0922c1e6cd00aeaf7fe66f9e5d3cc6db3a104fb2a6"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_NATIVE_LEARNER_BYTE_PRESSURE.md",
+      "sha256": "f0060314bab95c2dcb56b46ac246578fb496b67cebe2f773cf1ba42182f58ba0"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_QUALIFICATION_AUDIT.md",
+      "sha256": "6868e1dfa6b7dee055e2103e8ca6c6fcfda37a0d1dc933dae403826356f86b9b"
+    },
+    {
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "3f9b23c88a622b44828ce68f4e872885c46f119e5dd17b5bc20676457db0c2dc"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerBytePressureTest.java",
+      "sha256": "54254e6b0a441e72af0bed07c6211405e5338f8a8fab6e4a6da49588db10fbb9"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerCancellationQualification.java",
+      "sha256": "f7caf59c3781daa921815a932ea8b28962254fd438d28d559e094c8cc3e2c337"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerResourceCapture.java",
+      "sha256": "7f2cbf4e3f323562143a0b9aa2b72420c65f371540c62133e7bcfecd12fcdb24"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeLearnerBytePressureQualification.java",
+      "sha256": "5b9641f0e0ef714d2b76ae21a70bfa9cfb33bad7dab64a8cbac50902f657f60c"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeLearnerResourcesQualification.java",
+      "sha256": "95be66e4b52bfd7dd40d15217e24d8c41967de0da95c723363e428381b82569b"
+    },
+    {
+      "path": "scripts/v53/native_learner_byte_pressure.py",
+      "sha256": "98c47df2ed61823fcc689fbd49d66cbbba5968fd16ba7eb86fa341261e7ab85c"
+    },
+    {
+      "path": "scripts/v53/test_native_learner_byte_pressure.py",
+      "sha256": "f7583e5482140002e138a7594a624acd159ae5ef906ff451447755b633e40162"
+    }
+  ],
+  "currentSourceExecution": false,
+  "finalSourceQualified": false,
+  "generator": {
+    "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-learner-byte-pressure/index-evidence.py",
+    "sha256": "664bd055eebd115eb5aa3b6886ca78554763d316d9ce7e22a8100f93cfe83ec9"
+  },
+  "historicalIndexes": {
+    "count": 532,
+    "inventory": {
+      "path": "target/v53-native-learner-byte-pressure/historical-indexes-complete.json",
+      "sha256": "b50dd5ce5c9b20fee8c519dfa72a92ed10c2306d026d4547bf04f61f28e35503"
+    },
+    "unchanged": true
+  },
+  "limitations": [
+    "One local development original, not a final-source or hosted cohort member.",
+    "The three pressure modes are same-original explicit cold lifetimes. They cannot be split across different source histories.",
+    "The existing 64 MiB typed-backup reservation is not a claim of 64 MiB physical backup content.",
+    "This qualifies caller-configured staging-byte refusal/completion; whole-runtime simultaneous maxima, autonomous rejoin, process death and operation 231 remain separate obligations.",
+    "Runtime Java, POM, frozen limits, workflows and Required CI are unchanged. No push, Actions dispatch or paid cloud execution."
+  ],
+  "phase3Complete": false,
+  "producer": {
+    "build": {
+      "path": "target/v53-native-learner-byte-pressure/producer/build.json",
+      "sha256": "390d881e827c596198d79a3781cfce557062623e1cc84570cab91cbc901bc682"
+    },
+    "log": {
+      "path": "target/v53-native-learner-byte-pressure/producer/maven.log",
+      "sha256": "e15b90493c228dcecae1b041af18d80e9bbaf5c5401dbbbdeded74b4a0c53f55"
+    },
+    "nativeExecutions": 1,
+    "nativeSeconds": 416.943,
+    "receipt": {
+      "path": "target/v53-native-learner-byte-pressure/producer/receipt.json",
+      "sha256": "97653fa3481d4ae727740f318cf8fdf40fd568d36e2d7521848e83d2fe32b10d"
+    },
+    "script": {
+      "path": "target/v53-native-learner-byte-pressure/capture.py",
+      "sha256": "e054e0231101cde9410d5ddd52fa23aa62d38ca3c7bafd8e23885b7ad629f8f2"
+    },
+    "source": {
+      "path": "target/v53-native-learner-byte-pressure/producer/source.json",
+      "sha256": "9aa7380eb3c6d08d061a47a18c077bdc917cd6f138a2d83387a8486ed2957284"
+    },
+    "sourceUnchanged": true,
+    "toolchain": {
+      "path": "target/v53-native-learner-byte-pressure/producer/toolchain.json",
+      "sha256": "f871a11e66a0fad36c2472f3f6c4a835c6f983fdbcaf9e56a6ac12ec37e14b6e"
+    }
+  },
+  "replay": {
+    "inventory": {
+      "path": "target/v53-native-learner-byte-pressure/qualification-01/original-inventory.json",
+      "sha256": "76bf5a99ab4b7988aade95caecd4b96ed23459cdeed3fee788a2ec0060d17d52"
+    },
+    "log": {
+      "path": "target/v53-native-learner-byte-pressure/replay-01.log",
+      "sha256": "f00423b9c816dc37964322afa9e508918e1368bfbfe5db52b28e5d9d19653f89"
+    },
+    "modes": [
+      {
+        "closeIntervals": 3,
+        "mode": "pool-full",
+        "phase3Complete": false,
+        "receiver": "REJECTED",
+        "sameOriginalColdRecovery": true,
+        "stagingLimit": 67143283,
+        "status": "PARTIAL",
+        "steadyStagingBytes": 67143283,
+        "transitions": 19,
+        "wholeRuntimeResourcesQualified": false
+      },
+      {
+        "closeIntervals": 3,
+        "mode": "packet-short",
+        "phase3Complete": false,
+        "receiver": "REJECTED",
+        "sameOriginalColdRecovery": true,
+        "stagingLimit": 67163174,
+        "status": "PARTIAL",
+        "steadyStagingBytes": 67143283,
+        "transitions": 19,
+        "wholeRuntimeResourcesQualified": false
+      },
+      {
+        "closeIntervals": 3,
+        "mode": "source-exact",
+        "phase3Complete": false,
+        "receiver": "ACCEPTED",
+        "sameOriginalColdRecovery": true,
+        "stagingLimit": 67164012,
+        "status": "PARTIAL",
+        "steadyStagingBytes": 67143283,
+        "transitions": 23,
+        "wholeRuntimeResourcesQualified": false
+      }
+    ],
+    "negativeCases": 62,
+    "newObservationNegatives": 10,
+    "newPhysicalNegatives": 2,
+    "originalBytes": 12244002,
+    "originalFiles": 2770,
+    "originalNegatives": 50,
+    "originalPreserved": true,
+    "qualification": {
+      "path": "target/v53-native-learner-byte-pressure/qualification-01/qualification.json",
+      "sha256": "c5c7e890ad742303d82df37bd95bdb1ba1137e4881747c4ba688454e397ffb05"
+    },
+    "reader": {
+      "path": "target/v53-native-learner-byte-pressure/qualification-01/reader.json",
+      "sha256": "e974fe6ee3363bdb288eb55e7fc960ae222e1176fac61321bbf0fda7e550d1d2"
+    },
+    "receipt": {
+      "path": "target/v53-native-learner-byte-pressure/qualification-01/receipt.json",
+      "sha256": "6def3d3444590e971ac1508d679e65a18bcd164a0c32119248004f5b0b0e3243"
+    },
+    "script": {
+      "path": "target/v53-native-learner-byte-pressure/replay.py",
+      "sha256": "dfdc34b5c6cefb66709712402053b43378d697ea9d1becac36b70924fa217512"
+    },
+    "seconds": 97.154
+  },
+  "retainedDiagnostics": [
+    {
+      "path": "target/v53-native-learner-byte-pressure/compile-01/maven.log",
+      "sha256": "ad3780aa010e6dda6fb9387e8cd9c79d3fcf87b4419d99516cabcc5c491013c8"
+    },
+    {
+      "path": "target/v53-native-learner-byte-pressure/compile-02/maven.log",
+      "sha256": "6f9dc922e18e507cd5250ed708bf1578f8db98700d3c08121900afa07770285d"
+    },
+    {
+      "path": "target/v53-native-learner-byte-pressure/compile-03/maven.log",
+      "sha256": "a2881ad45ad0cbc57b9f6c1020a2c59cac5d622679efe6abece2ec034653ecc7"
+    }
+  ],
+  "schema": "gse-v53-native-learner-byte-pressure-development-v1",
+  "scope": "actual admitted learner same-original cold recovery with original-derived staging byte pressure",
+  "status": "PARTIAL",
+  "tests": {
+    "assertionsDisabled": {
+      "count": 17,
+      "log": {
+        "path": "target/v53-native-learner-byte-pressure/tests-optimized.log",
+        "sha256": "13f278c6c16e81c92f79c408c721d00eeda426d6e2e4990d95f7a4c952a26687"
+      },
+      "overlaps": true
+    },
+    "coverage": {
+      "path": "target/v53-native-learner-byte-pressure/coverage/receipt.json",
+      "sha256": "6e5521a12b159283b539bb7defecfca064b3157a150bce9bf13154e9526f804b"
+    },
+    "documentation": {
+      "path": "target/v53-native-learner-byte-pressure/contract-final.json",
+      "sha256": "180a4d4f1a6de20a5c9f1faef7f367342ed2af0a306e1ba1c4cecf350b924555"
+    },
+    "focused": {
+      "count": 58,
+      "log": {
+        "path": "target/v53-native-learner-byte-pressure/tests-focused.log",
+        "sha256": "73c22e65b1214c719fcbe9ffe4a12c4e6670664ae222863622e7e04c4410ea3e"
+      }
+    },
+    "java": {
+      "log": {
+        "path": "target/v53-native-learner-byte-pressure/compile-04/maven.log",
+        "sha256": "107f78358e100a52a371686a0cbdbce084e0056ca78b12a46692b2955389f036"
+      },
+      "receipt": {
+        "path": "target/v53-native-learner-byte-pressure/compile-04/receipt.json",
+        "sha256": "9f6664e8376edd2be9a9851e3da136e976dddd83d4dcefe081dc533672e0d441"
+      },
+      "source": {
+        "path": "target/v53-native-learner-byte-pressure/compile-04/source.json",
+        "sha256": "1feed523db61a3cc95ab029af1cf1b6ae2fb52c81c4650902b31e0bf4c877a38"
+      },
+      "tests": 2
+    },
+    "planning": {
+      "path": "target/v53-native-learner-byte-pressure/planning/receipt.json",
+      "sha256": "a77ebdf77eb57cfb42b5eb9465e81fd0236e54bdc6393f3bc0ce4a9f472916ec"
+    }
+  },
+  "wholeRuntimeResourcesQualified": false
+}

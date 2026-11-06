@@ -6,7 +6,10 @@ charges, forced generation handoffs and six real close intervals. The explicit
 current-retention reader derives all four campaigns and eight publications.
 The existing source-bound cancellation member now requires all 50 resource/
 physical negatives without adding another native history. Local evidence stays
-development-only; full byte pressure and final-source qualification remain OPEN.
+development-only. The [actual learner byte-boundary entry](PHASE_3_NATIVE_LEARNER_BYTE_PRESSURE.md)
+adds three same-original cold lifetimes with limits derived before opening, real
+SOURCE refusal and a complete-source positive control. Whole-runtime maximum
+pressure and final-source qualification remain OPEN.
 
 The current [v5 carried-transition catalogue](PHASE_3_NATIVE_REFUSAL_COHORT.md)
 adds two complete SOURCE-count refusal/recovery histories to the fourteen existing
@@ -40,7 +43,7 @@ missing do not undo later implementations.
 | --- | --- | --- |
 | Native component coverage | Twelve implemented source-bound catalogues; carried-transition v5 has sixteen histories | Actual complete source-bound originals; all twelve carried crash axes at matching capture/admission scope |
 | Combined resources | Native ownership/readers, [same-callback nonempty counts](PHASE_3_NATIVE_APPLICATION_OVERLAP.md) and conditional capacity-completion v4; [native SOURCE refusal entry](PHASE_3_NATIVE_COUNT_REFUSAL.md) | Source-bound refusal/continuation admission, feasible combined byte boundary and full operation-231 continuation on final-source originals |
-| Requirement coverage | Twenty exact witnesses and complete source negative catalogue | Original-derived applicability and rejection evidence for each Phase 3 requirement |
+| Requirement coverage | Twenty-one exact witnesses and complete source negative catalogue | Original-derived applicability and rejection evidence for each Phase 3 requirement |
 | Cohort admission | Seed, whole-history replay, workflow observer and attested entries | Complete actual source/build/toolchain set, exact attempts and failed-history review |
 | Final execution | 566 histories, 260 execution groups, 500 raw archives and 544 selected jobs | Final-source execution plus independent downloaded replay; not inferred from component runs |
 
