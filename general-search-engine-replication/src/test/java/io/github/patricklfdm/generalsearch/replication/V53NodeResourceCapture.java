@@ -14,7 +14,7 @@ final class V53NodeResourceCapture implements V53NodeProcessWorker.Sink {
     private final String root;
     private final int life;
     private final V53NodeProcessWorker.Sink sink;
-    private final V53RemoveRetirementCapture retirement,floor,campaign;
+    private final V53RemoveRetirementCapture retirement,floor,campaign,vote;
     private final Map<String,Owner> owners=new TreeMap<>();
     private final List<Map<String,Object>> events=new ArrayList<>(),boundaries=new ArrayList<>(),closes=new ArrayList<>();
     private final Set<String> closing=new HashSet<>(),closed=new HashSet<>();
@@ -29,11 +29,15 @@ final class V53NodeResourceCapture implements V53NodeProcessWorker.Sink {
         this(directory,root,life,sink,retirementDirectory,floorDirectory,null);
     }
     V53NodeResourceCapture(Path directory,String root,int life,V53NodeProcessWorker.Sink sink,Path retirementDirectory,Path floorDirectory,Path campaignDirectory)throws IOException {
+        this(directory,root,life,sink,retirementDirectory,floorDirectory,campaignDirectory,null);
+    }
+    V53NodeResourceCapture(Path directory,String root,int life,V53NodeProcessWorker.Sink sink,Path retirementDirectory,Path floorDirectory,Path campaignDirectory,Path voteDirectory)throws IOException {
         MembershipValidation.digest(root);require(life==1 || life==2,"node resource original life");
         this.directory=Files.createDirectory(directory);this.root=root;this.life=life;this.sink=Objects.requireNonNull(sink);
         retirement=retirementDirectory==null?null:new V53RemoveRetirementCapture(directory,retirementDirectory);
         floor=floorDirectory==null?null:new V53RemoveRetirementCapture(directory,floorDirectory,true);
         campaign=campaignDirectory==null?null:new V53RemoveRetirementCapture(directory,campaignDirectory,V53RemoveRetirementCapture.Mode.CAMPAIGN);
+        vote=voteDirectory==null?null:new V53RemoveRetirementCapture(directory,voteDirectory,V53RemoveRetirementCapture.Mode.VOTE);
     }
     synchronized void register(MembershipIdentity identity,MembershipNodeOwner<?,?> node) {
         register(identity,node,null);
@@ -41,7 +45,7 @@ final class V53NodeResourceCapture implements V53NodeProcessWorker.Sink {
     synchronized void register(MembershipIdentity identity,MembershipNodeOwner<?,?> node,Path replica) {
         String name=identity.nodeId().value();var point=node.resourceCheckpoint();
         require(!saved && owners.size()<4 && !owners.containsKey(name) && node.state()==MembershipNodeOwner.State.NEW &&
-                point.complete() && point.sequence()==0 && point.usage().leases()==0 && (retirement==null && floor==null && campaign==null || replica!=null),"node resource original registration");
+                point.complete() && point.sequence()==0 && point.usage().leases()==0 && (retirement==null && floor==null && campaign==null && vote==null || replica!=null),"node resource original registration");
         owners.put(name,new Owner(identity,node,events.size(),replica));
     }
     @Override public synchronized void accept(String action,Object value)throws IOException {
@@ -59,6 +63,8 @@ final class V53NodeResourceCapture implements V53NodeProcessWorker.Sink {
                 floor.at((String)event.get("node"),owner.replica,(String)event.get("event"),events.size()-1);
             if(campaign!=null && action.equals("event"))
                 campaign.at((String)event.get("node"),owner.replica,(String)event.get("event"),events.size()-1);
+            if(vote!=null && action.equals("event"))
+                vote.at((String)event.get("node"),owner.replica,(String)event.get("event"),events.size()-1);
         }
         if(action.equals("cut"))save("CUT_PREFIX");
         sink.accept(action,value);
@@ -97,5 +103,6 @@ final class V53NodeResourceCapture implements V53NodeProcessWorker.Sink {
         if(retirement!=null && !terminal.equals("FAILED"))retirement.finishProcess(root,life,terminal,observed);
         if(floor!=null && !terminal.equals("FAILED"))floor.finishProcess(root,life,terminal,observed);
         if(campaign!=null && !terminal.equals("FAILED"))campaign.finishProcess(root,life,terminal,observed);
+        if(vote!=null && !terminal.equals("FAILED"))vote.finishProcess(root,life,terminal,observed);
     }
 }

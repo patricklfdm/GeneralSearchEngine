@@ -1,0 +1,148 @@
+{
+  "acceptancePlan": {
+    "path": "docs/v5x/v5.3/acceptance-plan.json",
+    "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+  },
+  "base": "2a3f722299b32b89551f8d2e1d9ed4208493c82a",
+  "cohortAdmitted": false,
+  "derivedNativePrefixes": 410,
+  "derivedPrefixesAreCaptures": false,
+  "historicalIndexesUnchanged": 380,
+  "hostedExecuted": false,
+  "limitations": [
+    "The short writer fixture has conditional initial protocol authority; its nine local transactions are not native carried-process acceptance.",
+    "Existing original histories supply 410 expected prefixes only. No new native capture or process death is credited.",
+    "The complete new native entry and its 34 negative cases are deferred to the composed final-source qualification.",
+    "Application/ledger/publication transient bytes, scratch, combined maxima, remaining process axes and final-source admission remain open."
+  ],
+  "nativeFullNegativeCasesDefined": 34,
+  "nativeFullNegativeCasesQualified": 0,
+  "nativeLongEntryCompiled": true,
+  "nativeLongEntryExecuted": false,
+  "nativeVoteBytesQualified": false,
+  "nativeVoteReaderImplemented": true,
+  "originalComponent": {
+    "inventory": {
+      "path": "target/v53-carried-vote-prefixes/component-inventory.json",
+      "sha256": "b040f7bfdbefd414ee358589dbc44e7a06711a456d31a78ce45871b76acf6457"
+    },
+    "path": "general-search-engine-replication/target/v53-vote-prefix-component/run-be653f3e-de42-413e-8515-31092d186692",
+    "portable": {
+      "path": "target/v53-carried-vote-prefixes/portable.json",
+      "sha256": "341a1f92e8ca3f080aedb18f8f7a9786dcca6a2cbd4cb53ed3191cfafaebdaf6"
+    },
+    "portableSummary": {
+      "path": "target/v53-carried-vote-prefixes/portable-summary.json",
+      "sha256": "229a26101db530cc2ad08dd8747daa86197da1c766a8285b33476de2a8e9bd9d"
+    },
+    "qualification": {
+      "path": "target/v53-carried-vote-prefixes/component-qualification.json",
+      "sha256": "3d0aac04624c6644c3bb7513efd68a15ca3f540a2950ff47eaf4a000cd01b665"
+    },
+    "validator": {
+      "path": "target/v53-carried-vote-prefixes/component.py",
+      "sha256": "382927157c1a606c226e271dfa7bda96da1b33811b718225b9926a043dec38b7"
+    }
+  },
+  "originalDerivedProbe": {
+    "path": "target/v53-carried-vote-prefixes/original-plan-probe.json",
+    "sha256": "001d1f5a53caf93999085259dfe22a840492beb61347c665ee6469580834a318"
+  },
+  "paidCloud": false,
+  "phase3Complete": false,
+  "previousCampaignQualification": {
+    "path": "docs/v5x/v5.3/phase3-evidence/carried-process-campaign-prefixes.json",
+    "sha256": "453f03d1bc207a1038efb4eb13eee824b4f4c4a66af3c42a3cbd277dc4e840b8"
+  },
+  "pushed": false,
+  "runtimeChanged": false,
+  "schema": "gse-v53-carried-vote-prefix-development-v1",
+  "sourceFiles": [
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessTest.java",
+      "sha256": "d9dac94ade6327b18255687804d8b28e6896498bdf3837cded8bd2e3c52a570e"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessWorker.java",
+      "sha256": "23a1b7c983585e83652dc2f213567153c86386029a78e975e52e73981354739c"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedVotePrefixProcessTest.java",
+      "sha256": "c2268e6f591ebb4241cf7f000ff4027690108352a57c2a4d50dde74be57c7319"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeResourceCapture.java",
+      "sha256": "6cb466660b7148f6bdf4e78b83d0556e1128027b034f4ae4aa65a0fb69a1b72c"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeResourceCaptureTest.java",
+      "sha256": "adb70d813af812ddffb253487ba99d860c47b43a55c1df9ff91512969348f8a3"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RemoveRetirementCapture.java",
+      "sha256": "16449c3b2a4baf215c2644babdc33d84c61f2c3f523bf35de2cbc4ecbbde743b"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53VotePrefixCaptureTest.java",
+      "sha256": "b90a6dd3ed758792b08afc991aaec180e5642d8cd2073f5275dbd8d3c42b72ac"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_forces.py",
+      "sha256": "30ab7d12b297ee4a3474735d99e13c8ce9e1e77ed3358e2be22da2bf59968821"
+    },
+    {
+      "path": "scripts/v53/native_carried_vote_prefixes.py",
+      "sha256": "608570e71025de4bb3ecff7266eee0eaefe6643b87708d9b9ab0bc4d75d0fb7d"
+    },
+    {
+      "path": "scripts/v53/native_vote_files.py",
+      "sha256": "93a33f8ee86a2cc30f06a614243f9b19c571f424eb5bfd2dff9e32e75116a0ca"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_vote_prefixes.py",
+      "sha256": "c485e9e7ded8ae9bcbc7ce39f33a464cfa6a7068ca7b1052d4909737b59f7747"
+    },
+    {
+      "path": "scripts/v53/test_native_vote_files.py",
+      "sha256": "4a7956b4176654f8b03183f51ba2d4bb8d7b60b7dc013fd7e9a175bd87b4f72e"
+    }
+  ],
+  "status": "PARTIAL",
+  "unchangedCatalogue": {
+    "archives": 486,
+    "executionGroups": 246,
+    "histories": 552,
+    "subsets": 12,
+    "workflowJobs": 516
+  },
+  "validation": {
+    "componentCapturedPrefixes": 81,
+    "componentCases": 9,
+    "componentPhysicalNegatives": 18,
+    "focusedJavaTests": 18,
+    "java": {
+      "path": "target/v53-carried-vote-prefixes/java-focused.log",
+      "sha256": "c53b3c7c8a7543b0517187bc491143920b7708adfa86567ea9b7ecd962eb8f01"
+    },
+    "observerJava": {
+      "path": "target/v53-carried-vote-prefixes/java-observer-bindings.log",
+      "sha256": "d03fc0e599ebdec93f0134a7dea502e46d8c2604f46796f540bd967ac74ef245"
+    },
+    "optimizedPython": {
+      "path": "target/v53-carried-vote-prefixes/unit-optimized.log",
+      "sha256": "51b4b8bdf00a893e4611ecb64506d411166244ccac8ea389b2ce59ab573b8461"
+    },
+    "optimizedPythonTests": 46,
+    "python": {
+      "path": "target/v53-carried-vote-prefixes/unit-related.log",
+      "sha256": "a1204e03cdd7658d56316913c194a424b48b7fc74e524b2be6c476af05b8bfbb"
+    },
+    "pythonModules": {
+      "path": "target/v53-carried-vote-prefixes/python-modules.json",
+      "sha256": "06862c346b1f627b228975f60e460ecabe7e70490fb22086a410da873999fb21"
+    },
+    "relatedPythonTests": 219,
+    "strengthenedObserverTests": 5
+  },
+  "workflowChanged": false
+}

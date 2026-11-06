@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Carried-process vote capture](PHASE_3_CARRIED_VOTE_CAPTURE.md) implements original
+ACCEPT/PROOF/CERTIFICATE file-prefix collection and independent projection. The
+short three-owner writer fixture passes 81 prefix checks and 18 exact negatives;
+complete native crash/reopen qualification is deferred and remains OPEN.
+
 [Carried-process campaign prefixes](PHASE_3_CARRIED_PROCESS_CAMPAIGNS.md) now
 qualify 1080 original allocator, grant, selection and selected-installation file
 inventories across two crash/reopen histories, with 70 exact negative rejections.

@@ -17,12 +17,15 @@ final class V53RemoveRetirementCapture {
     static final String PROCESS_FLOOR_SCHEMA="gse-v53-carried-process-floor-capture-v1";
     static final String CAMPAIGN_SCHEMA="gse-v53-carried-campaign-capture-v1";
     static final String PROCESS_CAMPAIGN_SCHEMA="gse-v53-carried-process-campaign-capture-v1";
-    enum Mode { RETIREMENT, FLOOR, CAMPAIGN }
+    static final String VOTE_SCHEMA="gse-v53-carried-vote-capture-v1";
+    static final String PROCESS_VOTE_SCHEMA="gse-v53-carried-process-vote-capture-v1";
+    enum Mode { RETIREMENT, FLOOR, CAMPAIGN, VOTE }
     final Path raw,root;
     private final Mode mode;
     private final Path objects;
     private final Map<String,String> active=new HashMap<>();
     private final Map<String,Integer> previous=new HashMap<>();
+    private final Map<String,String> lastPoint=new HashMap<>();
     private long bytes;
     private int count;
     private boolean finished;
@@ -40,17 +43,20 @@ final class V53RemoveRetirementCapture {
         objects=Files.createDirectory(root.resolve("objects"));
     }
     synchronized void at(String node,Path replica,String point,int eventIndex)throws IOException {
-        boolean floorOnly=mode==Mode.FLOOR,campaign=mode==Mode.CAMPAIGN;
+        boolean floorOnly=mode==Mode.FLOOR,campaign=mode==Mode.CAMPAIGN,vote=mode==Mode.VOTE;
         boolean generation=point.startsWith("RETIREMENT_"),source=point.startsWith("SOURCE_RETIREMENT_");
         String campaignKind=campaign?campaignKind(point):null;
-        if(campaign) {
+        String voteKind=vote?voteKind(point):null;
+        if(vote) {
+            if(voteKind==null)return;
+        } else if(campaign) {
             if(campaignKind==null || campaignKind.equals("install") && !"install".equals(active.get(node)))return;
         } else if(floorOnly) {
             if(!point.startsWith("FLOOR_") || point.equals("FLOOR_COPY_BEFORE_RETURN"))return;
         } else if(!generation && !source && !(point.startsWith("JOURNAL_ROTATION_") && "source".equals(active.get(node))))return;
         require(!finished && eventIndex>=0 && eventIndex>previous.getOrDefault(node,-1),"REMOVE capture event lifetime");
-        String kind=campaign?campaignKind:floorOnly?(point.startsWith("FLOOR_RELEASE_")?"floor-release":"floor"):(generation?"generation":"source");
-        if(campaign?Set.of("ALLOCATOR_BEFORE_WRITE","PROMISE_BEFORE_WRITE","SELECTED_BEFORE_WRITE").contains(point):
+        String kind=vote?voteKind:campaign?campaignKind:floorOnly?(point.startsWith("FLOOR_RELEASE_")?"floor-release":"floor"):(generation?"generation":"source");
+        if(vote?point.endsWith("_VALIDATED"):campaign?Set.of("ALLOCATOR_BEFORE_WRITE","PROMISE_BEFORE_WRITE","SELECTED_BEFORE_WRITE").contains(point):
                 point.equals(floorOnly?"FLOOR_RESERVED":"RETIREMENT_OLD_FILES_FORCED") ||
                 point.equals(floorOnly?"FLOOR_RELEASE_AUTHORITY_CREATED":"SOURCE_RETIREMENT_CREATED")) {
             require(!active.containsKey(node),"REMOVE capture overlapping transaction");active.put(node,kind);
@@ -67,16 +73,23 @@ final class V53RemoveRetirementCapture {
             else {charge(value.length);Files.write(target,value,StandardOpenOption.CREATE_NEW);}
         }
         require(before.equals(V53GrantCapture.inventory(replica)),"REMOVE capture original changed");
-        var metadata=new TreeMap<String,Object>();metadata.put("schema",campaign?CAMPAIGN_SCHEMA:floorOnly?FLOOR_SCHEMA:SCHEMA);metadata.put("node",node);
+        var metadata=new TreeMap<String,Object>();metadata.put("schema",vote?VOTE_SCHEMA:campaign?CAMPAIGN_SCHEMA:floorOnly?FLOOR_SCHEMA:SCHEMA);metadata.put("node",node);
         metadata.put("point",point);metadata.put("eventIndex",eventIndex);metadata.put("kind",kind);
         metadata.put("files",before.entrySet().stream().map(e->Map.of("name",e.getKey(),"identity",e.getValue())).toList());
         byte[] encoded=canonical(metadata,1024*1024);charge(encoded.length);
         Files.write(root.resolve(String.format(Locale.ROOT,"capture-%04d.json",++count)),encoded,StandardOpenOption.CREATE_NEW);
-        previous.put(node,eventIndex);
+        previous.put(node,eventIndex);lastPoint.put(node,point);
         if(campaign && point.equals("SELECTED_BEFORE_RETURN"))active.put(node,"install");
-        else if(campaign?Set.of("ALLOCATOR_BEFORE_RETURN","GRANT_BEFORE_RETURN","INSTALL_BEFORE_RETURN").contains(point):
+        else if(vote?point.endsWith("_BEFORE_RETURN"):campaign?Set.of("ALLOCATOR_BEFORE_RETURN","GRANT_BEFORE_RETURN","INSTALL_BEFORE_RETURN").contains(point):
                 point.equals(floorOnly?"FLOOR_BEFORE_RETURN":"RETIREMENT_BEFORE_RETURN") ||
                 point.equals(floorOnly?"FLOOR_RELEASE_BEFORE_RETURN":"SOURCE_RETIREMENT_BEFORE_RETURN"))active.remove(node);
+    }
+    private static String voteKind(String point) {
+        for(String phase:List.of("ACCEPT","PROOF","CERTIFICATE"))
+            if(point.startsWith(phase+"_") && Set.of("VALIDATED","CANDIDATE_CREATED","PREFIX_WRITTEN","CANDIDATE_WRITTEN",
+                    "CANDIDATE_FORCED","CANDIDATE_PARENT_FORCED","RENAMED","PARENT_FORCED","BEFORE_RETURN").contains(point.substring(phase.length()+1)))
+                return phase.toLowerCase(Locale.ROOT);
+        return null;
     }
     private static String campaignKind(String point) {
         if(point.startsWith("ALLOCATOR_"))return "allocator";
@@ -101,11 +114,14 @@ final class V53RemoveRetirementCapture {
     }
     synchronized void finishProcess(String history,int life,String terminal,byte[] events)throws IOException {
         MembershipValidation.digest(history);
-        require(!finished && active.isEmpty() && (life==1 && terminal.equals("CUT_PREFIX") || life==2 && terminal.equals("CLOSED")),
+        boolean voteCut=mode==Mode.VOTE && life==1 && terminal.equals("CUT_PREFIX") && active.size()==1 &&
+                Set.of("accept","proof").contains(active.getOrDefault("node-1","")) &&
+                (active.get("node-1").toUpperCase(Locale.ROOT)+"_RENAMED").equals(lastPoint.get("node-1"));
+        require(!finished && (active.isEmpty() || voteCut) && (life==1 && terminal.equals("CUT_PREFIX") || life==2 && terminal.equals("CLOSED")),
                 "process retirement original terminal");
         // INTENT/ACCEPT can die before the first retirement. Empty coverage is
         // explicit and must match the original callback inventory in replay.
-        String schema=switch(mode){case RETIREMENT->PROCESS_SCHEMA;case FLOOR->PROCESS_FLOOR_SCHEMA;case CAMPAIGN->PROCESS_CAMPAIGN_SCHEMA;};
+        String schema=switch(mode){case RETIREMENT->PROCESS_SCHEMA;case FLOOR->PROCESS_FLOOR_SCHEMA;case CAMPAIGN->PROCESS_CAMPAIGN_SCHEMA;case VOTE->PROCESS_VOTE_SCHEMA;};
         Files.write(root.resolve("collection.json"),canonical(Map.of("schema",schema,"root",history,
                 "life",life,"pid",ProcessHandle.current().pid(),"terminal",terminal,"eventsSha256",hash(events),
                 "captures",count,"storedBytes",bytes),4096),StandardOpenOption.CREATE_NEW);

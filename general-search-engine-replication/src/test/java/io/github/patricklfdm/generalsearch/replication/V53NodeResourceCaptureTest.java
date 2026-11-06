@@ -15,7 +15,8 @@ class V53NodeResourceCaptureTest {
         var helper=new V53NodeOwnerTest();helper.temp=temp;
         try(var f=helper.new Fixture()) {
             Path output=temp.resolve("observed-prefix"),prefix=temp.resolve("file-prefix"),floor=temp.resolve("floor-prefix");
-            var capture=new V53NodeResourceCapture(output,f.group.fixture.result.root().manifestDigest(),2,(a,v)->{},prefix,floor);
+            Path campaign=temp.resolve("campaign-prefix"),vote=temp.resolve("vote-prefix");
+            var capture=new V53NodeResourceCapture(output,f.group.fixture.result.root().manifestDigest(),2,(a,v)->{},prefix,floor,campaign,vote);
             var node=observed(f,V53NodeOwnerTest.hooks(event->capture.accept("event",Map.of("node","node-1","event",event)),MembershipTransport.Events.NONE));
             var config=f.config(ReplicationBounds.defaults());
             assertThrows(IllegalArgumentException.class,()->capture.register(config.localIdentity(),node));
@@ -27,6 +28,11 @@ class V53NodeResourceCaptureTest {
             var floors=object(parse(Files.readAllBytes(floor.resolve("collection.json")),4096));
             for(String key:List.of("root","life","pid","terminal","eventsSha256"))assertEquals(resources.get(key),floors.get(key));
             assertEquals(V53RemoveRetirementCapture.PROCESS_FLOOR_SCHEMA,floors.get("schema"));
+            for(var extra:Map.of(campaign,V53RemoveRetirementCapture.PROCESS_CAMPAIGN_SCHEMA,vote,V53RemoveRetirementCapture.PROCESS_VOTE_SCHEMA).entrySet()) {
+                var collection=object(parse(Files.readAllBytes(extra.getKey().resolve("collection.json")),4096));
+                for(String key:List.of("root","life","pid","terminal","eventsSha256"))assertEquals(resources.get(key),collection.get(key));
+                assertEquals(extra.getValue(),collection.get("schema"));
+            }
         }
     }
     static MembershipNodeOwner<Integer,Doc> observed(V53NodeOwnerTest.Fixture f,MembershipNodeOwner.Hooks hooks) {

@@ -18,6 +18,7 @@ from . import floor_release_evidence as release
 from . import applied_end_evidence as applied
 from . import allocator_evidence as allocator
 from . import native_campaign_files as campaign_files
+from . import native_vote_files as vote_files
 
 p=physical;process=p.process;native=process.process
 c,d,e,f,need=p.c,p.d,p.e,p.f,p.need
@@ -165,7 +166,16 @@ def grant_events(images):
         'CAPTURE_INTENT_DELETED','CAPTURE_INTENT_CLEARED','GRANT_BEFORE_RETURN']
 
 
-def cold(rows,before):
+def bind_votes(rows,node,plan,collector):
+    if collector is None:return
+    actual=[row for row in rows if row.get('node')==node and row['event'] in vote_files.POINTS]
+    need(len(actual)==len(plan),'transition forces complete vote prefix count')
+    for row,(kind,point,state) in zip(actual,plan):
+        need(row['event']==point,'transition forces original vote prefix boundary')
+        collector.append((row,kind,state))
+
+
+def cold(rows,before,*,vote_prefixes=None):
     for node,files in before.items():
         end=next(i for i,v in enumerate(rows) if v.get('node')==node and v['event']=='NODE_OPEN')
         events=names(rows[:end],node);frames,phases=p.data.pending(files)
@@ -177,6 +187,9 @@ def cold(rows,before):
                 'CANDIDATE_FORCED','CANDIDATE_PARENT_FORCED','RENAMED','PARENT_FORCED','BEFORE_RETURN')]
         exact(events,TRACKED,
               expected,'transition forces cold exact recovery')
+        if vote_prefixes is not None:
+            plan=vote_files.transaction(files,p.vote(files,frames['ENTRY'],frames['PAYLOAD']),'ACCEPT') if frames['SELECTOR']!=files['selector.gsr'] else []
+            bind_votes(rows[:end],node,plan,vote_prefixes)
 
 
 def campaign(rows,before,installed,*,prefixes=None,floor_prefixes=None,campaign_prefixes=None):
@@ -290,7 +303,28 @@ def publication_order(events,applied_files,published,peer,count):
     need(pending==1 and completed==0,'transition forces future completion/clear count')
 
 
-def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None,floor_prefixes=None):
+def slot_votes(rows,before,accepting,applied_group,published,voters,first,point,collector):
+    if collector is None:return
+    maintained=before if point=='ACCEPT_RENAMED' else p.maintain(accepting if first else before,
+        ('node-1',) if point=='PROOF_RENAMED' else voters)
+    for node in before:
+        plan=[]
+        if node in voters and (point!='ACCEPT_RENAMED' or node=='node-1'):
+            frames,_=p.data.pending((published if point else applied_group)[node])
+            state=dict(before[node] if first else maintained[node])
+            raw=vote_files.phase_bytes(frames,'ACCEPT')
+            plan+=vote_files.transaction(state,raw,'ACCEPT',renamed=point=='ACCEPT_RENAMED')
+            if point!='ACCEPT_RENAMED' and (point!='PROOF_RENAMED' or node=='node-1'):
+                state=dict(maintained[node]);state[vote_files.ACTIVE]=raw
+                raw=vote_files.phase_bytes(frames,'PROOF')
+                plan+=vote_files.transaction(state,raw,'PROOF',renamed=point=='PROOF_RENAMED')
+                if point is None:
+                    state[vote_files.ACTIVE]=raw
+                    plan+=vote_files.transaction(state,vote_files.phase_bytes(frames,'CERTIFICATE'),'CERTIFICATE')
+        bind_votes(rows,node,plan,collector)
+
+
+def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None,floor_prefixes=None,vote_prefixes=None):
     chosen=f.decode(c.current(before['node-1'])[1]['selected.gsr'],'records','SELECTED')
     voters=[v['voter'] for v in chosen['sources']];stats=[]
     accepting=copy.deepcopy(before)
@@ -341,17 +375,19 @@ def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None,fl
              'transition forces all future quorums before publish')
     else:
         for node in before:ledger_order(rows,node,before[node][d.s.FILE],published[node][d.s.FILE])
+    slot_votes(rows,before,accepting,applied_group,published,voters,first,point,vote_prefixes)
     return stats
 
 
-def replay(root,kind,point,*,prefixes=None,floor_prefixes=None,campaign_prefixes=None):
+def replay(root,kind,point,*,prefixes=None,floor_prefixes=None,campaign_prefixes=None,vote_prefixes=None):
     root=Path(root);result=process.read(root/'process/result.json');children=native.children(result,kind=kind)
     lives,_,_,_,_=process.observations(root,result,children);index,_,_=p.t.shape(kind);stats=[]
     for life,rows in enumerate(lives,1):
         collected=[] if prefixes is not None else None
         floors=[] if floor_prefixes is not None else None
         campaigns=[] if campaign_prefixes is not None else None
-        cold(rows,group(root,'before-network' if life==1 else 'before-reopen'))
+        votes=[] if vote_prefixes is not None else None
+        cold(rows,group(root,'before-network' if life==1 else 'before-reopen'),vote_prefixes=votes)
         start=max(i for i,v in enumerate(rows) if v['event']=='NODE_OPEN')
         covered=set(range(start+1))
         marks=[(i,v['event']) for i,v in enumerate(rows) if v['event'].startswith('ROUND_')]
@@ -364,11 +400,11 @@ def replay(root,kind,point,*,prefixes=None,floor_prefixes=None,campaign_prefixes
             elif event=='ROUND_SLOT_BEGIN':slot_start=at
             elif event=='ROUND_SLOT_COMPLETE':
                 published=group(root,f'life-2-published-{index+ordinal-1}')
-                stats+=slot(rows[slot_start+1:at],installed,group(root,f'life-2-applied-{index+ordinal-1}'),published,first=ordinal==1,prefixes=collected,floor_prefixes=floors)
+                stats+=slot(rows[slot_start+1:at],installed,group(root,f'life-2-applied-{index+ordinal-1}'),published,first=ordinal==1,prefixes=collected,floor_prefixes=floors,vote_prefixes=votes)
                 covered.update(range(slot_start+1,at))
                 before=published;start=at
         if life==1:
-            stats+=slot(rows[slot_start+1:],installed,None,group(root,'at-cut'),first=True,point=point,prefixes=collected,floor_prefixes=floors)
+            stats+=slot(rows[slot_start+1:],installed,None,group(root,'at-cut'),first=True,point=point,prefixes=collected,floor_prefixes=floors,vote_prefixes=votes)
             covered.update(range(slot_start+1,len(rows)))
         for at,row in enumerate(rows):
             if row['event'].startswith(TRACKED) and row['event']!='FLOOR_COPY_BEFORE_RETURN':
@@ -389,6 +425,12 @@ def replay(root,kind,point,*,prefixes=None,floor_prefixes=None,campaign_prefixes
                  'transition forces unbound campaign prefix')
             campaign_prefixes.extend(dict(life=life,eventIndex=positions[id(row)],node=row['node'],point=row['event'],kind=kind_,files=state)
                 for row,kind_,state in sorted(campaigns,key=lambda v:positions[id(v[0])]))
+        if vote_prefixes is not None:
+            positions={id(row):at for at,row in enumerate(rows)};used=[positions[id(row)] for row,_,_ in votes]
+            need(len(set(used))==len(used) and set(used)=={at for at,row in enumerate(rows) if row['event'] in vote_files.POINTS},
+                 'transition forces unbound vote prefix')
+            vote_prefixes.extend(dict(life=life,eventIndex=positions[id(row)],node=row['node'],point=row['event'],kind=kind_,files=state)
+                for row,kind_,state in sorted(votes,key=lambda v:positions[id(v[0])]))
     return dict(status='PARTIAL',scope='carried-transition-storage-callbacks',coldOwners=8,
         campaigns=1+p.t.shape(kind)[1],generationRetirements=sum(v.get('generations',0) for v in stats),
         sourceRetirements=sum(v.get('sources',0) for v in stats),observedStorageCallbacks=True,
