@@ -35,6 +35,14 @@ passes, but missing original observations still block the complete resource
 entry and all 89 negatives. Full resource maxima and final-source admission
 remain OPEN.
 
+[Downstream integration diagnostics](PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md#downstream-integration-diagnostic)
+now independently replay all 865 original export allocations and the original
+publication/floor/receive/BASIS/file/handoff/close components at reader `3e6e38d3`.
+Both passes preserve the complete old original and find no additional integration
+failure. They remain development-only: the same 18 missing request observations
+still fail strict source replay, the historical pin still fails exact admission,
+and the 89 whole-entry negatives have not run. No closure gap changes status.
+
 [Joining journal close intervals](PHASE_3_JOINING_OWNER_CLOSE.md) now bind all
 five joining owner lifetimes to actual open/close calls and resource sequences.
 Persistent BASIS bytes remain charged through close begin and release by return.

@@ -3,13 +3,19 @@
 [Complete required-four export admission](PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md)
 now requires source/control/export capture and exact session/direct/probe bindings
 on the same whole original. Eighteen allocation-proof negatives bring the entry
-to 89 cases. No complete new native original has run; full resource maxima and
-final-source admission remain OPEN.
+to 89 cases. One complete native original has executed, but its strict replay
+failed on missing request observations; the corrected producer must run again.
+[Downstream component diagnostics](PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md#downstream-integration-diagnostic)
+pass exact export extents and file/custody lifetimes on that unchanged original
+without overriding the failure. Full resource maxima and final-source admission
+remain OPEN.
 
 [Five joining journal closes](PHASE_3_JOINING_OWNER_CLOSE.md) now have explicit
 original open/begin/return observations. The resource entry binds persistent
 BASIS storage through each actual close invocation; terminal zero totals alone
-cannot substitute. Complete native execution and physical peak limits remain open.
+cannot substitute. The complete marked history's five close intervals pass
+component replay; corrected-source whole-entry admission and physical peak
+limits remain open.
 
 [Original placed-file custody](PHASE_3_JOINED_FILE_RESOURCES.md) adds explicit
 predecessor/successor observations to the joined-owner accounting reader. The

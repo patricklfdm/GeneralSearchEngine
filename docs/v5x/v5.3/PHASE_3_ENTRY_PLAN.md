@@ -74,7 +74,10 @@ catalogue total:
   three-job entry outside the twelve-subset count. One complete local JVM run
   passed, but strict replay exposed observer-order and missing-request evidence
   gaps; the [integration corrections](PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md#local-complete-integration-and-observer-order-correction)
-  preserve those failures. Complete corrected-source qualification is pending.
+  preserve those failures. Subsequent independent downstream replay passes all
+  865 export allocations and the original file/handoff/close components; missing
+  source observations still block the full gate. Complete corrected-source
+  qualification is pending.
 - [Maximum-image transition](PHASE_3_MAXIMUM_TRANSITION_EXECUTION.md): one exact
   67,108,832-byte image history, real same-pool receiver refusal, REMOVE/FINAL
   and stable continuation, followed by **16** exact negatives. Its manual-only

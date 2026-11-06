@@ -6,6 +6,46 @@ It collects one complete original, including the five joining journal lifetimes,
 and never combines session, direct-operation or probe evidence across histories.
 Phase 3 and the combined byte/resource envelope remain OPEN.
 
+## Downstream integration diagnostic
+
+The [downstream diagnostic index](phase3-evidence/required-four-downstream.json)
+records independent component replay at reader source `3e6e38d3` against the
+unchanged complete native original from `97e86afc`. The earlier strict entry
+failure remains intact. No producer, workload or negative matrix was rerun.
+
+The observed source associations resolve 786 sessions. Their original contents
+derive all 792 session-owned export charges. Original SELECTED and maintenance
+histories derive another 72 direct exports (6 activation, 13 selected-install,
+53 maintenance); the original published-prefix permission and reference inventory
+derive one probe. All **865** allocations match the same journal's exact content,
+byte extent, owner and lifetime. Actual cleanup has 1,736 intervals with 2,409
+child references. These checks found no further downstream integration failure.
+
+Separate original derivation also passes 34 publication transactions, 56 floors,
+165 received transfers, 58 persistent BASIS leases, all five joining-owner close
+intervals and the native network-owner closes. The placed-file reader binds 65
+original files to 11 predecessor leases, including four distinct equal-content
+image files. All 46 required predecessor deletions precede the atomic handoff
+to four native leases. Both diagnostic passes leave the original inventory
+unchanged; they use no replacement observations or supplied proof map.
+
+This is **component development evidence only**. The source-association diagnostic
+explicitly uses the existing incomplete-observation mode to expose downstream
+paths and still reports 18 unbound request reservations. The strict source
+reader continues to reject that original; exact-producer admission also rejects
+its historical reader pin. Neither diagnostic enters the whole-resource gate,
+runs the 89 original-first negatives, admits a source-bound cohort, or qualifies
+combined maxima. Original content replay's intermediate `PARTIAL` result is
+retained separately from the subsequent original control authorization. All
+component scope flags and the failed complete verification remain visible.
+
+The next complete execution must use the corrected producer command with
+`v53.transport.unsent`, matching compiled source/readers/tools and the unchanged
+independent resource gate. It remains part of the deferred whole-history
+acceptance batch; these diagnostics cannot fill its slot. Fifty-seven existing
+focused session/direct/probe/allocation reader tests also passed. No Java,
+workflow, frozen limit, workload or acceptance condition changed in this batch.
+
 ## Collection and original-first admission
 
 The producer enables `v53.transport.unsent` alongside connection observations

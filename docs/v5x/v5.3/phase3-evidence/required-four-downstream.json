@@ -1,0 +1,448 @@
+{
+  "baseHead": "3e6e38d3f7550b8ac59ca4dbe32c0fcce974e71e",
+  "combinedResourcesQualified": false,
+  "contractAndPlanTests": 19,
+  "custodyComponents": {
+    "basis-resources": {
+      "checkedBoundaries": 290,
+      "forcedRetirementReleaseQualified": true,
+      "leases": 58,
+      "observedOwnerCloseLeases": 6,
+      "otherStorageLifetimesQualified": false,
+      "persistentBasisChargesQualified": true,
+      "phase3Complete": false,
+      "physicalPeakQualified": false,
+      "reopenedLifetimes": 3,
+      "retiredSources": 22,
+      "scope": "original-persistent-basis-charges-through-observed-owner-lifetimes",
+      "sourceOwnerLifetimes": 29,
+      "sources": 26,
+      "status": "PASS",
+      "unmarkedFinalCloseLeases": 0,
+      "unmarkedShutdownPhysicalOrderQualified": false,
+      "wholeRuntimeResourcesQualified": false
+    },
+    "floor-resources": {
+      "copyLeases": 358,
+      "floorBoundaries": 6188,
+      "floorStorageLifetimesQualified": true,
+      "floors": 56,
+      "phase3Complete": false,
+      "physicalPeakQualified": false,
+      "pinnedFloors": 3,
+      "pinnedMutationChecks": 175,
+      "receivingScratchQualified": false,
+      "scope": "original-floor-copy-and-local-pin-storage-lifetimes",
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    },
+    "joined-file-custody": {
+      "custodySequence": 844,
+      "distinctImageDigests": 1,
+      "distinctImageFiles": 4,
+      "finalSourceCohortQualified": false,
+      "intermediateFileLifetimesQualified": false,
+      "mappingSha256": "b5c807e6cc635cae7ac4bddad1f815aeec0aba5391642fb1354795df213cd635",
+      "node": "node-6",
+      "originalFileBytes": 240764,
+      "originalFileCustodyQualified": true,
+      "originalFiles": 65,
+      "phase3Complete": false,
+      "physicalPeakQualified": false,
+      "postCustodyCompletionFiles": 3,
+      "predecessorLeases": 11,
+      "scope": "original-placed-files-and-actual-custody-transfer",
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    },
+    "joined-handoff": {
+      "continuousHandoffQualified": true,
+      "custodySequence": 844,
+      "deletedMembers": 46,
+      "deletionCallbacks": 138,
+      "explicitJoiningCloseIntervalsQualified": false,
+      "finalSourceCohortQualified": false,
+      "lifecyclePoints": 10,
+      "nativeLeases": 4,
+      "nativeSequence": 845,
+      "node": "node-6",
+      "observedAccountingClosed": true,
+      "phase3Complete": false,
+      "physicalPeakQualified": false,
+      "predecessorLeases": 11,
+      "processDeathQualified": false,
+      "scope": "required-four-original-learner-native-handoff",
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    },
+    "joining-owner-closes": {
+      "joiningCloseIntervalsQualified": true,
+      "node": "node-6",
+      "phase3Complete": false,
+      "physicalShutdownOrderQualified": false,
+      "releasedLeases": 32,
+      "scope": "five-original-joining-journal-close-intervals",
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    },
+    "network-owner-closes": {
+      "checkedChanges": 32,
+      "ownerCloseIntervalsQualified": true,
+      "phase3Complete": false,
+      "physicalShutdownOrderQualified": false,
+      "releasedLeases": 32,
+      "scope": "quiescent-original-network-owner-close-accounting",
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    },
+    "original-publications": {
+      "transactions": 34
+    },
+    "publication-generation-custody": {
+      "completionTransferDerived": true,
+      "finalSourceCohortQualified": false,
+      "generationIdentitiesDerived": true,
+      "mutationStates": 265,
+      "phase3Complete": false,
+      "physicalBoundaries": 374,
+      "physicalPeakQualified": false,
+      "publications": 34,
+      "scope": "admitted-publication-generation-custody",
+      "status": "PASS",
+      "wholeRuntimePhysicalCustodyQualified": false
+    },
+    "receiving-resources": {
+      "checkedBoundaries": 1074,
+      "floorHandoffs": 117,
+      "identifiedPersistentBasisOwners": 26,
+      "otherStorageLifetimesQualified": false,
+      "phase3Complete": false,
+      "physicalPeakQualified": false,
+      "postHandoffLearnerCustodyQualified": false,
+      "receivingFloorHandoffQualified": true,
+      "receivingTransferChargesQualified": true,
+      "scope": "original-receiving-file-reservations-and-forced-floor-handoff",
+      "status": "PASS",
+      "transfers": 165,
+      "wholeRuntimeResourcesQualified": false
+    },
+    "whole-accounting": {
+      "eventBoundaries": 38816,
+      "nativeBudgetAccountingQualified": true,
+      "phase3Complete": false,
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    }
+  },
+  "diagnosticExecution": "PASS",
+  "exportComponents": {
+    "all-export-allocations": {
+      "allExportFailurePathsQualified": false,
+      "allObservedExportAllocationsQualified": true,
+      "allocationBindingsSha256": "4a8ca7b99404bb1055f90884cde8a55bfa828da0bddb3b5eb74753ed7ce3e061",
+      "allocations": 865,
+      "byRole": {
+        "joining-checkpoint-export": 3,
+        "joining-completion-export": 2,
+        "joining-intent": 2,
+        "joining-preparation-export": 1,
+        "joining-retention-export": 3,
+        "learner-root-export": 1,
+        "prefix-export": 300,
+        "record-export": 263,
+        "source-export": 61,
+        "vote-export": 229
+      },
+      "byScope": {
+        "direct": 72,
+        "probe": 1,
+        "session": 792
+      },
+      "exportInventory": {
+        "allExportFamiliesQualified": false,
+        "completeExportAllocationInventory": true,
+        "declaredSessionExportReleaseQualified": true,
+        "directFamilies": {
+          "ACTIVATION": 6,
+          "MAINTENANCE": 53,
+          "SELECTED": 13
+        },
+        "directOwnedAllocations": 72,
+        "exportContentExtentsQualified": false,
+        "failedConstructorExportsQualified": false,
+        "families": {
+          "joining-checkpoint-export": 3,
+          "joining-completion-export": 2,
+          "joining-intent": 2,
+          "joining-preparation-export": 1,
+          "joining-retention-export": 3,
+          "learner-root-export": 1,
+          "prefix-export": 240,
+          "record-export": 263,
+          "source-export": 42,
+          "vote-export": 229
+        },
+        "joiningExportRequestsQualified": false,
+        "ownedAllocations": 865,
+        "phase3Complete": false,
+        "probeFamilies": {
+          "prefix-export": 1
+        },
+        "probeOwnedAllocations": 1,
+        "revokedBeforeAttachment": 0,
+        "rollbackFamilies": {},
+        "rollbackOwnedAllocations": 0,
+        "scope": "observed-session-and-local-export-handles",
+        "sessionOwnedAllocations": 792,
+        "sessions": 786,
+        "status": "PASS",
+        "unattachedExports": [],
+        "wholeRuntimeResourcesQualified": false
+      },
+      "failedConstructorExportsQualified": false,
+      "otherControlAllocations": 32851,
+      "phase3Complete": false,
+      "scope": "complete-observed-export-allocation-content-and-ownership",
+      "status": "PASS",
+      "unclaimedAllocations": [],
+      "wholeRuntimeResourcesQualified": false
+    },
+    "direct-content-extents": {
+      "allMembershipProfilesQualified": false,
+      "directExports": 72,
+      "exportInventory": {
+        "allExportFamiliesQualified": false,
+        "completeExportAllocationInventory": true,
+        "declaredSessionExportReleaseQualified": true,
+        "directFamilies": {
+          "ACTIVATION": 6,
+          "MAINTENANCE": 53,
+          "SELECTED": 13
+        },
+        "directOwnedAllocations": 72,
+        "exportContentExtentsQualified": false,
+        "failedConstructorExportsQualified": false,
+        "families": {
+          "joining-checkpoint-export": 3,
+          "joining-completion-export": 2,
+          "joining-intent": 2,
+          "joining-preparation-export": 1,
+          "joining-retention-export": 3,
+          "learner-root-export": 1,
+          "prefix-export": 240,
+          "record-export": 263,
+          "source-export": 42,
+          "vote-export": 229
+        },
+        "joiningExportRequestsQualified": false,
+        "ownedAllocations": 865,
+        "phase3Complete": false,
+        "probeFamilies": {
+          "prefix-export": 1
+        },
+        "probeOwnedAllocations": 1,
+        "revokedBeforeAttachment": 0,
+        "rollbackFamilies": {},
+        "rollbackOwnedAllocations": 0,
+        "scope": "observed-session-and-local-export-handles",
+        "sessionOwnedAllocations": 792,
+        "sessions": 786,
+        "status": "PASS",
+        "unattachedExports": [],
+        "wholeRuntimeResourcesQualified": false
+      },
+      "originalContentBindingsQualified": true,
+      "originalOperationIntervalsQualified": true,
+      "phase3Complete": false,
+      "phases": {
+        "ACTIVATION": 6,
+        "MAINTENANCE": 53,
+        "SELECTED": 13
+      },
+      "scope": "required-four-native-direct-export-ownership",
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    },
+    "published-probe": {
+      "allExportAllocationsQualified": false,
+      "declaredProbeReleaseQualified": true,
+      "fullBodyReadsQualified": false,
+      "nativeProbeContentQualified": false,
+      "originalPermissionWindowQualified": true,
+      "originalReferenceInventoryQualified": true,
+      "ownedAllocations": 1,
+      "phase3Complete": false,
+      "probeCalls": 1,
+      "revokedBeforeCleanup": 0,
+      "scope": "required-four-original-published-prefix-probe",
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    }
+  },
+  "finalSourceCohortQualified": false,
+  "focusedReaderTests": 57,
+  "intermediateContentStatus": "PARTIAL",
+  "nativeWorkloadRerun": false,
+  "observedSource": {
+    "allObservedSourceBuffersBound": false,
+    "boundReservations": 10634,
+    "boundaryChecks": 27974,
+    "completedCaches": 741,
+    "legacyReservations": 0,
+    "logicalReleaseBeforeTransportTerminal": 0,
+    "logicalRequests": 4535,
+    "originalSourceAttempts": 4535,
+    "otherControlReservations": 23089,
+    "phase3Complete": false,
+    "responseBuffers": 4527,
+    "serviceCloseIntervalsQualified": false,
+    "sessions": 786,
+    "status": "PASS",
+    "traces": 786,
+    "unobservedReservations": 18,
+    "wholeRuntimeResourcesQualified": false
+  },
+  "original": {
+    "buildSha256": "fa3d26b2d28cb8a6e962dd49542f50e08a9d3715f3b5054435bf29e1e064b447",
+    "collectionSha256": "e94c13bd86dacfeb304a8dd694edf9340d65632de631fd26e0ed8baa36471c23",
+    "originalInventoryUnchanged": true,
+    "producerReceiptSha256": "442513e2c55882d93b7f6d4f3156d1cd4e4a41ec2f52be0847fb5dfecf41bffb",
+    "source": "97e86afcfe125740931733abef9db790342b9325",
+    "sourceSha256": "f6d763303dd6f5e25e2a9084943f3ed88ed27927057c86549623c085a01ccade",
+    "toolchainSha256": "9deaa07f3fb3c6b08277913428c76c011d239c880e6ba6f2d08d0ad7029cddb7"
+  },
+  "phase3Complete": false,
+  "rawReports": [
+    {
+      "bytes": 25653,
+      "path": "target/v53-required-four-downstream/diagnostic.json",
+      "sha256": "7122aa43e610f27bca40628587838c29adb61378d9b2f6a19cd1275b1fcef305"
+    },
+    {
+      "bytes": 18598,
+      "path": "target/v53-required-four-downstream/custody-diagnostic.json",
+      "sha256": "2a18c3f26d6daabb3e533cb701d924e43d1db333b10779437230a09164ebb0fc"
+    },
+    {
+      "bytes": 447,
+      "path": "target/v53-required-four-downstream/strict-rejection.json",
+      "sha256": "77e43be203f96a82274a08ef7400a4f045bdc8feebb988e2ff643e21e3c8e60f"
+    },
+    {
+      "bytes": 1662,
+      "path": "target/v53-required-four-downstream/diagnostic.log",
+      "sha256": "11ee2863fb52d65be1489da51a307be653b47bbd79edd140c92f4ccc657d5b2d"
+    },
+    {
+      "bytes": 1733,
+      "path": "target/v53-required-four-downstream/custody-diagnostic.log",
+      "sha256": "1df1943d6367ca12e9e624c1890831f674deb7046fc527ec37cbbd402f9997f4"
+    },
+    {
+      "bytes": 405,
+      "path": "target/v53-required-four-downstream/strict-rejection.log",
+      "sha256": "f1b4aa5a60be44170946e0de0911fdaf5b45c0799f4b0649fea63f33bf3ed0b0"
+    },
+    {
+      "bytes": 4322,
+      "path": "target/v53-required-four-downstream/diagnose.py",
+      "sha256": "8722d4d0b1d98431c74412a410558397ccdfb0a6547795db0ac1ecb67f5958f5"
+    },
+    {
+      "bytes": 4534,
+      "path": "target/v53-required-four-downstream/custody_diagnose.py",
+      "sha256": "16d8aed46a7203ef232338f2c8e3a3f62a89f06cfb5a341fa191450237703c46"
+    },
+    {
+      "bytes": 156,
+      "path": "target/v53-required-four-downstream/baseline-tests.log",
+      "sha256": "16d2c041e53b7de9c5aa639ad4174d8994eb394723abf28b244c6262121a2920"
+    },
+    {
+      "bytes": 775,
+      "path": "target/v53-required-four-downstream/contracts.log",
+      "sha256": "bd8cabbc781fb19f1b9e5a1b1fca026e289c4bf2b67de5ad59a1f7341414bb0a"
+    },
+    {
+      "bytes": 251,
+      "path": "target/v53-required-four-downstream/contracts-corrected.log",
+      "sha256": "af3d2462173d6dd578f2770fd895dd8177f7d8664ef7699047acd6223465e697"
+    },
+    {
+      "bytes": 135326,
+      "path": "target/v53-required-four-downstream/plan-audit/receipt.json",
+      "sha256": "6d470dff73fa7dff699f4d1243ccfab8291df725ef4a12a39130f5e05be851eb"
+    }
+  ],
+  "readerSha256": "75a7e2578c0359b72f45f63ed62c5bc64d3efb4bb8f5fbd91cb9009eab52a11d",
+  "remaining": [
+    "A new whole original with transport.unsent enabled and exact source/build/tool/reader pins.",
+    "Strict original-first resource qualification and all 89 exact negatives.",
+    "Feasible combined maxima, remaining component cohorts and frozen applicability, then final-source admission."
+  ],
+  "requiredWholeEntryNegativeCases": 89,
+  "schema": "gse-v53-required-four-downstream-development-v1",
+  "scope": "independent-downstream-component-replay",
+  "sessionComponents": {
+    "actual-session-cleanup": {
+      "childReferences": 2409,
+      "cleanupIntervals": 1736,
+      "joiningCheckpointServices": 1,
+      "listenerDrainQualified": false,
+      "nativeServiceCleanupIntervalsQualified": true,
+      "phase3Complete": false,
+      "responsesAtClose": 786,
+      "scope": "native-source-cleanup-performing-invocations",
+      "services": 164,
+      "sessions": 786,
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    },
+    "original-controls": {
+      "allExportFamiliesQualified": false,
+      "completePhysicalQualified": false,
+      "confirmedHeads": 3,
+      "forceAndNetworkQualified": false,
+      "observedCommittedContents": 1509,
+      "observedContentSessions": 786,
+      "observedControlExportsQualified": true,
+      "observedLearnerRetentionQualified": true,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "retentionRounds": 2,
+      "scope": "one-native-REPLACE-original-control-exports-and-learner-retention",
+      "status": "PASS"
+    },
+    "session-content-extents": {
+      "allExportFamiliesQualified": false,
+      "allObservedSessionContentExtentsQualified": true,
+      "ownedAllocations": 792,
+      "phase3Complete": false,
+      "scope": "original-content-to-all-successful-session-export-charges",
+      "sessions": 786,
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    }
+  },
+  "sourceBoundAdmission": false,
+  "status": "PARTIAL",
+  "strictRejection": {
+    "elapsedSeconds": 20.49,
+    "exactProducer": {
+      "reason": "required-four admission pinned reader",
+      "status": "REJECTED"
+    },
+    "originalInventoryUnchanged": true,
+    "phase3Complete": false,
+    "scope": "incomplete-original-and-mismatched-reader-still-rejected",
+    "sourceBoundAdmission": false,
+    "status": "PASS",
+    "strictSource": {
+      "reason": "native source resources unobserved source reservations",
+      "status": "REJECTED"
+    }
+  },
+  "validationSetupFailure": "Initial test command named a nonexistent test_phase3_case_catalogue module. Its import error remains in contracts.log; the 19 actual contract/plan tests passed in contracts-corrected.log. This is not a runtime failure or negative-case credit.",
+  "wholeEntryNegativeCasesExecuted": 0,
+  "wholeResourceGateRun": false
+}
