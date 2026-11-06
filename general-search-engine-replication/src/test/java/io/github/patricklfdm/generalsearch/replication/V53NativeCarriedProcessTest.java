@@ -29,10 +29,17 @@ class V53NativeCarriedProcessTest {
         run(point,mode,kind,observeResources,false);
     }
     void run(String point,String mode,String kind,boolean observeResources,boolean observeRetirement)throws Exception {
+        run(point,mode,kind,observeResources,observeRetirement,false);
+    }
+    void run(String point,String mode,String kind,boolean observeResources,boolean observeRetirement,boolean observeFloor)throws Exception {
         assertTrue(Set.of("DATA","INTENT","FINAL").contains(kind));
         boolean data=kind.equals("DATA");int size=data?3:4,index=data?1:kind.equals("INTENT")?5:6;
         assertTrue(!observeRetirement || observeResources && !data,"retirement requires original context resources");
-        Path prefix=observeRetirement?Files.createDirectories(Path.of("target/v53-native-carried-prefixes/run-"+UUID.randomUUID())):null;
+        assertTrue(!observeFloor || observeRetirement,"floor observation requires original retirement prefixes");
+        Path floors=observeFloor?Files.createDirectories(Path.of("target/v53-native-carried-floor-prefixes/run-"+UUID.randomUUID())):null;
+        if(observeFloor){Files.createDirectory(floors.resolve("floors"));System.out.println("v53NativeCarriedFloorPrefixesEvidence="+floors.toAbsolutePath());}
+        Path prefix=observeFloor?Files.createDirectory(floors.resolve("prefixes")):
+                observeRetirement?Files.createDirectories(Path.of("target/v53-native-carried-prefixes/run-"+UUID.randomUUID())):null;
         if(observeRetirement){Files.createDirectory(prefix.resolve("retirement"));System.out.println("v53NativeCarriedPrefixesEvidence="+prefix.toAbsolutePath());}
         Path container=observeRetirement?Files.createDirectory(prefix.resolve("observed")):
                 observeResources?Files.createDirectories(Path.of("target/v53-native-carried-resources/run-"+UUID.randomUUID())):null;
@@ -61,6 +68,7 @@ class V53NativeCarriedProcessTest {
                             V53NativeCarriedProcessWorker.class.getName(),spec.toAbsolutePath().toString(),Integer.toString(life),point,mode));
                     if(observeResources)command.add(container.resolve("resources/life-"+life).toAbsolutePath().toString());
                     if(observeRetirement)command.add(prefix.resolve("retirement/life-"+life).toAbsolutePath().toString());
+                    if(observeFloor)command.add(floors.resolve("floors/life-"+life).toAbsolutePath().toString());
                     Process child=new ProcessBuilder(command)
                             .redirectError(stderr.toFile()).start();children.add(child);
                     var record=new TreeMap<String,Object>();record.put("life",life);record.put("pid",child.pid());records.add(record);

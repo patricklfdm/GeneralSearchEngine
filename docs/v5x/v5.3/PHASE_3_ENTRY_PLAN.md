@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Carried-process FLOOR prefixes](PHASE_3_CARRIED_PROCESS_FLOORS.md) add
+writer-held creation and release inventories to the original retirement/resource
+chain. Expected bytes derive from original copies and release authority. Other
+transient operations, combined resource maxima and final-source admission remain
+OPEN; the twelve-subset catalogue and runtime limits are unchanged.
+
 [Carried-process retirement prefixes](PHASE_3_CARRIED_PROCESS_PREFIXES.md)
 add writer-held generation/source/journal file captures to both original JVM
 lifetimes. Independent transaction replay derives every expected inventory;

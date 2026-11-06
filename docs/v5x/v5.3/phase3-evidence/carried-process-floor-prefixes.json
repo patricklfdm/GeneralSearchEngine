@@ -1,0 +1,420 @@
+{
+  "acceptancePlan": {
+    "path": "docs/v5x/v5.3/acceptance-plan.json",
+    "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+  },
+  "base": "17a374210848293068630d4c39b157c9e44d29f3",
+  "cohortAdmitted": false,
+  "declaredProcessCases": 8,
+  "developmentDiagnostics": {
+    "diagnosis": {
+      "path": "target/v53-carried-process-floors/diagnose.py",
+      "sha256": "0f58af4bdea4dcbb67a8db367d31747b61c950e1347aab2a21bd7e2f11506371"
+    },
+    "initialReaderFailure": {
+      "path": "target/v53-carried-process-floors/intent-qualify.stderr",
+      "sha256": "1d1d2c2ca0339cc3f47ea66ab6a2e58fb5eb9e84d58c5af292b7f427c3042bfe"
+    },
+    "originalDifferences": {
+      "path": "target/v53-carried-process-floors/intent-floor-differences.json",
+      "sha256": "ce42fa02996183800697a90978f4a65fe27ce261c8041c90117c9cb274a1d4db"
+    },
+    "producerRerun": false,
+    "sameOriginalReplayed": true
+  },
+  "executedProcessAxes": 2,
+  "fullTransientBytesQualified": false,
+  "historicalIndexesUnchanged": 378,
+  "hostedExecuted": false,
+  "limitations": [
+    "Complete-copy FLOOR creation/release bytes for two process axes only; grants/install/votes/application/scratch still need composition.",
+    "The first child retains a prefix before death, not an unobserved post-cut tail or normal close.",
+    "Two declared process axes only; six other cuts, application-ACK recovery and final-source cohort remain open.",
+    "Writer-held file capture adds test I/O; these runs are not performance measurements."
+  ],
+  "mutatedPrerequisiteReplayed": false,
+  "nativeRetries": 0,
+  "negativePrecondition": "full original process/storage/network/retention/resource replay; independently derived unchanged plans",
+  "newNativeExecutions": 2,
+  "originals": [
+    {
+      "bytes": 59470788,
+      "cut": "PROOF_RENAMED",
+      "files": 7704,
+      "floors": {
+        "capturedPrefixes": 998,
+        "cohortAdmitted": false,
+        "coreScratchInventoryReplay": false,
+        "fullTransientBytesQualified": false,
+        "lifetimes": [
+          {
+            "byKind": {
+              "floor": 66,
+              "floor-release": 36
+            },
+            "capturedPrefixes": 102,
+            "life": 1,
+            "pid": 682123,
+            "storedBytes": 1144209,
+            "terminal": "CUT_PREFIX"
+          },
+          {
+            "byKind": {
+              "floor": 576,
+              "floor-release": 320
+            },
+            "capturedPrefixes": 896,
+            "life": 2,
+            "pid": 687731,
+            "storedBytes": 8107193,
+            "terminal": "CLOSED"
+          }
+        ],
+        "phase3Complete": false,
+        "postCutTailObserved": false,
+        "status": "PARTIAL",
+        "transientFloorBytesQualified": true,
+        "wholeRuntimeResourcesQualified": false
+      },
+      "inventory": {
+        "path": "target/v53-carried-process-floors/final-inventory.json",
+        "sha256": "4f6376ec44e48d950541c423e7578caafc6e27afec4d1b3e1f977fc0dffce3fa"
+      },
+      "kind": "FINAL",
+      "mode": "kill",
+      "native": {
+        "path": "target/v53-carried-process-floors/native.log",
+        "sha256": "3e20b82e483a962d4dc95562b9fb40294a616e00a00c4ba80a9efcd7ec6a25ea"
+      },
+      "negativeCases": 27,
+      "path": "general-search-engine-replication/target/v53-native-carried-floor-prefixes/run-4c466519-775f-4dfc-a9b1-33499af38236",
+      "portable": {
+        "path": "target/v53-carried-process-floors/final-portable.json",
+        "sha256": "42135e8166f4191087640b26298e99534ce8bfae4b05310330ed9ae50844db4c"
+      },
+      "processChildren": [
+        {
+          "allLocksHeldBeforeDeath": true,
+          "allLocksReleasedAfterDeath": true,
+          "exit": 137,
+          "life": 1,
+          "opened": true,
+          "pid": 682123,
+          "started": {
+            "cut": "PROOF_RENAMED",
+            "life": 1,
+            "mode": "kill",
+            "pid": 682123
+          }
+        },
+        {
+          "closed": {
+            "clientCalls": 0,
+            "elapsedNanos": 296703224038,
+            "life": 2
+          },
+          "exit": 0,
+          "life": 2,
+          "opened": true,
+          "pid": 687731,
+          "started": {
+            "cut": "PROOF_RENAMED",
+            "life": 2,
+            "mode": "kill",
+            "pid": 687731
+          }
+        }
+      ],
+      "progress": {
+        "path": "target/v53-carried-process-floors/final-qualify-v2.stderr",
+        "sha256": "33fcbfce22ab194bc1e18448489d38f17b785db2b09b1d2648f539dca8fe289a"
+      },
+      "qualification": {
+        "path": "target/v53-carried-process-floors/final-qualify-v2.json",
+        "sha256": "7427a416fa6917a33f436c6cbc4034c5d3edab112c1994aba50f8b74ac0dadb8"
+      },
+      "retirement": {
+        "capturedPrefixes": 595,
+        "cohortAdmitted": false,
+        "coreScratchInventoryReplay": false,
+        "fullTransientBytesQualified": false,
+        "lifetimes": [
+          {
+            "byKind": {
+              "generation": 47,
+              "source": 0
+            },
+            "capturedPrefixes": 47,
+            "life": 1,
+            "pid": 682123,
+            "storedBytes": 871441,
+            "terminal": "CUT_PREFIX"
+          },
+          {
+            "byKind": {
+              "generation": 443,
+              "source": 105
+            },
+            "capturedPrefixes": 548,
+            "life": 2,
+            "pid": 687731,
+            "storedBytes": 7067780,
+            "terminal": "CLOSED"
+          }
+        ],
+        "phase3Complete": false,
+        "postCutTailObserved": false,
+        "status": "PARTIAL",
+        "transientRetirementBytesQualified": true,
+        "wholeRuntimeResourcesQualified": false
+      }
+    },
+    {
+      "bytes": 69802674,
+      "cut": "ACCEPT_RENAMED",
+      "files": 7987,
+      "floors": {
+        "capturedPrefixes": 1481,
+        "cohortAdmitted": false,
+        "coreScratchInventoryReplay": false,
+        "fullTransientBytesQualified": false,
+        "lifetimes": [
+          {
+            "byKind": {
+              "floor": 0,
+              "floor-release": 0
+            },
+            "capturedPrefixes": 0,
+            "life": 1,
+            "pid": 657905,
+            "storedBytes": 0,
+            "terminal": "CUT_PREFIX"
+          },
+          {
+            "byKind": {
+              "floor": 954,
+              "floor-release": 527
+            },
+            "capturedPrefixes": 1481,
+            "life": 2,
+            "pid": 662809,
+            "storedBytes": 12751686,
+            "terminal": "CLOSED"
+          }
+        ],
+        "phase3Complete": false,
+        "postCutTailObserved": false,
+        "status": "PARTIAL",
+        "transientFloorBytesQualified": true,
+        "wholeRuntimeResourcesQualified": false
+      },
+      "inventory": {
+        "path": "target/v53-carried-process-floors/intent-inventory.json",
+        "sha256": "58de7053eefcf246181f7f8f4cd7d31e510bc3fb47a7fd819bf96651e0dcb040"
+      },
+      "kind": "INTENT",
+      "mode": "halt",
+      "native": {
+        "path": "target/v53-carried-process-floors/native.log",
+        "sha256": "3e20b82e483a962d4dc95562b9fb40294a616e00a00c4ba80a9efcd7ec6a25ea"
+      },
+      "negativeCases": 27,
+      "path": "general-search-engine-replication/target/v53-native-carried-floor-prefixes/run-856096f8-9290-459e-8aa9-6248c3dce9b3",
+      "portable": {
+        "path": "target/v53-carried-process-floors/intent-portable.json",
+        "sha256": "db678402ff388f0307215060803b3191e9162062d278082bfb3e786174dd84d6"
+      },
+      "processChildren": [
+        {
+          "allLocksHeldBeforeDeath": true,
+          "allLocksReleasedAfterDeath": true,
+          "exit": 73,
+          "life": 1,
+          "opened": true,
+          "pid": 657905,
+          "started": {
+            "cut": "ACCEPT_RENAMED",
+            "life": 1,
+            "mode": "halt",
+            "pid": 657905
+          }
+        },
+        {
+          "closed": {
+            "clientCalls": 0,
+            "elapsedNanos": 353031126341,
+            "life": 2
+          },
+          "exit": 0,
+          "life": 2,
+          "opened": true,
+          "pid": 662809,
+          "started": {
+            "cut": "ACCEPT_RENAMED",
+            "life": 2,
+            "mode": "halt",
+            "pid": 662809
+          }
+        }
+      ],
+      "progress": {
+        "path": "target/v53-carried-process-floors/intent-qualify-v2.stderr",
+        "sha256": "33fcbfce22ab194bc1e18448489d38f17b785db2b09b1d2648f539dca8fe289a"
+      },
+      "qualification": {
+        "path": "target/v53-carried-process-floors/intent-qualify-v2.json",
+        "sha256": "567d04b7507cb6247b40737b22268327c0539662e03759b0b03c602f6f1616d5"
+      },
+      "retirement": {
+        "capturedPrefixes": 977,
+        "cohortAdmitted": false,
+        "coreScratchInventoryReplay": false,
+        "fullTransientBytesQualified": false,
+        "lifetimes": [
+          {
+            "byKind": {
+              "generation": 0,
+              "source": 0
+            },
+            "capturedPrefixes": 0,
+            "life": 1,
+            "pid": 657905,
+            "storedBytes": 0,
+            "terminal": "CUT_PREFIX"
+          },
+          {
+            "byKind": {
+              "generation": 812,
+              "source": 165
+            },
+            "capturedPrefixes": 977,
+            "life": 2,
+            "pid": 662809,
+            "storedBytes": 11933629,
+            "terminal": "CLOSED"
+          }
+        ],
+        "phase3Complete": false,
+        "postCutTailObserved": false,
+        "status": "PARTIAL",
+        "transientRetirementBytesQualified": true,
+        "wholeRuntimeResourcesQualified": false
+      }
+    }
+  ],
+  "paidCloud": false,
+  "phase3Complete": false,
+  "postCutTailObserved": false,
+  "producerBuild": {
+    "path": "target/v53-carried-process-floors/producer-build.json",
+    "sha256": "d47fd67e604ba20b55c354810277b39f188b724e0b842f50d2dc40114959cb6c"
+  },
+  "pushed": false,
+  "readerSources": {
+    "path": "target/v53-carried-process-floors/reader-sources.json",
+    "sha256": "db5c5b8511ac94ad049644e1ae65bc034b30f009f63e4f7389eb22cc9651406f"
+  },
+  "runtimeChanged": false,
+  "schema": "gse-v53-carried-process-floor-development-v1",
+  "sourceFiles": [
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FloorPrefixCaptureTest.java",
+      "sha256": "bd4f75f6e1c0bb2ba72add4a8b7f847a5ca03c87059f968aed656dfcfb85f0a0"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedFloorPrefixProcessTest.java",
+      "sha256": "c24f446a7eadfc9dd39e94bcad96a6e18c6638d5f7051fc76e22ba12ba364f04"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessTest.java",
+      "sha256": "3ea3d6e7bd7ff928fa3e384c67bf8a3f6ad11f574b745055631c617b9ae8ab3c"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessWorker.java",
+      "sha256": "92bb38b97a900ad4e9d2fd7dab9c9e1a47e2bcab58966853a2f2f57ac2f0b78d"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeResourceCapture.java",
+      "sha256": "1bdf1ced5172c6bb9e5d54b4e7cc07496466b44d4cfb8624d267efe5155cff12"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeResourceCaptureTest.java",
+      "sha256": "9925bfa2e9bf1d55aad9c343cb6b2e2dec242bed0b29108dfe953a54ab8e9af7"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RemoveRetirementCapture.java",
+      "sha256": "8ab80aa13d832743bd8a7b280ff8329d5e322aab64b7e086cf49f0833469ed26"
+    },
+    {
+      "path": "scripts/v53/native_carried_floor_prefixes.py",
+      "sha256": "8e72fea148ddedf2c8fffe9d6275cfa16f61981ec6ce4b886f69e2908343dbe8"
+    },
+    {
+      "path": "scripts/v53/native_carried_retirement_prefixes.py",
+      "sha256": "e8e6c53c0091a958641e5d74596ff26839f94c98d3a6f215c2079d7bf1d13aba"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_forces.py",
+      "sha256": "3070bb4927b5595325b16400c89c75562fd8eefd6726e81c118bd1656f397665"
+    },
+    {
+      "path": "scripts/v53/remove_retirement_prefixes.py",
+      "sha256": "d5e395296ab40b51ea11bb02087b1f868cf829f66a7182463fee3ca66ec8f8a3"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_floor_prefixes.py",
+      "sha256": "1829f6834f8b25f812ab2544b4e946297b2a126cf740c08116ac3e515373630d"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_transition_forces.py",
+      "sha256": "559c07ee6ef8e0d1cc60ec10de76f574fe4ee70a5201c472230474d4bbb94468"
+    }
+  ],
+  "status": "PARTIAL",
+  "tools": {
+    "path": "target/v53-carried-process-floors/tools.json",
+    "sha256": "0d69707593c135faa3b87c3e85d825c6321138c3097a6bfccdf04dc09f17c88d"
+  },
+  "transientFloorBytesQualified": true,
+  "unchangedCatalogue": {
+    "archives": 486,
+    "executionGroups": 246,
+    "histories": 552,
+    "subsets": 12,
+    "workflowJobs": 516
+  },
+  "validation": {
+    "capturedPrefixes": 2479,
+    "defaultForceRegression": {
+      "path": "target/v53-carried-process-floors/default-force-v2.json",
+      "sha256": "450540ad729660a69d27f84fd1509254321dc31b75c6071a0b41229fc855ae4d"
+    },
+    "focusedJava": {
+      "path": "target/v53-carried-process-floors/java-focused.log",
+      "sha256": "8b3c01ca54366c38c29650cd0f51b11b0af67372ebd620e4d4b2f53d52057d34"
+    },
+    "focusedJavaTests": 12,
+    "nativeJavaTests": 2,
+    "negativeCases": 54,
+    "optimizedPythonTests": 62,
+    "optimizedUnit": {
+      "path": "target/v53-carried-process-floors/unit-optimized-v2.log",
+      "sha256": "34d0410a63d2bcfa444e624bb219ed94b7dc773c17af47746380a47e9c4d5812"
+    },
+    "portableDriver": {
+      "path": "target/v53-carried-process-floors/portable.py",
+      "sha256": "b7ff5f08ae56fdae9a9e0498b8aeb9471588fac05eb84f7d40979aed0fc0c45d"
+    },
+    "priorRetirementRegression": {
+      "path": "target/v53-carried-process-floors/previous-retirement-receipts.json",
+      "sha256": "1f40851f06c7eaccf5e331ec08d61f0620fedb3fc00b39df09997810ce2cbb3f"
+    },
+    "relatedPythonTests": 418,
+    "unit": {
+      "path": "target/v53-carried-process-floors/unit-related-v2.log",
+      "sha256": "908e0f16f48449b2e47b2a396ea2cb218f03618119ae58b08debdcc42003fca3"
+    }
+  },
+  "wholeRuntimeResourcesQualified": false,
+  "workflowChanged": false
+}

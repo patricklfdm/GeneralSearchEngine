@@ -1,5 +1,14 @@
 # Phase 3 qualification inventory and remaining work
 
+[Carried-process FLOOR prefixes](PHASE_3_CARRIED_PROCESS_FLOORS.md) now compose
+creation/release file observations with the
+[retirement-prefix](PHASE_3_CARRIED_PROCESS_PREFIXES.md) and
+[resource](PHASE_3_CARRIED_PROCESS_RESOURCES.md) components for the two declared
+INTENT/FINAL crash/reopen axes. These remain component qualifications: grants,
+installation, vote/application transient files, scratch, combined maxima, six
+other process cuts and final-source admission remain open. Historical rows below
+retain their original source-bound scope.
+
 [Carried transition process cases](PHASE_3_CARRIED_TRANSITION_PROCESS.md) now
 exercise whole-group death during original INTENT/FINAL recovery and restart on
 unchanged directories. The new reader checks the admitted prefix and original

@@ -8,6 +8,37 @@ from . import test_native_carried_transition_physical as fixtures
 
 
 class NativeCarriedTransitionForcesTest(unittest.TestCase):
+    def test_floor_creation_keeps_the_original_ledger_until_post_floor_reconciliation(self):
+        rows,files,writes,dirs=m.floor.transaction({'aa':{'generation.gsr':b'a','00.image':b'image'}},b'floor')
+        initial={'root.gsr':b'root',m.d.s.FILE:b'projected later view'}
+        steps=m.floor_steps(initial,rows,files,writes,dirs,peer_ledger=b'original preceding view')
+        original=dict(bytes=len(b'original preceding view'),sha256=m.e.digest(b'original preceding view'))
+        self.assertTrue(all(state[m.d.s.FILE]==original for _,state in steps))
+        self.assertEqual(b'projected later view',initial[m.d.s.FILE])
+        default=m.floor_steps(initial,rows,files,writes,dirs)
+        self.assertNotEqual(default[-1][1][m.d.s.FILE],steps[-1][1][m.d.s.FILE])
+
+    def test_floor_prefixes_preserve_original_files_and_publish_after_complete_copies(self):
+        copies={'aa':{'generation.gsr':b'a','source.gscp':b's','00.image':b'i'},'bb':{'generation.gsr':b'b','11.image':b'j'}}
+        rows,files,writes,dirs=m.floor.transaction(copies,b'floor')
+        initial={'root.gsr':b'root','grants.gsr':b'journal'};steps=m.floor_steps(initial,rows,files,writes,dirs)
+        self.assertEqual(m.retirement.s.physical(initial),steps[0][1]);self.assertNotIn('floor-copies',steps[0][1])
+        for at,(point,state) in enumerate(steps):
+            self.assertEqual(m.retirement.s.physical(initial)['grants.gsr'],state['grants.gsr'])
+            if point.endswith('_FORCED') and rows[at-1]['event']==point.removesuffix('_FORCED')+'_WRITTEN':
+                self.assertEqual(steps[at-1][1],state)
+            for name,index in writes.items():self.assertEqual(index<=at,name in state)
+            for name,index in dirs.items():self.assertEqual(index<=at,name in state)
+        self.assertEqual(m.retirement.s.physical(dict(initial,**files,**{v:None for v in dirs})),steps[-1][1])
+
+    def test_floor_callback_binding_excludes_copy_discovery_but_requires_all_release_events(self):
+        names=['FLOOR_COPY_BEFORE_RETURN','FLOOR_RESERVED','FLOOR_COPY_HANDED_OFF','FLOOR_BEFORE_RETURN',
+               'FLOOR_RELEASE_AUTHORITY_CREATED','FLOOR_RELEASE_BEFORE_RETURN','RETIREMENT_OLD_FILES_FORCED']
+        rows=[dict(node='node-1',event=v) for v in names]
+        plan=[('floor-release' if v.startswith('FLOOR_RELEASE_') else 'floor',v,{}) for v in names[1:-1]];actual=[]
+        m.bind_prefixes(rows,'node-1',plan,actual,floors=True);self.assertEqual(names[1:-1],[v[0]['event'] for v in actual])
+        with self.assertRaisesRegex(ValueError,'complete retirement prefix count'):m.bind_prefixes(rows[:-2]+rows[-1:],'node-1',plan,[],floors=True)
+
     def test_prefix_binding_keeps_original_rows_and_excludes_other_nodes(self):
         row=dict(node='node-1',event='RETIREMENT_CREATED',incarnation=2);state={'root.gsr':dict(bytes=4,sha256='a'*64)};result=[]
         m.bind_prefixes([dict(row,node='node-2'),dict(row,event='WIRE_RESPONSE'),row],'node-1',[('generation','RETIREMENT_CREATED',state)],result)

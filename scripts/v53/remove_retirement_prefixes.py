@@ -39,12 +39,13 @@ def collect_bound(root,sidecar,profile,schema,result_name,node_count):
         lambda node:{key:g.snapshot.s.regular(root/'before-network'/node/key,16384) for key in ('root.gsr','node.gsr')},inventory)
 
 
-def collect_contents(sidecar,events,header,node_count,owner_records,inventory):
+def collect_contents(sidecar,events,header,node_count,owner_records,inventory,*,schema=SCHEMA,kinds=None):
     """Decode bounded originals after the owning caller binds its header/events.
 
     A whole-group child can end before its first retirement. Its caller must
     independently require the exact empty callback coverage, never infer it.
     """
+    if kinds is None:kinds={'generation':('RETIREMENT_',),'source':('SOURCE_RETIREMENT_','JOURNAL_ROTATION_')}
     need(type(header['captures']) is int and 0<=header['captures']<=MAXIMUM_CAPTURES and
          type(header['storedBytes']) is int and 0<=header['storedBytes']<=g.MAXIMUM_BYTES,'REMOVE prefix collection header')
     names=[f'capture-{i:04d}.json' for i in range(1,header['captures']+1)]
@@ -58,11 +59,11 @@ def collect_contents(sidecar,events,header,node_count,owner_records,inventory):
     for name in names:
         encoded,value=g.json_file(sidecar/name);total+=len(encoded)
         need(type(value) is dict and set(value)=={'schema','node','kind','point','eventIndex','files'} and
-             value['schema']==SCHEMA and value['kind'] in ('generation','source') and type(value['eventIndex']) is int and
+             value['schema']==schema and type(value['kind']) is str and value['kind'] in kinds and type(value['eventIndex']) is int and
              0<=value['eventIndex']<len(events) and value['eventIndex'] not in copies,'REMOVE prefix metadata shape/index')
         at=value['eventIndex'];node=value['node'];point=value['point']
         need(events[at]==dict(node=node,event=point) and type(point) is str and
-             (point.startswith('RETIREMENT_') if value['kind']=='generation' else point.startswith(('SOURCE_RETIREMENT_','JOURNAL_ROTATION_'))),
+             point.startswith(kinds[value['kind']]),
              'REMOVE prefix original callback')
         entries=value['files'];need(type(entries) is list and 0<len(entries)<=g.MAXIMUM_FILES,'REMOVE prefix file count')
         files={};previous=None

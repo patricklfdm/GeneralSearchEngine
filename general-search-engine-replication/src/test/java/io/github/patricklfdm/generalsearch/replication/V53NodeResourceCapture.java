@@ -14,7 +14,7 @@ final class V53NodeResourceCapture implements V53NodeProcessWorker.Sink {
     private final String root;
     private final int life;
     private final V53NodeProcessWorker.Sink sink;
-    private final V53RemoveRetirementCapture retirement;
+    private final V53RemoveRetirementCapture retirement,floor;
     private final Map<String,Owner> owners=new TreeMap<>();
     private final List<Map<String,Object>> events=new ArrayList<>(),boundaries=new ArrayList<>(),closes=new ArrayList<>();
     private final Set<String> closing=new HashSet<>(),closed=new HashSet<>();
@@ -23,9 +23,13 @@ final class V53NodeResourceCapture implements V53NodeProcessWorker.Sink {
         this(directory,root,life,sink,null);
     }
     V53NodeResourceCapture(Path directory,String root,int life,V53NodeProcessWorker.Sink sink,Path retirementDirectory)throws IOException {
+        this(directory,root,life,sink,retirementDirectory,null);
+    }
+    V53NodeResourceCapture(Path directory,String root,int life,V53NodeProcessWorker.Sink sink,Path retirementDirectory,Path floorDirectory)throws IOException {
         MembershipValidation.digest(root);require(life==1 || life==2,"node resource original life");
         this.directory=Files.createDirectory(directory);this.root=root;this.life=life;this.sink=Objects.requireNonNull(sink);
         retirement=retirementDirectory==null?null:new V53RemoveRetirementCapture(directory,retirementDirectory);
+        floor=floorDirectory==null?null:new V53RemoveRetirementCapture(directory,floorDirectory,true);
     }
     synchronized void register(MembershipIdentity identity,MembershipNodeOwner<?,?> node) {
         register(identity,node,null);
@@ -33,7 +37,7 @@ final class V53NodeResourceCapture implements V53NodeProcessWorker.Sink {
     synchronized void register(MembershipIdentity identity,MembershipNodeOwner<?,?> node,Path replica) {
         String name=identity.nodeId().value();var point=node.resourceCheckpoint();
         require(!saved && owners.size()<4 && !owners.containsKey(name) && node.state()==MembershipNodeOwner.State.NEW &&
-                point.complete() && point.sequence()==0 && point.usage().leases()==0 && (retirement==null || replica!=null),"node resource original registration");
+                point.complete() && point.sequence()==0 && point.usage().leases()==0 && (retirement==null && floor==null || replica!=null),"node resource original registration");
         owners.put(name,new Owner(identity,node,events.size(),replica));
     }
     @Override public synchronized void accept(String action,Object value)throws IOException {
@@ -47,6 +51,8 @@ final class V53NodeResourceCapture implements V53NodeProcessWorker.Sink {
             // the owning journal writer remains held until the sink returns.
             if(retirement!=null && action.equals("event"))
                 retirement.at((String)event.get("node"),owner.replica,(String)event.get("event"),events.size()-1);
+            if(floor!=null && action.equals("event"))
+                floor.at((String)event.get("node"),owner.replica,(String)event.get("event"),events.size()-1);
         }
         if(action.equals("cut"))save("CUT_PREFIX");
         sink.accept(action,value);
@@ -83,5 +89,6 @@ final class V53NodeResourceCapture implements V53NodeProcessWorker.Sink {
                 "pid",ProcessHandle.current().pid(),"terminal",terminal,"owners",refs,"eventsSha256",hash(observed),
                 "boundariesSha256",hash(points),"closesSha256",hash(closing)),16384),StandardOpenOption.CREATE_NEW);
         if(retirement!=null && !terminal.equals("FAILED"))retirement.finishProcess(root,life,terminal,observed);
+        if(floor!=null && !terminal.equals("FAILED"))floor.finishProcess(root,life,terminal,observed);
     }
 }

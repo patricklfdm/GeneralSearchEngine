@@ -23,13 +23,14 @@ def plans(root):
     return expected
 
 
-def lifetime(root,directory,life,expected):
+def lifetime(root,directory,life,expected,*,schema=SCHEMA,capture_schema=shared.SCHEMA,kinds=None):
+    if kinds is None:kinds={'generation':('RETIREMENT_',),'source':('SOURCE_RETIREMENT_','JOURNAL_ROTATION_')}
     resource=Path(root)/'resources'/f'life-{life}'
     index=observed.read(resource,'index.json',16384)
     inventory=collection.inventory(directory,maximum=shared.g.MAXIMUM_BYTES+4096)
     _,header=shared.g.json_file(directory/'collection.json')
     fields={'schema','root','life','pid','terminal','eventsSha256','captures','storedBytes'}
-    need(type(header) is dict and set(header)==fields and header['schema']==SCHEMA and
+    need(type(header) is dict and set(header)==fields and header['schema']==schema and
          type(header['life']) is int and type(header['pid']) is int and
          all(f.canonical(header[k])==f.canonical(index[k]) for k in ('root','life','pid','terminal','eventsSha256')),
          'carried prefix original lifetime binding')
@@ -39,19 +40,19 @@ def lifetime(root,directory,life,expected):
     events=[{k:v for k,v in row.items() if k!='incarnation'} for row in events]
     copies,_=shared.collect_contents(directory,events,header,4,
         lambda node:{key:collection.snapshot.s.regular(Path(root)/'history/before-network'/node/key,16384)
-                     for key in ('root.gsr','node.gsr')},inventory)
+                     for key in ('root.gsr','node.gsr')},inventory,schema=capture_schema,kinds=kinds)
     rows=[v for v in expected if v['life']==life]
     need(len({v['eventIndex'] for v in rows})==len(rows) and
          copies.keys()=={v['eventIndex'] for v in rows},'carried prefix exact original callback coverage')
-    kinds=dict(generation=0,source=0)
+    counts={kind:0 for kind in kinds}
     for row in rows:
         copy=copies[row['eventIndex']]
         need(all(copy[k]==row[k] for k in ('node','kind','point')),'carried prefix original transaction binding')
         need(shared.r.physical(copy['files'])==row['files'],'carried prefix exact original state: '+row['point'])
-        kinds[row['kind']]+=1
+        counts[row['kind']]+=1
     need(collection.inventory(directory,maximum=shared.g.MAXIMUM_BYTES+4096)==inventory,'carried prefix sidecar changed')
     return dict(life=life,pid=header['pid'],terminal=header['terminal'],capturedPrefixes=len(rows),
-                byKind=kinds,storedBytes=header['storedBytes'])
+                byKind=counts,storedBytes=header['storedBytes'])
 
 
 def replay(root,retirement,expected=None):

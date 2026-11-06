@@ -6,6 +6,10 @@ writer-held file inventories during generation retirement, source deletion and
 the source transaction's nested journal rotation. It does not qualify every
 transient storage operation or the full runtime resource composition.
 
+The later [FLOOR-prefix component](PHASE_3_CARRIED_PROCESS_FLOORS.md) composes
+actual creation/release file observations with this complete original chain.
+The retirement-only receipts below retain their original narrower scope.
+
 ## Original collection
 
 The [native fixture](../../../general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedPrefixProcessTest.java)

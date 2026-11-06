@@ -57,7 +57,18 @@ def successors(source,tail,files,node,cap):
          for h in (tail,old['entry'],entry['payload'])),'transition forces retained source tail')
 
 
-def maintenance(group_,node,*,campaign=False,prefixes=None):
+def floor_steps(initial,rows,files,writes,directories,*,peer_ledger=None):
+    """Project original floor writes/forces without reading captured bytes."""
+    state=retirement.s.physical(initial);steps=[]
+    if peer_ledger is not None:state[d.s.FILE]=dict(bytes=len(peer_ledger),sha256=e.digest(peer_ledger))
+    for at,row in enumerate(rows):
+        state.update({name:dict(directory=True) for name,index in directories.items() if index==at})
+        state.update({name:dict(bytes=len(files[name]),sha256=e.digest(files[name])) for name,index in writes.items() if index==at})
+        steps.append((row['event'],dict(state)))
+    return steps
+
+
+def maintenance(group_,node,*,campaign=False,prefixes=None,floor_prefixes=None,floor_peer_ledger=None):
     """Project every FLOOR, generation/source retirement and release callback."""
     expected=p.maintain(group_,(node,),campaign=campaign)[node]
     if expected==group_[node]:return [],dict(generations=0,sources=0,borrowed=0)
@@ -66,8 +77,16 @@ def maintenance(group_,node,*,campaign=False,prefixes=None):
     for peer in voters:
         prefix,members,_=c.current(group_[peer]);manifest=group_[peer][prefix+'generation.gsr']
         copies[peer]=dict(members=dict(members,**{'generation.gsr':manifest}),manifest=manifest,identity=d.future.identity(group_[peer]))
-    floor_rows,_,_,_=floor.transaction({e.digest(v['manifest']):v['members'] for v in copies.values()},
+    floor_rows,floor_files,writes,directories=floor.transaction({e.digest(v['manifest']):v['members'] for v in copies.values()},
                                       files['floor-copies/floor.gsr'],handoff=True)
+    if floor_prefixes is not None:
+        # The snapshot reducer reconciles a changed view before projecting the
+        # whole maintenance result. Runtime persists that peer change only after
+        # FLOOR_BEFORE_RETURN; creation still owns the original preceding ledger.
+        ledger=group_[node][d.s.FILE] if floor_peer_ledger is None else floor_peer_ledger
+        steps=floor_steps(group_[node],floor_rows,floor_files,writes,directories,peer_ledger=ledger)
+        need(steps[-1][1]==retirement.s.physical(dict(files,**{d.s.FILE:ledger})),'transition forces complete floor projection')
+        floor_prefixes.extend(('floor',point,state) for point,state in steps)
     events=[v['event'] for v in floor_rows];_,members,packet=c.current(files)
     for peer in (node,*(n for n in voters if n!=node)):
         if c.anchor(c.current(group_[peer])[2]['capsule'])==c.anchor(packet['capsule']):
@@ -93,6 +112,7 @@ def maintenance(group_,node,*,campaign=False,prefixes=None):
         selector=e.digest(files['selector.gsr']),files=[dict(path=k,size=len(v),sha256=e.digest(v))
             for k,v in sorted(files.items()) if k.startswith('floor-copies/') and v is not None]))
     steps=release.transaction(retirement.s.physical(files),authority);events.extend(v[0] for v in steps)
+    if floor_prefixes is not None:floor_prefixes.extend(('floor-release',point,state) for point,state in steps)
     need(steps[-1][1]==retirement.s.physical(expected),'transition forces final maintenance projection')
     return events,dict(generations=generations,sources=len(removed),borrowed=borrowed)
 
@@ -102,9 +122,13 @@ def maintenance_order(rows,node,expected):
     need(actual==expected,'transition forces exact maintenance callbacks')
 
 
-def bind_prefixes(rows,node,expected,collector):
+def floor_point(point):return point.startswith('FLOOR_') and point!='FLOOR_COPY_BEFORE_RETURN'
+
+
+def bind_prefixes(rows,node,expected,collector,*,floors=False):
     if collector is None:return
-    actual=[v for v in rows if v.get('node')==node and v['event'].startswith(retirement.s.PREFIXES)]
+    actual=[v for v in rows if v.get('node')==node and
+            (floor_point(v['event']) if floors else v['event'].startswith(retirement.s.PREFIXES))]
     need(len(actual)==len(expected),'transition forces complete retirement prefix count')
     for event,(kind,point,state) in zip(actual,expected):
         need(event['event']==point,'transition forces original retirement prefix boundary')
@@ -154,18 +178,21 @@ def cold(rows,before):
               expected,'transition forces cold exact recovery')
 
 
-def campaign(rows,before,installed,*,prefixes=None):
+def campaign(rows,before,installed,*,prefixes=None,floor_prefixes=None):
     chosen=f.decode(c.current(installed['node-1'])[1]['selected.gsr'],'records','SELECTED')
     voters=[v['voter'] for v in chosen['sources']]
     touched=[n for n in before if n in voters or before[n]['grants.gsr']!=installed[n]['grants.gsr']]
     reconciled=p.t.t.reconcile(before,touched);stats=[]
     for node in before:
         local=[] if prefixes is not None else None
-        events=names(rows,node);expected,detail=maintenance(reconciled,node,campaign=True,prefixes=local) if node in touched else ([],{})
+        floors=[] if floor_prefixes is not None else None
+        events=names(rows,node);expected,detail=maintenance(reconciled,node,campaign=True,prefixes=local,
+            floor_prefixes=floors,floor_peer_ledger=before[node][d.s.FILE]) if node in touched else ([],{})
         exact(events,('ACCEPT_','PROOF_','CERTIFICATE_','APPLY_','PUBLICATION_','COVERED_','FUTURE_RETENTION_','REPLAY_'),[],
               'transition forces campaign cannot execute a slot')
         maintenance_order(rows,node,expected);stats.append(detail)
         bind_prefixes(rows,node,local,prefixes)
+        bind_prefixes(rows,node,floors,floor_prefixes,floors=True)
         ledger_order(rows,node,before[node][d.s.FILE],installed[node][d.s.FILE])
         exact(events,('ALLOCATOR_',),list(allocator.CUTS) if node=='node-1' else [],'transition forces campaign allocator')
         if node in touched:
@@ -253,7 +280,7 @@ def publication_order(events,applied_files,published,peer,count):
     need(pending==1 and completed==0,'transition forces future completion/clear count')
 
 
-def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None):
+def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None,floor_prefixes=None):
     chosen=f.decode(c.current(before['node-1'])[1]['selected.gsr'],'records','SELECTED')
     voters=[v['voter'] for v in chosen['sources']];stats=[]
     accepting=copy.deepcopy(before)
@@ -268,9 +295,11 @@ def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None):
         exact(events,GRANTS,[],'transition forces slot cannot create a campaign')
         maintained=node in voters and (point is None or point=='PROOF_RENAMED' and node=='node-1')
         local=[] if prefixes is not None else None
-        expected,detail=maintenance(accepting if first else before,node,prefixes=local) if maintained else ([],{})
+        floors=[] if floor_prefixes is not None else None
+        expected,detail=maintenance(accepting if first else before,node,prefixes=local,floor_prefixes=floors) if maintained else ([],{})
         maintenance_order(rows,node,expected);stats.append(detail)
         bind_prefixes(rows,node,local,prefixes)
+        bind_prefixes(rows,node,floors,floor_prefixes,floors=True)
         if node not in voters or point=='ACCEPT_RENAMED' and node!='node-1':
             exact(events,('ACCEPT_','PROOF_','CERTIFICATE_','APPLY_','INSTALL_','PUBLICATION_','COVERED_',
                   'RETENTION_','FUTURE_RETENTION_','REPLAY_'),[],
@@ -305,11 +334,12 @@ def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None):
     return stats
 
 
-def replay(root,kind,point,*,prefixes=None):
+def replay(root,kind,point,*,prefixes=None,floor_prefixes=None):
     root=Path(root);result=process.read(root/'process/result.json');children=native.children(result,kind=kind)
     lives,_,_,_,_=process.observations(root,result,children);index,_,_=p.t.shape(kind);stats=[]
     for life,rows in enumerate(lives,1):
         collected=[] if prefixes is not None else None
+        floors=[] if floor_prefixes is not None else None
         cold(rows,group(root,'before-network' if life==1 else 'before-reopen'))
         start=max(i for i,v in enumerate(rows) if v['event']=='NODE_OPEN')
         covered=set(range(start+1))
@@ -318,28 +348,30 @@ def replay(root,kind,point,*,prefixes=None):
         for at,event in marks:
             if event=='ROUND_INSTALLED':
                 ordinal+=1;installed=group(root,f'life-{life}-installed-{ordinal}')
-                stats+=campaign(rows[start+1:at],before,installed,prefixes=collected)
+                stats+=campaign(rows[start+1:at],before,installed,prefixes=collected,floor_prefixes=floors)
                 covered.update(range(start+1,at))
             elif event=='ROUND_SLOT_BEGIN':slot_start=at
             elif event=='ROUND_SLOT_COMPLETE':
                 published=group(root,f'life-2-published-{index+ordinal-1}')
-                stats+=slot(rows[slot_start+1:at],installed,group(root,f'life-2-applied-{index+ordinal-1}'),published,first=ordinal==1,prefixes=collected)
+                stats+=slot(rows[slot_start+1:at],installed,group(root,f'life-2-applied-{index+ordinal-1}'),published,first=ordinal==1,prefixes=collected,floor_prefixes=floors)
                 covered.update(range(slot_start+1,at))
                 before=published;start=at
         if life==1:
-            stats+=slot(rows[slot_start+1:],installed,None,group(root,'at-cut'),first=True,point=point,prefixes=collected)
+            stats+=slot(rows[slot_start+1:],installed,None,group(root,'at-cut'),first=True,point=point,prefixes=collected,floor_prefixes=floors)
             covered.update(range(slot_start+1,len(rows)))
         for at,row in enumerate(rows):
             if row['event'].startswith(TRACKED) and row['event']!='FLOOR_COPY_BEFORE_RETURN':
                 need(at in covered,'transition forces storage callback outside operation')
                 if row['event']!='PUBLICATION_SEND_BOUNDARY':
                     need(set(row)=={'node','event','incarnation'},'transition forces callback shape')
-        if prefixes is not None:
-            positions={id(row):at for at,row in enumerate(rows)};used=[positions[id(row)] for row,_,_ in collected]
-            need(len(set(used))==len(used) and set(used)=={at for at,row in enumerate(rows) if row['event'].startswith(retirement.s.PREFIXES)},
+        for target,parts,is_floor in ((prefixes,collected,False),(floor_prefixes,floors,True)):
+            if target is None:continue
+            positions={id(row):at for at,row in enumerate(rows)};used=[positions[id(row)] for row,_,_ in parts]
+            need(len(set(used))==len(used) and set(used)=={at for at,row in enumerate(rows) if
+                 (floor_point(row['event']) if is_floor else row['event'].startswith(retirement.s.PREFIXES))},
                  'transition forces unbound retirement prefix')
-            prefixes.extend(dict(life=life,eventIndex=positions[id(row)],node=row['node'],point=row['event'],kind=kind_,files=state)
-                for row,kind_,state in sorted(collected,key=lambda v:positions[id(v[0])]))
+            target.extend(dict(life=life,eventIndex=positions[id(row)],node=row['node'],point=row['event'],kind=kind_,files=state)
+                for row,kind_,state in sorted(parts,key=lambda v:positions[id(v[0])]))
     return dict(status='PARTIAL',scope='carried-transition-storage-callbacks',coldOwners=8,
         campaigns=1+p.t.shape(kind)[1],generationRetirements=sum(v.get('generations',0) for v in stats),
         sourceRetirements=sum(v.get('sources',0) for v in stats),observedStorageCallbacks=True,
