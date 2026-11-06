@@ -28,6 +28,15 @@ def extents(source):
 
 def derive(reader):
     events=reader.events;result=[];used_starts=set();used_retirements=set();cold={};closes=closing.intervals(events)
+    from . import joining_owner_close
+    joined_closes=joining_owner_close.intervals(events,reader.model.joining) if any(
+        v.get('event','').startswith('JOINING_OWNER_') for v in events) else {}
+    def joining_close(segment,upper):
+        scope=events[segment['reserveBy']].get('scope')
+        need(scope in joined_closes,'basis resources original joining close scope')
+        _,begun,returned=joined_closes[scope]
+        need(segment['liveThrough']<begun<returned<upper,'basis resources joining close order')
+        segment.update(liveThrough=begun,releaseBy=returned,closeKind='joining-owner')
     # CURRENT_VALIDATED also occurs when one still-live owner loads a newly
     # published generation. Only the first opening of each independently
     # admitted joining-owner scope permits a close/reopen reservation interval.
@@ -56,7 +65,8 @@ def derive(reader):
             opened=events[at].get('scope')
             need(node==reader.model.joining and opened in REOPEN,'basis resources original reopen scope')
             prior=max(i for i in range(at) if events[i].get('node')==node)
-            segments[-1].update(liveThrough=prior,releaseBy=at)
+            if joined_closes:joining_close(segments[-1],at)
+            else:segments[-1].update(liveThrough=prior,releaseBy=at)
             ready=one(node,'JOINING_RETENTION_SEED_RECOVERY_FORCED',at,len(events),opened)
             floor=one(node,'CURRENT_DIRECTORY_FORCED',at,ready,opened)
             path=REOPEN[opened]
@@ -77,6 +87,8 @@ def derive(reader):
             cleared=[v for v in steps if v['point']=='SOURCE_RETIREMENT_CLEARED']
             need(len(deleted)==len(cleared)==1,'basis resources exact retirement deletion and clear')
             segments[-1].update(liveThrough=deleted[0]['capturedEvent'],releaseBy=cleared[0]['event'])
+        elif node==reader.model.joining and joined_closes:
+            joining_close(segments[-1],len(events))
         elif reopens and events[reopens[-1]].get('scope')=='stable-cold-owner':
             at=reopens[-1];opened=one(node,'FIXTURE_OPEN_RETURNED',at,len(events),'stable-cold-owner')
             closed=one(node,'FIXTURE_CLOSE_RETURNED',opened,len(events),'stable-cold-owner')

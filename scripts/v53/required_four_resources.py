@@ -7,12 +7,15 @@ from pathlib import Path
 from . import joined_file_negatives as files
 from . import joined_handoff_negatives as handoff
 from . import native_resource_negatives as accounting
+from . import owner_close_negatives as network_close
+from . import joining_owner_close_negatives as joining_close
 
 native=files.native
 need=native.need
 PROFILE='5-REPLACE-required-four'
 SCHEMA='gse-v53-required-four-resources-v1'
-NEGATIVES={'accounting':accounting.NEGATIVES,'handoff':handoff.NEGATIVES,'files':files.NEGATIVES}
+NEGATIVES={'accounting':accounting.NEGATIVES,'handoff':handoff.NEGATIVES,'files':files.NEGATIVES,
+           'network-close':network_close.NEGATIVES,'joining-close':joining_close.NEGATIVES}
 
 
 def check_original(value):
@@ -22,7 +25,9 @@ def check_original(value):
                                             'finalSourceCohortQualified','phase3Complete')),
          'required-four resources complete original accounting')
     for key,flag in (('joinedHandoffResources','continuousHandoffQualified'),
-                     ('joinedFileResources','originalFileCustodyQualified')):
+                     ('joinedFileResources','originalFileCustodyQualified'),
+                     ('ownerCloseResources','ownerCloseIntervalsQualified'),
+                     ('joinedOwnerCloses','joiningCloseIntervalsQualified')):
         part=value.get(key)
         need(type(part) is dict and part.get('status')=='PASS' and part.get(flag) is True and
              part.get('phase3Complete') is False,'required-four resources complete original '+key)
@@ -41,7 +46,7 @@ def check_result(value):
 
 def qualify(root,progress=None):
     root=Path(root);before=native.collection.inventory(root)
-    original=native.validate(root,PROFILE,progress,joined_files=True)
+    original=native.validate(root,PROFILE,progress,joined_files=True,joined_closes=True)
     check_original(original)
     if progress:progress(dict(stage='complete-resource-original',status='PASS'))
     index,traces,boundaries,events=native.load(root)
@@ -53,6 +58,8 @@ def qualify(root,progress=None):
         'accounting':accounting.replay((index,traces,boundaries,events),identities,index['root']),
         'handoff':handoff.replay((handoff.r.project(physical),events,traces,boundaries),progress),
         'files':files.replay((plan,events,traces,boundaries,files.r.transfers.load(root,index)),progress),
+        'network-close':network_close.replay((index,traces,boundaries,events,set(identities)-{plan['node']}),progress),
+        'joining-close':joining_close.replay((events,traces,boundaries,plan['node']),progress),
     }
     need(native.collection.inventory(root)==before,'required-four resources original changed')
     result=dict(schema=SCHEMA,status='PASS',profile=PROFILE,original=original,negatives=cases,

@@ -56,6 +56,11 @@ final class V53JoiningTrace {
             if(retirements!=null)retirements.at(node,scope,retirementReplica,event);
             if(publicationResources!=null)publicationResources.at(node,scope,resourceReplica,resources,event,index);};
     }
+    V53JoiningOwnerClose ownerClose(String scope,MembershipGrantJournal journal)throws java.io.IOException {
+        boolean enabled=Boolean.getBoolean("v53.resource.joined.close");
+        if(enabled && journal!=null)MembershipValidation.require(journal.activationIdentity().nodeId().value().equals(node),"joining close original owner");
+        return new V53JoiningOwnerClose(journal,enabled?cut(scope):event->{});
+    }
     /** Optional old-owner request observations. Keep their existing response
      * callbacks untouched; an attempted write is not proof of delivery. */
     static void requestObservation(List<Map<String,Object>> events,String node,String event,Decoded request) {

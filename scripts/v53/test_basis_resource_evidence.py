@@ -172,6 +172,31 @@ class BasisResourceDerivationTest(unittest.TestCase):
         reader.events[-1]['event']='MISSING'
         with self.assertRaisesRegex(ValueError,'owner close complete pair'):self.derive(reader,packet,files)
 
+    def test_each_joining_reopen_releases_between_actual_close_begin_and_return(self):
+        from . import joining_owner_close as close
+        reader,packet,files=self.model();events=[];captured=None;created=None
+        for scope in close.SCOPES:
+            names=['CURRENT_VALIDATED','CURRENT_DIRECTORY_FORCED','JOINING_RETENTION_SEED_RECOVERY_FORCED',close.OPEN]
+            if scope=='retaining-owner':names+=['CURRENT_BEFORE_CAPTURE','SOURCE_BEFORE_CREATE','GRANT_CAPTURED']
+            if scope=='stable-cold-owner':names+=['FIXTURE_OPEN_RETURNED']
+            names+=[close.BEGIN,close.RETURNED]
+            if scope=='stable-cold-owner':names+=['FIXTURE_CLOSE_RETURNED']
+            for name in names:
+                if name=='GRANT_CAPTURED':captured=len(events)
+                if name=='SOURCE_BEFORE_CREATE':created=len(events)
+                events.append(dict(node='node-6',scope=scope,event=name))
+        reader.events=events;reader.sources[0].update(start=captured,end=len(events));reader.capture_transactions=[]
+        spans=close.intervals(events,'node-6');result=self.derive(reader,packet,files);segments=result[0]['segments']
+        self.assertEqual(created,segments[0]['reserveBy']);self.assertEqual(4,len(segments))
+        for scope,segment in zip(close.SCOPES[1:],segments):
+            self.assertEqual(spans[scope][1],segment['liveThrough']);self.assertEqual(spans[scope][2],segment['releaseBy'])
+            self.assertEqual('joining-owner',segment['closeKind'])
+        # Treating the previous RETURNED as a still-live boundary would falsely
+        # require the old source to remain charged after the actual close.
+        self.assertTrue(all(v['liveThrough']<v['releaseBy'] for v in segments))
+        events[spans['retaining-owner'][2]]['event']='MISSING_RETURN'
+        with self.assertRaisesRegex(ValueError,'complete ordered lifetimes'):self.derive(reader,packet,files)
+
     def test_reopen_must_preserve_original_source_inventory_and_bytes(self):
         for mode in ('missing','changed','extra'):
             reader,packet,files=self.model();name=next(iter(files))

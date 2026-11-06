@@ -14,25 +14,25 @@ class RequiredFourResourcesTest(unittest.TestCase):
         order=[];original=replay()['original'];data=({'owners':[{'identity':{'node':'n'}}],'root':'root'}, {}, [], events or [])
         inventory=stack.enter_context(patch.object(m.native.collection,'inventory',return_value={'immutable':'original'}))
         def validation(*args,**kwargs):
-            order.append('original');self.assertEqual(kwargs,{'joined_files':True});self.assertEqual(args[1],m.PROFILE);return original
+            order.append('original');self.assertEqual(kwargs,{'joined_files':True,'joined_closes':True});self.assertEqual(args[1],m.PROFILE);return original
         validate=stack.enter_context(patch.object(m.native,'validate',side_effect=validation))
         stack.enter_context(patch.object(m.native,'load',return_value=data))
         stack.enter_context(patch.object(m.handoff.r,'original',return_value=SimpleNamespace(owner=object())))
-        stack.enter_context(patch.object(m.handoff.r,'project',return_value={'from':'original'}))
+        stack.enter_context(patch.object(m.handoff.r,'project',return_value={'from':'original','node':'n'}))
         stack.enter_context(patch.object(m.files.maintenance,'Replay'))
-        stack.enter_context(patch.object(m.files.r,'derive',return_value={'from':'original'}))
+        stack.enter_context(patch.object(m.files.r,'derive',return_value={'from':'original','node':'n'}))
         stack.enter_context(patch.object(m.files.r.transfers,'load',return_value={}))
-        for family,module in [('accounting',m.accounting),('handoff',m.handoff),('files',m.files)]:
+        for family,module in [('accounting',m.accounting),('handoff',m.handoff),('files',m.files),('network-close',m.network_close),('joining-close',m.joining_close)]:
             def negative(*args,family=family,**kwargs):
                 self.assertEqual('original',order[0]);order.append(family);return replay()['negatives'][family]
             stack.enter_context(patch.object(module,'replay',side_effect=negative))
         return order,inventory,validate,original
 
-    def test_one_complete_original_then_all_47_negatives(self):
+    def test_one_complete_original_then_all_71_negatives(self):
         with ExitStack() as stack:
             order,inventory,validate,_=self.setup_gate(stack);result=m.qualify('/synthetic')
-        self.assertEqual(['original','accounting','handoff','files'],order);self.assertEqual(1,validate.call_count)
-        self.assertEqual(2,inventory.call_count);self.assertEqual(47,sum(map(len,result['negatives'].values())))
+        self.assertEqual(['original','accounting','handoff','files','network-close','joining-close'],order);self.assertEqual(1,validate.call_count)
+        self.assertEqual(2,inventory.call_count);self.assertEqual(71,sum(map(len,result['negatives'].values())))
         m.check_result(result);self.assertFalse(result['combinedResourcesQualified']);self.assertFalse(result['phase3Complete'])
 
     def test_invalid_original_stops_before_loading_or_counting_mutations(self):
@@ -43,7 +43,7 @@ class RequiredFourResourcesTest(unittest.TestCase):
         load.assert_not_called();negatives.assert_not_called()
 
     def test_scope_and_required_original_bindings_cannot_be_missing_or_partial(self):
-        for label in ('status','profile','accounting','handoff','files','overclaim'):
+        for label in ('status','profile','accounting','handoff','files','network-close','joining-close','overclaim'):
             with ExitStack() as stack:
                 order,_,_,original=self.setup_gate(stack)
                 if label=='status':original['status']='PARTIAL'
@@ -51,6 +51,8 @@ class RequiredFourResourcesTest(unittest.TestCase):
                 elif label=='accounting':original['nativeBudgetAccountingQualified']=False
                 elif label=='handoff':original['joinedHandoffResources']['continuousHandoffQualified']=False
                 elif label=='files':original.pop('joinedFileResources')
+                elif label=='network-close':original.pop('ownerCloseResources')
+                elif label=='joining-close':original.pop('joinedOwnerCloses')
                 else:original['wholeRuntimeResourcesQualified']=True
                 with self.subTest(label=label),self.assertRaisesRegex(ValueError,'complete original'):m.qualify('/synthetic')
                 self.assertEqual(['original'],order)

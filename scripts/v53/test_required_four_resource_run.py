@@ -14,7 +14,9 @@ def replay():
     original=dict(status='PASS',profile=m.PROFILE,nativeBudgetAccountingQualified=True,physicalPeakQualified=False,
                   wholeRuntimeResourcesQualified=False,finalSourceCohortQualified=False,phase3Complete=False,
                   joinedHandoffResources=dict(status='PASS',continuousHandoffQualified=True,phase3Complete=False),
-                  joinedFileResources=dict(status='PASS',originalFileCustodyQualified=True,phase3Complete=False))
+                  joinedFileResources=dict(status='PASS',originalFileCustodyQualified=True,phase3Complete=False),
+                  ownerCloseResources=dict(status='PASS',ownerCloseIntervalsQualified=True,phase3Complete=False),
+                  joinedOwnerCloses=dict(status='PASS',joiningCloseIntervalsQualified=True,phase3Complete=False))
     return dict(schema=m.gate.SCHEMA,status='PASS',profile=m.PROFILE,original=original,
                 negatives={f:[dict(case=n,status='REJECTED',reason=r) for n,r in cases.items()] for f,cases in m.gate.NEGATIVES.items()},
                 originalFirst=True,originalPreserved=True,combinedResourcesQualified=False,phase3Complete=False)
@@ -62,7 +64,7 @@ class RequiredFourResourceRunTest(unittest.TestCase):
     def test_exact_method_flags_and_no_short_retry_or_budget_override(self):
         command=m.command(m.PROFILE)
         self.assertEqual('-Dtest='+m.CLASS+'#'+m.METHOD,next(v for v in command if v.startswith('-Dtest=')))
-        for option in ('joining.requiredFour','publication.resources','resource.transitions','transport.connections','resource.storage.transfers'):
+        for option in ('joining.requiredFour','publication.resources','resource.transitions','transport.connections','resource.storage.transfers','resource.owner.close','resource.joined.close'):
             self.assertIn('-Dv53.'+option+'=true',command)
         self.assertFalse(any('retry' in v.lower() or 'timeout' in v.lower() or 'skipTests' in v for v in command))
         for wrong in ('stable','5-REPLACE','3-ADD',True):

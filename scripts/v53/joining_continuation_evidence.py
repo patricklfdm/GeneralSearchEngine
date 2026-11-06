@@ -27,8 +27,15 @@ def cold_order(events, *, joining='node-4'):
     expected = ['CURRENT_VALIDATED', 'CURRENT_FILES_FORCED', 'CURRENT_GENERATION_FORCED', 'CURRENT_SELECTOR_FORCED', 'CURRENT_DIRECTORY_FORCED']
     expected += ['JOINING_RETENTION_'+name+'_RECOVERY_'+phase for name in ('SEED', 'DONE') for phase in ('FORCED', 'PARENT_FORCED')]
     expected += [prefix+phase for prefix in ('LEARNER_RETENTION_RECOVERY_', 'RETENTION_RECOVERY_') for phase in ('ACTIVE_FORCED', 'PARENT_FORCED')]
-    expected += ['FUTURE_RETENTION_RECOVERY_FORCED', 'FUTURE_RETENTION_RECOVERY_PARENT_FORCED', 'ACCEPT_ACTIVE_FORCED', 'ACCEPT_ACTIVE_PARENT_FORCED',
-                 'FIXTURE_OPEN_RETURNED', 'FIXTURE_CLOSE_RETURNED']
+    expected += ['FUTURE_RETENTION_RECOVERY_FORCED', 'FUTURE_RETENTION_RECOVERY_PARENT_FORCED', 'ACCEPT_ACTIVE_FORCED', 'ACCEPT_ACTIVE_PARENT_FORCED']
+    marked=any(row.get('event','').startswith('JOINING_OWNER_') for row in events)
+    if marked:
+        from . import joining_owner_close as close
+        # Optional observation must describe every original lifetime; never
+        # filter unknown/partial markers out of the physical event order.
+        close.intervals(events,joining)
+        expected += [close.OPEN,'FIXTURE_OPEN_RETURNED',close.BEGIN,close.RETURNED,'FIXTURE_CLOSE_RETURNED']
+    else:expected += ['FIXTURE_OPEN_RETURNED', 'FIXTURE_CLOSE_RETURNED']
     need(all(row.get('node') == joining for row in events if row.get('scope') == 'stable-cold-owner'),
          'joining continuation original cold owner')
     need([row['event'] for row in events if row.get('node') == joining and row.get('scope') == 'stable-cold-owner'] == expected,

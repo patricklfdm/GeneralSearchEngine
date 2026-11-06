@@ -130,7 +130,7 @@ jobs:
         with:
           name: v53-required-four-resources-raw-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
           path: target/v53-required-four-hosted/download-raw
-      - name: Admit complete resource history and 47 exact negatives
+      - name: Admit complete resource history and 71 exact negatives
         run: >-
           python -B -m scripts.v53.required_four_resource_hosted verify
           --seed target/v53-required-four-hosted/download-seed --inputs target/v53-required-four-hosted/download-raw

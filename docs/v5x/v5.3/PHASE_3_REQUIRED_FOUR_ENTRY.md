@@ -8,7 +8,7 @@ BARRIER or cold reopen across jobs. The entire original is produced once, then
 downloaded and replayed by a separate job.
 
 The implementation is ready for later hosted execution. The corrected-source
-native original and its 47 original-first negative results are **pending**.
+native original and its 71 original-first negative results are **pending**.
 Historical diagnostic results cannot fill this slot. This supplementary entry
 is outside the twelve-subset catalogue (566 histories, 260 execution groups,
 500 raw archives and 544 selected jobs); it adds one original and three jobs
@@ -36,9 +36,9 @@ is rejected. Failure retains the original, without a measurement retry.
 
 [`required_four_resource_run.py`](../../../scripts/v53/required_four_resource_run.py)
 accepts only `V53JoiningIntentExportTest#requiredFourVotersCompleteReplacementFinalAndStableBarrier`
-with all five observation properties enabled: `joining.requiredFour`,
-`publication.resources`, `resource.transitions`, `transport.connections`, and
-`resource.storage.transfers`. A prefix, missing flag, extra JUnit test, skipped
+with all seven observation properties enabled: `joining.requiredFour`,
+`publication.resources`, `resource.transitions`, `transport.connections`,
+`resource.storage.transfers`, `resource.owner.close`, and `resource.joined.close`. A prefix, missing flag, extra JUnit test, skipped
 test or Surefire rerun is rejected. Full source, generated classes, reader code,
 portable toolchain and raw inventories are checked before and after replay.
 
@@ -58,10 +58,12 @@ limit is the existing hosted execution ceiling, not a new experiment deadline.
 ## Original-first qualification
 
 [`required_four_resources.py`](../../../scripts/v53/required_four_resources.py)
-first calls the full native resource validator with `joined_files=True`.
+first calls the full native resource validator with `joined_files=True` and
+`joined_closes=True`.
 The existing physical, network, ledger, publication, source-request, transport,
-FLOOR, receiving, BASIS and owner-close checks remain mandatory. File transfer
-and continuous handoff must both have passed before any mutation can count.
+FLOOR, receiving, BASIS and owner-close checks remain mandatory. File transfer, continuous handoff, network shutdown and all five
+[joining journal close intervals](PHASE_3_JOINING_OWNER_CLOSE.md) must have passed
+before any mutation can count.
 All expected mappings are derived from the same original, including the actual
 predecessor/successor pairs for distinct equal-content images.
 
@@ -70,18 +72,20 @@ predecessor/successor pairs for distinct equal-content images.
 | Original budget journals and event bindings | 15 |
 | Continuous learner-to-voter custody and retirement | 19 |
 | Placed-file identity and actual transfer pairs | 13 |
-| Total | 47 |
+| Network owner close | 12 |
+| Joining owner close across five original lifetimes | 12 |
+| Total | 71 |
 
 Every case must match its exact name, order, rejection status and reason.
 Missing families, unrelated failures and an invalid original cannot satisfy
 this entry. Mutations operate on decoded copies; the original inventory must
 remain unchanged. Other resource/fault negative catalogues retain their own
-obligations and are not replaced by these 47 cases.
+obligations and are not replaced by these 71 cases.
 
 `observedResourcesQualified` covers only these observations. Successful replay
 still reports `combinedResourcesQualified=false` and `phase3Complete=false`.
 It does not establish simultaneous byte maxima, intermediate file lifetimes,
-all joining close intervals, process-death coverage, or final-source cohort
+physical shutdown order, process-death coverage, or final-source cohort
 admission. Those requirements remain in the
 [qualification plan](phase3-qualification-plan.json).
 
@@ -100,6 +104,6 @@ history was rerun in this batch. Validation details are retained locally under
 `target/v53-required-four-entry/`.
 
 After development, an authorized hosted execution must produce a new complete
-history on the corrected source and obtain all 47 exact negatives. The final
+history on the corrected source and obtain all 71 exact negatives. The final
 Phase 3 audit must bind that result to its complete source cohort; the entry's
 existence or its orchestration tests do not close that requirement.

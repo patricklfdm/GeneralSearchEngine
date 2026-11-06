@@ -413,7 +413,8 @@ class V53JoiningIntentExportTest {
                                                         joinedSnapshot(plan,config.materialization().directory(),n.f.raw.resolve("joining-originals-placed"));
                                                         System.out.println("v53JoiningIntentStage=actual-joined-placement");
                                                         try(var retired=MembershipLearnerJoinedRetirement.retire(joined,builder().configuration(),config,trace.cut("retirement"));
-                                                                var journal=MembershipGrantJournal.openJoined(retired,builder().configuration(),config,trace.cut("initial-owner"))) {
+                                                                var journal=MembershipGrantJournal.openJoined(retired,builder().configuration(),config,trace.cut("initial-owner"));
+                                                                var initialClose=trace.ownerClose("initial-owner",journal)) {
                                                             assertEquals(1,pool.usage().counts().get(MembershipResources.Unit.GENERATION));
                                                             assertFalse(pool.usage().counts().containsKey(MembershipResources.Unit.SOURCE));
                                                             if(maintainJoined) {
@@ -528,7 +529,7 @@ class V53JoiningIntentExportTest {
                                                                 if(initializeJoined) {
                                                                     if(initializationProcess!=null) {
                                                                         assertTrue(remoteRetention && continueJoint && !earlyStartup);
-                                                                        transport.close();joiningEndpoint.close();journal.close();
+                                                                        transport.close();joiningEndpoint.close();initialClose.close();
                                                                         V53JoiningInitializationProcess.run(n.f.raw,
                                                                             new V53JoiningInitializationProcess.Spec(plan,config.materialization().directory(),owner.activationIdentity()),
                                                                             initializationProcess,stageName->{
@@ -554,7 +555,7 @@ class V53JoiningIntentExportTest {
                                                                         System.out.println("v53JoiningIntentStage=remote-old-majority-retention-initialized-and-endpoint-promoted");
                                                                     }else if(continueJoint)journal.initializeJoinedRetention(originals);
                                                                     if(transport!=null)transport.close();if(joiningEndpoint!=null)joiningEndpoint.close();
-                                                                    journal.close();
+                                                                    initialClose.close();
                                                                     if(!continueJoint)initializeRetention(plan,pool,config,originals,seed,n.f.raw);
                                                                 }else {
                                                                     nativeCounter=journal.reserveCounter();
@@ -566,7 +567,8 @@ class V53JoiningIntentExportTest {
                                                             }
                                                             // Recovery owns the original joining root; it is never
                                                             // copied to manufacture a second initialization history.
-                                                            try(var recovered=initializeJoined?MembershipGrantJournal.reopenJoinedRetaining(plan,pool,builder().configuration(),config,trace.cut("retaining-owner")):null) {
+                                                            try(var recovered=initializeJoined?MembershipGrantJournal.reopenJoinedRetaining(plan,pool,builder().configuration(),config,trace.cut("retaining-owner")):null;
+                                                                    var recoveredClose=trace.ownerClose("retaining-owner",recovered)) {
                                                             var active=initializeJoined?recovered:journal;
                                                             if(!seedJoined || initializeJoined)nativeCounter=active.reserveCounter();
                                                             nativeBasis=active.prepareCurrent(Map.of("counter",nativeCounter,
@@ -581,7 +583,8 @@ class V53JoiningIntentExportTest {
                                             }
                                             assertEquals(0,pool.usage().leases());
                                             try(var journal=initializeJoined?MembershipGrantJournal.reopenJoinedRetaining(plan,pool,builder().configuration(),config,trace.cut("repeated-basis-owner")):
-                                                    MembershipGrantJournal.reopenJoined(plan,pool,builder().configuration(),config,trace.cut("repeated-basis-owner"))) {
+                                                    MembershipGrantJournal.reopenJoined(plan,pool,builder().configuration(),config,trace.cut("repeated-basis-owner"));
+                                                    var repeatedClose=trace.ownerClose("repeated-basis-owner",journal)) {
                                                 assertArrayEquals(nativeBasis.bytes(),journal.prepareCurrent(Map.of("counter",nativeCounter,
                                                         "proposer",joining.nodeId().value(),"incarnation",joining.storageId().toString())).bytes());
                                                 assertTrue(journal.reserveCounter()>nativeCounter);
@@ -629,7 +632,8 @@ class V53JoiningIntentExportTest {
         var events=new ArrayList<Object>();var failures=Collections.synchronizedList(new ArrayList<Object>());
         var result=new TreeMap<String,Object>();result.put("status","FAIL");result.put("publicReady",false);
         var selections=new ArrayList<Object>();var currentSelected=new java.util.concurrent.atomic.AtomicReference<Set<String>>();
-        try(var owner=MembershipGrantJournal.reopenJoinedRetaining(plan,resources,builder().configuration(),config,trace.cut("continuation-owner"))) {
+        try(var owner=MembershipGrantJournal.reopenJoinedRetaining(plan,resources,builder().configuration(),config,trace.cut("continuation-owner"));
+                var continuationClose=trace.ownerClose("continuation-owner",owner)) {
             var link=new java.util.concurrent.atomic.AtomicReference<MembershipTransport>();
             MembershipSourcePull.Link outgoing=(peer,request,kind,deadline)->{
                 var transport=link.get();return transport==null?java.util.concurrent.CompletableFuture.failedFuture(new java.io.IOException("joining listener starting")):
@@ -771,7 +775,8 @@ class V53JoiningIntentExportTest {
             Files.write(n.f.raw.resolve("joining-continuation-result.json"),canonical(result,65536));
         }
         assertEquals(0,resources.usage().leases());
-        try(var owner=MembershipGrantJournal.reopenJoinedRetaining(plan,resources,builder().configuration(),config,trace.cut("stable-cold-owner"))) {
+        try(var owner=MembershipGrantJournal.reopenJoinedRetaining(plan,resources,builder().configuration(),config,trace.cut("stable-cold-owner"));
+                var stableClose=trace.ownerClose("stable-cold-owner",owner)) {
             trace.cut("stable-cold-owner").at("FIXTURE_OPEN_RETURNED");
             assertEquals(stableIndex,number(owner.activationContext().cut.get("index")));owner.peerRetentionState();owner.learnerRetentionState();owner.futureRetentionState();
         }catch(Exception|Error error){result.put("status","FAIL");result.put("failure",error.toString());

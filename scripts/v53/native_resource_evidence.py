@@ -90,7 +90,8 @@ def bind_publications(transactions,boundaries):
     return count
 
 
-def validate(directory,profile='stable',progress=None,*,source_control=False,control_closes=False,export_ownership=False,direct_exports=False,joining_requests=False,joining_extents=False,published_probe=False,session_extents=False,complete_exports=False,voting_control=False,slot_control=False,activation_control=False,joined_files=False):
+def validate(directory,profile='stable',progress=None,*,source_control=False,control_closes=False,export_ownership=False,direct_exports=False,joining_requests=False,joining_extents=False,published_probe=False,session_extents=False,complete_exports=False,voting_control=False,slot_control=False,activation_control=False,joined_files=False,joined_closes=False):
+    need(type(joined_closes) is bool and (not joined_closes or profile=='5-REPLACE-required-four'), 'native resources joined closes policy')
     need(type(joined_files) is bool and (not joined_files or profile=='5-REPLACE-required-four'), 'native resources joined files policy')
     need(type(activation_control) is bool and (not activation_control or profile=='stable'), 'native resources activation control policy')
     need(type(slot_control) is bool and (not slot_control or profile=='stable'), 'native resources slot control policy')
@@ -113,6 +114,10 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
     need(type(direct_exports) is bool and (not direct_exports or export_ownership and profile in ('stable','5-REPLACE-required-four')),
          'native resources direct-export policy')
     root=Path(directory);before=collection.inventory(root)
+    if joined_closes:
+        from . import joining_owner_close
+        # Reject a historical unobserved original before expensive physical replay.
+        joining_owner_close.intervals(collection.read_json(root,'events.json',collection.EVENT_BYTES),'node-6')
     if joined_files:
         from . import storage_transfer_evidence
         captured=root/storage_transfer_evidence.DIRECTORY
@@ -134,6 +139,10 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
     result=replay(index,traces,boundaries,events,identities,authority)
     from . import owner_close_evidence
     closed=owner_close_evidence.replay(index,traces,boundaries,events,closing)
+    joining_closed=None
+    if joined_closes:
+        need(closed['status']=='PASS','native resources all network close intervals required')
+        joining_closed=joining_owner_close.replay(events,traces,boundaries,model.joining)
     transactions=publication.collect(root,events)
     count=bind_publications(transactions,boundaries)
     from . import publication_generation_resources
@@ -210,7 +219,7 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
     need(collection.inventory(root)==before,'native resources original changed')
     return dict(result,status=cleanup['status'] if cleanup else result['status'],scope='native-owner-accounting-with-original-publication-boundaries',profile=profile,
                 precondition=preceding,publicationResources=physical,publicationBoundaries=count,publicationGenerationResources=generations,transportResources=transport,
-                floorResources=floors,receivingResources=receiving,basisResources=bases,ownerCloseResources=closed,joinedHandoffResources=joined,joinedFileResources=files,
+                floorResources=floors,receivingResources=receiving,basisResources=bases,ownerCloseResources=closed,joinedOwnerCloses=joining_closed,joinedHandoffResources=joined,joinedFileResources=files,
                 sourceControlResources=source_result,sourceCleanupIntervals=cleanup,directExportOwnership=direct,publishedPrefixProbe=published,exportAllocationCoverage=export_coverage,
                 votingControlResources=voting,slotControlResources=slots,activationControlResources=activation,physicalPeakQualified=False,controlLifetimesQualified=False,finalSourceCohortQualified=False)
 
@@ -220,5 +229,5 @@ if __name__=='__main__':
     p.add_argument('--profile',choices=('stable','5-REPLACE-required-four'),default='stable')
     p.add_argument('--source-control',action='store_true');p.add_argument('--control-closes',action='store_true')
     p.add_argument('--export-ownership',action='store_true');p.add_argument('--direct-exports',action='store_true');p.add_argument('--joining-requests',action='store_true')
-    p.add_argument('--joining-extents',action='store_true');p.add_argument('--published-probe',action='store_true');p.add_argument('--session-extents',action='store_true');p.add_argument('--complete-exports',action='store_true');p.add_argument('--voting-control',action='store_true');p.add_argument('--slot-control',action='store_true');p.add_argument('--activation-control',action='store_true');p.add_argument('--joined-files',action='store_true');a=p.parse_args()
-    print(json.dumps(validate(a.root,a.profile,source_control=a.source_control,control_closes=a.control_closes,export_ownership=a.export_ownership,direct_exports=a.direct_exports,joining_requests=a.joining_requests,joining_extents=a.joining_extents,published_probe=a.published_probe,session_extents=a.session_extents,complete_exports=a.complete_exports,voting_control=a.voting_control,slot_control=a.slot_control,activation_control=a.activation_control,joined_files=a.joined_files),sort_keys=True))
+    p.add_argument('--joining-extents',action='store_true');p.add_argument('--published-probe',action='store_true');p.add_argument('--session-extents',action='store_true');p.add_argument('--complete-exports',action='store_true');p.add_argument('--voting-control',action='store_true');p.add_argument('--slot-control',action='store_true');p.add_argument('--activation-control',action='store_true');p.add_argument('--joined-files',action='store_true');p.add_argument('--joined-closes',action='store_true');a=p.parse_args()
+    print(json.dumps(validate(a.root,a.profile,source_control=a.source_control,control_closes=a.control_closes,export_ownership=a.export_ownership,direct_exports=a.direct_exports,joining_requests=a.joining_requests,joining_extents=a.joining_extents,published_probe=a.published_probe,session_extents=a.session_extents,complete_exports=a.complete_exports,voting_control=a.voting_control,slot_control=a.slot_control,activation_control=a.activation_control,joined_files=a.joined_files,joined_closes=a.joined_closes),sort_keys=True))

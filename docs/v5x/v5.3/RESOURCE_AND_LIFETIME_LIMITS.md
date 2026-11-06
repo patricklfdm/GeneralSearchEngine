@@ -1,10 +1,16 @@
 # V5.3 bounded resources and lifetime
 
+[Five joining journal closes](PHASE_3_JOINING_OWNER_CLOSE.md) now have explicit
+original open/begin/return observations. The resource entry binds persistent
+BASIS storage through each actual close invocation; terminal zero totals alone
+cannot substitute. Complete native execution and physical peak limits remain open.
+
 [Original placed-file custody](PHASE_3_JOINED_FILE_RESOURCES.md) adds explicit
 predecessor/successor observations to the joined-owner accounting reader. The
 strict entry derives original file identities and pre-custody transfer IDs;
-equal-size images cannot exchange owners unnoticed. Intermediate writes,
-explicit joining shutdown and complete runtime maxima remain separate obligations.
+equal-size images cannot exchange owners unnoticed. Intermediate writes, physical
+shutdown order and complete runtime maxima remain separate obligations; observed
+joining close intervals use the entry above.
 
 [Membership capacity completion](PHASE_3_CAPACITY_COMPLETION.md) adds a
 conditional-prefix owner continuation at the last admissible fixed-history

@@ -1,9 +1,16 @@
 # Phase 3 qualification inventory and remaining work
 
+[Joining journal close intervals](PHASE_3_JOINING_OWNER_CLOSE.md) now bind all
+five joining owner lifetimes to actual open/close calls and resource sequences.
+Persistent BASIS bytes remain charged through close begin and release by return.
+The required-four entry requires these observations plus network-owner closes,
+with 71 exact negatives. Short real-journal checks are component evidence only;
+complete corrected-source native execution and Phase 3 closure remain pending.
+
 [Required-four resource execution](PHASE_3_REQUIRED_FOUR_ENTRY.md) now provides
 an immutable producer and independent downloaded replay for one complete
 required-four history. The original must pass physical/network/resource and
-file-custody checks before all 47 exact accounting/handoff/file negatives.
+file-custody checks before all 71 exact accounting/handoff/file/close negatives.
 The corrected-source native execution is deferred to the hosted batch; local
 orchestration and historical transport checks confer no native credit. This
 supplementary three-job entry changes no existing catalogue counts or limits.
