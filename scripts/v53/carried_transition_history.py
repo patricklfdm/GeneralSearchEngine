@@ -23,14 +23,20 @@ from . import carried_transition_prefixes as prefixes
 from . import native_carried_capture_history as process
 
 need=h.need;read=shared.read;reader_manifest=shared.reader_manifest;BUILDS=shared.BUILDS
-SCHEMA='gse-v53-carried-transition-history-execution-v2'
-COHORT='gse-v53-carried-transition-history-cohort-v2'
+SCHEMA='gse-v53-carried-transition-history-execution-v3'
+COHORT='gse-v53-carried-transition-history-cohort-v3'
 PACKAGE='io.github.patricklfdm.generalsearch.replication.'
 METHODS={
     'intent':('V53CarriedTransitionDriverTest','carriedIntentFinishesBeforeFreshStableBarrier','v53-native-dispatch'),
     'final':('V53CarriedTransitionDriverTest','carriedFinalFinishesBeforeFreshStableBarrier','v53-native-dispatch'),
     'intent-accept-halt':('V53NativeCarriedReplayPrefixProcessTest','intentAcceptHalt','v53-native-carried-replay-prefixes'),
     'final-proof-kill':('V53NativeCarriedReplayPrefixProcessTest','finalProofKill','v53-native-carried-replay-prefixes'),
+    'intent-accept-kill':('V53NativeCarriedReplayPrefixProcessTest','intentAcceptKill','v53-native-carried-replay-prefixes'),
+    'intent-proof-halt':('V53NativeCarriedReplayPrefixProcessTest','intentProofHalt','v53-native-carried-replay-prefixes'),
+    'intent-proof-kill':('V53NativeCarriedReplayPrefixProcessTest','intentProofKill','v53-native-carried-replay-prefixes'),
+    'final-accept-halt':('V53NativeCarriedReplayPrefixProcessTest','finalAcceptHalt','v53-native-carried-replay-prefixes'),
+    'final-accept-kill':('V53NativeCarriedReplayPrefixProcessTest','finalAcceptKill','v53-native-carried-replay-prefixes'),
+    'final-proof-halt':('V53NativeCarriedReplayPrefixProcessTest','finalProofHalt','v53-native-carried-replay-prefixes'),
 }
 CASES=tuple(METHODS)
 

@@ -37,7 +37,7 @@ jobs:
           persist-credentials: false
       - name: Set up pinned tools
         uses: ./.github/actions/v53-process-setup
-      - name: Plan two whole histories
+      - name: Plan whole histories
         id: plan
         run: |
           plan=$(python -B -m scripts.v53.carried_transition_history_hosted plan)

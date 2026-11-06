@@ -86,7 +86,7 @@ class Phase3SeedCohortTest(unittest.TestCase):
     def test_all_twelve_real_seed_readers_accept_different_archives_and_reader_sets(self):
         before={n:c.bundle_identity(self.inputs/n) for n in self.modules}
         result=self.run_gate()
-        self.assertEqual(('PARTIAL',12,554,0),tuple(result[k] for k in ('status','subsets','plannedHostedHistories','historiesReplayed')))
+        self.assertEqual(('PARTIAL',12,560,0),tuple(result[k] for k in ('status','subsets','plannedHostedHistories','historiesReplayed')))
         self.assertTrue(result['seedCohortVerified']);self.assertFalse(result['workflowExecutionAttested'])
         self.assertFalse(result['runtimeQualified']);self.assertFalse(result['phase3Complete'])
         self.assertEqual(12,len({v['archiveSha256'] for v in result['seeds'].values()}))

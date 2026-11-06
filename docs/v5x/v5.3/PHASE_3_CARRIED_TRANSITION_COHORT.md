@@ -1,7 +1,7 @@
 # Native carried INTENT / FINAL admission
 
 Phase 3 remains **OPEN**. The [cohort entry](../../../scripts/v53/carried_transition_history.py)
-binds four complete four-voter REMOVE histories to one recorded source, compiled
+binds ten complete four-voter REMOVE histories to one recorded source, compiled
 build, portable toolchain and reader. It composes the existing physical,
 network, export, ledger, retirement and [actual-prefix readers](PHASE_3_CARRIED_TRANSITION_PREFIXES.md).
 It does not turn older development receipts into final-source admission.
@@ -14,6 +14,7 @@ It does not turn older development receipts into final-source admission.
 | `final` | FINAL at index 6 | Carried FINAL, fresh stable BARRIER | 301 |
 | `intent-accept-halt` | INTENT at index 5 | Group halt after ACCEPT rename, reopen original disks, fresh BARRIER | 210 |
 | `final-proof-kill` | FINAL at index 6 | Group SIGKILL after PROOF rename, reopen original disks, fresh BARRIER | 210 |
+| Other six INTENT/FINAL × ACCEPT/PROOF × halt/SIGKILL combinations | Index 5 or 6 | Same full-capture fixture, exact original directories and fresh BARRIER | 210 each |
 
 The first two histories use one exact, unretried `V53CarriedTransitionDriverTest` method
 with `-Dv53.carried.retirement.captures=true`. The original vote, selected
@@ -48,9 +49,9 @@ inside the complete prefix result. Exact negative rows retain their original
 reasons and prerequisites; truncation, unrelated failures, changed authority or
 inflated scope block admission. Original and sidecar inventories are checked
 again after replay. Distinct producer directories and bootstrap plans are
-required. These first two histories retain **602 checks**. The [two process
-histories](PHASE_3_CARRIED_CAPTURE_COHORT.md) add 420 capture/owner checks after
-the complete original process/storage/protocol/resource chain: **1,022 total**.
+required. These first two histories retain **602 checks**. The [eight process
+histories](PHASE_3_CARRIED_CAPTURE_COHORT.md) add 1,680 capture/owner checks after
+the complete original process/storage/protocol/resource chain: **2,282 total**.
 
 ## Local entry
 
@@ -64,7 +65,8 @@ python3 -B -m scripts.v53.carried_transition_history capture "$OUT/inputs/intent
   --case intent --maven /opt/maven/bin/mvn
 python3 -B -m scripts.v53.carried_transition_history capture "$OUT/inputs/final" \
   --case final --maven /opt/maven/bin/mvn --source-from "$OUT/inputs/intent"
-for CASE in intent-accept-halt final-proof-kill; do
+for CASE in intent-accept-halt final-proof-kill intent-accept-kill intent-proof-halt \
+            intent-proof-kill final-accept-halt final-accept-kill final-proof-halt; do
   python3 -B -m scripts.v53.carried_transition_history capture "$OUT/inputs/$CASE" \
     --case "$CASE" --maven /opt/maven/bin/mvn --source-from "$OUT/inputs/intent"
 done
@@ -106,10 +108,11 @@ pending for the final implementation source.
 
 ## Scope and rollback
 
-A component PASS qualifies this declared four-history set only. Public readiness,
+A component PASS qualifies this declared ten-history set only. Public readiness,
 process-death, other membership profiles, combined resource peaks, autonomous
 competition, complete physical fault coverage, power loss and Phase 3 closure
 remain false. Other carried payload/process axes remain separate obligations.
 No runtime Java, POM, protocol limit, Required job or cloud workflow changes.
-Rollback removes this optional entry and its inventory references, preserving
-the existing producer/readers and every original development receipt.
+For the v3 expansion, rollback restores the previous four-case adapter, receipt
+versions, tests and catalogue bindings together. Preserve the existing readers
+and every original development receipt.

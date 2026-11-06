@@ -2,7 +2,8 @@
 
 Collection is inventory only. Admission first replays the entire original chain,
 then each capture family's exact negatives and balanced storage-owner negatives.
-The two declared axes do not establish the complete crash/resource envelope.
+The ACCEPT/PROOF death matrix does not establish the full resource envelope or
+application-ACK, other membership profiles, or physical power-loss behavior.
 """
 import json
 import re
@@ -20,7 +21,13 @@ from . import native_carried_replay_prefixes as replay_prefixes
 
 need=h.need
 CASES={'intent-accept-halt':('INTENT','ACCEPT_RENAMED','halt'),
-       'final-proof-kill':('FINAL','PROOF_RENAMED','kill')}
+       'final-proof-kill':('FINAL','PROOF_RENAMED','kill'),
+       'intent-accept-kill':('INTENT','ACCEPT_RENAMED','kill'),
+       'intent-proof-halt':('INTENT','PROOF_RENAMED','halt'),
+       'intent-proof-kill':('INTENT','PROOF_RENAMED','kill'),
+       'final-accept-halt':('FINAL','ACCEPT_RENAMED','halt'),
+       'final-accept-kill':('FINAL','ACCEPT_RENAMED','kill'),
+       'final-proof-halt':('FINAL','PROOF_RENAMED','halt')}
 FAMILIES=(('prefixes',retirement),('floors',floor),('campaigns',campaign),
           ('votes',vote),('completion',completion),('ledgers',ledger),('replay',replay_prefixes))
 PATHS={'replay':'.','ledgers':'previous','completion':'previous/previous',

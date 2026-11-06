@@ -147,15 +147,15 @@ class HistoryCohortTest(unittest.TestCase):
     def test_all_486_original_archives_route_to_246_whole_groups_and_twelve_owners(self):
         before = c.raw_inventory(self.inputs, self.f.index, self.f.modules, self.catalogs)
         value = self.run_gate()
-        self.assertEqual((488, 248, 554), (value['rawArchives'], value['groupsReplayed'], value['historiesReplayed']))
-        self.assertEqual(248, len(self.verified)); self.assertEqual(list(self.f.modules), self.aggregated)
+        self.assertEqual((494, 254, 560), (value['rawArchives'], value['groupsReplayed'], value['historiesReplayed']))
+        self.assertEqual(254, len(self.verified)); self.assertEqual(list(self.f.modules), self.aggregated)
         self.assertEqual('PARTIAL', value['status']); self.assertTrue(value['allDeclaredHistoriesReplayed'])
         for key in ('phase3Complete','runtimeQualified','workflowExecutionAttested',
                     'frozenScenarioCoverageQualified','combinedPeakResourcesQualified'):
             self.assertIs(False, value[key])
         self.assertEqual(before, c.raw_inventory(self.inputs, self.f.index, self.f.modules, self.catalogs))
         self.assertFalse(list(self.output.rglob('scratch-*')))
-        self.assertEqual(248, len(list(self.output.glob('*/groups/*/progress.jsonl'))))
+        self.assertEqual(254, len(list(self.output.glob('*/groups/*/progress.jsonl'))))
         coverage = c.seeds.read(self.output/'coverage.json')
         self.assertEqual((17, 3), (coverage['rejected'], coverage['notApplicable']))
         self.assertEqual('PARTIAL', coverage['status']); self.assertFalse(coverage['phase3Complete'])

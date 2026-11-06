@@ -37,7 +37,7 @@ def qualification(name, unit):
 
 
 def group_fixture(name, group, ctx, archive_hashes):
-    """Known synthetic shapes also used by the 488-archive orchestration test."""
+    """Known synthetic shapes also used by the 494-archive orchestration test."""
     adapter = seeds.adapters()[name]
     def member(unit):
         field = 'profile' if name == 'profiles' else 'case'

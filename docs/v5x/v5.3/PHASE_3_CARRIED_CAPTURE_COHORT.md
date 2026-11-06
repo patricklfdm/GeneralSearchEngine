@@ -1,15 +1,21 @@
 # Phase 3 — source-bound carried process captures
 
 Phase 3 remains **OPEN**. The existing carried-transition cohort now declares
-four whole histories. Its original `intent` and `final` members retain all six
-reader layers and 602 exact negatives. Two new members use the existing
+ten whole histories. Its original `intent` and `final` members retain all six
+reader layers and 602 exact negatives. Eight process members use the shared
 `V53NativeCarriedReplayPrefixProcessTest` methods without changing Java runtime,
 storage formats, resource limits, workload parameters or the crash schedule.
 
-| New member | Native method | Original process boundary |
+| Process member | Native method | Original process boundary |
 | --- | --- | --- |
 | `intent-accept-halt` | `intentAcceptHalt` | Four-voter REMOVE; halt after inherited INTENT ACCEPT rename |
 | `final-proof-kill` | `finalProofKill` | Four-voter REMOVE; SIGKILL after inherited FINAL PROOF rename |
+| `intent-accept-kill` | `intentAcceptKill` | Four-voter REMOVE; SIGKILL after inherited INTENT ACCEPT rename |
+| `intent-proof-halt` | `intentProofHalt` | Four-voter REMOVE; halt after inherited INTENT PROOF rename |
+| `intent-proof-kill` | `intentProofKill` | Four-voter REMOVE; SIGKILL after inherited INTENT PROOF rename |
+| `final-accept-halt` | `finalAcceptHalt` | Four-voter REMOVE; halt after inherited FINAL ACCEPT rename |
+| `final-accept-kill` | `finalAcceptKill` | Four-voter REMOVE; SIGKILL after inherited FINAL ACCEPT rename |
+| `final-proof-halt` | `finalProofHalt` | Four-voter REMOVE; halt after inherited FINAL PROOF rename |
 
 The first JVM owns all four stores until the declared group death. The second
 opens the same original directories, completes the inherited command and fresh
@@ -19,9 +25,9 @@ in one archive. No job boundary splits one authority or continuous history.
 
 ## Admission
 
-The local execution/cohort and hosted receipt schemas advance to v2. A v1
-two-member success cannot satisfy the larger catalogue. The dynamic workflow
-matrix uses the new four cases while retaining maximum parallelism two, pinned
+The local execution/cohort and hosted receipt schemas advance to v3. Earlier
+v1 two-member or v2 four-member successes cannot satisfy the larger catalogue. The dynamic workflow
+matrix uses all ten cases while retaining maximum parallelism two, pinned
 tools/actions, offline dependencies, no native retries, once-per-minute progress,
 90-day failure retention and separate downloaded verifiers. Ordinary Required
 CI, cloud and release workflows are unchanged.
@@ -68,16 +74,44 @@ remains in the original archive and is replayed on download. Summary generation
 changes no original and raises no read limit; a test exercises an oversized
 mapping and validates the result through the existing bounded reader.
 
-The whole subset therefore requires four distinct originals and **1,022 exact
+The whole subset therefore requires ten distinct originals and **2,282 exact
 negative results**. The broader source catalogue remains twelve subsets, now
-**554 histories, 248 execution groups, 488 raw archives and 520 selected jobs**.
+**560 histories, 254 execution groups, 494 raw archives and 532 selected jobs**.
 The qualification plan and complete negative-selector hash change together;
 twenty existing requirement witnesses remain intact. Counts describe planned
 work, not successful execution or coverage inferred from totals.
 
 ## Verification and limits
 
-Development checks are retained under `target/v53-carried-capture-cohort`.
+The v3 expansion connects the six remaining ACCEPT/PROOF combinations. The
+original two case methods retain their same behavior. New methods call the same
+full-capture fixture with exact kind/cut/mode; every child, history and collector
+remains indivisible. The six new native executions await the final hosted matrix.
+The local INTENT pilot runs the immutable v2 source `3cff6932`, separately from
+this v3 expansion; its outcome is recorded without mixing source identities.
+
+The INTENT/ACCEPT/halt pilot now passes exact-source member admission after a
+complete producer-directory copy. All 5,306 recorded source files match commit
+`3cff69328bf0111b86ece64cf7073b23df23ca57`. Its single unretried native test took
+653.498 seconds; the first child exited at the declared halt (73), and the
+second reopened the same original stores, completed the inherited operation and
+fresh barrier, then closed normally (0). Portable original-first qualification
+passed all 210 exact capture/owner negatives in 1,097.846 seconds, covering
+4,713 captured callbacks. All 11,522 original files (90,057,799 bytes), recorded
+classes and source inventories remained unchanged. The bounded member receipt
+is 85,573 bytes.
+
+This is one v2 local member, not a complete v2 or v3 cohort and not hosted
+execution. Its recorded Ubuntu OpenJDK 21.0.12.1 / Maven 3.9.11 toolchain is
+retained explicitly; it cannot replace the hosted seed. The current v3 expansion
+passes 410 related Python tests, 53 focused tests with assertions disabled,
+85 orchestration tests (overlapping the related suite), Java test compilation
+and the documentation contract. None of the six new native methods was executed
+by the compilation check. Exact references are in the
+[process matrix development receipt](phase3-evidence/carried-process-matrix-development.json),
+with local originals and logs under `target/v53-intent-capture-admission`.
+
+Earlier development checks remain under `target/v53-carried-capture-cohort`.
 The source-bound producer, archive/download, verifier, aggregate and all-twelve
 orchestration tests use explicitly synthetic fixtures. A replay of the retained
 FINAL/PROOF/SIGKILL pilot checks the real reader composition without rerunning
@@ -94,9 +128,9 @@ The collected inventory itself occupies 2,045,407 bytes and also passes the
 bounded JSON round trip. Test logs and digest references are in the
 [development receipt](phase3-evidence/carried-capture-cohort-development.json).
 
-Final-source native execution/downloaded replay of all four members is pending.
-The second seven-family INTENT/halt capture has an entry but no successful run
-is inferred from the FINAL pilot. Other crash/profile axes, application-ACK
+Final-source native execution/downloaded replay of all ten members is pending.
+Each process axis requires its own exact original; no successful result is
+inferred from a different kind, cut, death mode or earlier catalogue version. Other crash/profile axes, application-ACK
 captures, continuous full runtime resource maxima, remaining coverage
 obligations and phase-wide hosted attestation remain open. Existing broad
 `processDeathQualified`, `wholeRuntimeResourcesQualified` and `phase3Complete`
@@ -104,6 +138,6 @@ flags stay false. This batch neither dispatches workflows nor runs paid cloud.
 
 Use the existing [local cohort commands](PHASE_3_CARRIED_TRANSITION_COHORT.md)
 or [opt-in hosted entry](PHASE_3_CARRIED_TRANSITION_HOSTED.md) on one frozen source.
-Rollback restores the previous two-case adapter, receipt versions, tests and
+Rollback restores the previous four-case adapter, receipt versions, tests and
 catalogue hashes together. Preserve all original and failed artifacts; no Java
 runtime rollback or persisted-data migration is involved.

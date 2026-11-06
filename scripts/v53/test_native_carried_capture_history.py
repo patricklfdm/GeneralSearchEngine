@@ -109,11 +109,14 @@ class NativeCarriedCaptureHistoryTest(unittest.TestCase):
         following.assert_not_called()
 
     def test_all_negative_reasons_are_part_of_the_catalogue(self):
+        from itertools import product
+        self.assertEqual(set(product(('INTENT','FINAL'),('ACCEPT_RENAMED','PROOF_RENAMED'),('halt','kill'))),set(m.CASES.values()))
+        self.assertEqual(8,len(m.CASES))
         self.assertEqual(m.negative_cases('intent-accept-halt'),m.negative_cases('final-proof-kill'))
         rows=m.negative_cases(self.case)
         self.assertEqual(210,len({(v['suite'],v['case']) for v in rows}))
         self.assertEqual(10,sum(v['suite']=='ownership' for v in rows))
-        for case in ('intent','final','final-proof-halt',False):
+        for case in ('intent','final','final-application-halt',False):
             with self.assertRaisesRegex(ValueError,'exact case'):m.negative_cases(case)
 
     def test_compact_receipt_retains_digest_binding_within_existing_reader_limit(self):

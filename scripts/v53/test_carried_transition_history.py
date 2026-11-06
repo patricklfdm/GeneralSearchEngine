@@ -89,7 +89,7 @@ class CarriedTransitionHistoryTest(unittest.TestCase):
         with patch.object(m,'ProcessPoolExecutor',ThreadPoolExecutor):return m.aggregate(self.paths if paths is None else paths,*self.pins,**kwargs)
 
     def test_catalogue_uses_complete_native_methods_without_retry_or_case_filter(self):
-        self.assertEqual(4,len(m.CASES));self.assertEqual((1,)*4,tuple(len(m.histories(k)) for k in m.CASES))
+        self.assertEqual(10,len(m.CASES));self.assertEqual((1,)*10,tuple(len(m.histories(k)) for k in m.CASES))
         for case,(cls,method,_) in m.METHODS.items():
             text=(m.h.ROOT/m.h.MODULE/('src/test/java/'+m.PACKAGE.replace('.','/')+cls+'.java')).read_text()
             self.assertIn('void '+method+'()',text)
@@ -167,8 +167,8 @@ class CarriedTransitionHistoryTest(unittest.TestCase):
 
     def test_complete_two_histories_replay_once_and_preserve_scope(self):
         with patch.object(m,'replay',side_effect=lambda raw,case:replay(case)) as reader:result=self.aggregate(workers=4)
-        self.assertEqual(4,reader.call_count);self.assertEqual('PASS',result['status'])
-        self.assertEqual(4,result['nativeCases']);self.assertEqual(4,result['wholeOwnershipHistories']);self.assertEqual(1022,result['negativeCases'])
+        self.assertEqual(10,reader.call_count);self.assertEqual('PASS',result['status'])
+        self.assertEqual(10,result['nativeCases']);self.assertEqual(10,result['wholeOwnershipHistories']);self.assertEqual(2282,result['negativeCases'])
         for key in ('phase3Complete','combinedPeakResourcesQualified','autonomousCompetitionQualified','completePhysicalQualified','powerLossQualified','processDeathQualified'):
             self.assertIs(False,result[key])
 
@@ -177,7 +177,7 @@ class CarriedTransitionHistoryTest(unittest.TestCase):
             if case==self.case:raise ValueError('original failed')
             return replay(case)
         with patch.object(m,'replay',side_effect=failed) as reader:result=self.aggregate(workers=4)
-        self.assertEqual(4,reader.call_count);self.assertEqual('FAIL',result['status'])
+        self.assertEqual(10,reader.call_count);self.assertEqual('FAIL',result['status'])
         self.assertEqual('original failed',result['cases'][0]['failure']['message']);self.assertTrue(all(v['status']=='PASS' for v in result['cases'][1:]))
 
     def test_missing_negatives_stages_or_inflated_scope_never_pass(self):
@@ -230,8 +230,9 @@ class CarriedTransitionHistoryTest(unittest.TestCase):
         self.test_capture_uses_frozen_collector_one_command_and_preserves_source()
 
     def test_old_two_case_schema_cannot_satisfy_the_expanded_catalogue(self):
-        self.receipt(schema='gse-v53-carried-transition-history-execution-v1')
-        with self.assertRaisesRegex(ValueError,'successful unretried producer'):self.member()
+        for version in (1,2):
+            self.receipt(schema=f'gse-v53-carried-transition-history-execution-v{version}')
+            with self.assertRaisesRegex(ValueError,'successful unretried producer'):self.member()
 
     def test_native_member_rejects_external_sidecar_and_mixed_axes(self):
         self.case='final-proof-kill';self.path=self.paths[self.case]

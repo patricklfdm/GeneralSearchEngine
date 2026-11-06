@@ -1,11 +1,11 @@
 # V5.3 — controlled cluster operations
 
-[Carried capture cohort](PHASE_3_CARRIED_CAPTURE_COHORT.md) adds two complete
-process histories to the existing carried-transition entry: INTENT/ACCEPT/halt
-and FINAL/PROOF/SIGKILL. Seven captured families and original storage ownership
-are replayed before 210 exact negatives per new history. The four-history subset
-keeps all prior checks; the twelve-subset plan now declares 554 histories, 248
-execution groups and 488 raw archives. Final-source execution and Phase 3 closure
+[Carried capture cohort](PHASE_3_CARRIED_CAPTURE_COHORT.md) declares all eight
+INTENT/FINAL × ACCEPT/PROOF × halt/SIGKILL process histories in the existing
+carried-transition entry. Seven captured families and original storage ownership
+are replayed before 210 exact negatives per new history. The ten-history subset
+keeps all prior checks; the twelve-subset plan now declares 560 histories, 254
+execution groups and 494 raw archives. Final-source execution and Phase 3 closure
 remain pending.
 
 [Publication handoff](PHASE_3_PUBLICATION_HANDOFF.md) corrects an old-view

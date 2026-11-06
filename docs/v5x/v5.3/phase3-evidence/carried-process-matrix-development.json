@@ -1,0 +1,279 @@
+{
+  "base": "3cff69328bf0111b86ece64cf7073b23df23ca57",
+  "cohortAdmitted": false,
+  "currentImplementation": [
+    {
+      "path": ".github/workflows/v53-carried-transition-histories.yml",
+      "sha256": "92d5219a5a31ec6c0de19f21aa68e8b56fed9ce4ecb0908fa9818b63d40955d4"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedReplayPrefixProcessTest.java",
+      "sha256": "178a6c96fb917ae947bb6edf863237afc405424ba2bfbecacc223e2c7d1516bb"
+    },
+    {
+      "path": "scripts/v53/carried_transition_history.py",
+      "sha256": "71826f1ee26453dabdef4b868bb0b16a8238dc02b8d514837051b3aca0de78b2"
+    },
+    {
+      "path": "scripts/v53/carried_transition_history_hosted.py",
+      "sha256": "845aa10eb537378a96ea6df854abc9dd064f71c1591da06f1614597e60270049"
+    },
+    {
+      "path": "scripts/v53/native_carried_capture_history.py",
+      "sha256": "e660fd1df044cf12270fb94df664d03ef39f616e9ec700fa189acbf437cd99dc"
+    },
+    {
+      "path": "scripts/v53/test_carried_transition_history.py",
+      "sha256": "039fd14ce4718733acd211bd874ffe41255104f84c4eb35d52bc9095870b6534"
+    },
+    {
+      "path": "scripts/v53/test_carried_transition_history_hosted.py",
+      "sha256": "ed2b59f4de49483f6f3b0ac92d0dab555faeff783b89df551100977fc7d6df8a"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_capture_history.py",
+      "sha256": "39fcef07e1f4ca782974e278149c6e4ba5c1d5a964c0e512438a1efe7ee09780"
+    },
+    {
+      "path": "scripts/v53/test_phase3_coverage.py",
+      "sha256": "4afba1685d3a5968ff64aa0e59d517f32b65ebbf97a430f4ceb48984f24824a7"
+    },
+    {
+      "path": "scripts/v53/test_phase3_history_cohort.py",
+      "sha256": "c0d1d615ab4a67b30eee7ec89013d15be9721fe1d0680397203997f29b52aef0"
+    },
+    {
+      "path": "scripts/v53/test_phase3_qualification_plan.py",
+      "sha256": "a9d94092541d9f2ba88a7fab0a96374630562d0fb99dccc4688c33a93b962dc9"
+    },
+    {
+      "path": "scripts/v53/test_phase3_seed_cohort.py",
+      "sha256": "5d0e425ac6fe63a164435b95c84a4fffadfe356d38e773cad11d5b95ad839254"
+    },
+    {
+      "path": "scripts/v53/test_phase3_witness_observations.py",
+      "sha256": "01cc819d7e1109130ba65083d64e2a10788dd317e24a19ff2ca1c69f5734be00"
+    },
+    {
+      "path": "scripts/v53/test_phase3_workflow_cohort.py",
+      "sha256": "17590b7943a59b52490badc17ead62d85fecd1d30278c975a9e6d4f12e72719b"
+    }
+  ],
+  "declaration": {
+    "cases": [
+      {
+        "case": "intent",
+        "javaClass": "V53CarriedTransitionDriverTest",
+        "method": "carriedIntentFinishesBeforeFreshStableBarrier",
+        "negatives": 301
+      },
+      {
+        "case": "final",
+        "javaClass": "V53CarriedTransitionDriverTest",
+        "method": "carriedFinalFinishesBeforeFreshStableBarrier",
+        "negatives": 301
+      },
+      {
+        "case": "intent-accept-halt",
+        "javaClass": "V53NativeCarriedReplayPrefixProcessTest",
+        "method": "intentAcceptHalt",
+        "negatives": 210
+      },
+      {
+        "case": "final-proof-kill",
+        "javaClass": "V53NativeCarriedReplayPrefixProcessTest",
+        "method": "finalProofKill",
+        "negatives": 210
+      },
+      {
+        "case": "intent-accept-kill",
+        "javaClass": "V53NativeCarriedReplayPrefixProcessTest",
+        "method": "intentAcceptKill",
+        "negatives": 210
+      },
+      {
+        "case": "intent-proof-halt",
+        "javaClass": "V53NativeCarriedReplayPrefixProcessTest",
+        "method": "intentProofHalt",
+        "negatives": 210
+      },
+      {
+        "case": "intent-proof-kill",
+        "javaClass": "V53NativeCarriedReplayPrefixProcessTest",
+        "method": "intentProofKill",
+        "negatives": 210
+      },
+      {
+        "case": "final-accept-halt",
+        "javaClass": "V53NativeCarriedReplayPrefixProcessTest",
+        "method": "finalAcceptHalt",
+        "negatives": 210
+      },
+      {
+        "case": "final-accept-kill",
+        "javaClass": "V53NativeCarriedReplayPrefixProcessTest",
+        "method": "finalAcceptKill",
+        "negatives": 210
+      },
+      {
+        "case": "final-proof-halt",
+        "javaClass": "V53NativeCarriedReplayPrefixProcessTest",
+        "method": "finalProofHalt",
+        "negatives": 210
+      }
+    ],
+    "cohortSchema": "gse-v53-carried-transition-history-cohort-v3",
+    "executionGroups": 254,
+    "histories": 560,
+    "hostedSchema": "gse-v53-carried-transition-history-hosted-v3",
+    "localSchema": "gse-v53-carried-transition-history-execution-v3",
+    "negativeCases": 2282,
+    "phase3Complete": false,
+    "rawArchives": 494,
+    "selectedJobs": 532,
+    "subsets": 12
+  },
+  "frozenParametersChanged": false,
+  "hostedExecuted": false,
+  "limitations": [
+    "The local v2 member uses exact 3cff6932 source and its recorded tools/readers; it does not qualify the current v3 source or hosted workflow.",
+    "The six additional full-capture native methods compile; their actual originals and complete ten-member final-source cohort remain pending.",
+    "Capture/owner negatives follow full original validation; they do not execute every lower-level reader negative matrix.",
+    "Application-ACK complete capture/admission, feasible simultaneous native resource maxima, full conditional operation 231 and phase-wide evidence remain open."
+  ],
+  "paidCloudExecuted": false,
+  "phase3Complete": false,
+  "planBindings": [
+    {
+      "path": "docs/v5x/v5.3/phase3-qualification-plan.json",
+      "sha256": "eec5b411eceb9c9c5e00854b50ab9a4174560a1d25fcbfd6fd6a1082b33f4dcc"
+    },
+    {
+      "path": "docs/v5x/v5.3/phase3-coverage-witnesses.json",
+      "sha256": "3594851c8b900ea2df1e0cab0416ef68744514a00dd4b03325817eb9f4102edf"
+    },
+    {
+      "path": "docs/v5x/v5.3/acceptance-plan.json",
+      "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+    }
+  ],
+  "runtimeJavaChanged": false,
+  "schema": "gse-v53-carried-process-matrix-development-v1",
+  "sourceBoundLocalMember": {
+    "boundedReceiptBytes": 85573,
+    "captureFamilies": {
+      "campaigns": 623,
+      "completion": 720,
+      "floors": 1481,
+      "ledgers": 487,
+      "prefixes": 977,
+      "replay": 184,
+      "votes": 241
+    },
+    "capturedCallbacks": 4713,
+    "case": "intent-accept-halt",
+    "copiedProducer": true,
+    "hostedExecuted": false,
+    "log": {
+      "path": "target/v53-intent-capture-admission/admission.log",
+      "sha256": "f34cabb9e096be609d9f23d8faae316c1c23faa8643ec8de0ca210bcd4ef09dd"
+    },
+    "nativeLog": {
+      "path": "target/v53-intent-capture-admission/producer/maven.log",
+      "sha256": "e6490e78a7f3741efc956b14c70c0afbaaf7158ea154e50947ee9addad0b6d6b"
+    },
+    "nativeSeconds": 653.498,
+    "nativeTests": {
+      "className": "io.github.patricklfdm.generalsearch.replication.V53NativeCarriedReplayPrefixProcessTest",
+      "errors": 0,
+      "failures": 0,
+      "method": "intentAcceptHalt",
+      "retries": 0,
+      "skipped": 0,
+      "tests": 1
+    },
+    "negativeCases": 210,
+    "originalBytes": 90057799,
+    "originalCollection": {
+      "path": "target/v53-intent-capture-admission/producer/collection.json",
+      "sha256": "46143f7e6509c91a740053609f57121e7d9b4c6d7080df976e75396168a8a840"
+    },
+    "originalFiles": 11522,
+    "originalPreserved": true,
+    "originalProducer": "target/v53-intent-capture-admission/producer",
+    "phase3Complete": false,
+    "pins": {
+      "buildSha256": "1b9bdab1dea82d25509cdf826fd392c2ce8ecacf0992b9e9390b254ed29dae2c",
+      "readerSha256": "e647bbf8d6f85fb4859dfec71c06b3ce0fdf622e25dfdcd393c6c4a78de6c00d",
+      "sourceSha256": "7dbc5cab7725661ffa244903e4aa9d7db23a2c7e1fa8e914c26628f9b71149cb",
+      "toolchainSha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+    },
+    "portableProducer": "target/v53-intent-capture-admission/portable/producer",
+    "producerReceipt": {
+      "path": "target/v53-intent-capture-admission/producer/receipt.json",
+      "sha256": "e734e112399d979910368000bd7bcf2a2662970b7959852b3262a24d7b3f6a33"
+    },
+    "result": {
+      "path": "target/v53-intent-capture-admission/admission-result.json",
+      "sha256": "292dd52547649105a3839d33241c9fa862ec5a9c2347f2aa924fea00004cf95b"
+    },
+    "seconds": 1097.8457715740078,
+    "source": "3cff69328bf0111b86ece64cf7073b23df23ca57",
+    "sourceBoundMemberQualified": true,
+    "sourceOrigin": {
+      "path": "target/v53-intent-capture-admission/source-origin.json",
+      "sha256": "386d6542a9f11cdfc8b95ddd1af042f29b3946cf6143c2d3d97f9f7359d10fa7"
+    },
+    "sourceSchema": "gse-v53-carried-transition-history-execution-v2",
+    "status": "PASS",
+    "summary": {
+      "path": "target/v53-intent-capture-admission/admission-summary.json",
+      "sha256": "f19af14ac6ea5572eedec24c25459c2e3ccb3cd527887ac9623b2de3cbd07ad3"
+    },
+    "toolchain": {
+      "java": {
+        "java.runtime.version": "21.0.12.1+1-1-22.04.4-Ubuntu",
+        "java.vendor": "Ubuntu",
+        "java.version": "21.0.12.1",
+        "java.vm.name": "OpenJDK 64-Bit Server VM",
+        "java.vm.version": "21.0.12.1+1-1-22.04.4-Ubuntu",
+        "os.arch": "amd64",
+        "os.name": "Linux"
+      },
+      "maven": "3.9.11 (3e54c93a704957b63ee3494413a2b544fd3d825b)"
+    },
+    "toolchainReceipt": {
+      "path": "target/v53-intent-capture-admission/producer/toolchain.json",
+      "sha256": "56dd23388c39005ab6a54836751a4e75295151a43b840500fd90b5230b193404"
+    },
+    "wholeCohortAdmitted": false
+  },
+  "validation": {
+    "countsOverlap": true,
+    "documentationContract": {
+      "path": "target/v53-intent-capture-admission/final-contract.json",
+      "sha256": "4a5398e54e8bbbda299a8b9321cc5e61b6da246db875393c5626114ad00ac2ab"
+    },
+    "javaLog": {
+      "path": "target/v53-intent-capture-admission/compile.log",
+      "sha256": "b91b71981c0771532af660d0bfe11e75807e9c0d4ab953938ac205e6e8f866bf"
+    },
+    "javaValidation": "test-compile only; no new native axis executed",
+    "optimizedFocusedTests": 53,
+    "optimizedLog": {
+      "path": "target/v53-intent-capture-admission/optimized-tests.log",
+      "sha256": "3db786c8bfb260be784430735e32155f2bd93a8f0c111915dc4f35e141e6538d"
+    },
+    "orchestrationLog": {
+      "path": "target/v53-intent-capture-admission/expanded-cohort-tests.log",
+      "sha256": "666ee6f51e9488d84c6b7c2133738ad527cefdb4ee918893f621b42228932b4b"
+    },
+    "orchestrationTests": 85,
+    "relatedLog": {
+      "path": "target/v53-intent-capture-admission/related-tests.log",
+      "sha256": "65253a03b1f23643c99715d15e2482a723590c333fa2c9f997700b899f9d4a09"
+    },
+    "relatedTests": 410,
+    "status": "PASS"
+  }
+}
