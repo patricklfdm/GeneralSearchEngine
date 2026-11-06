@@ -311,9 +311,10 @@ def publication_order(events,applied_files,published,peer,count):
     need(pending==1 and completed==0,'transition forces future completion/clear count')
 
 
-def slot_votes(rows,before,accepting,applied_group,published,voters,first,point,collector):
+def slot_votes(rows,before,accepting,applied_group,published,voters,first,point,collector,*,maintenance_projection=None):
     if collector is None:return
-    maintained=before if point=='ACCEPT_RENAMED' else p.maintain(accepting if first else before,
+    project=p.maintain if maintenance_projection is None else maintenance_projection
+    maintained=before if point=='ACCEPT_RENAMED' else project(accepting if first else before,
         ('node-1',) if point=='PROOF_RENAMED' else voters)
     for node in before:
         plan=[]
@@ -369,7 +370,7 @@ def slot_replays(rows,applied_group,voters,collector):
             collector.append((row,kind,state))
 
 
-def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None,floor_prefixes=None,vote_prefixes=None,completion_prefixes=None,replay_prefixes=None,maintainer=maintenance):
+def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None,floor_prefixes=None,vote_prefixes=None,completion_prefixes=None,replay_prefixes=None,maintainer=maintenance,maintenance_projection=None):
     chosen=f.decode(c.current(before['node-1'])[1]['selected.gsr'],'records','SELECTED')
     voters=[v['voter'] for v in chosen['sources']];stats=[]
     accepting=copy.deepcopy(before)
@@ -423,7 +424,7 @@ def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None,fl
     if point is None:
         slot_completions(rows,before,applied_group,published,voters,completion_prefixes)
         slot_replays(rows,applied_group,voters,replay_prefixes)
-    slot_votes(rows,before,accepting,applied_group,published,voters,first,point,vote_prefixes)
+    slot_votes(rows,before,accepting,applied_group,published,voters,first,point,vote_prefixes,maintenance_projection=maintenance_projection)
     return stats
 
 
@@ -484,7 +485,8 @@ def replay(root,kind,point,*,prefixes=None,floor_prefixes=None,campaign_prefixes
                 for row,kind_,state in sorted(votes,key=lambda v:positions[id(v[0])]))
         if completion_prefixes is not None:
             positions={id(row):at for at,row in enumerate(rows)};used=[positions[id(row)] for row,_,_ in completions]
-            need(len(set(used))==len(used) and set(used)=={at for at,_,_ in completion_files.observed(rows)},
+            observed=getattr(handlers,'completion_observed',completion_files.observed)
+            need(len(set(used))==len(used) and set(used)=={at for at,_,_ in observed(rows)},
                  'transition forces unbound completion prefix')
             completion_prefixes.extend(dict(life=life,eventIndex=positions[id(row)],node=row['node'],point=row['event'],kind=kind_,files=state)
                 for row,kind_,state in sorted(completions,key=lambda v:positions[id(v[0])]))

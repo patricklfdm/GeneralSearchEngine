@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Carried application transient composition](PHASE_3_CARRIED_APPLICATION_TRANSIENTS.md)
+adds vote, recovery completion, ledger and replay captures to the original ACK
+crash history, with exact overlap checks and original resource-owner binding.
+Source-bound cohort admission, final-source execution and the complete resource
+envelope remain open.
+
 [Application maintenance storage ownership](PHASE_3_CARRIED_APPLICATION_STORAGE.md)
 joins maintenance, interrupted application and old-end retirement captures to
 original live resource owners at each callback. Remaining capture families,

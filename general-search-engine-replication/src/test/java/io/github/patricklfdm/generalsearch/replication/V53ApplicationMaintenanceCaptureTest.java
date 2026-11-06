@@ -7,9 +7,9 @@ class V53ApplicationMaintenanceCaptureTest {
     @Test void onlyWholeMaintenanceOrOriginalResourceLayoutIsAdmitted() {
         for(String kind:new String[]{"INTENT","FINAL"})for(boolean first:new boolean[]{false,true}) {
             int life=first?1:2;
-            for(int count:new int[]{5,8})assertDoesNotThrow(()->V53NativeCarriedProcessWorker.applicationCaptureCase(
+            for(int count:new int[]{5,8,12})assertDoesNotThrow(()->V53NativeCarriedProcessWorker.applicationCaptureCase(
                     first,!first,life,kind,"APPLY_ACK_DIRECTORY_FORCED",count));
-            for(int count:new int[]{4,6,7,9,10,11,12})assertThrows(IllegalArgumentException.class,
+            for(int count:new int[]{4,6,7,9,10,11,13})assertThrows(IllegalArgumentException.class,
                     ()->V53NativeCarriedProcessWorker.applicationCaptureCase(first,!first,life,kind,"APPLY_ACK_DIRECTORY_FORCED",count));
         }
     }

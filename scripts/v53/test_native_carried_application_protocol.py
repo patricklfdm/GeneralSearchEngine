@@ -111,7 +111,7 @@ class NativeCarriedApplicationProtocolTest(unittest.TestCase):
 
     def test_optional_adapter_cannot_claim_unimplemented_transient_coverage(self):
         with self.assertRaisesRegex(ValueError,'transient collectors unsupported'):
-            m.slot([],{},None,{},first=True,vote_prefixes=[])
+            m.slot([],{},None,{},first=True,unknown_prefixes=[])
 
     def test_bad_original_cannot_produce_negative_credit(self):
         with patch.object(m.p.process.collection,'inventory',return_value={}),patch.object(m,'validate',side_effect=ValueError('bad original')),\

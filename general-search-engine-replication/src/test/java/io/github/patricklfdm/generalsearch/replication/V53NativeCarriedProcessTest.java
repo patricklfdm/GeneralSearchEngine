@@ -64,7 +64,13 @@ class V53NativeCarriedProcessTest {
     private void run(String point,String mode,String kind,boolean observeResources,boolean observeRetirement,boolean observeFloor,boolean observeCampaign,boolean observeVotes,boolean observeCompletion,boolean observeLedgers,boolean observeReplay,boolean observeApplicationCut,boolean observeApplicationRetirement)throws Exception {
         run(point,mode,kind,observeResources,observeRetirement,observeFloor,observeCampaign,observeVotes,observeCompletion,observeLedgers,observeReplay,observeApplicationCut,observeApplicationRetirement,false);
     }
+    void runApplicationTransients(String mode,String kind)throws Exception {
+        run("APPLY_ACK_DIRECTORY_FORCED",mode,kind,true,false,false,false,false,false,false,false,true,true,true,true);
+    }
     private void run(String point,String mode,String kind,boolean observeResources,boolean observeRetirement,boolean observeFloor,boolean observeCampaign,boolean observeVotes,boolean observeCompletion,boolean observeLedgers,boolean observeReplay,boolean observeApplicationCut,boolean observeApplicationRetirement,boolean observeApplicationMaintenance)throws Exception {
+        run(point,mode,kind,observeResources,observeRetirement,observeFloor,observeCampaign,observeVotes,observeCompletion,observeLedgers,observeReplay,observeApplicationCut,observeApplicationRetirement,observeApplicationMaintenance,false);
+    }
+    private void run(String point,String mode,String kind,boolean observeResources,boolean observeRetirement,boolean observeFloor,boolean observeCampaign,boolean observeVotes,boolean observeCompletion,boolean observeLedgers,boolean observeReplay,boolean observeApplicationCut,boolean observeApplicationRetirement,boolean observeApplicationMaintenance,boolean observeApplicationTransients)throws Exception {
         assertTrue(Set.of("DATA","INTENT","FINAL").contains(kind));
         boolean data=kind.equals("DATA");int size=data?3:4,index=data?1:kind.equals("INTENT")?5:6;
         assertTrue(!observeRetirement || observeResources && !data,"retirement requires original context resources");
@@ -77,7 +83,14 @@ class V53NativeCarriedProcessTest {
         assertTrue(!observeApplicationCut || observeResources && !observeRetirement && !data && point.equals("APPLY_ACK_DIRECTORY_FORCED"),"application capture explicit original resource history");
         assertTrue(!observeApplicationRetirement || observeApplicationCut,"application retirement requires original interrupted prefixes");
         assertTrue(!observeApplicationMaintenance || observeApplicationRetirement,"application maintenance requires original retirement history");
-        Path applicationMaintenance=observeApplicationMaintenance?Files.createDirectories(Path.of("target/v53-native-carried-application-maintenance-prefixes/run-"+UUID.randomUUID())):null;
+        assertTrue(!observeApplicationTransients || observeApplicationMaintenance,"application transients require original maintenance captures");
+        Path applicationTransients=observeApplicationTransients?Files.createDirectories(Path.of("target/v53-native-carried-application-transient-prefixes/run-"+UUID.randomUUID())):null;
+        if(observeApplicationTransients) {
+            for(String family:List.of("votes","completion","ledgers","replay"))Files.createDirectories(applicationTransients.resolve("transients/"+family));
+            System.out.println("v53NativeCarriedApplicationTransientPrefixesEvidence="+applicationTransients.toAbsolutePath());
+        }
+        Path applicationMaintenance=observeApplicationTransients?Files.createDirectory(applicationTransients.resolve("previous")):
+                observeApplicationMaintenance?Files.createDirectories(Path.of("target/v53-native-carried-application-maintenance-prefixes/run-"+UUID.randomUUID())):null;
         if(observeApplicationMaintenance) {
             for(String family:List.of("retirement","floors","campaigns"))Files.createDirectories(applicationMaintenance.resolve("maintenance/"+family));
             System.out.println("v53NativeCarriedApplicationMaintenancePrefixesEvidence="+applicationMaintenance.toAbsolutePath());
@@ -140,6 +153,8 @@ class V53NativeCarriedProcessTest {
                     if(observeReplay)command.add(replay.resolve("replay/life-"+life).toAbsolutePath().toString());
                     if(observeApplicationMaintenance)for(String family:List.of("retirement","floors","campaigns"))
                         command.add(applicationMaintenance.resolve("maintenance/"+family+"/life-"+life).toAbsolutePath().toString());
+                    if(observeApplicationTransients)for(String family:List.of("votes","completion","ledgers","replay"))
+                        command.add(applicationTransients.resolve("transients/"+family+"/life-"+life).toAbsolutePath().toString());
                     if(observeApplicationCut && life==1)command.addAll(List.of("--application-cut-capture",applicationCut.resolve("application").toAbsolutePath().toString()));
                     if(observeApplicationRetirement && life==2)command.addAll(List.of("--application-retirement-capture",applicationRetirement.resolve("retirement").toAbsolutePath().toString()));
                     Process child=new ProcessBuilder(command)

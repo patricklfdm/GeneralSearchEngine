@@ -1,0 +1,347 @@
+{
+  "acceptancePlan": {
+    "path": "docs/v5x/v5.3/acceptance-plan.json",
+    "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+  },
+  "base": "7e63a097b0aebd9a6ab95a84ffa56b63e94614ab",
+  "cohortAdmitted": false,
+  "frozenParametersChanged": false,
+  "generator": {
+    "path": "target/v53-carried-application-custody/index-evidence.py",
+    "sha256": "7862283b28b5f65b398225231b9411d842c320ee6a4be4aa1de8dec343f3286c"
+  },
+  "historicalIndexes": {
+    "count": 398,
+    "inventory": {
+      "path": "target/v53-carried-application-custody/historical-indexes.json",
+      "sha256": "d9991d713c29d0f88976a38c44d7a900b91988f646a235881385d53fdbf87748"
+    },
+    "unchanged": true
+  },
+  "hostedExecuted": false,
+  "limitations": [
+    "One unretried FINAL/SIGKILL development source snapshot, not an exact-commit or final-source cohort; remaining three application axes await execution.",
+    "All nine capture families and original resource owners compose in this original. Exact old-end/general-replay overlaps count once; all physical copies are independently checked.",
+    "All 258 file and ten whole-union owner negatives ran against the same portable original. Lower-level protocol/wire/retention positive prerequisites ran, but their separate negative catalogues were not repeated.",
+    "Resource qualification is observed file lengths at original callbacks and complete accounting traces, not simultaneous category maxima, filesystem allocation, heap/RSS or a full resource envelope.",
+    "The preceding source passed native process checks but failed strict resource ownership at two retained-image/peer-ledger reseal callbacks. That original remains failed. The corrected runtime is a new, separately frozen source and native execution."
+  ],
+  "newNativeExecuted": true,
+  "paidCloudExecuted": false,
+  "phase3Complete": false,
+  "plan": {
+    "path": "docs/v5x/v5.3/phase3-qualification-plan.json",
+    "sha256": "be30ab9386d3481b82ff64c741230f4a4d8ee4733d0162783c650e95591f560b"
+  },
+  "precedingSourceFailure": {
+    "build": {
+      "path": "target/v53-carried-application-transients/producer/build.json",
+      "sha256": "3546e173ceaccd63eaf1aad596f1f7ea6483e24ffa005b05f64edd6577afd3d0"
+    },
+    "deterministicRegression": {
+      "path": "target/v53-carried-application-transients/custody-before.log",
+      "sha256": "8de86dd4512c6ac283cc5e0d5a1877a0518e0719ef5707acb9816aca4348e8c0"
+    },
+    "diagnostic": {
+      "path": "target/v53-carried-application-transients/diagnose-coverage.py",
+      "sha256": "ba186ea72f8c6f23edf897aadc5aeb4a9a19856fdb2447495363859c56e01f36"
+    },
+    "findings": {
+      "path": "target/v53-carried-application-transients/coverage-findings.json",
+      "sha256": "95f8887d71ed9893d880f2f404f0731ab5e25e4068c811f78283220c1a80ca45"
+    },
+    "inventory": {
+      "path": "target/v53-carried-application-transients/qualification/inventory.json",
+      "sha256": "a9fbd0010e48f7066e3913e3d14e21ec4d61c6806ba550a856961404498fc093"
+    },
+    "log": {
+      "path": "target/v53-carried-application-transients/qualification.log",
+      "sha256": "0e2b50eacc462e40aede06e5cddbe916c5f4549c39dd933b300d7b0eb2b72239"
+    },
+    "nativeExecution": {
+      "path": "target/v53-carried-application-transients/producer/receipt.json",
+      "sha256": "7a9c730b148b3eb6dcf462e079ce743d52841e165e3c1803a90924a805ca6569"
+    },
+    "qualification": {
+      "path": "target/v53-carried-application-transients/qualification/summary.json",
+      "sha256": "f66263096513a6b46511a2f2070eda0ce19b877faedd659bbc9c59b48acc27fa"
+    },
+    "source": {
+      "path": "target/v53-carried-application-transients/producer/source.json",
+      "sha256": "497d773109fc7eb827e3e755e4e30d2303872b02a4d76372084e56568f1ead32"
+    }
+  },
+  "producer": {
+    "build": {
+      "path": "target/v53-carried-application-custody/producer/build.json",
+      "sha256": "d76cf5d4c8759dd81095ccd7f154e2293593eb4b5b14278ca596b25d5ab82c52"
+    },
+    "captureLog": {
+      "path": "target/v53-carried-application-custody/capture.log",
+      "sha256": "43dc543e62146b2403cd79f4afd4f6b3960dbe8ed4d6dc16b882ebf33c2957d1"
+    },
+    "currentExecutableFiles": [
+      {
+        "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+        "sha256": "c4564370f6c153d071daa459a2f67878b9bb4121d7f97ea19b4d8b3e21a11c44"
+      },
+      {
+        "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ApplicationMaintenanceCaptureTest.java",
+        "sha256": "dadc0cbdb48c9a391e09d472bf65900288ce4c2cdbf6ab0d1c3e76a1a044c101"
+      },
+      {
+        "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ApplicationReopenCustodyTest.java",
+        "sha256": "d0269112dbb89cfbceb09cc3f14a3683212a9c1421bc860557fc8231eeff2812"
+      },
+      {
+        "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedApplicationTransientPrefixTest.java",
+        "sha256": "feb9e41196b75e36568bd2662b416deac1714ce1fc82abebb9f734c1eedafa90"
+      },
+      {
+        "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessTest.java",
+        "sha256": "fc406ade6803d875302d3eb44ee026d008aa55172dafa883c04ed1469f3db25d"
+      },
+      {
+        "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessWorker.java",
+        "sha256": "96f08b23c49b21c642018df353713ac8264f97370ae1eda256c8db4542a0f791"
+      },
+      {
+        "path": "scripts/v53/native_carried_application_protocol.py",
+        "sha256": "60ed14488e7c955b5160c9be0c66f6e9ab11d93a61a40ca540b2af9387c014de"
+      },
+      {
+        "path": "scripts/v53/native_carried_application_transient_plans.py",
+        "sha256": "101f86daea084a74d2ef906044bd9aa0414cee1516d883867e79423b8746d4cb"
+      },
+      {
+        "path": "scripts/v53/native_carried_application_transient_prefixes.py",
+        "sha256": "ecfb705b109d06aaba7a2b5ea659857792c6fb2e1d2558024199e3689536da50"
+      },
+      {
+        "path": "scripts/v53/native_carried_transition_forces.py",
+        "sha256": "c5f714e5d7be11727f6a3982b6c6dac3ae6498b596b2188bfeb9e99338280c25"
+      },
+      {
+        "path": "scripts/v53/native_ledger_files.py",
+        "sha256": "feed5cf761e151bb880893a28e414b1b503692f3b7f1b0c9deb39512eeeabd9b"
+      },
+      {
+        "path": "scripts/v53/test_native_carried_application_maintenance_plans.py",
+        "sha256": "c4359d80edb61473dd943512fc3f5ea1d37868c6f8be81040444af70eac6ad89"
+      },
+      {
+        "path": "scripts/v53/test_native_carried_application_protocol.py",
+        "sha256": "47a5fcbbff95e27d9ca678649c374e8fba6029a54c4b2499388a20fa5757fed5"
+      },
+      {
+        "path": "scripts/v53/test_native_carried_application_transients.py",
+        "sha256": "63957adf09ff52c14cbc75466389781c47a309155441a1a883a4674a333980bc"
+      }
+    ],
+    "execution": {
+      "elapsedSeconds": 668.501,
+      "exit": 0
+    },
+    "maven": {
+      "path": "target/v53-carried-application-custody/producer/maven.log",
+      "sha256": "403d37115a9ca848032b9fd48e97c85a144c7c429b8e19d820db832948831800"
+    },
+    "receipt": {
+      "path": "target/v53-carried-application-custody/producer/receipt.json",
+      "sha256": "cd3259174336a81c1e11ae7a25ad29c12d097dda32b0204315fb2b7ebd81c132"
+    },
+    "script": {
+      "path": "target/v53-carried-application-custody/capture.py",
+      "sha256": "6334ec878b7d8c809443edf2e561205096c6cb890f2e137676af86e36b7bae09"
+    },
+    "source": {
+      "path": "target/v53-carried-application-custody/producer/source.json",
+      "sha256": "f4323b84b93049226fdebaa56d2e50d0b426a0c2980546d18bba79d13ad4be11"
+    },
+    "toolchain": {
+      "path": "target/v53-carried-application-custody/producer/toolchain.json",
+      "sha256": "225ce3e66bdd197924f4fc634dd30c0729a25d2a8265fe00112d836275dfcb10"
+    }
+  },
+  "qualification": {
+    "bytes": 80274926,
+    "callbacks": 3301,
+    "children": [
+      {
+        "exit": 137,
+        "life": 1,
+        "pid": 2334427
+      },
+      {
+        "exit": 0,
+        "life": 2,
+        "pid": 2349236
+      }
+    ],
+    "cohortAdmitted": false,
+    "duplicateReplayCallbacks": 23,
+    "families": {
+      "application": 32,
+      "campaigns": 457,
+      "completion": 450,
+      "floors": 1077,
+      "ledgers": 298,
+      "old-end": 54,
+      "replay": 161,
+      "retirement": 597,
+      "votes": 198
+    },
+    "files": 10599,
+    "hostedExecuted": false,
+    "inventory": {
+      "path": "target/v53-carried-application-custody/qualification/inventory.json",
+      "sha256": "8e808b48ad63e5790df9edc92a998cafdee0592120ebb7d9aaf1a99c4e55e4fe"
+    },
+    "javaTests": 17,
+    "log": {
+      "path": "target/v53-carried-application-custody/qualification.log",
+      "sha256": "1b8efeefd4d498ee923aac86366bc775e5ca2477f7100633aebd733b98322b38"
+    },
+    "nativeSeconds": 625.807,
+    "negativeCases": 268,
+    "original": "workspace/general-search-engine-replication/target/v53-native-carried-application-transient-prefixes/run-d83240c5-3e4f-4b0e-b863-d0a39b079f07",
+    "originalPreserved": true,
+    "ownerLifetimes": 8,
+    "ownershipNegatives": 10,
+    "phase3Complete": false,
+    "portable": "qualification/final-kill",
+    "precedingNegatives": {
+      "application": 24,
+      "maintenance": 89,
+      "retirement": 29
+    },
+    "results": [
+      {
+        "path": "target/v53-carried-application-custody/qualification/transients-result.json",
+        "sha256": "a62cf72e4cd635bcbc38a4713dc17348f5141f73420051cc2386bad1e3bcc9a3"
+      },
+      {
+        "path": "target/v53-carried-application-custody/qualification/maintenance-result.json",
+        "sha256": "73810d921e7532e25f4127f3369f690dc1c2535861b0811b99d40ad9eb198f3a"
+      },
+      {
+        "path": "target/v53-carried-application-custody/qualification/retirement-result.json",
+        "sha256": "b2fd71d4db8bc28624781f3309fabfcde3ece718bd72c9ff40250c4e90357463"
+      },
+      {
+        "path": "target/v53-carried-application-custody/qualification/application-result.json",
+        "sha256": "081f55f9ad0d4f4e1948098bc95141e8869cd60e25f4edd3afb3426cc6c97c2f"
+      },
+      {
+        "path": "target/v53-carried-application-custody/qualification/ownership-negatives.json",
+        "sha256": "b12df2ce6fe29eff6f22feb5e7aa338aac862562785b2296be8d14152e6b3419"
+      }
+    ],
+    "script": {
+      "path": "target/v53-carried-application-custody/qualify.py",
+      "sha256": "272a23c55cec4b1dd6fcb00a3ba444747e8b126639594642dc85d5a2290a4872"
+    },
+    "seconds": 426.3534389669949,
+    "status": "PASS",
+    "summary": {
+      "path": "target/v53-carried-application-custody/qualification/summary.json",
+      "sha256": "c68c8d2791de71c554f6a5608dc67b67c37e58ab896017e630c4e3445b4148d6"
+    },
+    "transientNegatives": 116,
+    "transientReplaySeconds": 163.98932335799327,
+    "wholeRuntimeResourcesQualified": false
+  },
+  "runtimeJavaChanged": true,
+  "schema": "gse-v53-carried-application-transients-development-v1",
+  "status": "PARTIAL",
+  "tests": {
+    "collectionNote": {
+      "path": "target/v53-carried-application-custody/targeted-java-collection-note.json",
+      "sha256": "379a336bfc15b5d3c3e6c4842882f6c4fa8944008cabb3e3b4ba1da7133dbb9f"
+    },
+    "documentationContract": {
+      "path": "target/v53-carried-application-custody/contract-final.json",
+      "sha256": "ae876c2f32c18bcc6ad3b0e3c6e5c68897803938cb666804b32c718f2551fa9f"
+    },
+    "retainedDevelopmentFailures": [
+      {
+        "path": "target/v53-carried-application-transients/projection-tests.log",
+        "sha256": "1ca937a84eb9c919b09638fb9486e24f594460718bea69aaa575e16fdfc24835"
+      },
+      {
+        "path": "target/v53-carried-application-transients/unit-tests.log",
+        "sha256": "388f18925d2e51f46c91e93044003dae9a8953f7153a9f4e1877d5a08e0d9fd7"
+      },
+      {
+        "path": "target/v53-carried-application-transients/planning-tests.log",
+        "sha256": "7792352693528760b3583610effdf2f4bde2a84c5a1289962d050621184bd2ac"
+      }
+    ],
+    "suites": [
+      {
+        "log": {
+          "path": "target/v53-carried-application-transients/unit-tests-fixed.log",
+          "sha256": "450cecc8f58edc571b15b7fd5e9e0e5671832bda8c1e1988fa8033eff17d6a09"
+        },
+        "tests": 60
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-transients/related-tests.log",
+          "sha256": "8aa6335abb75ebbe879f8126434045ed68fafda3321ab2a667a8b6cf9e21e3a6"
+        },
+        "tests": 375
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-transients/optimized-tests.log",
+          "sha256": "e237e745ae03f70432379a8ae39f4de93b39cf42ca9215c0b8984aef8a949bc3"
+        },
+        "tests": 60
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-custody/planning-tests-final.log",
+          "sha256": "ae88b3d35d3fcf0efe41ab23441682b50e080ccee5c614b74efb236706a3bf85"
+        },
+        "tests": 35
+      }
+    ],
+    "suitesOverlap": true,
+    "targetedJUnit": [
+      {
+        "path": "target/v53-carried-application-custody/targeted-java-selected/TEST-io.github.patricklfdm.generalsearch.replication.V53ApplicationReopenCustodyTest.xml",
+        "sha256": "e8f351f61644f667ea5219821279ee8a37958e1cb164411b8ba9d79800851baa"
+      },
+      {
+        "path": "target/v53-carried-application-custody/targeted-java-selected/TEST-io.github.patricklfdm.generalsearch.replication.V53AppliedEndFilesTest.xml",
+        "sha256": "bc2c78234c49f39dac8ddacdc842b476e9022dade93d71ed9ca24ec3ac31889f"
+      },
+      {
+        "path": "target/v53-carried-application-custody/targeted-java-selected/TEST-io.github.patricklfdm.generalsearch.replication.V53FutureRetentionTest.xml",
+        "sha256": "d556a8ef4149fdadc2babdc060025331bbac8b576f7d68aa3c498551ae13c57c"
+      },
+      {
+        "path": "target/v53-carried-application-custody/targeted-java-selected/TEST-io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest.xml",
+        "sha256": "a6463e603481bf2c6d29acba87bd5e3f35a6cf64d9beacebfbd11060405584c8"
+      },
+      {
+        "path": "target/v53-carried-application-custody/targeted-java-selected/TEST-io.github.patricklfdm.generalsearch.replication.V53PeerRetentionFilesTest.xml",
+        "sha256": "86620d9714a3833604d689f547685dedcd9e008b8bd6056ed2b7e20806264a4e"
+      },
+      {
+        "path": "target/v53-carried-application-custody/targeted-java-selected/TEST-io.github.patricklfdm.generalsearch.replication.V53ReplayFilesTest.xml",
+        "sha256": "2c3e01bec4605f56f09e5a118aa95f97c6fb04a6be298703537e8e12701c634e"
+      }
+    ],
+    "targetedJava": {
+      "path": "target/v53-carried-application-custody/targeted-java-selected-summary.json",
+      "sha256": "a4d4d511601196ebe0974d40a5dd47c9cef40362904eb38948d20953937b5bf6"
+    },
+    "targetedJavaLog": {
+      "path": "target/v53-carried-application-transients/custody-after.log",
+      "sha256": "68d4d50c9b9af0e3193c42882f03c772805f16ffbcafd2e627dbce836a77761d"
+    }
+  },
+  "wholeRuntimeResourcesQualified": false
+}

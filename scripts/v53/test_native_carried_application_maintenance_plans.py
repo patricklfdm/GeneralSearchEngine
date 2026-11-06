@@ -35,7 +35,7 @@ class NativeCarriedApplicationMaintenanceTest(unittest.TestCase):
         with patch.object(p,'interrupted',return_value=['original stats']) as interrupted:
             self.assertEqual(['original stats'],p.slot([],before,None,after,first=True,
                 point=p.application.CUT,prefixes=prefixes,floor_prefixes=floors))
-        interrupted.assert_called_once_with([],before,after,prefixes=prefixes,floor_prefixes=floors)
+        interrupted.assert_called_once_with([],before,after,prefixes=prefixes,floor_prefixes=floors,vote_prefixes=None,replay_prefixes=None)
         self.assertEqual(snapshot,(before,after))
         for point,first in ((p.application.CUT,False),('PROOF_RENAMED',True)):
             with self.assertRaisesRegex(ValueError,'exact interrupted cut'):
@@ -49,16 +49,17 @@ class NativeCarriedApplicationMaintenanceTest(unittest.TestCase):
              patch.object(p.c,'current',return_value=('',{'selected.gsr':b'selected'},{})),\
              patch.object(p.f,'decode',return_value={'sources':[]}):
             p.slot(rows,before,{}, {},first=True,prefixes=prefixes,floor_prefixes=floors)
-        retired.assert_called_once_with(rows,before)
+        retired.assert_called_once_with(rows,before,replay_prefixes=None)
         slot.assert_called_once_with(rows,cleaned,{}, {},first=True,maintainer=p.maintenance,
-            prefixes=prefixes,floor_prefixes=floors)
+            prefixes=prefixes,floor_prefixes=floors,vote_prefixes=None,completion_prefixes=None,replay_prefixes=None,
+            maintenance_projection=p.application.maintain)
         self.assertIs(event,slot.call_args.args[0][0])
         with patch.object(p,'retired',side_effect=ValueError('unbound old end')),patch.object(p.forces,'slot') as slot:
             with self.assertRaisesRegex(ValueError,'unbound old end'):p.slot(rows,before,{}, {},first=True,prefixes=[])
         slot.assert_not_called()
 
     def test_unimplemented_collectors_cannot_earn_apparent_coverage(self):
-        for collector in ('vote_prefixes','completion_prefixes','replay_prefixes','unknown'):
+        for collector in ('ledger_prefixes','unknown'):
             with patch.object(p,'retired') as retired,patch.object(p,'interrupted') as interrupted:
                 for point in (None,p.application.CUT):
                     with self.assertRaisesRegex(ValueError,'transient collectors unsupported'):

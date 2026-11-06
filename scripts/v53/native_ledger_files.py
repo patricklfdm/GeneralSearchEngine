@@ -64,14 +64,16 @@ class Future(retention.FutureReplay):
         self.raw_reseals.append(dict(node=row['node'],life=row['life'],ledger='future',indices=row['futureEvents'],raw=self.state[row['node']]['raw']))
 
 
-def plans(root,kind,cut):
+def plans(root,kind,cut,*,peer_factory=None,future_factory=None,handlers=None):
     """Project every original write/reseal, preserving the continuous two lives."""
-    peers=Peers(root,kind);peer_result=peers.run();future=Future(root,kind);future_result=future.run()
+    peer_factory=Peers if peer_factory is None else peer_factory
+    future_factory=Future if future_factory is None else future_factory
+    peers=peer_factory(root,kind);peer_result=peers.run();future=future_factory(root,kind);future_result=future.run()
     need(peers.events==future.events,'ledger prefix original event stream');events=peers.events
     death=next(i for i,v in enumerate(events) if v['event']=='GROUP_CRASH');offset={1:0,2:death+1}
     parts=[[] for _ in range(5)]
     forces.replay(root,kind,cut,prefixes=parts[0],floor_prefixes=parts[1],campaign_prefixes=parts[2],
-                  vote_prefixes=parts[3],completion_prefixes=parts[4])
+                  vote_prefixes=parts[3],completion_prefixes=parts[4],handlers=handlers)
     anchors={};by_node={node:[] for node in peers.history.old}
     for row in (v for part in parts for v in part):
         at=offset[row['life']]+row['eventIndex'];need(at not in anchors,'ledger prefix duplicate original anchor')

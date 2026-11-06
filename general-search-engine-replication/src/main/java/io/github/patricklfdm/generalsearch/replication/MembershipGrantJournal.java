@@ -409,6 +409,13 @@ final class MembershipGrantJournal implements AutoCloseable {
             if(materialization!=null)journal.loadFutureRetention();
             if(materialization!=null)journal.loadLearnerRetention();
             if(journal.current==null)journal.reloadGenerations();
+            if(withApplication) {
+                // Existing application files belong to this reopen before any
+                // retention reseal exposes a durable recovery boundary.
+                journal.replayFiles=new MembershipReplayFiles(path.resolve(MembershipReplayFiles.DIRECTORY),resources,
+                        replayOutput(journal.pendingAccept.pending() || journal.pendingAccept.active()==null?null:journal.pendingAccept.active().entry()));
+                journal.appliedEnd=new MembershipAppliedEndFiles(path.resolve(MembershipAppliedEndFiles.DIRECTORY),resources,MembershipAppliedEndFiles.METADATA);
+            }
             if(journal.learnerRetention!=null)journal.recoverLearnerRetention();
             if(journal.peerRetention!=null)journal.recoverPeerRetention();
             if(withFloors) {
@@ -418,9 +425,6 @@ final class MembershipGrantJournal implements AutoCloseable {
             }
             if(withRetirement)journal.retirement=new MembershipRetirementFiles(path,resources,journal.floors,journal.sources);
             if(withApplication) {
-                journal.replayFiles=new MembershipReplayFiles(path.resolve(MembershipReplayFiles.DIRECTORY),resources,
-                        replayOutput(journal.pendingAccept.pending() || journal.pendingAccept.active()==null?null:journal.pendingAccept.active().entry()));
-                journal.appliedEnd=new MembershipAppliedEndFiles(path.resolve(MembershipAppliedEndFiles.DIRECTORY),resources,MembershipAppliedEndFiles.METADATA);
                 require(!journal.replayFiles.present() && !journal.appliedEnd.present() || journal.pendingAccept.active()!=null
                         && journal.pendingAccept.active().certificate()!=null,"application files without original local certificate");
                 if(journal.coveredVote(journal.pendingAccept.active()))require(!journal.replayFiles.present(),"published generation cannot retain replay scratch");

@@ -53,7 +53,7 @@ def replay_order(events,initial,applied):
     forces.exact(events,('REPLAY_',),expected,'application protocol exact control replay')
 
 
-def retired(rows,before):
+def retired(rows,before,*,replay_prefixes=None):
     """Only a completely validated owner prefix can be removed from fresh-slot replay."""
     result=copy.deepcopy(before);consumed=set()
     for node,files in before.items():
@@ -75,13 +75,38 @@ def retired(rows,before):
                   'NATIVE_RETIREMENT_CERTIFICATE_RETAINED',cleanup[0],*replay,*cleanup[1:]]
         retirement.order(prefix,cleanup,True)
         need(prefix==expected,'application protocol exact retirement before new vote')
+        if replay_prefixes is not None:
+            plan=forces.replay_files.retirement(files)
+            actual=[row for _,row in storage if row['event'].startswith('REPLAY_')]
+            need(len(actual)==len(plan),'application protocol retirement replay prefix count')
+            for row,(kind,point,state) in zip(actual,plan):
+                need(row['event']==point,'application protocol retirement replay prefix boundary')
+                replay_prefixes.append((row,kind,state))
         consumed.update(i for i,_ in storage)
     remaining=[v for i,v in enumerate(rows) if i not in consumed]
     no_retirement(remaining)
     return remaining,result
 
 
-def interrupted(rows,before,after,*,prefixes=None,floor_prefixes=None):
+def interrupted_votes(rows,before,accepting,after,voters,collector):
+    if collector is None:return
+    maintained=application.maintain(accepting,voters)
+    for node in before:
+        plan=[]
+        if node in voters:
+            frames,_=p.data.pending(after[node]);state=dict(before[node])
+            raw=forces.vote_files.phase_bytes(frames,'ACCEPT')
+            plan+=forces.vote_files.transaction(state,raw,'ACCEPT')
+            state=dict(maintained[node]);state[forces.vote_files.ACTIVE]=raw
+            raw=forces.vote_files.phase_bytes(frames,'PROOF')
+            plan+=forces.vote_files.transaction(state,raw,'PROOF')
+            if node=='node-1':
+                state[forces.vote_files.ACTIVE]=raw
+                plan+=forces.vote_files.transaction(state,forces.vote_files.phase_bytes(frames,'CERTIFICATE'),'CERTIFICATE')
+        forces.bind_votes(rows,node,plan,collector)
+
+
+def interrupted(rows,before,after,*,prefixes=None,floor_prefixes=None,vote_prefixes=None,replay_prefixes=None):
     no_retirement(rows)
     selected=f.decode(c.current(before['node-1'])[1]['selected.gsr'],'records','SELECTED')
     voters=[v['voter'] for v in selected['sources']];accepting=copy.deepcopy(before);stats=[]
@@ -122,19 +147,32 @@ def interrupted(rows,before,after,*,prefixes=None,floor_prefixes=None):
             'CERTIFICATE_ACTIVE_PARENT_FORCED','NATIVE_CERTIFICATE_RETAINED','APPLICATION_AUTHORITY_VALIDATED',
             'REPLAY_RESERVED','REPLAY_BEFORE_RETURN','APPLY_VALIDATED',application.CUT],
             'application protocol interrupted application order')
+    interrupted_votes(rows,before,accepting,after,voters,vote_prefixes)
+    forces.slot_replays(rows,after,('node-1',),replay_prefixes)
     return stats
 
 
-def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None,floor_prefixes=None,**collectors):
-    # Maintenance plans use the same staged-owner deferral and original pins as
-    # callback validation. Vote/application/replay collectors remain unsupported.
+def completion_observed(rows):
+    if rows and rows[-1]['event']==application.CUT:
+        found=forces.completion_files.observed(rows,interrupted_application='node-1')
+        need(all(kind=='application' and row.get('node')=='node-1' for _,kind,row in found),
+             'application protocol interrupted completion scope')
+        return []  # The dedicated first-ACK sidecar owns these original callbacks.
+    return forces.completion_files.observed(rows)
+
+
+def slot(rows,before,applied_group,published,*,first,point=None,prefixes=None,floor_prefixes=None,
+         vote_prefixes=None,completion_prefixes=None,replay_prefixes=None,**collectors):
     need(all(v is None for v in collectors.values()),'application protocol transient collectors unsupported')
     if point is not None:
         need(point==application.CUT and first,'application protocol exact interrupted cut')
-        return interrupted(rows,before,published,prefixes=prefixes,floor_prefixes=floor_prefixes)
-    rows,before=retired(rows,before)
+        return interrupted(rows,before,published,prefixes=prefixes,floor_prefixes=floor_prefixes,
+                           vote_prefixes=vote_prefixes,replay_prefixes=replay_prefixes)
+    rows,before=retired(rows,before,replay_prefixes=replay_prefixes)
     stats=forces.slot(rows,before,applied_group,published,first=first,maintainer=maintenance,
-                      prefixes=prefixes,floor_prefixes=floor_prefixes)
+                      prefixes=prefixes,floor_prefixes=floor_prefixes,vote_prefixes=vote_prefixes,
+                      completion_prefixes=completion_prefixes,replay_prefixes=replay_prefixes,
+                      maintenance_projection=application.maintain)
     selected=f.decode(c.current(before['node-1'])[1]['selected.gsr'],'records','SELECTED')
     for source in selected['sources']:
         node=source['voter'];files=applied_group[node]

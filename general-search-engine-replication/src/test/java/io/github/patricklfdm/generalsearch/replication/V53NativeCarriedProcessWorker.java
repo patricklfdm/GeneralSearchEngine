@@ -15,9 +15,9 @@ public final class V53NativeCarriedProcessWorker {
     static void applicationCaptureCase(boolean first,boolean recovery,int life,String kind,String point,int arguments) {
         if(!first && !recovery)return;
         // Either just the original resource capture, or all three maintenance
-        // families together. Other partial/extended shapes are not this entry.
+        // families together, optionally followed by the complete transient set.
         if(first && recovery || life!=(first?1:2) || !Set.of("INTENT","FINAL").contains(kind) ||
-                !point.equals("APPLY_ACK_DIRECTORY_FORCED") || arguments!=5 && arguments!=8)
+                !point.equals("APPLY_ACK_DIRECTORY_FORCED") || arguments!=5 && arguments!=8 && arguments!=12)
             throw new IllegalArgumentException("native carried explicit application capture layout");
     }
     public static void main(String[] args)throws Exception {
@@ -48,7 +48,7 @@ public final class V53NativeCarriedProcessWorker {
         var pipe=new V53NodeProcessWorker.Pipe();
         var capture=args.length>=5?new V53NodeResourceCapture(Path.of(args[4]),history.manifestDigest(),life,pipe,
                 args.length>=6?Path.of(args[5]):null,args.length>=7?Path.of(args[6]):null,args.length>=8?Path.of(args[7]):null,
-                args.length>=9?Path.of(args[8]):null,args.length>=10?Path.of(args[9]):null,args.length>=11?Path.of(args[10]):null,args.length==12?Path.of(args[11]):null,applicationCut,applicationRetirement):null;
+                args.length>=9?Path.of(args[8]):null,args.length>=10 && applicationCut==null?Path.of(args[9]):null,args.length>=11?Path.of(args[10]):null,args.length==12?Path.of(args[11]):null,applicationCut,applicationRetirement):null;
         V53NodeProcessWorker.Sink sink=capture==null?pipe:capture;
         var owners=new ArrayList<MembershipNodeOwner<Integer,Doc>>();
         var activeSlot=new AtomicLong();var installations=new AtomicLong();var cut=new AtomicBoolean();
