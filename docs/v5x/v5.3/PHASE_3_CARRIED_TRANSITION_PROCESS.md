@@ -6,8 +6,9 @@ force/network replay and source-bound cohort admission are still required. The
 original storage snapshot reduction described below is now implemented.
 The storage callback component also derives the observed force/return ordering.
 Separate transport and temporal export components now bind the two retained
-originals; transient-file capture and complete maintenance composition remain
-separate obligations.
+originals. The complete-copy maintenance component also binds their acquisition
+and FLOOR lifetimes; transient-file capture and continuous ledger composition
+remain separate obligations.
 They do not add accepted members to the twelve hosted subsets.
 
 ## Original history and process ownership
@@ -263,6 +264,60 @@ Six declared process cases and the application-ACK crash axis remain outstanding
 
 ```bash
 python3.11 -B -m scripts.v53.native_carried_transition_exports \
+  general-search-engine-replication/target/v53-native-carried-transition-process/run-<id> --qualify
+```
+
+## Complete-copy maintenance through restart
+
+The [maintenance reader](../../../scripts/v53/native_carried_transition_maintenance.py)
+requires the complete original process, physical, callback, transport and export
+replays. It predicts each required FLOOR and its governing owners from the
+independently derived original state, including the exact reaccepted vote and
+campaign-only source retirement. Observed FLOOR counts do not define this plan.
+Unselected owners remain in the original group comparison.
+
+Each cold JVM starts with one ordered discovery pass over its original peers.
+These STATUS replies remain route hints. Each maintenance transaction then has
+two actual local-copy callbacks: capture before remote acquisition and recheck
+after every complete remote copy arrives. For each required peer, the reader
+binds its own fresh STATUS, packet-only transfer, exact local borrowed images,
+generation metadata and commit delivery. A startup hint, earlier floor hint,
+partial packet, installation ACK or equal terminal hash cannot supply that copy.
+Before-grant maintenance checks the original local ballot for the proposer and
+the incoming ballot for participating peers; in-slot maintenance uses its exact
+selected ballot. Every packet and metadata request must preserve that context.
+
+The copied owner identities, manifests, packets and image inventories must equal
+the predicted governing cohort. Both governing majorities remain required. The
+existing independent copy model derives every FLOOR write/force, handoff and
+release callback. Generation/source deletion must stay inside that forced
+authority interval. Each local copy, remote discovery and required floor is
+consumed exactly once. Complete network copies stay distinct from direct fixture
+calls; these histories have no direct fixture floor.
+
+The [maintenance development index](phase3-evidence/carried-transition-process-maintenance.json)
+retains the same two original histories and unchanged full inventories. FINAL
+has eleven floors / twenty-nine copies; INTENT has sixteen floors / forty-four
+copies. Together they bind forty-six remote acquisitions, twelve separate
+startup hints and fifty-four local capture/recheck callbacks. Eleven exact
+mutations per original cover missing/duplicate local checks, early local recheck,
+late metadata, missing/duplicated startup probes, borrowed startup hints, wrong
+acquisition ballots and packet/metadata order. All mutated originals must first
+pass physical, callback, transport and export replay; an unrelated earlier
+refusal cannot earn maintenance-negative credit.
+
+Focused regressions also reject foreign copy bytes, a wrong governing owner set,
+reused floor/hint authority and unconsumed required observations. Relocated
+optimized Python replay preserves the original results. These checks add no
+native executions, hosted catalogue entries or runtime Java changes.
+The component result remains **PARTIAL**, with
+`completeCopyFloorLifetimesQualified=true`. Exact continuous peer/future revision
+composition, transient-file capture, full resource qualification, the remaining
+six process cases, application-ACK recovery and final-source admission remain
+open. Earlier component receipts preserve their narrower scopes.
+
+```bash
+python3.11 -B -m scripts.v53.native_carried_transition_maintenance \
   general-search-engine-replication/target/v53-native-carried-transition-process/run-<id> --qualify
 ```
 
