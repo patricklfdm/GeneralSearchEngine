@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Carried application ownership](PHASE_3_CARRIED_APPLICATION_OWNERSHIP.md)
+composes temporal exports, complete-copy FLOOR acquisition and continuous
+peer/future revisions for the existing application-ACK crash originals. PROOF
+receipts, per-source retirement, staged-owner deferral and local-original pins
+retain exact process/force authority. Native transient/resource capture and
+final-source hosted qualification remain OPEN; no new producer is run here.
+
 [Carried application protocol replay](PHASE_3_CARRIED_APPLICATION_PROTOCOL.md)
 adds original storage-callback and TCP checks to the existing INTENT/halt and
 FINAL/SIGKILL application-ACK histories. Old certificate/end retirement, local

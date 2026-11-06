@@ -24,7 +24,7 @@ def copy_of(files,node):
                 members=members,packet=packet)
 
 
-def expected_floors(root,history):
+def expected_floors(root,history,*,stage_projector=None):
     """Predict floor owners and original copies before inspecting FLOOR events."""
     point=x.process.read(root/'process/result.json')['cut'];first=p.t.shape(x.process.read(root/'process/result.json')['carriedKind'])[0]
     result={}
@@ -46,20 +46,23 @@ def expected_floors(root,history):
                     payload=packet['objects'][f.decode(entry,'records','ENTRY')['payload']]
                     current[node]['pending.accept']=p.vote(before[node],entry,payload)
             eligible=voters if stage['kind']=='slot' else ['node-1'] if point=='PROOF_RENAMED' else []
+        annotations={}
+        if stage_projector is not None:
+            current,eligible,annotations=stage_projector(before,current,eligible,stage,voters,point)
         for node in eligible:
             projected=p.maintain(current,(node,),campaign=campaign)[node]
             if projected==current[node]:continue
             copies={peer:copy_of(current[peer],peer) for peer in p.floors.floor_voters(current,node)}
             old=f.decode(c.current(before[node])[1]['promise.gsr'],'records','PROMISE')['ballot']
             result[ordinal,node]=dict(copies=copies,ballot=old if campaign and node=='node-1' else selected['ballot'],
-                phase=stage['kind'],life=stage['life'])
+                phase=stage['kind'],life=stage['life'],**annotations.get(node,{}))
     return result
 
 
 class Replay(x.Replay):
-    def __init__(self,root,kind):
-        super().__init__(root,kind)
-        self.expected=expected_floors(self.root,self.history)
+    def __init__(self,root,kind,*,export_options=None,floor_projector=expected_floors):
+        super().__init__(root,kind,**({} if export_options is None else export_options))
+        self.expected=floor_projector(self.root,self.history)
         sizes=[len(v['copies']) for v in self.expected.values()]
         self.expected_floor_counts=(len(sizes),0,sum(sizes),sum(n-1 for n in sizes))
         self.expected_status_count=None
@@ -176,8 +179,8 @@ def edit_observations(root,edit):
     x.process.process.rewrite_lives(root,changed)
 
 
-def mutate(root,kind,name):
-    root=Path(root);reader=Replay(root,kind);reader.run()
+def mutate(root,kind,name,*,reader_factory=Replay):
+    root=Path(root);reader=reader_factory(root,kind);reader.run()
     floors=[at for at,v in enumerate(reader.events) if v['event']=='FLOOR_RESERVED' and v.get('node')=='node-1']
     start=next(at for at in floors if reader.stage(at)[1]['kind']=='campaign' and reader.stage(at)[1]['life']==2)
     _,stage=reader.stage(start)

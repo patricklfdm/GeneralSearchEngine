@@ -137,7 +137,7 @@ class Replay(shared.Replay):
     expected_floor_counts=None
     expected_status_count=None
 
-    def __init__(self,root,kind):
+    def __init__(self,root,kind,*,slot_projection=None,interrupted_projector=interrupted_records,retirement_boundaries=None):
         self.root=Path(root);self.kind=kind
         original=process.read(self.root/'events.json');self.history=network.History(self.root,kind,original)
         self.events,self.rows,_,_=network.transport(self.root,self.history,original)
@@ -146,7 +146,7 @@ class Replay(shared.Replay):
         self.windows=generation_windows(self.root,self.events,self.history,self.live)
         activation=self.history.activations()
         self.sources=sources.source_windows(self.root,self.events,self.history,activation,
-            snapshots=snapshots(self.root,self.events))
+            snapshots=snapshots(self.root,self.events),retirement_boundaries=retirement_boundaries)
         self.model=model(self.root,self.history)
         # Interrupted callbacks belong to the mandatory crash reducer, not to
         # the complete successor slots. Keep journal/fencing events in place.
@@ -154,9 +154,10 @@ class Replay(shared.Replay):
         slots=[v for v in self.history.ranges if v['kind']=='slot']
         records_events=[dict(node=v.get('node'),event='OUTSIDE_SLOT') if v['event'] in critical and
             not any(s['start']<at<s['stop'] for s in slots) else v for at,v in enumerate(self.events)]
+        if slot_projection is not None:records_events=slot_projection(self.root,self.history,records_events)
         self.records=e.record_windows(self.root,records_events,self.model,self.windows,self.sources,nodes=self.history.old,
             selection_records=[v['SELECTED'] for v in activation.phases])
-        self.records+=interrupted_records(self.root,self.events,self.history,self.windows,self.model)
+        self.records+=interrupted_projector(self.root,self.events,self.history,self.windows,self.model)
 
     def run(self):
         transfer_lifetimes(self.groups,self.live)
@@ -183,14 +184,15 @@ def validate(root):
 NEGATIVES={k:v for k,v in e.NEGATIVES.items() if k not in ('pending-after-retain','source-after-retirement','record-view')}
 
 
-def mutate(root,kind,name):
-    root=Path(root);reader=Replay(root,kind)
+def mutate(root,kind,name,*,reader_factory=Replay,receipt_phase=None):
+    root=Path(root);reader=reader_factory(root,kind)
     if name=='receipt-before-force':
-        group=next(v for v in reader.groups if e.native_receipt(v[0]['raw']))
+        group=next(v for v in reader.groups if e.native_receipt(v[0]['raw']) and
+                   (receipt_phase is None or json.loads(v[0]['raw'])['phase']==receipt_phase))
         q=group[0]['offer']['request'];node=q['recipient']['node']
         raw=json.loads(group[0]['raw']);records=[v for v in reader.records if v['node']==node and
              v['reference']==q['payload']['digest'] and v['start']<group[0]['offer']['received']<v['end']]
-        need(len(records)==1 and raw['phase']=='ACCEPT','transition export mutation original receipt')
+        need(len(records)==1 and raw['phase']==(receipt_phase or 'ACCEPT'),'transition export mutation original receipt')
         boundary=records[0]['start']
         rows=[v for v in reader.rows if v['request']['trace']==q['trace'] and v['request']['recipient']['node']==node]
         requests={v['requestHash'] for v in rows};responses={v['responseHash'] for v in rows}
@@ -213,7 +215,7 @@ def mutate(root,kind,name):
     with tempfile.TemporaryDirectory(prefix='v53-transition-export-wire-') as temporary:
         virtual=Path(temporary);wires=process.read(root/'wire.json')
         (virtual/'events.json').write_bytes(f.canonical(reader.events));(virtual/'wire.json').write_bytes(f.canonical(wires))
-        e.mutate(virtual,name,reader=reader);changed=process.read(virtual/'wire.json')
+        e.mutate(virtual,name,reader=reader,receipt_phase=receipt_phase);changed=process.read(virtual/'wire.json')
         need(len(changed)==len(wires),'transition export mutation wire count');mapping={}
         for before,after in zip(wires,changed):
             for side in ('request','response'):

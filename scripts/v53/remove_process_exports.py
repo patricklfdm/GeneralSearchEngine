@@ -76,7 +76,7 @@ def frozen_sources(files,node):
     return result
 
 
-def source_windows(root,events,history,activation,*,snapshots=None):
+def source_windows(root,events,history,activation,*,snapshots=None,retirement_boundaries=None):
     grants={};prior=-1
     for ordinal,parts in enumerate(activation.phases,1):
         selected=f.decode(parts['SELECTED'],'records','SELECTED');digest=sha(parts['SELECTED'])
@@ -100,9 +100,16 @@ def source_windows(root,events,history,activation,*,snapshots=None):
             if removed:
                 # One independently derived source transaction may remove several
                 # original sources. Do not infer identities from callback counts.
-                need(len(retirements)==1,'REMOVE process export original source retirement interval')
-                end=retirements[0];used_retirements.add(end)
+                if retirement_boundaries is None:
+                    need(len(retirements)==1,'REMOVE process export original source retirement interval')
+                    ends=dict.fromkeys(removed,retirements[0])
+                else:
+                    ends=retirement_boundaries(events,node,before,current,lower,at,retirements)
+                    need(set(ends)==removed and set(ends.values())==set(retirements),
+                         'REMOVE process export exact source retirement boundaries')
+                used_retirements.update(ends.values())
                 for identifier in removed:
+                    end=ends[identifier]
                     own=windows[node,identifier];need(own['start']<end and own['end']==len(events),'REMOVE process export retired source order')
                     own['end']=end
             else:need(not retirements,'REMOVE process export retirement without removed source')

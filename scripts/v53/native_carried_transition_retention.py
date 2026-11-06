@@ -29,7 +29,8 @@ def open_reseals(base):
             need([v['event'] for _,v in selected]==names and all(set(v)=={'node','event'} for _,v in selected),
                  'transition retention exact open reseal order')
             need(rows[0][1]['event']=='CURRENT_VALIDATED' and rows[0][0]<selected[0][0] and
-                 any(i>selected[-1][0] and v['event'] in ('ACCEPT_ACTIVE_PARENT_FORCED','PROOF_ACTIVE_PARENT_FORCED') for i,v in rows),
+                 any(i>selected[-1][0] and v['event'] in tuple(k+'_ACTIVE_PARENT_FORCED' for k in
+                     getattr(base,'recovery_phases',('ACCEPT','PROOF'))) for i,v in rows),
                  'transition retention original open recovery interval')
             used.update(i for i,_ in selected)
             result.append(dict(node=node,path=f'life-{life}-opened',peer=selected[1][0],future=selected[3][0],
@@ -42,6 +43,7 @@ def phases(base):
     slots=[v for v in base.history.ranges if v['kind']=='slot']
     observed=[v if any(s['start']<i<s['stop'] for s in slots) else dict(event='OUTSIDE_SLOT')
               for i,v in enumerate(base.events)]
+    if hasattr(base,'slot_projection'):observed=base.slot_projection(base.root,base.history,observed)
     return x.network.network.phase.blocks(observed,base.history)
 
 
@@ -68,8 +70,8 @@ class PeerReplay(m.Replay):
     selection=h.PeerReplay.selection
     publication=h.PeerReplay.publication
 
-    def __init__(self,root,kind):
-        super().__init__(root,kind)
+    def __init__(self,root,kind,*,base_options=None):
+        super().__init__(root,kind,**({} if base_options is None else base_options))
         self.state={};self.steps=[];self.used=set();self.comparisons=0;self.completions=set();self.open_steps=[]
         self.floor_inputs=[];self.files_cache={};self.phases=phases(self)
         h.peer_event_shapes(self.events,self.history.old)
@@ -124,8 +126,8 @@ class PeerReplay(m.Replay):
 
 
 class FutureReplay(future.Replay):
-    def __init__(self,root,kind):
-        self.base=m.Replay(root,kind);self.root=self.base.root;self.events=self.base.events;self.model=self.base.history;self.kind=kind
+    def __init__(self,root,kind,*,base_factory=m.Replay):
+        self.base=base_factory(root,kind);self.root=self.base.root;self.events=self.base.events;self.model=self.base.history;self.kind=kind
         self.base.phases=phases(self.base);self.tx,self.write_events=future.observations(self.events,joining=None)
         need(all(v['node'] in self.model.old for v in self.events if v['event'].startswith('FUTURE_RETENTION_')),
              'transition retention future original owner')
@@ -202,9 +204,10 @@ NEGATIVES={
 }
 
 
-def mutate(root,kind,stage,name):
+def mutate(root,kind,stage,name,*,readers=None):
     need(stage in NEGATIVES and name in NEGATIVES[stage],'transition retention mutation case')
-    reader=(PeerReplay if stage=='peers' else FutureReplay)(root,kind);reader.run();events=reader.events
+    factory=(PeerReplay if stage=='peers' else FutureReplay) if readers is None else readers[stage]
+    reader=factory(root,kind);reader.run();events=reader.events
     names=peer.WRITES if stage=='peers' else future.WRITES
     def selected(kind):return next(v for v in reader.steps if v['kind']==kind)
     def indices(step):return [i for i in range(step['start'],step['end']+1) if events[i].get('node')==step['node'] and events[i]['event'] in names]

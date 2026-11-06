@@ -384,7 +384,7 @@ NEGATIVES={
 }
 
 
-def mutate(root,name,*,kind='ADD',recovery=None,reader=None):
+def mutate(root,name,*,kind='ADD',recovery=None,reader=None,receipt_phase=None):
     events=n.s.collection.read_json(root,'events.json',n.s.collection.EVENT_BYTES)
     wires=n.s.collection.read_json(root,'wire.json',n.s.collection.WIRE_BYTES)
     if reader is None:
@@ -404,7 +404,8 @@ def mutate(root,name,*,kind='ADD',recovery=None,reader=None):
                         sha(s['basis'])==v[0]['offer']['request']['payload']['digest'] and s['end']<len(events)
                         for s in reader.sources)]
         need(candidates,'export mutation requires actually retired source');values=candidates[0]
-    elif name.startswith('receipt-'):values=next(v for v in groups if native_receipt(v[0]['raw']))
+    elif name.startswith('receipt-'):values=next(v for v in groups if native_receipt(v[0]['raw']) and
+        (receipt_phase is None or json.loads(v[0]['raw'])['phase']==receipt_phase))
     elif name=='record-view':values=next(v for v in groups if record_kind(v[0]['raw'])=='ENTRY')
     elif name=='pending-after-retain':values=next(v for v in groups if v[0]['raw']==pending_ack(model))
     else:

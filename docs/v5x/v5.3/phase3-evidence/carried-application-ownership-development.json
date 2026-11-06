@@ -1,0 +1,634 @@
+{
+  "acceptancePlan": {
+    "path": "docs/v5x/v5.3/acceptance-plan.json",
+    "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+  },
+  "base": "21f9581e505176bba1398427d43af9f9b980059b",
+  "cohortAdmitted": false,
+  "documentationContract": {
+    "path": "target/v53-carried-application-exports/contract.json",
+    "sha256": "62adf6be4e88a588629d374398a8bf1df6288c0badafee51122a6dd96a1bdcc3"
+  },
+  "frozenParametersChanged": false,
+  "historicalIndexesUnchanged": 387,
+  "hostedExecuted": false,
+  "legacyOriginals": [
+    {
+      "path": "target/v53-carried-application-exports/legacy-final.json",
+      "sha256": "e4c1689757282a78caf9de9afd539f68a5d51207ede2b1569d778ee97fef6c33"
+    },
+    {
+      "path": "target/v53-carried-application-exports/legacy-intent.json",
+      "sha256": "721c72813e47d8f940da6a70e973a9ac1bbd0e9de1ed4fb95b1258a8d7521492"
+    }
+  ],
+  "limitations": [
+    "Only two retained application-ACK axes are qualified; no new native or hosted workload was run.",
+    "Temporal export capability and complete copies do not establish transient allocation ownership or simultaneous resource maxima.",
+    "Original physical/callback/network/export/FLOOR readers pass before ledger mutation; mutated ledgers require exact component refusal, not replay of deliberately broken prerequisite callbacks.",
+    "Reader development failures and earlier producer failures remain retained and earn no positive qualification.",
+    "Remaining crash axes, DATA/internal-core interruptions and final-source hosted acceptance remain open."
+  ],
+  "logs": [
+    {
+      "path": "target/v53-carried-application-exports/related-python.log",
+      "sha256": "9e15c130f650492d000d33822467b46b9e53fc328f524c17d25460236b1398b6"
+    },
+    {
+      "path": "target/v53-carried-application-exports/optimized-tests.log",
+      "sha256": "28a99b3eecae538093a37cab16de8554bc3b4473465cda817ffdb5a5c206abf3"
+    },
+    {
+      "path": "target/v53-carried-application-exports/portable.log",
+      "sha256": "8e50beb5834d618c738168230990a3d5cd44855c372f20ea92d9d130a2f637b8"
+    },
+    {
+      "path": "target/v53-carried-application-exports/regressions.log",
+      "sha256": "89b346d349188396489ee7a3872f041819b15f4749dbb2a2c41202fc2184da17"
+    },
+    {
+      "path": "target/v53-carried-application-exports/final-qualification.log",
+      "sha256": "79097290f4e62620e2baaee8b3efaf0b55cb9ff03ce6875874dcffc5ccc1d129"
+    },
+    {
+      "path": "target/v53-carried-application-exports/intent-qualification.log",
+      "sha256": "9d3c53f675e6f38bf04c0f1ff6ef0e803273624c91938fbb1a8bef21ae2628af"
+    },
+    {
+      "path": "target/v53-carried-application-exports/final-original.stderr",
+      "sha256": "c7a6075a8dd4f9772f3eb0d0e47bfdace114999c0ea33902353e1522b95d7a78"
+    }
+  ],
+  "nativeCompiledClasses": {
+    "path": "target/v53-carried-application-recovery/compiled-classes.json",
+    "sha256": "db1708af1d0ed089d2eba3642652ce72764c5578949743a18962e4dc108773e8"
+  },
+  "nativeOriginals": [
+    {
+      "inventory": {
+        "path": "target/v53-carried-application-exports/final-inventory.json",
+        "sha256": "1ae4ba295dcc6b5314d874229dc36ea32096f4184f798c6536a9b62864ecc142"
+      },
+      "negativeVariants": 51,
+      "observed": {
+        "exports": {
+          "boundSessions": {
+            "current-generation": 40,
+            "frozen-source": 14,
+            "journal": 10,
+            "native-applied-checkpoint": 3,
+            "native-vote-receipt": 34,
+            "pending-payload": 4,
+            "pending-record": 14,
+            "published-local-checkpoint": 1,
+            "published-record": 5
+          },
+          "boundTransfers": {
+            "current-generation": 138,
+            "frozen-source": 42,
+            "journal": 10,
+            "native-applied-checkpoint": 3,
+            "native-vote-receipt": 34,
+            "pending-payload": 4,
+            "pending-record": 14,
+            "published-local-checkpoint": 1,
+            "published-record": 5
+          },
+          "cohortAdmitted": false,
+          "completeCopyFloorLifetimesQualified": false,
+          "generationWindows": 21,
+          "kind": "FINAL",
+          "observedExportAuthorityQualified": true,
+          "ownerLifetimes": 8,
+          "phase3Complete": false,
+          "recordWindows": 92,
+          "sourceWindows": 12,
+          "status": "PARTIAL",
+          "transientBytesCaptured": false,
+          "unqualifiedTransfers": 0
+        },
+        "maintenance": {
+          "acquiredRemoteCopies": 20,
+          "acquisitionHints": 20,
+          "cohortAdmitted": false,
+          "completeCopies": 32,
+          "completeCopyFloorLifetimesQualified": true,
+          "directFixtureFloors": 0,
+          "floorEvents": 1077,
+          "floorsByPhase": {
+            "campaign": 4,
+            "interrupted": 3,
+            "slot": 5
+          },
+          "initialDiscoveryHints": 6,
+          "kind": "FINAL",
+          "localCopyCallbacks": 24,
+          "networkFloors": 12,
+          "phase3Complete": false,
+          "pinnedLocalOriginals": 1,
+          "retentionRevisionCompositionQualified": false,
+          "retiredGenerations": 10,
+          "status": "PARTIAL",
+          "transientBytesCaptured": false
+        },
+        "retention": {
+          "cohortAdmitted": false,
+          "future": {
+            "chainSha256": "efa7220a0db52697e8c3d9b6eba9cc639e3f490503671f9ed0770cfd1d04f539",
+            "durableWrites": 13,
+            "finalRevisions": {
+              "node-1": 5,
+              "node-2": 5,
+              "node-3": 3,
+              "node-4": 0
+            },
+            "ledgerComparisons": 78,
+            "openReseals": 8,
+            "openRevisions": [
+              {
+                "digest": "33ebdd97efeb48533d80f21c5b8ef7c9ddee8f66f94380b6e4d3d7a86b2bdca9",
+                "life": 1,
+                "node": "node-1",
+                "revision": 0
+              },
+              {
+                "digest": "2b107ac4be9e1991b00c7bdd544c6c1cb4d823b6b407cbef29d4f7c70f5a2bd7",
+                "life": 1,
+                "node": "node-2",
+                "revision": 0
+              },
+              {
+                "digest": "4fc4610cd94714f08966b3ed52fad4113faa4d388c19e8198ff3e5afadba8520",
+                "life": 1,
+                "node": "node-3",
+                "revision": 0
+              },
+              {
+                "digest": "c3adb20092c6a191b5ec2e990ab986f364212d8fa8db3dd505658e84d23b387e",
+                "life": 1,
+                "node": "node-4",
+                "revision": 0
+              },
+              {
+                "digest": "33ebdd97efeb48533d80f21c5b8ef7c9ddee8f66f94380b6e4d3d7a86b2bdca9",
+                "life": 2,
+                "node": "node-1",
+                "revision": 0
+              },
+              {
+                "digest": "2b107ac4be9e1991b00c7bdd544c6c1cb4d823b6b407cbef29d4f7c70f5a2bd7",
+                "life": 2,
+                "node": "node-2",
+                "revision": 0
+              },
+              {
+                "digest": "4fc4610cd94714f08966b3ed52fad4113faa4d388c19e8198ff3e5afadba8520",
+                "life": 2,
+                "node": "node-3",
+                "revision": 0
+              },
+              {
+                "digest": "c3adb20092c6a191b5ec2e990ab986f364212d8fa8db3dd505658e84d23b387e",
+                "life": 2,
+                "node": "node-4",
+                "revision": 0
+              }
+            ],
+            "status": "PASS",
+            "writesByKind": {
+              "clear": 5,
+              "record": 8
+            }
+          },
+          "kind": "FINAL",
+          "peers": {
+            "capturedLedgers": 8,
+            "chainSha256": "7a3cd7fd279ba9103eab5d2d015028f46483be8976ec6ef0e23244cb64a7399b",
+            "durableWrites": 25,
+            "finalRevisions": {
+              "node-1": 11,
+              "node-2": 11,
+              "node-3": 6,
+              "node-4": 1
+            },
+            "ledgerComparisons": 90,
+            "openReseals": 8,
+            "openRevisions": [
+              {
+                "digest": "23a000194806397b9231394cf509bfdc4deca8d6ce245930a6a51e052beddb0b",
+                "life": 1,
+                "node": "node-1",
+                "revision": 1
+              },
+              {
+                "digest": "ef5eb1c4c21ef26d0df5ec62fb22c01ffd17455f9266746c58324f7e517ae290",
+                "life": 1,
+                "node": "node-2",
+                "revision": 1
+              },
+              {
+                "digest": "6fda0adb1cc23a69144036ca571295e48e0b1c58065ee6538f1227b009d17a9c",
+                "life": 1,
+                "node": "node-3",
+                "revision": 1
+              },
+              {
+                "digest": "a2b83987c0a26d28b24c3ea8ce7edd9e8c06700bf399411a537c67fbcf4f3686",
+                "life": 1,
+                "node": "node-4",
+                "revision": 1
+              },
+              {
+                "digest": "0d93b16833a43a5f25a125311a0ea7e7e96d98f3a91f469feee32dc46ac7d0a1",
+                "life": 2,
+                "node": "node-1",
+                "revision": 4
+              },
+              {
+                "digest": "69b3cb957dcc0795dbc483e88afa23e9cf3fc0851d1e192bb6abd5385639d192",
+                "life": 2,
+                "node": "node-2",
+                "revision": 4
+              },
+              {
+                "digest": "cf4446e4b9319a6e15109240df9811445ce0ee14d55f4583b5c12e2d112642d8",
+                "life": 2,
+                "node": "node-3",
+                "revision": 4
+              },
+              {
+                "digest": "a2b83987c0a26d28b24c3ea8ce7edd9e8c06700bf399411a537c67fbcf4f3686",
+                "life": 2,
+                "node": "node-4",
+                "revision": 1
+              }
+            ],
+            "status": "PASS",
+            "writesByKind": {
+              "maintenance": 15,
+              "publication": 5,
+              "selected": 5
+            }
+          },
+          "phase3Complete": false,
+          "retentionRevisionCompositionQualified": true,
+          "status": "PARTIAL",
+          "transientBytesCaptured": false,
+          "wholeRuntimeResourcesQualified": false
+        }
+      },
+      "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-181afe57-6457-423c-adcf-8e20ffc6fd2c",
+      "portable": {
+        "path": "target/v53-carried-application-exports/final-portable.json",
+        "sha256": "a32f4863e095c7ae8f0d92fd361500f8d78f7ec7158608d2df4a7ca6c57194b0"
+      },
+      "positive": {
+        "path": "target/v53-carried-application-exports/final-original.json",
+        "sha256": "a32f4863e095c7ae8f0d92fd361500f8d78f7ec7158608d2df4a7ca6c57194b0"
+      },
+      "process": {
+        "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-181afe57-6457-423c-adcf-8e20ffc6fd2c/process/result.json",
+        "sha256": "65752cfc80f42d2039e3406afe9e63f2f39e9e0c6f32dcb7f4dacbee2f0cc219"
+      },
+      "qualifications": {
+        "exports": {
+          "path": "target/v53-carried-application-exports/final-exports-qualified.json",
+          "sha256": "621f4802324ccb5599a5155b845fa849435103310e13f5f6188a9e08ee752664"
+        },
+        "maintenance": {
+          "path": "target/v53-carried-application-exports/final-maintenance-qualified.json",
+          "sha256": "3131eec00d69b6e8553520483f0b85fe6941070398de0a41c84376eb94e40bbc"
+        },
+        "retention": {
+          "path": "target/v53-carried-application-exports/final-retention-qualified.json",
+          "sha256": "ff49440544049868ebbf4f7e5fc4e299f6e0d8066a080c96b3de5b49a50c1eae"
+        }
+      }
+    },
+    {
+      "inventory": {
+        "path": "target/v53-carried-application-exports/intent-inventory.json",
+        "sha256": "8e05ef4a1735c13e3be57cda10ccffe735d2d75381891c9ba6ac6fe9c423c50b"
+      },
+      "negativeVariants": 51,
+      "observed": {
+        "exports": {
+          "boundSessions": {
+            "current-generation": 56,
+            "frozen-source": 20,
+            "journal": 14,
+            "native-applied-checkpoint": 6,
+            "native-vote-receipt": 52,
+            "pending-payload": 6,
+            "pending-record": 22,
+            "published-local-checkpoint": 4,
+            "published-record": 5
+          },
+          "boundTransfers": {
+            "current-generation": 188,
+            "frozen-source": 60,
+            "journal": 14,
+            "native-applied-checkpoint": 6,
+            "native-vote-receipt": 52,
+            "pending-payload": 6,
+            "pending-record": 22,
+            "published-local-checkpoint": 4,
+            "published-record": 5
+          },
+          "cohortAdmitted": false,
+          "completeCopyFloorLifetimesQualified": false,
+          "generationWindows": 27,
+          "kind": "INTENT",
+          "observedExportAuthorityQualified": true,
+          "ownerLifetimes": 8,
+          "phase3Complete": false,
+          "recordWindows": 131,
+          "sourceWindows": 15,
+          "status": "PARTIAL",
+          "transientBytesCaptured": false,
+          "unqualifiedTransfers": 0
+        },
+        "maintenance": {
+          "acquiredRemoteCopies": 28,
+          "acquisitionHints": 28,
+          "cohortAdmitted": false,
+          "completeCopies": 44,
+          "completeCopyFloorLifetimesQualified": true,
+          "directFixtureFloors": 0,
+          "floorEvents": 1343,
+          "floorsByPhase": {
+            "campaign": 5,
+            "interrupted": 3,
+            "slot": 8
+          },
+          "initialDiscoveryHints": 6,
+          "kind": "INTENT",
+          "localCopyCallbacks": 32,
+          "networkFloors": 16,
+          "phase3Complete": false,
+          "pinnedLocalOriginals": 6,
+          "retentionRevisionCompositionQualified": false,
+          "retiredGenerations": 16,
+          "status": "PARTIAL",
+          "transientBytesCaptured": false
+        },
+        "retention": {
+          "cohortAdmitted": false,
+          "future": {
+            "chainSha256": "c401ee2405e9a262d4748418f8f570aa96880284111b5e69817ed3ced1157e64",
+            "durableWrites": 22,
+            "finalRevisions": {
+              "node-1": 8,
+              "node-2": 8,
+              "node-3": 6,
+              "node-4": 0
+            },
+            "ledgerComparisons": 96,
+            "openReseals": 8,
+            "openRevisions": [
+              {
+                "digest": "cde6656a2b6ebeca7550b09d0abc613eb275d2265051c912bc2b93418d919c59",
+                "life": 1,
+                "node": "node-1",
+                "revision": 0
+              },
+              {
+                "digest": "e8bb3f5e49d51f5d39c48e261e2398bec9fd7884efbcd82db32676d9ff42c647",
+                "life": 1,
+                "node": "node-2",
+                "revision": 0
+              },
+              {
+                "digest": "b3840539f7620e6e06ce90f55cfd86f99fcecbdf72ddb8868e7935bc8a91df77",
+                "life": 1,
+                "node": "node-3",
+                "revision": 0
+              },
+              {
+                "digest": "8969125450fefdada8e14ac3b48fc4088b54e69d7a9681dd8c0265969a4e6d76",
+                "life": 1,
+                "node": "node-4",
+                "revision": 0
+              },
+              {
+                "digest": "cde6656a2b6ebeca7550b09d0abc613eb275d2265051c912bc2b93418d919c59",
+                "life": 2,
+                "node": "node-1",
+                "revision": 0
+              },
+              {
+                "digest": "e8bb3f5e49d51f5d39c48e261e2398bec9fd7884efbcd82db32676d9ff42c647",
+                "life": 2,
+                "node": "node-2",
+                "revision": 0
+              },
+              {
+                "digest": "b3840539f7620e6e06ce90f55cfd86f99fcecbdf72ddb8868e7935bc8a91df77",
+                "life": 2,
+                "node": "node-3",
+                "revision": 0
+              },
+              {
+                "digest": "8969125450fefdada8e14ac3b48fc4088b54e69d7a9681dd8c0265969a4e6d76",
+                "life": 2,
+                "node": "node-4",
+                "revision": 0
+              }
+            ],
+            "status": "PASS",
+            "writesByKind": {
+              "clear": 8,
+              "record": 14
+            }
+          },
+          "kind": "INTENT",
+          "peers": {
+            "capturedLedgers": 11,
+            "chainSha256": "9fb7225d5496dc1cdded75b52a9d499eea1028cae7490eb318cfa1262a787752",
+            "durableWrites": 43,
+            "finalRevisions": {
+              "node-1": 16,
+              "node-2": 16,
+              "node-3": 11,
+              "node-4": 0
+            },
+            "ledgerComparisons": 114,
+            "openReseals": 8,
+            "openRevisions": [
+              {
+                "digest": "6696fc44bad2fdc05862a00d98750c4310ed0202c64c40b006af6cf029d9d87e",
+                "life": 1,
+                "node": "node-1",
+                "revision": 0
+              },
+              {
+                "digest": "80de480ace1a25ac096bab67bfbf7d97fc0553878f702a61ab50d31c7a76ce65",
+                "life": 1,
+                "node": "node-2",
+                "revision": 0
+              },
+              {
+                "digest": "936c77bd9b6a276d12b9d5efe3b13095e9f7a3a4075b281be03d41a9ba0ce78c",
+                "life": 1,
+                "node": "node-3",
+                "revision": 0
+              },
+              {
+                "digest": "fc014af0cbe3ec26c5f1b2e46439fb31a71ac53896fa7c1e2d5a4796a53373e5",
+                "life": 1,
+                "node": "node-4",
+                "revision": 0
+              },
+              {
+                "digest": "4bcac388dbc776ba62d52af5fb2b22d3f990f2247e37e2ca18ccf55da4171500",
+                "life": 2,
+                "node": "node-1",
+                "revision": 3
+              },
+              {
+                "digest": "3ceb597b16c8213b156c632280b4b679bc0d8692129f212b47582d7cb4a5304d",
+                "life": 2,
+                "node": "node-2",
+                "revision": 3
+              },
+              {
+                "digest": "3ef93f7fd903ed0816a8d1507efd4a1b8db38dcdcf61caf333925dead21e1d55",
+                "life": 2,
+                "node": "node-3",
+                "revision": 3
+              },
+              {
+                "digest": "fc014af0cbe3ec26c5f1b2e46439fb31a71ac53896fa7c1e2d5a4796a53373e5",
+                "life": 2,
+                "node": "node-4",
+                "revision": 0
+              }
+            ],
+            "status": "PASS",
+            "writesByKind": {
+              "maintenance": 27,
+              "publication": 8,
+              "selected": 8
+            }
+          },
+          "phase3Complete": false,
+          "retentionRevisionCompositionQualified": true,
+          "status": "PARTIAL",
+          "transientBytesCaptured": false,
+          "wholeRuntimeResourcesQualified": false
+        }
+      },
+      "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-9c6021b0-f9e4-42b9-b70d-638b43c7f8b0",
+      "portable": {
+        "path": "target/v53-carried-application-exports/intent-portable.json",
+        "sha256": "f6bf72696f1c4baa06cf62ac51a4aba01870b3add492b7ae1d895a75e736fb02"
+      },
+      "positive": {
+        "path": "target/v53-carried-application-exports/intent-original.json",
+        "sha256": "f6bf72696f1c4baa06cf62ac51a4aba01870b3add492b7ae1d895a75e736fb02"
+      },
+      "process": {
+        "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-9c6021b0-f9e4-42b9-b70d-638b43c7f8b0/process/result.json",
+        "sha256": "bcc54927c05741905d2b439a1f63f4c19124145b319191dfd987953b656c07ab"
+      },
+      "qualifications": {
+        "exports": {
+          "path": "target/v53-carried-application-exports/intent-exports-qualified.json",
+          "sha256": "90934a1009372e6a86e03ee012df8491f48888b52a6a63acf49e0427adcfcc32"
+        },
+        "maintenance": {
+          "path": "target/v53-carried-application-exports/intent-maintenance-qualified.json",
+          "sha256": "4c2124f4db37558919ee8ecd09c23dcb752a1ee83fd79a274bdbe36926963b3e"
+        },
+        "retention": {
+          "path": "target/v53-carried-application-exports/intent-retention-qualified.json",
+          "sha256": "85c82118cd9388f77aad391bec4624bf047d835bb931c3716a045993875e09f9"
+        }
+      }
+    }
+  ],
+  "nativeSource": {
+    "path": "target/v53-carried-application-recovery/complete-fix-source.json",
+    "sha256": "f590a47fdceb4c60d9762b4341b6615c147f505fbc6e85395cfb7851f8f4774a"
+  },
+  "newJavaProcesses": 0,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "pushed": false,
+  "pythonSummary": {
+    "path": "target/v53-carried-application-exports/python-summary.json",
+    "sha256": "b02a440f74b2b87e773cbe7392289c66444160715ea2572d172df6438ba326e7"
+  },
+  "runtimeChanged": false,
+  "schema": "gse-v53-carried-application-ownership-development-v1",
+  "scope": "original-application-export-floor-peer-and-future-retention-components",
+  "scripts": [
+    {
+      "path": "target/v53-carried-application-exports/finalize.py",
+      "sha256": "efaa0e5f40b36db6d792ea2affb20d1fba0d5872385eb41561307185aaeae3db"
+    },
+    {
+      "path": "target/v53-carried-application-exports/portable.py",
+      "sha256": "28b7244addc3fb6a886b0e551314fceb0ff03a73b792f59278d3852830b115d9"
+    },
+    {
+      "path": "target/v53-carried-application-exports/regressions.py",
+      "sha256": "25b34906b9a89308282541d9b53fe84cf802f99f07a6380ebb3583aca8d4a2a1"
+    },
+    {
+      "path": "target/v53-carried-application-exports/qualify.py",
+      "sha256": "b6a4745ca731edd24c75157c15e9af1c8d4fff941df75e88399b8c0866a06f3f"
+    }
+  ],
+  "sourceFiles": [
+    {
+      "path": "scripts/v53/joining_export_evidence.py",
+      "sha256": "5af20213d4a4aba8cd621592231b11c19f09c6c706e9808a318407217443a468"
+    },
+    {
+      "path": "scripts/v53/native_carried_application_exports.py",
+      "sha256": "914b6d10a263216b9ffc5ae67f36d16c17d2db3f7ff3863ff769fc4fd401feeb"
+    },
+    {
+      "path": "scripts/v53/native_carried_application_maintenance.py",
+      "sha256": "fded7920bce8538dfbf019f074d0b5422b683922f2a136bf77e4f897afccd12d"
+    },
+    {
+      "path": "scripts/v53/native_carried_application_protocol.py",
+      "sha256": "c575373661cb0499bbb87482b1a15a52e32bc0df618a977fabe9f931752b529f"
+    },
+    {
+      "path": "scripts/v53/native_carried_application_retention.py",
+      "sha256": "998d25fe67fc32b9c2ce0a01d02f8cada8216ba5a6682a5d4d4f588b4309e76a"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_exports.py",
+      "sha256": "c51d306dfc5a6aa35bfc304ac53249af895cd53f9b214212fab20ff81c97d31b"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_maintenance.py",
+      "sha256": "377efcd9b0ec7db9cf8ebfb870759b7b1936ee91b96f9737b175d5c32fbf2a96"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_retention.py",
+      "sha256": "d98e158185d8ff421ffcfaf06759c5e07e1391896a3f62dcf5743dc564f32a0c"
+    },
+    {
+      "path": "scripts/v53/remove_process_exports.py",
+      "sha256": "d2df8b7979619a9e678c60e0f76bd4a2da1eba1b3dd8ef8c48427b6d847440a5"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_application_ownership.py",
+      "sha256": "3bdb9ac0da683c68bfb3c9ca1e084cc88f0dbeb3d63a5ded4789743e63e8cdc7"
+    }
+  ],
+  "unchangedCompiledClasses": 1975,
+  "validation": {
+    "exactNegatives": 102,
+    "fullReactorExecuted": false,
+    "legacyCompleteRetentionOriginals": 2,
+    "optimizedFocusedPython": 26,
+    "portableOptimizedOriginals": 2,
+    "relatedPython": 623
+  }
+}

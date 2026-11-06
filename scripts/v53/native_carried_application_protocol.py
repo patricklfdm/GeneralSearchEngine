@@ -27,12 +27,15 @@ def cold(rows,before,**kwargs):
 
 def maintenance(group,node,**kwargs):
     if 'applied-end' in group[node]:return [],dict(generations=0,sources=0,borrowed=0)
+    return forces.maintenance(group,node,pin_current=pin_current(group,node),**kwargs)
+
+
+def pin_current(group,node):
     files=group[node];prefix,members,_=c.current(files)
     inactive=any(k.startswith('generations/') and k!=prefix[:-1] and not k.startswith(prefix) for k in files)
     sources={k.split('/')[1] for k in files if k.startswith('sources/') and k.endswith('/source.gscp')}
     voters=p.floors.floor_voters(group,node) if p.needs_maintenance(files) else ()
-    pin=inactive and 'selected.gsr' in members and 2+len(voters)+len(sources)>7
-    return forces.maintenance(group,node,pin_current=pin,**kwargs)
+    return inactive and 'selected.gsr' in members and 2+len(voters)+len(sources)>7
 
 
 def no_retirement(rows):
