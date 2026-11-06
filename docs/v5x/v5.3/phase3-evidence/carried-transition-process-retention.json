@@ -1,0 +1,454 @@
+{
+  "acceptancePlan": {
+    "path": "docs/v5x/v5.3/acceptance-plan.json",
+    "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+  },
+  "base": "78be909bf7354dc128a155743927a8a5111e7563",
+  "declaredProcessCases": 8,
+  "executedOriginalProcessCases": 2,
+  "hostedExecuted": false,
+  "limitations": [
+    "Both crash cuts precede future recording; interrupted future/application ACK recovery remains outside these histories.",
+    "Transient force bytes, scratch inventory, simultaneous resource bounds and unrecorded deadline expiry remain open.",
+    "Six declared process histories remain unexecuted; final-source hosted admission remains open."
+  ],
+  "mutatedPrerequisiteReplayed": false,
+  "negativePrecondition": "full-original-physical-callback-network-export-floor; unchanged files, wire and non-target child observations",
+  "newNativeExecutions": 0,
+  "originals": [
+    {
+      "bytes": 34504046,
+      "cut": "PROOF_RENAMED",
+      "files": 5688,
+      "inventory": {
+        "path": "target/v53-carried-transition-process-retention/final-inventory.json",
+        "sha256": "a14e2872e9b62e092de9a02734648800ff7b6ad6a00c9ed5b5933ae1224a8eaf"
+      },
+      "kind": "FINAL",
+      "mode": "kill",
+      "negativeCases": 28,
+      "newNativeExecution": false,
+      "originalUnchanged": true,
+      "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-2c0544f6-6c32-474e-a0ed-394c348ae6ef",
+      "portable": {
+        "path": "target/v53-carried-transition-process-retention/final-portable.json",
+        "sha256": "8e508d9b7a8277cee1afe56c1753f23ad1b5283ad0a4e22d26c6ed6b6bb51622"
+      },
+      "producerSource": "77c851f22770ef445413615db22c91dc5a3141cf",
+      "progress": {
+        "path": "target/v53-carried-transition-process-retention/final-qualify.stderr",
+        "sha256": "6d6390394d046058dbb5c4cb5e9cc79aa37fb5fb91ade0eac5192a96c66b1395"
+      },
+      "qualification": {
+        "path": "target/v53-carried-transition-process-retention/final-qualify.json",
+        "sha256": "88764fdda89a315f9062ea10f502f0fb0e4cdcfedf6feb06e037789a79453139"
+      },
+      "retention": {
+        "cohortAdmitted": false,
+        "coreScratchInventoryReplay": false,
+        "future": {
+          "chainSha256": "5e1001473b1231c24e83372df7b7f2137db932ffaf970033af93af2656864677",
+          "durableWrites": 13,
+          "finalRevisions": {
+            "node-1": 5,
+            "node-2": 5,
+            "node-3": 3,
+            "node-4": 0
+          },
+          "ledgerComparisons": 78,
+          "openReseals": 8,
+          "openRevisions": [
+            {
+              "digest": "2feab2eaed6d036c9f1469f0bd584f2bbcab8f7ae5f5c021d79247c7d0d2f8a8",
+              "life": 1,
+              "node": "node-1",
+              "revision": 0
+            },
+            {
+              "digest": "642ddb46711c5f39c9109c328b4b1557d39ada492eb829ed657de0b56d72a682",
+              "life": 1,
+              "node": "node-2",
+              "revision": 0
+            },
+            {
+              "digest": "4bfc49999d256617a9f41c202cf3af79e2ec12da5087664358b9655b11fc6bed",
+              "life": 1,
+              "node": "node-3",
+              "revision": 0
+            },
+            {
+              "digest": "8eae8730e7c9af4967803e8a3be85e8e5cec043d7a21cdb6bf0e86cc2a90461e",
+              "life": 1,
+              "node": "node-4",
+              "revision": 0
+            },
+            {
+              "digest": "2feab2eaed6d036c9f1469f0bd584f2bbcab8f7ae5f5c021d79247c7d0d2f8a8",
+              "life": 2,
+              "node": "node-1",
+              "revision": 0
+            },
+            {
+              "digest": "642ddb46711c5f39c9109c328b4b1557d39ada492eb829ed657de0b56d72a682",
+              "life": 2,
+              "node": "node-2",
+              "revision": 0
+            },
+            {
+              "digest": "4bfc49999d256617a9f41c202cf3af79e2ec12da5087664358b9655b11fc6bed",
+              "life": 2,
+              "node": "node-3",
+              "revision": 0
+            },
+            {
+              "digest": "8eae8730e7c9af4967803e8a3be85e8e5cec043d7a21cdb6bf0e86cc2a90461e",
+              "life": 2,
+              "node": "node-4",
+              "revision": 0
+            }
+          ],
+          "status": "PASS",
+          "writesByKind": {
+            "clear": 5,
+            "record": 8
+          }
+        },
+        "kind": "FINAL",
+        "peers": {
+          "capturedLedgers": 8,
+          "chainSha256": "fba637aaffdd6b58d99da3a83cec209727a9f3f6fb4fc0fceb7ee49d1c460232",
+          "durableWrites": 25,
+          "finalRevisions": {
+            "node-1": 11,
+            "node-2": 11,
+            "node-3": 6,
+            "node-4": 1
+          },
+          "ledgerComparisons": 90,
+          "openReseals": 8,
+          "openRevisions": [
+            {
+              "digest": "c55afb2c7765077eb08bd1c21b4759edcad5bf0f0dec0997f4e7183d49d12ddb",
+              "life": 1,
+              "node": "node-1",
+              "revision": 1
+            },
+            {
+              "digest": "6fc38e2974c2bd5c0d26cf66916cd25b0a53d3c8959eaf2dff0326818dd74ebb",
+              "life": 1,
+              "node": "node-2",
+              "revision": 1
+            },
+            {
+              "digest": "fd9b1d4128cd42b56b4b96a4487ce82783ad6287478ad75b8f8d06768dd2310c",
+              "life": 1,
+              "node": "node-3",
+              "revision": 1
+            },
+            {
+              "digest": "b5706ce68184f4c9fba7113efb5d9328d89625879d32b963b335f33162bf18c0",
+              "life": 1,
+              "node": "node-4",
+              "revision": 1
+            },
+            {
+              "digest": "29d2fee2384e6e2cc8c6b505a9951d821ee6f074bfedce4f690459204671dce7",
+              "life": 2,
+              "node": "node-1",
+              "revision": 4
+            },
+            {
+              "digest": "6fc38e2974c2bd5c0d26cf66916cd25b0a53d3c8959eaf2dff0326818dd74ebb",
+              "life": 2,
+              "node": "node-2",
+              "revision": 1
+            },
+            {
+              "digest": "fd9b1d4128cd42b56b4b96a4487ce82783ad6287478ad75b8f8d06768dd2310c",
+              "life": 2,
+              "node": "node-3",
+              "revision": 1
+            },
+            {
+              "digest": "b5706ce68184f4c9fba7113efb5d9328d89625879d32b963b335f33162bf18c0",
+              "life": 2,
+              "node": "node-4",
+              "revision": 1
+            }
+          ],
+          "status": "PASS",
+          "writesByKind": {
+            "maintenance": 15,
+            "publication": 5,
+            "selected": 5
+          }
+        },
+        "phase3Complete": false,
+        "retentionRevisionCompositionQualified": true,
+        "status": "PARTIAL",
+        "transientBytesCaptured": false
+      }
+    },
+    {
+      "bytes": 33638420,
+      "cut": "ACCEPT_RENAMED",
+      "files": 5042,
+      "inventory": {
+        "path": "target/v53-carried-transition-process-retention/intent-inventory.json",
+        "sha256": "2d123456292889812ed26738cdb13cc344f2da73feede372467c36b419b30838"
+      },
+      "kind": "INTENT",
+      "mode": "halt",
+      "negativeCases": 28,
+      "newNativeExecution": false,
+      "originalUnchanged": true,
+      "path": "general-search-engine-replication/target/v53-native-carried-transition-process/run-8375ac2d-af1b-41df-b46d-900f6e2e5060",
+      "portable": {
+        "path": "target/v53-carried-transition-process-retention/intent-portable.json",
+        "sha256": "3c1f5eef39d86f9b70faa0649a366d3e12843cfa51e88ef92a98f3de1f409838"
+      },
+      "producerSource": "77c851f22770ef445413615db22c91dc5a3141cf",
+      "progress": {
+        "path": "target/v53-carried-transition-process-retention/intent-qualify.stderr",
+        "sha256": "6d6390394d046058dbb5c4cb5e9cc79aa37fb5fb91ade0eac5192a96c66b1395"
+      },
+      "qualification": {
+        "path": "target/v53-carried-transition-process-retention/intent-qualify.json",
+        "sha256": "6db51330295eaacf47c95d86a86bcb1fbcf98e86bda6f26fb768d2130f752994"
+      },
+      "retention": {
+        "cohortAdmitted": false,
+        "coreScratchInventoryReplay": false,
+        "future": {
+          "chainSha256": "3290c61c37d46f76b77bde7f0f94ce878f6cf28df1d7751efae7d5358b07c92a",
+          "durableWrites": 22,
+          "finalRevisions": {
+            "node-1": 8,
+            "node-2": 8,
+            "node-3": 6,
+            "node-4": 0
+          },
+          "ledgerComparisons": 96,
+          "openReseals": 8,
+          "openRevisions": [
+            {
+              "digest": "660a98ef4c3b635c9ad8b91261308153d03a12d0db2fc541e3bc35aa4c33d994",
+              "life": 1,
+              "node": "node-1",
+              "revision": 0
+            },
+            {
+              "digest": "1235351640708e921938e17802f9b400a9dad4d2bedeb7042e6826030d92467a",
+              "life": 1,
+              "node": "node-2",
+              "revision": 0
+            },
+            {
+              "digest": "56edc51089f1a3b17c6ec048bfb92643c187365f7ade8b256f9684d21883015c",
+              "life": 1,
+              "node": "node-3",
+              "revision": 0
+            },
+            {
+              "digest": "fe739031329f9d2bd9b427fcff2eb49f0e3f4ef6e8c6bc3241e54200d6eb7186",
+              "life": 1,
+              "node": "node-4",
+              "revision": 0
+            },
+            {
+              "digest": "660a98ef4c3b635c9ad8b91261308153d03a12d0db2fc541e3bc35aa4c33d994",
+              "life": 2,
+              "node": "node-1",
+              "revision": 0
+            },
+            {
+              "digest": "1235351640708e921938e17802f9b400a9dad4d2bedeb7042e6826030d92467a",
+              "life": 2,
+              "node": "node-2",
+              "revision": 0
+            },
+            {
+              "digest": "56edc51089f1a3b17c6ec048bfb92643c187365f7ade8b256f9684d21883015c",
+              "life": 2,
+              "node": "node-3",
+              "revision": 0
+            },
+            {
+              "digest": "fe739031329f9d2bd9b427fcff2eb49f0e3f4ef6e8c6bc3241e54200d6eb7186",
+              "life": 2,
+              "node": "node-4",
+              "revision": 0
+            }
+          ],
+          "status": "PASS",
+          "writesByKind": {
+            "clear": 8,
+            "record": 14
+          }
+        },
+        "kind": "INTENT",
+        "peers": {
+          "capturedLedgers": 11,
+          "chainSha256": "de784d75f76fe0bb3ad6e307fca870c5505284e822f71d19cbff87413c5c04c8",
+          "durableWrites": 43,
+          "finalRevisions": {
+            "node-1": 16,
+            "node-2": 16,
+            "node-3": 11,
+            "node-4": 0
+          },
+          "ledgerComparisons": 114,
+          "openReseals": 8,
+          "openRevisions": [
+            {
+              "digest": "c741b2eb9fc5074ec6c3f5e7503f46b4f4842d3dd7adc56d565fa68079d0aedd",
+              "life": 1,
+              "node": "node-1",
+              "revision": 0
+            },
+            {
+              "digest": "97a68bf968301d67da30fa865a2bbd4a178da409d7ff5083817e74f8aa2e80e0",
+              "life": 1,
+              "node": "node-2",
+              "revision": 0
+            },
+            {
+              "digest": "302e84630660d9dd0f8910ff088a06bf50b0befc1a91d273391e02c4b818a7c0",
+              "life": 1,
+              "node": "node-3",
+              "revision": 0
+            },
+            {
+              "digest": "b447018fb598a7058a0227cfae12f8d627c2b647490730281389eb3834fb13d8",
+              "life": 1,
+              "node": "node-4",
+              "revision": 0
+            },
+            {
+              "digest": "c741b2eb9fc5074ec6c3f5e7503f46b4f4842d3dd7adc56d565fa68079d0aedd",
+              "life": 2,
+              "node": "node-1",
+              "revision": 0
+            },
+            {
+              "digest": "97a68bf968301d67da30fa865a2bbd4a178da409d7ff5083817e74f8aa2e80e0",
+              "life": 2,
+              "node": "node-2",
+              "revision": 0
+            },
+            {
+              "digest": "302e84630660d9dd0f8910ff088a06bf50b0befc1a91d273391e02c4b818a7c0",
+              "life": 2,
+              "node": "node-3",
+              "revision": 0
+            },
+            {
+              "digest": "b447018fb598a7058a0227cfae12f8d627c2b647490730281389eb3834fb13d8",
+              "life": 2,
+              "node": "node-4",
+              "revision": 0
+            }
+          ],
+          "status": "PASS",
+          "writesByKind": {
+            "maintenance": 27,
+            "publication": 8,
+            "selected": 8
+          }
+        },
+        "phase3Complete": false,
+        "retentionRevisionCompositionQualified": true,
+        "status": "PARTIAL",
+        "transientBytesCaptured": false
+      }
+    }
+  ],
+  "paidCloud": false,
+  "phase3Complete": false,
+  "pushed": false,
+  "schema": "gse-v53-carried-transition-process-retention-development-v1",
+  "sourceFiles": [
+    {
+      "path": "scripts/v53/native_carried_transition_retention.py",
+      "sha256": "eb544453f250a71ffacbdce7d32a1dc3a76d13616165e1beb6b8ceec6e56f40d"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_transition_retention.py",
+      "sha256": "de964b6b5c2471d9f7a6e008099de33b44bcf2e9f4e03ccc7237ba1250658866"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_maintenance.py",
+      "sha256": "0da63f826f9a5bc1cbe2390ff276630c3d34e06afdd927cb21389ec4601b8013"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_exports.py",
+      "sha256": "1464a226003b3eea75a4d56f5ac92698afc7ed91427164b66ddb636ca73c69d4"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_network.py",
+      "sha256": "1eacfde8711815f30d9d70e2489a9204f75782bb5a8ac275fbd018e3bc509f0e"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_forces.py",
+      "sha256": "d1a3c0849fd54321734a5390b441839d4ce43cf42533647ceb93b7720e8b56e5"
+    },
+    {
+      "path": "scripts/v53/native_carried_transition_physical.py",
+      "sha256": "f155b2c9b5dc2b3e6804fd5878ad99b1d36f245bcf0dfa6b6b7336ec1ea4e303"
+    },
+    {
+      "path": "scripts/v53/remove_retention_evidence.py",
+      "sha256": "0ed949799f1b50ef18c2d136ad59214dd6182ad79040be4bae80a2f65c931918"
+    },
+    {
+      "path": "scripts/v53/joining_peer_evidence.py",
+      "sha256": "0bcac0a015baa48cc4d8cfd93382617c8a3914b24eee9e31006f339bd1a407b8"
+    },
+    {
+      "path": "scripts/v53/joining_same_view_future.py",
+      "sha256": "27d58c79353fd7d2b095bef7d62a32fc60e47a649ebed8a3b695f70d15020faa"
+    },
+    {
+      "path": "scripts/v53/carried_transition_evidence.py",
+      "sha256": "691ae972b370352fac3ae0220dff08c43cf210479faee1b0a9513200ac00056b"
+    },
+    {
+      "path": "scripts/v53/continuous_transition_evidence.py",
+      "sha256": "771052f3a466f71b8b183ecf7c025c77c3577649c43d1df2151ca92ccec54363"
+    }
+  ],
+  "status": "PARTIAL",
+  "unchangedCatalogue": {
+    "archives": 486,
+    "executionGroups": 246,
+    "histories": 552,
+    "subsets": 12,
+    "workflowJobs": 516
+  },
+  "validation": {
+    "ledgerComparisons": 378,
+    "newRegressionTests": 14,
+    "optimizedPythonTests": 31,
+    "optimizedUnit": {
+      "path": "target/v53-carried-transition-process-retention/unit-optimized.log",
+      "sha256": "c1fded3a84be49454caf3a8f2ae57c410dc7e13a1f27804d92dcb3a9d21bc7a8"
+    },
+    "originalFutureWrites": 35,
+    "originalLedgerReseals": 32,
+    "originalPeerWrites": 68,
+    "portable": {
+      "path": "target/v53-carried-transition-process-retention/portable.json",
+      "sha256": "decc3b548baa9f3a22c4e2a34a0191a74c51d4ad90535b621c93d96ad70fea3b"
+    },
+    "portableDriver": {
+      "path": "target/v53-carried-transition-process-retention/portable.py",
+      "sha256": "ec215c6b55c30ffa471417773e3bf326e69fd6a28c113534d346bab7cbe992dd"
+    },
+    "relatedPythonTests": 96,
+    "retentionNegativeCases": 56,
+    "unit": {
+      "path": "target/v53-carried-transition-process-retention/unit-related.log",
+      "sha256": "61633c6660c459f606f96adf8630186454308e1a62f5871da3d2b67a3266b389"
+    }
+  }
+}

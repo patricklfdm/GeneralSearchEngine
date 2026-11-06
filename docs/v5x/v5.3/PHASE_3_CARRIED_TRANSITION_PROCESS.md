@@ -7,8 +7,8 @@ original storage snapshot reduction described below is now implemented.
 The storage callback component also derives the observed force/return ordering.
 Separate transport and temporal export components now bind the two retained
 originals. The complete-copy maintenance component also binds their acquisition
-and FLOOR lifetimes; transient-file capture and continuous ledger composition
-remain separate obligations.
+and FLOOR lifetimes. Continuous peer/future revision replay now composes those
+same originals across both JVMs; transient-file capture remains separate.
 They do not add accepted members to the twelve hosted subsets.
 
 ## Original history and process ownership
@@ -311,13 +311,70 @@ reused floor/hint authority and unconsumed required observations. Relocated
 optimized Python replay preserves the original results. These checks add no
 native executions, hosted catalogue entries or runtime Java changes.
 The component result remains **PARTIAL**, with
-`completeCopyFloorLifetimesQualified=true`. Exact continuous peer/future revision
-composition, transient-file capture, full resource qualification, the remaining
-six process cases, application-ACK recovery and final-source admission remain
-open. Earlier component receipts preserve their narrower scopes.
+`completeCopyFloorLifetimesQualified=true`. Continuous peer/future revisions are
+handled by the separate component below. Transient-file capture, full resource
+qualification, the remaining six process cases, application-ACK recovery and
+final-source admission remain open. Earlier component receipts preserve their
+narrower scopes.
 
 ```bash
 python3.11 -B -m scripts.v53.native_carried_transition_maintenance \
+  general-search-engine-replication/target/v53-native-carried-transition-process/run-<id> --qualify
+```
+
+## Continuous retention revisions across both JVMs
+
+The [retention reader](../../../scripts/v53/native_carried_transition_retention.py)
+requires the complete original process, physical, callback, network, export and
+maintenance readers. It derives the admitted prefix once. Every later installed,
+applied, published, interrupted, reopened and closed inventory is a comparison,
+never a new ledger seed. Each of the four owners has two distinct original open
+reseals; the second JVM must preserve the first JVM's exact revision and bytes.
+Transaction forces must fit wholly inside one original owner lifetime.
+
+Peer revisions come from the actual governing copies, selected frozen sources
+and certified publication targets. Each resulting write has exactly seven
+ordered persistence callbacks, the previous ledger digest, unchanged identity and
+one incremented revision. Maintenance changes remain after FLOOR completion and
+before retirement; selected changes remain after installation force and before
+their completion callback. Every captured source contains the then-current
+derived ledger. No write or selected completion may remain unexplained.
+
+Future revisions derive each exact applied certificate and target obligation,
+bind the original recording request and its forced digest/revision ACK, and
+require promotion and clearing in their original publication intervals. The
+proposer's record completes before sending; a remote ACK follows its own forced
+record. Both retained crash cuts precede future recording, so they demonstrate
+unchanged future state across death and subsequent continuous recording, not
+an interrupted future-record crash axis. Application-ACK/staged application cuts
+remain outstanding.
+
+The [retention development index](phase3-evidence/carried-transition-process-retention.json)
+keeps the original runtime source and full inventories. FINAL derives 25 peer
+and 13 future writes; INTENT derives 43 peer and 22 future writes. Across the two
+originals, 378 comparisons and 32 ledger reseals bind these 103 writes. Original
+histories are reused without executing a new JVM or altering any runtime code.
+Relocated optimized replay must reproduce the same complete component receipt.
+
+Fifteen peer and thirteen future mutations per original exercise missing or
+reordered force, incomplete/unbound writes, resumed reseals, maintenance before
+floor or after retirement, selected completion, publication, recording and clear
+ordering. The unmodified complete original must pass first; physical bytes,
+wire responses, parent actions and every non-target callback stay unchanged.
+The mutated callback history is tested directly by its owning ledger reader:
+earlier count/order guards overlap these mutations, so the full prerequisite is
+not rerun on mutated inputs. Only the declared ledger reason earns rejection
+credit. Unit tests separately reject wrong predecessors, owner changes, writes
+spanning death and resetting a ledger from a later snapshot.
+
+Results remain **PARTIAL**, with `retentionRevisionCompositionQualified=true`.
+This is no claim of transient-file capture, core scratch replay, simultaneous
+resource qualification, all eight process cases or final-source cohort admission.
+Earlier component receipts and their narrower flags remain unchanged, as does
+the twelve-subset hosted catalogue.
+
+```bash
+python3.11 -B -m scripts.v53.native_carried_transition_retention \
   general-search-engine-replication/target/v53-native-carried-transition-process/run-<id> --qualify
 ```
 

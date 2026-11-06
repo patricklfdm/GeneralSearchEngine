@@ -13,9 +13,11 @@ transport, changing-view control ACKs and unanswered requests; forty wire/event
 mutations reject. A temporal export component now binds the two originals'
 generation/source, journal, vote and application transfers to their exact owner
 lifetimes. Complete-copy maintenance now binds 27 FLOOR transactions to 73
-original copies across those same two histories. Transient byte capture, core
-scratch inventory, continuous peer/future revision composition, full force/network
-replay and hosted admission remain OPEN.
+original copies across those same two histories. Continuous peer/future revision
+replay now derives their 103 durable ledger writes across both JVMs, preserving
+the exact predecessor chain through 32 reseals and 378 comparisons. Transient
+byte capture, core scratch inventory, full force/network replay and hosted
+admission remain OPEN.
 The twelve-subset catalogue is unchanged.
 Two retained originals exposed source accumulation after restart; the campaign-only
 correction now passes both focused process cases. These remain component checks.

@@ -18,8 +18,10 @@ or completed local vote/application. Four owners have two distinct lifetimes;
 an unfinished ACCEPT/PROOF callback cannot authorize a reply. Complete-copy
 maintenance now binds all 27 FLOOR transactions and 73 original copies, separating
 startup discovery from copy acquisition and requiring a final local recheck after
-remote transfer. Continuous peer/future revision composition and the other six
-declared process histories remain pending. The
+remote transfer. Continuous peer/future replay now derives all 103 durable ledger
+writes across both JVMs, with 378 comparisons and 32 exact ledger reseals. The
+other six declared process histories and application-ACK crash recovery remain
+pending. The
 twelve-subset catalogue is unchanged.
 Two retained originals exposed source accumulation after restart; the campaign-only
 correction now passes both focused process cases. These remain component checks.
