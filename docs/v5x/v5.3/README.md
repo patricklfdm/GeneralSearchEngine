@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Workflow execution observations](PHASE_3_WORKFLOW_COHORT.md) now bind the
+complete twelve-subset index to 516 expected jobs, actual source workflow steps
+and every prior attempt. A new entry observes those stages around original-first
+history replay and rechecks the inputs afterward. Development API/orchestration
+tests are synthetic; final-source execution, resource/coverage closure and
+Phase 3 acceptance remain OPEN.
+
 [Membership capacity completion](PHASE_3_CAPACITY_COMPLETION.md) adds a
 conditional-prefix owner continuation at the last admissible fixed-history
 change. The producer now records every voting/application/publication phase and

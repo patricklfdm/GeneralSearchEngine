@@ -1000,7 +1000,9 @@
         "scripts/v53/process_joint_hosted.py",
         "scripts/v53/phase3_seed_cohort.py",
         "scripts/v53/phase3_history_cohort.py",
-        "scripts/v53/phase3_witness_observations.py"
+        "scripts/v53/phase3_witness_observations.py",
+        "scripts/v53/phase3_workflow_cohort.py",
+        "scripts/v53/phase3_attested_cohort.py"
       ],
       "tests": [
         "scripts/v53/test_case_inventory.py",
@@ -1028,7 +1030,8 @@
         "scripts/v53/test_process_joint_workflow.py",
         "scripts/v53/test_phase3_seed_cohort.py",
         "scripts/v53/test_phase3_history_cohort.py",
-        "scripts/v53/test_phase3_witness_observations.py"
+        "scripts/v53/test_phase3_witness_observations.py",
+        "scripts/v53/test_phase3_workflow_cohort.py"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -1051,7 +1054,9 @@
         "scripts/v53/process_joint_hosted.py",
         "scripts/v53/phase3_seed_cohort.py",
         "scripts/v53/phase3_history_cohort.py",
-        "scripts/v53/phase3_witness_observations.py"
+        "scripts/v53/phase3_witness_observations.py",
+        "scripts/v53/phase3_workflow_cohort.py",
+        "scripts/v53/phase3_attested_cohort.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md",
@@ -1077,7 +1082,9 @@
         "docs/v5x/v5.3/PHASE_3_HISTORY_COHORT.md",
         "docs/v5x/v5.3/phase3-evidence/history-cohort.json",
         "docs/v5x/v5.3/PHASE_3_COVERAGE_WITNESSES.md",
-        "docs/v5x/v5.3/phase3-evidence/witness-observations.json"
+        "docs/v5x/v5.3/phase3-evidence/witness-observations.json",
+        "docs/v5x/v5.3/PHASE_3_WORKFLOW_COHORT.md",
+        "docs/v5x/v5.3/phase3-evidence/workflow-cohort.json"
       ],
       "cohorts": [
         "profiles",
@@ -1194,7 +1201,7 @@
         "combined-resources",
         "frozen-coverage"
       ],
-      "work": "Implement final Phase 3 admission across all required subsets after the missing entries and precise coverage are known. Current per-workflow aggregates are scoped subset gates, not a phase-wide aggregate. An offline all-twelve seed gate now checks complete Git source, actual class inventories, portable tools, dependencies and each owning reader/run/attempt without requiring distinct reader sets to have the same hash. It returns PARTIAL with no runtime/workflow attestation. Original-history replay, precise coverage and final workflow attestation remain separate prerequisites. The offline history-cohort entry now reopens every declared raw artifact through the owning verifier and aggregate, with exact all-twelve seed reconciliation and input drift checks. Its PARTIAL receipt never attests workflow execution, frozen coverage or combined physical maxima. Development validation is synthetic orchestration/reader-contract testing; a complete actual final-source set has not been replayed.",
+      "work": "Implement final Phase 3 admission across all required subsets after the missing entries and precise coverage are known. Current per-workflow aggregates are scoped subset gates, not a phase-wide aggregate. An offline all-twelve seed gate now checks complete Git source, actual class inventories, portable tools, dependencies and each owning reader/run/attempt without requiring distinct reader sets to have the same hash. It returns PARTIAL with no runtime/workflow attestation. Original-history replay, precise coverage and final workflow attestation remain separate prerequisites. The offline history-cohort entry now reopens every declared raw artifact through the owning verifier and aggregate, with exact all-twelve seed reconciliation and input drift checks. Its PARTIAL receipt never attests workflow execution, frozen coverage or combined physical maxima. Development validation is synthetic orchestration/reader-contract testing; a complete actual final-source set has not been replayed. A read-only workflow observer now binds all twelve source workflows and 516 exact selected jobs/critical steps to the explicit run/attempt index, retaining all prior attempts and complete paginated jobs. The attested entry collects before and after original-first whole-history replay, refuses execution drift, and rechecks seeds/raw archives. Synthetic API/orchestration tests qualify the entry implementation only; actual workflow observations, missing resource/coverage obligations and failed-history review remain pending.",
       "acceptance": "Bind exact source and actual build/toolchain/readers, each workflow/run/attempt and complete declared inventories; reconcile independent seed provenance. Reject missing/failed/mixed originals. No acceptance from this planning report."
     },
     {

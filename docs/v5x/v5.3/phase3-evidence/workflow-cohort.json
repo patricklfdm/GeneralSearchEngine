@@ -1,0 +1,71 @@
+{
+  "actualApiCollected": false,
+  "base": "3ffc3e61f6130c4c12da7f50c6f3a592cec18485",
+  "contracts": {
+    "path": "target/v53-workflow-cohort/contracts-final.json",
+    "sha256": "8482c8b52d7de633b4e468cc9bd91bd9aac38adb5ae4fbb568cf90d6ad1e7251"
+  },
+  "executionGroups": 246,
+  "hostedExecuted": false,
+  "limitations": [
+    "Requires a complete actual final-source seed/raw set and explicit run/attempt index.",
+    "Prior failed histories remain review obligations; a newer successful attempt does not erase them.",
+    "Workflow observation alone does not authenticate arbitrary local archives or replace original-first owning replay.",
+    "Supplemental full-capacity, combined physical maxima and exact coverage closure remain separate."
+  ],
+  "originalHistoriesReplayed": false,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "plannedHistories": 552,
+  "pushed": false,
+  "rawArchives": 486,
+  "retainedDevelopmentFailure": {
+    "log": {
+      "path": "target/v53-workflow-cohort/tests-first.log",
+      "sha256": "f0a6c652f840fa86dc14aac4bf232cf6413b7dd9071e5ab0548f86cd714f3037"
+    },
+    "reason": "The failure-retention assertion assumed insertion-order cohorts, while canonical index JSON sorts the cohort keys; changed the test to inspect the actual retained first response."
+  },
+  "schema": "gse-v53-workflow-cohort-development-v1",
+  "scope": "Actual source workflow/planner inspection and synthetic API/orchestration tests; no live workflow observations or native execution.",
+  "selectedJobs": 516,
+  "sourceFiles": {
+    "scripts/v53/phase3_attested_cohort.py": "b73e78c888c7ac65edd60e835a65a1b9dfee697807ae035ca2ca170813836989",
+    "scripts/v53/phase3_workflow_cohort.py": "ef77318f927f9a7205f521f273857ff15091cdc92604624b89a77866004670d7",
+    "scripts/v53/test_phase3_workflow_cohort.py": "3a80b8beccf0f219933f5c0f056ac52b23ff418b9caca2d6f982dc800cd8bc3e"
+  },
+  "status": "PARTIAL",
+  "subsets": 12,
+  "validation": {
+    "contract": {
+      "path": "target/v53-workflow-cohort/contract.json",
+      "sha256": "7eee633aab54f8d8459d70874741297e7bcc51f4f789e3d5470abe41ea438b94"
+    },
+    "coverage": {
+      "path": "target/v53-workflow-cohort/coverage.log",
+      "sha256": "dd6437fa328b9310609b82e283e57ec1589258ae79c993e2819ebdbd7cd88f5f"
+    },
+    "existingWorkflowContracts": {
+      "log": {
+        "path": "target/v53-workflow-cohort/workflow-tests.log",
+        "sha256": "cd25c9ef60c62f0e34bc6f20f8cffa71479bc6a6faef96bb40b7fdce33d8d10f"
+      },
+      "tests": 48
+    },
+    "focusedAndRelated": {
+      "log": {
+        "path": "target/v53-workflow-cohort/tests-complete.log",
+        "sha256": "644474937ecbaf52b09caced29c93dc0a77e7e286789053277998b4658f4b5f5"
+      },
+      "tests": 85
+    },
+    "optimizedPython": {
+      "log": {
+        "path": "target/v53-workflow-cohort/tests-optimized.log",
+        "sha256": "a7232f49800ce1ca05d911185f021e0d5e91478168841a0d8a4ebae418cacb63"
+      },
+      "tests": 15
+    }
+  },
+  "workflowExecutionAttested": false
+}

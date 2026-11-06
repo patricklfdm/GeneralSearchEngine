@@ -1,5 +1,12 @@
 # Phase 3 qualification inventory and remaining work
 
+[Workflow execution observations](PHASE_3_WORKFLOW_COHORT.md) now bind the
+complete twelve-subset index to 516 expected jobs, actual source workflow steps
+and every prior attempt. A new entry observes those stages around original-first
+history replay and rechecks the inputs afterward. Development API/orchestration
+tests are synthetic; final-source execution, resource/coverage closure and
+Phase 3 acceptance remain OPEN.
+
 [Complete observed export coverage](PHASE_3_EXPORT_ALLOCATION_COVERAGE.md) now
 composes independently validated session/direct/probe bindings into one exact
 allocation inventory. The strict required-four option refuses missing, duplicate
