@@ -14,7 +14,9 @@ from . import native_carried_retirement_prefixes as r
 need=r.need;f=r.f;collection=r.collection;shared=r.shared
 SCHEMA='gse-v53-carried-process-floor-capture-v1'
 CAPTURE_SCHEMA='gse-v53-carried-floor-capture-v1'
-KINDS={'floor':r.forces.floor.CUTS+('FLOOR_COPY_HANDED_OFF',),'floor-release':('FLOOR_RELEASE_',)}
+KINDS={'floor':r.forces.floor.CUTS+('FLOOR_COPY_HANDED_OFF','FLOOR_LOCAL_ORIGINAL_FORCED',
+    'FLOOR_LOCAL_SELECTOR_WRITTEN','FLOOR_LOCAL_SELECTOR_FORCED','FLOOR_LOCAL_PARENT_FORCED'),
+    'floor-release':('FLOOR_RELEASE_',)}
 
 
 def plans(root):

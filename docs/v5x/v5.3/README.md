@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Application maintenance captures](PHASE_3_CARRIED_APPLICATION_MAINTENANCE_PREFIXES.md)
+compose actual campaign, FLOOR and ordinary-retirement files with the same
+application-ACK crash/recovery history. Other transient families, physical charge
+composition and final-source Phase 3 qualification remain pending.
+
 [Application maintenance plans](PHASE_3_CARRIED_APPLICATION_MAINTENANCE_PLANS.md)
 now derive campaign, FLOOR and generation/source-retirement states through the
 original ACK crash and recovery. This is expected-state coverage; captured-byte

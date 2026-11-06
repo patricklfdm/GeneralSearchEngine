@@ -12,6 +12,14 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*
 public final class V53NativeCarriedProcessWorker {
     static final Set<String> CUTS=Set.of("NATIVE_RETIREMENT_CERTIFICATE_RETAINED","ACCEPT_RENAMED",
             "PROOF_RENAMED","APPLY_ACK_DIRECTORY_FORCED");
+    static void applicationCaptureCase(boolean first,boolean recovery,int life,String kind,String point,int arguments) {
+        if(!first && !recovery)return;
+        // Either just the original resource capture, or all three maintenance
+        // families together. Other partial/extended shapes are not this entry.
+        if(first && recovery || life!=(first?1:2) || !Set.of("INTENT","FINAL").contains(kind) ||
+                !point.equals("APPLY_ACK_DIRECTORY_FORCED") || arguments!=5 && arguments!=8)
+            throw new IllegalArgumentException("native carried explicit application capture layout");
+    }
     public static void main(String[] args)throws Exception {
         Path applicationCut=null,applicationRetirement=null;
         if(args.length>=2 && args[args.length-2].equals("--application-cut-capture")) {
@@ -29,10 +37,7 @@ public final class V53NativeCarriedProcessWorker {
         if(!Set.of("DATA","INTENT","FINAL").contains(kind) || paths.size()!=(data?3:4) ||
                 !data && point.equals("NATIVE_RETIREMENT_CERTIFICATE_RETAINED"))
             throw new IllegalArgumentException("native carried process fixed topology/kind");
-        if(applicationCut!=null && (life!=1 || data || !point.equals("APPLY_ACK_DIRECTORY_FORCED") || args.length!=5))
-            throw new IllegalArgumentException("native carried explicit application capture");
-        if(applicationRetirement!=null && (life!=2 || data || !point.equals("APPLY_ACK_DIRECTORY_FORCED") || args.length!=5))
-            throw new IllegalArgumentException("native carried explicit application retirement capture");
+        applicationCaptureCase(applicationCut!=null,applicationRetirement!=null,life,kind,point,args.length);
         int carriedIndex=data?1:kind.equals("INTENT")?5:6;long seconds=data?180:600;
         var identities=new ArrayList<MembershipIdentity>();
         for(var path:paths)identities.add(MembershipContext.identity(object(decode(Files.readAllBytes(

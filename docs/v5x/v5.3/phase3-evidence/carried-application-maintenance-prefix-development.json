@@ -1,0 +1,345 @@
+{
+  "acceptancePlan": {
+    "path": "docs/v5x/v5.3/acceptance-plan.json",
+    "sha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717"
+  },
+  "base": "aba2e202933b06e2fb539a04c69b2682ff1324a8",
+  "cohortAdmitted": false,
+  "currentSources": [
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ApplicationMaintenanceCaptureTest.java",
+      "sha256": "b6b9e2c13aafded47a03eb207f07a5b6ed3424c003679e2f22be0f1efe076e73"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedApplicationMaintenancePrefixTest.java",
+      "sha256": "52435085967d3c716d5c72d9fc365e28ad7c9939c09b63aef6e19b9675a795d8"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessTest.java",
+      "sha256": "d062fd1f982502379302570c577b4e407e215e0e42d2d40fdc8eca4d9bb65b01"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCarriedProcessWorker.java",
+      "sha256": "66bbcba387c02f4a34db9b02e0370ad6f6f77d6baf10ee3812d166dd14b67adc"
+    },
+    {
+      "path": "scripts/v53/native_carried_application_maintenance_prefixes.py",
+      "sha256": "c3315de328ea0a3949f640fb6ad3ac4db24e0ffc67ed6a3ec6fee74b0c5c92b0"
+    },
+    {
+      "path": "scripts/v53/native_carried_floor_prefixes.py",
+      "sha256": "85504f51d7686ccc2ac9f09b689da9f37b48b7ab0bb4f1ed5247eecc33b84598"
+    },
+    {
+      "path": "scripts/v53/test_native_carried_application_maintenance_prefixes.py",
+      "sha256": "d9ccaf275044643406e6a4dad71f1970f5af46b1d6bbd38f4a17023853a9c2ff"
+    }
+  ],
+  "existingIndexes": {
+    "count": 395,
+    "inventory": {
+      "path": "target/v53-carried-application-maintenance-prefixes/historical-indexes.json",
+      "sha256": "a68fd240309bb448613e20dea4e60177b8eada78cdc23a737e789e581d1ba263"
+    },
+    "unchanged": true
+  },
+  "frozenParametersChanged": false,
+  "fullTransientBytesQualified": false,
+  "hostedExecuted": false,
+  "limitations": [
+    "Development snapshot records baseline aba2e202 plus three modified and four new producer/capture/test/reader files. It is not an exact-commit or final-source hosted cohort.",
+    "Only FINAL/SIGKILL was executed for the new composed captures. Three other declared methods compiled but were not executed.",
+    "The same history qualifies interrupted application writes, old-end retirement and campaign/FLOOR/ordinary-retirement captures. Remaining transient families, physical charge binding and full application cohort admission are pending.",
+    "No full reactor suite, hosted workflow, paid cloud, budget relaxation or workload retry was used. Earlier original evidence remains intact."
+  ],
+  "native": {
+    "build": {
+      "path": "target/v53-carried-application-maintenance-prefixes/producer/build.json",
+      "sha256": "e655f2cfa763a87a84c4ff35bfc602e4a8c6837d4fd73edc87c922d2ae03e562"
+    },
+    "log": {
+      "path": "target/v53-carried-application-maintenance-prefixes/producer/maven.log",
+      "sha256": "6c5baf26991db5095d565cf7233fc2470773ebdaef787f4568ed5d3f86c821cf"
+    },
+    "producerReceipt": {
+      "path": "target/v53-carried-application-maintenance-prefixes/producer/receipt.json",
+      "sha256": "988105cc2edb4744c250dfaf5d8f0c9606533bb8db2b6382f9a56449994be568"
+    },
+    "retries": 0,
+    "seconds": 647.525,
+    "source": {
+      "path": "target/v53-carried-application-maintenance-prefixes/producer/source.json",
+      "sha256": "1c753f80e0eb895304d60ba6bedf848fb4a28ebe6fe0a5a79d569578c085c594"
+    },
+    "sourceOrigin": {
+      "path": "target/v53-carried-application-maintenance-prefixes/source-origin.json",
+      "sha256": "513654b150d82ba131af4bf46984ff519bfdb455b6d474337b868f2db06667d1"
+    },
+    "status": "PASS",
+    "suites": [
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53ApplicationCutCaptureTest",
+        "junit": {
+          "path": "target/v53-carried-application-maintenance-prefixes/producer/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ApplicationCutCaptureTest.xml",
+          "sha256": "a632fea46257cfd51765baeb6a523306e185b9c9b3369266821ccf9d4e8b3a30"
+        },
+        "methods": [
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53ApplicationCutCaptureTest",
+            "name": "wrongOwnerMissingAckOtherOpenOwnerAndNormalReturnRefuse",
+            "time": "0.079"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53ApplicationCutCaptureTest",
+            "name": "wrongTerminalLifetimeAndLaterEventsCannotSealPrefix",
+            "time": "0.004"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53ApplicationCutCaptureTest",
+            "name": "explicitInterruptedTerminalCannotBeRelabelledAsNormalCompletion",
+            "time": "0.01"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53ApplicationCutCaptureTest",
+            "name": "anotherCollectorModeCannotClaimApplicationInterruption",
+            "time": "0.003"
+          }
+        ],
+        "tests": 4
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53ApplicationMaintenanceCaptureTest",
+        "junit": {
+          "path": "target/v53-carried-application-maintenance-prefixes/producer/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ApplicationMaintenanceCaptureTest.xml",
+          "sha256": "ca0bdc5a3115bd7a8f8970014ca67081f9ae90e90299303d9d5ce6d6c51fc81c"
+        },
+        "methods": [
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53ApplicationMaintenanceCaptureTest",
+            "name": "ordinaryProcessEntriesKeepTheirOwnValidation",
+            "time": "0.002"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53ApplicationMaintenanceCaptureTest",
+            "name": "wrongLifetimeKindCutOrTwoApplicationSidesRefuse",
+            "time": "0.002"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53ApplicationMaintenanceCaptureTest",
+            "name": "onlyWholeMaintenanceOrOriginalResourceLayoutIsAdmitted",
+            "time": "0.002"
+          }
+        ],
+        "tests": 3
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53ApplicationRetirementCaptureTest",
+        "junit": {
+          "path": "target/v53-carried-application-maintenance-prefixes/producer/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ApplicationRetirementCaptureTest.xml",
+          "sha256": "b65b3c893a977bd39947793e2f148a2e8d247ccdaff1428fdc2808ba87c3133f"
+        },
+        "methods": [
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53ApplicationRetirementCaptureTest",
+            "name": "missingStartOpenOwnerAndSecondStartCannotSealRecovery",
+            "time": "0.007"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53ApplicationRetirementCaptureTest",
+            "name": "exactRetirementKeepsReplayInsideItsOwningTransaction",
+            "time": "0.019"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53ApplicationRetirementCaptureTest",
+            "name": "coldAndFreshApplicationForcesCannotMasqueradeAsRetirement",
+            "time": "0.004"
+          }
+        ],
+        "tests": 3
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53NativeCarriedApplicationMaintenancePrefixTest",
+        "junit": {
+          "path": "target/v53-carried-application-maintenance-prefixes/producer/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeCarriedApplicationMaintenancePrefixTest.xml",
+          "sha256": "7a44bae4f05418fbff3eac0b2ed28d8a8154bd9da8fa0204a924ddc83c52ba03"
+        },
+        "methods": [
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53NativeCarriedApplicationMaintenancePrefixTest",
+            "name": "killFinalApplicationMaintenancePrefixes",
+            "time": "609.424"
+          }
+        ],
+        "tests": 1
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest",
+        "junit": {
+          "path": "target/v53-carried-application-maintenance-prefixes/producer/workspace/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest.xml",
+          "sha256": "40637cd278ba771e254ab0cc99ccd01a7d2759a05b53a2056f66a61730701a40"
+        },
+        "methods": [
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest",
+            "name": "captureBindsOriginalCallbacksAndRealSuccessfulClose",
+            "time": "4.418"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest",
+            "name": "registrationRejectsReusedOpenedOrUnobservedOwners",
+            "time": "3.102"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest",
+            "name": "optionalFileObserverSharesExactEventBytesAndOriginalOwnerRegistration",
+            "time": "4.204"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest",
+            "name": "crashCaptureIsWrittenBeforeCutAndNeverClaimsDrain",
+            "time": "4.846"
+          },
+          {
+            "classname": "io.github.patricklfdm.generalsearch.replication.V53NodeResourceCaptureTest",
+            "name": "realNodeUsesSameLimitsAndOnlyObservedBudgetsExposeTraces",
+            "time": "5.125"
+          }
+        ],
+        "tests": 5
+      }
+    ],
+    "toolchain": {
+      "path": "target/v53-carried-application-maintenance-prefixes/producer/toolchain.json",
+      "sha256": "90c5fbd76c1f41bab712c45975c8aae29e78814cf35a5638dcebaf4a83797228"
+    }
+  },
+  "paidCloudExecuted": false,
+  "phase3Complete": false,
+  "plan": {
+    "path": "docs/v5x/v5.3/phase3-qualification-plan.json",
+    "sha256": "6d0958c8c28b5f399d0d7858930964e841de924f9b3e6f9b7bc436eef02caa61"
+  },
+  "qualification": {
+    "applicationNegatives": 24,
+    "applicationPrefixes": 32,
+    "applicationResult": {
+      "path": "target/v53-carried-application-maintenance-prefixes/qualification/application-result.json",
+      "sha256": "f18bf6199ab3e796549ca66f749bed4a711d55164445c4a2e8828d05b617e2b4"
+    },
+    "bytes": 67206586,
+    "children": [
+      {
+        "exit": 137,
+        "life": 1,
+        "pid": 2038609
+      },
+      {
+        "exit": 0,
+        "life": 2,
+        "pid": 2051425
+      }
+    ],
+    "cohortAdmitted": false,
+    "families": {
+      "campaigns": 457,
+      "floors": 1077,
+      "retirement": 597
+    },
+    "files": 8677,
+    "hostedExecuted": false,
+    "inventory": {
+      "path": "target/v53-carried-application-maintenance-prefixes/qualification/inventory.json",
+      "sha256": "821f32390c75f708289a51a5c0a788c5070b1a26bb4757d395f751f70a3d2c35"
+    },
+    "javaTests": 16,
+    "log": {
+      "path": "target/v53-carried-application-maintenance-prefixes/qualification.log",
+      "sha256": "2d8cff96ce514b93e8eda8627264ffe0b9dd56ae5155bcaf0fde934b67a73fa0"
+    },
+    "maintenanceNegatives": 89,
+    "maintenancePrefixes": 2131,
+    "maintenanceReplaySeconds": 138.74401267699432,
+    "maintenanceResult": {
+      "path": "target/v53-carried-application-maintenance-prefixes/qualification/maintenance-result.json",
+      "sha256": "3cb0f73a73091977542810d937bb911bb5aa99cbc7ce0530f40c6e6d80502be4"
+    },
+    "nativeSeconds": 609.424,
+    "negativeCases": 142,
+    "original": "workspace/general-search-engine-replication/target/v53-native-carried-application-maintenance-prefixes/run-dfed3586-75ab-47e6-9f23-8c3084485058",
+    "originalPreserved": true,
+    "ownerLifetimes": 8,
+    "phase3Complete": false,
+    "portable": "qualification/final-kill",
+    "retirementNegatives": 29,
+    "retirementPrefixes": 54,
+    "retirementResult": {
+      "path": "target/v53-carried-application-maintenance-prefixes/qualification/retirement-result.json",
+      "sha256": "18d1b07fc56ea2a5478477ef586b2799a4eea70cb9450865df2a55add4ae5067"
+    },
+    "seconds": 218.7961409809941,
+    "status": "PASS",
+    "summary": {
+      "path": "target/v53-carried-application-maintenance-prefixes/qualification/summary.json",
+      "sha256": "032e3085e8ee2eb84583cfd8af4826e0d790502ce419ed174abad287f0d532ae"
+    }
+  },
+  "runtimeJavaChanged": false,
+  "schema": "gse-v53-carried-application-maintenance-prefix-development-v1",
+  "scripts": [
+    {
+      "path": "target/v53-carried-application-maintenance-prefixes/capture.py",
+      "sha256": "92a22289030ffc716f4d2e98b42d000b97ca1e1cfe23998709aefb96e271a680"
+    },
+    {
+      "path": "target/v53-carried-application-maintenance-prefixes/qualify.py",
+      "sha256": "316bbfca54d21c0170e4dce29ca8f1b2589114f4ca1d6cea6ee4f5b618468938"
+    },
+    {
+      "path": "target/v53-carried-application-maintenance-prefixes/index-evidence.py",
+      "sha256": "106bddd378e219bbb00f73f4580bd1cd9628c9578e732bd5e9e534e50837f38c"
+    }
+  ],
+  "tests": {
+    "documentationContract": {
+      "path": "target/v53-carried-application-maintenance-prefixes/contract.json",
+      "sha256": "11309877cf81231cdd899c1a0496726da7146b10989d8642129f5020f3969ed0"
+    },
+    "precedingDecoder": {
+      "path": "target/v53-carried-application-maintenance-prefixes/preceding-floor-decoder.log",
+      "sha256": "6fb47af29616681201fab7a1fbe74c240eeb92b83d3289cf0ad1a10acb19ddb6"
+    },
+    "status": "PASS",
+    "suites": [
+      {
+        "log": {
+          "path": "target/v53-carried-application-maintenance-prefixes/unit-tests.log",
+          "sha256": "5fc3b47ba9c7f78109c060f3a76e3116cba8ec035135e7fbd66c6239abd05341"
+        },
+        "tests": 9
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-maintenance-prefixes/optimized-tests.log",
+          "sha256": "cd0860bbb4aed7907778751a2d27e5ae0f56aa5b8fd69f9097136d0e9f4dd612"
+        },
+        "tests": 19
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-maintenance-prefixes/related-tests.log",
+          "sha256": "eb5be254bd1b2c3dbc57b4cc296a08371b0ba26f31d9bd4ffee8d0dd48f4a1d1"
+        },
+        "tests": 279
+      },
+      {
+        "log": {
+          "path": "target/v53-carried-application-maintenance-prefixes/planning-tests.log",
+          "sha256": "7f63cd602dc48768675205937e004a01099d3c8944ce1e74534d49301be6bd56"
+        },
+        "tests": 34
+      }
+    ],
+    "suitesOverlap": true
+  },
+  "wholeRuntimeResourcesQualified": false
+}
