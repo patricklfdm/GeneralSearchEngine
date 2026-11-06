@@ -14,6 +14,8 @@ final class MembershipSlotDriver implements AutoCloseable {
     interface Events {
         Events NONE=(event,record,voters)->{};
         void at(String event,Decoded record,Set<String> voters)throws IOException;
+        default void localPublicationRequest(Decoded request)throws IOException {}
+        default void localPublicationResponse(Decoded response)throws IOException {}
     }
     @FunctionalInterface private interface Application {MembershipGrantJournal.Applied apply()throws IOException;}
     @FunctionalInterface private interface Acceptance {void accept(Decoded entry,byte[] payload)throws IOException;}
@@ -178,9 +180,11 @@ final class MembershipSlotDriver implements AutoCloseable {
         check();publicationHandoff=!object(applied.plan().catalog.value().get("cut")).get("view").equals(voting.before.context.view);
         for(var recorded:ready){check();recorded.dispatch(transport);check();}
         check();var publish=request(owner.activationIdentity(),"PUBLISH",Map.of("certificate",certificate.digest()));
+        events.localPublicationRequest(publish);time();
         var response=endpoint.handle(owner.activationIdentity(),publish);time();
         require(response.kind().equals("PUBLISH_ACK"),"slot local publication acknowledgement");
         require(Arrays.equals(response.bytes(),owner.acknowledgePublished(owner.activationIdentity(),publish).bytes()),"slot actual completed publication");
+        events.localPublicationResponse(response);time();
         events.at("PUBLISHED",certificate,selected);time();return publish;
     }
     /** A failed invocation cannot be reused. The outer owner reconciles durable

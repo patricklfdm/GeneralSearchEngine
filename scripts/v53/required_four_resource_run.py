@@ -1,6 +1,6 @@
 """Source-bound whole required-four execution, collection and resource admission.
 
-The producer returns PARTIAL. Independent complete replay and all 89 exact
+The producer returns PARTIAL. Independent complete replay and all 147 exact
 negatives are mandatory. No retries, shortened profile or CI dispatch occurs.
 """
 import argparse
@@ -38,7 +38,7 @@ def command(profile):
             '-Dv53.resource.transitions=true','-Dv53.transport.connections=true','-Dv53.transport.unsent=true',
             '-Dv53.resource.storage.transfers=true','-Dv53.resource.owner.close=true',
             '-Dv53.resource.joined.close=true','-Dv53.resource.source.control=true',
-            '-Dv53.resource.control.close=true','-Dv53.resource.export.ownership=true','test']
+            '-Dv53.resource.control.close=true','-Dv53.resource.export.ownership=true','-Dv53.resource.slot.control=true','test']
 
 
 def junit(reports,profile):

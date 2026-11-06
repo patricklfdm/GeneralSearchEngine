@@ -82,7 +82,7 @@ class SlotControlResourcesTest(unittest.TestCase):
 
     def test_explicit_scope_and_boolean_policy(self):
         with self.assertRaisesRegex(ValueError,'completeness policy'):r.replay(*fixture(),require_complete=1)
-        with self.assertRaisesRegex(ValueError,'slot control policy'):native.validate('unused','5-REPLACE-required-four',slot_control=True)
+        with self.assertRaisesRegex(ValueError,'slot control policy'):native.validate('unused','3-ADD',slot_control=True)
         with self.assertRaisesRegex(ValueError,'slot control policy'):native.validate('unused',slot_control=1)
         with self.assertRaisesRegex(ValueError,'voting control policy'):native.validate('unused',slot_control=True,voting_control=1)
 

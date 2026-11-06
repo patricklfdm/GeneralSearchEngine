@@ -1,5 +1,11 @@
 # Phase 3 qualification inventory and remaining work
 
+[Membership control resources](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md) integrate
+three previously stable-only readers into required-four admission, using actual
+local publication observations and per-slot original authority. The v2 gate
+requires 147 exact negatives; complete new-source execution remains pending.
+The preceding 89-case diagnostics retain their narrower reader and scope.
+
 Use the concise [current entry and closure checklist](PHASE_3_ENTRY_PLAN.md)
 for the twelve obligations, five gaps and acceptance order. The former entry's
 complete text is retained byte-for-byte in

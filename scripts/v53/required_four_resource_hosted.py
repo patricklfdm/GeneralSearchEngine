@@ -128,7 +128,7 @@ def verify(seed_bundle,raw_bundle,output,ctx,execute_result):
 
 def summary(path,ctx,stage,result):
     rows=[('Status',result['status']),('Source',ctx['source']),('Run / attempt',ctx['run']+' / '+ctx['attempt']),
-          ('Profile',PROFILE),('Scope','One complete required-four ownership history; 89 exact negatives'),('Phase 3 complete',False)]
+          ('Profile',PROFILE),('Scope','One complete required-four ownership history; 147 exact negatives'),('Phase 3 complete',False)]
     for key in (*m.PINS,'wholeHistories','observedResourcesQualified','combinedResourcesQualified'):
         if key in result:rows.append((key,result[key]))
     if 'failure' in result:rows.append(('Failure',result['failure']['message'].replace('|','/').replace('\n',' ')))

@@ -50,6 +50,12 @@ family or enable public READY.
 
 ## Current acceptance work
 
+[Membership control ownership](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md) adds
+original local PUBLISH capture and voting/slot/activation composition to the
+required-four gate. Its v2 result requires **147** exact negatives. Focused native
+validation is component evidence; a complete new-source v2 execution remains
+pending. Earlier 89-case diagnostics below retain their historical scope.
+
 | Gap | Existing prerequisite | Evidence still required |
 | --- | --- | --- |
 | component-cohorts | Twelve source-bound catalogues and their independent readers | Complete current-source original histories, exact negatives and undeleted failures |

@@ -126,7 +126,7 @@ class ActivationControlResourcesTest(unittest.TestCase):
     def test_policy_types_and_nonstable_profiles_reject(self):
         with self.assertRaisesRegex(ValueError,'completeness policy'):r.replay([],[],{},[],{},'b'*64,{},[],require_complete=1)
         with self.assertRaisesRegex(ValueError,'activation control policy'):native.validate('unused',activation_control=1)
-        with self.assertRaisesRegex(ValueError,'activation control policy'):native.validate('unused','5-REPLACE-required-four',activation_control=True)
+        with self.assertRaisesRegex(ValueError,'activation control policy'):native.validate('unused','3-ADD',activation_control=True)
         with self.assertRaisesRegex(ValueError,'slot control policy'):native.validate('unused',slot_control=1,activation_control=True)
 
     def test_matching_does_not_spend_a_waiter_on_optional_fast_ack_and_drop_a_required_call(self):

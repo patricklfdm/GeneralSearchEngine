@@ -17,7 +17,7 @@ class RequiredFourResourcesTest(unittest.TestCase):
         data=({'owners':[{'identity':{'node':'n'}}],'root':'root'},exports_data[0],[],events or [])
         inventory=stack.enter_context(patch.object(m.native.collection,'inventory',return_value={'immutable':'original'}))
         def validation(*args,**kwargs):
-            order.append('original');self.assertEqual(kwargs,{'joined_files':True,'joined_closes':True,'complete_exports':True,'export_bindings_out':{}})
+            order.append('original');self.assertEqual(kwargs,{'joined_files':True,'joined_closes':True,'complete_exports':True,'activation_control':True,'export_bindings_out':{}})
             self.assertEqual(args[1],m.PROFILE);kwargs['export_bindings_out'].update(copy.deepcopy(bindings));return original
         validate=stack.enter_context(patch.object(m.native,'validate',side_effect=validation))
         stack.enter_context(patch.object(m.native,'load',return_value=data))
@@ -27,17 +27,28 @@ class RequiredFourResourcesTest(unittest.TestCase):
         stack.enter_context(patch.object(m.files.maintenance,'Replay'))
         stack.enter_context(patch.object(m.files.r,'derive',return_value={'from':'original','node':'n'}))
         stack.enter_context(patch.object(m.files.r.transfers,'load',return_value={}))
+        stack.enter_context(patch.object(m.native.collection,'read_json',return_value=[]))
+        stack.enter_context(patch.object(m.slot.r,'required_four_publications',return_value={'derived':'original'}))
+        stack.enter_context(patch.object(m.native.publication,'collect',return_value=[]))
         for family,module in [('accounting',m.accounting),('handoff',m.handoff),('files',m.files),('network-close',m.network_close),('joining-close',m.joining_close),('export-allocations',m.exports)]:
             def negative(*args,family=family,**kwargs):
                 self.assertEqual('original',order[0]);order.append(family);return replay()['negatives'][family]
             stack.enter_context(patch.object(module,'replay',side_effect=negative))
+        for family,module,key in [('voting-control',m.voting,'votingControlResources'),('slot-control',m.slot,'slotControlResources'),
+                                  ('activation-control',m.activation,'activationControlResources')]:
+            def negative(data,family=family,key=key):
+                self.assertEqual('original',order[0]);order.append(family)
+                self.assertEqual(data[:6],(data[0],[],exports_data[0],[],{'n':{'node':'n'}},'root'))
+                if family!='voting-control':self.assertEqual(data[6:],({'derived':'original'},[]))
+                return dict(original=original[key],negatives=replay()['negatives'][family])
+            stack.enter_context(patch.object(module,'replay',side_effect=negative))
         return order,inventory,validate,original
 
-    def test_one_complete_original_then_all_89_negatives(self):
+    def test_one_complete_original_then_all_147_negatives(self):
         with ExitStack() as stack:
             order,inventory,validate,_=self.setup_gate(stack);result=m.qualify('/synthetic')
-        self.assertEqual(['original','accounting','handoff','files','network-close','joining-close','export-allocations'],order);self.assertEqual(1,validate.call_count)
-        self.assertEqual(2,inventory.call_count);self.assertEqual(89,sum(map(len,result['negatives'].values())))
+        self.assertEqual(['original',*m.NEGATIVES],order);self.assertEqual(1,validate.call_count)
+        self.assertEqual(2,inventory.call_count);self.assertEqual(147,sum(map(len,result['negatives'].values())))
         m.check_result(result);self.assertFalse(result['combinedResourcesQualified']);self.assertFalse(result['phase3Complete'])
 
     def test_invalid_original_stops_before_loading_or_counting_mutations(self):
@@ -48,7 +59,8 @@ class RequiredFourResourcesTest(unittest.TestCase):
         load.assert_not_called();negatives.assert_not_called()
 
     def test_scope_and_required_original_bindings_cannot_be_missing_or_partial(self):
-        for label in ('status','profile','accounting','handoff','files','network-close','joining-close','cleanup','exports','overclaim'):
+        for label in ('status','profile','accounting','handoff','files','network-close','joining-close','cleanup','exports',
+                      'votingControlResources','slotControlResources','activationControlResources','overclaim'):
             with ExitStack() as stack:
                 order,_,_,original=self.setup_gate(stack)
                 if label=='status':original['status']='PARTIAL'
@@ -60,9 +72,22 @@ class RequiredFourResourcesTest(unittest.TestCase):
                 elif label=='joining-close':original.pop('joinedOwnerCloses')
                 elif label=='cleanup':original.pop('sourceCleanupIntervals')
                 elif label=='exports':original.pop('exportAllocationCoverage')
+                elif label.endswith('ControlResources'):original.pop(label)
                 else:original['wholeRuntimeResourcesQualified']=True
                 with self.subTest(label=label),self.assertRaisesRegex(ValueError,'complete original'):m.qualify('/synthetic')
                 self.assertEqual(['original'],order)
+
+    def test_historical_six_family_receipt_cannot_claim_new_control_coverage(self):
+        value=replay();value['schema']='gse-v53-required-four-resources-v1'
+        for family in ('voting-control','slot-control','activation-control'):value['negatives'].pop(family)
+        with self.assertRaisesRegex(ValueError,'qualification scope'):m.check_result(value)
+
+    def test_negative_control_original_must_equal_full_original(self):
+        for module in (m.voting,m.slot,m.activation):
+            with ExitStack() as stack:
+                self.setup_gate(stack)
+                stack.enter_context(patch.object(module,'replay',return_value={'original':{'status':'PASS'},'negatives':[]}))
+                with self.assertRaisesRegex(ValueError,'original control binding output'):m.qualify('/synthetic')
 
     def test_original_must_still_be_unchanged_after_all_mutations(self):
         with ExitStack() as stack:

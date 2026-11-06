@@ -95,10 +95,10 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
          'native resources empty complete-export output only')
     need(type(joined_closes) is bool and (not joined_closes or profile=='5-REPLACE-required-four'), 'native resources joined closes policy')
     need(type(joined_files) is bool and (not joined_files or profile=='5-REPLACE-required-four'), 'native resources joined files policy')
-    need(type(activation_control) is bool and (not activation_control or profile=='stable'), 'native resources activation control policy')
-    need(type(slot_control) is bool and (not slot_control or profile=='stable'), 'native resources slot control policy')
+    need(type(activation_control) is bool and (not activation_control or profile in ('stable','5-REPLACE-required-four')), 'native resources activation control policy')
+    need(type(slot_control) is bool and (not slot_control or profile in ('stable','5-REPLACE-required-four')), 'native resources slot control policy')
     if activation_control:slot_control=True
-    need(type(voting_control) is bool and (not voting_control or profile=='stable'), 'native resources voting control policy')
+    need(type(voting_control) is bool and (not voting_control or profile in ('stable','5-REPLACE-required-four')), 'native resources voting control policy')
     if slot_control:voting_control=True
     need(type(complete_exports) is bool and (not complete_exports or profile=='5-REPLACE-required-four'),
          'native resources complete export policy')
@@ -211,13 +211,15 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
     slots=None
     if slot_control:
         from . import slot_control_resources
+        expected_publications=(slot_control_resources.publications(rounds,selection,identities) if profile=='stable' else
+                               slot_control_resources.required_four_publications(model,identities))
         slots=slot_control_resources.replay(events,wires,traces,boundaries,identities,authority,
-                slot_control_resources.publications(rounds,selection,identities),transactions)
+                expected_publications,transactions)
     activation=None
     if activation_control:
         from . import activation_control_resources
         activation=activation_control_resources.replay(events,wires,traces,boundaries,identities,authority,
-                slot_control_resources.publications(rounds,selection,identities),transactions)
+                expected_publications,transactions)
     need(collection.inventory(root)==before,'native resources original changed')
     if export_bindings_out is not None:
         need(result['status']=='PASS' and cleanup['status']=='PASS','native resources complete original before binding output')

@@ -1,8 +1,8 @@
-"""Original stable activation requests, cached reply bytes and caller custody.
+"""Original activation requests, cached reply bytes and caller custody.
 
 Requires independent native physical and slot qualification. Local labels only
 correlate allocations; original connected/local bytes and publications supply
-authority. Failed handlers, joining and complete runtime peaks remain separate.
+authority. Failed handlers and complete runtime peaks remain separate.
 """
 import base64
 from collections import defaultdict, deque

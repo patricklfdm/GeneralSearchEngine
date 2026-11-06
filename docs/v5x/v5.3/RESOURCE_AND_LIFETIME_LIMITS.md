@@ -1,5 +1,11 @@
 # V5.3 bounded resources and lifetime
 
+[Membership control ownership](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md) extends
+the required-four entry with actual local publication calls and three
+voting/slot/activation resource readers. The v2 gate requires **147** exact
+negatives. Earlier 89-case diagnostics below remain historical; complete v2
+execution, full resource maxima and final-source admission remain OPEN.
+
 [Complete required-four export admission](PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md)
 now requires source/control/export capture and exact session/direct/probe bindings
 on the same whole original. Eighteen allocation-proof negatives bring the entry

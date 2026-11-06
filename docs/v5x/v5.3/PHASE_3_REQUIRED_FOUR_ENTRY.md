@@ -60,7 +60,9 @@ limit is the existing hosted execution ceiling, not a new experiment deadline.
 
 [`required_four_resources.py`](../../../scripts/v53/required_four_resources.py)
 first calls the full native resource validator with `joined_files=True`,
-`joined_closes=True` and `complete_exports=True`.
+`joined_closes=True`, `complete_exports=True` and `activation_control=True`.
+The latter includes voting and slot control ownership, using the original
+local publication capture described in [membership control resources](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md).
 The [export composition](PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md) requires all original
 session/direct/probe bindings and cleanup observations on this same history.
 The existing physical, network, ledger, publication, source-request, transport,
@@ -78,13 +80,16 @@ predecessor/successor pairs for distinct equal-content images.
 | Network owner close | 12 |
 | Joining owner close across five original lifetimes | 12 |
 | Complete original export bindings | 18 |
-| Total | 89 |
+| Voting request writers and callers | 16 |
+| Slot delivery and local publication callers | 22 |
+| Activation requests, cached replies and callers | 20 |
+| Total | 147 |
 
 Every case must match its exact name, order, rejection status and reason.
 Missing families, unrelated failures and an invalid original cannot satisfy
 this entry. Mutations operate on decoded copies; the original inventory must
 remain unchanged. Other resource/fault negative catalogues retain their own
-obligations and are not replaced by these 89 cases.
+obligations and are not replaced by these 147 cases.
 
 `observedResourcesQualified` covers only these observations. Successful replay
 still reports `combinedResourcesQualified=false` and `phase3Complete=false`.
@@ -108,7 +113,7 @@ history was rerun in this batch. Validation details are retained locally under
 `target/v53-required-four-entry/`.
 
 After development, an authorized hosted execution must produce a new complete
-history on the corrected source and obtain all 89 exact negatives. The final
+history on the corrected source and obtain all 147 exact negatives. The final
 Phase 3 audit must bind that result to its complete source cohort; the entry's
 existence or its orchestration tests do not close that requirement.
 

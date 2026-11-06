@@ -1,0 +1,144 @@
+{
+  "baseHead": "da8efc07516d09288f869c81220f53c19bb5a30d",
+  "combinedResourcesQualified": false,
+  "controlResults": {
+    "activationControlResources": {
+      "activationResourcesQualified": true,
+      "boundReservations": 25,
+      "cachedControls": 12,
+      "calls": 14,
+      "durableBoundaryChecks": 5,
+      "fastPublicationReplies": 1,
+      "interruptedHandlersQualified": false,
+      "kinds": {
+        "ACCEPT": 2,
+        "APPLY": 2,
+        "PREPARE": 1,
+        "PROOF": 2,
+        "PUBLISH": 4,
+        "SELECTED": 1
+      },
+      "localCallers": 2,
+      "phase3Complete": false,
+      "publicationTransactions": 4,
+      "slotChildWaiters": 10,
+      "status": "PASS",
+      "waiterReservations": 13,
+      "wholeRuntimeResourcesQualified": false
+    },
+    "slotControlResources": {
+      "boundReservations": 16,
+      "deliveryAttempts": 7,
+      "deliveryReservations": 6,
+      "interruptedHandlersQualified": false,
+      "localWaiters": 2,
+      "networkWaiters": 8,
+      "phase3Complete": false,
+      "publicationTransactions": 4,
+      "slotResourcesQualified": true,
+      "status": "PASS",
+      "transport": {
+        "allTransportFramesQualified": true,
+        "attempts": 207,
+        "boundFrameLifetimes": 822,
+        "checkedFrameBoundaries": 1449,
+        "controlLifetimesQualified": false,
+        "failedAttempts": 8,
+        "observedTransportFramesQualified": true,
+        "observedUnsentFramesQualified": false,
+        "otherControlReservations": 635,
+        "phase3Complete": false,
+        "status": "PASS",
+        "unobservedFrameLifetimes": [],
+        "unsentAttempts": [],
+        "wholeRuntimeResourcesQualified": false
+      },
+      "wholeRuntimeResourcesQualified": false
+    },
+    "votingControlResources": {
+      "boundReservations": 12,
+      "connectedAttempts": 7,
+      "durableBoundaryChecks": 12,
+      "incomingVotingResourcesQualified": true,
+      "interruptedHandlersQualified": false,
+      "kinds": {
+        "ACCEPT": 2,
+        "APPLY": 2,
+        "PROOF": 2
+      },
+      "phase3Complete": false,
+      "repeatedIdenticalAttempts": 1,
+      "separatelyTracedFastAcks": 0,
+      "status": "PASS",
+      "waiterReservations": 6,
+      "wholeRuntimeResourcesQualified": false,
+      "writerControls": 6
+    }
+  },
+  "documents": {
+    "contract": "PASS",
+    "fiveGaps": "OPEN",
+    "qualificationPlan": "PASS"
+  },
+  "evidenceRoot": "target/v53-required-four-controls",
+  "finalSourceCohortQualified": false,
+  "historicalOriginal": {
+    "producerSource": "feeb7241f302a08f5c51232b608fbacbce4624e1",
+    "publicationsDerived": 34,
+    "strictRejection": "slot resources complete local observations",
+    "votingReservations": 138
+  },
+  "javaSourceSha256": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSlotDriver.java": "3151d4dca2412aefb8b27363b2c787e815252918d703ca7f9e98d9c70540e757",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "fde32311a1d39ff06770f40e674b452ba1e50960a6416a50adf176cb905f60cf",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SlotDriverTest.java": "7f3ba057c81d7cfc8f04f901b3e8c1b6ba940007cddb8052546171fc322bdd06"
+  },
+  "javaTests": {
+    "errors": "0",
+    "failures": "0",
+    "flakes": "0",
+    "name": "io.github.patricklfdm.generalsearch.replication.V53SlotDriverTest",
+    "skipped": "0",
+    "tests": "2",
+    "time": "118.218",
+    "version": "3.0.2",
+    "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd"
+  },
+  "phase3Complete": false,
+  "preservedFailures": [
+    "slot-capture-test.log: sandbox denied loopback sockets",
+    "short-native-replay.log: stable adapter omitted quorum observation; corrected by new capture, original unchanged"
+  ],
+  "pythonTests": {
+    "failures": 0,
+    "focused": 152,
+    "optimized": 96
+  },
+  "requiredFourNegativeCases": 147,
+  "requiredFourSchema": "gse-v53-required-four-resources-v2",
+  "retainedArtifacts": {
+    "target/v53-required-four-controls/baseline-components.json": "70fd106fdc06c32f2e4f558b3c9f48fd035f94607e9f4e50aa8206caa1b9f9aa",
+    "target/v53-required-four-controls/doc-contract.json": "081a3c9b66c82fe785e7e236a07a23e1b63a70a855cbf22a0d679593f1ccd42f",
+    "target/v53-required-four-controls/final-control-negatives.json": "e2140cc8832381497011487acb955ae4ad791d852063fa197b3f0c122ad4eb6f",
+    "target/v53-required-four-controls/final-junit.xml": "94b47d71289aa2016baf8e87ae3549902e09ea5b4ba8fab0a87879924f36c4fa",
+    "target/v53-required-four-controls/final-native-replay.json": "df8bbeb4e0861e7bbe3c25faf05f3a4c183b0aff123ee9d6c805eb5e7e2f533b",
+    "target/v53-required-four-controls/final-python-tests.log": "2571315f8a5d844c54bd84badb095cac839acc446fc94438b18f5f32916a2624",
+    "target/v53-required-four-controls/final-replay.log": "01d8f4c15bab320c66ed159d0fab904ea3a91b2e1b9e62ff71986f06f7f3bc77",
+    "target/v53-required-four-controls/final-slot-capture.log": "b609c523661996fbfefcfbe1ff0bbd8bed4c284c6b2c0b183aa711eb388b9db7",
+    "target/v53-required-four-controls/optimized-tests.log": "0f4aaf996f828da9e35a90ca42fe9fd363a54fd9fcc79d9f0079b2cc6a09e8ab",
+    "target/v53-required-four-controls/plan-audit.log": "5831b8e36275da84da0e202da185f006cc2344cfe2957800ad1243ec23394286",
+    "target/v53-required-four-controls/publication-derivation.log": "16405ce059db6683740316f1c7230b4993d02c4598e44d9928784223f7e158fe"
+  },
+  "schema": "gse-v53-membership-control-component-v1",
+  "shortNegativeCases": 58,
+  "shortOriginal": {
+    "elapsedSeconds": 72.20899626499158,
+    "inventorySha256": "396e8f0c58062db467da620c5c915ec019317e3c97df931a892ab357626a3de5",
+    "originalFirst": true,
+    "originalPreserved": true,
+    "raw": "general-search-engine-replication/target/v53-native-dispatch/run-8b179196-12ea-45ee-9b78-392910ed150e"
+  },
+  "status": "COMPONENT_PASS",
+  "validationScope": "component-only; no final source/build/tool/reader admission",
+  "wholeRequiredFourExecuted": false
+}

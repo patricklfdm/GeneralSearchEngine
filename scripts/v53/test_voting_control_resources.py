@@ -88,7 +88,7 @@ class VotingControlResourcesTest(unittest.TestCase):
         data,_=fixture();data[2]['node-2']['changes'].pop();negatives.recount(data[2],[])
         with self.assertRaises(ValueError):r.scan(data[2])
         with self.assertRaisesRegex(ValueError,'completeness policy'):r.replay([],[],{},[],{},'b'*64,require_complete=1)
-        with self.assertRaisesRegex(ValueError,'voting control policy'):native.validate('unused','5-REPLACE-required-four',voting_control=True)
+        with self.assertRaisesRegex(ValueError,'voting control policy'):native.validate('unused','3-ADD',voting_control=True)
 
     def test_invalid_original_cannot_be_counted_as_sixteen_rejections(self):
         with patch.object(r,'replay',side_effect=ValueError('bad original')),patch.object(negatives,'mutate') as mutate:

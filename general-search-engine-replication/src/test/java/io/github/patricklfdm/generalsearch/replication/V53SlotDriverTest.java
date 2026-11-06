@@ -35,6 +35,56 @@ class V53SlotDriverTest {
         return new MembershipSlotDriver(n.owners.getFirst(),n.endpoints.getFirst(),n.resources.getFirst(),n.bounds,n.transports.getFirst(),
             System::nanoTime,started,V53NativeDispatchTest.BUDGET,builder().configuration(),n.f.request.targets().getFirst().materialization(),events);
     }
+    @Test void localPublicationObservationsCarryActualBytesAcrossTwoSlots()throws Exception {
+        String previous=System.getProperty("v53.resource.slot.control");System.setProperty("v53.resource.slot.control","true");
+        try(var n=network(3)) {
+            n.activate();
+            for(boolean data:List.of(false,true)) {
+                var input=input(n,data);long index=number(input.entry.value().get("index"));
+                n.events.add(Map.of("node","node-1","event","SLOT_BEGIN","index",index));
+                var delegate=V53JoiningIntentExportTest.slotObservations(n,null,null);
+                var observations=new MembershipSlotDriver.Events() {
+                    @Override public void at(String event,Decoded record,Set<String> voters)throws IOException {
+                        if(event.equals("FUTURE_QUORUM_COMPLETE"))n.events.add(Map.of("node","node-1","event",event,"index",index,"voters",voters.stream().sorted().toList()));
+                        delegate.at(event,record,voters);
+                    }
+                    @Override public void localPublicationRequest(Decoded request)throws IOException{delegate.localPublicationRequest(request);}
+                    @Override public void localPublicationResponse(Decoded response)throws IOException{delegate.localPublicationResponse(response);}
+                };
+                try(var driver=driver(n,System.nanoTime(),observations)) {
+                    var done=driver.run(input.entry,input.payload);
+                    var calls=n.events.stream().filter(v->v.get("event").toString().startsWith("LOCAL_SLOT_")).toList();
+                    assertEquals(index*2,calls.size());var request=calls.get(calls.size()-2);var response=calls.getLast();
+                    assertEquals("LOCAL_SLOT_REQUEST",request.get("event"));assertEquals("LOCAL_SLOT_RESPONSE",response.get("event"));
+                    byte[] bytes=Base64.getDecoder().decode((String)request.get("bytes"));
+                    assertEquals(hash(bytes),request.get("record"));var decoded=decode(bytes,"wire","PUBLISH");
+                    assertEquals(decoded.value().get("payload"),Map.of("certificate",object(done.value().get("payload")).get("certificate")));
+                    assertArrayEquals(done.bytes(),Base64.getDecoder().decode((String)response.get("bytes")));
+                    assertEquals(done.digest(),response.get("record"));
+                    int start=n.events.indexOf(request),end=n.events.indexOf(response);
+                    var between=n.events.subList(start+1,end).stream().filter(v->v.get("node").equals("node-1")).toList();
+                    assertTrue(between.stream().anyMatch(v->v.get("event").equals("PUBLICATION_BEFORE_RETURN")));
+                }
+            }
+            Files.write(n.f.raw.resolve("result.json"),canonical(Map.of("status","PASS","slots",2,"network",true,"autonomous",false),4096));
+            System.out.println("v53SlotControlCapture=PASS raw="+n.f.raw.toAbsolutePath());
+        } finally {if(previous==null)System.clearProperty("v53.resource.slot.control");else System.setProperty("v53.resource.slot.control",previous);}
+    }
+    @Test void localPublicationObserverFailureNeverInventsCompletion()throws Exception {
+        for(boolean before:List.of(true,false))try(var n=network(3)) {
+            n.activate();var input=input(n,false);var responses=new AtomicInteger();
+            var observer=new MembershipSlotDriver.Events() {
+                @Override public void at(String event,Decoded record,Set<String> voters){}
+                @Override public void localPublicationRequest(Decoded request)throws IOException {if(before)throw new IOException("observation failure");}
+                @Override public void localPublicationResponse(Decoded response)throws IOException {responses.incrementAndGet();throw new IOException("observation failure");}
+            };
+            try(var driver=driver(n,System.nanoTime(),observer)) {
+                assertEquals("observation failure",assertThrows(IOException.class,()->driver.run(input.entry,input.payload)).getMessage());
+                assertTrue(driver.published().isEmpty());assertEquals(before?0:1,responses.get());
+                assertEquals(before?0L:1L,n.owners.getFirst().activationContext().cut.get("index"));
+            }
+        }
+    }
     @Test void wholeCoordinatorPublishesTwoSlotsAtThreeStableSizes()throws Exception {
         for(int size:List.of(3,4,5))try(var n=network(size)) {
             long started=System.nanoTime();n.activate();

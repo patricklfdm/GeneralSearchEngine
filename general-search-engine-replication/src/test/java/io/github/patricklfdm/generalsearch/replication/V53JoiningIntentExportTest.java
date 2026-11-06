@@ -42,9 +42,10 @@ class V53JoiningIntentExportTest {
             assertEquals("PUBLISH_ACK",driver.run(input.entry,input.payload).kind());
         }
     }
-    private static MembershipSlotDriver.Events slotObservations(V53NativeDispatchTest.Network n,
+    static MembershipSlotDriver.Events slotObservations(V53NativeDispatchTest.Network n,
             MembershipLearnerPlan joining,Path materialization) {
-        return (event,record,voters)->{
+        return new MembershipSlotDriver.Events() {
+        @Override public void at(String event,Decoded record,Set<String> voters)throws java.io.IOException {
             n.events.add(Map.of("node","node-1","event","JOINING_SLOT_"+event,"index",record.value().get("index"),
                     "record",record.digest(),"voters",voters.stream().sorted().toList()));
             if(event.equals("APPLIED") || event.equals("PUBLISHED"))try {
@@ -52,6 +53,13 @@ class V53JoiningIntentExportTest {
                 n.f.snapshot(name);
                 if(joining!=null)joinedSnapshot(joining,materialization,n.f.raw.resolve("joining-"+name));
             }catch(Exception error){throw new java.io.IOException(error);}
+        }
+        private void local(String event,Decoded record) {
+            if(Boolean.getBoolean("v53.resource.slot.control"))n.events.add(Map.of("node","node-1","event",event,
+                    "record",record.digest(),"bytes",Base64.getEncoder().encodeToString(record.bytes())));
+        }
+        @Override public void localPublicationRequest(Decoded request){local("LOCAL_SLOT_REQUEST",request);}
+        @Override public void localPublicationResponse(Decoded response){local("LOCAL_SLOT_RESPONSE",response);}
         };
     }
     static Decoded initial(MembershipLearnerRequest request,MembershipIdentity peer,Map<String,Object> cut) {

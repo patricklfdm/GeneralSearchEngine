@@ -18,6 +18,9 @@ def replay():
                   ownerCloseResources=dict(status='PASS',ownerCloseIntervalsQualified=True,phase3Complete=False),
                   joinedOwnerCloses=dict(status='PASS',joiningCloseIntervalsQualified=True,phase3Complete=False),
                   sourceCleanupIntervals=dict(status='PASS',nativeServiceCleanupIntervalsQualified=True,phase3Complete=False),
+                  votingControlResources=dict(status='PASS',incomingVotingResourcesQualified=True,phase3Complete=False),
+                  slotControlResources=dict(status='PASS',slotResourcesQualified=True,phase3Complete=False),
+                  activationControlResources=dict(status='PASS',activationResourcesQualified=True,phase3Complete=False),
                   exportAllocationCoverage=dict(status='PASS',allObservedExportAllocationsQualified=True,phase3Complete=False,
                       byScope=dict(session=1,direct=1,probe=1),allocations=3,unclaimedAllocations=[],
                       failedConstructorExportsQualified=False,allExportFailurePathsQualified=False,wholeRuntimeResourcesQualified=False))
@@ -68,7 +71,7 @@ class RequiredFourResourceRunTest(unittest.TestCase):
     def test_exact_method_flags_and_no_short_retry_or_budget_override(self):
         command=m.command(m.PROFILE)
         self.assertEqual('-Dtest='+m.CLASS+'#'+m.METHOD,next(v for v in command if v.startswith('-Dtest=')))
-        for option in ('joining.requiredFour','publication.resources','resource.transitions','transport.connections','transport.unsent','resource.storage.transfers','resource.owner.close','resource.joined.close','resource.source.control','resource.control.close','resource.export.ownership'):
+        for option in ('joining.requiredFour','publication.resources','resource.transitions','transport.connections','transport.unsent','resource.storage.transfers','resource.owner.close','resource.joined.close','resource.source.control','resource.control.close','resource.export.ownership','resource.slot.control'):
             self.assertIn('-Dv53.'+option+'=true',command)
         self.assertFalse(any('retry' in v.lower() or 'timeout' in v.lower() or 'skipTests' in v for v in command))
         for wrong in ('stable','5-REPLACE','3-ADD',True):

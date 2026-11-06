@@ -834,7 +834,8 @@
         "scripts/v53/test_maximum_transition_hosted.py",
         "scripts/v53/test_maximum_transition_run.py",
         "scripts/v53/test_maximum_transition_capacity.py",
-        "scripts/v53/test_maximum_transition_inventory.py"
+        "scripts/v53/test_maximum_transition_inventory.py",
+        "scripts/v53/test_membership_control_publications.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -1074,7 +1075,9 @@
         "docs/v5x/v5.3/PHASE_3_MAXIMUM_TRANSITION.md",
         "docs/v5x/v5.3/PHASE_3_MAXIMUM_TRANSITION_EXECUTION.md",
         "docs/v5x/v5.3/phase3-evidence/required-four-downstream.json",
-        "docs/v5x/v5.3/phase3-evidence/required-four-source-window.json"
+        "docs/v5x/v5.3/phase3-evidence/required-four-source-window.json",
+        "docs/v5x/v5.3/PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md",
+        "docs/v5x/v5.3/phase3-evidence/membership-control-resources.json"
       ],
       "cohorts": [
         "profiles",

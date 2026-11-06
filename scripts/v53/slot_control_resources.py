@@ -2,7 +2,7 @@
 
 Requires prior native physical/publication qualification. Allocation labels only
 correlate leases; original request bytes and publication images supply authority.
-Successful stable slots only; cancellation and whole-runtime maxima remain open.
+Successful physically qualified slots only; cancellation and whole-runtime maxima remain open.
 """
 import base64
 from collections import defaultdict
@@ -61,6 +61,39 @@ def publications(rounds, selection, identities):
                 identity=identities[node], payload=dict(certificate=certificate,
                 selection=publication.sha(f.encode('records','SELECTED',selection)), published=slot['upper'],
                 generation=publication.sha(files[directory+'generation.gsr'])))
+    return expected
+
+
+def required_four_publications(model, identities):
+    """Derive ACKs from each checked original selection and published image.
+
+    Caller must first replay the complete required-four physical history. The
+    final view/selection cannot stand in for earlier stable and joint slots.
+    """
+    f, disk = publication.f, publication.disk
+    expected = {}
+    need(model.phases and len(model.phases) == len(model.entries), 'slot resources complete membership phases')
+    for index, parts in enumerate(model.phases, 1):
+        selected = f.decode(parts['SELECTED'], 'records', 'SELECTED', model.root)
+        certificate = f.decode(parts['CERTIFICATE'], 'records', 'CERTIFICATE', model.root)
+        need(certificate['index'] == index and certificate['ballot'] == selected['ballot'] and
+             certificate['authority'] == selected['view'], 'slot resources original membership selection')
+        digest = publication.sha(parts['CERTIFICATE'])
+        voters = [v['voter'] for v in certificate['proofs']]
+        need(len(set(voters)) == len(voters) and set(voters) <= set(identities), 'slot resources original publication voters')
+        need(all(v['incarnation'] == identities[v['voter']]['incarnation'] for v in certificate['proofs']),
+             'slot resources original publication identity')
+        for node in voters:
+            files = model.owner('published', index, node)
+            prefix, _, packet = disk.current(files)
+            anchor = disk.anchor(packet['capsule'])
+            need(anchor['cut']['index'] == index and anchor['cut']['entry'] == certificate['entry'],
+                 'slot resources original publication image')
+            key = node, digest
+            need(key not in expected, 'slot resources duplicate publication authority')
+            expected[key] = dict(root=model.root, view=selected['view'], ballot=selected['ballot'], identity=identities[node],
+                payload=dict(certificate=digest, selection=publication.sha(parts['SELECTED']), published=anchor,
+                             generation=publication.sha(files[prefix+'generation.gsr'])))
     return expected
 
 

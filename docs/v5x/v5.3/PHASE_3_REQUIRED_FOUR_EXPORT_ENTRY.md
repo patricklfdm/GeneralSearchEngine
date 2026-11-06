@@ -1,5 +1,9 @@
 # Required-four export bindings in the complete resource entry
 
+The subsequent [membership control resource gate](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md)
+requires v2 admission with 147 negatives and original local publication capture.
+The 89-case results recorded below retain their historical source and scope.
+
 Status: **implementation ready; complete corrected-source execution pending**.
 This strengthens the existing [required-four resource entry](PHASE_3_REQUIRED_FOUR_ENTRY.md).
 It collects one complete original, including the five joining journal lifetimes,
