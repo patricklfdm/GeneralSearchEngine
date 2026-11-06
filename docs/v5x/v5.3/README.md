@@ -4,12 +4,12 @@
 now bind actual READY/CANCEL and same-file cold recovery to continuous original
 charges, forced generation handoffs and six real close intervals. The explicit
 current-retention reader derives all four campaigns and eight publications.
-The existing source-bound cancellation member now requires all 50 resource/
-physical negatives without adding another native history. Local evidence stays
-development-only. The [actual learner byte-boundary entry](PHASE_3_NATIVE_LEARNER_BYTE_PRESSURE.md)
-adds three same-original cold lifetimes with limits derived before opening, real
-SOURCE refusal and a complete-source positive control. Whole-runtime maximum
-pressure and final-source qualification remain OPEN.
+The source-bound cancellation member now also requires the three same-original
+[byte-pressure cold lifetimes](PHASE_3_NATIVE_LEARNER_BYTE_PRESSURE.md): two real
+SOURCE refusals and a complete-source positive control, with 62 exact negatives.
+The two-member learner cohort requires 74 negatives; history and scheduling
+counts are unchanged. Local evidence stays development-only. Whole-runtime
+maximum pressure and final-source qualification remain OPEN.
 
 [Native application resource overlap](PHASE_3_NATIVE_APPLICATION_OVERLAP.md)
 now measures nonempty GENERATION/SOURCE/APPLICATION counts at the same original

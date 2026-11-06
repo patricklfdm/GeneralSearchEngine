@@ -125,6 +125,7 @@ def bind(mode,d,trace,rows,events,probe,result):
              'learner byte pressure exact close intervals')
     need(markers['SNAPSHOT','closed']['sequence']==len(states)-1 and not states[-1],'learner byte pressure final closed')
     return dict(status='PARTIAL',mode=mode,stagingLimit=limits[1],steadyStagingBytes=d['steady'],
+        packetBytes=d['packet'],imageBytes=sum(d['images'].values()),
         receiver=probe['outcome'],closeIntervals=3,transitions=len(states),sameOriginalColdRecovery=True,
         wholeRuntimeResourcesQualified=False,phase3Complete=False)
 

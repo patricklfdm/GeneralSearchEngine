@@ -3,7 +3,7 @@
   "status": "PLANNED",
   "phase3Complete": false,
   "acceptancePlanSha256": "cdb67a09eb2acc2b2f7d7348204d4a2e4cebc7996aaeacdec6145864f5f846f1",
-  "sourceCatalogueSha256": "21d0b521505e701eaf99250c646a13e8a41c729ad875273789a729566971c115",
+  "sourceCatalogueSha256": "9d2c3f5eeaaa1583e486942c74970696fd0b2254471f2aa87bf4947919d2dd7c",
   "requirements": [
     {
       "id": "3A-activation",
@@ -187,6 +187,22 @@
           "reason": "learner resources continuous original ownership",
           "condition": "always",
           "scope": "Actual admitted learner ownership survives the complete READY/CANCEL history; copied accounting mutation is not additional native execution."
+        },
+        {
+          "id": "cancelled-learner-byte-refusal",
+          "cohort": "learner-histories",
+          "unit": "retained-cancellation",
+          "histories": [
+            "retained-cancellation"
+          ],
+          "selector": {
+            "suite": "byte-pressure",
+            "case": "byte-wrong-reason",
+            "variant": "default"
+          },
+          "reason": "learner byte pressure specific rejection",
+          "condition": "always",
+          "scope": "Actual same-original cold learner byte pressure requires the specific staging rejection, a complete-source positive control and preserved admitted recovery."
         }
       ],
       "openWork": "The two learner histories are focused 3-ADD cases; other learner profiles and simultaneous runtime resources are not established by them."
@@ -462,7 +478,7 @@
           "scope": "A complete declared TCP matrix must be present before any negative is accepted."
         }
       ],
-      "openWork": "The 12-seed, 494-archive, 560-history replay must actually run at final source. Exact-attempt workflow attestation, complete coverage and combined resources are separate requirements."
+      "openWork": "The 12-seed, 500-archive, 566-history replay must actually run at final source across 260 whole execution groups. Exact-attempt workflow attestation, complete coverage and combined resources are separate requirements."
     }
   ]
 }

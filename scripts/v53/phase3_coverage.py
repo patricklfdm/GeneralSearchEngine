@@ -60,7 +60,9 @@ def negative_selectors(name, unit):
                 rows(m.physical.NEGATIVES, 'physical') + rows(m.physical.transaction.NEGATIVES, 'transaction'))
     if name == 'learner-histories':
         if unit=='retained-cancellation':
-            return (rows(m.run.resources.NEGATIVES,'resource-observations')+
+            return (rows(m.byte_cases(m.run.pressure.NEGATIVES),'byte-pressure')+
+                    rows(m.byte_cases(m.run.pressure.PHYSICAL_NEGATIVES),'byte-physical')+
+                    rows(m.run.resources.NEGATIVES,'resource-observations')+
                     rows(dict(m.run.cancellation.NEGATIVES,**m.retention.NEGATIVES),'physical')+
                     rows(m.run.resources.HISTORY_NEGATIVES,'renewal-history'))
         return rows(m.negative_cases(unit), 'physical')

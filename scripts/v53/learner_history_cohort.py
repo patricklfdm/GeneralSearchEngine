@@ -80,15 +80,19 @@ def member(path, case, source, build, toolchain, reader):
 def negative_cases(case):
     run.selected(case)
     if case == 'alternating-slots': return dict(run.cycles.NEGATIVES)
-    parts=(run.resources.NEGATIVES,run.cancellation.NEGATIVES,retention.NEGATIVES,run.resources.HISTORY_NEGATIVES)
+    parts=(byte_cases(run.pressure.NEGATIVES),byte_cases(run.pressure.PHYSICAL_NEGATIVES),
+           run.resources.NEGATIVES,run.cancellation.NEGATIVES,retention.NEGATIVES,run.resources.HISTORY_NEGATIVES)
     result={key:value for part in parts for key,value in part.items()}
     need(len(result)==sum(map(len,parts)), 'learner cohort negative catalogue collision')
     return result
 
 
+def byte_cases(cases):return {'byte-'+key:value for key,value in cases.items()}
+
+
 def check_result(value, case):
     run.selected(case); need(type(value) is dict and set(value) == ({'original','negatives'} if case=='alternating-slots' else
-        {'original','negatives','resources','originalPreserved'}), 'learner cohort replay envelope')
+        {'original','negatives','resources','bytePressure','originalPreserved'}), 'learner cohort replay envelope')
     original = value['original']
     need(type(original) is dict and original.get('status') == 'PASS' and
          all(original.get(k) is True for k in ('physicalQualification','forceOrderQualified')) and
@@ -110,6 +114,7 @@ def check_result(value, case):
         need(h.snapshot.f.canonical(original['renewalHistory'])==h.snapshot.f.canonical(dict(campaigns=4,slots=8)),
              'learner cohort complete original renewal history')
         check_resources(value['resources']);need(value['originalPreserved'] is True,'learner cohort original resource preservation')
+        check_pressure(value['bytePressure'])
         retained = original['learnerRetention']
         need(set(retained) == {'quorums','forcedUpdates','sourceExposures','wireACKs','failedAttempts'} and
              all(type(v) is int for v in retained.values()) and
@@ -145,16 +150,43 @@ def check_resources(value):
 
 
 def replay_cancellation(raw):
-    value=run.resources.qualify(raw)
+    value=run.pressure.qualify(raw)
     need(type(value) is dict and set(value)=={'original','negatives','originalPreserved','phase3Complete'} and
          value.get('originalPreserved') is True and value.get('phase3Complete') is False and
          value['original']['status']=='PARTIAL' and value['original']['phase3Complete'] is False,'learner cohort resource original-first result')
+    need(set(value['original'])=={'status','original','modes','wholeRuntimeResourcesQualified','phase3Complete'} and
+         value['original']['wholeRuntimeResourcesQualified'] is False and
+         type(value['original']['original']) is dict and
+         set(value['original']['original'])=={'status','original','resources','phase3Complete'} and
+         value['original']['original']['status']=='PARTIAL' and value['original']['original']['phase3Complete'] is False,
+         'learner cohort byte pressure original-first result')
     expected=[dict(suite=suite,case=name,status='REJECTED',reason=reason) for suite,cases in (
-        ('resource-observations',run.resources.NEGATIVES),('original-history',dict(run.cancellation.NEGATIVES,**retention.NEGATIVES)),
-        ('renewal-history',run.resources.HISTORY_NEGATIVES)) for name,reason in cases.items()]
+        ('byte-pressure',run.pressure.NEGATIVES),('byte-physical',run.pressure.PHYSICAL_NEGATIVES),
+        ('original-resource-observations',run.resources.NEGATIVES),('original-original-history',dict(run.cancellation.NEGATIVES,**retention.NEGATIVES)),
+        ('original-renewal-history',run.resources.HISTORY_NEGATIVES)) for name,reason in cases.items()]
     need(value['negatives']==expected,'learner cohort complete resource negative suites')
-    return dict(original=value['original']['original'],resources=value['original']['resources'],originalPreserved=True,
-        negatives=[{k:v for k,v in row.items() if k!='suite'} for row in value['negatives']])
+    original=value['original']['original']
+    return dict(original=original['original'],resources=original['resources'],bytePressure=value['original']['modes'],originalPreserved=True,
+        negatives=[dict(case=('byte-' if row['suite'].startswith('byte-') else '')+row['case'],status=row['status'],reason=row['reason']) for row in value['negatives']])
+
+
+def check_pressure(modes):
+    need(type(modes) is list and len(modes)==3,'learner cohort complete byte pressure modes')
+    fields={'status','mode','stagingLimit','steadyStagingBytes','packetBytes','imageBytes','receiver','closeIntervals','transitions',
+            'sameOriginalColdRecovery','wholeRuntimeResourcesQualified','phase3Complete'}
+    baseline=None
+    for mode,row in zip(run.pressure.MODES,modes):
+        need(type(row) is dict and set(row)==fields and row['status']=='PARTIAL' and row['mode']==mode and
+             row['sameOriginalColdRecovery'] is True and row['wholeRuntimeResourcesQualified'] is False and row['phase3Complete'] is False and
+             all(type(row[k]) is int for k in ('stagingLimit','steadyStagingBytes','packetBytes','imageBytes','closeIntervals','transitions')) and
+             64*h.snapshot.MIB<row['steadyStagingBytes']<512*h.snapshot.MIB and 0<row['packetBytes']<=32*h.snapshot.MIB and
+             0<row['imageBytes']<=128*h.snapshot.MIB and row['closeIntervals']==3 and 1<row['transitions']<=262144 and
+             row['receiver']==('ACCEPTED' if mode=='source-exact' else 'REJECTED'),'learner cohort exact byte pressure summary')
+        dimensions=tuple(row[k] for k in ('steadyStagingBytes','packetBytes','imageBytes'))
+        if baseline is None:baseline=dimensions
+        need(dimensions==baseline,'learner cohort same original byte extents')
+        delta={'pool-full':0,'packet-short':row['packetBytes']-1,'source-exact':row['packetBytes']+row['imageBytes']}[mode]
+        need(row['stagingLimit']==row['steadyStagingBytes']+delta,'learner cohort exact derived byte limits')
 
 
 def qualify_member(path, case, source, build, toolchain, reader):

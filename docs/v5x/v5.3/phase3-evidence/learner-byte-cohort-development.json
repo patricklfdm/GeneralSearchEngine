@@ -1,0 +1,255 @@
+{
+  "catalogue": {
+    "additionalHistories": 0,
+    "additionalWorkflowJobs": 0,
+    "cancellationNegativeCases": 62,
+    "candidateWitnesses": 22,
+    "executionGroups": 260,
+    "histories": 566,
+    "learnerHistories": 2,
+    "learnerNegativeCases": 74,
+    "plan": {
+      "path": "docs/v5x/v5.3/phase3-qualification-plan.json",
+      "sha256": "c6cd24419e19081ed4064c192f4a75b3672536ed7e6de59c4e4f1625bcc24ea9"
+    },
+    "rawArchives": 500,
+    "selectedJobs": 544,
+    "witnesses": {
+      "path": "docs/v5x/v5.3/phase3-coverage-witnesses.json",
+      "sha256": "ab03b1391b78781507e73b92e447389eb682a07260750d0291da054a45854a69"
+    }
+  },
+  "cohortAdmitted": false,
+  "currentFiles": [
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "5e64a649deddb20c978fea8813d4140cf6db770352d5103b8ec59abbda3e3876"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_LEARNER_HISTORY_COHORT.md",
+      "sha256": "91c374f6b24b3399378a21c5fff588aebaa0ad1151ab0240e37bff57140063ae"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_NATIVE_LEARNER_BYTE_PRESSURE.md",
+      "sha256": "30aa30bfa60df3d1b8f8f606db3f9de4a71e99f6e64bbc81835b71f79c575f99"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_NATIVE_LEARNER_RESOURCES.md",
+      "sha256": "3312c74b2fc94a920344dc4982a0dc73fcdd1c899db57d30225de1eb5ff3e83f"
+    },
+    {
+      "path": "docs/v5x/v5.3/PHASE_3_QUALIFICATION_AUDIT.md",
+      "sha256": "85c7c919e567630122105ae74b1bd713206203a41a288ec75185314e4aa1ad13"
+    },
+    {
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "f8bfc66e935f063c0b7e9bb8b85e43a6c55acf45e6c1d51ec5b98beb0f47d560"
+    },
+    {
+      "path": "docs/v5x/v5.3/phase3-coverage-witnesses.json",
+      "sha256": "ab03b1391b78781507e73b92e447389eb682a07260750d0291da054a45854a69"
+    },
+    {
+      "path": "docs/v5x/v5.3/phase3-qualification-plan.json",
+      "sha256": "c6cd24419e19081ed4064c192f4a75b3672536ed7e6de59c4e4f1625bcc24ea9"
+    },
+    {
+      "path": "scripts/v53/learner_history_cohort.py",
+      "sha256": "79e1ba598f6f077136d3aedd27a403742744e9934fc8367cb1b24d1549dd6c7a"
+    },
+    {
+      "path": "scripts/v53/learner_history_run.py",
+      "sha256": "8a2c3654295ce76ecb042ee53f7f6c345fdd869910d58177d3a17f4217ff5119"
+    },
+    {
+      "path": "scripts/v53/native_learner_byte_pressure.py",
+      "sha256": "f821b8a70572b59f6def264b576ee2c4ae3d8e25561d86f372aeb5e5c8c7212a"
+    },
+    {
+      "path": "scripts/v53/phase3_coverage.py",
+      "sha256": "a93b19555acbc4b1486d6bd738c4752616c3e1f8be4c76d5d7d78dca64546bc7"
+    },
+    {
+      "path": "scripts/v53/test_learner_history_cohort.py",
+      "sha256": "df3530249e9581f3f328bf7e13b408292483d52b517428b7620b9535e81c912a"
+    },
+    {
+      "path": "scripts/v53/test_learner_history_hosted.py",
+      "sha256": "3166ece0beb38e4141341239d02556868adc1f740163adc13fbaef491eaa7eca"
+    },
+    {
+      "path": "scripts/v53/test_phase3_coverage.py",
+      "sha256": "33d13d3defd2cb91fbab0cdebdc057ccde771c247ba8f886953e1c8c70a19e3b"
+    },
+    {
+      "path": "scripts/v53/test_phase3_history_cohort.py",
+      "sha256": "53f20af39681fbb4708aa3d35abadccec3f7437ebda0a1c3e0c6aa1e89db1af8"
+    }
+  ],
+  "currentSourceExecution": false,
+  "finalSourceQualified": false,
+  "generator": {
+    "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-learner-byte-cohort/index-evidence.py",
+    "sha256": "3c50232fc8d74dcebe1452ddf728f09096c0ec0110230eb56c6ce92106da6efc"
+  },
+  "historicalIndexes": {
+    "count": 533,
+    "inventory": {
+      "path": "target/v53-learner-byte-cohort/historical-indexes.json",
+      "sha256": "10d24f84a5b9a407c1b5fb4f5d5ff732be9b1c781e7b1f186d8ed4fb0b645706"
+    },
+    "unchanged": true
+  },
+  "limitations": [
+    "The complete original, original resource lifetimes and all three pressure modes belong to one indivisible native history.",
+    "This changes the existing cancellation member, not the number of expensive histories or workflow jobs.",
+    "The retained producer predates this adapter and source/reader pins; its development replay cannot fill a final-source slot.",
+    "All Phase 3 closure gaps remain OPEN; caller-configured staging boundaries are not whole-runtime maximum resource qualification.",
+    "Runtime Java, POM, workflows, Required jobs and frozen limits are unchanged; no push, Actions dispatch or paid cloud."
+  ],
+  "phase3Complete": false,
+  "replay": {
+    "collection": {
+      "path": "target/v53-learner-byte-cohort/replay/collection.json",
+      "sha256": "60275732f55ca96114f7fb46a679f95445e83c89ed97e27be43aa571220a63f9"
+    },
+    "log": {
+      "path": "target/v53-learner-byte-cohort/replay.log",
+      "sha256": "b6e01f08a94814e3203130b9e63d8672265b1ceeadd765171eeeb0b162c0850f"
+    },
+    "modes": [
+      {
+        "closeIntervals": 3,
+        "imageBytes": 837,
+        "mode": "pool-full",
+        "packetBytes": 19892,
+        "phase3Complete": false,
+        "receiver": "REJECTED",
+        "sameOriginalColdRecovery": true,
+        "stagingLimit": 67143283,
+        "status": "PARTIAL",
+        "steadyStagingBytes": 67143283,
+        "transitions": 19,
+        "wholeRuntimeResourcesQualified": false
+      },
+      {
+        "closeIntervals": 3,
+        "imageBytes": 837,
+        "mode": "packet-short",
+        "packetBytes": 19892,
+        "phase3Complete": false,
+        "receiver": "REJECTED",
+        "sameOriginalColdRecovery": true,
+        "stagingLimit": 67163174,
+        "status": "PARTIAL",
+        "steadyStagingBytes": 67143283,
+        "transitions": 19,
+        "wholeRuntimeResourcesQualified": false
+      },
+      {
+        "closeIntervals": 3,
+        "imageBytes": 837,
+        "mode": "source-exact",
+        "packetBytes": 19892,
+        "phase3Complete": false,
+        "receiver": "ACCEPTED",
+        "sameOriginalColdRecovery": true,
+        "stagingLimit": 67164012,
+        "status": "PARTIAL",
+        "steadyStagingBytes": 67143283,
+        "transitions": 23,
+        "wholeRuntimeResourcesQualified": false
+      }
+    ],
+    "negativeCases": 62,
+    "originalPreserved": true,
+    "qualification": {
+      "path": "target/v53-learner-byte-cohort/replay/qualification.json",
+      "sha256": "06f8bb0dcc56db1f632f3b4868f658751ba492bfaa59b6ec114311304b7cee90"
+    },
+    "reader": {
+      "path": "target/v53-learner-byte-cohort/replay/reader.json",
+      "sha256": "7f4dfc0c36eb2569202c2b27573271d4925c73f6dd6ff5acdb89a88d8ef43ab9"
+    },
+    "receipt": {
+      "path": "target/v53-learner-byte-cohort/replay/receipt.json",
+      "sha256": "ce260aab92410fb3b7cfea0b41cfb3b9e37bf09e249b824e587dca92d478d725"
+    },
+    "script": {
+      "path": "target/v53-learner-byte-cohort/replay.py",
+      "sha256": "61e680d578c6c9bbcebaa65998b78e4a07a3b6af55916385ef4453da780dd0cb"
+    },
+    "seconds": 100.735
+  },
+  "retainedProducer": {
+    "build": {
+      "path": "target/v53-native-learner-byte-pressure/producer/build.json",
+      "sha256": "390d881e827c596198d79a3781cfce557062623e1cc84570cab91cbc901bc682"
+    },
+    "formalMember": false,
+    "index": {
+      "path": "docs/v5x/v5.3/phase3-evidence/native-learner-byte-pressure-development.json",
+      "sha256": "c13f3d7071a60b2afdd09cdafe1a8a2e42c386761961347ac9a4782f0a6db1ab"
+    },
+    "originalSourceUnchanged": true,
+    "receipt": {
+      "path": "target/v53-native-learner-byte-pressure/producer/receipt.json",
+      "sha256": "97653fa3481d4ae727740f318cf8fdf40fd568d36e2d7521848e83d2fe32b10d"
+    },
+    "source": {
+      "path": "target/v53-native-learner-byte-pressure/producer/source.json",
+      "sha256": "9aa7380eb3c6d08d061a47a18c077bdc917cd6f138a2d83387a8486ed2957284"
+    },
+    "toolchain": {
+      "path": "target/v53-native-learner-byte-pressure/producer/toolchain.json",
+      "sha256": "f871a11e66a0fad36c2472f3f6c4a835c6f983fdbcaf9e56a6ac12ec37e14b6e"
+    }
+  },
+  "schema": "gse-v53-learner-byte-cohort-development-v1",
+  "scope": "source-bound complete learner byte-pressure history admission and retained-original adapter replay",
+  "status": "PARTIAL",
+  "tests": {
+    "admissionAndPlanning": {
+      "count": 135,
+      "log": {
+        "path": "target/v53-learner-byte-cohort/tests-complete.log",
+        "sha256": "9cfa9ba2f59f59e81041c5779f9e6f9388e6d1fe811c63291dfeb16bbd0d13c6"
+      }
+    },
+    "assertionsDisabled": {
+      "count": 56,
+      "log": {
+        "path": "target/v53-learner-byte-cohort/tests-optimized.log",
+        "sha256": "78b049dbc963aecda1bc3e0faf5adeeb3335b7dbd2dff292ac10a8c9a2dca0ad"
+      },
+      "overlaps": true
+    },
+    "documentation": {
+      "path": "target/v53-learner-byte-cohort/contract-final.json",
+      "sha256": "f51499ba4ecf70f82cc1ab7f2d1034d89688fda05160d210bd3109237ea956e4"
+    },
+    "retainedDevelopmentFailures": [
+      {
+        "path": "target/v53-learner-byte-cohort/tests-01.log",
+        "sha256": "344edcfe8f647caa12d63a2a155a41a81bbe5c62418970695205389343e0b26f"
+      },
+      {
+        "path": "target/v53-learner-byte-cohort/tests-03.log",
+        "sha256": "5da8024a86bcd3c76a0d0116e247f433220c5bc33c6ac916b98b93d62493cc53"
+      },
+      {
+        "path": "target/v53-learner-byte-cohort/tests-04.log",
+        "sha256": "cb6597b8c58f74612343ca5e18e1100e8eae03fd9a4b014cdf344f2512963b87"
+      },
+      {
+        "path": "target/v53-learner-byte-cohort/tests-pass.log",
+        "sha256": "5795d530fba5929547da466df9e5dd2fbb5638be2edca4fe0de781ff84629c42"
+      },
+      {
+        "path": "target/v53-learner-byte-cohort/tests-final.log",
+        "sha256": "8c11cffa0ba7934454af58c5fa237a4ca23ae43b6e6a5a0521c5276084984dfe"
+      }
+    ]
+  },
+  "wholeRuntimeResourcesQualified": false
+}

@@ -23,14 +23,23 @@ def fixture(case):
 
 
 def history(raw,case):
-    raw.mkdir(parents=True); wrapper=raw;raw=m.run.original(raw,case);raw.mkdir(exist_ok=True)
+    raw.mkdir(parents=True); wrapper=raw;raw=m.run.original(raw,case);raw.mkdir(parents=True,exist_ok=True)
     (raw/'original-plan.gsbp').write_bytes(case.encode())
     if case=='retained-cancellation':
         from .test_native_learner_resources import observations
-        observed=observations();folder=wrapper/'resources';folder.mkdir();(raw/'learner-plan.gslp').write_bytes(b'synthetic plan')
+        observed=observations();folder=wrapper/'original/resources';folder.mkdir();(raw/'learner-plan.gslp').write_bytes(b'synthetic plan')
         (folder/'trace.json').write_bytes(m.h.snapshot.f.canonical(observed[0]));m.h.save(folder/'boundaries.json',observed[1])
         (folder/'index.json').write_bytes(m.h.snapshot.f.canonical(dict(schema=m.run.resources.SCHEMA,status='PARTIAL',pid=1,
             planSha256=m.h.digest(b'synthetic plan'),wholeRuntimeResourcesQualified=False,phase3Complete=False)))
+        from .test_native_learner_byte_pressure import observation
+        for mode in m.run.pressure.MODES:
+            folder=wrapper/'pressure'/mode;sidecars=folder/'resources';sidecars.mkdir(parents=True)
+            value=observation(mode)
+            (sidecars/'trace.json').write_bytes(m.h.snapshot.f.canonical(value[2]))
+            (sidecars/'boundaries.json').write_bytes(m.h.snapshot.f.canonical(value[3]));shutil.copyfile(wrapper/'original/resources/index.json',sidecars/'index.json')
+            m.h.save(folder/'events.json',value[4]);m.h.save(folder/'probe.json',value[5]);(folder/'result.json').write_bytes(m.h.snapshot.f.canonical(value[6]))
+            for stage in m.run.pressure.STAGES:(folder/stage).mkdir()
+            if mode=='source-exact':(folder/'received').mkdir()
     for name in ('events','wire','calls','failures'):
         (raw/(name+'.json')).write_bytes(m.h.snapshot.f.canonical([] if name == 'failures' else [dict(synthetic=True)]))
     (raw/m.run.RESULTS[case]).write_bytes(m.h.snapshot.f.canonical(fixture(case)))
@@ -58,7 +67,8 @@ def replay(case):
         from .test_native_learner_resources import observations
         resources=m.run.resources.bind(*observations())
         resources['snapshots']={name:dict(physicalBytes=100,typedBackupBytes=10,miscBytes=20,inventorySha256='a'*64) for name in m.run.cancellation.STAGES}
-        result.update(resources=resources,originalPreserved=True)
+        from .test_native_learner_byte_pressure import observation
+        result.update(resources=resources,originalPreserved=True,bytePressure=[m.run.pressure.bind(*observation(mode)) for mode in m.run.pressure.MODES])
     return result
 
 
@@ -106,8 +116,8 @@ class LearnerHistoryCohortTest(unittest.TestCase):
         with patch.object(m,'ProcessPoolExecutor',ThreadPoolExecutor):
             return m.validate(self.paths if paths is None else paths,*self.pins,**kwargs)
 
-    def test_two_declared_whole_native_methods_and_exact_62_negatives(self):
-        self.assertEqual((12,50),tuple(len(m.negative_cases(case)) for case in m.KINDS))
+    def test_two_declared_whole_native_methods_and_exact_74_negatives(self):
+        self.assertEqual((12,62),tuple(len(m.negative_cases(case)) for case in m.KINDS))
         for case,(cls,method) in m.run.METHODS.items():
             source = m.h.ROOT/m.h.MODULE/('src/test/java/'+m.run.PACKAGE.replace('.','/')+cls+'.java')
             self.assertIn('void '+method+'()',source.read_text())
@@ -209,7 +219,7 @@ class LearnerHistoryCohortTest(unittest.TestCase):
              patch.object(m,'replay_cancellation',return_value=replay('retained-cancellation')) as cancel:
             result = self.matrix(workers=2,progress=progress.append)
         cycles.assert_called_once(); cancel.assert_called_once_with(self.raw(self.paths['retained-cancellation']))
-        self.assertEqual(2,len(progress)); self.assertEqual(62,result['negativeCases']); self.assertEqual('PASS',result['status'])
+        self.assertEqual(2,len(progress)); self.assertEqual(74,result['negativeCases']); self.assertEqual('PASS',result['status'])
         self.assertIs(True,result['declaredLearnerHistoryPairQualified'])
         for key in ('phase3Complete','allMembershipProfilesQualified','processDeathQualified','fullNetworkQualification','combinedPeakResourcesQualified'):
             self.assertIs(False,result[key])
@@ -240,7 +250,7 @@ class LearnerHistoryCohortTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'retention rounds'): m.check_result(value,'retained-cancellation')
 
     def test_cancellation_requires_original_resource_sidecars(self):
-        path=self.raw(self.paths['retained-cancellation']);sidecar=path/'resources/index.json'
+        path=self.raw(self.paths['retained-cancellation']);sidecar=path/'original/resources/index.json'
         saved=sidecar.read_bytes();sidecar.unlink()
         with self.assertRaisesRegex(ValueError,'complete original resource wrapper'):m.run.collect(path,'retained-cancellation')
         sidecar.write_bytes(saved);value=m.read(sidecar);value['planSha256']='0'*64
@@ -252,6 +262,33 @@ class LearnerHistoryCohortTest(unittest.TestCase):
         receipt['command']=[v if not v.startswith('-Dtest=') else '-Dtest=V53LearnerCancellationQualification#nativeReadyCancellationRetainsItsPreparedAncestorAndColdReopensWithoutVoting' for v in receipt['command']]
         m.h.save(path/'receipt.json',receipt)
         with self.assertRaisesRegex(ValueError,'exact whole command'):m.member(path,'retained-cancellation',*self.pins)
+
+    def test_missing_or_foreign_pressure_mode_is_not_collected(self):
+        path=self.raw(self.paths['retained-cancellation']);folder=path/'pressure/pool-full'
+        saved=m.read(folder/'resources/index.json');changed=dict(saved,pid=2)
+        (folder/'resources/index.json').write_bytes(m.h.snapshot.f.canonical(changed))
+        with self.assertRaisesRegex(ValueError,'original byte pressure index'):m.run.collect(path,'retained-cancellation')
+        (folder/'resources/index.json').write_bytes(m.h.snapshot.f.canonical(saved))
+        (folder/'result.json').unlink()
+        with self.assertRaisesRegex(ValueError,'complete byte pressure mode'):m.run.collect(path,'retained-cancellation')
+
+    def test_old_resources_only_method_cannot_fill_byte_pressure_slot(self):
+        path=self.paths['retained-cancellation'];receipt=m.read(path/'receipt.json')
+        receipt['command']=[v if not v.startswith('-Dtest=') else '-Dtest=V53NativeLearnerResourcesQualification#admittedCancellationAndColdReopenPreserveOriginalResourceLifetimes' for v in receipt['command']]
+        m.h.save(path/'receipt.json',receipt)
+        with self.assertRaisesRegex(ValueError,'exact whole command'):m.member(path,'retained-cancellation',*self.pins)
+
+    def test_pressure_summary_cannot_drop_mode_drift_budget_or_claim_whole_runtime(self):
+        changes=(lambda v:v.pop('bytePressure'),lambda v:v['bytePressure'].pop(),
+            lambda v:v['bytePressure'][0].update(wholeRuntimeResourcesQualified=True),
+            lambda v:v['bytePressure'][1].update(stagingLimit=v['bytePressure'][1]['stagingLimit']+1),
+            lambda v:v['bytePressure'][1].update(packetBytes=16),
+            lambda v:v['bytePressure'][2].update(receiver='REJECTED'),
+            lambda v:v['bytePressure'][0].update(closeIntervals=2),
+            lambda v:v['bytePressure'][0].update(transitions=True))
+        for change in changes:
+            value=replay('retained-cancellation');change(value)
+            with self.subTest(value=value),self.assertRaises(ValueError):m.check_result(value,'retained-cancellation')
 
     def test_missing_forged_or_overclaimed_resource_summary_never_aggregates(self):
         mutations=(lambda v:v.pop('resources'),lambda v:v.update(originalPreserved=False),
@@ -269,11 +306,13 @@ class LearnerHistoryCohortTest(unittest.TestCase):
     def test_cancellation_adapter_preserves_all_original_negative_suites(self):
         base=replay('retained-cancellation')
         negatives=[dict(suite=suite,case=name,status='REJECTED',reason=reason) for suite,cases in (
-            ('resource-observations',m.run.resources.NEGATIVES),('original-history',dict(m.run.cancellation.NEGATIVES,**m.retention.NEGATIVES)),
-            ('renewal-history',m.run.resources.HISTORY_NEGATIVES)) for name,reason in cases.items()]
-        value=dict(original=dict(status='PARTIAL',original=base['original'],resources=base['resources'],phase3Complete=False),
+            ('byte-pressure',m.run.pressure.NEGATIVES),('byte-physical',m.run.pressure.PHYSICAL_NEGATIVES),
+            ('original-resource-observations',m.run.resources.NEGATIVES),('original-original-history',dict(m.run.cancellation.NEGATIVES,**m.retention.NEGATIVES)),
+            ('original-renewal-history',m.run.resources.HISTORY_NEGATIVES)) for name,reason in cases.items()]
+        value=dict(original=dict(status='PARTIAL',original=dict(status='PARTIAL',original=base['original'],resources=base['resources'],phase3Complete=False),
+            modes=base['bytePressure'],wholeRuntimeResourcesQualified=False,phase3Complete=False),
             negatives=negatives,originalPreserved=True,phase3Complete=False)
-        with patch.object(m.run.resources,'qualify',return_value=value) as qualify:
+        with patch.object(m.run.pressure,'qualify',return_value=value) as qualify:
             got=m.replay_cancellation('/synthetic');m.check_result(got,'retained-cancellation')
             qualify.assert_called_once_with('/synthetic');self.assertEqual(base,got)
             value['negatives'][0]['suite']='original-history'

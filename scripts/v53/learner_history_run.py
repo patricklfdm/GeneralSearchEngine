@@ -13,6 +13,7 @@ from . import joining_history_run as h
 from . import learner_cycles_evidence as cycles
 from . import learner_cancellation_evidence as cancellation
 from . import native_learner_resources as resources
+from . import native_learner_byte_pressure as pressure
 from . import process_toolchain as tc
 from . import remove_process_matrix as shared
 
@@ -20,7 +21,7 @@ SCHEMA = 'gse-v53-learner-history-execution-v1'
 PACKAGE = 'io.github.patricklfdm.generalsearch.replication.'
 METHODS = {
     'alternating-slots': ('V53LearnerAlternationNetworkTest', 'nativeSixRevisionsAlternateFixedSlotsAndColdReopenWithinOneReservation'),
-    'retained-cancellation': ('V53NativeLearnerResourcesQualification', 'admittedCancellationAndColdReopenPreserveOriginalResourceLifetimes'),
+    'retained-cancellation': ('V53NativeLearnerBytePressureQualification', 'actualCancelledLearnerRejectsBytePressureAndCompletesColdRecovery'),
 }
 CASES = tuple(METHODS)
 BUILDS = shared.BUILDS
@@ -30,11 +31,11 @@ RESULTS = {'alternating-slots':'current-head-result.json', 'retained-cancellatio
 
 def directory(case):
     selected(case)
-    return 'v53-native-dispatch' if case=='alternating-slots' else 'v53-native-learner-resources'
+    return 'v53-native-dispatch' if case=='alternating-slots' else 'v53-native-learner-byte-pressure'
 
 
 def original(raw,case):
-    selected(case);return Path(raw) if case=='alternating-slots' else Path(raw)/'original'
+    selected(case);return Path(raw) if case=='alternating-slots' else Path(raw)/'original/original'
 
 
 def selected(case):
@@ -83,17 +84,35 @@ def collect(raw, case):
     path=original(raw,case);observations={}
     if case=='alternating-slots':cycles.inventory(path)
     else:
-        h.need({v.name for v in raw.iterdir()}=={'original','resources'} and
-               {v.name for v in (raw/'resources').iterdir()}=={'index.json','trace.json','boundaries.json'},
+        h.need({v.name for v in raw.iterdir()}=={'original','pressure'} and
+               {v.name for v in (raw/'pressure').iterdir()}==set(pressure.MODES) and
+               {v.name for v in (raw/'original').iterdir()}=={'original','resources'} and
+               {v.name for v in (raw/'original/resources').iterdir()}=={'index.json','trace.json','boundaries.json'},
                'learner history complete original resource wrapper')
-        index=h.read_json(raw,'resources/index.json',65536)
+        index=h.read_json(raw,'original/resources/index.json',65536)
         h.need(type(index) is dict and set(index)=={'schema','status','pid','planSha256','wholeRuntimeResourcesQualified','phase3Complete'} and
                index['schema']==resources.SCHEMA and index['status']=='PARTIAL' and type(index['pid']) is int and index['pid']>0 and
                index['planSha256']==h.digest(h.snapshot.s.regular(path/'learner-plan.gslp',h.snapshot.MIB)) and
                index['wholeRuntimeResourcesQualified'] is False and index['phase3Complete'] is False,'learner history resource capture index')
-        _,trace=resources.t.read(raw/'resources/trace.json');bounds=shared.read(raw/'resources/boundaries.json')
+        _,trace=resources.t.read(raw/'original/resources/trace.json');bounds=shared.read(raw/'original/resources/boundaries.json')
         h.need(type(bounds) is list and 1<=len(bounds)<=4096,'learner history resource boundary collection')
         observations.update(resourceTransitions=len(trace['changes']),resourceBoundaries=len(bounds))
+        observations['bytePressure']={}
+        for mode in pressure.MODES:
+            folder=raw/'pressure'/mode
+            h.need({v.name for v in folder.iterdir()}=={'resources','events.json','probe.json','result.json',*pressure.STAGES}|
+                   ({'received'} if mode=='source-exact' else set()) and
+                   {v.name for v in (folder/'resources').iterdir()}=={'index.json','trace.json','boundaries.json'},
+                   'learner history complete byte pressure mode')
+            h.need(h.snapshot.f.canonical(h.read_json(folder,'resources/index.json',65536))==h.snapshot.f.canonical(index),
+                   'learner history original byte pressure index')
+            _,captured=resources.t.read(folder/'resources/trace.json');boundaries=h.read_json(folder,'resources/boundaries.json',4*h.snapshot.MIB)
+            h.need(type(boundaries) is list and 1<=len(boundaries)<=4096,'learner history byte pressure boundaries')
+            status=h.read_json(folder,'result.json',65536)
+            h.need(type(status) is dict and status.get('status')=='PARTIAL' and status.get('mode')==mode and
+                   status.get('sameOriginalColdRecovery') is True and status.get('phase3Complete') is False and
+                   status.get('wholeRuntimeResourcesQualified') is False,'learner history byte pressure result scope')
+            observations['bytePressure'][mode]=dict(transitions=len(captured['changes']),boundaries=len(boundaries))
         cancellation.inventory(path,current_retention=True)
     result = h.read_json(path, RESULTS[case], 65536); fixture(result, case)
     rows = {name:h.read_json(path, name+'.json', maximum) for name,maximum in

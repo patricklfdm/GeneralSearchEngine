@@ -92,7 +92,7 @@ class LearnerHistoryHostedTest(unittest.TestCase):
 
     def test_aggregate_requires_two_exact_originals_and_all_negative_results(self):
         result=w.aggregate(self.bundle,self.verified(),self.root/'aggregate',self.ctx,'success','success')
-        self.assertEqual('PASS',result['status']);self.assertEqual(2,result['wholeHistories']);self.assertEqual(62,result['negativeCases'])
+        self.assertEqual('PASS',result['status']);self.assertEqual(2,result['wholeHistories']);self.assertEqual(74,result['negativeCases'])
         self.assertTrue(result['declaredLearnerHistoryPairQualified']);self.assertFalse(result['phase3Complete'])
 
     def test_bad_stage_or_missing_verifier_cannot_aggregate(self):

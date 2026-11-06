@@ -110,3 +110,7 @@ minute heartbeat, preserves original files and retains failure receipts. A
 failed original does not receive negative credit or an automatic rerun.
 Source-bound integration is described in the learner cohort document. Broader
 resource pressure and final-source execution remain separate work. No hosted workflow or paid cloud was triggered.
+
+The current learner cohort additionally requires [same-original byte-pressure
+cold recovery](PHASE_3_NATIVE_LEARNER_BYTE_PRESSURE.md). This resource-only entry
+remains available for focused development; it cannot fill that upgraded slot.

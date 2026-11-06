@@ -198,18 +198,23 @@
         "scripts/v53/test_learner_history_cohort.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeLearnerResourcesQualification.java",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerResourceCaptureTest.java",
-        "scripts/v53/test_native_learner_resources.py"
+        "scripts/v53/test_native_learner_resources.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeLearnerBytePressureQualification.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerBytePressureTest.java",
+        "scripts/v53/test_native_learner_byte_pressure.py"
       ],
       "readers": [
         "scripts/v53/learner_cycles_evidence.py",
         "scripts/v53/learner_history_cohort.py",
-        "scripts/v53/native_learner_resources.py"
+        "scripts/v53/native_learner_resources.py",
+        "scripts/v53/native_learner_byte_pressure.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_LEARNER_CYCLE_REPLAY.md",
         "docs/v5x/v5.3/PHASE_3_LEARNER_CANCELLATION_NATIVE.md",
         "docs/v5x/v5.3/PHASE_3_LEARNER_HISTORY_COHORT.md",
-        "docs/v5x/v5.3/PHASE_3_NATIVE_LEARNER_RESOURCES.md"
+        "docs/v5x/v5.3/PHASE_3_NATIVE_LEARNER_RESOURCES.md",
+        "docs/v5x/v5.3/PHASE_3_NATIVE_LEARNER_BYTE_PRESSURE.md"
       ],
       "cohorts": [
         "profiles",

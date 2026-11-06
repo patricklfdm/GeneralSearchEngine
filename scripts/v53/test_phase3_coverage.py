@@ -32,7 +32,7 @@ class Phase3CoverageTest(unittest.TestCase):
         result = self.validate()
         self.assertEqual(500, sum(map(len, self.source['units'].values())))
         self.assertEqual(566, sum(len(v['histories']) for units in self.source['units'].values() for v in units.values()))
-        self.assertEqual(21, len(result['candidateWitnesses']))
+        self.assertEqual(22, len(result['candidateWitnesses']))
         self.assertEqual(4, result['conditionalWitnesses'])
         self.assertTrue(all(w['qualification'] == 'NOT_EVALUATED' for w in result['candidateWitnesses']))
         self.assertEqual(0, result['nativeHistoriesExecuted'])

@@ -84,7 +84,9 @@ python3 -B -m scripts.v53.native_learner_byte_pressure \
 Use the emitted `run-UUID`. Replay provides minute heartbeats. The qualification
 class is opt-in and is not included in the default Maven test-name pattern.
 No production runtime, POM, frozen limit, workflow or Required job is changed.
-This opt-in component has not yet replaced the existing source-bound learner
-cohort member; the 566-history scheduling catalogue is unchanged. Its eventual
-admission must retain the complete native original and all three cold lifetimes
-together, never combine modes from different native histories.
+The [source-bound learner cohort](PHASE_3_LEARNER_HISTORY_COHORT.md) now requires
+this exact method for its existing retained-cancellation slot. The 566-history
+scheduling catalogue is unchanged. Admission retains the complete native
+original and all three cold lifetimes together; modes from different native
+histories cannot be combined. The retained local original supports development
+adapter replay only, since its original source/readers predate this integration.
