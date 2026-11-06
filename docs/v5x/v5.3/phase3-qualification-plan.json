@@ -806,7 +806,8 @@
         "scripts/v53/test_native_application_overlap.py",
         "scripts/v53/test_native_application_refusal.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeApplicationRefusalTest.java",
-        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeResourceRefusalCaptureTest.java"
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeResourceRefusalCaptureTest.java",
+        "scripts/v53/test_joined_handoff_resources.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -908,7 +909,9 @@
         "scripts/v53/native_carried_application_capture_history.py",
         "scripts/v53/native_application_refusal_capture_history.py",
         "scripts/v53/native_application_overlap.py",
-        "scripts/v53/native_application_refusal.py"
+        "scripts/v53/native_application_refusal.py",
+        "scripts/v53/joined_handoff_resources.py",
+        "scripts/v53/joined_handoff_negatives.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -1019,7 +1022,9 @@
         "docs/v5x/v5.3/PHASE_3_NATIVE_REFUSAL_COHORT.md",
         "docs/v5x/v5.3/PHASE_3_NATIVE_APPLICATION_OVERLAP.md",
         "docs/v5x/v5.3/PHASE_3_NATIVE_COUNT_REFUSAL.md",
-        "docs/v5x/v5.3/phase3-evidence/capacity-boundary-original-development.json"
+        "docs/v5x/v5.3/phase3-evidence/capacity-boundary-original-development.json",
+        "docs/v5x/v5.3/PHASE_3_JOINED_HANDOFF_RESOURCES.md",
+        "docs/v5x/v5.3/phase3-evidence/joined-handoff-resources.json"
       ],
       "cohorts": [
         "profiles",

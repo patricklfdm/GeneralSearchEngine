@@ -155,7 +155,7 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
         from . import direct_export_evidence
         direct=direct_export_evidence.replay(traces,control_close_evidence.load(root,index),
                 direct_export_evidence.derive(states,rounds,selection,events,boundaries))
-    transport=None;floors=None;receiving=None;bases=None;published=None
+    transport=None;floors=None;receiving=None;bases=None;published=None;joined=None
     if profile=='5-REPLACE-required-four':
         from . import transport_resource_evidence
         # Attempts that never reached a connected wire boundary must remain
@@ -167,6 +167,8 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
         floors=floor_resource_evidence.replay(floor_resource_evidence.plans(reader),events,traces,boundaries)
         receiving=receive_resource_evidence.replay(receive_resource_evidence.derive(reader),events,traces,boundaries)
         bases=basis_resource_evidence.replay(basis_resource_evidence.derive(reader),events,traces,boundaries)
+        from . import joined_handoff_resources
+        joined=joined_handoff_resources.replay(joined_handoff_resources.derive(root),events,traces,boundaries)
         if direct_exports:
             from . import required_four_direct_exports
             direct=required_four_direct_exports.replay(traces,control_close_evidence.load(root,index),reader,boundaries,bindings=export_bindings)
@@ -198,7 +200,7 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
     need(collection.inventory(root)==before,'native resources original changed')
     return dict(result,status=cleanup['status'] if cleanup else result['status'],scope='native-owner-accounting-with-original-publication-boundaries',profile=profile,
                 precondition=preceding,publicationResources=physical,publicationBoundaries=count,publicationGenerationResources=generations,transportResources=transport,
-                floorResources=floors,receivingResources=receiving,basisResources=bases,ownerCloseResources=closed,
+                floorResources=floors,receivingResources=receiving,basisResources=bases,ownerCloseResources=closed,joinedHandoffResources=joined,
                 sourceControlResources=source_result,sourceCleanupIntervals=cleanup,directExportOwnership=direct,publishedPrefixProbe=published,exportAllocationCoverage=export_coverage,
                 votingControlResources=voting,slotControlResources=slots,activationControlResources=activation,physicalPeakQualified=False,controlLifetimesQualified=False,finalSourceCohortQualified=False)
 

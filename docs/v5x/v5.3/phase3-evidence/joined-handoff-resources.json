@@ -1,0 +1,228 @@
+{
+  "baseSource": "722483a962c6a82432674041ebd6e1045c03a877",
+  "finalSourceCohortQualified": false,
+  "historicalIndexesPreserved": 535,
+  "historicalOriginalInventoryUnchanged": true,
+  "joinedHandoff": {
+    "continuousHandoffQualified": true,
+    "custodySequence": 834,
+    "deletedMembers": 46,
+    "deletionCallbacks": 138,
+    "explicitJoiningCloseIntervalsQualified": false,
+    "finalSourceCohortQualified": false,
+    "lifecyclePoints": 10,
+    "nativeLeases": 4,
+    "nativeSequence": 835,
+    "nativeUsage": {
+      "counts": {
+        "APPLICATION": 1,
+        "GENERATION": 1,
+        "JOURNAL": 1,
+        "MISC": 1
+      },
+      "leases": 4,
+      "metadata": 35695017,
+      "queued": 0,
+      "staging": 837
+    },
+    "node": "node-6",
+    "observedAccountingClosed": true,
+    "phase3Complete": false,
+    "physicalPeakQualified": false,
+    "predecessorLeases": 11,
+    "predecessorUsage": {
+      "counts": {
+        "APPLICATION": 5,
+        "GENERATION": 2,
+        "JOURNAL": 1,
+        "LEARNER": 1,
+        "MISC": 1,
+        "SOURCE": 1
+      },
+      "leases": 11,
+      "metadata": 9007296,
+      "queued": 0,
+      "staging": 67201089
+    },
+    "processDeathQualified": false,
+    "scope": "required-four-original-learner-native-handoff",
+    "status": "PASS",
+    "wholeRuntimeResourcesQualified": false
+  },
+  "nativeExecutionRepeated": false,
+  "nativeProducerSource": "f0b60e1d1e93ff9c1e7a4ba2ced5e3b927fdc25f",
+  "nativeRaw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-dispatch/run-bc82bb01-127a-40e0-9332-dd2f2bc8a1d3",
+  "negativeCases": [
+    {
+      "case": "predecessor-byte-short",
+      "reason": "joined resources exact predecessor extents",
+      "status": "REJECTED"
+    },
+    {
+      "case": "custody-owner-alias",
+      "reason": "joined resources exact custody extents",
+      "status": "REJECTED"
+    },
+    {
+      "case": "native-byte-short",
+      "reason": "joined resources exact native extents",
+      "status": "REJECTED"
+    },
+    {
+      "case": "native-image-owner",
+      "reason": "joined resources exact native extents",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-custody-force",
+      "reason": "joined resources original custody force order",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-custody-parent-force",
+      "reason": "joined resources original custody force order",
+      "status": "REJECTED"
+    },
+    {
+      "case": "custody-before-force",
+      "reason": "joined resources atomic transfer after force",
+      "status": "REJECTED"
+    },
+    {
+      "case": "native-before-force",
+      "reason": "joined resources continuous predecessor ownership",
+      "status": "REJECTED"
+    },
+    {
+      "case": "predecessor-lifetime-gap",
+      "reason": "joined resources continuous predecessor ownership",
+      "status": "REJECTED"
+    },
+    {
+      "case": "native-lifetime-gap",
+      "reason": "joined resources native ownership through open",
+      "status": "REJECTED"
+    },
+    {
+      "case": "split-native-replacement",
+      "reason": "joined resources atomic replace after force",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-force",
+      "reason": "joined resources unique original lifecycle point",
+      "status": "REJECTED"
+    },
+    {
+      "case": "foreign-force-owner",
+      "reason": "joined resources unique original lifecycle point",
+      "status": "REJECTED"
+    },
+    {
+      "case": "reordered-force",
+      "reason": "joined resources force and handoff order",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-deletion",
+      "reason": "joined resources exact original deletion window",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-delete-force",
+      "reason": "joined resources exact original deletion window",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-completion-force",
+      "reason": "joined resources exact original deletion window",
+      "status": "REJECTED"
+    },
+    {
+      "case": "deletion-before-decision",
+      "reason": "joined resources exact original deletion window",
+      "status": "REJECTED"
+    },
+    {
+      "case": "hidden-replacement",
+      "reason": "joined resources unbound storage handoff",
+      "status": "REJECTED"
+    }
+  ],
+  "originalEventBoundaries": 38783,
+  "originalJavaInputs": {
+    "path": "target/v53-required-four-resources/java-input.json",
+    "sha256": "6606520b44f33a3cee48d03ca0f90ac9cbbc57a83583596f8b30ab6ddafba546"
+  },
+  "originalResourceChanges": 81031,
+  "phase3Complete": false,
+  "pythonTests": 132,
+  "qualificationElapsedSeconds": 438.95,
+  "remaining": [
+    "physical prefixes and predecessor file-to-lease mapping across all handoff callbacks",
+    "explicit joining-owner close intervals and OS custody",
+    "process-death combined resources",
+    "feasible simultaneous byte maxima and refusal/completion",
+    "complete final-source native cohort and failed-history review"
+  ],
+  "reports": [
+    {
+      "path": "target/v53-joined-resource-handoff/qualification.json",
+      "sha256": "1e478c8ce2e62d3a68ea448d0219c2899aee4ed6d19c46380e8567867691494e"
+    },
+    {
+      "path": "target/v53-joined-resource-handoff/qualification.log",
+      "sha256": "aaaddea39ce47f4fbe6186d10f18548f6d68b2dd3c64f17be9bb97f8ce5522f9"
+    },
+    {
+      "path": "target/v53-joined-resource-handoff/provenance.json",
+      "sha256": "6aee24c71e5aae5777eb301325466d3aedbe7ec89eb45d08118828c9c8eb772d"
+    },
+    {
+      "path": "target/v53-joined-resource-handoff/original-inventory.json",
+      "sha256": "7240ae3253ad51d71598d8b4c1b8248c01bc8f82b418a110c7cdebc6b1216c58"
+    },
+    {
+      "path": "target/v53-joined-resource-handoff/python-final.log",
+      "sha256": "eb7d036adf99b4088c912565ea392e73f573bc7ee499b0c4063f524a77610b2e"
+    },
+    {
+      "path": "target/v53-joined-resource-handoff/contract.json",
+      "sha256": "130fd56a3f1ae869dd6d554f36a253e2860d795c18bc8cb916e8ddcedf0e12b1"
+    },
+    {
+      "path": "target/v53-joined-resource-handoff/historical-indexes.json",
+      "sha256": "5c409b8e294d72491a2116300399f834adcb88a2b8f7305841283321dd5c49ee"
+    },
+    {
+      "path": "target/v53-joined-resource-handoff/qualify-original.py",
+      "sha256": "e6eedc817bb531d04487b629df66a83e26ace9684371adda2e0f33417e328198"
+    },
+    {
+      "path": "target/v53-joined-resource-handoff/index-evidence.py",
+      "sha256": "b85a73f3a4b40d91638a06a10495854d0207a58f3df7a1bddd7689f68bd572da"
+    }
+  ],
+  "schema": "gse-v53-joined-handoff-resources-development-v1",
+  "scope": "historical-required-four-original-learner-native-resource-handoff",
+  "sources": [
+    {
+      "path": "scripts/v53/joined_handoff_resources.py",
+      "sha256": "0fc5664987f3fc55bdc33df65387dd08834e5b06a82dc2e965e96e782fe1a8ed"
+    },
+    {
+      "path": "scripts/v53/joined_handoff_negatives.py",
+      "sha256": "4113d260750c4a8421183a68bfe499ac303ddcf8e10ef5ac7e7d1f9602b5724d"
+    },
+    {
+      "path": "scripts/v53/native_resource_evidence.py",
+      "sha256": "01f7cc6fc85f9c04990e890e84370517e755da738992bcd40746159c5b38d855"
+    },
+    {
+      "path": "scripts/v53/test_joined_handoff_resources.py",
+      "sha256": "11bda158b261167b427aab8ce94cb2699fbedf07297bb27f673efa8b5b98c946"
+    }
+  ],
+  "status": "PASS",
+  "wholeRuntimeResourcesQualified": false
+}

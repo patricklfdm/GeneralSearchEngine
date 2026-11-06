@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joined learner-to-voter resource handoff](PHASE_3_JOINED_HANDOFF_RESOURCES.md)
+now binds the original required-four placement/retirement to one complete resource
+journal: 11 predecessor leases remain charged through all deletion forces, then
+one forced atomic handoff installs four native leases. The 19-negative entry is
+mandatory for this component's original-first qualification; complete runtime
+maxima and final-source qualification remain OPEN. Catalogue counts are unchanged.
+
 [The full operation-231 continuation](PHASE_3_CAPACITY_COMPLETION.md#current-local-full-boundary-result)
 now passes one unretried local execution and complete original-first replay,
 including 34 exact negatives, 163 owner lifetimes, the next membership refusal
