@@ -55,7 +55,7 @@ def grant_capture_order(events, node, scope, lower, upper, packet):
 
 def grants(root, events, rows):
     """The physical reader already compared all captured grants to derivation."""
-    captures = p.captures.collect(root, events); by_key = {}; by_basis = {}; used = set(); callbacks = set()
+    captures = p.captures.collect(root, events); by_key = {}; by_basis = {}; replies = {}; callbacks = set()
     for capture in captures:
         node = capture['node']; files = disk.inventory(Path(root)/capture['capture']/'replica')
         journal = disk.journal(files['grants.gsr'], capture['root'], node)
@@ -82,15 +82,30 @@ def grants(root, events, rows):
         need(q['payload'] == dict(promise=own['promise']) and a['payload'] == dict(basis=peer['basis']) and
              q['view'] == own['view'] == peer['view'],
              'joining network prepare authority')
-        need(peer_key not in used and own['capturedEvent'] < row['sent'] and
-             row['received'] < peer['start'] < peer['returnEvent'] < peer['capturedEvent'] < row['offered'],
+        need(own['capturedEvent'] < row['sent'] and
+             peer['start'] < peer['returnEvent'] < peer['capturedEvent'] < row['offered'],
              'joining network force before promise reply')
-        used.add(peer_key)
+        replies.setdefault(peer_key, []).append(row)
+    for peer_key, attempts in replies.items():
+        # Socket rows are ordered by response offer, not request arrival. An
+        # exact retry shares the original task/forced grant, even when its
+        # response arrives first or the original response is never delivered.
+        first = min(attempts, key=lambda row: row['received'])
+        need(first['received'] < by_key[peer_key]['start'], 'joining network force before promise reply')
+        need(all(row['request'] == first['request'] and row['response'] == first['response'] for row in attempts),
+             'joining network exact prepare retry')
     # The joining initializer's own grant is local. Every other non-proposer
-    # grant is issued by one observed PREPARE, not an unexplained extra grant.
+    # grant needs its original triggering PREPARE. Retries do not add grants.
     required = {key for key,v in by_key.items() if v['node'] != v['ballot']['proposer']}
-    need(used == required, 'joining network unbound peer grant')
-    return dict(forcedGrants=len(captures), boundPromiseReplies=len(used)), by_basis
+    need(set(replies) == required, 'joining network unbound peer grant')
+    return dict(forcedGrants=len(captures), boundPromiseReplies=len(replies)), by_basis
+
+
+def delivered_promises(rows, proposer, basis, before):
+    """Already bound original grants: a failed attempt is never a delivered ACK."""
+    return [row for row in rows if row['kind'] == 'PREPARE' and row['request']['sender']['node'] == proposer and
+            row['response']['payload'] == dict(basis=basis) and
+            type(row['delivered']) is int and row['delivered'] < before]
 
 
 def proposer_forces(events,node,scope,selected_at,upper,replies,members):
@@ -141,9 +156,8 @@ def installations(root, events, rows, replay, bases, *, recovery=None, old_owner
                      grant['ballot'] == selected['ballot'] and grant['capturedEvent'] < at,
                      'joining network selection before original grants')
                 if node == selected['ballot']['proposer'] and source['voter'] != node:
-                    replies = [v for v in rows if v['kind'] == 'PREPARE' and v['request']['sender']['node'] == node and
-                               v['response']['payload'] == dict(basis=source['basisDigest'])]
-                    need(len(replies) == 1 and replies[0]['delivered'] < at,
+                    replies = delivered_promises(rows, node, source['basisDigest'], at)
+                    need(replies,
                          'joining network selection before delivered promises')
     for row in rows:
         if row['kind'] != 'SELECTED': continue
@@ -213,9 +227,10 @@ def installations(root, events, rows, replay, bases, *, recovery=None, old_owner
         replies=[v for v in rows if v['kind']=='SELECTED' and v['request']['payload']==dict(selection=digest)]
         if node==selected['ballot']['proposer']:
             grants=[bases[v['basisDigest']] for v in selected['sources']]
-            promises=[v['delivered'] for v in rows if v['kind']=='PREPARE' and
-                      v['request']['sender']['node']==node and
-                      v['response']['payload']['basis'] in {s['basisDigest'] for s in selected['sources']}]
+            # Each selected peer contributes once. Later duplicate deliveries
+            # cannot move an already forced selection's original lower bound.
+            promises=[min(v['delivered'] for v in delivered_promises(rows,node,source['basisDigest'],at))
+                      for source in selected['sources'] if source['voter']!=node]
             lower=max([v['capturedEvent'] for v in grants]+promises);upper=min(v['sent'] for v in replies)
         else:
             reply=next(v for v in replies if v['request']['recipient']['node']==node)

@@ -1,5 +1,14 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Original file-to-custody binding](PHASE_3_JOINED_FILE_RESOURCES.md) now records
+actual predecessor/successor reservation pairs, including distinct equal-content
+images. One complete local producer exposed an exact PREPARE retry reader bug
+and missing request-digest observations on ROOT/INTENT paths. These are corrected
+with focused tests; both failed replays remain retained. The old original has
+only conditional file-mapping credit. A new corrected-source whole history and
+thirteen original-first negatives remain pending for the later hosted batch.
+All five closure gaps and the existing catalogue counts remain unchanged.
+
 [Joined learner-to-voter resource handoff](PHASE_3_JOINED_HANDOFF_RESOURCES.md)
 now binds the original required-four placement/retirement to one complete resource
 journal: 11 predecessor leases remain charged through all deletion forces, then

@@ -17,13 +17,16 @@ class V53LearnerDiscoveryTest {
         final MembershipCapsule capsule;
         final MembershipLearnerRequest request;
         final MembershipIdentity peer;
-        final MembershipResources resources=new MembershipResources(512*MembershipResources.MIB);
+        final MembershipResources resources;
         final AtomicLong clock=new AtomicLong();
         final List<Decoded> requests=new ArrayList<>();
         final List<Long> deadlines=new ArrayList<>();
         byte[] content;
         int chunk=71;
-        Fixture(int size,String change,int cut) {
+        Fixture(int size,String change,int cut) {this(size,change,cut,0);}
+        Fixture(int size,String change,int cut,int observations) {
+            resources=new MembershipResources(MembershipResources.METADATA_LIMIT,512*MembershipResources.MIB,
+                    MembershipResources.QUEUE_LIMIT,observations);
             fixture=new V53CapsuleFixture(size,change,cut);capsule=fixture.verify();content=fixture.source.root.bytes();
             var root=new MembershipRoot(new ReplicationGroupId(UUID.fromString((String)fixture.source.root.value().get("groupId"))),
                     UUID.fromString((String)fixture.source.root.value().get("historyId")),fixture.source.rootHash);
@@ -111,6 +114,28 @@ class V53LearnerDiscoveryTest {
         try(var f=new Fixture()) {
             var count=new AtomicInteger();try(var pull=f.discover((p,r,k,d)->count.incrementAndGet()<3?CompletableFuture.failedFuture(lost()):f.normal(p,r,k,d))){pull.fetch();}
             assertEquals(1,f.requests.subList(0,3).stream().map(Decoded::digest).distinct().count());assertEquals(Set.of(BUDGET),new HashSet<>(f.deadlines));
+        }
+    }
+    @Test void originalRootRequestReservationBindsExactBytesAcrossRetryAndFailure()throws Exception {
+        for(boolean exhausted:List.of(false,true))try(var f=new Fixture(3,"ADD",2,1024)) {
+            var attempts=new AtomicInteger();var owners=new HashMap<String,String>();
+            try(var pull=f.discover((peer,request,kind,deadline)->{
+                var live=new HashMap<String,MembershipResourceObservations.Charge>();
+                for(var change:f.resources.observations().changes()) {
+                    change.removed().forEach(c->live.remove(c.owner()));change.added().forEach(c->live.put(c.owner(),c));
+                }
+                var matching=live.values().stream().filter(c->c.owner().startsWith("source-request-"+request.digest()+"-")).toList();
+                assertEquals(1,matching.size(),"ROOT discovery must retain the original request binding");
+                var charge=matching.getFirst();assertEquals(MembershipResources.Unit.CONTROL,charge.unit());assertEquals(request.size(),charge.bytes());
+                var previous=owners.putIfAbsent(request.digest(),charge.owner());if(previous!=null)assertEquals(previous,charge.owner());
+                return exhausted || attempts.incrementAndGet()<3?CompletableFuture.failedFuture(lost()):f.normal(peer,request,kind,deadline);
+            })) {
+                if(exhausted)assertThrows(MembershipTransport.Failure.class,pull::fetch);
+                else assertArrayEquals(f.content,pull.fetch().bytes());
+            }
+            assertEquals(3,Collections.frequency(f.requests.stream().map(Decoded::digest).toList(),f.requests.getFirst().digest()));
+            assertEquals(f.requests.stream().map(Decoded::digest).distinct().count(),owners.size());
+            assertEquals(Set.of(BUDGET),new HashSet<>(f.deadlines));assertEquals(0,f.resources.usage().leases());
         }
     }
     @Test void exhaustionAndPermanentFailuresStopWithinTheFrozenAttemptLimit()throws Exception {

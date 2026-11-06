@@ -61,6 +61,27 @@ final class V53ResourceTraceFiles {
             out.punctuation('}');return out.digest();
         }
     }
+    static String writeTransfers(Path path,MembershipResourceObservations.Transfers value)throws IOException {
+        require(value.rows().size()<=MembershipResourceObservations.MAXIMUM,"storage transfer row capacity");
+        try(var out=new Writer(path)) {
+            var fields=new TreeMap<String,Object>(Map.of("schema","gse-v53-storage-transfers-v1",
+                    "transitions",value.transitions(),"truncated",value.truncated(),"failed",value.failed(),"rows",true));
+            out.punctuation('{');boolean firstField=true;
+            for(var field:fields.entrySet()) {
+                if(!firstField)out.punctuation(',');firstField=false;out.bytes(canonical(field.getKey(),256));out.punctuation(':');
+                if(!field.getKey().equals("rows")){out.bytes(canonical(field.getValue(),4096));continue;}
+                out.punctuation('[');boolean firstRow=true;
+                for(var row:value.rows()) {
+                    require(!row.moves().isEmpty() && row.moves().size()<=32,"storage transfer pair capacity");
+                    if(!firstRow)out.punctuation(',');firstRow=false;
+                    out.bytes(canonical(Map.of("resourceSequence",row.resourceSequence(),"moves",row.moves().stream()
+                            .map(m->Map.of("before",charge(m.before()),"after",charge(m.after()))).toList()),65536));
+                }
+                out.punctuation(']');
+            }
+            out.punctuation('}');return out.digest();
+        }
+    }
     private static final class Writer implements AutoCloseable {
         final OutputStream output;final MessageDigest digest;int bytes;
         Writer(Path path)throws IOException {

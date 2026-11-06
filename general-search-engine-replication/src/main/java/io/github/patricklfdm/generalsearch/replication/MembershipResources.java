@@ -72,6 +72,22 @@ final class MembershipResources {
     synchronized MembershipResourceObservations.Checkpoint observationCheckpoint() {
         require(observations!=null,"resource observations disabled");return observations.checkpoint(usage());
     }
+    synchronized MembershipResourceObservations.Transfers storageTransferObservations() {
+        require(observations!=null,"resource observations disabled");return observations.transfers();
+    }
+    private void observeTransfer(Map<Lease,Lease> transferred) {
+        observe("TRANSFER");
+        if(observations==null || !observations.accepting())return;
+        try {
+            var moves=new ArrayList<MembershipResourceObservations.Move>();
+            transferred.forEach((before,after)->moves.add(new MembershipResourceObservations.Move(
+                    new MembershipResourceObservations.Charge(before.key.unit,before.key.owner,before.bytes,""),
+                    new MembershipResourceObservations.Charge(after.key.unit,after.key.owner,after.bytes,""))));
+            moves.sort(Comparator.comparing((MembershipResourceObservations.Move m)->m.before().unit().name())
+                    .thenComparing(m->m.before().owner()));
+            observations.transfer(moves);
+        }catch(RuntimeException | OutOfMemoryError error){observations.failed();}
+    }
     synchronized MembershipControlCloseObservations.Snapshot controlCloseObservations() {
         require(controlCloses!=null,"control close observations disabled");return controlCloses.snapshot();
     }
@@ -399,7 +415,7 @@ final class MembershipResources {
         var nextLeases=new HashMap<>(leases);for(var lease:original.keySet())nextLeases.remove(lease.key);
         for(var next:result.values())nextLeases.put(next.key,next);
         leases=nextLeases;for(var lease:original.keySet())lease.released=true;
-        observe("TRANSFER");
+        observeTransfer(immutable);
         return immutable;
     }
     final class Lease implements AutoCloseable {

@@ -105,7 +105,7 @@ final class MembershipLearnerDiscovery implements AutoCloseable {
     private Decoded exchange(Decoded request,String kind)throws IOException {
         require(request.size()<=maximumFrame,"learner discovery request frame bound");
         var retry=new MembershipExchange(request.digest(),started,budget);
-        try(var held=resources.reserve(MembershipResources.Unit.CONTROL,"learner-root-request-"+UUID.randomUUID(),request.size())) {
+        try(var held=resources.reserve(MembershipResources.Unit.CONTROL,MembershipSourceResources.request("source-request",request),request.size())) {
             for(;;) {
                 check();retry.attempt(request.digest(),clock.getAsLong());CompletableFuture<Decoded> future;
                 synchronized(this){check();future=Objects.requireNonNull(link.exchange(peer,request,kind,started+budget));pending=future;if(closed)future.cancel(true);}

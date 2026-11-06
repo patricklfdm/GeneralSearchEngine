@@ -154,6 +154,24 @@ class V53JoiningIntentPullTest {
             assertEquals(0,f.f.resources.usage().leases());assertThrows(IllegalArgumentException.class,pull::metadata);
         }
     }
+    @Test void pendingIntentRequestsKeepOriginalBindingAcrossRetriesAndRelease()throws Exception {
+        try(var f=new Fixture()) {
+            var pool=new MembershipResources(MembershipResources.METADATA_LIMIT,512*MembershipResources.MIB,MembershipResources.QUEUE_LIMIT,1024);
+            var owners=new HashMap<String,String>();var attempts=new AtomicInteger();
+            try(var pull=f.pull((peer,request,kind,deadline)->{
+                var live=new HashMap<String,MembershipResourceObservations.Charge>();
+                for(var change:pool.observations().changes()) {
+                    change.removed().forEach(c->live.remove(c.owner()));change.added().forEach(c->live.put(c.owner(),c));
+                }
+                var bound=live.values().stream().filter(c->c.owner().startsWith("source-request-"+request.digest()+"-")).toList();
+                assertEquals(1,bound.size());var charge=bound.getFirst();assertEquals(request.size(),charge.bytes());
+                var previous=owners.putIfAbsent(request.digest(),charge.owner());if(previous!=null)assertEquals(previous,charge.owner());
+                return attempts.incrementAndGet()<3?CompletableFuture.failedFuture(V53LearnerDiscoveryTest.lost()):f.normal(peer,request,kind,deadline);
+            },pool)){assertArrayEquals(f.content,pull.fetch().bytes());}
+            assertEquals(0,pool.usage().leases());assertEquals(f.requests.stream().map(Decoded::digest).distinct().count(),owners.size());
+            assertEquals(Set.of(BUDGET),new HashSet<>(f.deadlines));
+        }
+    }
     @ParameterizedTest @ValueSource(strings={"offer-size","offer-id","offer-kind","chunk-offset","chunk-empty","chunk-hash","reply-sequence","commit-digest"})
     void badExchangeCannotComplete(String mode)throws Exception {
         try(var f=new Fixture();var pull=f.pull((p,r,k,d)->{

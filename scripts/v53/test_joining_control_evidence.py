@@ -97,6 +97,13 @@ class JoiningControlEvidenceTest(unittest.TestCase):
                 patch.object(replay,'current',side_effect=lambda node,*args:dict(own,node=node)),patch.object(c,'exact'):
             with self.assertRaisesRegex(ValueError,'^joining control hint before delivered grant$'):replay.preparation(values,own)
             replay.rows=[reply];replay.preparation(values,own)
+            # A failed socket attempt is no ACK; duplicate deliveries of this
+            # same source remain one old voter in the hint's source set.
+            replay.rows=[dict(reply,delivered=None),reply,dict(reply),dict(reply,delivered=50)]
+            replay.preparation(values,own)
+            replay.rows=[dict(reply,delivered=None)]
+            with self.assertRaisesRegex(ValueError,'^joining control hint before delivered grant$'):replay.preparation(values,own)
+            replay.rows=[reply]
             reply['delivered']=10
             with self.assertRaisesRegex(ValueError,'^joining control hint before delivered grant$'):replay.preparation(values,own)
 

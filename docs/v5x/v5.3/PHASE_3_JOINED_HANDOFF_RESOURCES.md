@@ -82,6 +82,12 @@ distinct continuous custody leases. This is not a per-file mapping to every
 predecessor lease at every intermediate write. Native target names and amounts
 are derived exactly from the surviving installed generation and original handoff.
 
+The later opt-in [placed-file custody reader](PHASE_3_JOINED_FILE_RESOURCES.md)
+adds actual predecessor/successor observations and independently resolves their
+original file and network identities. It distinguishes equal-size image swaps
+that this historical delta format cannot. Old originals retain their existing
+scope; the new sidecar is never reconstructed from these older charge sets.
+
 The existing 566-history / 260-group catalogue is unchanged. Historical producer
 bytes are development evidence only; the final-source resource execution and
 all five [Phase 3 closure gaps](PHASE_3_QUALIFICATION_AUDIT.md) remain open.

@@ -11,10 +11,14 @@ final class MembershipResourceObservations {
     record Snapshot(long metadataLimit,long stagingLimit,long queueLimit,long transitions,boolean truncated,boolean failed,
                     List<Change> changes,MembershipResources.Usage current) {}
     record Checkpoint(long sequence,boolean complete,MembershipResources.Usage usage) {}
+    record Move(Charge before,Charge after) {}
+    record Transfer(long resourceSequence,List<Move> moves) {}
+    record Transfers(long transitions,boolean truncated,boolean failed,List<Transfer> rows) {}
     private record Key(MembershipResources.Unit unit,String owner) {}
     private final int maximum;
     private final long metadataLimit,stagingLimit,queueLimit;
     private final List<Change> changes=new ArrayList<>();
+    private final List<Transfer> transfers=new ArrayList<>();
     private Map<Key,Charge> prior=Map.of();
     private long transitions;
     private boolean truncated,failed;
@@ -36,6 +40,15 @@ final class MembershipResourceObservations {
         changes.add(new Change(sequence,event,List.copyOf(removed),List.copyOf(added),usage));prior=current;
     }
     boolean accepting(){return !truncated && !failed;}
+    void transfer(List<Move> moves) {
+        // One bounded mapping for an already recorded atomic switch. Equal-byte
+        // charges in the delta alone cannot identify which handle succeeded which.
+        MembershipValidation.require(accepting() && !changes.isEmpty() &&
+                changes.getLast().event.equals("TRANSFER") && !moves.isEmpty() && moves.size()<=32 &&
+                transfers.size()<maximum,"resource transfer observation bound/order");
+        transfers.add(new Transfer(changes.getLast().sequence,List.copyOf(moves)));
+    }
+    Transfers transfers(){return new Transfers(transitions,truncated,failed,List.copyOf(transfers));}
     void skipped(){transitions++;}
     void failed(){failed=true;}
     Checkpoint checkpoint(MembershipResources.Usage usage) {

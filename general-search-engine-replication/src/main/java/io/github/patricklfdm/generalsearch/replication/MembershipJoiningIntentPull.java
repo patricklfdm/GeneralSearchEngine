@@ -57,7 +57,7 @@ final class MembershipJoiningIntentPull implements AutoCloseable {
     private Decoded exchange(Decoded request,String kind)throws IOException {
         require(request.size()<=maximumFrame,"joining pull request frame bound");
         var retry=new MembershipExchange(request.digest(),started,budget);
-        try(var work=resources.reserve(MembershipResources.Unit.CONTROL,"joining-request-"+UUID.randomUUID(),request.size())) {
+        try(var work=resources.reserve(MembershipResources.Unit.CONTROL,MembershipSourceResources.request("source-request",request),request.size())) {
             for(;;) {
                 check();retry.attempt(request.digest(),clock.getAsLong());CompletableFuture<Decoded> future;
                 synchronized(this){check();future=Objects.requireNonNull(link.exchange(peer,request,kind,started+budget));pending=future;if(closed)future.cancel(true);}

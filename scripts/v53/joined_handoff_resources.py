@@ -37,7 +37,7 @@ def project(handoff):
                 deletions=len(handoff.removed))
 
 
-def derive(root):
+def original(root):
     """Replay original prefix, placement and retirement before deriving charges.
 
     Complete continuation/network/ledger admission remains a mandatory caller
@@ -53,7 +53,11 @@ def derive(root):
     history = p.covering.History(root, model, captures, retirements); history.run()
     owner = p.init.placement.Placement(root, history); owner.run()
     handoff = p.init.retirement.Retirement(root, owner); handoff.run()
-    return project(handoff)
+    return handoff
+
+
+def derive(root):
+    return project(original(root))
 
 
 def positions(events, node):

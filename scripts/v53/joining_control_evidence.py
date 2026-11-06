@@ -149,10 +149,9 @@ class Replay:
             peer=self.current(node,first['received'],last);held=active_source(self.sources,self.events,peer,first['received'],last)
             need(held==matches[0],'joining control hint original grant');sources.append(dict(node=node,basis=sha(held['basis'])))
             if node!=own['node']:
-                received=[v for v in self.rows if v['kind']=='PREPARE' and v['request']['recipient']['node']==node and
-                          v['request']['sender']['node']==own['node'] and v['request']['ballot']==ballot and
-                          v['response']['payload']==dict(basis=sha(held['basis'])) and v['delivered']<first['received']]
-                need(len(received)==1,'joining control hint before delivered grant')
+                received=[v for v in n.delivered_promises(self.rows,own['node'],sha(held['basis']),first['received'])
+                          if v['request']['recipient']['node']==node and v['request']['ballot']==ballot]
+                need(received,'joining control hint before delivered grant')
         need(len(sources)>len(cap['cut']['view']['old'])//2,'joining control hint original old sources')
         body=dict(schema='gse-v53-joining-preparation-hint/1.3',root=self.model.root,cut=sha(f.canonical(cap['cut'])),joining=joining,ballot=ballot,sources=sources)
         exact(values,alias('joining-preparation',cap,joining),f.canonical(body))

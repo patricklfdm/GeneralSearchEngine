@@ -1,12 +1,20 @@
 # V5.3 bounded resources and lifetime
 
+[Original placed-file custody](PHASE_3_JOINED_FILE_RESOURCES.md) adds explicit
+predecessor/successor observations to the joined-owner accounting reader. The
+strict entry derives original file identities and pre-custody transfer IDs;
+equal-size images cannot exchange owners unnoticed. Intermediate writes,
+explicit joining shutdown and complete runtime maxima remain separate obligations.
+
 [Membership capacity completion](PHASE_3_CAPACITY_COMPLETION.md) adds a
 conditional-prefix owner continuation at the last admissible fixed-history
 change. It retains same-directory INTENT/FINAL, stable continuation, refusal and
 post-refusal DATA. Version-3 replay binds every observed budget and 165 physical
 publication boundaries in the short continuation. Version 4 additionally binds
-resource release to each actual close invocation and successful return. Full-boundary execution,
-simultaneous physical maxima and the final-source cohort remain OPEN; the native
+resource release to each actual close invocation and successful return. The
+full operation-231 continuation is now locally qualified with 34 exact negatives
+and 163 original owner lifetimes; its preceding history remains conditional.
+Simultaneous physical maxima and the final-source cohort remain OPEN; the native
 subset inventory is unchanged.
 
 [Outgoing activation drain](PHASE_3_ACTIVATION_DRIVER_DRAIN.md) now retains

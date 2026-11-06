@@ -1,0 +1,452 @@
+{
+  "baseSource": "2c8e56899b49619b06f8cebb7d6387b9680d024d",
+  "completeNativeResourceQualified": false,
+  "conditionalFileMapping": {
+    "completeOriginalQualified": false,
+    "result": {
+      "custodySequence": 834,
+      "distinctImageDigests": 1,
+      "distinctImageFiles": 4,
+      "finalSourceCohortQualified": false,
+      "intermediateFileLifetimesQualified": false,
+      "mappingSha256": "cc658fd29d36dc9deace4e925e092e49ea0d8d14c4bf2d896dd702dfc5a75695",
+      "node": "node-6",
+      "originalFileBytes": 240709,
+      "originalFileCustodyQualified": true,
+      "originalFiles": 65,
+      "phase3Complete": false,
+      "physicalPeakQualified": false,
+      "postCustodyCompletionFiles": 3,
+      "predecessorLeases": 11,
+      "scope": "original-placed-files-and-actual-custody-transfer",
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    }
+  },
+  "correctedJavaDifferences": [
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningIntentPull.java",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDiscovery.java",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningFixtureRequestTest.java",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentPullTest.java",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerDiscoveryTest.java"
+  ],
+  "correctedJavaInputFiles": 1518,
+  "correctedTests": {
+    "java": 65,
+    "optimizedPython": 39,
+    "planning": 35,
+    "relatedPython": 545
+  },
+  "correctedWholeHistoryExecuted": false,
+  "declaredFileNegatives": 13,
+  "failedReplays": [
+    {
+      "elapsedSeconds": 147.33436852300656,
+      "message": "joining network force before promise reply",
+      "report": {
+        "path": "target/v53-joined-file-ownership/qualification-failure.json",
+        "sha256": "f39aa41368ccc57ecec35fb8db7b86c23003d342fb1cf894b93cb75a0fadb274"
+      },
+      "status": "FAIL",
+      "type": "ValueError"
+    },
+    {
+      "elapsedSeconds": 289.55369999899995,
+      "message": "native source resources request coverage",
+      "report": {
+        "path": "target/v53-joined-file-ownership/replay-corrected/qualification-failure.json",
+        "sha256": "e78dc501ad7be27ad95b48ce615a32fab0d59a3444c167f099e4b4700402c912"
+      },
+      "status": "FAIL",
+      "type": "ValueError"
+    }
+  ],
+  "finalSourceCohortQualified": false,
+  "historicalIndexesPreserved": 536,
+  "missingRequestBindings": {
+    "directIntentFixture": 5,
+    "rootDiscovery": 3,
+    "sealedProgress": 3,
+    "totalAttempts": 11
+  },
+  "nativeExecution": {
+    "errors": 0,
+    "failures": 0,
+    "seconds": 1459.229,
+    "skipped": 0,
+    "tests": 1
+  },
+  "nativeNetworkReplay": {
+    "negativeCases": [
+      {
+        "case": "missing-trigger",
+        "reason": "joining network force before promise reply",
+        "status": "REJECTED"
+      },
+      {
+        "case": "before-local-capture",
+        "reason": "joining network force before promise reply",
+        "status": "REJECTED"
+      },
+      {
+        "case": "before-peer-capture",
+        "reason": "joining network force before promise reply",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-retry-trace",
+        "reason": "joining network exact prepare retry",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-retry-sequence",
+        "reason": "joining network exact prepare retry",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-promise",
+        "reason": "joining network prepare authority",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-basis",
+        "reason": "joining network prepare authority",
+        "status": "REJECTED"
+      },
+      {
+        "case": "no-delivered-promise",
+        "reason": "joining network selection before delivered promises",
+        "status": "REJECTED"
+      }
+    ],
+    "report": {
+      "path": "target/v53-joined-file-ownership/prepare-retry-original-network.json",
+      "sha256": "cca8af71ea975f2eb68ce65ca971047286cc27f235d3098515e41c78df8bf00e"
+    },
+    "status": "PASS"
+  },
+  "nativeRaw": "general-search-engine-replication/target/v53-native-dispatch/run-66856f08-a729-45f4-a1b2-97d5b51b1ca2",
+  "nextRequired": [
+    "collect one new complete corrected-source required-four history with storage transfer observations",
+    "pass joined_file_negatives complete original admission and all thirteen exact mutations",
+    "integrate the new opt-in scope into final-source hosted admission without splitting the original lifetime"
+  ],
+  "originalExecutionAfterSandboxSocketFailure": true,
+  "originalFirstFileNegativesQualified": false,
+  "originalJavaInputFiles": 1517,
+  "originalQualified": false,
+  "phase3Complete": false,
+  "remaining": [
+    "intermediate file writes and every original byte lifetime",
+    "explicit joining-owner close intervals and OS custody",
+    "process-death combined resources",
+    "feasible simultaneous byte maxima and refusal/completion",
+    "complete final-source native cohort and failed-history review"
+  ],
+  "reports": [
+    {
+      "path": "target/v53-joined-file-ownership/java-input.json",
+      "sha256": "dc7f15dd795ead64d6db4d4ab1b9396410228f9004c5b9df3647e389692c86bb"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/build.json",
+      "sha256": "1432a944d70bb5d148d624df9678715be1ac1f49feb18f92dde25d9ec9050c8c"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/original-inventory.json",
+      "sha256": "ae45b8d6f7e5e2b4a8af513ce0f6a2ea4359649b478547c39c764a6c30525b15"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/provenance.json",
+      "sha256": "d787b5566f1d04d9e8cbd9578489e4fe6be8ab1459050158a1b06097dc5f59f6"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/commands.json",
+      "sha256": "1a38060524a1c8f70e379499dfce23345ed715d5dce8ec0c43501ebaf57a6e18"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/native-junit.xml",
+      "sha256": "26b72b580d924ebfa978809059da9d2dd55f5205ec83d99b28afae32ebf62d89"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/native-java.log",
+      "sha256": "434cefb10a8af8d8b5fa0fe7e27eec643ac071460d37c28f718bf96204679a4b"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/native-local.log",
+      "sha256": "31d4508a114c810846a04dad483fb4f58b0a0dc8e0f745006ca3d45adf58ee9d"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/qualification.log",
+      "sha256": "3497a19f1b5a02e84aeba55f6476ef05da3100c95b5a58da72e33b651e63b680"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/qualification-failure.json",
+      "sha256": "f39aa41368ccc57ecec35fb8db7b86c23003d342fb1cf894b93cb75a0fadb274"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/replay-corrected/provenance.json",
+      "sha256": "23aa260d80d8ad78811b4983750f22f380a2c8136ece8cea32dee05a003519ac"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/replay-corrected/qualification.log",
+      "sha256": "cb26d1351837c52622d3e2b8ea1773ca56cae64a30fcc58334d3642d4669286c"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/replay-corrected/qualification-failure.json",
+      "sha256": "e78dc501ad7be27ad95b48ce615a32fab0d59a3444c167f099e4b4700402c912"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/replay-corrected/original-inventory.json",
+      "sha256": "ae45b8d6f7e5e2b4a8af513ce0f6a2ea4359649b478547c39c764a6c30525b15"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/native-conditional-binding.json",
+      "sha256": "455f06510cbb660b43671d6efc58c0196fd1262cbf3ff63b13f16a5b02061298"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/native-conditional-binding.log",
+      "sha256": "8d08dd5864e16f2054c4fc2552f770493bdbda9638370c9c487a9e1e5fbb75d4"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/file-projection.log",
+      "sha256": "0551446a25a107132708a728d2e13a093cf85b237a64a2a33cdb71807b6e862d"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/file-projection-corrected.log",
+      "sha256": "16bc1597ebde033075546e1e1cdc1eb4984ec9c422c77435c57226160a9d9c0b"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/historical-projection.json",
+      "sha256": "30ca94d4ae130908142412c52f75b3c6a91e8a20bbf6040f408395a846e6478f"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/prepare-retries-before.log",
+      "sha256": "0d9263108f58be4b09e7f0f9d15b6cc90c18ffeb959a284259c5dcdc70002169"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/prepare-retries-after.log",
+      "sha256": "bc2d45a1f082164cb6cfcb308ac302a3c80d35c3f96d62e22fdc5915075411d4"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/promise-retry-frames.json",
+      "sha256": "a9c98db38f25ee9a08e396b31f80e19c79305bff39eeb9e835b96b94215ba522"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/promise-diagnostic.log",
+      "sha256": "e5ad60521c22281dd522c2dca274298a6c20cf30cd900fb800785887fb8ee848"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/prepare-retry-original-network.json",
+      "sha256": "cca8af71ea975f2eb68ce65ca971047286cc27f235d3098515e41c78df8bf00e"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/prepare-retry-original-negatives.json",
+      "sha256": "c74e9e28057f42649b9a20c3d4521cde4973df180c79dbc3c5c1e0525e266d5f"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/prepare-retry-original-negatives.log",
+      "sha256": "71d8a16e54255f3806337b8251d22a3eb70237f7e736b13ca62e9951c818f655"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/source-request-diagnostic.log",
+      "sha256": "b64daa53e755986febb076731ea6acb7b0bbd655264db2b03d685d9f985d5afe"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/all-request-bindings-diagnostic.log",
+      "sha256": "a03eeb4e73b31b5f7e161fe7f1b7251c687eaa3e10b97cc810473c6c5b9ae1d9"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/root-request-before.log",
+      "sha256": "5888e3b7313b9ed685ed2e98af28cb3309965b2f81ddafb0842345f150a2e3fd"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/root-request-before.xml",
+      "sha256": "aa02568e628ab96a0f8c5115597d25193be1aafe8c29530c8633bb7b227998d6"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/root-request-after.log",
+      "sha256": "65e5e31d716e2203c7437ac8271ac2d09ce15346b3636a1e3268b66808665b97"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/java-complete.log",
+      "sha256": "2f7e5e47f8e2ad36d9ecb0be77330a08b47bc736062bdef49158843988dc5eee"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/java-complete-local.log",
+      "sha256": "28738b82efd8248d93f7b4f60916e684059909daf0d5bb98495ddc87c1f03c33"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/python-current.log",
+      "sha256": "8c287b9328a7361a555d8d75f4fa931c01c1e38860f9b07e46299311b441f214"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/python-current-command.json",
+      "sha256": "753daf8aff747db4221e13ff567368e8f7c3e87c96624b0337a9b473fbac03e6"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/python-current-optimized.log",
+      "sha256": "52409d6f7907557035a32fdd7b4c7fb0ecfde768c343979cb753b99f04dd3ae5"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/planning-tests.log",
+      "sha256": "c751bb6db4d4aa78dae675ef5a399336c7aa8c09898c8d4ad3e87a4dfc58f2f0"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/historical-indexes.json",
+      "sha256": "be2d061fe42299411ab66979646ce0c04b73562ac12bfed03304a7071215b81e"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/corrected-source/java-input.json",
+      "sha256": "aafcee76c60487b02f01bc7bf4d672a65de0e41740b7d37f99fc79acc02972cf"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/corrected-source/build.json",
+      "sha256": "c395a9333f009cca6fe70bff323d0d452d26e36f6b9e3f28ce2b4a2db20dff69"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/qualify-original.py",
+      "sha256": "462d2718960bb2c94fed4964a6bfbee5e7a23c2ffa35ad2d6cf9f0888e95a10c"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/replay-corrected/qualify-original.py",
+      "sha256": "d61d672f701e8b21d89ad7e4f4415cba81bbbbf134d8dd6790e8c04ed2d4b706"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/replay-prepare-retries.py",
+      "sha256": "3b5502b4387670710231a6f3193f3106f900c8ad5d1e736b084448dec1f0cb43"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/index-evidence.py",
+      "sha256": "5ed4201af2ae0796385175beff4f6503c410499d84c1f8c93d80764823d377a6"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/sandbox-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest.xml",
+      "sha256": "29dfe86c95fb9a12475819be59a9e22a600cb88d7c1fc45efa1f489284a24277"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/java-sandbox/TEST-io.github.patricklfdm.generalsearch.replication.V53JoiningIntentPullTest.xml",
+      "sha256": "ec100d848882c8390188b61e97596a32e4215494ae0e0d2f65884c374732a356"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/corrected-source/TEST-io.github.patricklfdm.generalsearch.replication.V53JoiningFixtureRequestTest.xml",
+      "sha256": "23db5487bcbd6ff6e18545257e93490298d0498342f5a45ed9dd6f72ad19d90c"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/corrected-source/TEST-io.github.patricklfdm.generalsearch.replication.V53StorageTransferObservationsTest.xml",
+      "sha256": "75fdd4dfc4e443cf3809379af6a6395aeeabe44fe83686aad9ba78741011b154"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/corrected-source/TEST-io.github.patricklfdm.generalsearch.replication.V53JoiningIntentPullTest.xml",
+      "sha256": "0606b2a4610259e6d16b6a3c9a8c2b0963791e3b7906d3e7210b56d02be20b68"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/corrected-source/TEST-io.github.patricklfdm.generalsearch.replication.V53ResourceObservationsTest.xml",
+      "sha256": "9d005e741a074e8b26d312e6caa08adbc972131b677ff1e909f02bdd2476b9a0"
+    },
+    {
+      "path": "target/v53-joined-file-ownership/corrected-source/TEST-io.github.patricklfdm.generalsearch.replication.V53LearnerDiscoveryTest.xml",
+      "sha256": "0325584b785affe3fee59d138525e41de205e89be8cf95b97d6f495cd2609a85"
+    }
+  ],
+  "schema": "gse-v53-joined-file-resources-development-v1",
+  "scope": "actual-file-custody-observations-and-request-binding-corrections",
+  "sources": [
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningIntentPull.java",
+      "sha256": "6348c061ce4634040f6bc13e24c4d7e3491df2dc12a5daf76411481bd01cff3b"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDiscovery.java",
+      "sha256": "49f3c7dcaa4188e6a7e1be8d7a40881c0404128f19cba091f78d754ab727a435"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResourceObservations.java",
+      "sha256": "61b95bfb99d16faffe73c41a85acf4c954bf8576ab83bb9457513ae9e96f548f"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java",
+      "sha256": "e96402e509f0b3ad594a2b2ccfd0995b3ad864fda5df797f667c058c96e1056f"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningFixtureRequestTest.java",
+      "sha256": "49f3603dbf194c23fc9ba2cd303edffcf1a3c0624441c1f08a7bdcb633dd7a4a"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java",
+      "sha256": "2849a11c00ab7125dd436d5595d68ae0ca62f8c39b13319899f254341c0c16fb"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentPullTest.java",
+      "sha256": "2fe0117c65da86e09957f3d872f6327229ceeae28618dfe90375ca38f722985d"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerDiscoveryTest.java",
+      "sha256": "8e8093575b475b997923555e8bcfbb06f1c2cc2208d7e8bfff350ee299b2c25d"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java",
+      "sha256": "ff83dab4969b5f176cbd471c83b32f84763bfbb2fffd4e927d45e36289135bb1"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTraceFiles.java",
+      "sha256": "92138106052b5e01173837df6c1536be6851d5b4a5f80d5f2d9272bf885e03c2"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransitionCapture.java",
+      "sha256": "5b5ebba82b813a3816c0df4617db04c6ab8a77d47493042db6db3a2ac544d390"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53StorageTransferObservationsTest.java",
+      "sha256": "6afffdafe3486f55c7e7b1ca37ac9915ade8ee0e2b28f9df75af20abf6e0756f"
+    },
+    {
+      "path": "scripts/v53/joined_file_negatives.py",
+      "sha256": "d6a636a80e8037f99e990c3c2758d630307772a5686a856146ec699ee5276f05"
+    },
+    {
+      "path": "scripts/v53/joined_file_resources.py",
+      "sha256": "a40c8e78933a3236d4f8582712340f948e4d15c259dbeb4875718e6229ff9b3a"
+    },
+    {
+      "path": "scripts/v53/joined_handoff_resources.py",
+      "sha256": "e8d58b344ae6c18e07474dfa7bb877ddf1f0e10dc893972f3e7fd688ea4c9f97"
+    },
+    {
+      "path": "scripts/v53/joining_control_evidence.py",
+      "sha256": "f0cb0498bc7359710b728a61dc51a888d5d0aa59292dfc3cbfb051d36b860f0c"
+    },
+    {
+      "path": "scripts/v53/joining_network_evidence.py",
+      "sha256": "f8e5f059ebb6d047949c820fa0a51a12ee45183591faacc7e98ff4f85a6051bf"
+    },
+    {
+      "path": "scripts/v53/native_resource_evidence.py",
+      "sha256": "268fa900c30a979d0128e9a0e4109340e943eb8f5357553a094b6fe1bc33fc12"
+    },
+    {
+      "path": "scripts/v53/storage_transfer_evidence.py",
+      "sha256": "c5c9718a20c189a4da8fc5be322fdd9ae9fc3261ae5b59dd3ca12e61f59cb3c2"
+    },
+    {
+      "path": "scripts/v53/test_joined_file_resources.py",
+      "sha256": "87019c098f73b372179e8494573331e5794032f2ed7d51d5378635d715008ea4"
+    },
+    {
+      "path": "scripts/v53/test_joining_control_evidence.py",
+      "sha256": "0040e6f855067e075453039f2e5399be38003e6e283f303607b62d106550acb4"
+    },
+    {
+      "path": "scripts/v53/test_joining_prepare_retries.py",
+      "sha256": "85c8a3cbcc9476b09e6c2fa2d9daa2985d01d9782cd17c5ec2f40c7f3b421565"
+    },
+    {
+      "path": "scripts/v53/test_storage_transfer_evidence.py",
+      "sha256": "132e6a7f5ac142297421d6d54c947d9ccbcb368f27c254a723fa0eba10ac1a51"
+    }
+  ],
+  "status": "PARTIAL",
+  "syntheticFileNegativesPass": true,
+  "wholeRuntimeResourcesQualified": false
+}

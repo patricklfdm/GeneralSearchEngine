@@ -10,6 +10,13 @@ into the original native accounting/physical pipeline. Exact input and report
 hashes are in the [development index](phase3-evidence/native-source-resources.json).
 Phase 3 remains OPEN.
 
+The later [placed-file custody batch](PHASE_3_JOINED_FILE_RESOURCES.md) found
+that ROOT discovery and joining metadata still used unbound request labels, and
+the direct INTENT fixture had no logical request reservation. Those paths now
+retain the same request-digest/allocation identity as ordinary source pulls.
+The strict reader is unchanged. The earlier failed original remains unqualified;
+a new corrected-source whole history is pending hosted collection.
+
 ## Native binding
 
 Each copied transport request must be allocated while its original logical

@@ -63,26 +63,28 @@ class V53JoiningIntentExportTest {
                 "ballot",MembershipLearnerDiscovery.correlation(request.identity()),"sender",MembershipBootstrapSeed.identity(request.identity()),
                 "recipient",MembershipBootstrapSeed.identity(peer),"trace",trace.toString(),"sequence",sequence,"payload",payload)),"wire",kind);
     }
-    static Decoded exchange(MembershipTransport contact,MembershipIdentity peer,Decoded request,String kind)throws Exception {
-        var response=contact.exchange(peer,request,kind,System.nanoTime()+TimeUnit.SECONDS.toNanos(30)).get(35,TimeUnit.SECONDS);
-        MembershipWire.correlated(request,response,kind);assertEquals(kind,response.kind());return response;
+    static Decoded exchange(MembershipSourcePull.Link contact,MembershipResources resources,MembershipIdentity peer,Decoded request,String kind)throws Exception {
+        try(var held=resources.reserve(MembershipResources.Unit.CONTROL,MembershipSourceResources.request("source-request",request),request.size())) {
+            var response=contact.exchange(peer,request,kind,System.nanoTime()+TimeUnit.SECONDS.toNanos(30)).get(35,TimeUnit.SECONDS);
+            MembershipWire.correlated(request,response,kind);assertEquals(kind,response.kind());return response;
+        }
     }
-    static byte[] fetch(MembershipTransport contact,MembershipLearnerRequest learner,MembershipIdentity peer,Decoded first)throws Exception {
-        var offer=exchange(contact,peer,first,"SOURCE_OFFER");var content=object(offer.value().get("payload"));
+    static byte[] fetch(MembershipTransport contact,MembershipResources resources,MembershipLearnerRequest learner,MembershipIdentity peer,Decoded first)throws Exception {
+        var offer=exchange(contact::exchange,resources,peer,first,"SOURCE_OFFER");var content=object(offer.value().get("payload"));
         assertEquals("RECORD",content.get("kind"));assertEquals(object(first.value().get("payload")).get("id"),content.get("id"));
-        assertArrayEquals(offer.bytes(),exchange(contact,peer,first,"SOURCE_OFFER").bytes());
+        assertArrayEquals(offer.bytes(),exchange(contact::exchange,resources,peer,first,"SOURCE_OFFER").bytes());
         var out=new java.io.ByteArrayOutputStream();long sequence=1;var trace=UUID.fromString((String)first.value().get("trace"));
         while(out.size()<number(content.get("bytes"))) {
             var request=frame(learner,peer,trace,++sequence,"CHUNK",Map.of("id",content.get("id"),"action","REQUEST",
                     "offset",(long)out.size(),"digest",content.get("digest"),"bytes",""));
-            var response=exchange(contact,peer,request,"CHUNK");var payload=object(response.value().get("payload"));
+            var response=exchange(contact::exchange,resources,peer,request,"CHUNK");var payload=object(response.value().get("payload"));
             assertEquals((long)out.size(),payload.get("offset"));assertEquals(content.get("id"),payload.get("id"));
             byte[] bytes=Base64.getDecoder().decode((String)payload.get("bytes"));assertEquals(hash(bytes),payload.get("digest"));out.writeBytes(bytes);
         }
         assertEquals(number(content.get("bytes")),out.size());assertEquals(hash(out.toByteArray()),content.get("digest"));
         var last=frame(learner,peer,trace,++sequence,"TRANSFER_COMMIT",Map.of("id",content.get("id"),"digest",content.get("digest")));
-        var done=exchange(contact,peer,last,"TRANSFER_COMMIT");
-        assertArrayEquals(done.bytes(),exchange(contact,peer,last,"TRANSFER_COMMIT").bytes());return out.toByteArray();
+        var done=exchange(contact::exchange,resources,peer,last,"TRANSFER_COMMIT");
+        assertArrayEquals(done.bytes(),exchange(contact::exchange,resources,peer,last,"TRANSFER_COMMIT").bytes());return out.toByteArray();
     }
     @Test void minimalOldMajorityCanServeOriginalIntentBeforeJointCheckpointExists()throws Exception {
         nativeJoining(false);
@@ -287,7 +289,7 @@ class V53JoiningIntentExportTest {
                                 p.put("digest",MembershipLearnerDiscovery.reference(request));forbidden.put("payload",p);
                                 assertEquals(MembershipTransport.Reason.PROTOCOL,V53MembershipTransportTest.failure(contact.exchange(targets.getFirst(),
                                         decode(encode("wire","CHUNK",forbidden),"wire","CHUNK"),"SOURCE_OFFER",System.nanoTime()+BUDGET)).reason);
-                                var bytes=fetch(contact,request,targets.getFirst(),first);var value=object(parse(bytes,FRAME));var records=object(value.get("records"));
+                                var bytes=fetch(contact,pool,request,targets.getFirst(),first);var value=object(parse(bytes,FRAME));var records=object(value.get("records"));
                                 assertEquals("gse-v53-joining-intent-metadata/1.3",value.get("schema"));assertEquals(sealed.get("request"),value.get("request"));
                                 assertEquals(MembershipRetentionIntent.anchor(owner.activationCapsule().terminal()),value.get("parent"));
                                 assertEquals(MembershipBootstrapSeed.identity(joining),value.get("learner"));
