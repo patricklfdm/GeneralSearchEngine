@@ -15,9 +15,17 @@ final class V53GrantCapture {
     static final long MAXIMUM_BYTES=256L*1024*1024;
     private final Path root;
     private final List<Map<String,Object>> events;
+    private final boolean segmented;
     private int count;
     private long bytes;
     V53GrantCapture(Path raw,List<Map<String,Object>> events)throws IOException {
+        this(raw,events,MembershipBootstrapSource.EMPTY,V53WireArchive.Layout.JSON);
+    }
+    V53GrantCapture(Path raw,List<Map<String,Object>> events,MembershipBootstrapSource source,V53WireArchive.Layout layout)throws IOException {
+        Objects.requireNonNull(source);Objects.requireNonNull(layout);
+        require(layout!=V53WireArchive.Layout.SEGMENTED_BACKUP || source==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP,
+                "capture segmented layout requires backup");
+        this.segmented=layout==V53WireArchive.Layout.SEGMENTED_BACKUP;
         this.root=Files.createDirectory(raw.resolve(DIRECTORY));this.events=Objects.requireNonNull(events);
     }
     static List<Decoded> journal(byte[] bytes) {
@@ -66,11 +74,15 @@ final class V53GrantCapture {
         String id=UUID.fromString((String)value.get("basisId")).toString();
         var packet=MembershipSourcePacket.decode(AdmissionPaths.read(replica.resolve("sources").resolve(id).resolve("source.gscp"),MembershipSourcePacket.MAXIMUM));
         packet.bind(basis);
-        var before=inventory(replica);long extent=before.values().stream().map(MembershipFormat::object).filter(v->v.containsKey("size")).mapToLong(v->number(v.get("size"))).sum();
-        require(extent<=MAXIMUM_BYTES-bytes,"capture aggregate byte capacity");
+        var pinned=segmented?new V53CaptureFiles(replica):null;
+        var before=segmented?pinned.inventory():inventory(replica);
+        long extent=before.values().stream().map(MembershipFormat::object).filter(v->v.containsKey("size")).mapToLong(v->number(v.get("size"))).sum();
+        require(extent<=(segmented?V53CaptureFiles.ORIGINAL_BYTES:MAXIMUM_BYTES)-bytes,"capture aggregate byte capacity");
         String name=String.format(Locale.ROOT,"capture-%04d",++count);Path destination=Files.createDirectory(root.resolve(name));
         V53JournalApplicationTest.copy(replica,destination.resolve("replica"));
-        require(before.equals(inventory(replica)) && before.equals(inventory(destination.resolve("replica"))),"capture original changed during copy");
+        if(segmented) {
+            pinned.unchanged();require(before.equals(new V53CaptureFiles(destination.resolve("replica")).inventory()),"capture original changed during copy");
+        } else require(before.equals(inventory(replica)) && before.equals(inventory(destination.resolve("replica"))),"capture original changed during copy");
         var metadata=new TreeMap<String,Object>();metadata.put("schema","gse-v53-grant-capture-v1");metadata.put("node",node);metadata.put("scope",scope);
         metadata.put("ballot",value.get("ballot"));metadata.put("basisId",id);metadata.put("basisSha256",basis.digest());
         metadata.put("packetSha256",hash(packet.bytes()));

@@ -114,7 +114,7 @@ class Replay:
         self.owners = (*self.model.old, self.model.joining)
         self.old_owner_lifetimes=old_owner_lifetimes
         self.tx = allocations(self.events, self.owners, self.model.joining,old_owner_lifetimes=old_owner_lifetimes)
-        self.captures = a.physical.p.captures.collect(root, self.events)
+        self.captures = a.physical.p.captures.collect(root, self.events, **a.physical.p.captures.options(self.model))
         self.state = State(self.model.root); self.used = set(); self.promise_points = set(); self.self_grants = 0
         self.promise_history=[];self.adoption_fences=[]
 

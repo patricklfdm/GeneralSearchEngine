@@ -127,7 +127,7 @@ def source_authority(windows,request,lower,upper):
 
 
 def source_windows(root,events,*,replay=None):
-    captures=p.captures.collect(root,events);retirements=n.physical.observed.collect(root,events);ends={}
+    captures=p.captures.collect(root,events,**p.captures.options(replay));retirements=n.physical.observed.collect(root,events);ends={}
     for transaction in retirements:
         step=next(v for v in transaction['steps'] if v['point']=='SOURCE_RETIREMENT_WRITTEN')
         raw=step['files'][n.physical.observed.release.AUTHORITY];size=48+int.from_bytes(raw[12:16],'big')
@@ -138,7 +138,7 @@ def source_windows(root,events,*,replay=None):
         ends[key]=transaction['steps'][0]['event']
     result=[]
     for capture in captures:
-        node=capture['node'];files=physical_snapshot.from_model(Path(root)/capture['capture']/'replica',replay)
+        node=capture['node'];files=p.captures.physical_files(Path(root)/capture['capture']/'replica',**p.captures.options(replay))
         journal=disk.journal(files['grants.gsr'],capture['root'],node);promise,basis=journal[-2][1],journal[-1][1]
         value=f.decode(basis,'records','BASIS');prefix='sources/'+capture['basisId']+'/'
         packet=disk.p.decode(files[prefix+'source.gscp'])

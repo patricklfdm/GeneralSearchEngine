@@ -12,6 +12,8 @@ import tempfile
 from . import joining_snapshot as snapshot
 from . import joining_retention_evidence as retention
 from . import old_owner_lifetimes as cold_owners
+from . import bootstrap_replay_contract as policy
+from . import physical_snapshot
 
 f, need, sha = snapshot.f, snapshot.need, snapshot.s.digest
 disk = retention.physical
@@ -19,6 +21,22 @@ MIB = snapshot.MIB
 DIRECTORY, EVENT = 'grant-captures', 'GRANT_CAPTURED'
 MAXIMUM_CAPTURES, MAXIMUM_FILES, MAXIMUM_BYTES = 64, 512, 256*MIB
 SCHEMA = 'gse-v53-grant-capture-v1'
+SEGMENTED_BYTES = 512*MIB
+
+
+def options(model):
+    return policy.options(getattr(model, 'bootstrap_source', policy.EMPTY),
+                          getattr(model, 'wire_layout', policy.JSON))
+
+
+def unchanged(files):
+    if type(files) is physical_snapshot.Snapshot:files.check_unchanged()
+
+
+def physical_files(path, *, bootstrap_source=policy.EMPTY, wire_layout=policy.JSON):
+    source_args = policy.options(bootstrap_source, wire_layout)
+    if wire_layout == policy.SEGMENTED:return inventory(path, **source_args)[0]
+    return disk.inventory(path)
 
 
 def json_file(path):
@@ -32,7 +50,12 @@ def json_file(path):
     return raw, value
 
 
-def inventory(root):
+def inventory(root, *, bootstrap_source=policy.EMPTY, wire_layout=policy.JSON):
+    policy.check_layout(bootstrap_source, wire_layout)
+    if wire_layout == policy.SEGMENTED:
+        files = physical_snapshot.Snapshot(root, limits=physical_snapshot.Limits(SEGMENTED_BYTES, MAXIMUM_FILES, 8))
+        for name in files:snapshot.relative(name)
+        return files, files.identities(), files.total_bytes
     need(root.is_dir() and not root.is_symlink(), 'grant capture directory')
     files, identities, total, pending = {}, {}, 0, [root]
     while pending:
@@ -48,7 +71,8 @@ def inventory(root):
     return files, identities, total
 
 
-def read(path, event, *, learner_retention=True):
+def read(path, event, *, learner_retention=True, bootstrap_source=policy.EMPTY, wire_layout=policy.JSON):
+    source_args = policy.options(bootstrap_source, wire_layout)
     need(path.is_dir() and not path.is_symlink() and {p.name for p in path.iterdir()} == {'capture.json', 'replica'},
          'grant capture layout')
     raw, value = json_file(path/'capture.json')
@@ -57,7 +81,7 @@ def read(path, event, *, learner_retention=True):
     need(set(event) == {'node','scope','event','capture','sha256','basis'} and event['event'] == EVENT
          and event['sha256'] == sha(raw) and event['basis'] == value['basisSha256']
          and all(event[k] == value[k] for k in ('node','scope')), 'grant capture event binding')
-    files, observed, total = inventory(path/'replica')
+    files, observed, total = inventory(path/'replica', **source_args)
     expected = [dict(name=name, identity=observed[name]) for name in sorted(observed)]
     need(f.canonical(value['files']) == f.canonical(expected), 'grant capture copied inventory')
     required = {'root.gsr','node.gsr','allocator.gsr','grants.gsr','replica.lock','selector.gsr'}
@@ -100,12 +124,15 @@ def read(path, event, *, learner_retention=True):
         captured_promise, ledger = retention.parts(wrapper[48:], [8192, maximum])
         need(captured_promise == promise and ledger == files.get(name) and state['root'] == root
              and state['owner'] == identity, 'grant capture frozen ledger binding')
+    unchanged(files)
     return dict(capture=event['capture'], node=value['node'], scope=value['scope'], ballot=basis['ballot'],
                 basisId=basis['basisId'], basisSha256=sha(basis_raw), root=root, identity=identity,
                 bytes=total, files=len(files), cut=basis['cut']['index'])
 
 
-def collect(raw, events, *, learner_retention=True):
+def collect(raw, events, *, learner_retention=True, bootstrap_source=policy.EMPTY, wire_layout=policy.JSON):
+    source_args = policy.options(bootstrap_source, wire_layout)
+    maximum = policy.ORIGINAL_BYTES if wire_layout == policy.SEGMENTED else MAXIMUM_BYTES
     root = Path(raw)/DIRECTORY
     need(root.is_dir() and not root.is_symlink(), 'grant capture collection missing')
     pending, rows, names, identities, sources, total = {}, [], [], {}, {}, 0
@@ -120,8 +147,8 @@ def collect(raw, events, *, learner_retention=True):
         need(key in pending and len(rows) < MAXIMUM_CAPTURES, 'grant capture orphan/capacity')
         name = f'capture-{len(rows)+1:04d}'
         need(event.get('capture') == DIRECTORY+'/'+name, 'grant capture ordered unique path')
-        row = read(root/name, event, learner_retention=learner_retention); total += row['bytes']
-        need(total <= MAXIMUM_BYTES, 'grant capture aggregate capacity')
+        row = read(root/name, event, learner_retention=learner_retention, **source_args); total += row['bytes']
+        need(total <= maximum, 'grant capture aggregate capacity')
         owner = row['node']; identity = row['identity']
         need(not rows or row['root'] == rows[0]['root'], 'grant capture mixed roots')
         need(owner not in identities or identities[owner] == identity, 'grant capture owner changed')
@@ -136,42 +163,48 @@ def collect(raw, events, *, learner_retention=True):
     return rows
 
 
-def require_intermediate(raw, rows, *, voters=('node-1', 'node-2'), old_owner_lifetimes=None):
+def require_intermediate(raw, rows, *, voters=('node-1', 'node-2'), old_owner_lifetimes=None,
+                         bootstrap_source=policy.EMPTY, wire_layout=policy.JSON):
     """Require pre-activation grants for every declared old-majority owner.
 
     Counters come from the original pre-continuation snapshot, not a ready flag
     or a hard-coded ballot. This checks presence only; no historical derivation.
     """
+    source_args = policy.options(bootstrap_source, wire_layout)
     lifetimes = cold_owners.validate(old_owner_lifetimes,owners=voters,reason='grant capture declared owner lifetimes')
     def scope(row):
         return cold_owners.scope(lifetimes,row['node'],row['capturedEvent'],'network-owner') if row['node'] in lifetimes else 'network-owner'
     need(all(type(row.get('capturedEvent')) is int and row['capturedEvent'] >= 0 and row['scope'] == scope(row)
              for row in rows if row['node'] in lifetimes), 'grant capture original cold lifetime')
     before = Path(raw)/'before-joint-continuation'
-    node1, _, _ = inventory(before/'node-1')
+    node1, _, _ = inventory(before/'node-1', **source_args)
     identity = f.decode(node1['node.gsr'], 'records', 'NODE')['identity']
     allocator = f.decode(node1['allocator.gsr'], 'records', 'ALLOCATOR')
     records = disk.journal(node1['grants.gsr'], allocator['root'], identity['node'])
     counter = max([allocator['counter'], *[v['ballot']['counter'] for _, _, v in records]])+1
+    unchanged(node1)
     ballot = dict(counter=counter, proposer=identity['node'], incarnation=identity['storage'])
     for owner in voters:
-        files, _, _ = inventory(before/owner)
+        files, _, _ = inventory(before/owner, **source_args)
         actual = f.decode(files['node.gsr'], 'records', 'NODE', allocator['root'])['identity']
         for wanted in (ballot, dict(ballot, counter=counter+1)):
             matches = [v for v in rows if v['node'] == owner and v['scope'] == scope(v) and v['ballot'] == wanted
                        and v['root'] == allocator['root'] and v['identity'] == actual]
             need(len(matches) == 1, 'grant capture intermediate preparation missing/duplicate')
+        unchanged(files)
     return counter
 
 
-def validate(raw, events, *, whole_history=False, learner_retention=True):
+def validate(raw, events, *, whole_history=False, learner_retention=True,
+             bootstrap_source=policy.EMPTY, wire_layout=policy.JSON):
+    source_args = policy.options(bootstrap_source, wire_layout)
     need(learner_retention or not whole_history, 'grant capture joining requires learner retention')
-    rows = collect(raw, events, learner_retention=learner_retention)
+    rows = collect(raw, events, learner_retention=learner_retention, **source_args)
     result = dict(status='PARTIAL', scope='original-grant-copy-collection', captures=len(rows),
                   bytes=sum(v['bytes'] for v in rows), nativeHistoryQualified=False,
                   intermediatePreparationPhysicalQualified=False, forceAndNetworkQualified=False, phase3Complete=False)
-    if whole_history: result['intermediateBallot'] = require_intermediate(raw, rows)
-    return result
+    if whole_history: result['intermediateBallot'] = require_intermediate(raw, rows, **source_args)
+    return policy.receipt(result, bootstrap_source, wire_layout)
 
 
 NEGATIVES = {
@@ -190,7 +223,8 @@ NEGATIVES = {
 }
 
 
-def mutate(raw, events, name):
+def mutate(raw, events, name, *, bootstrap_source=policy.EMPTY, wire_layout=policy.JSON):
+    source_args = policy.options(bootstrap_source, wire_layout)
     captures = [row for row in events if row.get('event') == EVENT]; first = captures[0]
     path = Path(raw)/first['capture']; replica = path/'replica'
     if name == 'missing-return':
@@ -220,20 +254,21 @@ def mutate(raw, events, name):
             state.update(revision=state['revision']+1, previous=sha(before)); ledger.write_bytes(retention.peer_source.r.frame(state))
         else: raise ValueError('unknown grant capture mutation')
         if name != 'stale-inventory':
-            _, identities, _ = inventory(replica)
+            _, identities, _ = inventory(replica, **source_args)
             metadata['files'] = [dict(name=k, identity=identities[k]) for k in sorted(identities)]
             encoded = f.canonical(metadata); (path/'capture.json').write_bytes(encoded); first['sha256'] = sha(encoded)
 
 
-def qualify(raw, events, *, learner_retention=True):
+def qualify(raw, events, *, learner_retention=True, bootstrap_source=policy.EMPTY, wire_layout=policy.JSON):
     import copy
-    original = validate(raw, events, learner_retention=learner_retention)  # Invalid originals never count as successful rejections.
+    source_args = policy.options(bootstrap_source, wire_layout)
+    original = validate(raw, events, learner_retention=learner_retention, **source_args)  # Invalid originals never count as successful rejections.
     outcomes = []
     for name, reason in NEGATIVES.items():
         with tempfile.TemporaryDirectory(prefix='v53-grant-negative-') as temp:
             target = Path(temp)/'raw'; target.mkdir(); shutil.copytree(Path(raw)/DIRECTORY, target/DIRECTORY)
-            changed = copy.deepcopy(events); mutate(target, changed, name)
-            try: validate(target, changed, learner_retention=learner_retention)
+            changed = copy.deepcopy(events); mutate(target, changed, name, **source_args)
+            try: validate(target, changed, learner_retention=learner_retention, **source_args)
             except ValueError as error:
                 need(str(error) == reason, 'unrelated grant capture negative: '+name+': '+str(error))
             else: raise ValueError('grant capture mutation accepted: '+name)

@@ -20,10 +20,12 @@ init, s, f, disk, need, sha = c.init, c.s, c.f, c.disk, c.need, c.sha
 
 
 class Captures:
-    def __init__(self, root, events, *, voters=('node-1', 'node-2'), old_owner_lifetimes=None):
+    def __init__(self, root, events, *, voters=('node-1', 'node-2'), old_owner_lifetimes=None,
+                 bootstrap_source='EMPTY', wire_layout='JSON'):
         self.root = Path(root)
-        rows = captures.collect(root, events)
-        self.counter = captures.require_intermediate(root, rows, voters=voters, old_owner_lifetimes=old_owner_lifetimes)
+        self.source_args = captures.policy.options(bootstrap_source, wire_layout)
+        rows = captures.collect(root, events, **self.source_args)
+        self.counter = captures.require_intermediate(root, rows, voters=voters, old_owner_lifetimes=old_owner_lifetimes, **self.source_args)
         self.by_ballot = {(v['node'], f.canonical(v['ballot'])):v for v in rows}
         need(len(self.by_ballot) == len(rows), 'joining preparation duplicate observed grant')
         self.used = set(); self.comparisons = 0; self.derived = {}
@@ -31,7 +33,10 @@ class Captures:
     def original(self, node, ballot):
         key = node, f.canonical(ballot)
         need(key in self.by_ballot, 'joining preparation original capture missing')
-        return disk.inventory(self.root/self.by_ballot[key]['capture']/'replica')
+        path = self.root/self.by_ballot[key]['capture']/'replica'
+        if self.source_args.get('wire_layout') == captures.policy.SEGMENTED:
+            return captures.inventory(path, **self.source_args)[0]
+        return disk.inventory(path)
 
     def match(self, node, files):
         root = f.decode(files['node.gsr'], 'records', 'NODE')['root']

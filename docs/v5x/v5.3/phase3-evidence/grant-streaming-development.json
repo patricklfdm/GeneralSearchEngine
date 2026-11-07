@@ -1,0 +1,397 @@
+{
+  "baseHead": "1eb2cdd40b7a2bfa3dc3ca507cf23fdf3320066f",
+  "combinedResourcesQualified": false,
+  "contract": {
+    "captures": 64,
+    "depth": 8,
+    "fileBytes": 67108864,
+    "legacySnapshotAndAggregateBytes": 268435456,
+    "members": 512,
+    "productionRuntimeChanged": false,
+    "snapshotBytes": 536870912,
+    "source": "VERIFIED_DURABLE_BACKUP",
+    "wholeOriginalBudgetShared": true,
+    "wholeOriginalBytes": 137438953472,
+    "wireLayout": "SEGMENTED_BACKUP",
+    "workflowChanged": false
+  },
+  "contractCheck": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 3159,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "finalSourceCohortQualified": false,
+  "memory": {
+    "java": {
+      "heapCeilingBytes": 33554432,
+      "inputBytes": 335544320
+    },
+    "python": {
+      "addressSpaceCeilingBytes": 167772160,
+      "inputBytes": 335544320
+    },
+    "scope": "synthetic sparse-file inventory only",
+    "wholeReaderMeasured": false
+  },
+  "nativeMaximumQualified": false,
+  "phase3Complete": false,
+  "remaining": [
+    "source-retirement capture and object-pool reader",
+    "publication-resource capture and object-pool reader",
+    "whole-reader maximum memory",
+    "complete default-staging native history and 150 negatives",
+    "combined resources and immutable final-source cohort"
+  ],
+  "replay": {
+    "cases": [
+      {
+        "captureBytes": 56602,
+        "captures": 2,
+        "fullHistoryQualified": false,
+        "kind": "actual-backup-writer",
+        "originalSha256": "b25de932e93691302704bbe8bc609e5eb3f6de5554cf4bcb6827ffb2937b36cf",
+        "originalUnchanged": true,
+        "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-grant-capture/run-598aca48-f0b2-4e04-a95c-f51336104dbb",
+        "qualification": {
+          "negatives": [
+            {
+              "case": "missing-return",
+              "reason": "grant capture orphan/capacity",
+              "status": "REJECTED"
+            },
+            {
+              "case": "missing-final-marker",
+              "reason": "grant capture incomplete event copies",
+              "status": "REJECTED"
+            },
+            {
+              "case": "duplicate-marker",
+              "reason": "grant capture orphan/capacity",
+              "status": "REJECTED"
+            },
+            {
+              "case": "path-traversal",
+              "reason": "grant capture ordered unique path",
+              "status": "REJECTED"
+            },
+            {
+              "case": "unobserved-directory",
+              "reason": "grant capture unobserved copies",
+              "status": "REJECTED"
+            },
+            {
+              "case": "event-digest",
+              "reason": "grant capture event binding",
+              "status": "REJECTED"
+            },
+            {
+              "case": "stale-inventory",
+              "reason": "grant capture copied inventory",
+              "status": "REJECTED"
+            },
+            {
+              "case": "missing-image",
+              "reason": "grant capture source inventory",
+              "status": "REJECTED"
+            },
+            {
+              "case": "changed-image",
+              "reason": "grant capture original image",
+              "status": "REJECTED"
+            },
+            {
+              "case": "torn-journal",
+              "reason": "torn grant journal body",
+              "status": "REJECTED"
+            },
+            {
+              "case": "foreign-owner",
+              "reason": "grant capture original owner",
+              "status": "REJECTED"
+            },
+            {
+              "case": "frozen-ledger",
+              "reason": "grant capture frozen ledger binding",
+              "status": "REJECTED"
+            }
+          ],
+          "original": {
+            "bootstrapSource": "VERIFIED_DURABLE_BACKUP",
+            "bytes": 56602,
+            "captures": 2,
+            "forceAndNetworkQualified": false,
+            "intermediatePreparationPhysicalQualified": false,
+            "nativeHistoryQualified": false,
+            "phase3Complete": false,
+            "scope": "original-grant-copy-collection",
+            "status": "PARTIAL",
+            "wireLayout": "SEGMENTED_BACKUP"
+          }
+        },
+        "rowsSha256": "3d19e3fb3dd64ffb0dee7ea63d9de330e83d0cc095fd834f2eeba01fe4e5389b"
+      },
+      {
+        "captureBytes": 55483,
+        "captures": 2,
+        "fullHistoryQualified": false,
+        "kind": "legacy-empty-writer",
+        "originalSha256": "94e0f77ef36c81f4a6937a2db8cc04319219435f646c106fb6b869e350d9b086",
+        "originalUnchanged": true,
+        "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-grant-capture/run-8ebd1a48-0ff1-455a-b615-208b4d3b015a",
+        "qualification": {
+          "negatives": [
+            {
+              "case": "missing-return",
+              "reason": "grant capture orphan/capacity",
+              "status": "REJECTED"
+            },
+            {
+              "case": "missing-final-marker",
+              "reason": "grant capture incomplete event copies",
+              "status": "REJECTED"
+            },
+            {
+              "case": "duplicate-marker",
+              "reason": "grant capture orphan/capacity",
+              "status": "REJECTED"
+            },
+            {
+              "case": "path-traversal",
+              "reason": "grant capture ordered unique path",
+              "status": "REJECTED"
+            },
+            {
+              "case": "unobserved-directory",
+              "reason": "grant capture unobserved copies",
+              "status": "REJECTED"
+            },
+            {
+              "case": "event-digest",
+              "reason": "grant capture event binding",
+              "status": "REJECTED"
+            },
+            {
+              "case": "stale-inventory",
+              "reason": "grant capture copied inventory",
+              "status": "REJECTED"
+            },
+            {
+              "case": "missing-image",
+              "reason": "grant capture source inventory",
+              "status": "REJECTED"
+            },
+            {
+              "case": "changed-image",
+              "reason": "grant capture original image",
+              "status": "REJECTED"
+            },
+            {
+              "case": "torn-journal",
+              "reason": "torn grant journal body",
+              "status": "REJECTED"
+            },
+            {
+              "case": "foreign-owner",
+              "reason": "grant capture original owner",
+              "status": "REJECTED"
+            },
+            {
+              "case": "frozen-ledger",
+              "reason": "grant capture frozen ledger binding",
+              "status": "REJECTED"
+            }
+          ],
+          "original": {
+            "bytes": 55483,
+            "captures": 2,
+            "forceAndNetworkQualified": false,
+            "intermediatePreparationPhysicalQualified": false,
+            "nativeHistoryQualified": false,
+            "phase3Complete": false,
+            "scope": "original-grant-copy-collection",
+            "status": "PARTIAL"
+          }
+        },
+        "rowsSha256": "e5183fc274f435667ededa6dd03c7d12c25bdd51b012c6a88f308813c36b295f"
+      },
+      {
+        "captureBytes": 3969976,
+        "captures": 26,
+        "fullHistoryQualified": false,
+        "kind": "retained-empty-history-component-only",
+        "originalSha256": "77dedf0a6e5f66c279157d7ce560765a3e4fc5983d40e4cfac9dd3b77de78c58",
+        "originalUnchanged": true,
+        "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-required-four-complete-v2/original-78403d87/workspace/general-search-engine-replication/target/v53-native-dispatch/run-66c3303e-c1e3-401c-8c61-aea19c2e5d15",
+        "rowsSha256": "c22534234d23ad5c69933e19cd4e25b2e39615f85c09cb526d5db2c9ed88821d"
+      }
+    ],
+    "elapsedSeconds": 4.223,
+    "finalSourceCohortQualified": false,
+    "nativeMaximumQualified": false,
+    "phase3Complete": false,
+    "postSemanticMutation": {
+      "reason": "physical snapshot file changed",
+      "status": "REJECTED"
+    },
+    "scope": "grant-copy-components-only",
+    "status": "PASS"
+  },
+  "retainedFailures": [
+    {
+      "path": "target/v53-grant-streaming/focused-python.log",
+      "reason": "Depth-zero legacy boundary initially rejected by generic limit constructor; corrected before passing tests."
+    }
+  ],
+  "retainedFiles": {
+    "target/v53-grant-streaming/contract.json": "60d4f3100126588a05b97756b27c93f9c7da01b365f40185efcf3d55cc3e8f4c",
+    "target/v53-grant-streaming/final-python.json": "0401fda2860a2df8e7975e609349020356ba4a480f5c912365a2c4594a4d5e9d",
+    "target/v53-grant-streaming/final-python.log": "c822d727746b0f86a52b3f5749ffef33d4ed2fb5a64f2f282a129eef742b102e",
+    "target/v53-grant-streaming/focused-python.log": "0ae1b74565ce1afc0e1da0f684fb7f8996ff5a3a010b4c5186d2cf5834629016",
+    "target/v53-grant-streaming/java-final.log": "7c2df95a164683363adb4882699e26787f6eda0cafaf83c293e4c9519232fa13",
+    "target/v53-grant-streaming/java.log": "5ea339c490604bdefa90f7085927eea958fa775747d4ff74b53eedbcb101253c",
+    "target/v53-grant-streaming/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53CaptureFilesTest.xml": "a988038fa4bcf0c8f199f156869722a4944781a5447ebe47cd84e15dd06c0323",
+    "target/v53-grant-streaming/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53GrantCaptureTest.xml": "1b538512567813558e494f0afe6941170693b8db2765532d736b4f900b2864e0",
+    "target/v53-grant-streaming/python.log": "7e891e95bacfcbb7b3ae4278e09d8ddf04b72f55e6129557113e9a062ec30ae3",
+    "target/v53-grant-streaming/replay-initial.json": "e95d5ed80d10967f5dd254a6f3415a180b6b3c2e7ef63df7962ad1d23c2f2eef",
+    "target/v53-grant-streaming/replay-initial.log": "2839d2a58742ec926668cd3378fbb0371d012155bc84ffb869c7d8ff2a9687f5",
+    "target/v53-grant-streaming/replay-initial.py": "ed9961a24090d2d8005ca3b26665753ac931a5a966c76d3417249b6c440746cc",
+    "target/v53-grant-streaming/replay.json": "d5063dca9d30dda5e54758214a95d099a3eedda7e9742522d966ea77e9b11bf7",
+    "target/v53-grant-streaming/replay.log": "7ed34fc2ce28407a15edb78a3598b0cd2c8b09c715a9d911114085a99cae0c86",
+    "target/v53-grant-streaming/replay.py": "a50ddcda582a762d7eeda89314fcc2b6af039339c811d13adf02971b7f3227b6",
+    "target/v53-grant-streaming/run_tests.py": "9a8be672a4a6e0a3d7e18e4f2c88fd94db8d6ca5f23ca4f7eb85f6c362e3cb6c",
+    "target/v53-grant-streaming/test-modules.json": "7e0d1e055c3b847d80d6eba106cf8544aea26ba1e6e1dbcece7d693444e6a107"
+  },
+  "schema": "gse-v53-grant-streaming-development-v1",
+  "scope": "grant-streaming-development-components",
+  "sourceFiles": {
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": "96d279a0a4358069078d4ac6df1a92bd5641190b81e23b862193cd51f264e6b2",
+    "docs/v5x/v5.3/PHASE_3_GRANT_STREAMING.md": "97d9a2c12c5a0ec42075c48464d7bb37c0582a02b4b2d9acd779cdce14bc03f9",
+    "docs/v5x/v5.3/PHASE_3_NATIVE_STAGING.md": "5036e2ce5c1ac5a84c717f9bc180e1554efdffd8987b9600c943d964c244e512",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CaptureFiles.java": "3404c13fd5236c2efbede1faf54a2709cd461ca944ca720f60c67185bfc368c0",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CaptureFilesTest.java": "c60a28d3962a1a214d324fa9b8994fe4560412abe0d4962a56a4cedb98d5cbb5",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GrantCapture.java": "a8635ea7cfe6161fd1b598b4e2b1c0ec4bebb9d817d457fa7dcc96be26c92608",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GrantCaptureTest.java": "6d20bb99223b405fae6f9a023ecfd057bd538eee0baf6c5d0ab921af7b49fc22",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "dc0291e5e8877abfb5158020c4b469848cca23e59090ae7ff8bdb230d288b004",
+    "scripts/v53/joined_handoff_resources.py": "0200ce5eebed9d2503de9729cb44046c2b5c8e203fa1c9d6e6776a872d9fe079",
+    "scripts/v53/joining_export_evidence.py": "f0c344913ca2ef31b85744a74845450443a2fc225e25ecccea85b36f70156fec",
+    "scripts/v53/joining_grant_captures.py": "3ce2d39ff9407c83287ba18a346996a8a310c3f4c520f741992bc0e27f9373a9",
+    "scripts/v53/joining_network_evidence.py": "f9f9a7b1dd188e498440865fd96d773be403d72de17659fb12b0c8f39285fb74",
+    "scripts/v53/joining_preparation_evidence.py": "da1f43dba604197900988bf5a7643f0ff7d5f656ec4592bf86acd229473dae4c",
+    "scripts/v53/joining_same_view_ballot.py": "19569e959e843c9af18eca021997c145de434c06de84538c5ff1231d3a358fd0",
+    "scripts/v53/physical_snapshot.py": "1f6b2118c4e0ae9dd8e1b7225036302d43df6cb9a5ee62d8e89924c6d109984c",
+    "scripts/v53/required_four_maintenance.py": "0236f8d7eaffc028a609ebb57c4fe0efa5499126c4d1fdf97b1845cde27956f7",
+    "scripts/v53/required_four_physical.py": "11ab5ec32ff9844797be69e3601d4f6028758c720f2dea0da3e55cc4fecf338d",
+    "scripts/v53/test_grant_streaming.py": "185e4da8870e682e71a73865b8dd6d42eab3cdd71bb180f5df8282d5b5b21851"
+  },
+  "status": "PASS",
+  "tests": {
+    "finalPython": {
+      "elapsedSeconds": 16.3,
+      "errors": 0,
+      "failures": 0,
+      "modules": [
+        "scripts.v53.test_activation_control_resources",
+        "scripts.v53.test_backup_inventory",
+        "scripts.v53.test_backup_required_four_resources",
+        "scripts.v53.test_backup_resource_capacity",
+        "scripts.v53.test_backup_resource_hosted",
+        "scripts.v53.test_backup_resource_run",
+        "scripts.v53.test_bootstrap_replay_contract",
+        "scripts.v53.test_connection_transcript",
+        "scripts.v53.test_contract_check",
+        "scripts.v53.test_format_fixture",
+        "scripts.v53.test_format_qualification",
+        "scripts.v53.test_grant_streaming",
+        "scripts.v53.test_joined_handoff_resources",
+        "scripts.v53.test_joining_attempts",
+        "scripts.v53.test_joining_control_evidence",
+        "scripts.v53.test_joining_export_evidence",
+        "scripts.v53.test_joining_grant_captures",
+        "scripts.v53.test_joining_history_run",
+        "scripts.v53.test_joining_initialization_evidence",
+        "scripts.v53.test_joining_initialization_process_evidence",
+        "scripts.v53.test_joining_network_evidence",
+        "scripts.v53.test_joining_preparation_evidence",
+        "scripts.v53.test_joining_profile_ballot_evidence",
+        "scripts.v53.test_joining_profile_continuation_evidence",
+        "scripts.v53.test_joining_profile_control_evidence",
+        "scripts.v53.test_joining_profile_evidence",
+        "scripts.v53.test_joining_profile_export_evidence",
+        "scripts.v53.test_joining_profile_initialization_evidence",
+        "scripts.v53.test_joining_profile_ledger_evidence",
+        "scripts.v53.test_joining_profile_maintenance_evidence",
+        "scripts.v53.test_joining_profile_network_evidence",
+        "scripts.v53.test_joining_profile_peer_evidence",
+        "scripts.v53.test_joining_profile_physical_evidence",
+        "scripts.v53.test_joining_profile_run",
+        "scripts.v53.test_joining_publication_evidence",
+        "scripts.v53.test_joining_same_view_ballot",
+        "scripts.v53.test_joining_source_loss",
+        "scripts.v53.test_json_budget",
+        "scripts.v53.test_maximum_transition_hosted",
+        "scripts.v53.test_maximum_transition_inventory",
+        "scripts.v53.test_native_resource_evidence",
+        "scripts.v53.test_native_resource_policy",
+        "scripts.v53.test_native_source_resources",
+        "scripts.v53.test_phase3_qualification_plan",
+        "scripts.v53.test_phase3_resource_artifacts",
+        "scripts.v53.test_phase3_resource_cohort",
+        "scripts.v53.test_phase3_resource_workflows",
+        "scripts.v53.test_physical_snapshot",
+        "scripts.v53.test_publication_resource_evidence",
+        "scripts.v53.test_remove_process_hosted",
+        "scripts.v53.test_required_four_direct_exports",
+        "scripts.v53.test_required_four_evidence",
+        "scripts.v53.test_required_four_exports",
+        "scripts.v53.test_required_four_ledgers",
+        "scripts.v53.test_required_four_maintenance",
+        "scripts.v53.test_required_four_network",
+        "scripts.v53.test_required_four_physical",
+        "scripts.v53.test_required_four_resource_hosted",
+        "scripts.v53.test_required_four_resource_run",
+        "scripts.v53.test_required_four_resources",
+        "scripts.v53.test_segmented_backup_replay",
+        "scripts.v53.test_segmented_evidence",
+        "scripts.v53.test_segmented_transcript",
+        "scripts.v53.test_slot_control_resources",
+        "scripts.v53.test_source_control_resource_evidence",
+        "scripts.v53.test_voting_control_resources",
+        "scripts.v53.test_wire_archive"
+      ],
+      "skipped": 0,
+      "status": "PASS",
+      "tests": 850
+    },
+    "fullPythonDiscovery": {
+      "elapsedSeconds": 215.33,
+      "note": "Started before final grant negative-driver keyword propagation; final focused run and actual replay below cover final changes.",
+      "status": "PASS",
+      "tests": 4350
+    },
+    "java": [
+      {
+        "errors": 0,
+        "failures": 0,
+        "junit": "target/v53-grant-streaming/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53CaptureFilesTest.xml",
+        "name": "V53CaptureFilesTest",
+        "seconds": 1.037,
+        "skipped": 0,
+        "tests": 5
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "junit": "target/v53-grant-streaming/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53GrantCaptureTest.xml",
+        "name": "V53GrantCaptureTest",
+        "seconds": 11.246,
+        "skipped": 0,
+        "tests": 3
+      }
+    ]
+  }
+}

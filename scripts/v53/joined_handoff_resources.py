@@ -48,7 +48,7 @@ def original(root, *, bootstrap_source='EMPTY', wire_layout='JSON'):
     source_args = source_policy.options(bootstrap_source,wire_layout)
     p = physical; root = Path(root)
     events = p.s.collection.read_json(root, 'events.json', p.s.collection.EVENT_BYTES)
-    captures = p.p.Captures(root, events, voters=p.semantic.OLD_LIVE)
+    captures = p.p.Captures(root, events, voters=p.semantic.OLD_LIVE,**source_args)
     retirements = p.Retirements(root, events, voters=(*p.semantic.OLD, 'node-6'))
     model = p.s.Replay(root, size=5, kind='REPLACE', required_four=True,**source_args)
     for index in range(1, 12): model.step(index)

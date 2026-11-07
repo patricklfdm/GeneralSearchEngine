@@ -56,7 +56,7 @@ class Replay(profile.Replay):
         source_args = source_policy.options(bootstrap_source,wire_layout)
         self.__dict__.update(vars(exports.control_reader(root,**source_args)))
         self.direct_nodes=set();self.floor_inputs=[];self.pinned_floors=set()
-        self.capture_transactions=captures.collect(self.root,self.events)
+        self.capture_transactions=captures.collect(self.root,self.events,**source_args)
 
     def expected_events(self,copies,own,network,start,end):
         selector=(self.root/own['path']/'selector.gsr').read_bytes()

@@ -126,7 +126,7 @@ class Continuation(profile.Continuation):
 def replay(root, *, bootstrap_source='EMPTY', wire_layout='JSON'):
     source_args = source_policy.options(bootstrap_source,wire_layout)
     root=Path(root);events=s.collection.read_json(root,'events.json',s.collection.EVENT_BYTES)
-    captures=p.Captures(root,events,voters=semantic.OLD_LIVE)
+    captures=p.Captures(root,events,voters=semantic.OLD_LIVE,**source_args)
     retirements=Retirements(root,events,voters=(*semantic.OLD,'node-6'))
     model=s.Replay(root,size=5,kind='REPLACE',required_four=True,**source_args)
     for index in range(1,12):model.step(index)

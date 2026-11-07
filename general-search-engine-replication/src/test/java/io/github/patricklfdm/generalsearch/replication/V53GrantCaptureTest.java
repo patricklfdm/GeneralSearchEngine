@@ -11,14 +11,21 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*
 class V53GrantCaptureTest {
     @TempDir Path temp;
     @Test void retainsCompleteOriginalGrantsWithoutReleasingTheLiveWriterLock()throws Exception {
+        capture(false);
+    }
+    @Test void segmentedBackupGrantsPreserveOriginalBytesAndTheLiveWriterLock()throws Exception {
+        capture(true);
+    }
+    private void capture(boolean backup)throws Exception {
         Path raw=Files.createDirectories(Path.of("target/v53-grant-capture/run-"+UUID.randomUUID()));
-        var f=new V53BootstrapPublicationTest.Fixture(temp,raw,3,false);
+        var f=new V53BootstrapPublicationTest.Fixture(temp,raw,3,backup);
         f.ownedHistory=true;
         var target=f.request.targets().getFirst();
         try(var owner=f.open(target,"initialize")) {
             owner.initializePeerRetention();owner.initializeLearnerRetention();owner.initializeFutureRetention();
         }
-        var events=new ArrayList<Map<String,Object>>();var capture=new V53GrantCapture(raw,events);
+        var events=new ArrayList<Map<String,Object>>();var capture=backup?
+                new V53GrantCapture(raw,events,f.request.source(),V53WireArchive.Layout.SEGMENTED_BACKUP):new V53GrantCapture(raw,events);
         f.observer=(member,operation,event)->{
             events.add(Map.of("node",member.identity().nodeId().value(),"scope","test-owner","event",event));
             capture.at(member.identity().nodeId().value(),"test-owner",member.replicaDirectory(),event);
@@ -45,6 +52,7 @@ class V53GrantCaptureTest {
         Files.write(raw.resolve("events.json"),canonical(events,8*1024*1024),StandardOpenOption.CREATE_NEW);
         assertThrows(FileAlreadyExistsException.class,()->new V53GrantCapture(raw,new ArrayList<>()));
         System.out.println("v53GrantCaptureEvidence="+raw.toAbsolutePath());
+        System.out.println("v53GrantCaptureSource="+f.request.source());
     }
     @Test void ignoresUnrelatedCutsAndRefusesIncompleteOrUnownedCaptures()throws Exception {
         var events=new ArrayList<Map<String,Object>>();var capture=new V53GrantCapture(temp,events);

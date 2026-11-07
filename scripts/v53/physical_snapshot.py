@@ -5,6 +5,7 @@ front, then pins identities and hashes for subsequent exact-byte reads. This
 uses the existing per-owner physical limits, not the whole-original allowance.
 """
 from collections.abc import Mapping
+from dataclasses import dataclass
 import hashlib
 import os
 from pathlib import Path
@@ -16,6 +17,17 @@ TOTAL_BYTES = 512 * 1024**2
 MEMBERS = 256
 DEPTH = 4
 BLOCK = 1024**2
+
+
+@dataclass(frozen=True)
+class Limits:
+    total_bytes: int
+    members: int
+    depth: int
+
+    def __post_init__(self):
+        for value, minimum, maximum in ((self.total_bytes, 1, 128*1024**3), (self.members, 1, 65536), (self.depth, 0, 64)):
+            need(type(value) is int and minimum <= value <= maximum, 'physical snapshot explicit limits')
 
 
 def identity(path, *, directory=False):
@@ -31,17 +43,19 @@ def key(value):
 
 
 class Snapshot(Mapping):
-    def __init__(self, root):
+    def __init__(self, root, *, limits=None):
+        self.limits = Limits(TOTAL_BYTES, MEMBERS, DEPTH) if limits is None else limits
+        need(type(self.limits) is Limits, 'physical snapshot explicit limits')
         self.root = Path(root)
         self._directories = {self.root:identity(self.root, directory=True)}
         self._entries = {}; self._hashes = {}; self._children = {}; self.total_bytes = 0
         pending = [(self.root, 0)]
         while pending:
             directory, depth = pending.pop()
-            need(depth <= DEPTH, 'physical snapshot directory depth')
+            need(depth <= self.limits.depth, 'physical snapshot directory depth')
             children = set()
             for path in directory.iterdir():
-                need(len(self._entries) < MEMBERS, 'physical snapshot member capacity')
+                need(len(self._entries) < self.limits.members, 'physical snapshot member capacity')
                 children.add(path.name)
                 value = path.lstat(); name = path.relative_to(self.root).as_posix()
                 if stat.S_ISDIR(value.st_mode):
@@ -49,7 +63,7 @@ class Snapshot(Mapping):
                     pending.append((path, depth+1)); continue
                 need(stat.S_ISREG(value.st_mode) and value.st_nlink == 1, 'physical snapshot regular file')
                 self.total_bytes += value.st_size
-                need(value.st_size <= FILE_BYTES and self.total_bytes <= TOTAL_BYTES, 'physical snapshot byte capacity')
+                need(value.st_size <= FILE_BYTES and self.total_bytes <= self.limits.total_bytes, 'physical snapshot byte capacity')
                 self._entries[name] = key(value)
             self._children[directory] = frozenset(children)
         self._entries = dict(sorted(self._entries.items()))
@@ -65,7 +79,7 @@ class Snapshot(Mapping):
         need(identity(path, directory=True) == self._directories[path], 'physical snapshot directory changed')
         names = set()
         for entry in path.iterdir():
-            need(len(names) < MEMBERS, 'physical snapshot member capacity'); names.add(entry.name)
+            need(len(names) < self.limits.members, 'physical snapshot member capacity'); names.add(entry.name)
         need(names == self._children[path], 'physical snapshot directory members changed')
 
     def _parents(self, path):
@@ -113,6 +127,12 @@ class Snapshot(Mapping):
         for name, expected in self._hashes.items():
             need(self._hash(name) == expected, 'physical snapshot content changed')
         self._check_tree()
+
+    def identities(self):
+        """Fresh metadata only; callers cannot replace the pinned identities."""
+        self._check_tree()
+        return {name:dict(directory=True) if saved is None else dict(size=saved[3], sha256=self._hashes[name])
+                for name, saved in self._entries.items()}
 
     def __getitem__(self, name):
         saved = self._entries[name]

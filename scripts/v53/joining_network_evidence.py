@@ -55,11 +55,12 @@ def grant_capture_order(events, node, scope, lower, upper, packet):
     return {at for at, row in actual if capture_callback(row['event'])}
 
 
-def grants(root, events, rows):
+def grants(root, events, rows, *, bootstrap_source='EMPTY', wire_layout='JSON'):
     """The physical reader already compared all captured grants to derivation."""
-    captures = p.captures.collect(root, events); by_key = {}; by_basis = {}; replies = {}; callbacks = set()
+    captures = p.captures.collect(root, events, **source_policy.options(bootstrap_source, wire_layout)); by_key = {}; by_basis = {}; replies = {}; callbacks = set()
     for capture in captures:
-        node = capture['node']; files = disk.inventory(Path(root)/capture['capture']/'replica')
+        node = capture['node']; files = p.captures.physical_files(Path(root)/capture['capture']/'replica',
+            **source_policy.options(bootstrap_source, wire_layout))
         journal = disk.journal(files['grants.gsr'], capture['root'], node)
         promise, basis = journal[-2][1], journal[-1][1]
         scope = None if capture['scope'] == 'network-owner' else capture['scope']
@@ -73,6 +74,7 @@ def grants(root, events, rows):
         need(key not in by_key and capture['basisSha256'] not in by_basis,'joining network duplicate grant')
         value = dict(capture, start=start, promise=sha(promise), basis=sha(basis), view=journal[-1][2]['view'])
         by_key[key] = value; by_basis[value['basis']] = value
+        p.captures.unchanged(files)
     need(callbacks == {at for at, row in enumerate(events) if capture_callback(row['event'])},
          'joining network unbound grant capture callback')
     for row in rows:
@@ -253,7 +255,7 @@ def network(root, *, size=3, kind='ADD', recovery=None, old_owner_lifetimes=None
     identities = s.catalog.identities(replay.states[-1]['identities'])
     failed=[];rows = causal(events,wires,identities,replay.root,failed=failed)
     result = transfers(rows)
-    grant_result,bases = grants(root,events,rows)
+    grant_result,bases = grants(root,events,rows,**source_args)
     result.update(grant_result,**installations(root,events,rows,replay,bases,recovery=recovery,old_owner_lifetimes=old_owner_lifetimes))
     result.update(phase.phase_replay(events,rows,replay,phases,old_owner_lifetimes=old_owner_lifetimes))
     result.update(wireExchanges=len(rows),sentRequests=len(rows),receivedRequests=len(rows),deliveredResponses=sum(v['delivered'] is not None for v in rows))

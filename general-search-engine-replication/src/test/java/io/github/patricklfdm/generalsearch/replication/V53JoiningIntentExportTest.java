@@ -240,7 +240,7 @@ class V53JoiningIntentExportTest {
             n.observeRequests=earlyStartup || prefixOnly || initializationProcess!=null;
             if(initializationProcess!=null)n.recordProcesses(n.f.raw.resolve("process-trace.jsonl"));
             if(earlyStartup || initializationProcess!=null) {
-                n.grantCapture=new V53GrantCapture(n.f.raw,n.events);
+                n.grantCapture=new V53GrantCapture(n.f.raw,n.events,n.f.request.source(),layout);
                 n.retirementCapture=new V53SourceRetirementCapture(n.f.raw,n.events);
             }
             // The short Network.activate helper fixes a 180-second campaign.
