@@ -1,9 +1,53 @@
 # Phase 3 — hosted ordinary membership profiles
 
 Status: the isolated workflow, portable seed, seven whole-history collectors and
-seven independent downloaded verifiers are implemented. No Actions campaign or
-new native membership history was executed in this batch. The final-source
-cohort and Phase 3 remain OPEN.
+seven independent downloaded verifiers are implemented. The first authorized
+hosted campaign at `5652d074` exposed missing connection observations in both
+REMOVE originals. The correction below requires a new matching-source execution;
+the final-source cohort and Phase 3 remain OPEN.
+
+## First hosted attempt and connection capture correction
+
+[Run 42418110516](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/42418110516),
+attempt 1, executed the frozen `5652d074` source on the existing experiment branch.
+The separate required-four preparation had identical source, class, toolchain
+and offline dependency fingerprints. This establishes matching preparation only.
+
+The `4-REMOVE` and `5-REMOVE` JVM histories passed once in 400.956 and 475.776
+seconds, respectively, and both base physical/semantic replays passed. Their
+subsequent retirement-prefix gate failed inside complete network replay with
+`joining failure missing caller terminal`. The complete original ZIPs, logs and
+failure receipts remain retained; neither run was retried or relabelled PASS.
+
+In the four-node original, request `5cd86f89...` was sent at event 859 and read
+at 861. Its caller timed out at 1575, then sent the identical retry at 1582.
+The retry was read at 1586 before the old receiver's terminal at 1661. The
+legacy hash-only observations cannot reliably associate that late terminal
+with its original connection. The existing strict reader correctly refuses
+this ambiguous record; later success cannot fill the missing identity.
+
+All seven ordinary profile commands now enable the existing
+`-Dv53.transport.connections=true` collector. The matrix requires that exact
+command and complete connection metadata on actual transport observations and
+response rows. Existing connection replay then derives original invocation,
+socket, endpoint and delivery relationships. Partial or total metadata removal
+cannot fall back to legacy matching. Protocol/runtime Java, deadlines, capacities,
+retry policy and negative verdicts are unchanged. Historical originals are not
+given reconstructed connection identities.
+
+The [review and validation index](phase3-evidence/profile-hosted-connections.json)
+records the failed job/artifact identities and exact hashes. New regression
+assertions fail before the correction; 100 focused Python tests pass afterwards.
+One local native test covers late-handler and late-response overlap through the
+existing collectors; independent original-first replay and all eight negatives
+pass. Its local OpenJDK toolchain and component scope do not substitute for a
+corrected-source whole profile on the pinned hosted tools. The initial sandbox
+socket denial is retained separately from the permitted loopback execution.
+
+The authorization to expand the remaining twelve workflows was conditional on
+both initial workflows passing. That condition failed, so expansion is held.
+Other initial jobs may finish and retain their evidence. A corrected-source
+campaign must remain distinct from this source and its failed originals.
 
 ## Entry and topology
 

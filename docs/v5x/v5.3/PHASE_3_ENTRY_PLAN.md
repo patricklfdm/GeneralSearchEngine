@@ -50,6 +50,13 @@ family or enable public READY.
 
 ## Current acceptance work
 
+The first [hosted profile campaign](PHASE_3_PROFILE_HOSTED.md#first-hosted-attempt-and-connection-capture-correction)
+at `5652d074` failed network replay for both REMOVE originals after successful
+native execution. Ordinary profile producers now capture existing connection
+identities, and their admission requires complete metadata. The failed originals
+remain failed; short component replay does not supply corrected-source profile
+qualification. Expansion beyond the two authorized initial workflows is held.
+
 [Membership control ownership](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md) adds
 original local PUBLISH capture and voting/slot/activation composition to the
 required-four gate. Its v2 result requires **147** exact negatives. Focused native

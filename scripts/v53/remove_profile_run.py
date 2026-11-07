@@ -52,7 +52,7 @@ def run(output,maven,profile,*,source_from=None,retirement_captures=False,portab
         receipt['toolchainSha256']=h.digest((output/'toolchain.json').read_bytes())
         command=[maven,'-o','-B','-ntp','-f','reactor/pom.xml','-pl','../'+h.MODULE,'-am',
                  '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+CLASS.rsplit('.',1)[-1]+'#'+METHOD,
-                 '-Dv53.remove.profile='+profile,'test']
+                 '-Dv53.transport.connections=true','-Dv53.remove.profile='+profile,'test']
         if retirement_captures:command.insert(-1,'-Dv53.remove.retirement.captures=true')
         receipt['command']=command;h.save(output/'receipt.json',receipt)
         execution=h.execute(command,work,output/'maven.log',stage='REMOVE-'+profile)

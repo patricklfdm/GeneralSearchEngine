@@ -55,6 +55,7 @@ class RemoveProfileRunTest(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'^REMOVE Maven failed;'):r.run(output,'mvn','5-REMOVE')
             execute.assert_called_once();command=execute.call_args.args[0]
             self.assertIn('-Dv53.remove.profile=5-REMOVE',command)
+            self.assertEqual(1,command.count('-Dv53.transport.connections=true'))
             self.assertIn('-Dtest='+r.CLASS.rsplit('.',1)[-1]+'#'+r.METHOD,command)
             receipt=json.loads((output/'receipt.json').read_bytes())
             self.assertEqual('FAIL',receipt['status']);self.assertEqual(0,receipt['retries'])

@@ -1,0 +1,69 @@
+{
+  "schema": "gse-v53-profile-connection-review-v1",
+  "baselineSource": "5652d07421e9a41a80fa0908a343c1834fcf2ec3",
+  "failureScope": "original network observation ambiguity, not a failed Java assertion or base physical replay",
+  "workflowRun": 42418110516,
+  "attempt": 1,
+  "failedOriginals": [
+    {
+      "profile": "4-REMOVE",
+      "job": 128540715985,
+      "artifact": 13592461908,
+      "zipSha256": "a653af911fe2c581556dddeac471e3ed467c1f3d4c8493400c6d44aa176d496f",
+      "nativeSeconds": 400.956,
+      "nativeExit": 0,
+      "semanticReplayExit": 0,
+      "prefixReplayExit": 1
+    },
+    {
+      "profile": "5-REMOVE",
+      "job": 128540716014,
+      "artifact": 13592498061,
+      "zipSha256": "1d6b9243b6b990c853b7e0a0dd74cbef1bd75be63c702236a106597f17241d36",
+      "nativeSeconds": 475.776,
+      "nativeExit": 0,
+      "semanticReplayExit": 0,
+      "prefixReplayExit": 1
+    }
+  ],
+  "retainedFailure": "joining failure missing caller terminal",
+  "fourRemoveOverlap": {
+    "requestSha256": "5cd86f8987afeccf1192cf80ddf1209c5f0db46c7b05fbda7810bb6e6d9c303f",
+    "originalSend": 859,
+    "originalReceive": 861,
+    "originalCallerFailure": 1575,
+    "identicalRetrySend": 1582,
+    "identicalRetryReceive": 1586,
+    "lateReceiverFailure": 1661,
+    "connectionIdsCaptured": false
+  },
+  "correction": "enable existing connection capture for all seven ordinary profile producers and require complete transport metadata at profile admission",
+  "changedImplementationSha256": {
+    "scripts/v53/joining_profile_run.py": "987ffe97a85bf4b067a7167851a8d320b038bcfcf139c852f3bc7f412008fd29",
+    "scripts/v53/remove_profile_run.py": "f2c2fdd92a67143a124a32e4fe2f5d855f5c0426409e0392457a9e17409be62a",
+    "scripts/v53/profile_matrix.py": "571cb0d2ba5d1b7be04df6e6a7fedfc5b04dbbb135ab2ed724b8941b7c3c8463"
+  },
+  "validation": {
+    "pythonTests": 100,
+    "localNativeTests": 1,
+    "nativeCases": [
+      "late-handler",
+      "late-response"
+    ],
+    "originalFirstNegatives": 8,
+    "java": "local OpenJDK 21.0.12.1, component validation only",
+    "originalSandboxAttempt": "SocketException: Operation not permitted; original log and report retained",
+    "wholeCorrectedProfileExecution": false
+  },
+  "validationFilesSha256": {
+    "profile-connections-red-corrected.log": "c0679c11ee767779f10cf7e4690f0c9bdfb9281a697f724f140a86d1fd337aba",
+    "profile-connections-green-final.log": "853a496cf7c1611eac63dff8018af240c2de8a816fb8f96b8df78e68fc693ad1",
+    "native-connection-local-network.log": "fd594c0ebaefa69a7f58b86c92a55b90ecffddcfe61148015cd649a26bdd14f9",
+    "native-connection-replay.json": "2648fa65568a130ef45fd374884ec25e2f5e3ede3a4c1cd5873f1743ea85f835",
+    "native-connection-regression.log": "228e839e651b7944141f2a17fb5f25bcd8bb1cd74adf41c5284a4b1495cf24e7"
+  },
+  "evidenceDirectory": "target/v53-hosted-5652d074",
+  "remainingTwelveDispatched": false,
+  "historicalOriginalsUpgraded": false,
+  "phase3Complete": false
+}

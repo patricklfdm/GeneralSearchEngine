@@ -16,6 +16,7 @@ from . import joining_profile_run as joining_run
 from . import remove_profile_run as remove_run
 from . import joining_profile_ballot_evidence as joining
 from . import remove_ballot_evidence as removal
+from . import joining_connections as connections
 
 h=shared.h
 need=h.need
@@ -53,7 +54,7 @@ def command(profile):
     method=remove_run.METHOD if remove else joining_run.COMPLETE_METHOD
     args=['-o','-B','-ntp','-f','reactor/pom.xml','-pl','../'+h.MODULE,'-am',
           '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+cls.rsplit('.',1)[-1]+'#'+method,
-          '-Dv53.'+('remove' if remove else 'joining')+'.profile='+profile]
+          '-Dv53.transport.connections=true','-Dv53.'+('remove' if remove else 'joining')+'.profile='+profile]
     if remove:args.append('-Dv53.remove.retirement.captures=true')
     return args+['test']
 
@@ -118,6 +119,15 @@ def member(path,profile,source,build,toolchain,reader):
          'profile matrix exact original history directory: '+profile)
     inventory=h.inventory(raw);captured=None
     need(read(path/'inventory.json')==inventory,'profile matrix original history inventory: '+profile)
+    # The exact command is not proof that the collector retained attempt IDs.
+    # Complete network replay below validates their identities and causality;
+    # this gate prevents a metadata-free original from taking the legacy route.
+    events=h.read_json(raw,'events.json',h.EVENT_BYTES);wires=h.read_json(raw,'wire.json',h.WIRE_BYTES)
+    need(type(events) is list and type(wires) is list and all(type(v) is dict for v in events+wires),
+         'profile matrix complete connection observations: '+profile)
+    transport=[v for v in events if v.get('event') in connections.TRANSPORT]
+    need(transport and wires and all('connection' in v for v in transport) and all('connection' in v for v in wires),
+         'profile matrix complete connection observations: '+profile)
     semantic=read(path/'replay.json');original=semantic.get('original',{})
     negatives=(remove_run.reader.negative_cases(profile) if remove else joining_run.complete_reader.NEGATIVES)
     need(receipt.get('replaySha256')==h.digest((path/'replay.json').read_bytes()) and original.get('status')=='PASS' and

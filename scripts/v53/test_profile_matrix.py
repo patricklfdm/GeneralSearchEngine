@@ -2,6 +2,7 @@
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import ExitStack,redirect_stdout
 import io
+import json
 from pathlib import Path
 import shutil
 import tempfile
@@ -34,7 +35,11 @@ class ProfileMatrixTest(unittest.TestCase):
         suite=ET.Element('testsuite',dict(name=cls,tests='1',failures='0',errors='0',skipped='0'))
         ET.SubElement(suite,'testcase',dict(classname=cls,name=method));ET.ElementTree(suite).write(reports/'TEST-original.xml')
         raw=work/m.h.MODULE/'target/v53-native-dispatch/run-00000000-0000-0000-0000-000000000001';raw.mkdir(parents=True)
-        (raw/'original-plan.gsbp').write_bytes(profile.encode());(raw/'events.json').write_bytes(m.removal.f.canonical([dict(node='node-1',event='RETIREMENT_OPEN')]))
+        from .test_joining_connections import joined
+        events,wires,_,_=joined(True)
+        (raw/'original-plan.gsbp').write_bytes(profile.encode())
+        (raw/'events.json').write_bytes(m.removal.f.canonical([dict(node='node-1',event='RETIREMENT_OPEN'),*events]))
+        (raw/'wire.json').write_bytes(m.removal.f.canonical(wires))
         original=dict(status='PASS',profile=profile,phase3Complete=False)
         if remove:original.update(automaticOperationCompletion=True,publicReady=False)
         else:original.update(semanticFinalAndColdQualified=True,finalAndColdReopenQualified=False)
@@ -113,6 +118,25 @@ class ProfileMatrixTest(unittest.TestCase):
         for p in m.PROFILES:
             args=m.command(p);self.assertEqual('test',args[-1]);self.assertNotIn('-DskipTests',args)
             self.assertEqual(p.endswith('REMOVE'),'-Dv53.remove.retirement.captures=true' in args)
+            self.assertEqual(1,args.count('-Dv53.transport.connections=true'))
+
+    def test_missing_or_partially_removed_connection_observations_cannot_fill_a_profile_slot(self):
+        for profile in ('3-ADD','4-REMOVE'):
+            for field in ('events.json','wire.json'):
+                for all_rows in (False,True):
+                    with self.subTest(profile=profile,field=field,all_rows=all_rows):
+                        path=self.paths[profile];raw=path/'workspace'/m.h.MODULE/'target/v53-native-dispatch/run-00000000-0000-0000-0000-000000000001'
+                        original=(raw/field).read_bytes();rows=json.loads(original)
+                        for row in rows:
+                            if 'connection' in row:
+                                del row['connection']
+                                if not all_rows:break
+                        (raw/field).write_bytes(m.removal.f.canonical(rows));m.h.save(path/'inventory.json',m.h.inventory(raw))
+                        try:
+                            with self.assertRaisesRegex(ValueError,'profile matrix complete connection observations'):
+                                self.member(profile)
+                        finally:
+                            (raw/field).write_bytes(original);m.h.save(path/'inventory.json',m.h.inventory(raw))
 
     def test_all_seven_synthetic_producers_replay_once_without_phase_completion(self):
         rows=[]
@@ -179,7 +203,8 @@ class ProfileMatrixTest(unittest.TestCase):
 
     def test_remove_capture_requires_exact_original_history_bytes(self):
         path=self.paths['4-REMOVE'];receipt=m.read(path/'receipt.json');raw=path/receipt['raw']
-        m.h.save(raw/'events.json',[dict(node='node-2',event='RETIREMENT_OPEN')]);m.h.save(path/'inventory.json',m.h.inventory(raw))
+        events=m.read(raw/'events.json');events[0]['node']='node-2'
+        (raw/'events.json').write_bytes(m.removal.f.canonical(events));m.h.save(path/'inventory.json',m.h.inventory(raw))
         with self.assertRaisesRegex(ValueError,'original history binding'):self.member('4-REMOVE')
 
     def test_paths_links_and_duplicate_json_refuse(self):
@@ -293,6 +318,7 @@ class PortableProfileCollectorTest(unittest.TestCase):
                      patch.object(collector.h,'execute',return_value=dict(exit=1)) as execute,redirect_stdout(io.StringIO()):
                     with self.assertRaisesRegex(ValueError,'Maven failed'):collector.run(output,'mvn',profile,portable_toolchain=True,**options)
                 capture.assert_called_once_with('mvn',output/'workspace');execute.assert_called_once()
+                self.assertEqual(['mvn',*m.command(profile)],execute.call_args.args[0])
                 receipt=m.read(output/'receipt.json');self.assertEqual('FAIL',receipt['status']);self.assertEqual(0,receipt['retries'])
                 self.assertEqual(m.h.digest((output/'toolchain.json').read_bytes()),receipt['toolchainSha256'])
                 self.assertEqual(tools,m.read(output/'toolchain.json'))

@@ -30,6 +30,7 @@ class JoiningProfileRunTest(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'^joining prefix Maven failed;'):r.run(output,'mvn',profile)
             execute.assert_called_once();command=execute.call_args.args[0]
             self.assertIn('-Dtest='+r.TEST,command);self.assertEqual(['-Dv53.joining.profile='+profile,'test'],command[-2:])
+            self.assertEqual(1,command.count('-Dv53.transport.connections=true'))
             self.assertFalse(any('sourceFault' in v for v in command))
             receipt=json.loads((output/'receipt.json').read_bytes())
             self.assertEqual('FAIL',receipt['status']);self.assertEqual(0,receipt['retries'])
