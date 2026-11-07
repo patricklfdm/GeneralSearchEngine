@@ -72,12 +72,37 @@ class WitnessObservationsTest(unittest.TestCase):
         groups = dict.fromkeys((v['cohort'], v['executionGroup']) for v in self.plan['witnesses'])
         return [v for name, group in groups for v in self.observe(name, group)]
 
-    def test_all_twenty_one_witnesses_use_actual_owning_output_shapes(self):
+    def test_all_twenty_two_witnesses_use_actual_owning_output_shapes(self):
         result = w.finish(self.plan, self.all_observations())
-        self.assertEqual(21, result['rejected'] + result['notApplicable'])
+        self.assertEqual(22, result['rejected'] + result['notApplicable'])
         self.assertEqual(3, result['notApplicable'])
         self.assertEqual('PARTIAL', result['status'])
         self.assertTrue(all(result[k] is False for k in ('phase3Complete','runtimeQualified','frozenScenarioCoverageQualified')))
+
+    def test_learner_byte_witness_requires_its_complete_original_and_exact_rejection(self):
+        name, group = 'learner-histories', 'retained-cancellation'
+        value, originals = self.fixture(name, group)
+        row = next(v for v in self.observe(name, group, value, originals)
+                   if v['id'] == 'cancelled-learner-byte-refusal')
+        self.assertEqual('3C-learner', row['requirement'])
+        self.assertEqual({'suite': 'byte-pressure', 'case': 'byte-wrong-reason', 'variant': 'default'}, row['selector'])
+        self.assertEqual(('REJECTED', 'learner byte pressure specific rejection'), (row['outcome'], row['reason']))
+        self.assertEqual(value['rawArchiveSha256'], row['rawArchiveSha256'])
+        self.assertEqual(w.digest(w.encoded(value)), row['owningReplaySha256'])
+
+        def unrelated_rejection(q):
+            next(v for v in q['negatives'] if v['case'] == 'byte-wrong-reason')['reason'] = 'unrelated failure'
+
+        for mutate in (lambda q: q['bytePressure'].pop(),
+                       lambda q: q['bytePressure'][-1].update(receiver='REJECTED'),
+                       lambda q: q['bytePressure'][0].update(sameOriginalColdRecovery=False),
+                       unrelated_rejection):
+            invalid = deepcopy(value); mutate(invalid['member']['qualification'])
+            with self.assertRaises(ValueError): self.observe(name, group, invalid, originals)
+
+        rows = self.all_observations()
+        with self.assertRaisesRegex(ValueError, 'complete observed set'):
+            w.finish(self.plan, [v for v in rows if v['id'] != row['id']])
 
     def test_absent_adoption_is_retained_and_never_counted_as_rejection(self):
         result = self.observe('profiles', '3-ADD')

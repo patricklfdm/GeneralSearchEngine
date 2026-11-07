@@ -3,7 +3,7 @@
 Status: source audit implemented; native qualification and Phase 3 remain OPEN.
 
 The [witness plan](phase3-coverage-witnesses.json) associates all twelve Phase 3
-requirements with twenty specific candidate witnesses in the existing twelve
+requirements with twenty-two specific candidate witnesses in the existing twelve
 hosted subsets. A witness names its original archive, complete history set,
 reader suite/stage, exact negative case and expected rejection reason. It also
 states its limited scope and the remaining work for the requirement. These are
@@ -18,10 +18,13 @@ It executes no producer, Maven command, network request or evidence replay.
 
 ## Whole-history boundaries
 
-The current schedule has **552 histories, 246 execution groups and 486 raw
-archives**. Carried DATA v2 adds eight indivisible whole-group process executions
-to the same hosted subset. Its cross-life delivery rejection supplies the twentieth
-candidate witness. The source inspector itself runs no job or workload.
+The current schedule has **566 histories, 260 execution groups and 500 raw
+archives**. Carried DATA v2 added the twentieth candidate witness; admitted
+learner ownership and same-original cold byte-pressure refusal added the
+twenty-first and twenty-second. The byte-pressure witness requires both real
+refusal modes and the complete-source positive control from the same original
+learner history before its exact negative result can count. None of these
+associations splits an original. The source inspector itself runs no job or workload.
 
 | Source unit | Required boundary |
 | --- | --- |
@@ -71,7 +74,7 @@ and does not replace original physical replay.
 The cohort retains `coverage-plan.json` and incremental
 `witness-observations.json`. Only after all original replays, owning aggregates
 and final inventory/source checks succeed does it write `coverage.json`, with
-separate rejection and not-applicable counts for all twenty witnesses. Its
+separate rejection and not-applicable counts for all twenty-two witnesses. Its
 status remains `PARTIAL`; observing every candidate does not close a requirement
 or qualify the frozen S/N matrix. A replay failure preserves earlier diagnostics
 without retrying the original. See the
@@ -110,6 +113,15 @@ The focused tests exercise partition preservation, catalogue drift including
 unselected negatives, stage collisions, conditional applicability, scope
 promotion, deterministic read-only inspection and preservation of failed output.
 See the [development receipt](phase3-evidence/coverage-witnesses.json).
+
+The complete integration test now explicitly requires all twenty-two witnesses.
+It also rejects a byte-pressure witness whose original lacks the positive
+control, substitutes another refusal, loses same-original recovery or reports
+an unrelated negative reason. These are synthetic integration checks; current
+native qualification still requires actual whole-history replay. The prior
+21-versus-22 failure is retained under `target/v53-required-four-complete-v2/`.
+After correction, all 57 coverage/history/document checks and 24 optimized-Python
+coverage checks pass; no runtime, plan selector or frozen limit changed.
 
 The [carried DATA v2 integration receipt](phase3-evidence/carried-process-cohort.json)
 records the current expanded catalogue checks. Earlier development receipts
