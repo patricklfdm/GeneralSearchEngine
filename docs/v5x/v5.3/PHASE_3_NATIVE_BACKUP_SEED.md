@@ -242,9 +242,10 @@ replayed with bounded memory. The native fixture now supports an explicit
 backup-only segmented wire layout with a shared six-history budget and original
 auxiliary cuts. A short nonempty seed/BARRIER run passes independent connection,
 resource and shutdown replay. The complete replay chain now accepts the same
-explicit layout. Bounded decoded-content retention, whole-original lifecycle/
-copy accounting and full positive backup qualification are still required
-before running the maximum.
+explicit layout, and its segmented transport/content views avoid retaining all
+decoded wire payloads. Whole-reader maximum-input memory, whole-original
+lifecycle/copy accounting and full positive backup qualification are still
+required before running the maximum.
 
 ## Explicit source throughout complete replay
 
@@ -273,8 +274,9 @@ threads caller-selected `wire_layout` through this entire chain. Its explicit
 segmented backup variant binds `wireLayout: SEGMENTED_BACKUP` in both result and
 original, retains those 148 negatives and adds the exact default-JSON rejection.
 The JSON backup variant retains its existing receipt shape and 148 cases. This
-extension has short native prefix and contract evidence; full positive backup
-execution, decoded-content bounds and maximum-original admission remain pending.
+extension has short native prefix and contract evidence. Deferred transport/
+content retention has separate component checks; full positive backup execution,
+whole-reader memory and maximum-original admission remain pending.
 
 The [backup replay development index](phase3-evidence/backup-replay-development.json)
 records 18 new source-policy/orchestration regression tests, 220 existing reader

@@ -9,6 +9,7 @@ import ipaddress
 from uuid import UUID
 from . import transport_attempt_evidence as native
 from . import segmented_evidence
+from . import segmented_transcript
 
 need,f,sha=native.need,native.f,native.sha
 wire=native.attempts.wire
@@ -86,7 +87,7 @@ def replay(events,wires,identities,root,*,positions=None,allow_withheld=False):
         need(prior_sockets.get(route,-1)<sent['steps'][SEND],'connection overlapping socket reuse')
         prior_sockets[route]=end
     answers={}
-    for row in wires:
+    for wire_position,row in enumerate(wires):
         need(type(row) is dict and set(row)=={'connection','request','response','withheld'} and type(row['withheld']) is bool and (not row['withheld'] or allow_withheld),
              'connection original response shape')
         identifier,local,remote=connection(row['connection']);item=owners.get(identifier)
@@ -100,7 +101,7 @@ def replay(events,wires,identities,root,*,positions=None,allow_withheld=False):
              'connection original response binding')
         need({k:v for k,v in a.items() if k!='payload'}==dict({k:v for k,v in q.items() if k!='payload'},sender=q['recipient'],recipient=q['sender']),
              'connection response correlation')
-        answers[identifier]=dict(kind=kind,answer=answer,request=q,response=a,requestHash=qh,responseHash=ah,
+        answers[identifier]=segmented_transcript.exchange(wires,wire_position,kind=kind,answer=answer,request=q,response=a,requestHash=qh,responseHash=ah,
                                   offered=item['steps'][OFFER],delivered=None)
         if row['withheld']:answers[identifier]['withheld']=True
     need(set(answers)=={v['id'] for v in inbound if OFFER in v['steps']},'connection missing original response')

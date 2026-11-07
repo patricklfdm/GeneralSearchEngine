@@ -1,8 +1,10 @@
 """Shared original transport/transfer replay, independent of physical inventory gates."""
 import base64
+import hashlib
 from collections import defaultdict, deque
 from . import joining_phase_evidence as phase
 from . import joining_attempts
+from . import segmented_transcript
 
 f, need, sha = phase.f, phase.need, phase.sha
 wire = phase.exchange.d.transfer.t.wire
@@ -141,24 +143,35 @@ def transfers(rows, *, contents=None):
                      'joining network source offer')
                 need(0 <= ap['bytes'] <= 64*phase.semantic.joining.MIB and ap['kind'] in ('RECORD','CAPSULE','APPLICATION'),
                      'joining network transfer bound')
-                active = dict(ap, parts=bytearray(), offer=row); identifiers.add(qp['id'])
+                deferred=type(row) is segmented_transcript.Exchange
+                active = dict(ap, offset=0, digest_state=hashlib.sha256(), offer=row,
+                    parts=bytearray() if contents is not None and not deferred else None,
+                    chunks=[] if contents is not None and deferred else None)
+                identifiers.add(qp['id'])
             elif row['answer'] == 'CHUNK':
                 need(active is not None and row['kind'] == 'CHUNK', 'joining network chunk without offer')
-                offset = len(active['parts']); chunk = base64.b64decode(ap['bytes'], validate=True)
+                offset = active['offset']; chunk = base64.b64decode(ap['bytes'], validate=True)
                 need(qp == dict(id=active['id'], action='REQUEST', offset=offset, digest=active['digest'], bytes='') and
                      ap == dict(id=active['id'], action='DATA', offset=offset, digest=sha(chunk), bytes=ap['bytes']) and
                      0 < len(chunk) <= 4*phase.semantic.joining.MIB and offset+len(chunk) <= active['bytes'],
                      'joining network exact transfer chunk')
-                active['parts'].extend(chunk)
+                active['offset']+=len(chunk);active['digest_state'].update(chunk)
+                if active['parts'] is not None:active['parts'].extend(chunk)
+                if active['chunks'] is not None:
+                    need(type(row) is segmented_transcript.Exchange and row.source is active['offer'].source,
+                         'segmented transcript transfer ownership')
+                    active['chunks'].append(row)
             else:
                 need(active is not None and row['kind'] == row['answer'] == 'TRANSFER_COMMIT',
                      'joining network commit without offer')
                 need(qp == ap == dict(id=active['id'], digest=active['digest']) and
-                     len(active['parts']) == active['bytes'] and sha(active['parts']) == active['digest'],
+                     active['offset'] == active['bytes'] and active['digest_state'].hexdigest() == active['digest'],
                      'joining network complete transfer commit')
                 if contents is not None:
-                    contents.append(dict(offer=active['offer'],commit=row,raw=bytes(active['parts']),kind=active['kind']))
-                total += len(active['parts']); complete += 1; active = None
+                    contents.append(segmented_transcript.Content(active['offer'],row,active['chunks'],active['kind'],active['bytes'],active['digest'])
+                        if active['chunks'] is not None else
+                        dict(offer=active['offer'],commit=row,raw=bytes(active['parts']),kind=active['kind']))
+                total += active['offset']; complete += 1; active = None
             prior = row
         need(active is None, 'joining network incomplete transfer')
     return dict(transferSessions=len(sessions), committedTransfers=complete, transferredBytes=total,

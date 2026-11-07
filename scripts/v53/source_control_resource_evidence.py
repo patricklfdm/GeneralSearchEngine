@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 import re
 from uuid import UUID
+from . import segmented_transcript
 from . import native_resource_evidence as a
 from . import connection_transcript as net
 from . import source_export_evidence as physical
@@ -100,7 +101,7 @@ def replay(events,wires,traces,boundaries,identities,root,record,mode):
         expected[seq]=('CHUNK','CHUNK',dict(id=transfer,action='REQUEST',offset=offset,digest=digest,bytes=''),
                        dict(id=transfer,action='DATA',offset=offset,digest=physical.e.digest(part),bytes=base64.b64encode(part).decode()))
     commit=len(expected)+1;expected[commit]=('TRANSFER_COMMIT','TRANSFER_COMMIT',dict(id=transfer,digest=digest),dict(id=transfer,digest=digest))
-    offers={v['connection']['id']:v for v in wires}
+    offers=segmented_transcript.by_connection(wires)
     for row in rows:
         q=row['request'];answer=row['response'];seq=q['sequence']
         need(type(seq) is int and seq in expected,'source resources original request sequence')

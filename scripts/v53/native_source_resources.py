@@ -8,6 +8,7 @@ from collections import defaultdict
 import base64
 import re
 from uuid import UUID
+from . import segmented_transcript
 from . import source_control_resource_evidence as component
 from . import joining_connections as network
 from . import transport_resource_evidence as frames
@@ -127,7 +128,7 @@ def replay(events,wires,traces,boundaries,identities,root,*,require_complete=Tru
             terminal=failures[pos]['clientFailed'] if pos in failures else successes[pos]['delivered'];points=[pos,terminal]
         client(q,h,len(raw),points,event['invocation'] if event['event']=='NETWORK_UNSENT_FAILED' else event['connection']['id'],
                event['event']=='NETWORK_UNSENT_FAILED')
-    wire_by_id={v['connection']['id']:v for v in wires}
+    wire_by_id=segmented_transcript.by_connection(wires)
     associations={};meta_responses=defaultdict(set);trace_meta=defaultdict(set);completed=set()
     for row in transport['rows']:
         if row['kind'] not in ('CHUNK','TRANSFER_COMMIT') or row['answer']=='REJECT':continue

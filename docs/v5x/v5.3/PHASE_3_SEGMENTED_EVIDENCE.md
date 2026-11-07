@@ -140,11 +140,42 @@ implementation and requires fewer than 24 after the change. The same physical
 preparation checks pass using both layouts for all five existing profiles.
 This is a component retention bound, not whole-reader RSS qualification.
 
+## Deferred decoded observations and transfer content
+
+The segmented path now retains original row positions and causal metadata in
+connection/legacy-transport results, instead of keeping every decoded frame.
+Reading a request or response decodes its checked original row and verifies its
+kind/hash binding again. Returned dictionaries are fresh values; modifying them
+does not alter the original. Resource lookup tables retain connection-to-position
+indexes instead of another copy of every encoded response.
+
+Transfer validation hashes each chunk incrementally and checks every offset,
+extent, retry and commit as before. Counter-only replay does not assemble an
+image. For segmented content consumers, a completed transfer retains only its
+offer/commit observations and original chunk positions. Access to `raw` assembles
+one bounded transfer and rechecks chunk/content hashes. Completed contents do
+not accumulate all application bytes across the history. Export comparison
+checks one expected value at a time. Ordinary JSON results retain their existing
+dictionary/bytes representation.
+
+The [deferred transcript index](phase3-evidence/segmented-transcript-development.json)
+records component tests, the retained native prefix replay and isolated memory
+comparisons. The short native original still derives all 292 exchanges, 90
+committed contents, six checkpoint transfers/bindings and identical resource and
+owner-close results. A separate synthetic original contains 768 wire exchanges
+(240,251,136 encoded bytes), 256 complete transfers and 128 MiB of payload.
+It passes complete validation and content readback under a 192 MiB address-space
+limit, with observed peak RSS of 147,868 KiB. The previous connection reader fails
+on that same original under the same limit. Keeping the corrected connection
+reader but restoring only the previous transfer collector also fails, this time
+while accumulating completed contents. These are development observations,
+not native workload timings or a bound on every permitted frame/history.
+
 ## Remaining integration
 
-Decoded frames and transfer payloads are still retained by the connection,
-publication and export readers. They must be bounded throughout those consumers,
-not just in the raw format reader. The shared registry budget is only a sub-budget;
+Physical snapshot/ledger projections still need their full maximum-input memory
+audit, including the codec's large-string budget scanner. The shared registry
+budget is only a sub-budget;
 it does not establish the whole-original bound. The whole-original
 inventory must count every segment and cut alongside lifecycle/copy snapshots;
 per-archive ceilings cannot be added to invent a larger admitted budget.

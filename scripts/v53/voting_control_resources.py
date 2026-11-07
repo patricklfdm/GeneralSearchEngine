@@ -11,6 +11,7 @@ import json
 import re
 from uuid import UUID
 
+from . import segmented_transcript
 from . import native_source_resources as source
 
 need = source.need
@@ -85,7 +86,7 @@ def replay(events, wires, traces, boundaries, identities, root, *, require_compl
              'voting resources original checkpoint')
         source.a.transitions.same_usage(value['usage'], traces[node]['changes'][value['sequence']]['usage'])
         return value['sequence']
-    wire_by_id = {v['connection']['id']: v for v in wires}
+    wire_by_id = segmented_transcript.by_connection(wires)
     attempts = defaultdict(list); semantics = {}; force_candidates = defaultdict(set)
     groups = defaultdict(lambda: defaultdict(list))
     for key, life in leases.items(): groups[life['node'], life['binding']][life['role']].append((key, life))

@@ -15,6 +15,7 @@ import tempfile
 
 from . import joining_catalog_evidence as semantic
 from . import segmented_evidence
+from . import segmented_transcript
 from . import discovered_selection_evidence as exchange
 from . import future_retention_evidence as future
 from . import joining_source_loss as loss
@@ -41,7 +42,7 @@ def exchanges(events, wires, identities, root):
             positions[row['request'], row['response']].append((at, row['node']))
     policy=loss.declaration(events)
     result = []; offered = {}
-    for row in wires:
+    for wire_position,row in enumerate(wires):
         need(set(row) == {'request', 'response', 'withheld'} and type(row['withheld']) is bool and
              (row['withheld'] is False or policy is not None), 'joining original wire row')
         qraw, araw = [base64.b64decode(row[k], validate=True) for k in ('request', 'response')]
@@ -58,7 +59,7 @@ def exchanges(events, wires, identities, root):
         observed = events[at]
         if 'scope' in observed:
             need(observed['kind'] == kind and observed['responseKind'] == answer, 'joining response event kind')
-        value = dict(kind=kind, answer=answer, request=q, response=a, requestHash=qh, responseHash=ah,
+        value = segmented_transcript.exchange(wires,wire_position,kind=kind, answer=answer, request=q, response=a, requestHash=qh, responseHash=ah,
                      offered=at, delivered=None)
         if row['withheld']:value['withheld']=True
         need(at not in offered, 'joining duplicate response position'); offered[at] = value; result.append(value)

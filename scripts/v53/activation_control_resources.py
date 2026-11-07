@@ -9,6 +9,7 @@ from collections import defaultdict, deque
 import re
 from uuid import UUID
 
+from . import segmented_transcript
 from . import slot_control_resources as slots
 
 source=slots.source
@@ -115,7 +116,7 @@ def replay(events,wires,traces,points,identities,root,expected,transactions,*,re
     network=source.network.replay(events,wires,identities,root)
     need(all(v['kind'] not in REPLIES or v['received'] is None or any(r['sent']==v['sent'] for r in network['rows'])
              for v in network['failed']),'activation resources failed handler outside qualification')
-    by_id={v['connection']['id']:v for v in wires};attempts=defaultdict(list)
+    by_id=segmented_transcript.by_connection(wires);attempts=defaultdict(list)
     for row in network['rows']:
         kind=row['kind']
         if kind not in REPLIES:continue

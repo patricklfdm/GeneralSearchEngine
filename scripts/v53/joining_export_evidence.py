@@ -154,8 +154,9 @@ def sessions(contents):
 
 def exact(values,expected,reason):
     """Reference aliases and content kinds must match bytes, not merely hashes."""
-    actual=[(v['offer']['request']['payload']['digest'],v['raw'],v['kind']) for v in values]
-    need(actual==expected,reason)
+    need(len(values)==len(expected),reason)
+    for value,wanted in zip(values,expected):
+        need((value['offer']['request']['payload']['digest'],value['raw'],value['kind'])==wanted,reason)
 
 
 def learner_alias(own,request):
