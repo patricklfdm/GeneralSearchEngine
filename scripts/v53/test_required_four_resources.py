@@ -11,7 +11,8 @@ from .test_export_allocation_coverage import fixture as exports_fixture,bind as 
 
 
 class RequiredFourResourcesTest(unittest.TestCase):
-    def setup_gate(self,stack,events=None):
+    def setup_gate(self,stack,events=None,progress=None):
+        expected_progress=progress
         order=[];original=replay()['original'];exports_data=exports_fixture('joining-intent',True);bindings=bind_exports(exports_data)
         original['exportAllocationCoverage']=m.exports.r.replay(*exports_data[:2],bindings)
         data=({'owners':[{'identity':{'node':'n'}}],'root':'root'},exports_data[0],[],events or [])
@@ -36,7 +37,8 @@ class RequiredFourResourcesTest(unittest.TestCase):
             stack.enter_context(patch.object(module,'replay',side_effect=negative))
         for family,module,key in [('voting-control',m.voting,'votingControlResources'),('slot-control',m.slot,'slotControlResources'),
                                   ('activation-control',m.activation,'activationControlResources')]:
-            def negative(data,family=family,key=key):
+            def negative(data,progress=None,*,family=family,key=key):
+                self.assertIs(expected_progress,progress)
                 self.assertEqual('original',order[0]);order.append(family)
                 self.assertEqual(data[:6],(data[0],[],exports_data[0],[],{'n':{'node':'n'}},'root'))
                 if family!='voting-control':self.assertEqual(data[6:],({'derived':'original'},[]))
@@ -45,8 +47,9 @@ class RequiredFourResourcesTest(unittest.TestCase):
         return order,inventory,validate,original
 
     def test_one_complete_original_then_all_147_negatives(self):
+        updates=[];progress=updates.append
         with ExitStack() as stack:
-            order,inventory,validate,_=self.setup_gate(stack);result=m.qualify('/synthetic')
+            order,inventory,validate,_=self.setup_gate(stack,progress=progress);result=m.qualify('/synthetic',progress)
         self.assertEqual(['original',*m.NEGATIVES],order);self.assertEqual(1,validate.call_count)
         self.assertEqual(2,inventory.call_count);self.assertEqual(147,sum(map(len,result['negatives'].values())))
         m.check_result(result);self.assertFalse(result['combinedResourcesQualified']);self.assertFalse(result['phase3Complete'])

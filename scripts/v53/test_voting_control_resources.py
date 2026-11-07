@@ -39,9 +39,11 @@ class VotingControlResourcesTest(unittest.TestCase):
         self.assertFalse(result['phase3Complete']);self.assertFalse(result['interruptedHandlersQualified'])
 
     def test_all_coherent_mutations_reject_for_exact_reasons(self):
-        data,network=fixture();before=copy.deepcopy(data)
-        with patch.object(r.source.network,'replay',return_value=network):result=negatives.replay(data)
+        data,network=fixture();before=copy.deepcopy(data);updates=[]
+        with patch.object(r.source.network,'replay',return_value=network):result=negatives.replay(data,updates.append)
         self.assertEqual(16,len(result['negatives']));self.assertEqual(data,before)
+        self.assertEqual([dict(stage='voting-control-negatives',case=case,completed=i,total=16)
+                          for i,case in enumerate(negatives.NEGATIVES,1)],updates)
 
     def test_lost_ack_duplicate_can_share_a_single_original_writer(self):
         data,network=fixture();network['rows'].append(dict(network['rows'][0]))

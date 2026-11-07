@@ -93,7 +93,7 @@ def qualify(root,progress=None):
     for name,module,data,key in (('voting-control',voting,base,'votingControlResources'),
                                 ('slot-control',slot,complete,'slotControlResources'),
                                 ('activation-control',activation,complete,'activationControlResources')):
-        result=module.replay(data)
+        result=module.replay(data,progress)
         need(result['original']==original[key],'required-four resources original control binding output')
         cases[name]=result['negatives']
         if progress:progress(dict(stage=name+'-negatives',status='PASS',cases=len(cases[name])))

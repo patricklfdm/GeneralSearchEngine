@@ -84,7 +84,7 @@ def mutate(data, name):
     recount(traces,points)
 
 
-def replay(data):
+def replay(data,progress=None):
     original=r.replay(*data);results=[]
     for name,reason in NEGATIVES.items():
         changed=copy.deepcopy(data);mutate(changed,name)
@@ -92,6 +92,7 @@ def replay(data):
         except ValueError as error:r.need(str(error)==reason,'voting resources unrelated negative: '+name+': '+str(error))
         else:raise ValueError('voting resources accepted negative: '+name)
         results.append(dict(case=name,status='REJECTED',reason=reason))
+        if progress:progress(dict(stage='voting-control-negatives',case=name,completed=len(results),total=len(NEGATIVES)))
     return dict(original=original,negatives=results)
 
 

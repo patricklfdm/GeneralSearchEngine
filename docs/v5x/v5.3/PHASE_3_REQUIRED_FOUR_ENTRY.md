@@ -21,6 +21,15 @@ The failed attempt cannot supply the full 147-case admission.
 
 ## Pipeline and immutable inputs
 
+The verifier keeps its minute heartbeat and now reports each completed voting,
+slot and activation negative by stage, case name, completed count and total.
+A case is reported only after rejection for its exact declared reason; the
+original still has to pass first. These updates do not change receipts, mutation
+order, the 147-case vector or retry policy. All 65 focused control/resource-entry
+tests pass with the callback connected, including the existing real-format
+voting and slot mutation vectors. The running `78403d87` development replay
+keeps its recorded reader and therefore retains the earlier group-level output.
+
 [`v53-required-four-resources.yml`](../../../.github/workflows/v53-required-four-resources.yml)
 has three jobs:
 

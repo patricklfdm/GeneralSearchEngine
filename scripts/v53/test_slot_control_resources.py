@@ -62,8 +62,10 @@ class SlotControlResourcesTest(unittest.TestCase):
         self.assertFalse(result['phase3Complete']);self.assertEqual(data,before)
 
     def test_all_coherent_mutations_reject_for_the_declared_reasons(self):
-        data=fixture();before=copy.deepcopy(data);result=negatives.replay(data)
+        data=fixture();before=copy.deepcopy(data);updates=[];result=negatives.replay(data,updates.append)
         self.assertEqual(22,len(result['negatives']));self.assertEqual(data,before)
+        self.assertEqual([dict(stage='slot-control-negatives',case=case,completed=i,total=22)
+                          for i,case in enumerate(negatives.NEGATIVES,1)],updates)
 
     def test_unrelated_original_failure_cannot_count_as_rejections(self):
         with patch.object(r,'replay',side_effect=ValueError('bad original')),patch.object(negatives,'mutate') as mutate:
