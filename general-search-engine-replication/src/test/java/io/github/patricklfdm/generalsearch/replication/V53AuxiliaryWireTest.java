@@ -50,7 +50,7 @@ class V53AuxiliaryWireTest {
             var group=new V53AuxiliaryWire(root,spooled);group.open(ACK).add(FIRST);
             if(spooled)assertThrows(java.io.UncheckedIOException.class,()->group.snapshot(ACK));
             else assertThrows(FileAlreadyExistsException.class,()->group.snapshot(ACK));
-            if(spooled)assertThrows(java.io.UncheckedIOException.class,group::close);else group.close();
+            if(spooled)assertInstanceOf(java.io.UncheckedIOException.class,assertThrows(IllegalStateException.class,group::close).getCause());else group.close();
             assertEquals("original",Files.readString(root.resolve(ACK.file)));
         }
     }
@@ -60,7 +60,8 @@ class V53AuxiliaryWireTest {
         var one=group.open(INTENT);var two=group.open(ACK);var good=group.open(HEAD);
         assertSame(shared,assertThrows(IllegalStateException.class,()->one.add(bad)));
         assertSame(shared,assertThrows(IllegalStateException.class,()->two.add(bad)));good.add(FIRST);
-        assertSame(shared,assertThrows(IllegalStateException.class,group::close));group.close();
+        var closed=assertThrows(IllegalStateException.class,group::close);assertSame(shared,closed.getCause());
+        assertEquals(1,closed.getSuppressed().length);assertSame(shared,closed.getSuppressed()[0].getCause());group.close();
         for(var rows:List.of(one,two,good))assertThrows(IllegalArgumentException.class,()->rows.add(LATER));
         assertEquals("[",Files.readString(temp.resolve(V53AuxiliaryWire.STAGING).resolve(INTENT.file)));
         assertArrayEquals(V53EvidenceArray.encode(List.of(FIRST),4096),Files.readAllBytes(temp.resolve(V53AuxiliaryWire.STAGING).resolve(HEAD.file)));
@@ -69,7 +70,8 @@ class V53AuxiliaryWireTest {
         var group=new V53AuxiliaryWire(temp,true);var one=group.open(ACK);var two=group.open(HEAD);
         RuntimeException first=assertThrows(RuntimeException.class,()->one.add(Map.of("bad-key",1)));
         RuntimeException second=assertThrows(RuntimeException.class,()->two.add(Map.of("bad-key",2)));
-        assertSame(first,assertThrows(RuntimeException.class,group::close));assertArrayEquals(new Throwable[]{second},first.getSuppressed());
+        var closed=assertThrows(IllegalStateException.class,group::close);assertSame(first,closed.getCause());
+        assertEquals(1,closed.getSuppressed().length);assertSame(second,closed.getSuppressed()[0].getCause());
     }
     @Test void stagingMustBeNewAndMayNotBeASymlink()throws Exception {
         Path outside=Files.createDirectory(temp.resolve("outside"));Files.writeString(outside.resolve(ACK.file),"original");

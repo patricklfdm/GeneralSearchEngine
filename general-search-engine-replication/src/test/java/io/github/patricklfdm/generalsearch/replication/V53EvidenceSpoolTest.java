@@ -44,7 +44,7 @@ class V53EvidenceSpoolTest {
         spool.add(ROW);byte[] before=Files.readAllBytes(path);
         assertEquals("evidence spool byte capacity",assertThrows(IllegalArgumentException.class,()->spool.add(ROW)).getMessage());
         assertThrows(IllegalStateException.class,()->spool.add(ROW));assertThrows(IllegalStateException.class,()->spool.get(0));
-        assertThrows(IllegalArgumentException.class,spool::close);spool.close();
+        assertThrows(IllegalStateException.class,spool::close);spool.close();
         assertArrayEquals(before,Files.readAllBytes(path));assertFalse(Files.readString(path).endsWith("]"));
     }
     @Test void rowCountRefusalIsIndependentOfByteCapacity()throws Exception {
@@ -52,7 +52,7 @@ class V53EvidenceSpoolTest {
         for(int i=0;i<V53EvidenceArray.HISTORY_ROWS;i++)spool.add(Map.of());
         assertEquals(V53EvidenceArray.HISTORY_ROWS,spool.size());assertEquals(Map.of(),spool.getLast());
         assertEquals("evidence spool row capacity",assertThrows(IllegalArgumentException.class,()->spool.add(Map.of())).getMessage());
-        assertThrows(IllegalArgumentException.class,spool::close);
+        assertThrows(IllegalStateException.class,spool::close);
     }
     @Test void malformedRowsKeepProtocolEncodingLimitsAndCannotBeDropped()throws Exception {
         Object nested="leaf";for(int i=0;i<17;i++)nested=List.of(nested);
@@ -86,7 +86,7 @@ class V53EvidenceSpoolTest {
             else Files.writeString(path,"x",StandardOpenOption.APPEND);
             byte[] observed=Files.readAllBytes(path);
             assertEquals("evidence spool file changed",assertThrows(IllegalArgumentException.class,()->spool.add(ROW)).getMessage());
-            assertThrows(IllegalArgumentException.class,spool::close);assertArrayEquals(observed,Files.readAllBytes(path));
+            assertThrows(IllegalStateException.class,spool::close);assertArrayEquals(observed,Files.readAllBytes(path));
         }
     }
     @Test void closeDetectsReplacementEvenWithoutAnotherAppend()throws Exception {
@@ -99,7 +99,7 @@ class V53EvidenceSpoolTest {
         Files.move(path,retained);byte[] original=Files.readAllBytes(retained);
         var failure=assertThrows(java.io.UncheckedIOException.class,()->spool.add(ROW));
         assertInstanceOf(NoSuchFileException.class,failure.getCause());
-        assertSame(failure,assertThrows(java.io.UncheckedIOException.class,spool::close));
+        assertSame(failure,assertThrows(IllegalStateException.class,spool::close).getCause());
         assertArrayEquals(original,Files.readAllBytes(retained));assertFalse(Files.exists(path));
     }
     @Test void concurrentCallbacksPreserveEveryRowAndEachProducerOrder()throws Exception {
@@ -144,7 +144,8 @@ class V53EvidenceSpoolTest {
             if(link){destination=temp.resolve("link");Files.createSymbolicLink(destination,existing);}
             var spool=new V53EvidenceSpool(source,1024);spool.add(ROW);Path output=destination;
             assertThrows(java.io.UncheckedIOException.class,()->spool.snapshot(output));
-            assertThrows(java.io.UncheckedIOException.class,spool::close);assertEquals("original",Files.readString(existing));
+            assertInstanceOf(java.io.UncheckedIOException.class,assertThrows(IllegalStateException.class,spool::close).getCause());
+            assertEquals("original",Files.readString(existing));
             assertFalse(Files.readString(source).endsWith("]"));
         }
     }
@@ -160,7 +161,7 @@ class V53EvidenceSpoolTest {
                 }
             };
             assertEquals("evidence spool content changed",assertThrows(IllegalArgumentException.class,action).getMessage());
-            if(!operation.equals("close"))assertThrows(IllegalArgumentException.class,spool::close);
+            if(!operation.equals("close"))assertThrows(IllegalStateException.class,spool::close);
             assertFalse(Files.readString(source).endsWith("]"));
         }
         assertFalse(Files.readString(temp.resolve("snapshot.json")).endsWith("]"));
@@ -176,10 +177,85 @@ class V53EvidenceSpoolTest {
             assertTrue(Files.size(path)>50L*1024*1024);assertTrue(Files.size(path)<V53EvidenceArray.WIRE_BYTES);
         }finally{if(process.isAlive()){process.destroyForcibly();process.waitFor(10,TimeUnit.SECONDS);}}
     }
+    @Test void concurrentPreAppendObserversSeeTheExactIndexAndOriginalOrder()throws Exception {
+        Path path=temp.resolve("events.json");var observed=new ArrayList<Map<String,Object>>();
+        var reference=new java.util.concurrent.atomic.AtomicReference<V53EvidenceSpool>();
+        try(var spool=new V53EvidenceSpool(path,1024*1024,(index,row)->{
+            assertTrue(Thread.holdsLock(reference.get()));assertEquals(index,reference.get().size());
+            assertEquals(observed.size(),index);observed.add(Map.copyOf(row));
+        });var pool=Executors.newFixedThreadPool(4)) {
+            reference.set(spool);var tasks=new ArrayList<Future<?>>();
+            for(int owner=0;owner<4;owner++){int id=owner;tasks.add(pool.submit(()->{
+                for(int i=0;i<100;i++)spool.add(Map.of("node","node-"+id,"event","at-"+i));
+            }));}
+            for(var task:tasks)task.get(30,TimeUnit.SECONDS);
+            assertEquals(400,observed.size());assertEquals(observed,spool);
+        }
+        assertArrayEquals(V53EvidenceArray.encode(observed,1024*1024),Files.readAllBytes(path));
+    }
+    @Test void invalidAppendCannotAdvanceTheObserverIndexOrProduceASeal()throws Exception {
+        Path path=temp.resolve("events.json");var indices=new ArrayList<Integer>();
+        var spool=new V53EvidenceSpool(path,V53EvidenceArray.encode(List.of(ROW),4096).length,(index,row)->indices.add(index));
+        spool.add(ROW);assertThrows(IllegalArgumentException.class,()->spool.add(ROW));assertEquals(List.of(0),indices);
+        assertThrows(RuntimeException.class,spool::close);
+        assertThrows(IllegalArgumentException.class,()->spool.sealedSha256(path));
+    }
+    @Test void observerExceptionsAndErrorsLeaveUnsealedOriginals()throws Exception {
+        for(boolean error:List.of(false,true)) {
+            Path path=temp.resolve("events-"+error);Throwable failure=error?new AssertionError("capture"):new IllegalArgumentException("capture");
+            var spool=new V53EvidenceSpool(path,4096,(index,row)->{
+                if(index==1){if(failure instanceof Error e)throw e;throw (RuntimeException)failure;}
+            });
+            spool.add(ROW);byte[] before=Files.readAllBytes(path);
+            assertSame(failure,assertThrows(Throwable.class,()->spool.add(ROW)));
+            assertThrows(IllegalStateException.class,()->spool.add(ROW));assertThrows(RuntimeException.class,spool::close);
+            assertArrayEquals(before,Files.readAllBytes(path));
+            assertThrows(IllegalArgumentException.class,()->spool.sealedSha256(path));
+        }
+    }
+    @Test void tryWithResourcesKeepsTheOriginalObserverFailure()throws Exception {
+        var original=new IllegalArgumentException("original observer failure");Path path=temp.resolve("events.json");
+        var spool=new V53EvidenceSpool(path,4096,(index,row)->{throw original;});
+        var thrown=assertThrows(RuntimeException.class,()->{try(spool){spool.add(ROW);}});
+        assertSame(original,thrown);assertEquals(1,thrown.getSuppressed().length);
+        assertSame(original,thrown.getSuppressed()[0].getCause());
+        assertThrows(IllegalArgumentException.class,()->spool.sealedSha256(path));assertEquals("[",Files.readString(path));
+    }
+    @Test void caughtRecursiveMutationCannotRestoreEligibility()throws Exception {
+        for(String mutation:List.of("append","snapshot","close")) {
+            Path path=temp.resolve("events-"+mutation);var reference=new java.util.concurrent.atomic.AtomicReference<V53EvidenceSpool>();
+            var spool=new V53EvidenceSpool(path,4096,(index,row)->{
+                try {
+                    switch(mutation) {
+                        case "append" -> reference.get().add(ROW);
+                        case "snapshot" -> reference.get().snapshot(temp.resolve("snapshot"));
+                        case "close" -> reference.get().close();
+                    }
+                }catch(Exception ignored){}
+            });reference.set(spool);
+            assertThrows(RuntimeException.class,()->spool.add(ROW));
+            try{spool.close();}catch(RuntimeException ignored){}
+            assertEquals("[",Files.readString(path));assertFalse(Files.exists(temp.resolve("snapshot")));
+            assertThrows(IllegalArgumentException.class,()->spool.sealedSha256(path));
+        }
+    }
+    @Test void sealBindsTheCompleteBytesAfterSnapshotsAndOnlyTheOriginalPath()throws Exception {
+        for(boolean empty:List.of(false,true)) {
+            Path path=temp.resolve("events-"+empty);var spool=new V53EvidenceSpool(path,4096);
+            assertThrows(IllegalArgumentException.class,()->spool.sealedSha256(path));
+            if(!empty){spool.add(ROW);spool.snapshot(temp.resolve("prefix"));spool.add(Map.of("event","CLOSE"));}
+            spool.close();String expected=io.github.patricklfdm.generalsearch.replication.MembershipFormat.hash(Files.readAllBytes(path));
+            assertEquals(expected,spool.sealedSha256(path));spool.close();assertEquals(expected,spool.sealedSha256(path));
+            assertThrows(IllegalArgumentException.class,()->spool.sealedSha256(temp.resolve("foreign")));
+        }
+    }
     public static final class HeapProbe {
         public static void main(String[] args)throws Exception {
             Path path=Path.of(args[0]),prefix=path.resolveSibling("prefix.json"),complete=path.resolveSibling("complete.json");
-            try(var spool=new V53EvidenceSpool(path,V53EvidenceArray.WIRE_BYTES)) {
+            int[] observed={0};var spool=new V53EvidenceSpool(path,V53EvidenceArray.WIRE_BYTES,(index,row)->{
+                if(index!=observed[0]++ || !row.get("index").equals((long)index))throw new IllegalStateException("observer order");
+            });
+            try(spool) {
                 for(int i=0;i<200;i++) {
                     spool.add(Map.of("index",(long)i,"bytes",i+"x".repeat(300*1024)));
                     if(i==99)spool.snapshot(prefix);
@@ -189,6 +265,10 @@ class V53EvidenceSpoolTest {
             }
             if(Files.size(prefix)<25L*1024*1024 || Files.size(prefix)>=Files.size(complete) || Files.mismatch(path,complete)!=-1)
                 throw new IllegalStateException("snapshot prefix/output");
+            var digest=java.security.MessageDigest.getInstance("SHA-256");
+            try(var input=Files.newInputStream(path)){byte[] buffer=new byte[65536];int count;while((count=input.read(buffer))!=-1)digest.update(buffer,0,count);}
+            if(observed[0]!=200 || !spool.sealedSha256(path).equals(HexFormat.of().formatHex(digest.digest())))
+                throw new IllegalStateException("sealed history hash");
             System.out.println("rows=200");
         }
     }

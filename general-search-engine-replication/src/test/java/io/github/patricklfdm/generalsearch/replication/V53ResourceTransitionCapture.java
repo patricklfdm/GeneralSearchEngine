@@ -69,6 +69,12 @@ final class V53ResourceTransitionCapture {
         boundaries.add(Map.of("eventIndex",index,"node",node,"sequence",value.sequence(),"usage",V53ResourceTraceFiles.usage(value.usage())));
     }
     synchronized void save(byte[] events)throws IOException {
+        saveDigest(hash(events));
+    }
+    synchronized void save(V53EvidenceSpool events)throws IOException {
+        saveDigest(events.sealedSha256(directory.getParent().resolve("events.json")));
+    }
+    private void saveDigest(String eventsSha256)throws IOException {
         require(!saved && !owners.isEmpty(),"resource capture already saved/empty");saved=true;
         var refs=new ArrayList<Map<String,Object>>();
         for(var entry:owners.entrySet()) {
@@ -80,7 +86,7 @@ final class V53ResourceTransitionCapture {
         byte[] data=V53EvidenceArray.encode(boundaries,32*1024*1024);
         Files.write(directory.resolve("boundaries.json"),data,StandardOpenOption.CREATE_NEW);
         var index=new TreeMap<String,Object>(Map.of("schema",closingOwners.isEmpty()?"gse-v53-resource-capture-index-v1":"gse-v53-resource-capture-index-v2","root",root,
-                "eventsSha256",hash(events),"boundariesSha256",hash(data),"owners",refs));
+                "eventsSha256",eventsSha256,"boundariesSha256",hash(data),"owners",refs));
         if(!closingOwners.isEmpty())index.put("closingOwners",closingOwners);
         Files.write(directory.resolve("index.json"),canonical(index,16384),StandardOpenOption.CREATE_NEW);
         if(Boolean.getBoolean("v53.resource.storage.transfers")) {
@@ -92,7 +98,7 @@ final class V53ResourceTransitionCapture {
                 transferRefs.add(Map.of("identity",identity,"path",name,"sha256",digest,"resourceSha256",ref.get("sha256")));
             }
             Files.write(transfers.resolve("index.json"),canonical(Map.of("schema","gse-v53-storage-transfer-capture-v1","root",root,
-                    "eventsSha256",hash(events),"owners",transferRefs),16384),StandardOpenOption.CREATE_NEW);
+                    "eventsSha256",eventsSha256,"owners",transferRefs),16384),StandardOpenOption.CREATE_NEW);
         }
         if(controlCloses) {
             Path closeDirectory=Files.createDirectory(directory.getParent().resolve("control-close-captures"));
@@ -103,7 +109,7 @@ final class V53ResourceTransitionCapture {
                 closeRefs.add(Map.of("identity",identity,"path",name,"sha256",digest,"resourceSha256",ref.get("sha256")));
             }
             Files.write(closeDirectory.resolve("index.json"),canonical(Map.of("schema","gse-v53-control-close-capture-v1","root",root,
-                    "eventsSha256",hash(events),"owners",closeRefs),16384),StandardOpenOption.CREATE_NEW);
+                    "eventsSha256",eventsSha256,"owners",closeRefs),16384),StandardOpenOption.CREATE_NEW);
         }
     }
 }

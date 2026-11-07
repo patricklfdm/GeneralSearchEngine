@@ -8,6 +8,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.function.BiConsumer;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
 
@@ -21,14 +22,21 @@ final class V53EvidenceSpool extends AbstractList<Map<String,Object>> implements
     private final long maximum;
     private final FileChannel file;
     private final Object identity;
+    private final BiConsumer<Integer,Map<String,Object>> beforeAppend;
     private final List<Row> rows=new ArrayList<>();
     private MessageDigest expected=digest();
     private long end;
     private boolean closed;
+    private boolean observing;
+    private String sealedDigest;
     private Throwable failure;
 
     V53EvidenceSpool(Path path,long maximum)throws IOException {
+        this(path,maximum,(index,row)->{});
+    }
+    V53EvidenceSpool(Path path,long maximum,BiConsumer<Integer,Map<String,Object>> beforeAppend)throws IOException {
         require(maximum>=2,"evidence spool byte capacity");
+        this.beforeAppend=Objects.requireNonNull(beforeAppend);
         this.path=path;this.maximum=maximum;
         file=FileChannel.open(path,StandardOpenOption.CREATE_NEW,StandardOpenOption.READ,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS);
         try {
@@ -75,9 +83,13 @@ final class V53EvidenceSpool extends AbstractList<Map<String,Object>> implements
     @Override public synchronized boolean add(Map<String,Object> row) {
         active();
         try {
+            require(!observing,"evidence spool recursive append");
             unchanged();require(rows.size()<V53EvidenceArray.HISTORY_ROWS,"evidence spool row capacity");
             byte[] bytes=canonical(Objects.requireNonNull(row),(int)Math.min(maximum,ROW_BYTES));int comma=rows.isEmpty()?0:1;
             require(bytes.length<=maximum-end-comma-1,"evidence spool byte capacity");
+            observing=true;
+            try{beforeAppend.accept(rows.size(),row);}finally{observing=false;}
+            active(); // A callback cannot catch a nested failure and restore eligibility.
             if(comma!=0)write(new byte[]{','});long offset=end+comma;write(bytes);
             end=offset+bytes.length;rows.add(new Row(offset,bytes.length,sha(bytes)));modCount++;return true;
         }catch(IOException|RuntimeException error){throw poison(error);}
@@ -97,11 +109,19 @@ final class V53EvidenceSpool extends AbstractList<Map<String,Object>> implements
     }
     @Override public synchronized int size(){return rows.size();}
     long maximum(){return maximum;}
+    /** Digest of the bytes checked and sealed by close, bound to the admitted
+     * output path. Independent replay still checks those bytes against the index. */
+    synchronized String sealedSha256(Path expectedPath) {
+        require(closed && failure==null && sealedDigest!=null,"evidence spool not sealed");
+        require(path.toAbsolutePath().normalize().equals(expectedPath.toAbsolutePath().normalize()),"evidence spool seal path");
+        return sealedDigest;
+    }
     /** Copy this exact prefix with fixed-size buffers. Later callbacks may append
      * to this spool but cannot change the exclusively created snapshot. */
     synchronized void snapshot(Path destination) {
         active();
         try {
+            require(!observing,"evidence spool recursive snapshot");
             unchanged();
             try(var target=FileChannel.open(destination,StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
                 var before=Files.readAttributes(destination,BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS);
@@ -120,8 +140,16 @@ final class V53EvidenceSpool extends AbstractList<Map<String,Object>> implements
     }
     @Override public synchronized void close()throws IOException {
         if(closed)return;
+        if(failure!=null) {
+            // A try-with-resources body may be unwinding this very failure.
+            // Rethrowing that same object from close would self-suppress it.
+            try(file){throw new IllegalStateException("evidence spool failed",failure);}
+            finally{closed=true;}
+        }
         try(file) {
-            active();unchanged();copyPrefix(null,false);write(new byte[]{']'});end++;unchanged();
+            active();require(!observing,"evidence spool recursive close");
+            unchanged();copyPrefix(null,true);write(new byte[]{']'});end++;unchanged();
+            sealedDigest=HexFormat.of().formatHex(expected.digest());
         }catch(IOException|RuntimeException error){throw poison(error);}
         catch(Error error){failure=error;throw error;}
         finally {closed=true;}

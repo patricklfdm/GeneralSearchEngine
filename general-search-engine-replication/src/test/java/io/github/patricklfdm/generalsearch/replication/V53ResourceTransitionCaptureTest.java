@@ -49,6 +49,53 @@ class V53ResourceTransitionCaptureTest {
         capture.event(0,Map.of("node","node-1","event","OPEN"));
         assertEquals(1,first.observations().transitions());
     }
+    @Test void sealedEventsBindAllResourceIndexesWithoutAWholeArrayArgument()throws Exception {
+        var root=Files.createDirectory(evidence.resolve("spooled"));
+        var capture=new V53ResourceTransitionCapture(root,ROOT,List.of("node-1","node-2"),true);
+        var old=capture.create(identity(1),0);var rows=new ArrayList<Map<String,Object>>();
+        var events=new V53EvidenceSpool(root.resolve("events.json"),4096,(index,row)->{capture.event(index,row);rows.add(row);});
+        try(events) {
+            try(var journal=old.reserve(Unit.JOURNAL,"journal",20)) {
+                events.add(Map.of("node","node-1","event","OPEN"));var joining=capture.create(identity(2),1);
+                try(var learner=joining.reserve(Unit.LEARNER,"learner",30)) {
+                    events.add(Map.of("node","node-2","event","RETAIN"));
+                }
+                events.add(Map.of("node","node-2","event","CLOSE"));
+            }
+            events.add(Map.of("node","node-1","event","CLOSE"));
+            assertThrows(IllegalArgumentException.class,()->capture.save(events));
+            assertFalse(Files.exists(root.resolve(V53ResourceTransitionCapture.DIRECTORY+"/index.json")));
+        }
+        String property="v53.resource.storage.transfers",previous=System.getProperty(property);
+        try {System.setProperty(property,"true");capture.save(events);}
+        finally {if(previous==null)System.clearProperty(property);else System.setProperty(property,previous);}
+        byte[] bytes=Files.readAllBytes(root.resolve("events.json"));assertArrayEquals(V53EvidenceArray.encode(rows,4096),bytes);
+        for(String name:List.of(V53ResourceTransitionCapture.DIRECTORY,"storage-transfer-captures","control-close-captures")) {
+            var index=object(parse(Files.readAllBytes(root.resolve(name+"/index.json")),16384));
+            assertEquals(hash(bytes),index.get("eventsSha256"));assertEquals(2,list(index.get("owners")).size());
+        }
+        var points=list(parse(Files.readAllBytes(root.resolve(V53ResourceTransitionCapture.DIRECTORY+"/boundaries.json")),16384));
+        assertEquals(rows.size(),points.size());
+        for(int i=0;i<rows.size();i++) {
+            assertEquals((long)i,object(points.get(i)).get("eventIndex"));assertEquals(rows.get(i).get("node"),object(points.get(i)).get("node"));
+        }
+        assertThrows(IllegalArgumentException.class,()->capture.save(events));
+    }
+    @Test void failedOrForeignSpoolsCannotProduceAResourceIndex()throws Exception {
+        for(boolean failed:List.of(false,true)) {
+            var root=Files.createDirectory(evidence.resolve("rejected-"+failed));var capture=new V53ResourceTransitionCapture(root,ROOT);
+            capture.create(identity(1),0);
+            var events=new V53EvidenceSpool(root.resolve(failed?"events.json":"foreign.json"),4096,(index,row)->{
+                capture.event(index,row);if(failed)throw new IllegalArgumentException("incomplete observer");
+            });
+            if(failed) {
+                assertThrows(IllegalArgumentException.class,()->events.add(Map.of("node","node-1","event","OPEN")));
+                assertThrows(RuntimeException.class,events::close);
+            }else {events.add(Map.of("node","node-1","event","OPEN"));events.close();}
+            assertThrows(IllegalArgumentException.class,()->capture.save(events));
+            assertFalse(Files.exists(root.resolve(V53ResourceTransitionCapture.DIRECTORY+"/index.json")));
+        }
+    }
     @Test void lightweightCheckpointsAreExactImmutableAndDoNotAppendChanges() {
         var budget=new MembershipResources(METADATA_LIMIT,512*MIB,QUEUE_LIMIT,3);
         var start=budget.observationCheckpoint();assertEquals(0,start.sequence());assertTrue(start.complete());

@@ -1,0 +1,164 @@
+{
+  "combinedResourcesQualified": false,
+  "diagnosticFailure": {
+    "log": "replay-diagnostic-expectation-failure.log",
+    "reason": "temporary replay driver expected the wrong literal rejection reason",
+    "workloadRerun": false
+  },
+  "eventBytes": 168112,
+  "eventResourceNegativeCases": 5,
+  "eventRows": 1786,
+  "expectedRegressionFailure": {
+    "failures": 1,
+    "log": "close-before-fix.log",
+    "reason": "Self-suppression not permitted masks original observer failure",
+    "tests": 1
+  },
+  "files": {
+    "target/v53-event-spool/V53AuxiliaryWireTest-after-close-fix.xml": "8cddc09990da841b6699e8df0c3e96e2e894fbb4eff0ff6d75f1c8dcf91bce2a",
+    "target/v53-event-spool/V53AuxiliaryWireTest.xml": "e45a4d53ca4857fe3c281f2f9e6e786c538be754a1e1b25f7bfc4ebab1a97e03",
+    "target/v53-event-spool/V53EvidenceArrayTest-after-close-fix.xml": "43df6063ccec12b0e146b5f0a3876ced286a3ee15e3a209ee9b6fb8d59ba76e8",
+    "target/v53-event-spool/V53EvidenceArrayTest.xml": "e22c995e92d3fc32dc6e44ecfc04dd9636881062af0591c7fb5748a2961d4cb7",
+    "target/v53-event-spool/V53EvidenceSpool-before-close-fix.java": "fe50b9a970ef4f92d73788ee6f0c50b5341140c10f6fb97a85e7fc5968025ea5",
+    "target/v53-event-spool/V53EvidenceSpoolTest-after-close-fix.xml": "7f9f5659e2dbc282d9bd806f399271c1b0d96ecc58c601ea7904910d5cf64182",
+    "target/v53-event-spool/V53EvidenceSpoolTest.xml": "f0d71508658b167e1592d6ec86f3f1684309ca627d16a66e4fcd9e2d6da80018",
+    "target/v53-event-spool/V53NativeSeedTest.xml": "4b3e65a015d3503813d8138f81709da3005e4d488955372690a03cdf0cf1a1b3",
+    "target/v53-event-spool/V53ResourceTransitionCaptureTest-after-close-fix.xml": "0d1996e77f1fa738902165acb2de934588b95ecadc259b42800367a192da3080",
+    "target/v53-event-spool/V53ResourceTransitionCaptureTest.xml": "de16a4b9a02459556da1bb333afa35124c8423e9c334cc2ac36e2c91544cc91b",
+    "target/v53-event-spool/close-after-fix.log": "c549f31442c82f014d1255c3687d05b401d4ed364c257775eec72b4307f0cbdf",
+    "target/v53-event-spool/close-before-fix.log": "40f175a71687b29dbf5dfe7cb0c61298c4bf2635afa4f197a424694330a4a2e7",
+    "target/v53-event-spool/close-before-fix.xml": "18bbc759c998b4da4054e6a8c6161f92e6b2bbfe97612173d373d12ba157f630",
+    "target/v53-event-spool/contract.log": "c7be870c47d848aaf05b5b6a0d5a57e491d53728bd7175e5521a299d8de8b1fe",
+    "target/v53-event-spool/event-resource-replay.json": "1476bd58bcee85f18f63aae0b8e999fab10d4848363abd2317508c5b6f1cd233",
+    "target/v53-event-spool/first-native-source-sha256.json": "6ece30eef8d4f77fc0c85ea0de23887f185b5614dcd41c90b3a61f605954cf14",
+    "target/v53-event-spool/maven-reactor.log": "ce2c428ce0146dc57c2f96a1806c22f0dfdcd34a58b66d9309d354c386bebd88",
+    "target/v53-event-spool/maven.log": "ce2c428ce0146dc57c2f96a1806c22f0dfdcd34a58b66d9309d354c386bebd88",
+    "target/v53-event-spool/native-thread-dump.txt": "e46f7c5cb9d5fd57f5cda092427b9f4b430fe52f500c291eb23f552386ee1e73",
+    "target/v53-event-spool/plan-tests.log": "63cc6babc334786dd34d0e4f0c558df0fcd8dcd63cd4cc1c0570d5031a3511ff",
+    "target/v53-event-spool/python-tests.log": "84926fed77aab2b0e487c2779de7aec45a6d9711efee563addbcf030638cc8e0",
+    "target/v53-event-spool/replay-diagnostic-expectation-failure.log": "117d3df2026bd20de8195d58b688edeb20f4219fff2317bae2dc266eeece64ee",
+    "target/v53-event-spool/replay.log": "524a8ea562d95d1cae5cc5aa9a56181e23c600a242a1360e89569de77953dbf1",
+    "target/v53-event-spool/replay.py": "fc8b4ab1cc5339200f611abfcb3edd915a2ea65981e9e789f50efd99f895b320",
+    "target/v53-event-spool/seed-replay-first.json": "6015357c7e860ec1297547432f43ac53b14397b00f947f6fda082c84a7aa53ef",
+    "target/v53-event-spool/seed-replay.json": "9b66e03e5786b6b0a5f33f249b922e00207e74bdc43518002f73750ad4de0924",
+    "target/v53-event-spool/summarize.py": "012744cfa6c869a464edfccea932a7658ff7ff7a6c207182ea5973833b25b70c",
+    "target/v53-event-spool/validation-summary.json": "78e8eadabfb9388cf209c1340de67655d4c1519de33d584d77f8718ad225d4d4"
+  },
+  "finalSourceCohortQualified": false,
+  "fullAuxiliaryJoiningQualified": false,
+  "fullJoiningQualified": false,
+  "javaInvocations": [
+    {
+      "log": "maven.log",
+      "suites": [
+        {
+          "errors": 0,
+          "failures": 0,
+          "name": "V53EvidenceSpoolTest",
+          "seconds": 1.209,
+          "skipped": 0,
+          "tests": 23
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "name": "V53AuxiliaryWireTest",
+          "seconds": 0.027,
+          "skipped": 0,
+          "tests": 8
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "name": "V53EvidenceArrayTest",
+          "seconds": 0.159,
+          "skipped": 0,
+          "tests": 6
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "name": "V53ResourceTransitionCaptureTest",
+          "seconds": 12.216,
+          "skipped": 0,
+          "tests": 10
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "name": "V53NativeSeedTest",
+          "seconds": 67.113,
+          "skipped": 0,
+          "tests": 2
+        }
+      ],
+      "tests": 49
+    },
+    {
+      "log": "close-after-fix.log",
+      "suites": [
+        {
+          "errors": 0,
+          "failures": 0,
+          "name": "V53EvidenceSpoolTest",
+          "seconds": 1.185,
+          "skipped": 0,
+          "tests": 24
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "name": "V53AuxiliaryWireTest",
+          "seconds": 0.027,
+          "skipped": 0,
+          "tests": 8
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "name": "V53EvidenceArrayTest",
+          "seconds": 0.166,
+          "skipped": 0,
+          "tests": 6
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "name": "V53ResourceTransitionCaptureTest",
+          "seconds": 6.445,
+          "skipped": 0,
+          "tests": 10
+        }
+      ],
+      "tests": 48
+    }
+  ],
+  "javaUniquePassingTests": 50,
+  "lowHeapProbe": {
+    "copyBufferBytes": 65536,
+    "heapMiB": 32,
+    "minimumCompleteMiB": 50,
+    "minimumPrefixMiB": 25,
+    "preAppendOrdering": true,
+    "rows": 200,
+    "sealedHash": true,
+    "wholeRuntimeMemoryQualified": false
+  },
+  "maximumImageQualified": false,
+  "nativeOriginal": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-dispatch/run-2c3e6027-979e-4654-a54b-e2fd48bee2e8",
+  "nativeReplayNegativeCases": 2,
+  "owners": [
+    "node-1",
+    "node-2",
+    "node-3",
+    "node-4",
+    "node-5"
+  ],
+  "parent": "aaafc61c96ddba10da20bf0c2815a47eaeb1f833",
+  "phase3Complete": false,
+  "pythonContractTests": 19,
+  "pythonFocusedTests": 106,
+  "schema": "gse-v53-event-spool-development-v1",
+  "scope": "development working tree; native run before failure-only close correction; no final-source cohort",
+  "status": "PASS"
+}

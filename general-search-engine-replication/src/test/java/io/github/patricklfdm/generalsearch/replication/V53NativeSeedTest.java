@@ -51,6 +51,7 @@ class V53NativeSeedTest {
             assertEquals(SEQUENCE,f.result.applicationSequence());prepared.set(true);
         },true,false);
         try(n;var round=driver.driver(n,MembershipRoundDriver.Events.NONE)) {
+            assertInstanceOf(V53EvidenceSpool.class,n.events);
             assertTrue(prepared.get());assertEquals(MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP,n.f.request.source());
             assertNotEquals(V53BootstrapSeedTest.IMPORTED,n.f.result.root().historyId());
             assertEquals(SEQUENCE,n.f.result.applicationSequence());
@@ -75,6 +76,7 @@ class V53NativeSeedTest {
     @Test void defaultNetworkStillAdmitsEmptySource()throws Exception {
         var helper=new V53NativeDispatchTest();helper.temp=temp;
         try(var n=helper.new Network()) {
+            assertFalse(n.events instanceof V53EvidenceSpool);
             assertEquals(MembershipBootstrapSource.EMPTY,n.f.request.source());assertTrue(n.f.request.sourcePath().isEmpty());
             assertEquals(0,n.f.result.applicationSequence());
             var target=n.f.request.targets().getFirst();

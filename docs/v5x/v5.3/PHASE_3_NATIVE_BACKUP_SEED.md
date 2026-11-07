@@ -138,6 +138,53 @@ been executed here; that long original remains required. The new staging files
 cannot be used to extend a historical snapshot's authority or replace missing
 whole-history/causal replay.
 
+## Main event capture
+
+The verified-backup network now writes `events.json` with the same bounded spool.
+An optional pre-append observer runs under that list's monitor with the exact
+current index. Process, restart and resource callbacks retain their original
+order before the row becomes visible. Per-row validation precedes the callback;
+an invalid row, failed callback or caught recursive mutation poisons the history
+and cannot yield a successful seal. EMPTY still uses its previous synchronized
+array list and final encoding. The event limit remains 32 MiB, with 65,536 rows
+and the existing 16 MiB per-row encoding limit.
+
+Original actors and owners close before the event file is sealed, so final
+owner-close callbacks remain included. Seal verification streams the captured
+prefix with a 64 KiB buffer, adds the closing delimiter and retains its SHA-256.
+Resource, storage-transfer and control-close indexes consume that seal bound to
+the expected `events.json` path. They do not allocate another whole event byte
+array. Open, failed and foreign-path spools are refused. The seal describes the
+captured bytes; independent replay must still reject later changes to the file.
+Existing byte-array callers keep their original API and output schema.
+
+A new regression reproduced Java self-suppression when an append and automatic
+close threw the same exception object. Failed close now wraps the original cause
+while still releasing its descriptor. The original body exception is preserved,
+other collectors still close, and the partial history remains ineligible. The
+before-fix failure log is retained alongside the passing correction.
+
+The [event development index](phase3-evidence/event-spool-development.json)
+records 50 distinct passing Java checks across two successful invocations:
+49 checks including the short native seed/default executions, followed by 48
+collector/resource checks after the failure-only close correction (one new
+regression). The short five-node seed ran once with resource transitions and
+original-owner-close observations enabled. Independent replay checks all 1,786
+events (168,112 bytes), all five original budget lifetimes and close intervals,
+plus five exact event/resource negatives and the two existing seed negatives.
+The raw original remains unchanged. The native result predates the failure-only
+close correction; its helper hash and both validation scopes are recorded,
+without presenting it as final-source qualification. A temporary replay driver's
+wrong expected error string was corrected; that first diagnostic log is retained
+and no native workload was rerun.
+
+The 32 MiB child heap now also checks callback order and the sealed hash of its
+over-50-MiB spool while taking prefix snapshots. This is a collector test, not a
+larger event allowance or a whole-runtime memory measurement. The resource
+boundary arrays, lifecycle snapshots and complete reader allocations remain
+separate work; this batch does not establish full backup joining or a physical
+maximum-image history.
+
 ## Remaining combined-resource work
 
 The [maximum transition](PHASE_3_MAXIMUM_TRANSITION_EXECUTION.md) is still a
@@ -149,9 +196,10 @@ Before executing a full physical maximum, complete bounded evidence capture for
 large images and all auxiliary joining/retention/lifecycle observations, propagate
 the explicit source contract through a dedicated complete validator, and declare
 the feasible combined pressure and refusal/continuation boundaries. The main
-and auxiliary backup wire spools remove their aggregate in-memory allocations;
-event arrays, copied snapshots and existing full-array readers remain to be
-addressed, along with complete auxiliary-history qualification. Their limits
+and auxiliary backup wire spools and main event spool remove their aggregate
+in-memory allocations. Resource boundary arrays, lifecycle/copy snapshots and
+existing full-array readers remain to be addressed, along with complete
+auxiliary-history qualification. Their limits
 must not simply be increased. Respect the
 unchanged seven-application and per-owner staging limits;
 independent maxima cannot be added as if observed together.
