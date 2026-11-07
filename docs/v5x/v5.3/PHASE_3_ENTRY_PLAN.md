@@ -162,8 +162,10 @@ the same component document.
 
 The [complete backup execution profile](PHASE_3_BACKUP_EXECUTION.md) connects the
 existing native history to immutable collection and independent segmented-backup
-admission. Actual positive execution and dedicated hosted transport remain
-pending; the frozen EMPTY supplemental workflow is unchanged.
+admission. Its [dedicated small-backup hosted transport](PHASE_3_BACKUP_HOSTED.md)
+now binds the complete original and 149 negatives to one workflow attempt.
+Actual positive execution remains pending; the frozen EMPTY supplemental
+workflow is unchanged.
 
 The maximum-image component is a synchronous storage probe. It does not establish
 an admitted learner, full metadata pressure or automatic-runtime peak. The

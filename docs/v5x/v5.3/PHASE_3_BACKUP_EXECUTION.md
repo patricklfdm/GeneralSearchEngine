@@ -71,8 +71,10 @@ python3 -B -m scripts.v53.required_four_resource_run verify "$qualification_dir/
 Keep the complete producer, raw evidence, logs and verification directory,
 including any failure. Each attempt needs a new output directory; resuming by
 combining pieces of different histories is not supported. The existing EMPTY
-hosted adapter is not a backup transport entry. A dedicated hosted binding and
-artifact-capacity review are required before scheduling this profile there.
+hosted adapter is not a backup transport entry. The separate
+[small-backup hosted entry](PHASE_3_BACKUP_HOSTED.md) now binds this profile to
+three exact-attempt jobs and documents its distinct artifact-capacity admission.
+It has not been dispatched or credited as a native execution.
 
 ## Current evidence and remaining work
 
