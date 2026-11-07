@@ -8,9 +8,10 @@ import argparse
 import json
 from pathlib import Path
 from . import phase3_workflow_cohort as workflows
+from . import phase3_resource_cohort as resources
 
 histories=workflows.histories;seeds=workflows.seeds;need=seeds.need;h=seeds.h
-SCHEMA='gse-v53-phase3-attested-cohort-v1'
+SCHEMA='gse-v53-phase3-attested-cohort-v2'
 
 
 def unchanged_originals(index,seed_inputs,inputs,output,result):
@@ -26,39 +27,54 @@ def unchanged_originals(index,seed_inputs,inputs,output,result):
     need(seeds.read(output/'receipt.json')==result,'attested cohort history receipt changed')
 
 
-def run(index,seed_inputs,inputs,output,get=workflows.github):
-    index,seed_inputs,inputs,output=map(seeds.unlinked,(index,seed_inputs,inputs,output))
-    need(not index.is_relative_to(output) and all(not output.is_relative_to(p) and not p.is_relative_to(output)
-         for p in (seed_inputs,inputs)),'attested cohort output overlaps inputs')
+def run(index,seed_inputs,inputs,output,get=workflows.github,*,resource_index,resource_inputs):
+    index,seed_inputs,inputs,output,resource_index,resource_inputs=map(seeds.unlinked,
+        (index,seed_inputs,inputs,output,resource_index,resource_inputs))
+    need(all(not p.is_relative_to(output) for p in (index,resource_index)) and
+         all(not output.is_relative_to(p) and not p.is_relative_to(output)
+         for p in (seed_inputs,inputs,resource_inputs)),'attested cohort output overlaps inputs')
     output.mkdir(parents=True,exist_ok=False)
     receipt=dict(schema=SCHEMA,status='FAIL',execution='observed-workflow-and-original-replay',
         workflowExecutionAttested=False,allDeclaredHistoriesReplayed=False,runtimeQualified=False,
+        allSupplementalOriginalsReplayed=False,resourceWorkflowExecutionAttested=False,
         combinedPeakResourcesQualified=False,frozenScenarioCoverageQualified=False,phase3Complete=False)
     try:
         raw=seeds.read_bytes(index);(output/'index.json').write_bytes(raw)
         first=workflows.collect(index,output/'workflow-before',get)
         need(first.get('status')=='PARTIAL' and first.get('workflowExecutionAttested') is True,
              'attested cohort workflow prerequisite')
-        original=histories.run(index,seed_inputs,inputs,output/'histories')
+        resource_before=resources.inspect(resource_index,resource_inputs)
+        need(resource_before['source']==first['source'],'attested cohort resource source')
+        original=histories.run(index,seed_inputs,inputs,output/'histories',expected_common=resource_before['commonPins'])
         need(original.get('status')=='PARTIAL' and original.get('allDeclaredHistoriesReplayed') is True and
              original.get('workflowExecutionAttested') is False and original.get('source')==first['source'] and
              original.get('indexSha256')==first['indexSha256'] and all(original.get(k) is False for k in
                  ('phase3Complete','runtimeQualified','combinedPeakResourcesQualified','frozenScenarioCoverageQualified')),
              'attested cohort exact original replay')
+        common=seeds.read(output/'histories/seeds/receipt.json')['commonPins']
+        resource_result=resources.run(resource_index,resource_inputs,output/'resources',expected_common=common)
+        need(resource_result.get('status')=='PARTIAL' and resource_result.get('allSupplementalOriginalsReplayed') is True and
+             resource_result.get('source')==first['source'] and
+             all(resource_result.get(k) is False for k in ('phase3Complete','combinedPeakResourcesQualified',
+                 'resourceWorkflowExecutionAttested','historicalCapacityPrefixQualified')) and
+             resources.inspect(resource_index,resource_inputs)==resource_before,
+             'attested cohort exact supplemental replay')
         # Do not trust retained observation receipts after a long replay. Query
         # all attempts again and preserve both observations without overwriting.
         last=workflows.collect(index,output/'workflow-after',get)
         need(all(first[k]==last[k] for k in ('source','indexSha256','contractsSha256','observationsSha256',
             'selectedJobs','priorAttempts','cohorts')),'attested cohort workflow observations changed during replay')
         unchanged_originals(index,seed_inputs,inputs,output/'histories',original)
+        resources.unchanged(resource_index,resource_inputs,output/'resources',resource_result)
         need(seeds.read_bytes(index)==raw,'attested cohort index changed')
         receipt.update(status='PARTIAL',source=first['source'],indexSha256=first['indexSha256'],
             workflowExecutionAttested=True,allDeclaredHistoriesReplayed=True,historiesReplayed=original['historiesReplayed'],
             groupsReplayed=original['groupsReplayed'],rawArchives=original['rawArchives'],selectedJobs=first['selectedJobs'],
             priorAttempts=first['priorAttempts'],priorAttemptsRequireReview=first['priorAttemptsRequireReview'],
             failedOriginalsReplayed=False,candidateWitnesses=original['candidateWitnesses'],
-            receipts={name:seeds.shared.tc.file_hash(output/name/'receipt.json') for name in ('workflow-before','histories','workflow-after')},
-            acceptanceAuthority='all declared originals replayed with observed workflow stages; resource/coverage closure and failed-attempt review remain separate')
+            allSupplementalOriginalsReplayed=True,resourceIndexSha256=resource_result['indexSha256'],
+            receipts={name:seeds.shared.tc.file_hash(output/name/'receipt.json') for name in ('workflow-before','histories','resources','workflow-after')},
+            acceptanceAuthority='twelve observed workflow subsets and five supplemental originals replayed; supplemental workflow attestation, combined resource/coverage closure and failed-attempt review remain separate')
     except BaseException as error:
         receipt['failure']=dict(type=type(error).__name__,message=str(error));raise
     finally:h.save(output/'receipt.json',receipt)
@@ -67,8 +83,8 @@ def run(index,seed_inputs,inputs,output,get=workflows.github):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
-    for key in ('index','seeds','inputs','output'):parser.add_argument('--'+key,required=True)
+    for key in ('index','seeds','inputs','resource-index','resources','output'):parser.add_argument('--'+key,required=True)
     args=parser.parse_args()
     with seeds.shared.progress('phase3-attested-cohort','original-first'):
-        result=run(args.index,args.seeds,args.inputs,args.output)
+        result=run(args.index,args.seeds,args.inputs,args.output,resource_index=args.resource_index,resource_inputs=args.resources)
     print(json.dumps({k:result[k] for k in ('status','historiesReplayed','selectedJobs','phase3Complete')},sort_keys=True))

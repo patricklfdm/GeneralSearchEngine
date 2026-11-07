@@ -12,7 +12,7 @@ manifest hashes to be identical would reject legitimate preparations.
 original-history replay. It calls each existing adapter's seed reader rather
 than introducing another interpretation of its catalogue or archive format.
 It does not change workflows, execute JVM histories, fetch GitHub data or retry
-any experiment. The declared catalogue remains twelve subsets / 552 planned
+any experiment. The declared catalogue is twelve subsets / 566 planned
 histories, separate from the 3310 frozen Phase 5 scenarios.
 
 ## Input contract
@@ -96,7 +96,7 @@ rewritten into one seed. Lease/source/history continuity remains indivisible.
 The development tests use synthetic source/classes/tools, real archive
 packing/unpacking and all twelve actual owning seed readers. A temporary Git
 repository separately exercises complete blob reading, dirty checkout and wrong
-HEAD rejection. These tests do not execute 552 histories or qualify a hosted
+HEAD rejection. These tests did not execute the then-planned 552 histories or qualify a hosted
 cohort. Local results and hashes are retained in the
 [development receipt](phase3-evidence/seed-cohort.json).
 

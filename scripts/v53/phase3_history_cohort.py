@@ -90,7 +90,7 @@ def replay_group(name, adapter, seed_bundle, raw, output, key, ctx):
     return retained_call(output, lambda work: adapter.verify(seed_bundle, raw, work, key, ctx))
 
 
-def run(index, seed_inputs, inputs, output):
+def run(index, seed_inputs, inputs, output, *, expected_common=None):
     index, seed_inputs, inputs, output = map(seeds.unlinked, (index, seed_inputs, inputs, output))
     need(all(not output.is_relative_to(p) and not p.is_relative_to(output) for p in (seed_inputs, inputs)) and
          not index.is_relative_to(output), 'history cohort output overlaps inputs')
@@ -111,6 +111,10 @@ def run(index, seed_inputs, inputs, output):
         seed_receipt = seeds.run(index, seed_inputs, output/'seeds')
         need(seed_receipt['seedCohortVerified'] is True and seed_receipt['source'] == source_sha and
              seed_receipt['indexSha256'] == h.digest(index_raw), 'history cohort seed provenance')
+        if expected_common is not None:
+            need(type(expected_common) is dict and set(expected_common)=={'sourceSha256','buildSha256','toolchainSha256'} and
+                 all(seed_receipt['commonPins'].get(k)==v for k,v in expected_common.items()),
+                 'history cohort differs from supplemental source/build/tools')
         receipt.update(source=source_sha, indexSha256=h.digest(index_raw),
                        cataloguesSha256=h.digest(plan.encoded(catalogs)),
                        rawInventorySha256=h.digest(plan.encoded(original)), rawArchives=len(original),

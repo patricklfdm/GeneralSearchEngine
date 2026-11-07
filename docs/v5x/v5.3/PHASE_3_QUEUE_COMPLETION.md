@@ -2,6 +2,10 @@
 
 Status: **DEVELOPMENT ENTRY; full-size execution and acceptance pending**.
 
+The [source-bound producer and supplemental cohort](PHASE_3_RESOURCE_COHORT.md)
+now bind the full experiment to its exact source, compiled classes, toolchain,
+reader and unretried JUnit. Final-source full-pressure execution remains pending.
+
 This explicit development qualification connects actual 64 MiB queue pressure
 to the continuous native REMOVE history. It does not close `combined-resources`:
 simultaneous maximum metadata/application occupancy and final-source cohort

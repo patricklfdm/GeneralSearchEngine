@@ -62,7 +62,11 @@ and retained failure remain distinct from a future corrected-source admission.
 
 [SOURCE queue byte pressure](PHASE_3_SOURCE_QUEUE_PRESSURE.md) now adds a real
 six-session TCP cache/send overlap, aggregate-byte refusal and identical-request
-recovery component. Combined FINAL/headroom and final-source admission remain open.
+recovery component. The [joint queue completion](PHASE_3_QUEUE_COMPLETION.md)
+fixture extends real pressure through native FINAL/BARRIER; full-pressure
+execution remains pending. The [supplemental resource cohort](PHASE_3_RESOURCE_COHORT.md)
+now makes all five resource originals mandatory in the v2 attested replay.
+Combined byte maxima and final-source admission remain open.
 
 | Gap | Existing prerequisite | Evidence still required |
 | --- | --- | --- |
@@ -113,6 +117,11 @@ catalogue total:
 - [Learner byte pressure](PHASE_3_NATIVE_LEARNER_BYTE_PRESSURE.md): the strengthened
   retained-cancellation member requires three same-original cold lifetimes and
   **62** negatives; earlier weaker originals cannot fill its final-source slot.
+- [SOURCE queue pressure](PHASE_3_SOURCE_QUEUE_PRESSURE.md) and
+  [joint queue completion](PHASE_3_QUEUE_COMPLETION.md): two separate originals
+  with eight and ten negatives respectively. Small queue-completion rehearsal
+  evidence cannot fill the full-pressure slot. Both source-bound entries feed
+  the [five-member supplemental set](PHASE_3_RESOURCE_COHORT.md).
 
 The maximum-image component is a synchronous storage probe. It does not establish
 an admitted learner, full metadata pressure or automatic-runtime peak. The
@@ -136,6 +145,8 @@ its imposed receiving lifetime is not evidence of permitted runtime overlap.
 4. Reconcile the [seeds](PHASE_3_SEED_COHORT.md), replay the
    [whole original history set](PHASE_3_HISTORY_COHORT.md), and observe the
    [exact workflow attempts](PHASE_3_WORKFLOW_COHORT.md) before and after replay.
+   Include the five supplemental resource originals in that same v2 invocation;
+   their independent workflow attestation remains an explicit open obligation.
    Inspect every prior failed/cancelled attempt. Do not mix source, toolchain,
    run/attempt, original fragments or independent ownership chains.
 5. Audit all twelve obligations and five gaps against the actual original

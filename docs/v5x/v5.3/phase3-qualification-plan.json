@@ -663,7 +663,8 @@
         "scripts/v53/maximum_transition_run.py",
         "scripts/v53/maximum_transition_capacity.py",
         "scripts/v53/maximum_transition_inventory.py",
-        "scripts/v53/source_queue_run.py"
+        "scripts/v53/source_queue_run.py",
+        "scripts/v53/queue_completion_run.py"
       ],
       "tests": [
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransferTest.java",
@@ -841,7 +842,8 @@
         "scripts/v53/test_source_queue_evidence.py",
         "scripts/v53/test_source_queue_run.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53QueueCompletionQualification.java",
-        "scripts/v53/test_queue_completion_evidence.py"
+        "scripts/v53/test_queue_completion_evidence.py",
+        "scripts/v53/test_queue_completion_run.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -962,7 +964,8 @@
         "scripts/v53/maximum_transition_inventory.py",
         "scripts/v53/source_queue_evidence.py",
         "scripts/v53/source_queue_run.py",
-        "scripts/v53/queue_completion_evidence.py"
+        "scripts/v53/queue_completion_evidence.py",
+        "scripts/v53/queue_completion_run.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -1093,7 +1096,8 @@
         "docs/v5x/v5.3/phase3-evidence/source-queue-pressure.json",
         "docs/v5x/v5.3/phase3-evidence/source-queue-admission.json",
         "docs/v5x/v5.3/PHASE_3_QUEUE_COMPLETION.md",
-        "docs/v5x/v5.3/phase3-evidence/queue-completion-development.json"
+        "docs/v5x/v5.3/phase3-evidence/queue-completion-development.json",
+        "docs/v5x/v5.3/PHASE_3_RESOURCE_COHORT.md"
       ],
       "cohorts": [
         "profiles",
@@ -1189,7 +1193,8 @@
         "scripts/v53/phase3_history_cohort.py",
         "scripts/v53/phase3_witness_observations.py",
         "scripts/v53/phase3_workflow_cohort.py",
-        "scripts/v53/phase3_attested_cohort.py"
+        "scripts/v53/phase3_attested_cohort.py",
+        "scripts/v53/phase3_resource_cohort.py"
       ],
       "tests": [
         "scripts/v53/test_case_inventory.py",
@@ -1219,7 +1224,8 @@
         "scripts/v53/test_phase3_history_cohort.py",
         "scripts/v53/test_phase3_witness_observations.py",
         "scripts/v53/test_phase3_workflow_cohort.py",
-        "scripts/v53/test_native_application_refusal_capture_history.py"
+        "scripts/v53/test_native_application_refusal_capture_history.py",
+        "scripts/v53/test_phase3_resource_cohort.py"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -1245,7 +1251,8 @@
         "scripts/v53/phase3_witness_observations.py",
         "scripts/v53/phase3_workflow_cohort.py",
         "scripts/v53/phase3_attested_cohort.py",
-        "scripts/v53/native_application_refusal_capture_history.py"
+        "scripts/v53/native_application_refusal_capture_history.py",
+        "scripts/v53/phase3_resource_cohort.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md",
@@ -1274,7 +1281,8 @@
         "docs/v5x/v5.3/phase3-evidence/witness-observations.json",
         "docs/v5x/v5.3/PHASE_3_WORKFLOW_COHORT.md",
         "docs/v5x/v5.3/phase3-evidence/workflow-cohort.json",
-        "docs/v5x/v5.3/PHASE_3_NATIVE_REFUSAL_COHORT.md"
+        "docs/v5x/v5.3/PHASE_3_NATIVE_REFUSAL_COHORT.md",
+        "docs/v5x/v5.3/PHASE_3_RESOURCE_COHORT.md"
       ],
       "cohorts": [
         "profiles",
@@ -1391,7 +1399,7 @@
         "combined-resources",
         "frozen-coverage"
       ],
-      "work": "Admit one complete source/build/toolchain/reader-bound set across all twelve subsets: 500 original archives, 566 whole histories, 260 execution groups and 544 selected workflow jobs. Require exact source, run and attempt, all declared unretried original executions, independent downloaded replay, immutable archive inventories, original witness outcomes and combined-resource prerequisites. Never mix prior development originals, old catalogue schemas, successful fragments, reruns or independent leases to fill missing slots. Offline source/seed/history/workflow gates exist but a final-source accepted set is still pending.",
+      "work": "Admit one complete source/build/toolchain/reader-bound set across all twelve subsets: 500 original archives, 566 whole histories, 260 execution groups and 544 selected workflow jobs. Require exact source, run and attempt, all declared unretried original executions, independent downloaded replay, immutable archive inventories, original witness outcomes and combined-resource prerequisites. Never mix prior development originals, old catalogue schemas, successful fragments, reruns or independent leases to fill missing slots. Offline source/seed/history/workflow gates exist but a final-source accepted set is still pending. The v2 attested entry now requires independent replay of all five resource supplements against the same source/build/toolchain, checks their pins before historical replay, and rechecks originals after workflow observation. Supplemental workflow attestation, combined-resource qualification and failed-attempt review remain open; see PHASE_3_RESOURCE_COHORT.md.",
       "acceptance": "Bind exact source and actual build/toolchain/readers, each workflow/run/attempt and complete declared inventories; reconcile independent seed provenance. Reject missing/failed/mixed originals. No acceptance from this planning report."
     },
     {

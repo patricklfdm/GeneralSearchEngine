@@ -20,11 +20,12 @@ execute matrix, downloaded verify matrix and aggregate. Matrix IDs come from
 the owning artifact naming functions and complete source catalogues. Development
 tests compare these with every actual hosted `plan` command.
 
-The current twelve subsets expand to **516 selected Jobs** for **246 execution
-groups**. The underlying **552 histories / 486 archives** are unchanged. A group
+The current twelve subsets expand to **544 selected Jobs** for **260 execution
+groups**, representing **566 histories / 500 raw archives**. A group
 remains indivisible; no lease, source, crash segment or measurement is split.
-The supplemental conditional capacity workflow is not one of these twelve and
-does not become qualified through this entry.
+The five [supplemental resource originals](PHASE_3_RESOURCE_COHORT.md) are outside
+these counts. Their independent replay is now required by the enclosing v2
+entry, while their workflow execution attestation remains separate.
 
 For every selected job, the observer requires exact run/attempt/source/branch,
 unique identity and name, completed success, and successful ordered shell and
@@ -75,27 +76,33 @@ Retain the original downloaded seed/raw artifacts for their owning replay gates.
 
 ## Observe, replay originals, observe again
 
-The [attested cohort entry](../../../scripts/v53/phase3_attested_cohort.py) calls
-the real collector, then the complete original-first history entry, then the
-collector again. Both observations and all original-reader diagnostics are kept.
+The v2 [attested cohort entry](../../../scripts/v53/phase3_attested_cohort.py)
+calls the real collector, prechecks all supplemental resource producers, calls
+the complete original-first history entry, replays all five supplemental
+originals against the history seeds, then calls the collector again.
+Both observations and all original-reader diagnostics are kept.
 It compares normalized execution identities, statuses, times and steps for every
 attempt; harmless JSON formatting or unrelated actor metadata is not execution
 drift. A new attempt or changed execution during the long replay rejects. It
-rechecks raw inventories and seed bytes after the final API observation as well.
+rechecks raw inventories, resource producers and seed bytes after the final API
+observation as well. Missing resource inputs reject; v1 receipts remain historical.
 
 ```bash
 python3 -B -u -m scripts.v53.phase3_attested_cohort \
   --index target/v53-phase3-cohort/seed-set.json \
   --seeds target/v53-phase3-cohort/seeds \
   --inputs target/v53-phase3-cohort/raw \
+  --resource-index target/v53-phase3-cohort/resource-set.json \
+  --resources target/v53-phase3-cohort/resources \
   --output target/v53-phase3-cohort/attested-replay-01
 ```
 
 The output must be new and outside all inputs. Progress appears at each collected
 cohort and every minute during the enclosing entry. No producer or Maven build
 is invoked. A successful result remains PARTIAL: the current complete workflow
-and history set has been checked, while exact coverage, combined physical resource
-maxima, historical failure review and final Phase 3 closure stay separate.
+and history set plus five resource originals have been checked, while supplemental
+workflow attestation, exact coverage, combined physical resource maxima,
+historical failure review and final Phase 3 closure stay separate.
 Neither command authorizes hosted execution or supplies missing originals.
 
 The [development receipt](phase3-evidence/workflow-cohort.json) records actual

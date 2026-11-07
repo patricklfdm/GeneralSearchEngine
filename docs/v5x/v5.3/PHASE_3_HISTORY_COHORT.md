@@ -1,14 +1,14 @@
 # Phase 3: replay the complete declared hosted history set offline
 
 [Workflow execution observations](PHASE_3_WORKFLOW_COHORT.md) now bind the
-complete twelve-subset index to 516 expected jobs, actual source workflow steps
+complete twelve-subset index to 544 expected jobs, actual source workflow steps
 and every prior attempt. A new entry observes those stages around original-first
 history replay and rechecks the inputs afterward. Development API/orchestration
 tests are synthetic; final-source execution, resource/coverage closure and
 Phase 3 acceptance remain OPEN.
 
 [Candidate witness observations](PHASE_3_COVERAGE_WITNESSES.md) now bind
-twenty exact selectors to actual owning replay results and original archives.
+twenty-two exact selectors to actual owning replay results and original archives.
 The complete result remains PARTIAL, with applicability reported separately.
 
 Status: offline original replay entry implemented; Phase 3 remains OPEN.
@@ -19,8 +19,8 @@ index and **raw original artifacts**, calls every owning downloaded verifier,
 then calls every owning aggregate. It never consumes downloaded PASS receipts
 as a substitute for replay and never calls a producer, Maven or GitHub.
 
-The current catalogue is **552 declared whole histories in 246 execution groups**,
-stored in **486 raw archives**. The difference is intentional: joining-process
+The current catalogue is **566 declared whole histories in 260 execution groups**,
+stored in **500 raw archives**. The difference is intentional: joining-process
 has 120 groups containing three separate originals each, while transfer and
 automatic groups contain several whole histories in a single archive. A lease,
 source or continuous history is not divided for replay. These counts are not
@@ -92,9 +92,9 @@ checkout are rechecked after the final replay. Successful overall output is:
 {
   "status": "PARTIAL",
   "allDeclaredHistoriesReplayed": true,
-  "historiesReplayed": 552,
-  "groupsReplayed": 246,
-  "rawArchives": 486,
+  "historiesReplayed": 566,
+  "groupsReplayed": 260,
+  "rawArchives": 500,
   "workflowExecutionAttested": false,
   "runtimeQualified": false,
   "frozenScenarioCoverageQualified": false,
@@ -108,7 +108,7 @@ development validation uses synthetic archives and orchestration readers for
 the complete routing test, real owning seed readers, all twelve actual aggregate
 contracts, and the actual REMOVE and three-original joining downloaded verifiers
 with synthetic physical oracles. It proves routing, provenance, rejection and failure retention. It does
-not execute 552 JVM histories. See the [development receipt](phase3-evidence/history-cohort.json).
+not execute the then-planned 552 JVM histories; the current catalogue is 566. See the [development receipt](phase3-evidence/history-cohort.json).
 
 An authorized final-source hosted set, independently attested workflow stages,
 precise Phase 3 coverage, missing protocol axes and simultaneous resource-limit

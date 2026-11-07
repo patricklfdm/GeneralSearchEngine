@@ -1,0 +1,59 @@
+{
+  "baseHead": "3e94ef61e12df17fb12f754b0822178301f78487",
+  "changes": [
+    "source-bound joint queue/FINAL producer and admission",
+    "five mandatory independent resource replays",
+    "attested cohort v2 and pre-replay common-pin reconciliation"
+  ],
+  "files": {
+    "target/v53-resource-cohort/affected-optimized-final.log": "c8a9e745dab8bb1eceb5635412ac9cb0f009fdc4f51760e1f84d469199f05880",
+    "target/v53-resource-cohort/affected-tests-final.log": "2c079e4bfff55169eb06920daefb255dcc81c8f727c7bda77c184459366a980e",
+    "target/v53-resource-cohort/affected-tests.log": "9f3892c4fa9a8660d1dabb003486a2f28ed4a8477c68e503771249c3888636c0",
+    "target/v53-resource-cohort/cohort-tests-initial.log": "346e7633d3e49b22daeee798931e100e420c1a7f673891fbeed2d4d6f2750f8d",
+    "target/v53-resource-cohort/document-tests-final.log": "2688c03f608d69d852f51b239696a3a69fd05a87f20f7f0a4ac117637558ee38",
+    "target/v53-resource-cohort/retained-small-check/collection.json": "eceb7eaf0ece40639fba2571955c305ce7fea5a7849494ff2a986438a9762c44",
+    "target/v53-resource-cohort/retained-small-check/receipt.json": "eb0f9a228f1a60f10d8be4a74c37fe33690f803be66ce1158383abaa1f0818ae"
+  },
+  "finalSourceCohort": false,
+  "fullPressureExecuted": false,
+  "notExecuted": [
+    "new JVM workload",
+    "full joint queue pressure and ten physical negatives",
+    "complete final-source resource cohort",
+    "GitHub workflow observation/dispatch",
+    "paid cloud"
+  ],
+  "phase3Complete": false,
+  "preservedDevelopmentFailures": [
+    {
+      "path": "target/v53-resource-cohort/cohort-tests-initial.log",
+      "reason": "cohort must reject linked child input without relying on the owning adapter"
+    },
+    {
+      "path": "target/v53-resource-cohort/affected-tests.log",
+      "reason": "misplaced existing assertions in new test; repaired before final verification"
+    }
+  ],
+  "rawCollection": {
+    "elapsedSeconds": 2.121,
+    "fullPressureExecuted": false,
+    "original": "general-search-engine-replication/target/v53-queue-completion/run-68edfc5b-3876-46f0-88a5-d269a6cb171b",
+    "phase3Complete": false,
+    "physicalReplayExecuted": false,
+    "portableCollectionIdentical": true,
+    "producerStatus": "PARTIAL",
+    "rawBytes": 25264152,
+    "rawFiles": 4214,
+    "scope": "collection-and-small-JUnit-rejection-only",
+    "smallJUnitRejection": "queue-completion run exact unretried passing test",
+    "status": "PASS"
+  },
+  "resourceWorkflowExecutionAttested": false,
+  "scope": "supplemental-cohort-development-checks-only",
+  "status": "PASS",
+  "tests": {
+    "affected": 143,
+    "documentation": 19,
+    "optimized": 143
+  }
+}

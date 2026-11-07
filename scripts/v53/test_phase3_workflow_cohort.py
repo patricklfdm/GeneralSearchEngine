@@ -172,10 +172,30 @@ class Phase3WorkflowCohortTest(unittest.TestCase):
         with self.assertRaises(FileExistsError):w.collect(self.index_path,self.output,self.get)
         self.assertEqual(before,(self.output/'receipt.json').read_bytes())
 
+    def attested(self,output,get=None):
+        common=dict(sourceSha256='a'*64,buildSha256='b'*64,toolchainSha256='c'*64,repositorySha256='d'*64)
+        def resources(index,inputs,work,*,expected_common):
+            self.assertEqual(common,expected_common);work.mkdir()
+            result=dict(status='PARTIAL',source=self.sha,indexSha256='f'*64,allSupplementalOriginalsReplayed=True,
+                phase3Complete=False,combinedPeakResourcesQualified=False,resourceWorkflowExecutionAttested=False,
+                historicalCapacityPrefixQualified=False)
+            w.h.save(work/'receipt.json',result);return result
+        # Owning physical replay is covered by its separate suite. This test
+        # exercises actual paginated workflow observations around both replays.
+        with patch.object(admitted.resources,'inspect',return_value=dict(source=self.sha,commonPins={k:v for k,v in common.items() if k!='repositorySha256'})), \
+                patch.object(admitted.resources,'run',side_effect=resources),patch.object(admitted.resources,'unchanged'):
+            return admitted.run(self.index_path,self.root/'seeds',self.root/'raw',self.root/output,get or self.get,
+                resource_index=self.root/'resource-index.json',resource_inputs=self.root/'resources')
+
+    def history_seed(self,output):
+        (output/'seeds').mkdir()
+        w.h.save(output/'seeds/receipt.json',dict(commonPins=dict(sourceSha256='a'*64,buildSha256='b'*64,
+                   toolchainSha256='c'*64,repositorySha256='d'*64)))
+
     def test_attested_entry_queries_real_collector_around_original_first_replay(self):
         seen=[]
-        def replay(index,seeds,inputs,output):
-            seen.append(len(self.calls));output.mkdir()
+        def replay(index,seeds,inputs,output,*,expected_common):
+            seen.append(len(self.calls));output.mkdir();self.history_seed(output)
             result=dict(status='PARTIAL',allDeclaredHistoriesReplayed=True,workflowExecutionAttested=False,
                 source=self.sha,indexSha256=w.h.digest(self.index_path.read_bytes()),historiesReplayed=566,groupsReplayed=260,rawArchives=500,
                 candidateWitnesses=dict(rejected=16,notApplicable=4,phase3Complete=False),phase3Complete=False,runtimeQualified=False,
@@ -187,32 +207,61 @@ class Phase3WorkflowCohortTest(unittest.TestCase):
             raw=self.get(path);return json.dumps(json.loads(raw),indent=2).encode() if seen else raw
         with patch.object(admitted.histories,'run',side_effect=replay) as call, \
                 patch.object(admitted,'unchanged_originals') as unchanged,redirect_stdout(io.StringIO()):
-            result=admitted.run(self.index_path,self.root/'seeds',self.root/'raw',self.root/'complete',formatted)
+            result=self.attested('complete',formatted)
         unchanged.assert_called_once()
         self.assertEqual(1,call.call_count);self.assertLess(seen[0],len(self.calls));self.assertTrue(result['workflowExecutionAttested'])
         self.assertTrue(result['allDeclaredHistoriesReplayed']);self.assertTrue(result['priorAttemptsRequireReview'])
+        self.assertTrue(result['allSupplementalOriginalsReplayed']);self.assertFalse(result['resourceWorkflowExecutionAttested'])
+        self.assertIn('resources',result['receipts'])
         self.assertFalse(result['phase3Complete']);self.assertFalse(result['runtimeQualified']);self.assertFalse(result['failedOriginalsReplayed'])
 
     def test_attested_entry_stops_before_replay_on_failed_workflow(self):
         for path in ('actions/runs/100','actions/runs/100/attempts/2'):self.api[path]['conclusion']='failure'
         with patch.object(admitted.histories,'run') as call,redirect_stdout(io.StringIO()),self.assertRaises(ValueError):
-            admitted.run(self.index_path,self.root/'seeds',self.root/'raw',self.root/'failed',self.get)
+            self.attested('failed')
         call.assert_not_called();self.assertFalse(w.seeds.read(self.root/'failed/receipt.json')['workflowExecutionAttested'])
 
+    def test_attested_entry_requires_resource_inputs_and_rejects_wrong_source_before_histories(self):
+        with self.assertRaises(TypeError):
+            admitted.run(self.index_path,self.root/'seeds',self.root/'raw',self.root/'missing',self.get)
+        with patch.object(admitted.resources,'inspect',return_value=dict(source='0'*40)), \
+                patch.object(admitted.histories,'run') as replay,redirect_stdout(io.StringIO()), \
+                self.assertRaisesRegex(ValueError,'resource source'):
+            admitted.run(self.index_path,self.root/'seeds',self.root/'raw',self.root/'wrong-resource-source',self.get,
+                resource_index=self.root/'resource-index.json',resource_inputs=self.root/'resources')
+        replay.assert_not_called()
+
+    def test_resource_rejection_stops_admission_even_after_histories_pass(self):
+        def replay(index,seeds,inputs,output,*,expected_common):
+            output.mkdir();self.history_seed(output)
+            result=dict(status='PARTIAL',source=self.sha,indexSha256=w.h.digest(self.index_path.read_bytes()),
+                allDeclaredHistoriesReplayed=True,workflowExecutionAttested=False,phase3Complete=False,runtimeQualified=False,
+                combinedPeakResourcesQualified=False,frozenScenarioCoverageQualified=False)
+            w.h.save(output/'receipt.json',result);return result
+        with patch.object(admitted.resources,'inspect',return_value=dict(source=self.sha,commonPins={})), \
+                patch.object(admitted.histories,'run',side_effect=replay), \
+                patch.object(admitted.resources,'run',side_effect=ValueError('actual resource original rejected')), \
+                redirect_stdout(io.StringIO()),self.assertRaisesRegex(ValueError,'actual resource original rejected'):
+            admitted.run(self.index_path,self.root/'seeds',self.root/'raw',self.root/'resource-rejected',self.get,
+                resource_index=self.root/'resource-index.json',resource_inputs=self.root/'resources')
+        result=w.seeds.read(self.root/'resource-rejected/receipt.json')
+        self.assertFalse(result['allSupplementalOriginalsReplayed']);self.assertEqual('FAIL',result['status'])
+        self.assertFalse((self.root/'resource-rejected/workflow-after').exists())
+
     def test_attested_entry_refuses_original_failure_or_changed_later_execution(self):
-        def replay(index,seeds,inputs,output):
-            output.mkdir();result=dict(status='PARTIAL',source=self.sha,indexSha256=w.h.digest(self.index_path.read_bytes()),
+        def replay(index,seeds,inputs,output,*,expected_common):
+            output.mkdir();self.history_seed(output);result=dict(status='PARTIAL',source=self.sha,indexSha256=w.h.digest(self.index_path.read_bytes()),
                 allDeclaredHistoriesReplayed=True,workflowExecutionAttested=False,phase3Complete=False,runtimeQualified=False,
                 combinedPeakResourcesQualified=False,frozenScenarioCoverageQualified=False)
             w.h.save(output/'receipt.json',result);self.jobs()[0]['id']+=5000;return result
         with patch.object(admitted.histories,'run',side_effect=replay),redirect_stdout(io.StringIO()), \
                 self.assertRaisesRegex(ValueError,'observations changed'):
-            admitted.run(self.index_path,self.root/'seeds',self.root/'raw',self.root/'changed',self.get)
+            self.attested('changed')
         self.assertTrue((self.root/'changed/histories/receipt.json').is_file())
         self.assertFalse(w.seeds.read(self.root/'changed/receipt.json')['allDeclaredHistoriesReplayed'])
         with patch.object(admitted.histories,'run',side_effect=ValueError('bad original')),redirect_stdout(io.StringIO()), \
                 self.assertRaisesRegex(ValueError,'bad original'):
-            admitted.run(self.index_path,self.root/'seeds',self.root/'raw',self.root/'original-failed',self.get)
+            self.attested('original-failed')
         self.assertFalse((self.root/'original-failed/workflow-after').exists())
 
     def test_post_observation_rechecks_original_archive_and_seed_bytes(self):

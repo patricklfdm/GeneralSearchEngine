@@ -163,6 +163,13 @@ class HistoryCohortTest(unittest.TestCase):
         self.assertEqual(c.shared.tc.file_hash(self.output/'coverage.json'), value['candidateWitnesses']['sha256'])
         self.assertEqual(c.witnesses.prepare()[0], (self.output/'coverage-plan.json').read_bytes())
 
+    def test_resource_build_mismatch_stops_before_any_original_replay(self):
+        with redirect_stdout(io.StringIO()),self.assertRaisesRegex(ValueError,'differs from supplemental'):
+            c.run(self.f.index_path,self.f.inputs,self.inputs,self.root/'resource-mismatch',
+                  expected_common={k:'0'*64 for k in ('sourceSha256','buildSha256','toolchainSha256')})
+        self.assertEqual([],self.verified);self.assertEqual([],self.aggregated)
+        self.assertEqual('FAIL',c.seeds.read(self.root/'resource-mismatch/receipt.json')['status'])
+
     def test_missing_group_extra_group_and_partial_joining_group_refuse_before_readers(self):
         group = self.bundles[0]; moved = self.root/'saved'; group.rename(moved)
         with self.assertRaisesRegex(ValueError, 'exact artifact inventory'): self.run_gate()
