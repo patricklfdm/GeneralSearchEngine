@@ -1,0 +1,246 @@
+{
+  "schema": "gse-v53-maximum-queue-entry-development-v1",
+  "status": "PARTIAL",
+  "developmentResult": "PASS",
+  "baseCommit": "9bd3603a03874c6b6eb765f1b6ce7bf58d785237",
+  "code": [
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53MaximumNativeQualification.java",
+      "bytes": 6195,
+      "sha256": "f7c88255a972000d8ac94b7d3dac5dab4107259ab0c0a1bc2cad9f4e12028e32"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53MaximumQueueQualification.java",
+      "bytes": 640,
+      "sha256": "93ba6a830c01cc436c10a7c4a4b1d3660f73cb8f4f4c4f6c51d4fe3aafd2a0e5"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53MembershipTransportTest.java",
+      "bytes": 22887,
+      "sha256": "753af7646ec46617283bcd55440fc7ee4758a08761ac65c223afefcce2e6785a"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java",
+      "bytes": 39705,
+      "sha256": "58b2a2fd7b2d38115a5eb5f8ecef239a486910bcae9437643aebcc387a91b5ae"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeResourceProfileTest.java",
+      "bytes": 7628,
+      "sha256": "dcb9c5783fe8f4682d25598bd88cd681db55be6c8f14888f53fd1cde35b74e50"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53QueueCompletionQualification.java",
+      "bytes": 14838,
+      "sha256": "b1e0b4b14a7317e486a8414659832faaf95f410ad037ae58d58f006da5336349"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SpecialExportResources.java",
+      "bytes": 3479,
+      "sha256": "c3bf9ca2096bd02fd26395fd884143e7bf730f255f30087ab9867323d7b8b777"
+    },
+    {
+      "path": "scripts/v53/maximum_native_evidence.py",
+      "bytes": 5750,
+      "sha256": "5cd2b2b587471b2cbd4307e8f02bc6ffdfc55739936e52193c1688e5c4a2f20e"
+    },
+    {
+      "path": "scripts/v53/queue_completion_evidence.py",
+      "bytes": 20914,
+      "sha256": "99b41d2d6865e4a78b0e0aee64ceb21434db025a32b352a29a2c989b2c5cee57"
+    },
+    {
+      "path": "scripts/v53/queue_completion_run.py",
+      "bytes": 18234,
+      "sha256": "3d9706d2d5a36fe105bc10ca5e442455b66c5d8df3f8ddd95e9bbcd9e5ebff2b"
+    },
+    {
+      "path": "scripts/v53/test_maximum_native_evidence.py",
+      "bytes": 8533,
+      "sha256": "b0ca89b83737012a3128edc474fd865299623746af1ca156899dd809a45298de"
+    },
+    {
+      "path": "scripts/v53/test_maximum_queue_evidence.py",
+      "bytes": 4465,
+      "sha256": "8c9f555a967f270172c31a8129049ab9c9e23b52b0fb6ebab704ce771f19d3c2"
+    },
+    {
+      "path": "scripts/v53/test_maximum_queue_run.py",
+      "bytes": 7027,
+      "sha256": "548eb745c15dfa8a96dbb1bc3971917da77137d2d2375bbd060a1464b6485de6"
+    }
+  ],
+  "profile": "maximum-application-joint-queue-final-segmented",
+  "negativeCasesImplemented": 15,
+  "maximumQueueExecuted": false,
+  "maximumQueueQualified": false,
+  "combinedResourcesQualified": false,
+  "wholeReaderMemoryQualified": false,
+  "finalSourceQualified": false,
+  "phase3Complete": false,
+  "productionRuntimeChanged": false,
+  "workflowChanged": false,
+  "existingResourceCohortChanged": false,
+  "javaTests": [
+    {
+      "name": "io.github.patricklfdm.generalsearch.replication.V53BootstrapImageBindingTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "3.832"
+    },
+    {
+      "name": "io.github.patricklfdm.generalsearch.replication.V53QueueEvidenceBudgetTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.008"
+    },
+    {
+      "name": "io.github.patricklfdm.generalsearch.replication.V53NativeResourceProfileTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "10.774"
+    },
+    {
+      "name": "io.github.patricklfdm.generalsearch.replication.V53QueueCompletionQualification",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "311.458"
+    }
+  ],
+  "pythonTests": 131,
+  "optimizedPythonTests": 131,
+  "planAndContractTests": 19,
+  "compatibility": {
+    "status": "PASS",
+    "scope": "development-compatibility-only",
+    "cases": [
+      {
+        "case": "current-small-native",
+        "raw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-queue-completion/run-1633bef3-085c-4aa7-aa75-c3ef7485cd46",
+        "result": {
+          "status": "PASS",
+          "scope": "multi-chunk-completion-rehearsal",
+          "sessions": 4,
+          "capacityRefusals": 0,
+          "nativeFinalCompleted": true,
+          "queuePressureQualified": false,
+          "maximumQueuedBytes": 1782046,
+          "phase3Complete": false,
+          "combinedMaximumQualified": false,
+          "bootstrapSource": "VERIFIED_DURABLE_BACKUP",
+          "wireLayout": "SEGMENTED_BACKUP"
+        },
+        "originalUnchanged": true,
+        "elapsedSeconds": 5.728
+      },
+      {
+        "case": "historical-full-json",
+        "negatives": 10,
+        "exactPriorResult": true,
+        "originalUnchanged": true,
+        "elapsedSeconds": 13.401
+      },
+      {
+        "case": "retained-five-member-maximum-seed",
+        "exactPriorResult": true,
+        "elapsedSeconds": 14.603
+      }
+    ],
+    "elapsedSeconds": 37.612,
+    "maximumQueueExecuted": false,
+    "maximumQueueQualified": false,
+    "combinedResourcesQualified": false,
+    "phase3Complete": false
+  },
+  "acceptanceEnvironment": "No qualifying maximum-native Linux host; arrange after development without weakening admission",
+  "artifacts": [
+    {
+      "path": "target/v53-maximum-queue/java.log",
+      "bytes": 6945,
+      "sha256": "032ddbf6182f52d6824879cda7430331a44d5a99eaf838fb4375c1ed4537c663"
+    },
+    {
+      "path": "target/v53-maximum-queue/java-fixed.log",
+      "bytes": 4930,
+      "sha256": "2c1758dd34866c2fd87e5451f0f5a5267e04fd63bae7b9d1f4e7933164fd1a0d"
+    },
+    {
+      "path": "target/v53-maximum-queue/native-compatibility.log",
+      "bytes": 5499,
+      "sha256": "41674f92ab576ea8f12faad07c5b49fa01534ee2e0241284e13eee6e954ea023"
+    },
+    {
+      "path": "target/v53-maximum-queue/python-new.log",
+      "bytes": 945,
+      "sha256": "596bdddfc3d8ca2c5038c3907c4f3fe1f2970d143e3ada9b2e9b979f34263e77"
+    },
+    {
+      "path": "target/v53-maximum-queue/python-final.log",
+      "bytes": 231,
+      "sha256": "3918c824b8a5f031d5206754cfcbf488a1ce9d55c6b3a47b08f9bdb8406b5b0b"
+    },
+    {
+      "path": "target/v53-maximum-queue/python-optimized-final.log",
+      "bytes": 231,
+      "sha256": "5e7b1ea6f088827b11133eda81353b613bd187577701310b7fc7b6c982ae8f8a"
+    },
+    {
+      "path": "target/v53-maximum-queue/contracts.log",
+      "bytes": 251,
+      "sha256": "0501862a43a00a9fbecd96607a0da9a379b785349b013162bb8f57c4f8ffb496"
+    },
+    {
+      "path": "target/v53-maximum-queue/contract.log",
+      "bytes": 167,
+      "sha256": "28f52c1e9f9d3758d485e78a3f610a351940c6599338345de025f93d7720d799"
+    },
+    {
+      "path": "target/v53-maximum-queue/replay.py",
+      "bytes": 2186,
+      "sha256": "2e1a9096414600b202680e421fdd149f38ed4b8ca8871a2f0b02b5fec31154b5"
+    },
+    {
+      "path": "target/v53-maximum-queue/replay.log",
+      "bytes": 1759,
+      "sha256": "e8799d6c2f83b867f208f5b342f87861bae1d22463f5a334138c16110c91354d"
+    },
+    {
+      "path": "target/v53-maximum-queue/replay.json",
+      "bytes": 1268,
+      "sha256": "84b7e5aadf3c2657344beb0a35f9acac8c0941593de90b05bc576d1fa20f5dcf"
+    },
+    {
+      "path": "target/v53-maximum-queue/native-inventory.json",
+      "bytes": 569787,
+      "sha256": "ca4293689d7b96b3be23eea615e5a3b331d8693bea83cbf7739031f00d0c6895"
+    },
+    {
+      "path": "target/v53-maximum-queue/V53BootstrapImageBindingTest.xml",
+      "bytes": 6912,
+      "sha256": "5b031501b387981dde81613e46006387f4700d5613bf000157ff0befd5e87d04"
+    },
+    {
+      "path": "target/v53-maximum-queue/V53QueueEvidenceBudgetTest.xml",
+      "bytes": 7191,
+      "sha256": "4d083557f01b2d3a57ce2cc08bd746018c965dc11d01d651fe556934d7761825"
+    },
+    {
+      "path": "target/v53-maximum-queue/V53NativeResourceProfileTest.xml",
+      "bytes": 7780,
+      "sha256": "8ee8214ca52391eb6093b0eca5ceae390a60570863e52861fad1790e2bdffd7c"
+    },
+    {
+      "path": "target/v53-maximum-queue/V53QueueCompletionQualification.xml",
+      "bytes": 7971,
+      "sha256": "7e2cd0352b06150898459b2a17aac70227bf1ce2d76d00feee56e9d5e7e12a13"
+    }
+  ]
+}

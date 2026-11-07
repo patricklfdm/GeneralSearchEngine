@@ -83,6 +83,11 @@ now has a separate source-bound producer and twelve-negative gate. It retains
 the whole continuous history and rejects substitution into the JSON resource
 slot. Its full-pressure execution and any maximum-image composition remain
 pending; the existing hosted matrix and five closure gaps are unchanged.
+The [maximum-image joint queue entry](PHASE_3_MAXIMUM_QUEUE_ENTRY.md) now connects
+the calibrated source and default staging to one complete REMOVE history, with
+an explicit capacity-admitted producer and 15-negative independent gate. Its
+long positive execution, maximum-input memory and hosted/cohort admission remain
+pending; it does not replace the earlier resource originals.
 
 | Gap | Existing prerequisite | Evidence still required |
 | --- | --- | --- |

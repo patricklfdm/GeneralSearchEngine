@@ -116,6 +116,10 @@ python3 -m scripts.v53.queue_completion_run verify \
 rehearsal. Its original is read with `--multi-chunk-rehearsal --segmented`; its
 `pressureRequired=false` receipt and different JUnit method cannot stand in for
 the full profile. Long full-pressure and maximum-image acceptance remain pending.
+The separate [maximum-image queue entry](PHASE_3_MAXIMUM_QUEUE_ENTRY.md) now
+connects the calibrated seed, default staging and larger observation envelope
+to this continuous path. Its original and fifteen-negative gate remain distinct
+from both small-image entries; full execution is still required.
 
 The BASIS audit also confirms that `MembershipGrantJournal` emits a descriptor
 containing cut/identity and capsule/inventory digests, not the capsule's complete

@@ -21,6 +21,12 @@ class MaximumNativeEvidenceTest(unittest.TestCase):
     def setUp(self):
         temp=tempfile.TemporaryDirectory();self.addCleanup(temp.cleanup);self.root=Path(temp.name)
 
+    def test_only_explicit_four_and_five_member_topologies_can_select_a_seed(self):
+        for size in (None,True,3,6,'4'):
+            with self.subTest(size=size),patch.object(m.maximum,'source') as source,self.assertRaisesRegex(ValueError,'explicit topology'):
+                m.seed(self.root,size=size)
+            source.assert_not_called()
+
     def seed_files(self,image=b'synthetic image'):
         directory=self.root/m.DIRECTORY;directory.mkdir();(directory/'source-backup').mkdir()
         for name in ('calibration.image','source.image'):(directory/name).write_bytes(image)

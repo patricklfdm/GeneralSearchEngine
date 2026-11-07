@@ -46,6 +46,9 @@ class V53MembershipTransportTest {
             this(size,raw,null);
         }
         Group(int size,Path raw,Path source)throws Exception {
+            this(size,raw,source,V53NativeResourceProfile.SMALL_FIXTURE);
+        }
+        Group(int size,Path raw,Path source,V53NativeResourceProfile profile)throws Exception {
             var helper=new V53BootstrapSeedTest();helper.temp=temp;
             var request=helper.request(temp.resolve(UUID.randomUUID().toString()),size,source);
             var sockets=new ArrayList<ServerSocket>();var targets=new ArrayList<MembershipBootstrapTarget<Integer,Doc>>();
@@ -58,7 +61,7 @@ class V53MembershipTransportTest {
             }finally{for(var socket:sockets)socket.close();}
             var dynamic=new MembershipBootstrapRequest<>(request.groupId(),request.configurationId(),request.source(),request.sourcePath(),targets,
                     request.operationDirectory(),request.maxSourceBytes(),request.maxOperationBytes());
-            fixture=new V53BootstrapPublicationTest.Fixture(raw,dynamic);capsule=fixture.original.seed.capsule;
+            fixture=new V53BootstrapPublicationTest.Fixture(raw,dynamic,profile);capsule=fixture.original.seed.capsule;
             identities=targets.stream().map(MembershipBootstrapTarget::identity).toList();
         }
         Decoded request(int from,int to){return request(from,to,"STATUS_PROBE",Map.of("nonce",new UUID(51,53).toString()));}

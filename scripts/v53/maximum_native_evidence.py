@@ -43,7 +43,8 @@ def check_binding(value):
          'maximum native exact seed binding')
 
 
-def seed(root):
+def seed(root,*,size=5):
+    need(type(size) is int and size in (4,5),'maximum native explicit topology')
     root=Path(root);directory=root/DIRECTORY
     maximum.selection.layout(directory,{'calibration.image','source.image','source-backup','binding.json'},'maximum native seed layout')
     _,value=captures.json_file(directory/'binding.json')
@@ -53,7 +54,7 @@ def seed(root):
          value['extra']==extra,'maximum native exact seed binding')
     bootstrapped=plans.read(root/'original-application.image',maximum.MAXIMUM)
     plan=plans.decode(plans.read(root/'original-plan.gsbp',2*maximum.e.MIB),bootstrapped,
-                      size=5,source=source_policy.BACKUP,details=True)
+                      size=size,source=source_policy.BACKUP,details=True)
     history=plan['root']['historyId']
     need(plan['root']['baseSequence']==41,'maximum native bootstrap application sequence')
     expected=binding(maximum.e.digest(image),extra,history,maximum.e.digest(bootstrapped))

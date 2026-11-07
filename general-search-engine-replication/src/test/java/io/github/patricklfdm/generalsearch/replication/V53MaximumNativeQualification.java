@@ -37,6 +37,20 @@ class V53MaximumNativeQualification {
         return Map.of("bootstrapHistory",bootstrapped.history().toString(),"bootstrapApplicationSha256",hash(image));
     }
 
+    static Map<String,Object> seedBinding(V53MaximumApplicationTest.Seed seed,Path raw,Path scratch)throws Exception {
+        assertEquals(MembershipApplicationImage.MAXIMUM-32,seed.image().length);
+        var binding=new TreeMap<String,Object>(reboundImage(raw,seed.image(),V53MaximumApplicationTest.HISTORY,scratch));
+        binding.put("schema","gse-v53-maximum-native-seed-v2");binding.put("status","PARTIAL");
+        binding.put("bootstrapSource",MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP.name());
+        binding.put("wireLayout",V53WireArchive.Layout.SEGMENTED_BACKUP.name());
+        binding.put("resourceProfile",V53NativeResourceProfile.DEFAULT_SNAPSHOT_STAGING.name());
+        binding.put("stagingLimit",V53NativeResourceProfile.DEFAULT_SNAPSHOT_STAGING.stagingBytes);
+        binding.put("applicationBytes",(long)seed.image().length);binding.put("applicationSha256",hash(seed.image()));
+        binding.put("history",V53MaximumApplicationTest.HISTORY.toString());binding.put("applicationSequence",41L);
+        binding.put("extra",(long)seed.extra());binding.put("phase3Complete",false);
+        return binding;
+    }
+
     /** Keep live replica and bootstrap storage on the capacity-admitted volume.
      * Failed private work remains available alongside the original observations. */
     public static class WorkspaceTemporaryDirectory implements TempDirFactory {
@@ -63,15 +77,7 @@ class V53MaximumNativeQualification {
         Path raw=history.requiredFourFromVerifiedBackup(request,V53WireArchive.Layout.SEGMENTED_BACKUP,
                 V53NativeResourceProfile.DEFAULT_SNAPSHOT_STAGING);
         assertEquals(original,V53ReplayFilesTest.files(seed.source()));
-        var rebound=reboundImage(raw,seed.image(),V53MaximumApplicationTest.HISTORY,temp.resolve("seed-inspection"));
-        var binding=new TreeMap<String,Object>();
-        binding.put("schema","gse-v53-maximum-native-seed-v2");binding.put("status","PARTIAL");binding.putAll(rebound);
-        binding.put("bootstrapSource",request.source().name());binding.put("wireLayout",V53WireArchive.Layout.SEGMENTED_BACKUP.name());
-        binding.put("resourceProfile",V53NativeResourceProfile.DEFAULT_SNAPSHOT_STAGING.name());
-        binding.put("stagingLimit",V53NativeResourceProfile.DEFAULT_SNAPSHOT_STAGING.stagingBytes);
-        binding.put("applicationBytes",(long)seed.image().length);binding.put("applicationSha256",hash(seed.image()));
-        binding.put("history",V53MaximumApplicationTest.HISTORY.toString());binding.put("applicationSequence",41L);
-        binding.put("extra",(long)seed.extra());binding.put("phase3Complete",false);
+        var binding=seedBinding(seed,raw,temp.resolve("seed-inspection"));
         Files.write(evidence.resolve("binding.json"),canonical(binding,16384),StandardOpenOption.CREATE_NEW);
         // Only this newly generated seed observation moves, after the complete
         // history succeeds. The live source and native original are not moved.

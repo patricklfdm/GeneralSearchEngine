@@ -12,7 +12,10 @@ final class V53SpecialExportResources {
     static final long BUDGET=100;
     interface Open { MembershipTransferExport open(AtomicLong clock)throws Exception; }
     static MembershipResources budget() {
-        return new MembershipResources(MembershipResources.METADATA_LIMIT,512*MembershipResources.MIB,
+        return budget(V53NativeResourceProfile.SMALL_FIXTURE);
+    }
+    static MembershipResources budget(V53NativeResourceProfile profile) {
+        return new MembershipResources(MembershipResources.METADATA_LIMIT,profile.stagingBytes,
                 MembershipResources.QUEUE_LIMIT,MembershipResourceObservations.MAXIMUM);
     }
     static List<Map<String,Object>> probe(MembershipResources budget,List<Open> factories,Map<String,byte[]> originals)throws Exception {

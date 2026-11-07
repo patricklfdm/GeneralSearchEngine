@@ -163,13 +163,24 @@ class V53NativeDispatchTest {
         }
         private Network(V53BootstrapPublicationTest.Fixture retained,ReplicationBounds bounds,long endpointBudget,boolean liveDirectory,boolean observeExports,
                 int wireLimit,V53WireArchive.Layout layout)throws Exception {
-            assertEquals(V53NativeResourceProfile.SMALL_FIXTURE,retained.resourceProfile,"retained native resource policy");
+            this(retained,bounds,endpointBudget,liveDirectory,observeExports,wireLimit,layout,V53NativeResourceProfile.SMALL_FIXTURE);
+        }
+        Network(V53BootstrapPublicationTest.Fixture retained,ReplicationBounds bounds,long endpointBudget,boolean liveDirectory,boolean observeExports,
+                V53WireArchive.Layout layout,V53NativeResourceProfile profile)throws Exception {
+            this(retained,bounds,endpointBudget,liveDirectory,observeExports,V53EvidenceArray.WIRE_BYTES,layout,profile);
+        }
+        private Network(V53BootstrapPublicationTest.Fixture retained,ReplicationBounds bounds,long endpointBudget,boolean liveDirectory,boolean observeExports,
+                int wireLimit,V53WireArchive.Layout layout,V53NativeResourceProfile profile)throws Exception {
+            assertEquals(profile,retained.resourceProfile,"retained native resource policy");
+            profile.check(retained.request.source(),layout);
+            assertTrue(profile==V53NativeResourceProfile.SMALL_FIXTURE || bounds.maxSnapshotStagingBytes()==profile.stagingBytes,
+                    "retained default staging requires matching transport bounds");
             wireEvidenceLimit=admitWireLimit(retained.request.source(),wireLimit,layout);
             this.bounds=bounds;f=retained;observeExportResources=observeExports;
-            // The retained continuous component admits at most 8 GiB of original
-            // evidence. Its registry must not consume a larger wire allowance.
-            // Fresh maximum backup histories keep their separate constructor.
-            wireArchive=layout==V53WireArchive.Layout.SEGMENTED_BACKUP?new V53WireArchive(f.raw,8L*1024*1024*1024):null;
+            // The caller selects both the resource policy and its evidence
+            // envelope. Legacy retained histories keep their 8 GiB ceiling.
+            wireArchive=layout==V53WireArchive.Layout.SEGMENTED_BACKUP?new V53WireArchive(f.raw,
+                    profile==V53NativeResourceProfile.SMALL_FIXTURE?8L*1024*1024*1024:V53SegmentedEvidence.MAXIMUM):null;
             auxiliaryWire=new V53AuxiliaryWire(f.raw,f.request.source()==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP,wireArchive);
             try {events=eventHistory();wire=wireHistory();openActors(endpointBudget,liveDirectory);}
             catch(Exception|Error error){closeEvidenceOnFailure(error);throw error;}
@@ -267,7 +278,7 @@ class V53NativeDispatchTest {
         }
         MembershipResources resourceBudget(MembershipIdentity identity) {
             synchronized(events) {
-                return resourceTransitions==null?(observeExportResources?V53SpecialExportResources.budget():new MembershipResources(f.resourceProfile.stagingBytes)):
+                return resourceTransitions==null?(observeExportResources?V53SpecialExportResources.budget(f.resourceProfile):new MembershipResources(f.resourceProfile.stagingBytes)):
                         resourceTransitions.create(identity,events.size());
             }
         }

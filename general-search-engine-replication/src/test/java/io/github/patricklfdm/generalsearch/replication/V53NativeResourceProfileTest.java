@@ -50,6 +50,30 @@ class V53NativeResourceProfileTest {
         try(var paths=Files.list(copy.raw)){assertEquals(0,paths.count());}
     }
 
+    @Test void retainedDefaultExportObserverUsesTheDeclaredProductionPool()throws Exception {
+        var seed=new V53NativeSeedTest();seed.temp=temp;var request=V53OwnedCrossViewTest.networkRequest(seed.request(3,true));
+        var profile=V53NativeResourceProfile.DEFAULT_SNAPSHOT_STAGING;
+        var fixture=new V53BootstrapPublicationTest.Fixture(Files.createDirectory(temp.resolve("retained-default")),request,profile);
+        fixture.ownedHistory=true;fixture.nativeApplication=true;
+        for(var target:request.targets())try(var owner=fixture.open(target,"initialize-retention")) {
+            owner.initializePeerRetention();owner.initializeFutureRetention();
+        }
+        var helper=new V53NativeDispatchTest();helper.temp=temp;
+        assertThrows(IllegalArgumentException.class,()->helper.new Network(fixture,ReplicationBounds.defaults(),V53NativeDispatchTest.BUDGET,
+                true,true,V53WireArchive.Layout.JSON,profile));
+        var n=helper.new Network(fixture,ReplicationBounds.defaults(),V53NativeDispatchTest.BUDGET,
+                true,true,V53WireArchive.Layout.SEGMENTED_BACKUP,profile);
+        try(n) {
+            assertEquals(3,n.resources.size());
+            for(var budget:n.resources) {
+                assertEquals(profile.stagingBytes,budget.observations().stagingLimit());
+                assertEquals(METADATA_LIMIT,budget.observations().metadataLimit());
+                assertEquals(QUEUE_LIMIT,budget.observations().queueLimit());
+            }
+        }
+        for(var budget:n.resources){assertEquals(0,budget.usage().leases());assertEquals(0,budget.usage().queued());}
+    }
+
     @Test void networkRejectsWrongSourceBeforeBootstrapOrPreparation()throws Exception {
         var seed=new V53NativeSeedTest();seed.temp=temp;var request=seed.request(5,false);
         var helper=new V53NativeDispatchTest();helper.temp=temp;

@@ -1,7 +1,8 @@
 """Immutable native joint queue pressure through FINAL/BARRIER admission.
 
-One complete original and ten exact negatives (twelve for explicit segmentation). A small-image rehearsal, isolated
-SOURCE pressure, or downloaded PASS receipt cannot fill this resource slot.
+One complete original: ten exact JSON negatives, twelve for small segmented
+input, or fifteen for the explicit maximum-image profile. A rehearsal, isolated
+SOURCE pressure, or downloaded PASS receipt cannot fill these resource slots.
 """
 import argparse
 import json
@@ -18,34 +19,42 @@ from .maximum_transition_inventory import inventory
 need=h.need;read=shared.read;reader_manifest=shared.reader_manifest;BUILDS=shared.BUILDS
 SCHEMA='gse-v53-queue-completion-execution-v1'
 SEGMENTED_SCHEMA='gse-v53-segmented-queue-completion-execution-v1'
+MAXIMUM_SCHEMA='gse-v53-maximum-queue-completion-execution-v1'
 PACKAGE='io.github.patricklfdm.generalsearch.replication.'
 # Complete raw inventory cap; the physical reader also checks its individual files.
 RAW_BYTES=8*1024*1024*1024
 PINS=('sourceSha256','buildSha256','toolchainSha256','readerSha256')
 PROFILE='joint-queue-final-64mib'
 SEGMENTED_PROFILE=PROFILE+'-segmented'
+MAXIMUM_PROFILE='maximum-application-joint-queue-final-segmented'
 CLASS='V53QueueCompletionQualification'
 METHOD='admittedRemoveFinishesAfterRealJointQueuePressure'
 SEGMENTED_METHOD='segmentedQueuePressureCompletesSameNativeHistory'
 
 
 def selected(profile):
-    need(type(profile) is str and profile in (PROFILE,SEGMENTED_PROFILE),'queue-completion run explicit profile')
+    need(type(profile) is str and profile in (PROFILE,SEGMENTED_PROFILE,MAXIMUM_PROFILE),'queue-completion run explicit profile')
+    if profile==MAXIMUM_PROFILE:return 'V53MaximumQueueQualification','maximumImageFinishesAfterJointQueuePressure','v53-maximum-queue'
     return CLASS,METHOD if profile==PROFILE else SEGMENTED_METHOD,'v53-queue-completion'
 
 
 def schema(profile):
-    selected(profile);return SCHEMA if profile==PROFILE else SEGMENTED_SCHEMA
+    selected(profile);return MAXIMUM_SCHEMA if profile==MAXIMUM_PROFILE else SCHEMA if profile==PROFILE else SEGMENTED_SCHEMA
+
+
+def raw_bytes(profile):
+    selected(profile);return 128*1024**3 if profile==MAXIMUM_PROFILE else RAW_BYTES
 
 
 def options(profile):
-    selected(profile);return {} if profile==PROFILE else dict(wire_layout=gate.history.wire_archive.SEGMENTED)
+    selected(profile)
+    return gate.profile_options(gate.history.wire_archive.JSON if profile==PROFILE else gate.history.wire_archive.SEGMENTED,profile==MAXIMUM_PROFILE)
 
 
 def command(profile):
     cls,method,_=selected(profile)
     return ['-o','-B','-ntp','-f','reactor/pom.xml','-pl','../'+h.MODULE,'-am',
-            '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+cls+'#'+method,'test']
+            '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+cls+'#'+method,*(['-DargLine=-Xmx4g'] if profile==MAXIMUM_PROFILE else []),'test']
 
 
 def junit(reports,profile):
@@ -70,7 +79,7 @@ def locate(work,profile):
 
 
 def collect(raw,profile):
-    selected(profile);raw=Path(raw);before=inventory(raw,maximum=RAW_BYTES)
+    selected(profile);raw=Path(raw);before=inventory(raw,maximum=raw_bytes(profile))
     # Collection proves completeness of the retained inventory, not runtime acceptance.
     for name in ('events.json','calls.json','failures.json','continuous-result.json',
                  'queue-completion.json','queue-resources.json','original-plan.gsbp','original-application.image'):
@@ -81,11 +90,18 @@ def collect(raw,profile):
              'queue-completion run unexpected segmented evidence')
     else:
         # Prove complete transport collection without granting physical admission.
-        gate.history.wire_history(raw,backup=True,maximum_bytes=RAW_BYTES,wire_bytes=256*gate.t.MIB,**options(profile))
+        gate.history.wire_history(raw,backup=True,maximum_bytes=raw_bytes(profile),wire_bytes=256*gate.t.MIB,wire_layout=gate.history.wire_archive.SEGMENTED)
+    if profile==MAXIMUM_PROFILE:
+        directory=raw/gate.maximum.DIRECTORY
+        gate.maximum.maximum.selection.layout(directory,{'calibration.image','source.image','source-backup','binding.json'},'maximum queue seed collection')
+        for name in ('calibration.image','source.image','binding.json',
+                     *('source-backup/'+n for n in ('gse-backup-checkpoint','gse-backup-manifest','gse-backup-metadata'))):
+            need(gate.maximum.DIRECTORY+'/'+name in before['files'],'maximum queue complete seed members')
+        gate.maximum.check_binding(read(directory/'binding.json'))
     for name in ('initial','before-network','installed-1','installed-2','installed-3',
                  'published-5','published-6','published-7','after-close'):
         need(any(p.startswith(name+'/') for p in before['files']),'queue-completion run missing original directory: '+name)
-    need(inventory(raw,maximum=RAW_BYTES)==before,'queue-completion run changed during collection')
+    need(inventory(raw,maximum=raw_bytes(profile))==before,'queue-completion run changed during collection')
     return dict(schema=schema(profile),status='PARTIAL',profile=profile,collectionComplete=True,
                 queuePressureQualified=False,combinedResourcesQualified=False,phase3Complete=False,inventory=before)
 
@@ -107,6 +123,10 @@ def capture(output,maven,profile,source_from=None):
     receipt=dict(schema=schema(profile),profile=profile,status='RUNNING',executionStatus='NOT_RUN',collectionComplete=False,
                  queuePressureQualified=False,combinedResourcesQualified=False,phase3Complete=False,retries=0)
     try:
+        if profile==MAXIMUM_PROFILE:
+            from .maximum_transition_capacity import check as capacity
+            h.save(output/'capacity.json',capacity(output))
+            receipt['capacitySha256']=h.digest((output/'capacity.json').read_bytes())
         work=output/'workspace';source=h.source_copy(h.ROOT,work) if source_from is None else h.recorded_source(source_from,work)
         h.save(output/'source.json',source);reader=reader_manifest()
         need(all(source['files'].get(k)==v for k,v in reader['files'].items()),'queue-completion run reader belongs to source')
@@ -146,6 +166,10 @@ def member(path,profile,pins):
          receipt.get('executionStatus')=='PASS' and receipt.get('collectionComplete') is True and
          all(receipt.get(k) is False for k in ('queuePressureQualified','combinedResourcesQualified','phase3Complete')) and
          type(receipt.get('retries')) is int and receipt['retries']==0,'queue-completion admission successful unretried producer')
+    if profile==MAXIMUM_PROFILE:
+        from .maximum_transition_capacity import validate as capacity_receipt
+        capacity_receipt(read(path/'capacity.json'))
+        need(receipt.get('capacitySha256')==h.digest((path/'capacity.json').read_bytes()),'maximum queue producer capacity binding')
     for field,file in (('execution','execution.json'),('collectionExecution','collection-execution.json')):
         value=receipt.get(field)
         need(type(value) is dict and type(value.get('exit')) is int and value['exit']==0 and
@@ -183,7 +207,12 @@ def check_result(value,profile):
     original=value['original']
     expected=dict(status='PASS',scope='joint-queue-completion-component-only',sessions=4,capacityRefusals=1,
                   nativeFinalCompleted=True,queuePressureQualified=True,phase3Complete=False,combinedMaximumQualified=False)
-    if profile==SEGMENTED_PROFILE:expected.update(wireLayout=gate.history.wire_archive.SEGMENTED,bootstrapSource=gate.history.wire_archive.source.BACKUP)
+    if profile!=PROFILE:expected.update(wireLayout=gate.history.wire_archive.SEGMENTED,bootstrapSource=gate.history.wire_archive.source.BACKUP)
+    if profile==MAXIMUM_PROFILE:
+        need(type(original) is dict,'maximum queue original result')
+        seed=original.get('maximumSeed');gate.maximum.check_binding(seed)
+        expected=gate.maximum.resources.receipt(expected,gate.maximum.resources.DEFAULT)
+        expected.update(scope='maximum-image-joint-queue-component-only',maximumSeed=seed,maximumImageQueueQualified=True)
     need(type(original) is dict and set(original)==set(expected)|{'maximumQueuedBytes'} and
          all(type(original.get(k)) is type(v) and original[k]==v for k,v in expected.items()) and
          type(original.get('maximumQueuedBytes')) is int and
@@ -194,9 +223,13 @@ def check_result(value,profile):
 
 
 def qualify(path,profile,pins):
+    environment={}
+    if profile==MAXIMUM_PROFILE:
+        from .maximum_transition_capacity import check as capacity
+        environment['verificationCapacity']=capacity(path,'verify')
     before=member(path,profile,pins);result=gate.qualify(gate.load(before['raw'],**options(profile)),**options(profile));check_result(result,profile)
     need(member(path,profile,pins)==before,'queue-completion admission changed during replay');check_pins(pins)
-    return dict(schema=schema(profile),status='PASS',scope='joint-queue-completion-component-only',profile=profile,**pins,
+    return dict(schema=schema(profile),status='PASS',scope=result['original']['scope'],profile=profile,**pins,**environment,
                 producerReceiptSha256=before['producerReceiptSha256'],rawInventorySha256=h.digest(h.snapshot.f.canonical(before['inventory'])),
                 originalFirst=True,originalPreserved=True,queuePressureQualified=True,nativeFinalCompleted=True,combinedResourcesQualified=False,phase3Complete=False,qualification=result)
 
@@ -214,7 +247,7 @@ def verify(output,producer,profile,pins):
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__);sub=parser.add_subparsers(dest='action',required=True)
     for action in ('capture','collect','verify'):
-        p=sub.add_parser(action);p.add_argument('output');p.add_argument('--profile',choices=(PROFILE,SEGMENTED_PROFILE),required=True)
+        p=sub.add_parser(action);p.add_argument('output');p.add_argument('--profile',choices=(PROFILE,SEGMENTED_PROFILE,MAXIMUM_PROFILE),required=True)
         if action=='capture':p.add_argument('--maven',default='mvn');p.add_argument('--source-from')
         elif action=='collect':p.add_argument('--raw',required=True)
         else:p.add_argument('--producer',required=True);p.add_argument('--pins',required=True)

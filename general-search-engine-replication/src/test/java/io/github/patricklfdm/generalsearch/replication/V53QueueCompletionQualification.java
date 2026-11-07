@@ -19,6 +19,7 @@ class V53QueueCompletionQualification {
     final List<Map<String,Object>> attempts=new ArrayList<>();
     V53NativeDispatchTest.Network network;
     final Set<String> pressureTraces=new HashSet<>();
+    V53MaximumApplicationTest.Seed maximumSeed;
     record Session(int reader,UUID trace,UUID basis,UUID image) {}
     synchronized void point(String name) {
         var p=network.resources.getFirst().observationCheckpoint();assertTrue(p.complete());
@@ -119,10 +120,26 @@ class V53QueueCompletionQualification {
         var config=builder().configuration();Path backup=temp.resolve("backup");
         MembershipApplicationImage.capture(config,storage(temp.resolve("backup-core"),2),new io.github.patricklfdm.generalsearch.durability.DurableApplicationState<>(
                 V53BootstrapSeedTest.IMPORTED,41,docs,config.indexes()),backup);
+        execute(raw,backup,layout,V53NativeResourceProfile.SMALL_FIXTURE);
+    }
+    void maximumImage()throws Exception {
+        pressureRequired=true;chunk=CHUNK;
+        Path raw=Files.createDirectories(Path.of("target/v53-maximum-queue/run-"+UUID.randomUUID()));
+        System.out.println("v53MaximumQueueEvidence="+raw.toAbsolutePath());
+        Path seedDirectory=Files.createDirectory(raw.resolve(V53MaximumNativeQualification.SEED));
+        maximumSeed=V53MaximumApplicationTest.captureMaximum(temp,seedDirectory);
+        var original=V53ReplayFilesTest.files(maximumSeed.source());
+        execute(raw,maximumSeed.source(),V53WireArchive.Layout.SEGMENTED_BACKUP,V53NativeResourceProfile.DEFAULT_SNAPSHOT_STAGING);
+        assertEquals(original,V53ReplayFilesTest.files(maximumSeed.source()));
+    }
+    private void execute(Path raw,Path backup,V53WireArchive.Layout layout,V53NativeResourceProfile profile)throws Exception {
         var helper=new V53MembershipTransportTest();helper.temp=temp;
         var continuous=new V53ContinuousTransitionTest();continuous.temp=temp;continuous.budget=TimeUnit.MINUTES.toNanos(15);
-        try(var group=helper.new Group(4,raw,backup)) {
+        try(var group=helper.new Group(4,raw,backup,profile)) {
             var fixture=group.fixture;fixture.ownedHistory=true;fixture.nativeApplication=true;
+            Map<String,Object> maximumBinding=maximumSeed==null?null:
+                    V53MaximumNativeQualification.seedBinding(maximumSeed,raw,temp.resolve("seed-inspection"));
+            if(maximumBinding!=null)Files.write(raw.resolve(V53MaximumNativeQualification.SEED).resolve("binding.json"),canonical(maximumBinding,16384),StandardOpenOption.CREATE_NEW);
             for(var target:fixture.request.targets())try(var owner=fixture.open(target,"initialize-retention")){owner.initializePeerRetention();owner.initializeFutureRetention();}
             var walk=new V53AdmittedCrossViewTest.Walk(fixture);
             var request=Map.of("root",fixture.result.root().manifestDigest(),"expected",walk.current().authority(),"number",1L,"kind","REMOVE",
@@ -133,7 +150,7 @@ class V53QueueCompletionQualification {
                     b.maxRetryAttempts(),30000,b.retryBackoffMillis(),chunk,b.maxRetainedLogBytes(),b.maxSnapshotStagingBytes());
             var networkHelper=new V53NativeDispatchTest();networkHelper.temp=temp;
             network=layout==V53WireArchive.Layout.JSON?networkHelper.new Network(fixture,bounds,continuous.budget,true,true,256*1024*1024):
-                    networkHelper.new Network(fixture,bounds,continuous.budget,true,true,layout);
+                    networkHelper.new Network(fixture,bounds,continuous.budget,true,true,layout,profile);
             boolean passed=false;
             network.observeRequests=true;
             try {
@@ -158,6 +175,11 @@ class V53QueueCompletionQualification {
                 if(layout==V53WireArchive.Layout.SEGMENTED_BACKUP) {
                     receipt.put("schema","gse-v53-segmented-queue-completion-v1");receipt.put("wireLayout",layout.name());
                     receipt.put("bootstrapSource",fixture.request.source().name());
+                }
+                if(maximumBinding!=null) {
+                    receipt.put("schema","gse-v53-maximum-queue-completion-v1");
+                    receipt.put("maximumSeed",maximumBinding);
+                    receipt.put("resourceProfile",profile.name());receipt.put("stagingLimit",profile.stagingBytes);
                 }
                 Files.write(raw.resolve("queue-completion.json"),canonical(receipt,1024*1024));
             }
