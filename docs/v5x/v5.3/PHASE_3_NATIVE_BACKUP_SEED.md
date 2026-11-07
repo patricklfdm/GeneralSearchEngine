@@ -185,6 +185,56 @@ boundary arrays, lifecycle snapshots and complete reader allocations remain
 separate work; this batch does not establish full backup joining or a physical
 maximum-image history.
 
+## Resource boundary capture
+
+Verified-backup networks also spool `resource-transition-captures/boundaries.json`
+as each event checkpoint is observed. The original 32 MiB / 65,536-row bounds,
+field encoding, registration index and observation sequence remain unchanged.
+Saving seals the boundary file and binds its captured hash into the same resource
+index. Legacy callers continue using their original array-backed collector.
+The resource collector now has an explicit close lifetime: normal network exit
+and actor-open failure drain it alongside the event and wire collectors. Closing
+an unfinished collector retains its prefix but never writes a success index.
+An observed order/owner failure in the spooled collector stays failed even if a
+caller catches the exception; coupled event/boundary close preserves that cause.
+
+The [boundary development index](phase3-evidence/resource-boundary-spool-development.json)
+records 50 passing Java checks, including six new boundary tests. Complete
+resource, storage-transfer and control-close files match the legacy collector
+byte for byte. The new tests also cover partial close, sticky observation failure,
+same-length boundary tampering and coupled failure cleanup. A separate 32 MiB
+JVM records the full 65,536-event limit with both collectors, seals their files
+and independently hashes them with fixed buffers; the boundary file exceeds
+8 MiB. This does not establish whole-runtime peak memory or larger limits.
+
+The short five-node backup original was executed once with real resource and
+original-owner-close observations. Independent replay accepts its 1,786 event
+boundaries and five complete owner lifetimes; six event/resource negatives plus
+two seed negatives are rejected exactly. Both original files remain unchanged.
+The existing 78 focused Python checks also pass. Full backup joining, physical
+maxima and final-source qualification remain unexecuted.
+
+## Large-backup capture feasibility
+
+The retained `capture-feasibility.json` audits current call sites and calculates
+a lower bound; it is not a runtime measurement. The frozen maximum native image
+is 67,108,832 bytes. Just one base64 representation requires at least 89,478,444
+bytes, exceeding the old main wire file's 67,108,864-byte bound even before
+frame metadata, extra encoding layers, other transfers or retries. The joining
+fixture captures encoded frames, and an empty new learner must receive the
+image. Moving the old wire array to a file therefore does not make that maximum
+history admissible under the old evidence layout.
+
+The complete required-four readers also still select EMPTY through their
+semantic/publication/network/export/maintenance/ledger/resource chain; the
+low-level seed replay parameter alone does not change that contract. Next work
+must introduce explicit backup-source binding throughout that complete chain
+and a dedicated, bounded large-backup evidence layout with corresponding
+readers and retained-inventory accounting. Existing EMPTY gates, their limits
+and protocol resource limits must stay intact. Do not run the maximum through
+the current small-seed hook and wait for a predictable collection-capacity
+failure, or weaken physical checks to admit it.
+
 ## Remaining combined-resource work
 
 The [maximum transition](PHASE_3_MAXIMUM_TRANSITION_EXECUTION.md) is still a
@@ -196,9 +246,10 @@ Before executing a full physical maximum, complete bounded evidence capture for
 large images and all auxiliary joining/retention/lifecycle observations, propagate
 the explicit source contract through a dedicated complete validator, and declare
 the feasible combined pressure and refusal/continuation boundaries. The main
-and auxiliary backup wire spools and main event spool remove their aggregate
-in-memory allocations. Resource boundary arrays, lifecycle/copy snapshots and
-existing full-array readers remain to be addressed, along with complete
+and auxiliary backup wire spools, main event spool and resource boundary spool
+remove their aggregate in-memory allocations. Lifecycle/copy snapshots, the
+large-backup capture layout and existing full-array readers remain to be
+addressed, along with complete
 auxiliary-history qualification. Their limits
 must not simply be increased. Respect the
 unchanged seven-application and per-owner staging limits;

@@ -8,17 +8,20 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 
 /** One actual budget per original disk owner, from native open through final close.
  * Invoked by the fixture event append, never from the resource monitor itself. */
-final class V53ResourceTransitionCapture {
+final class V53ResourceTransitionCapture implements AutoCloseable {
     static final String DIRECTORY="resource-transition-captures";
     private record Owner(MembershipIdentity identity,MembershipResources budget,int registeredAt) {}
     private final String root;
     private final Path directory;
     private final boolean controlCloses,exportOwnership;
     private final Map<String,Owner> owners=new TreeMap<>();
-    private final List<Map<String,Object>> boundaries=new ArrayList<>();
+    private final List<Map<String,Object>> boundaries;
+    private final V53EvidenceSpool boundarySpool;
     private final List<String> closingOwners;
     private final Set<String> closing=new HashSet<>();
     private boolean saved;
+    private boolean closed;
+    private Throwable observationFailure;
     V53ResourceTransitionCapture(Path raw,String root)throws IOException {
         this(raw,root,List.of());
     }
@@ -29,12 +32,18 @@ final class V53ResourceTransitionCapture {
         this(raw,root,closingOwners,controlCloses,false);
     }
     V53ResourceTransitionCapture(Path raw,String root,List<String> closingOwners,boolean controlCloses,boolean exportOwnership)throws IOException {
+        this(raw,root,closingOwners,controlCloses,exportOwnership,false);
+    }
+    V53ResourceTransitionCapture(Path raw,String root,List<String> closingOwners,boolean controlCloses,boolean exportOwnership,
+                                 boolean spoolBoundaries)throws IOException {
         require(closingOwners.size()<=6 && closingOwners.equals(closingOwners.stream().distinct().sorted().toList()) &&
                 closingOwners.stream().allMatch(n->n.matches("node-[1-6]")),"resource close original owners");
         this.closingOwners=List.copyOf(closingOwners);
         require(!exportOwnership || controlCloses,"export ownership requires close capture");
         this.controlCloses=controlCloses;this.exportOwnership=exportOwnership;
         MembershipValidation.digest(root);this.root=root;directory=Files.createDirectory(raw.resolve(DIRECTORY));
+        boundarySpool=spoolBoundaries?new V53EvidenceSpool(directory.resolve("boundaries.json"),V53EvidenceArray.EVENT_BYTES):null;
+        boundaries=boundarySpool==null?new ArrayList<>():boundarySpool;
     }
     void closeOwner(MembershipGrantJournal journal,List<Map<String,Object>> events)throws IOException {
         String node=journal.activationIdentity().nodeId().value();
@@ -43,7 +52,7 @@ final class V53ResourceTransitionCapture {
         // shutdown. Never label a second close as the original owner lifetime.
         synchronized(events) {
             synchronized(this) {
-                require(!saved && closingOwners.contains(node) && owners.containsKey(node) && closing.add(node),"resource close owner invocation");
+                require(!saved && !closed && closingOwners.contains(node) && owners.containsKey(node) && closing.add(node),"resource close owner invocation");
             }
             journal.activationContext(); // A previously closed owner must fail before BEGIN.
             events.add(Map.of("node",node,"event","RESOURCE_OWNER_CLOSE_BEGIN"));
@@ -53,7 +62,7 @@ final class V53ResourceTransitionCapture {
     }
     synchronized MembershipResources create(MembershipIdentity identity,int eventIndex) {
         String node=identity.nodeId().value();
-        require(!saved && node.matches("node-[1-9][0-9]*") && !owners.containsKey(node) && owners.size()<6 && eventIndex==boundaries.size(),
+        require(!saved && !closed && node.matches("node-[1-9][0-9]*") && !owners.containsKey(node) && owners.size()<6 && eventIndex==boundaries.size(),
                 "resource capture owner registration");
         var budget=new MembershipResources(MembershipResources.METADATA_LIMIT,512*MembershipResources.MIB,
                 MembershipResources.QUEUE_LIMIT,MembershipResourceObservations.MAXIMUM,
@@ -61,12 +70,21 @@ final class V53ResourceTransitionCapture {
         owners.put(node,new Owner(identity,budget,eventIndex));return budget;
     }
     synchronized void event(int index,Map<String,Object> event) {
-        require(!saved && index==boundaries.size() && index<V53EvidenceArray.HISTORY_ROWS,"resource capture event capacity/order");
+        try {
+        require(!saved && !closed && index==boundaries.size() && index<V53EvidenceArray.HISTORY_ROWS,"resource capture event capacity/order");
+        checkObservation();
         var node=event.get("node");var owner=owners.get(node);
         require(owner!=null && event.get("event") instanceof String,"resource capture unknown event owner");
         var value=owner.budget.observationCheckpoint();
         require(value.complete(),"resource capture incomplete observation");
         boundaries.add(Map.of("eventIndex",index,"node",node,"sequence",value.sequence(),"usage",V53ResourceTraceFiles.usage(value.usage())));
+        }catch(RuntimeException|Error error) {
+            if(boundarySpool!=null && observationFailure==null)observationFailure=error;
+            throw error;
+        }
+    }
+    private void checkObservation() {
+        if(observationFailure!=null)throw new IllegalStateException("resource capture failed",observationFailure);
     }
     synchronized void save(byte[] events)throws IOException {
         saveDigest(hash(events));
@@ -75,7 +93,7 @@ final class V53ResourceTransitionCapture {
         saveDigest(events.sealedSha256(directory.getParent().resolve("events.json")));
     }
     private void saveDigest(String eventsSha256)throws IOException {
-        require(!saved && !owners.isEmpty(),"resource capture already saved/empty");saved=true;
+        require(!saved && !closed && !owners.isEmpty(),"resource capture already saved/empty");checkObservation();saved=true;
         var refs=new ArrayList<Map<String,Object>>();
         for(var entry:owners.entrySet()) {
             var owner=entry.getValue();var value=owner.budget.observations();String name=entry.getKey()+".json";
@@ -83,10 +101,15 @@ final class V53ResourceTransitionCapture {
             String digest=V53ResourceTraceFiles.write(directory.resolve(name),value);
             refs.add(Map.of("identity",MembershipBootstrapSeed.identity(owner.identity),"path",name,"sha256",digest,"registeredAt",owner.registeredAt));
         }
-        byte[] data=V53EvidenceArray.encode(boundaries,32*1024*1024);
-        Files.write(directory.resolve("boundaries.json"),data,StandardOpenOption.CREATE_NEW);
+        String boundariesSha256;
+        if(boundarySpool==null) {
+            byte[] data=V53EvidenceArray.encode(boundaries,V53EvidenceArray.EVENT_BYTES);
+            Files.write(directory.resolve("boundaries.json"),data,StandardOpenOption.CREATE_NEW);boundariesSha256=hash(data);
+        }else {
+            boundarySpool.close();boundariesSha256=boundarySpool.sealedSha256(directory.resolve("boundaries.json"));
+        }
         var index=new TreeMap<String,Object>(Map.of("schema",closingOwners.isEmpty()?"gse-v53-resource-capture-index-v1":"gse-v53-resource-capture-index-v2","root",root,
-                "eventsSha256",eventsSha256,"boundariesSha256",hash(data),"owners",refs));
+                "eventsSha256",eventsSha256,"boundariesSha256",boundariesSha256,"owners",refs));
         if(!closingOwners.isEmpty())index.put("closingOwners",closingOwners);
         Files.write(directory.resolve("index.json"),canonical(index,16384),StandardOpenOption.CREATE_NEW);
         if(Boolean.getBoolean("v53.resource.storage.transfers")) {
@@ -111,5 +134,10 @@ final class V53ResourceTransitionCapture {
             Files.write(closeDirectory.resolve("index.json"),canonical(Map.of("schema","gse-v53-control-close-capture-v1","root",root,
                     "eventsSha256",eventsSha256,"owners",closeRefs),16384),StandardOpenOption.CREATE_NEW);
         }
+    }
+    /** Drains a partial collector too, without inventing a saved resource index. */
+    @Override public synchronized void close()throws IOException {
+        if(closed)return;closed=true;
+        try(var observed=boundarySpool){checkObservation();}
     }
 }

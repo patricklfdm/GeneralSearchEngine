@@ -1,0 +1,130 @@
+{
+  "boundaryBytes": 390212,
+  "captureFeasibility": {
+    "existingEmptyGatesChanged": false,
+    "existingMainWireLimitBytes": 67108864,
+    "existingWholeReplayDefaultsToEmpty": true,
+    "limitsRaised": false,
+    "lowerBoundExcludes": [
+      "frame metadata",
+      "additional encoding layers",
+      "other owners",
+      "other transfers",
+      "replies",
+      "retries"
+    ],
+    "maximumImageQualified": false,
+    "maximumNativeImageBytes": 67108832,
+    "nextRequired": [
+      "explicit source binding through complete physical/network/ledger/resource replay",
+      "dedicated large-backup evidence layout and bounded readers under declared inventory limits",
+      "full same-original joining/resource and maximum execution after implementation"
+    ],
+    "phase3Complete": false,
+    "scope": "current source and arithmetic only; no new execution",
+    "singleBase64CopyLowerBoundBytes": 89478444,
+    "status": "AUDITED"
+  },
+  "combinedResourcesQualified": false,
+  "diagnosticInvocation": {
+    "corrected": "python3 -m target.v53-resource-boundary-spool.capture_feasibility",
+    "failure": "ModuleNotFoundError: No module named scripts",
+    "initial": "direct script invocation",
+    "workloadRerun": false
+  },
+  "eventBytes": 168112,
+  "eventResourceNegatives": 6,
+  "eventRows": 1786,
+  "files": {
+    "target/v53-resource-boundary-spool/V53AuxiliaryWireTest.xml": "52eee1d40f9e38aec21bf712e03a8142e489fba9296b7d5592bdd3c4ad35bcaf",
+    "target/v53-resource-boundary-spool/V53EvidenceSpoolTest.xml": "38da0a08d14d352411113bae03296a9438d79d81f8afde419940ae1c43a7ee0b",
+    "target/v53-resource-boundary-spool/V53NativeSeedTest.xml": "04d2f81cb3ea6ea1274af24a80cec7ef84168e3a8db2818137ca2f5524a3af0e",
+    "target/v53-resource-boundary-spool/V53ResourceBoundarySpoolTest.xml": "0c9bb2d8ce42c990c4f9dd069fc168b2ec6be5aeb2690f1075c363dbdb063aba",
+    "target/v53-resource-boundary-spool/V53ResourceTransitionCaptureTest.xml": "3865f0c6fb90f1cc43f2c456bd494013841f261f8c601278ffc423e6677226d6",
+    "target/v53-resource-boundary-spool/capture-feasibility.json": "b8c29a1788021a93c6eeac3303e445f61f6054e22c7581a3a1c6b4cdb5a4ddd7",
+    "target/v53-resource-boundary-spool/capture-feasibility.log": "8f044ba9b329ba64226ba6e80248d5ae9f0b74488722ce037fcae9797f35ea39",
+    "target/v53-resource-boundary-spool/capture_feasibility.py": "82cd5771563bf2ac8265708ab85049a847df416410738f73a8eff72c4d6fb159",
+    "target/v53-resource-boundary-spool/contract.log": "67368d1536cb23051af82272e5ced65d3b2b310ca360fdf8edfb21c9452c2c38",
+    "target/v53-resource-boundary-spool/event-resource-replay.json": "b7acfc9c13c76ac8ea08896f593cd6fb9de46ba4416064bf9a6d6cce8c36b7d0",
+    "target/v53-resource-boundary-spool/maven-reactor.log": "0e9774b724f4e8d1e554378766e5bff6304692b0ca93cc29693174400ed632f8",
+    "target/v53-resource-boundary-spool/maven.log": "0e9774b724f4e8d1e554378766e5bff6304692b0ca93cc29693174400ed632f8",
+    "target/v53-resource-boundary-spool/plan-tests.log": "56cf690efb51307ef78772161665d5130b8544fb9f9c9cc414f830b3a93c32cf",
+    "target/v53-resource-boundary-spool/python-tests.log": "353a56f8c0a0821d7b773faa4bfa4b4b2faa663817da465ade36769bea7f387c",
+    "target/v53-resource-boundary-spool/replay.log": "b1a251e1a490d62088b4dc6ab8e17a3de128f4a8b0cb0e4334fab8f34a18a539",
+    "target/v53-resource-boundary-spool/replay.py": "7f44e9ea8671681fd3bd99ee2eae4fe3721f5a6a50e08457f0c4407910b44de8",
+    "target/v53-resource-boundary-spool/seed-replay.json": "bd55a10b27c70bffb6af0ef9fecb088f45ace942b606e0412bcaf1d1aff64473",
+    "target/v53-resource-boundary-spool/summarize.py": "cf4bb9104e20d1f303b209329d2eba3357ab3f790dc3a351e3f3d50021bbeb6c",
+    "target/v53-resource-boundary-spool/validation-summary.json": "335873aeb38986694f09eb37e8ccec84d803be268e1f79d30b1dcbe0a6925b23"
+  },
+  "finalSourceCohortQualified": false,
+  "fullJoiningQualified": false,
+  "javaSuites": [
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53ResourceBoundarySpoolTest",
+      "seconds": 0.988,
+      "skipped": 0,
+      "tests": 6
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53ResourceTransitionCaptureTest",
+      "seconds": 6.21,
+      "skipped": 0,
+      "tests": 10
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53EvidenceSpoolTest",
+      "seconds": 1.181,
+      "skipped": 0,
+      "tests": 24
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53AuxiliaryWireTest",
+      "seconds": 0.018,
+      "skipped": 0,
+      "tests": 8
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53NativeSeedTest",
+      "seconds": 60.905,
+      "skipped": 0,
+      "tests": 2
+    }
+  ],
+  "javaTests": 50,
+  "lowHeapProbe": {
+    "boundaryByteLimit": 33554432,
+    "dualCollectors": true,
+    "eventByteLimit": 33554432,
+    "heapMiB": 32,
+    "minimumBoundaryMiB": 8,
+    "rows": 65536,
+    "wholeRuntimeMemoryQualified": false
+  },
+  "maximumImageQualified": false,
+  "nativeOriginal": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-dispatch/run-67bbd862-a3c1-4e7a-905b-b2941c72bb7b",
+  "nativeSeedNegatives": 2,
+  "owners": [
+    "node-1",
+    "node-2",
+    "node-3",
+    "node-4",
+    "node-5"
+  ],
+  "parent": "f9eff7f42eefdf6dc9999676921dd86a18fc212f",
+  "phase3Complete": false,
+  "pythonContractTests": 19,
+  "pythonFocusedTests": 78,
+  "schema": "gse-v53-resource-boundary-spool-development-v1",
+  "scope": "development working tree; short native seed only; no final-source cohort",
+  "status": "PASS"
+}

@@ -138,7 +138,7 @@ class V53NativeDispatchTest {
             return Collections.synchronizedList(new ArrayList<>());
         }
         private void closeEvidenceOnFailure(Throwable error) {
-            try(var auxiliary=auxiliaryWire;var primary=wireSpool;var observed=eventSpool){}
+            try(var captures=resourceTransitions;var auxiliary=auxiliaryWire;var primary=wireSpool;var observed=eventSpool){}
             catch(Exception|Error close){if(error!=close)error.addSuppressed(close);}
         }
         private void openActors(long endpointBudget,boolean liveDirectory)throws Exception {
@@ -154,7 +154,8 @@ class V53NativeDispatchTest {
             if(Boolean.getBoolean("v53.publication.resources"))publicationResources=new V53PublicationResourceCapture(f.raw);
             if(Boolean.getBoolean("v53.resource.transitions"))resourceTransitions=new V53ResourceTransitionCapture(f.raw,f.result.root().manifestDigest(),
                     Boolean.getBoolean("v53.resource.owner.close")?f.request.targets().stream().map(t->t.identity().nodeId().value()).sorted().toList():List.of(),
-                    Boolean.getBoolean("v53.resource.control.close"),Boolean.getBoolean("v53.resource.export.ownership"));
+                    Boolean.getBoolean("v53.resource.control.close"),Boolean.getBoolean("v53.resource.export.ownership"),
+                    f.request.source()==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP);
             f.snapshot("before-network");
             for(var target:f.request.targets()) {
                 var budget=resourceBudget(target.identity());resources.add(budget);links.add(new AtomicReference<>());
@@ -320,7 +321,7 @@ class V53NativeDispatchTest {
             System.out.println("v53NativeDispatchStage=published-"+certificate.value().get("index"));
         }
         @Override public void close()throws Exception {
-            try(var auxiliary=auxiliaryWire;var captured=wireSpool;var observed=eventSpool) {
+            try(var captures=resourceTransitions;var auxiliary=auxiliaryWire;var captured=wireSpool;var observed=eventSpool) {
             hook.set(event->{});if(driver!=null)driver.close();for(var endpoint:endpoints)endpoint.close();for(var transport:transports)transport.close();
             for(var owner:owners) {
                 if(resourceTransitions==null)owner.close();else resourceTransitions.closeOwner(owner,events);
