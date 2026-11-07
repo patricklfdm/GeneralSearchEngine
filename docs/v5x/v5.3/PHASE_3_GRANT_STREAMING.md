@@ -73,10 +73,11 @@ by the final focused run and actual original-derived negatives.
 
 ## Remaining work and rollback
 
-Source-retirement and publication-resource object pools still use their old
-256 MiB eager collectors. Semantic derivation may also materialize application
-images. Their complete capture/read paths and whole-reader memory need separate
-work before a maximum-image native execution can be accepted. The full default-
+The [object-pool follow-up](PHASE_3_CAPTURE_OBJECTS.md) now covers source-retirement
+and publication-resource streaming collection under explicit segmented policy.
+Semantic derivation may still materialize application images. The maximum physical
+snapshot bound and whole-reader memory need further work before a maximum-image
+native execution can be accepted. The full default-
 staging history, 150-negative gate, simultaneous resource ownership and final-
 source execution remain unqualified. All five Phase 3 closure gaps remain open.
 

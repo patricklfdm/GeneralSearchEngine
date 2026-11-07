@@ -105,6 +105,13 @@ class V53BootstrapPublicationTest {
             snapshot("round-"+round+"-installed");maintain("round-"+round+"-settled",obsolete);
         }
         void publish(int slot,boolean data)throws Exception {
+            publish(slot,data,true);
+        }
+        /** Complete publication observation requires one new publication, not its idempotent short path. */
+        void publishOnce(int slot,boolean data)throws Exception {
+            publish(slot,data,false);
+        }
+        private void publish(int slot,boolean data,boolean repeat)throws Exception {
             byte[] payload=new byte[0];var first=request.targets().getFirst();
             if(data)try(var encoder=new ReplicaApplication<>(builder().configuration(),first.materialization(),ReplicationBounds.defaults())) {
                 payload=MembershipApplicationReplay.data("ADD",encoder.documents("ADD",List.of(new Doc(303,"admitted-original"))));
@@ -145,7 +152,8 @@ class V53BootstrapPublicationTest {
             snapshot("slot-"+slot+"-applied");
             for(var t:request.targets())try(var owner=open(t,"publish-"+slot)) {
                 var value=applied.get(t.identity().nodeId().value());var manifest=owner.publishCurrent(value,acks,checkpoints,bridges);
-                assertArrayEquals(manifest.bytes(),owner.publishCurrent(value,acks,checkpoints,bridges).bytes());assertTrue(owner.currentCertificate().isEmpty());assertTrue(owner.currentOwnedTail().isEmpty());
+                if(repeat)assertArrayEquals(manifest.bytes(),owner.publishCurrent(value,acks,checkpoints,bridges).bytes());
+                assertTrue(owner.currentCertificate().isEmpty());assertTrue(owner.currentOwnedTail().isEmpty());
             }
             snapshot("slot-"+slot+"-published");maintain("slot-"+slot+"-settled",Map.of());
             for(var t:request.targets())try(var owner=open(t,"inspect-"+slot)) {

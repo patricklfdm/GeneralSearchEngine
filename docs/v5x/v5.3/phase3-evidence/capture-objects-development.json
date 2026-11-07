@@ -1,0 +1,375 @@
+{
+  "baseHead": "f14bdf3d23526c88a2668cac1e22c2de804d3979",
+  "combinedResourcesQualified": false,
+  "contract": {
+    "fileBytes": 67108864,
+    "legacyPoolBytes": 268435456,
+    "objectsPerPool": 8192,
+    "productionRuntimeChanged": false,
+    "publicationCaptures": 1024,
+    "retirementCaptures": 512,
+    "snapshotBytes": 536870912,
+    "source": "VERIFIED_DURABLE_BACKUP",
+    "wholeOriginalBudgetShared": true,
+    "wholeOriginalBytes": 137438953472,
+    "wireLayout": "SEGMENTED_BACKUP",
+    "workflowChanged": false
+  },
+  "contractCheck": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 3164,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "finalSourceCohortQualified": false,
+  "memory": {
+    "inputBytes": 335544320,
+    "javaHeapCeilingBytes": 33554432,
+    "pythonAddressSpaceCeilingBytes": 167772160,
+    "pythonSharedViews": 1024,
+    "scope": "synthetic distinct objects and immutable prefix mappings only",
+    "wholeReaderMeasured": false
+  },
+  "nativeMaximumQualified": false,
+  "operatorEnvironment": {
+    "decision": "Finish development; arrange formal acceptance environment later.",
+    "environmentChecksPreserved": true,
+    "qualifiedMaximumLinuxHostAvailable": false
+  },
+  "phase3Complete": false,
+  "remaining": [
+    "derive maximum physical snapshot bound from frozen metadata/application/log contracts and actual ownership",
+    "whole-reader maximum memory",
+    "maximum-image native composition and same-owner pressure/refusal boundaries",
+    "complete default-staging native history and 150 negatives",
+    "component cohorts, coverage/admission and immutable final-source execution"
+  ],
+  "replay": {
+    "comparisons": [
+      {
+        "independentHistoryQualified": false,
+        "inventorySha256": "a800a3f5e73140b7914ce01cc3ce8222855f0b3dfce0b34c2f813ca093c018e8",
+        "kind": "actual-backup-writer",
+        "originalUnchanged": true,
+        "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-capture-objects/run-d6430b50-51c5-424d-94d0-5d7faf72d855",
+        "publication": {
+          "prefixes": 33,
+          "rowsSha256": "98087ab7c5ca76e658aa4670aa7922c2e44292da19338911887a890a3e73b5ba",
+          "transactions": 3
+        },
+        "retirement": {
+          "prefixes": 45,
+          "rowsSha256": "f03a95bc5a6ec17b22cbce746aaac3d44564e470912cd74eaf908697a5cc86a3",
+          "transactions": 3
+        }
+      },
+      {
+        "independentHistoryQualified": false,
+        "inventorySha256": "77dedf0a6e5f66c279157d7ce560765a3e4fc5983d40e4cfac9dd3b77de78c58",
+        "kind": "retained-empty-history-component-comparison",
+        "originalUnchanged": true,
+        "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-required-four-complete-v2/original-78403d87/workspace/general-search-engine-replication/target/v53-native-dispatch/run-66c3303e-c1e3-401c-8c61-aea19c2e5d15",
+        "publication": {
+          "prefixes": 374,
+          "rowsSha256": "1419f471d9eaad0ecedfeecd63f499a8ee88a9349627c19c71951c8a319198d3",
+          "transactions": 34
+        },
+        "retirement": {
+          "prefixes": 330,
+          "rowsSha256": "45e4a517b247af6fa4851ec6faf6ef5db84e7e33d4551ff61a2c25ba0c425cc8",
+          "transactions": 22
+        }
+      }
+    ],
+    "elapsedSeconds": 28.073,
+    "finalSourceCohortQualified": false,
+    "nativeMaximumQualified": false,
+    "phase3Complete": false,
+    "rejectedOriginals": [
+      {
+        "containsIdempotentShortPaths": true,
+        "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-capture-objects/run-e8c70efe-15d8-4784-98fd-04641f9d0bdd",
+        "reason": "publication resources complete boundary order",
+        "status": "REJECTED"
+      }
+    ],
+    "retirementComponent": {
+      "inventorySha256": "6f2807dfa74092057402c35ffd5bb3523f44fdcb15db9f76bba069507ce6ec35",
+      "negatives": [
+        {
+          "case": "missing-copy",
+          "reason": "retirement capture missing copy/start",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-event-digest",
+          "reason": "retirement capture event digest",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-object",
+          "reason": "retirement capture missing object/size",
+          "status": "REJECTED"
+        },
+        {
+          "case": "altered-object",
+          "reason": "retirement capture object identity/capacity",
+          "status": "REJECTED"
+        },
+        {
+          "case": "extra-object",
+          "reason": "retirement capture unobserved object",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-floor",
+          "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_WRITTEN",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-source-file",
+          "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_WRITTEN",
+          "status": "REJECTED"
+        },
+        {
+          "case": "premature-journal-pruning",
+          "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_WRITTEN",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-deletion",
+          "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_FILE_DELETED",
+          "status": "REJECTED"
+        },
+        {
+          "case": "extra-preserved-file",
+          "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_BEFORE_RETURN",
+          "status": "REJECTED"
+        },
+        {
+          "case": "lost-force",
+          "reason": "retirement capture exact prefix count",
+          "status": "REJECTED"
+        },
+        {
+          "case": "foreign-scope",
+          "reason": "retirement capture event point/scope",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "capturedPrefixes": 15,
+        "independentInitialFixture": true,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "scope": "source-retirement-component-prefixes",
+        "status": "PASS",
+        "transactions": 1,
+        "wholeJoiningHistory": false
+      },
+      "originalUnchanged": true,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-source-retirement-capture/run-59557ba7-271e-4782-9abf-db2dd21f34a6",
+      "streamedPrefixes": 15
+    },
+    "scope": "streaming-capture-components-only",
+    "status": "PASS",
+    "wholeReaderMemoryQualified": false
+  },
+  "retainedFailures": [
+    {
+      "path": "target/v53-capture-objects/java.log",
+      "reason": "New test used the historical idempotency helper; it captured 39 boundaries including six short-path points. The failed original is retained and rejected. New publishOnce entry preserves the old helper."
+    },
+    {
+      "path": "target/v53-capture-objects/replay-failed.log",
+      "reason": "New adapter initially emitted size instead of the existing retirement oracle bytes field. Corrected; unchanged original and all 12 negatives pass."
+    },
+    {
+      "path": "target/v53-capture-objects/python-final-focused.log",
+      "reason": "New negative-driver test initially omitted events.json; corrected fixture passes final selection."
+    }
+  ],
+  "retainedFiles": {
+    "target/v53-capture-objects/contract.json": "a1dd418237cafbc49d4df92d4db445ed0efcbda6dd2f77d1772f90508f255ac4",
+    "target/v53-capture-objects/final-python.json": "f2d5b694eba95289e5c879ed013e5b1c9d0195d0054ce451326f1127737b2458",
+    "target/v53-capture-objects/java-corrected.log": "573edaeb08b477e9e9732075e39962e84029493ebedb8848d21fd5e841bc4b5c",
+    "target/v53-capture-objects/java.log": "6d4f32d1e1cd624edaf3e455cac211e77892e27d2dd77b2f8beda721685e5cc7",
+    "target/v53-capture-objects/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53BootstrapPublicationTest.xml": "3578649f04502138cffd5fad239dc5e632f98b46c9f5a24bdd8f19c8cadab7ae",
+    "target/v53-capture-objects/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53CaptureFilesTest.xml": "2ea2a1bca8f5352df50eedcbcfaa0b3ef9f173b75d980ac647f6208530f99d44",
+    "target/v53-capture-objects/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53CaptureObjectsTest.xml": "56af281313820d99d00db45b2a918f7673c6db95087e41ce6a95c664c06f214b",
+    "target/v53-capture-objects/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53GrantCaptureTest.xml": "f5831edf48e8c05c9c03a23af0135bcb008e51891b82ad9791c6bdb60b8cc07d",
+    "target/v53-capture-objects/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceRetirementCaptureTest.xml": "a03b5f58a968b12698b42d02d4217d364b47f91ef700ceb31780bd811b882a9a",
+    "target/v53-capture-objects/python-final-focused.log": "666b5c3e698ad64805a1402e03a2bd79bca6adb3c0fb8f2b725e7ecc4c10c674",
+    "target/v53-capture-objects/python-final.log": "46586612bdce5e0e9ae40b491585cbe98417afaf7d73f51ab114fa8cb055ea55",
+    "target/v53-capture-objects/python-focused.log": "d7d84a94d841534fc024169a71ba8a4166b9cc8484683f3c5aaf3811a8d6d42a",
+    "target/v53-capture-objects/python.log": "9f1e04285e9fe10709f220421ef36c000e62a77e8ee0974e7419a5e1d9afa778",
+    "target/v53-capture-objects/replay-corrected.log": "3186953679b1c0d592a453f00648d14e5edc5cd24ce722d5781a251f060644c1",
+    "target/v53-capture-objects/replay-failed.log": "24e6ceb8c65a39d052e9c8ab7bfa49fb6b3900faddc240b43192e9ef4c045724",
+    "target/v53-capture-objects/replay.json": "af72825ce588c2991bd70af817ff52c94c66517f9e43ceefa52c4ca68669f2c1",
+    "target/v53-capture-objects/replay.log": "24e6ceb8c65a39d052e9c8ab7bfa49fb6b3900faddc240b43192e9ef4c045724",
+    "target/v53-capture-objects/replay.py": "50370268924b5fe1ad987309651bcd9619d1ae188a0464aabd7933791f601dc9",
+    "target/v53-capture-objects/run_tests.py": "06e96d121970a9805958f397509650fbaea87cb28df3019dea57abc34f320ee0",
+    "target/v53-capture-objects/test-modules.json": "281120cc97e59f949de84adb9cdb21ec65e2e41d812250148e321832b5454c23"
+  },
+  "schema": "gse-v53-capture-objects-development-v1",
+  "scope": "streaming-observation-pools-components",
+  "sourceFiles": {
+    "docs/v5x/v5.3/PHASE_3_CAPTURE_OBJECTS.md": "5908b01bcd01e01386b1d1f29ffbbef738623f009ef743130519d0d06d4b6bdc",
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": "f5fca8407dbf31f1833f66ffe9130bc6879b83724dfd555b11c061ba3bee46e9",
+    "docs/v5x/v5.3/PHASE_3_GRANT_STREAMING.md": "fabe0100bea81f197503ac990ded5438859777702a72010314b8af81e9db60e9",
+    "docs/v5x/v5.3/PHASE_3_NATIVE_STAGING.md": "29d35e39ecb4640ff3cc5635e13b525af56b040ae1444b45b9d8325a39cef403",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapPublicationTest.java": "a6938554cdd8c2ec341511400beb7320d0b050400af3da914454a398a36cd189",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CaptureFiles.java": "7adcc5ba2009e5775d360362f483f81d24f23a80040419f72fb1c11f07c1a53c",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CaptureObjectsTest.java": "b905e25ed60e60d4ed049c08edc2a7ce159324a7b889da5fd3a758f0221e6d0c",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "8d6c5f7f1081052c34308752c7cadc1b1284ed687f208f4931255a2ab601e396",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java": "af76757f6b82a06bdaada22e1b7a7ee5bf5f7fe0fa609162de73efa28d74f631",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationResourceCapture.java": "eea5a2939c6a40ac1e624053fed8203265c3178b7ea707ec46e362347231a65f",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SourceRetirementCapture.java": "8ecede5e3a75701cd5c1c96b0647f656ed0c8f04d252216d7019326be2f5d6db",
+    "scripts/v53/capture_objects.py": "4a0096ce85e58862657e5bbde33a3ec8ac104a4442510f1952b14c0fe891479a",
+    "scripts/v53/joined_handoff_resources.py": "eee275f9a82cc1a6fe048f783c9d4fbec1a34939b672f645dedc5b996f1d8121",
+    "scripts/v53/joining_export_evidence.py": "676923839bde94d64d23ddc0bf251cc58027ae8b1a67a60a6c349ba61bf90aaf",
+    "scripts/v53/joining_retirement_replay.py": "a4338f605a6095ff08b610f656b8f4a348ec4cfefdc7b93615d1ca685aa38dea",
+    "scripts/v53/joining_source_retirement.py": "f6fd02ee68c861d11c44b701a06b89fb501a27523607d28b74b0281a5fb11a61",
+    "scripts/v53/native_resource_evidence.py": "185322ba4154fb1ac21049e24fc418156aa05aad7536cfa62b305b1c0f5797d1",
+    "scripts/v53/physical_snapshot.py": "86bdd7e6b4fcd15d2253bba884c8cf8aa590174b9e9ce1b0fec0781998be3e76",
+    "scripts/v53/publication_resource_evidence.py": "4b65c8d63ab09ef894e2341b498a6b40dcd4d7d378b174a28732048ff72b01d7",
+    "scripts/v53/publication_resource_negatives.py": "06ddda2bbb0cdb405f87ff1181db9fb70dffe9842485076315fa85ba17fe4775",
+    "scripts/v53/required_four_physical.py": "f0d2b215336886de63d1b7cb8d1c961c667c920c2e2d73cf0899d7d72f054424",
+    "scripts/v53/required_four_resources.py": "6ffe041994ce8656f0bbe0897a1fa1833d5f1d338fd7e5d54aa4bd86267c2b95",
+    "scripts/v53/test_capture_objects.py": "7a82cabce43a0a5da6e34fed35023f9929b9a262ecb0f80d3147efd53024c5cd"
+  },
+  "status": "PASS",
+  "tests": {
+    "java": [
+      {
+        "errors": 0,
+        "failures": 0,
+        "junit": "target/v53-capture-objects/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53CaptureFilesTest.xml",
+        "name": "V53CaptureFilesTest",
+        "seconds": 1.055,
+        "skipped": 0,
+        "tests": 5
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "junit": "target/v53-capture-objects/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53CaptureObjectsTest.xml",
+        "name": "V53CaptureObjectsTest",
+        "seconds": 39.242,
+        "skipped": 0,
+        "tests": 4
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "junit": "target/v53-capture-objects/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceRetirementCaptureTest.xml",
+        "name": "V53SourceRetirementCaptureTest",
+        "seconds": 0.621,
+        "skipped": 0,
+        "tests": 2
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "junit": "target/v53-capture-objects/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53BootstrapPublicationTest.xml",
+        "name": "V53BootstrapPublicationTest",
+        "seconds": 470.257,
+        "skipped": 0,
+        "tests": 1
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "junit": "target/v53-capture-objects/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53GrantCaptureTest.xml",
+        "name": "V53GrantCaptureTest",
+        "seconds": 6.887,
+        "skipped": 0,
+        "tests": 3
+      }
+    ],
+    "python": {
+      "elapsedSeconds": 22.646,
+      "errors": 0,
+      "failures": 0,
+      "modules": [
+        "scripts.v53.test_activation_control_resources",
+        "scripts.v53.test_backup_inventory",
+        "scripts.v53.test_backup_required_four_resources",
+        "scripts.v53.test_backup_resource_capacity",
+        "scripts.v53.test_backup_resource_hosted",
+        "scripts.v53.test_backup_resource_run",
+        "scripts.v53.test_bootstrap_replay_contract",
+        "scripts.v53.test_capture_objects",
+        "scripts.v53.test_connection_transcript",
+        "scripts.v53.test_contract_check",
+        "scripts.v53.test_format_fixture",
+        "scripts.v53.test_format_qualification",
+        "scripts.v53.test_grant_streaming",
+        "scripts.v53.test_joined_handoff_resources",
+        "scripts.v53.test_joining_attempts",
+        "scripts.v53.test_joining_control_evidence",
+        "scripts.v53.test_joining_export_evidence",
+        "scripts.v53.test_joining_grant_captures",
+        "scripts.v53.test_joining_history_run",
+        "scripts.v53.test_joining_initialization_evidence",
+        "scripts.v53.test_joining_initialization_process_evidence",
+        "scripts.v53.test_joining_network_evidence",
+        "scripts.v53.test_joining_preparation_evidence",
+        "scripts.v53.test_joining_profile_ballot_evidence",
+        "scripts.v53.test_joining_profile_continuation_evidence",
+        "scripts.v53.test_joining_profile_control_evidence",
+        "scripts.v53.test_joining_profile_evidence",
+        "scripts.v53.test_joining_profile_export_evidence",
+        "scripts.v53.test_joining_profile_initialization_evidence",
+        "scripts.v53.test_joining_profile_ledger_evidence",
+        "scripts.v53.test_joining_profile_maintenance_evidence",
+        "scripts.v53.test_joining_profile_network_evidence",
+        "scripts.v53.test_joining_profile_peer_evidence",
+        "scripts.v53.test_joining_profile_physical_evidence",
+        "scripts.v53.test_joining_profile_run",
+        "scripts.v53.test_joining_publication_evidence",
+        "scripts.v53.test_joining_retirement_replay",
+        "scripts.v53.test_joining_same_view_ballot",
+        "scripts.v53.test_joining_source_loss",
+        "scripts.v53.test_joining_source_retirement",
+        "scripts.v53.test_json_budget",
+        "scripts.v53.test_maximum_transition_hosted",
+        "scripts.v53.test_maximum_transition_inventory",
+        "scripts.v53.test_native_resource_evidence",
+        "scripts.v53.test_native_resource_policy",
+        "scripts.v53.test_native_source_resources",
+        "scripts.v53.test_phase3_qualification_plan",
+        "scripts.v53.test_phase3_resource_artifacts",
+        "scripts.v53.test_phase3_resource_cohort",
+        "scripts.v53.test_phase3_resource_workflows",
+        "scripts.v53.test_physical_snapshot",
+        "scripts.v53.test_publication_resource_evidence",
+        "scripts.v53.test_remove_process_hosted",
+        "scripts.v53.test_required_four_direct_exports",
+        "scripts.v53.test_required_four_evidence",
+        "scripts.v53.test_required_four_exports",
+        "scripts.v53.test_required_four_ledgers",
+        "scripts.v53.test_required_four_maintenance",
+        "scripts.v53.test_required_four_network",
+        "scripts.v53.test_required_four_physical",
+        "scripts.v53.test_required_four_resource_hosted",
+        "scripts.v53.test_required_four_resource_run",
+        "scripts.v53.test_required_four_resources",
+        "scripts.v53.test_segmented_backup_replay",
+        "scripts.v53.test_segmented_evidence",
+        "scripts.v53.test_segmented_transcript",
+        "scripts.v53.test_slot_control_resources",
+        "scripts.v53.test_source_control_resource_evidence",
+        "scripts.v53.test_voting_control_resources",
+        "scripts.v53.test_wire_archive"
+      ],
+      "skipped": 0,
+      "status": "PASS",
+      "tests": 879
+    }
+  }
+}

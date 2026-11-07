@@ -127,7 +127,7 @@ def source_authority(windows,request,lower,upper):
 
 
 def source_windows(root,events,*,replay=None):
-    captures=p.captures.collect(root,events,**p.captures.options(replay));retirements=n.physical.observed.collect(root,events);ends={}
+    captures=p.captures.collect(root,events,**p.captures.options(replay));retirements=n.physical.observed.collect(root,events,**p.captures.options(replay));ends={}
     for transaction in retirements:
         step=next(v for v in transaction['steps'] if v['point']=='SOURCE_RETIREMENT_WRITTEN')
         raw=step['files'][n.physical.observed.release.AUTHORITY];size=48+int.from_bytes(raw[12:16],'big')

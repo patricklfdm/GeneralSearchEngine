@@ -12,6 +12,8 @@ import tempfile
 
 from . import joining_grant_captures as grants
 from . import source_release_evidence as release
+from . import capture_objects
+from . import bootstrap_replay_contract as policy
 
 f, need, sha = grants.f, grants.need, grants.sha
 DIRECTORY, EVENT = 'source-retirement-captures', 'SOURCE_RETIREMENT_CAPTURED'
@@ -19,15 +21,18 @@ SCHEMA = 'gse-v53-source-retirement-capture-v1'
 MAXIMUM_CAPTURES = 512
 
 
-def collect(root, events):
+def collect(root, events, *, bootstrap_source=policy.EMPTY, wire_layout=policy.JSON):
+    source_args=policy.options(bootstrap_source,wire_layout)
     need(type(events) is list and 0 < len(events) <= 65536 and all(type(row) is dict for row in events),
          'retirement capture event collection')
     root = Path(root)/DIRECTORY
     need(root.is_dir() and not root.is_symlink(), 'retirement capture collection missing')
     objects = root/'objects'
     need(objects.is_dir() and not objects.is_symlink(), 'retirement capture object directory')
-    payloads = {}; used = set(); total = 0
-    for path in objects.iterdir():
+    streamed=wire_layout==policy.SEGMENTED
+    payloads = capture_objects.Pool(objects,label='retirement capture',**source_args) if streamed else {}
+    used = set(); total = 0
+    for path in (() if streamed else objects.iterdir()):
         need(re.fullmatch('[0-9a-f]{64}', path.name) is not None and len(payloads) < 8192, 'retirement capture object name/count')
         raw = grants.snapshot.s.regular(path,64*grants.MIB); total += len(raw)
         need(total <= grants.MAXIMUM_BYTES and sha(raw) == path.name, 'retirement capture object identity/capacity')
@@ -61,10 +66,13 @@ def collect(root, events):
                     need(set(identity) == {'size','sha256'} and type(identity['size']) is int and identity['size'] >= 0
                          and type(identity['sha256']) is str and identity['sha256'] in payloads,
                          'retirement capture missing object/size')
-                    digest = identity['sha256']; data = payloads[digest]
-                    need(len(data) == identity['size'], 'retirement capture file size'); used.add(digest); files[path] = data
+                    digest = identity['sha256']
+                    size=payloads.size(digest) if streamed else len(payloads[digest])
+                    need(size == identity['size'], 'retirement capture file size'); used.add(digest)
+                    files[path] = digest if streamed else payloads[digest]
                 parent = str(Path(path).parent)
                 need(parent == '.' or parent in files and files[parent] is None, 'retirement capture parent directory')
+            if streamed:files=payloads.view(files)
             need(type(files.get('root.gsr')) is bytes and type(files.get('node.gsr')) is bytes,
                  'retirement capture owner records')
             f.decode(files['root.gsr'],'records','ROOT'); root_id = files['root.gsr'][16:48].hex()
@@ -86,6 +94,7 @@ def collect(root, events):
     need(transactions and not active and not pending, 'retirement capture incomplete transaction')
     need({path.name for path in root.iterdir()} == {'objects',*names}, 'retirement capture unobserved metadata')
     need(used == payloads.keys(), 'retirement capture unobserved object')
+    if streamed:payloads.check_unchanged()
     return transactions
 
 
@@ -96,20 +105,25 @@ def compare(transaction, initial, authority, compact, identifier):
     need(len(rows) == len(expected), 'retirement capture exact prefix count')
     for row, (point, state) in zip(rows,expected):
         need(row['point'] == point, 'retirement capture original force order')
-        observed = {name:dict(directory=True) if value is None else release.r.entry(value) for name,value in row['files'].items()}
+        files=row['files']
+        if type(files) is capture_objects.Files:
+            observed={name:identity if 'directory' in identity else dict(bytes=identity['size'],sha256=identity['sha256'])
+                      for name,identity in files.identities().items()}
+        else:observed = {name:dict(directory=True) if value is None else release.r.entry(value) for name,value in files.items()}
         need(observed == state, 'retirement capture exact prefix: '+point)
     return len(expected)
 
 
-def validate(root, events=None):
+def validate(root, events=None, *, bootstrap_source=policy.EMPTY, wire_layout=policy.JSON):
+    source_args=policy.options(bootstrap_source,wire_layout)
     root = Path(root)
     if events is None:
         from .joining_history_run import read_json, EVENT_BYTES
         events = read_json(root,'events.json',EVENT_BYTES)
-    transactions = collect(root,events)
-    return dict(status='PARTIAL',scope='original-source-retirement-prefix-collection',transactions=len(transactions),
+    transactions = collect(root,events,**source_args)
+    return policy.receipt(dict(status='PARTIAL',scope='original-source-retirement-prefix-collection',transactions=len(transactions),
                 capturedPrefixes=sum(len(v['steps']) for v in transactions),
-                independentlyDerived=False,forceAndNetworkQualified=False,phase3Complete=False)
+                independentlyDerived=False,forceAndNetworkQualified=False,phase3Complete=False),bootstrap_source,wire_layout)
 
 
 def component(root):

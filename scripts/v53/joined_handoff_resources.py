@@ -49,7 +49,7 @@ def original(root, *, bootstrap_source='EMPTY', wire_layout='JSON'):
     p = physical; root = Path(root)
     events = p.s.collection.read_json(root, 'events.json', p.s.collection.EVENT_BYTES)
     captures = p.p.Captures(root, events, voters=p.semantic.OLD_LIVE,**source_args)
-    retirements = p.Retirements(root, events, voters=(*p.semantic.OLD, 'node-6'))
+    retirements = p.Retirements(root, events, voters=(*p.semantic.OLD, 'node-6'),**source_args)
     model = p.s.Replay(root, size=5, kind='REPLACE', required_four=True,**source_args)
     for index in range(1, 12): model.step(index)
     model.publication_receipts = p.c.t.publication.CheckpointReceipts(root, model)

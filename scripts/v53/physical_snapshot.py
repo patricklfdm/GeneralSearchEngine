@@ -123,9 +123,14 @@ class Snapshot(Mapping):
 
     def check_unchanged(self):
         # Filesystem timestamp precision alone cannot prove content stability.
+        self.check_members(self._hashes)
+
+    def check_members(self, names):
+        """Recheck selected payloads without materializing them; still pin the tree."""
         self._check_tree()
-        for name, expected in self._hashes.items():
-            need(self._hash(name) == expected, 'physical snapshot content changed')
+        for name in names:
+            need(name in self._hashes, 'physical snapshot selected file')
+            need(self._hash(name) == self._hashes[name], 'physical snapshot content changed')
         self._check_tree()
 
     def identities(self):

@@ -14,10 +14,16 @@ final class V53SourceRetirementCapture {
     private final Path root,objects;
     private final List<Map<String,Object>> events;
     private final Map<String,String> active=new HashMap<>();
+    private final V53CaptureFiles.ObjectStore streamed;
     private long bytes;
     private int count;
     V53SourceRetirementCapture(Path raw,List<Map<String,Object>> events)throws IOException {
+        this(raw,events,MembershipBootstrapSource.EMPTY,V53WireArchive.Layout.JSON);
+    }
+    V53SourceRetirementCapture(Path raw,List<Map<String,Object>> events,MembershipBootstrapSource source,V53WireArchive.Layout layout)throws IOException {
+        boolean segmented=V53CaptureFiles.segmented(source,layout);
         root=Files.createDirectory(raw.resolve(DIRECTORY));objects=Files.createDirectory(root.resolve("objects"));this.events=Objects.requireNonNull(events);
+        streamed=segmented?new V53CaptureFiles.ObjectStore(objects):null;
     }
     synchronized void at(String node,String scope,Path replica,String point)throws IOException {
         boolean source=point.startsWith("SOURCE_RETIREMENT_");
@@ -27,8 +33,10 @@ final class V53SourceRetirementCapture {
         }
         require(scope.equals(active.get(node)),"retirement capture original start/scope");
         require(count<MAXIMUM_CAPTURES,"retirement capture count capacity");
-        var before=V53GrantCapture.inventory(replica);
-        for(var item:before.entrySet()) {
+        var snapshot=streamed==null?null:new V53CaptureFiles(replica);
+        var before=snapshot==null?V53GrantCapture.inventory(replica):snapshot.inventory();
+        if(streamed!=null)streamed.retain(snapshot);
+        else for(var item:before.entrySet()) {
             var identity=object(item.getValue());if(identity.containsKey("directory"))continue;
             byte[] raw=AdmissionPaths.read(replica.resolve(item.getKey()),V53GrantCapture.MAXIMUM_FILE);
             require(raw.length==number(identity.get("size")) && hash(raw).equals(identity.get("sha256")),"retirement capture original changed");
@@ -39,7 +47,7 @@ final class V53SourceRetirementCapture {
                 Files.write(target,raw,StandardOpenOption.CREATE_NEW);bytes+=raw.length;
             }
         }
-        require(before.equals(V53GrantCapture.inventory(replica)),"retirement capture original changed");
+        if(streamed==null)require(before.equals(V53GrantCapture.inventory(replica)),"retirement capture original changed");
         var metadata=new TreeMap<String,Object>();metadata.put("schema","gse-v53-source-retirement-capture-v1");
         metadata.put("node",node);metadata.put("scope",scope);metadata.put("point",point);
         metadata.put("files",before.entrySet().stream().map(e->Map.of("name",e.getKey(),"identity",e.getValue())).toList());

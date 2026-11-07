@@ -174,8 +174,9 @@ it does not reinterpret small-pool evidence or prove a simultaneous maximum.
 
 [Streaming grant observations](PHASE_3_GRANT_STREAMING.md) now support that
 explicit segmented-backup policy without caching the complete grant snapshot.
-Ordinary JSON bounds remain unchanged. Source-retirement/publication observation
-pools and whole-reader memory still need completion before maximum native runs.
+Ordinary JSON bounds remain unchanged. [Source-retirement/publication observation
+pools](PHASE_3_CAPTURE_OBJECTS.md) also stream under explicit segmented policy;
+maximum physical extent and whole-reader memory remain before maximum native runs.
 
 The maximum-image component is a synchronous storage probe. It does not establish
 an admitted learner, full metadata pressure or automatic-runtime peak. The

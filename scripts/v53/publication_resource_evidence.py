@@ -15,6 +15,7 @@ from . import bootstrap_replay_contract as source_policy
 from . import joining_grant_captures as grants
 from . import native_dispatch_evidence as native
 from . import joining_history_run as history
+from . import capture_objects
 
 f, need, sha, disk = grants.f, grants.need, grants.sha, grants.disk
 MIB = grants.MIB
@@ -44,15 +45,18 @@ def usage(value):
     return dict(metadata=value['metadata'], staging=value['staging'], counts=storage, leases=sum(storage.values()))
 
 
-def collect(root, events):
+def collect(root, events, *, bootstrap_source=source_policy.EMPTY, wire_layout=source_policy.JSON):
+    source_args=source_policy.options(bootstrap_source,wire_layout)
     need(type(events) is list and 0 < len(events) <= 65536 and all(type(v) is dict for v in events),
          'publication resources event collection')
     root = Path(root)/DIRECTORY
     need(root.is_dir() and not root.is_symlink(), 'publication resources collection missing')
     objects = root/'objects'
     need(objects.is_dir() and not objects.is_symlink(), 'publication resources object directory')
-    payloads = {}; used = set(); total = 0
-    for path in objects.iterdir():
+    streamed=wire_layout==source_policy.SEGMENTED
+    payloads = capture_objects.Pool(objects,label='publication resources',**source_args) if streamed else {}
+    used = set(); total = 0
+    for path in (() if streamed else objects.iterdir()):
         need(re.fullmatch('[0-9a-f]{64}', path.name) is not None and len(payloads) < 8192,
              'publication resources object name/count')
         raw = grants.snapshot.s.regular(path,64*MIB); total += len(raw)
@@ -93,10 +97,13 @@ def collect(root, events):
                 need(set(identity) == {'size','sha256'} and type(identity['size']) is int and identity['size'] >= 0 and
                      type(identity['sha256']) is str and identity['sha256'] in payloads,
                      'publication resources missing object/size')
-                digest = identity['sha256']; data = payloads[digest]
-                need(len(data) == identity['size'], 'publication resources file size'); used.add(digest); files[name] = data
+                digest = identity['sha256']
+                size=payloads.size(digest) if streamed else len(payloads[digest])
+                need(size == identity['size'], 'publication resources file size'); used.add(digest)
+                files[name] = digest if streamed else payloads[digest]
             parent = str(Path(name).parent)
             need(parent == '.' or parent in files and files[parent] is None, 'publication resources parent directory')
+        if streamed:files=payloads.view(files)
         observed[row['eventIndex']] = dict(row, files=files, storage=before)
     need({p.name for p in root.iterdir()} == {'objects','index.json',*names}, 'publication resources unobserved metadata')
     need(used == payloads.keys(), 'publication resources unobserved object')
@@ -114,6 +121,7 @@ def collect(root, events):
         rows.append(observed[at]); seen.add(at)
         if point == POINTS[-1]: transactions.append(active.pop(key))
     need(transactions and not active and seen == observed.keys(), 'publication resources incomplete transaction')
+    if streamed:payloads.check_unchanged()
     return transactions
 
 
@@ -235,7 +243,7 @@ def validate(directory, profile='stable', progress=None, *, resource_transitions
     need(bootstrap_source==source_policy.EMPTY or profile=='5-REPLACE-required-four', 'publication resources bootstrap source profile')
     root = Path(directory); before = source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)
     receipt,plans = original(root,profile,progress,resource_transitions=resource_transitions,control_closes=control_closes,**source_args)
-    transactions = collect(root,events(root))
+    transactions = collect(root,events(root),**source_args)
     result = compare(transactions,plans)
     need(source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout) == before, 'publication resources original changed')
     return source_policy.receipt(dict(status='PASS',scope='native-publication-storage-boundaries',profile=profile,precondition=receipt,**result,

@@ -80,8 +80,9 @@ cohort or a claim that all categories were simultaneously full.
 The remaining work is to bind a maximum-image execution entry and its complete
 capture/transport, declare permitted same-owner pressure/refusal/continuation
 boundaries, check whole-reader memory, and execute the final complete histories.
-The [grant-copy path](PHASE_3_GRANT_STREAMING.md) now has explicit streaming
-capture/replay; retirement and publication object pools remain separate work.
+The [grant-copy path](PHASE_3_GRANT_STREAMING.md) and
+[retirement/publication pools](PHASE_3_CAPTURE_OBJECTS.md) now have explicit
+streaming capture/replay; maximum physical extent and whole-reader memory remain.
 Neither separate component peaks nor artificially extended receivers may be
 combined into a success claim. Rollback removes the explicit profile and new
 gate together; old fixture defaults and retained originals remain intact.

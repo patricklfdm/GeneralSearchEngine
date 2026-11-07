@@ -133,7 +133,7 @@ def _qualify(root,progress,bootstrap_source,wire_layout='JSON',resource_profile=
     wires=wire_archive.read(root,'wire.json',bootstrap_source=bootstrap_source,layout=wire_layout)
     base=(events,wires,traces,boundaries,identities,index['root'])
     published=slot.r.required_four_publications(reader.model,identities)
-    complete=(*base,published,native.publication.collect(root,events))
+    complete=(*base,published,native.publication.collect(root,events,**source_args))
     for name,module,data,key in (('voting-control',voting,base,'votingControlResources'),
                                 ('slot-control',slot,complete,'slotControlResources'),
                                 ('activation-control',activation,complete,'activationControlResources')):

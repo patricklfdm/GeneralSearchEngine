@@ -23,6 +23,13 @@ final class V53CaptureFiles {
 
     Map<String,Object> inventory(){return inventory;}
 
+    static boolean segmented(MembershipBootstrapSource source,V53WireArchive.Layout layout) {
+        Objects.requireNonNull(source);Objects.requireNonNull(layout);
+        require(layout!=V53WireArchive.Layout.SEGMENTED_BACKUP || source==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP,
+                "capture segmented layout requires backup");
+        return layout==V53WireArchive.Layout.SEGMENTED_BACKUP;
+    }
+
     private Map<String,Object> identity(Path path)throws IOException {
         var a=Files.readAttributes(path,BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS);
         require(a.isDirectory() || a.isRegularFile(),"capture regular file/directory");
@@ -82,5 +89,75 @@ final class V53CaptureFiles {
 
     void unchanged()throws IOException {
         require(inventory.equals(hashes()),"capture original content changed");
+    }
+
+    private void transfer(String name,Path target)throws IOException {
+        var expected=MembershipFormat.object(inventory.get(name));var saved=pinned.get(name);
+        Path source=root.resolve(name);require(saved.equals(identity(source)),"capture original identity changed");
+        long length=0;var buffer=ByteBuffer.allocate(1024*1024);MessageDigest digest;
+        try{digest=MessageDigest.getInstance("SHA-256");}catch(NoSuchAlgorithmException e){throw new AssertionError(e);}
+        try(var input=MembershipFileAccess.open(source,StandardOpenOption.READ);
+            var output=java.nio.channels.FileChannel.open(target,StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+            int n;
+            while((n=input.read(buffer))!=-1) {
+                require(n>0,"capture stream made no progress");length+=n;
+                require(length<=MembershipFormat.number(expected.get("size")),"capture original extent changed");
+                buffer.flip();digest.update(buffer.asReadOnlyBuffer());while(buffer.hasRemaining())output.write(buffer);buffer.clear();
+            }
+            require(length==MembershipFormat.number(expected.get("size")) && input.size()==length && output.size()==length &&
+                    HexFormat.of().formatHex(digest.digest()).equals(expected.get("sha256")) && saved.equals(identity(source)),
+                    "capture original changed during object copy");
+        }
+    }
+
+    /** One fresh content-addressed evidence pool. No array scales with its size. */
+    static final class ObjectStore {
+        static final int MAXIMUM_OBJECTS=8192;
+        private final Path root;private final Object rootKey;
+        private final Set<String> names=new HashSet<>();private long bytes;
+        ObjectStore(Path directory)throws IOException {
+            root=AdmissionPaths.safe(directory);
+            require(Files.isDirectory(root,LinkOption.NOFOLLOW_LINKS),"capture object directory");
+            rootKey=Files.readAttributes(root,BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS).fileKey();
+            require(rootKey!=null,"capture object directory identity");checkMembers();
+        }
+        long bytes(){return bytes;}
+        int count(){return names.size();}
+        private void checkMembers()throws IOException {
+            require(!Files.isSymbolicLink(root) && rootKey.equals(Files.readAttributes(root,BasicFileAttributes.class,
+                    LinkOption.NOFOLLOW_LINKS).fileKey()),"capture object directory changed");
+            var found=new HashSet<String>();
+            try(var entries=Files.newDirectoryStream(root)) {
+                for(Path entry:entries){require(found.size()<MAXIMUM_OBJECTS,"capture object count capacity");found.add(entry.getFileName().toString());}
+            }
+            require(found.equals(names),"capture unobserved object");
+        }
+        private void verify(V53CaptureFiles snapshot,Path path,Map<String,Object> expected)throws IOException {
+            var saved=snapshot.identity(path);require(saved.get("directory").equals(false),"capture object regular file");
+            require(saved.get("size").equals(expected.get("size")),"capture object extent");
+            MessageDigest digest;try{digest=MessageDigest.getInstance("SHA-256");}catch(NoSuchAlgorithmException e){throw new AssertionError(e);}
+            long length=0;var buffer=ByteBuffer.allocate(1024*1024);
+            try(var input=MembershipFileAccess.open(path,StandardOpenOption.READ)) {
+                int n;while((n=input.read(buffer))!=-1) {
+                    require(n>0,"capture stream made no progress");length+=n;
+                    require(length<=(Long)saved.get("size"),"capture object extent");
+                    buffer.flip();digest.update(buffer);buffer.clear();
+                }
+                require(length==(Long)saved.get("size") && input.size()==length && saved.equals(snapshot.identity(path)) &&
+                        HexFormat.of().formatHex(digest.digest()).equals(expected.get("sha256")),"capture object identity");
+            }
+        }
+        void retain(V53CaptureFiles snapshot)throws IOException {
+            checkMembers();
+            for(var item:snapshot.inventory.entrySet()) {
+                var expected=MembershipFormat.object(item.getValue());if(expected.containsKey("directory"))continue;
+                String name=(String)expected.get("sha256");Path target=root.resolve(name);long size=MembershipFormat.number(expected.get("size"));
+                if(!names.contains(name)) {
+                    require(names.size()<MAXIMUM_OBJECTS && size<=ORIGINAL_BYTES-bytes,"capture object aggregate capacity");
+                    snapshot.transfer(item.getKey(),target);verify(snapshot,target,expected);names.add(name);bytes+=size;
+                }else verify(snapshot,target,expected);
+            }
+            snapshot.unchanged();checkMembers();
+        }
     }
 }

@@ -89,21 +89,22 @@ def mutate(root, name):
     (root/'index.json').write_bytes(r.f.canonical(index))
 
 
-def qualify(directory, profile='stable', progress=None):
-    from .joining_history_run import inventory
+def qualify(directory, profile='stable', progress=None, *, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args=r.source_policy.options(bootstrap_source,wire_layout)
+    def inventory(root):return r.source_policy.inventory(root,**source_args)
     root = Path(directory); before = inventory(root)
-    precondition,plans = r.original(root,profile,progress)
+    precondition,plans = r.original(root,profile,progress,**source_args)
     events = r.events(root)
-    original = r.compare(r.collect(root,events),plans)
+    original = r.compare(r.collect(root,events,**source_args),plans)
     results = []
     for name, suffix in NEGATIVES.items():
         with tempfile.TemporaryDirectory(prefix='v53-publication-resource-negative-') as tmp:
             target = Path(tmp); shutil.copytree(root/r.DIRECTORY,target/r.DIRECTORY); mutate(target,name)
             reason = 'publication resources '+suffix
-            try: r.compare(r.collect(target,events),plans)
+            try: r.compare(r.collect(target,events,**source_args),plans)
             except ValueError as error: r.need(str(error) == reason, 'unrelated publication resources negative: '+name+': '+str(error))
             else: raise ValueError('publication resources mutation accepted: '+name)
         results.append(dict(case=name,status='REJECTED',reason=reason))
     r.need(inventory(root) == before, 'publication resources original changed')
-    return dict(status='PASS',profile=profile,precondition=precondition,original=original,negatives=results,
-                publicationStorageDerived=True,controlChargesDerived=False,wholeRuntimePeakQualified=False,phase3Complete=False)
+    return r.source_policy.receipt(dict(status='PASS',profile=profile,precondition=precondition,original=original,negatives=results,
+                publicationStorageDerived=True,controlChargesDerived=False,wholeRuntimePeakQualified=False,phase3Complete=False),bootstrap_source,wire_layout)

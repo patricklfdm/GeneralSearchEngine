@@ -153,7 +153,7 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
     if joined_closes:
         need(closed['status']=='PASS','native resources all network close intervals required')
         joining_closed=joining_owner_close.replay(events,traces,boundaries,model.joining)
-    transactions=publication.collect(root,events)
+    transactions=publication.collect(root,events,**source_args)
     count=bind_publications(transactions,boundaries)
     from . import publication_generation_resources
     generations=publication_generation_resources.replay(transactions,traces,boundaries)

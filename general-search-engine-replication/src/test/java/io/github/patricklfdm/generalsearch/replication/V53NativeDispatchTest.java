@@ -173,7 +173,8 @@ class V53NativeDispatchTest {
             if(Boolean.getBoolean("v53.resource.joined.close"))assertTrue(Boolean.getBoolean("v53.resource.transitions"),"joining close requires original resource trace");
             if(Boolean.getBoolean("v53.resource.storage.transfers"))assertTrue(Boolean.getBoolean("v53.resource.transitions"),"storage transfer requires original resource trace");
             if(Boolean.getBoolean("v53.resource.control.close"))assertTrue(Boolean.getBoolean("v53.resource.source.control"),"control close requires original source bindings");
-            if(Boolean.getBoolean("v53.publication.resources"))publicationResources=new V53PublicationResourceCapture(f.raw);
+            if(Boolean.getBoolean("v53.publication.resources"))publicationResources=new V53PublicationResourceCapture(f.raw,
+                    f.request.source(),wireArchive==null?V53WireArchive.Layout.JSON:V53WireArchive.Layout.SEGMENTED_BACKUP);
             if(Boolean.getBoolean("v53.resource.transitions"))resourceTransitions=new V53ResourceTransitionCapture(f.raw,f.result.root().manifestDigest(),
                     Boolean.getBoolean("v53.resource.owner.close")?f.request.targets().stream().map(t->t.identity().nodeId().value()).sorted().toList():List.of(),
                     Boolean.getBoolean("v53.resource.control.close"),Boolean.getBoolean("v53.resource.export.ownership"),

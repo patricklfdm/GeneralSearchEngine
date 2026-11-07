@@ -241,7 +241,7 @@ class V53JoiningIntentExportTest {
             if(initializationProcess!=null)n.recordProcesses(n.f.raw.resolve("process-trace.jsonl"));
             if(earlyStartup || initializationProcess!=null) {
                 n.grantCapture=new V53GrantCapture(n.f.raw,n.events,n.f.request.source(),layout);
-                n.retirementCapture=new V53SourceRetirementCapture(n.f.raw,n.events);
+                n.retirementCapture=new V53SourceRetirementCapture(n.f.raw,n.events,n.f.request.source(),layout);
             }
             // The short Network.activate helper fixes a 180-second campaign.
             // This complete typed-learner history uses one declared
