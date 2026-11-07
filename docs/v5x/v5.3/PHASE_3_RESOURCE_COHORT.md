@@ -113,3 +113,8 @@ original and rejection of its small JUnit. They do not convert that rehearsal
 into a full-pressure or final-source result. The
 [development index](phase3-evidence/resource-cohort-development.json) records
 the actual checks and preserves the initial path-guard test failure.
+
+The two queue originals now have a [manual shared-seed workflow](PHASE_3_QUEUE_RESOURCE_HOSTED.md)
+with parallel whole-history execution and independent downloaded replay. Its
+aggregate remains PARTIAL; final-source execution and exact-attempt supplemental
+workflow observation are still required.

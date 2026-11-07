@@ -67,6 +67,9 @@ fixture extends real pressure through native FINAL/BARRIER; full-pressure
 execution remains pending. The [supplemental resource cohort](PHASE_3_RESOURCE_COHORT.md)
 now makes all five resource originals mandatory in the v2 attested replay.
 Combined byte maxima and final-source admission remain open.
+The two queue originals have a [manual parallel execution entry](PHASE_3_QUEUE_RESOURCE_HOSTED.md),
+outside Required CI. Hosted execution and supplemental workflow attestation are
+pending; no long history is divided to obtain parallelism.
 
 | Gap | Existing prerequisite | Evidence still required |
 | --- | --- | --- |

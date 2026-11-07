@@ -1,0 +1,150 @@
+{
+  "baseHead": "055875103c4b7ddfb71ffeb43a281a923c18d33d",
+  "files": {
+    "target/v53-queue-hosted/affected-optimized.log": "d66771c3e8306b3a018551b7d099b8d887921f526e459c0df3bd6cf67f977c1e",
+    "target/v53-queue-hosted/affected-tests.log": "72e161d0ac4e2746e87b14a2127766406672d1988671d0d56bfc7dcac26cb707",
+    "target/v53-queue-hosted/document-tests.log": "da1fc94fdd7cc79b6583d56d23eb9271a38fb5a9bb59fafa5306a48f91aff65c",
+    "target/v53-queue-hosted/hosted-tests.log": "2b76873e4b0d5020706bfdd2951db6548049c97ab0b55d17a52eab502b578d27",
+    "target/v53-queue-hosted/initial-tests.log": "3342223a1dafc24d69a783dff28f93098b23d0041461555c1e711fcf7cb071f0",
+    "target/v53-queue-hosted/local-original/execute/artifact/manifest.json": "a0387d51f71c8347eeafbff9d9927b0be6062716baafc8cf3b8db5c1c4c65d81",
+    "target/v53-queue-hosted/local-original/execute/data/producer/build.json": "f3ae026adc0b5226765b557bb9d99ede12475d703645aad3750181da16b4d22e",
+    "target/v53-queue-hosted/local-original/execute/data/producer/collection.json": "3627feede0d012408db0b2c3d5b12b4614f20f945ebfbfab678225ae6a450a45",
+    "target/v53-queue-hosted/local-original/execute/data/producer/pins.json": "fe1ea1a38851689d427757fa98678cc7d7a67400adc93e90492b6c7fc58555db",
+    "target/v53-queue-hosted/local-original/execute/data/producer/receipt.json": "4a21d10bede5d225c8864c5e78028856939bb629d885374906adab2ec82a97bf",
+    "target/v53-queue-hosted/local-original/execute/receipt.json": "54ea8fc9ae5bd7522c5e60e030209251a031e079e87968f494f669c7f3c00e31",
+    "target/v53-queue-hosted/local-original/missing-completion/receipt.json": "a57e93c51391499aaf664fb258db4d15dab475dec2547806f2198e6836fe0c76",
+    "target/v53-queue-hosted/local-original/prepare/artifact/manifest.json": "62c7118db16cbbd9902e80fdd6a3d49a083f61750532c10091083af1c81acc4c",
+    "target/v53-queue-hosted/local-original/prepare/data/producer/build.json": "f3ae026adc0b5226765b557bb9d99ede12475d703645aad3750181da16b4d22e",
+    "target/v53-queue-hosted/local-original/prepare/data/producer/source.json": "1a64dd11d72286d56a6c505c50966002d08393ee11f95e2e6c3d94a9d6268042",
+    "target/v53-queue-hosted/local-original/prepare/data/producer/toolchain.json": "4d227d75aa8dcf6eac04fd180bc3c018518d8f3c17627fd317a056c57d93a324",
+    "target/v53-queue-hosted/local-original/prepare/receipt.json": "6763cd8fa2402da52058fe946102136f29f1d9443c826fe87d46d93303b5774f",
+    "target/v53-queue-hosted/local-original/receipt.json": "0d51f6d01bd08e2a06f618ec515eb4e65f8fd470f0ac121354486a47b6010b82",
+    "target/v53-queue-hosted/local-original/verify/receipt.json": "b307dfe80908ece35d323573b7be47dd1c72ded4ceac29b2a54b39883d07d7be",
+    "target/v53-queue-hosted/local-transport.log": "d236c726500f5c84beb8918650f26dcb2278fca546a5a53f22976ca5a8b604ef",
+    "target/v53-queue-hosted/local_transport.py": "028ca4aa81e4e722ee917276ab568fa9166e913a3bc58ddd9dac15b535fcc764"
+  },
+  "hostedExecution": false,
+  "jointCompletionExecuted": false,
+  "originalJUnit": {
+    "errors": 0,
+    "failures": 0,
+    "seconds": 20.716,
+    "skipped": 0,
+    "tests": 1
+  },
+  "phase3Complete": false,
+  "preparationJUnit": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 10
+  },
+  "preservedDevelopmentFailure": {
+    "path": "target/v53-queue-hosted/initial-tests.log",
+    "reason": "new test adaptation had an obsolete single-job stage assertion and a misspelled CLI call; both fixed"
+  },
+  "realLocalTransport": {
+    "context": {
+      "attempt": "1",
+      "event": "workflow_dispatch",
+      "kind": "local-development-transport",
+      "ref": "refs/heads/experiment/v53-queue-resources",
+      "repository": "patricklfdm/GeneralSearchEngine",
+      "run": "1",
+      "source": "055875103c4b7ddfb71ffeb43a281a923c18d33d",
+      "workflow": ".github/workflows/v53-queue-resources.yml"
+    },
+    "elapsedSeconds": 92.295,
+    "execution": "local-development-transport",
+    "githubExecution": false,
+    "jointCompletionExecuted": false,
+    "missingCompletionRejected": "queue resources complete verified set",
+    "originalInventorySha256": "aa0615b5cbba7aba147375d77d0c394c02536366b12bc1d03255efd58f54bbca",
+    "phase3Complete": false,
+    "qualification": {
+      "negatives": [
+        {
+          "case": "missing-event",
+          "reason": "source queue complete events",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-limit",
+          "reason": "source queue frozen limit",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-charge",
+          "reason": "source queue checkpoint usage",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-reason",
+          "reason": "source queue classified capacity refusal",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-pressure",
+          "reason": "source queue complete events",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-content",
+          "reason": "source queue original content bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-retry",
+          "reason": "source queue delivered original bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-response-extent",
+          "reason": "resource transitions derived usage",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "attempts": 49,
+        "capacityRefusals": 1,
+        "combinedResources": false,
+        "maximumQueuedBytes": 61771102,
+        "phase3Complete": false,
+        "queueLimit": 67108864,
+        "recoveredIdenticalRetries": 1,
+        "sessions": 6,
+        "status": "PASS"
+      }
+    },
+    "stages": {
+      "downloaded-verify": {
+        "seconds": 10.851,
+        "status": "PARTIAL"
+      },
+      "execute": {
+        "seconds": 46.811,
+        "status": "PARTIAL"
+      },
+      "prepare": {
+        "seconds": 29.696,
+        "status": "PARTIAL"
+      }
+    },
+    "status": "PASS"
+  },
+  "scope": "queue-hosted-development-entry",
+  "status": "PASS",
+  "syntheticChecks": {
+    "affected": 64,
+    "documents": 19,
+    "hosted": 17,
+    "optimized": 64
+  },
+  "workflow": {
+    "expandedJobs": 6,
+    "independentWholeHistories": 2,
+    "requiredChanged": false,
+    "sharedBuild": true,
+    "trigger": "workflow_dispatch only"
+  }
+}
