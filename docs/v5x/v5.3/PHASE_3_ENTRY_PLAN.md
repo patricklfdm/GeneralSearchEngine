@@ -160,6 +160,11 @@ generation/source windows now use original-file views for explicit segmented
 backup replay; isolated memory and retained-file comparisons are recorded in
 the same component document.
 
+The [complete backup execution profile](PHASE_3_BACKUP_EXECUTION.md) connects the
+existing native history to immutable collection and independent segmented-backup
+admission. Actual positive execution and dedicated hosted transport remain
+pending; the frozen EMPTY supplemental workflow is unchanged.
+
 The maximum-image component is a synchronous storage probe. It does not establish
 an admitted learner, full metadata pressure or automatic-runtime peak. The
 required-four entry qualifies observed ownership and completion, not all byte

@@ -279,6 +279,11 @@ content retention has separate component checks. Explicit segmented-backup
 entry points now enforce the shared maximum-original streaming inventory;
 full positive backup execution and whole-reader memory remain pending.
 
+The [complete backup execution entry](PHASE_3_BACKUP_EXECUTION.md) now supplies
+a separate long-test profile, source-bound collection and independent 149-negative
+admission. It does not replace the EMPTY supplemental cohort. Its lightweight
+configuration/orchestration tests are not full native execution evidence.
+
 The [backup replay development index](phase3-evidence/backup-replay-development.json)
 records 18 new source-policy/orchestration regression tests, 220 existing reader
 tests and 19 contract/plan checks. The orchestration fixtures verify all 148

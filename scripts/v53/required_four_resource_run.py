@@ -1,7 +1,9 @@
 """Source-bound whole required-four execution, collection and resource admission.
 
-The producer returns PARTIAL. Independent complete replay and all 147 exact
-negatives are mandatory. No retries, shortened profile or CI dispatch occurs.
+The producer returns PARTIAL. Independent complete replay and all 147 EMPTY or
+149 explicitly segmented-backup negatives are mandatory. No retries, shortened
+profile or CI dispatch occurs. Backup execution is separate development evidence,
+not a replacement for the frozen EMPTY supplemental cohort.
 """
 import argparse
 import json
@@ -13,6 +15,8 @@ from . import required_four_resources as gate
 from . import joining_history_run as h
 from . import remove_process_matrix as shared
 from . import process_toolchain as tc
+from . import bootstrap_replay_contract as source_policy
+from . import wire_archive
 
 need=h.need;read=shared.read;reader_manifest=shared.reader_manifest;BUILDS=shared.BUILDS
 SCHEMA='gse-v53-required-four-resources-execution-v1'
@@ -23,22 +27,47 @@ PINS=('sourceSha256','buildSha256','toolchainSha256','readerSha256')
 PROFILE=gate.PROFILE
 CLASS='V53JoiningIntentExportTest'
 METHOD='requiredFourVotersCompleteReplacementFinalAndStableBarrier'
+BACKUP_PROFILE=gate.BACKUP_PROFILE+'-segmented'
+BACKUP_CLASS='V53BackupJoiningQualification'
+BACKUP_METHOD='verifiedBackupCompletesReplacementFinalAndStableBarrier'
 
 
 def selected(profile):
-    need(type(profile) is str and profile==PROFILE,'required-four run explicit profile')
-    return CLASS,METHOD,'v53-native-dispatch'
+    need(type(profile) is str and profile in (PROFILE,BACKUP_PROFILE),'required-four run explicit profile')
+    return (BACKUP_CLASS,BACKUP_METHOD,'v53-native-dispatch') if profile==BACKUP_PROFILE else (CLASS,METHOD,'v53-native-dispatch')
+
+
+def source_options(profile):
+    selected(profile)
+    return {} if profile==PROFILE else dict(bootstrap_source=source_policy.BACKUP,wire_layout=source_policy.SEGMENTED)
+
+
+def original_inventory(root,profile):
+    selected(profile)
+    return h.inventory(root,maximum=RAW_BYTES) if profile==PROFILE else source_policy.inventory(root,**source_options(profile))
+
+
+def marked(value,profile):
+    selected(profile)
+    return value if profile==PROFILE else source_policy.receipt(value,source_policy.BACKUP,source_policy.SEGMENTED)
+
+
+def check_markers(value,profile):
+    selected(profile)
+    source_policy.check_receipt(value,source_policy.EMPTY if profile==PROFILE else source_policy.BACKUP,
+                                source_policy.JSON if profile==PROFILE else source_policy.SEGMENTED)
 
 
 def command(profile):
-    selected(profile)
+    cls,method,_=selected(profile)
     return ['-o','-B','-ntp','-f','reactor/pom.xml','-pl','../'+h.MODULE,'-am',
-            '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+CLASS+'#'+METHOD,
+            '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+cls+'#'+method,
             '-Dv53.joining.requiredFour=true','-Dv53.publication.resources=true',
             '-Dv53.resource.transitions=true','-Dv53.transport.connections=true','-Dv53.transport.unsent=true',
             '-Dv53.resource.storage.transfers=true','-Dv53.resource.owner.close=true',
             '-Dv53.resource.joined.close=true','-Dv53.resource.source.control=true',
-            '-Dv53.resource.control.close=true','-Dv53.resource.export.ownership=true','-Dv53.resource.slot.control=true','test']
+            '-Dv53.resource.control.close=true','-Dv53.resource.export.ownership=true','-Dv53.resource.slot.control=true',
+            *([] if profile==PROFILE else ['-DargLine=-Xmx4g']),'test']
 
 
 def junit(reports,profile):
@@ -63,16 +92,20 @@ def locate(work,profile):
 
 
 def collect(raw,profile):
-    selected(profile);raw=Path(raw);before=h.inventory(raw,maximum=RAW_BYTES)
+    selected(profile);raw=Path(raw);before=original_inventory(raw,profile)
     # Collection checks presence and shape only. The verifier derives topology,
     # FINAL, BARRIER, cold reopen and ownership from physical original bytes.
-    for name in ('events.json','wire.json','original-plan.gsbp','joining-continuation-result.json'):
+    wire='wire.json' if profile==PROFILE else 'segmented-wire/index.json'
+    for name in ('events.json',wire,'original-plan.gsbp','joining-continuation-result.json'):
         need(name in before['files'],'required-four run missing observations: '+name)
     for name in ('resource-transition-captures','storage-transfer-captures','control-close-captures'):
         need(name+'/index.json' in before['files'],'required-four run missing capture: '+name)
-    need(h.inventory(raw,maximum=RAW_BYTES)==before,'required-four run changed during collection')
-    return dict(schema=SCHEMA,status='PARTIAL',profile=profile,collectionComplete=True,
-                observedResourcesQualified=False,combinedResourcesQualified=False,phase3Complete=False,inventory=before)
+    if profile==BACKUP_PROFILE:
+        archive=wire_archive.Archive(raw,bootstrap_source=source_policy.BACKUP)
+        archive.read('wire.json');archive.check_unchanged()
+    need(original_inventory(raw,profile)==before,'required-four run changed during collection')
+    return marked(dict(schema=SCHEMA,status='PARTIAL',profile=profile,collectionComplete=True,
+                observedResourcesQualified=False,combinedResourcesQualified=False,phase3Complete=False,inventory=before),profile)
 
 
 def collect_to(output,raw,profile):
@@ -89,8 +122,8 @@ def capture(output,maven,profile,source_from=None):
     selected(profile);output=Path(output).absolute()
     need(source_from is None or not output.resolve().is_relative_to(Path(source_from).resolve()),'required-four run source separation')
     output.mkdir(parents=True,exist_ok=False)
-    receipt=dict(schema=SCHEMA,profile=profile,status='RUNNING',executionStatus='NOT_RUN',collectionComplete=False,
-                 observedResourcesQualified=False,combinedResourcesQualified=False,phase3Complete=False,retries=0)
+    receipt=marked(dict(schema=SCHEMA,profile=profile,status='RUNNING',executionStatus='NOT_RUN',collectionComplete=False,
+                 observedResourcesQualified=False,combinedResourcesQualified=False,phase3Complete=False,retries=0),profile)
     try:
         work=output/'workspace';source=h.source_copy(h.ROOT,work) if source_from is None else h.recorded_source(source_from,work)
         h.save(output/'source.json',source);reader=reader_manifest()
@@ -131,6 +164,7 @@ def member(path,profile,pins):
          receipt.get('executionStatus')=='PASS' and receipt.get('collectionComplete') is True and
          all(receipt.get(k) is False for k in ('observedResourcesQualified','combinedResourcesQualified','phase3Complete')) and
          type(receipt.get('retries')) is int and receipt['retries']==0,'required-four admission successful unretried producer')
+    check_markers(receipt,profile)
     for field,file in (('execution','execution.json'),('collectionExecution','collection-execution.json')):
         value=receipt.get(field)
         need(type(value) is dict and type(value.get('exit')) is int and value['exit']==0 and
@@ -163,21 +197,25 @@ def member(path,profile,pins):
 
 
 def check_result(value,profile):
-    selected(profile);gate.check_result(value)
+    selected(profile)
+    if profile==PROFILE:gate.check_result(value)
+    else:gate.check_backup_result(value,wire_layout=source_policy.SEGMENTED)
 
 
 def qualify(path,profile,pins):
-    before=member(path,profile,pins);result=gate.qualify(before['raw'],lambda row:print(json.dumps(row,sort_keys=True),file=sys.stderr,flush=True));check_result(result,profile)
+    before=member(path,profile,pins);progress=lambda row:print(json.dumps(row,sort_keys=True),file=sys.stderr,flush=True)
+    result=gate.qualify(before['raw'],progress) if profile==PROFILE else gate.qualify_backup(before['raw'],progress,wire_layout=source_policy.SEGMENTED)
+    check_result(result,profile)
     need(member(path,profile,pins)==before,'required-four admission changed during replay');check_pins(pins)
-    return dict(schema=SCHEMA,status='PASS',scope='required-four-observed-ownership',profile=profile,**pins,
+    return marked(dict(schema=SCHEMA,status='PASS',scope='required-four-observed-ownership' if profile==PROFILE else 'required-four-backup-observed-ownership',profile=profile,**pins,
                 producerReceiptSha256=before['producerReceiptSha256'],rawInventorySha256=h.digest(h.snapshot.f.canonical(before['inventory'])),
-                originalFirst=True,originalPreserved=True,observedResourcesQualified=True,combinedResourcesQualified=False,phase3Complete=False,qualification=result)
+                originalFirst=True,originalPreserved=True,observedResourcesQualified=True,combinedResourcesQualified=False,phase3Complete=False,qualification=result),profile)
 
 
 def verify(output,producer,profile,pins):
     output=Path(output);need(not output.resolve().is_relative_to(Path(producer).resolve()),'required-four verifier original separation')
     output.mkdir(parents=True,exist_ok=False)
-    receipt=dict(schema=SCHEMA,status='FAIL',profile=profile,phase3Complete=False)
+    receipt=marked(dict(schema=SCHEMA,status='FAIL',profile=profile,phase3Complete=False),profile)
     try:receipt=qualify(producer,profile,pins)
     except BaseException as error:receipt['failure']=dict(type=type(error).__name__,message=str(error));raise
     finally:h.save(output/'receipt.json',receipt)
@@ -187,7 +225,7 @@ def verify(output,producer,profile,pins):
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__);sub=parser.add_subparsers(dest='action',required=True)
     for action in ('capture','collect','verify'):
-        p=sub.add_parser(action);p.add_argument('output');p.add_argument('--profile',choices=(PROFILE,),required=True)
+        p=sub.add_parser(action);p.add_argument('output');p.add_argument('--profile',choices=(PROFILE,BACKUP_PROFILE),required=True)
         if action=='capture':p.add_argument('--maven',default='mvn');p.add_argument('--source-from')
         elif action=='collect':p.add_argument('--raw',required=True)
         else:p.add_argument('--producer',required=True);p.add_argument('--pins',required=True)
