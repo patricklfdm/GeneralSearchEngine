@@ -1,0 +1,170 @@
+{
+  "schema": "gse-v53-profile-hosted-replay-review-v1",
+  "source": "5652d07421e9a41a80fa0908a343c1834fcf2ec3",
+  "run": 42418110516,
+  "attempt": 1,
+  "originals": [
+    {
+      "profile": "3-ADD",
+      "zipSha256": "e9ceddd35fdc13c6d4f85f7eb98f0b1e511caa74c67119587b2b5d063ccbcc94",
+      "physicalReceipt": "3-add-physical-pass.json",
+      "physicalSha256": "607559bffd6759c2787c2ac4161aed348d98a3149348e026c5f1dcd8011b40f2",
+      "result": {
+        "capturedGrantComparisons": 19,
+        "completePhysicalQualified": false,
+        "finalCut": 11,
+        "forceAndNetworkQualified": false,
+        "ownerSnapshotComparisons": 28,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "profile": "3-ADD",
+        "recovery": null,
+        "scope": "profile-selected-continuation",
+        "sourceRetirementLocalOrderSegments": 16,
+        "status": "PARTIAL"
+      }
+    },
+    {
+      "profile": "4-ADD",
+      "zipSha256": "5bd2b0d66872e8bf18877ff42879cb0fddd341f0a3c56ab433427a4a45c8b99f",
+      "physicalReceipt": "4-add-physical-first.json",
+      "physicalSha256": "5dc493415386792eb89790df5c1e96c50c04d7b89f1a59d8d48e342c130f8b5d",
+      "result": {
+        "capturedGrantComparisons": 25,
+        "completePhysicalQualified": false,
+        "finalCut": 11,
+        "forceAndNetworkQualified": false,
+        "ownerSnapshotComparisons": 35,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "profile": "4-ADD",
+        "recovery": {
+          "adoptionEnd": 36213,
+          "adoptionStart": 36184,
+          "donor": "node-1",
+          "fromCut": 9,
+          "inheritedLocalBridges": 1,
+          "originalTransfers": 3,
+          "promiseAppended": true,
+          "remoteBridges": 0,
+          "requiredParents": 4,
+          "sameViewInstallation": false,
+          "toCut": 11
+        },
+        "scope": "profile-selected-continuation",
+        "sourceRetirementLocalOrderSegments": 21,
+        "status": "PARTIAL"
+      }
+    },
+    {
+      "profile": "3-REPLACE",
+      "zipSha256": "a02797f0825b9567d5e9953507245301594370da79c99a7896f5cb6e0673c099",
+      "physicalReceipt": "3-replace-physical-pass.json",
+      "physicalSha256": "6f5defb5eb970aa0578c8bf75784da2f1cb2deee147cccee53f6ae3bd58b9f5c",
+      "result": {
+        "capturedGrantComparisons": 17,
+        "completePhysicalQualified": false,
+        "finalCut": 11,
+        "forceAndNetworkQualified": false,
+        "ownerSnapshotComparisons": 28,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "profile": "3-REPLACE",
+        "recovery": {
+          "adoptionEnd": 17785,
+          "adoptionStart": 17756,
+          "donor": "node-1",
+          "fromCut": 9,
+          "inheritedLocalBridges": 1,
+          "originalTransfers": 3,
+          "promiseAppended": true,
+          "remoteBridges": 0,
+          "requiredParents": 4,
+          "sameViewInstallation": false,
+          "toCut": 11
+        },
+        "scope": "profile-selected-continuation",
+        "sourceRetirementLocalOrderSegments": 14,
+        "status": "PARTIAL"
+      }
+    },
+    {
+      "profile": "4-REPLACE",
+      "zipSha256": "8bcb86ad0696a28d21050033f285560b5a29df354a5856e065ec2eea8012c695",
+      "physicalReceipt": "4-replace-physical-first.json",
+      "physicalSha256": "57556add854f5c5d76598a0daf59a0075d2e50cdb6dd0214f8a9a0f6fe451f53",
+      "result": {
+        "capturedGrantComparisons": 25,
+        "completePhysicalQualified": false,
+        "finalCut": 11,
+        "forceAndNetworkQualified": false,
+        "ownerSnapshotComparisons": 35,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "profile": "4-REPLACE",
+        "recovery": {
+          "adoptionEnd": 36214,
+          "adoptionStart": 36185,
+          "donor": "node-1",
+          "fromCut": 9,
+          "inheritedLocalBridges": 1,
+          "originalTransfers": 3,
+          "promiseAppended": true,
+          "remoteBridges": 0,
+          "requiredParents": 4,
+          "sameViewInstallation": false,
+          "toCut": 11
+        },
+        "scope": "profile-selected-continuation",
+        "sourceRetirementLocalOrderSegments": 21,
+        "status": "PARTIAL"
+      }
+    },
+    {
+      "profile": "5-REPLACE",
+      "zipSha256": "2fe9dc78e531c38654da6bcc56be3929f7c361c19586a9592b4c4a2dea6b2239",
+      "physicalReceipt": "5-replace-physical-first.json",
+      "physicalSha256": "076185a9ade7458a76ac03ee3a921a56021578802d3f4d968f513e963fbfd431",
+      "result": {
+        "capturedGrantComparisons": 25,
+        "completePhysicalQualified": false,
+        "finalCut": 11,
+        "forceAndNetworkQualified": false,
+        "ownerSnapshotComparisons": 42,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "profile": "5-REPLACE",
+        "recovery": {
+          "adoptionEnd": 36212,
+          "adoptionStart": 36183,
+          "donor": "node-1",
+          "fromCut": 9,
+          "inheritedLocalBridges": 1,
+          "originalTransfers": 3,
+          "promiseAppended": true,
+          "remoteBridges": 0,
+          "requiredParents": 4,
+          "sameViewInstallation": false,
+          "toCut": 11
+        },
+        "scope": "profile-selected-continuation",
+        "sourceRetirementLocalOrderSegments": 21,
+        "status": "PARTIAL"
+      }
+    }
+  ],
+  "fixture": {
+    "path": "scripts/v53/fixtures/profile-deferred-preparation.json.gz",
+    "sha256": "be48ee4122cd7726c42406c4d2ab092285d9f55a645d18d7bddec697a618dc54",
+    "bytes": 253567
+  },
+  "validation": {
+    "tests": 104,
+    "redLogSha256": "48882f5c70584aa4d4ad2836da362ed6d4949ab3ed2379a29af6cd63e69393aa",
+    "greenLogSha256": "3da2356835d6e592fc68f2ddd3ad4dc55c81641d1b85439b65c2f7f5aa9ec6f4"
+  },
+  "evidenceDirectory": "target/v53-hosted-final-debug",
+  "phase3Complete": false,
+  "historicalOriginalsUpgraded": false,
+  "requiredFour": "native ACCEPT exhausted transport retries; unresolved in this reader correction"
+}

@@ -3,7 +3,8 @@
 Status: the isolated workflow, portable seed, seven whole-history collectors and
 seven independent downloaded verifiers are implemented. The first authorized
 hosted campaign at `5652d074` exposed missing connection observations in both
-REMOVE originals. The correction below requires a new matching-source execution;
+REMOVE originals and a missing deferred-preparation path in the five downloaded
+ADD/REPLACE physical replays. The corrections below require a new matching-source execution;
 the final-source cohort and Phase 3 remain OPEN.
 
 ## First hosted attempt and connection capture correction
@@ -46,8 +47,43 @@ socket denial is retained separately from the permitted loopback execution.
 
 The authorization to expand the remaining twelve workflows was conditional on
 both initial workflows passing. That condition failed, so expansion is held.
-Other initial jobs may finish and retain their evidence. A corrected-source
+All nineteen jobs in the two initial workflows have now finished. A corrected-source
 campaign must remain distinct from this source and its failed originals.
+
+## Complete first-attempt review and physical reader correction
+
+All five ADD/REPLACE native producers succeeded, but their downloaded readers
+rejected `joining initialization exact prepared grant suffix`. The producer may
+write a fresh PROMISE, reclaim a superseded unselected source, then freeze BASIS.
+The ordinary reader incorrectly required the obsolete source's journal prefix
+to remain. The required-four reader already derived this bounded deferred path;
+both readers now use that same implementation for preparation and subsequent
+campaigns. It still checks the exact original promise, source ownership,
+complete inventory and journal bytes. An occupied inactive generation, changed
+promise, truncated prefix or altered source cannot authorize reclamation.
+
+The original `3-ADD` also retained two identical successful PREPARE response
+observations after a timeout/retry. The physical reader now counts that grant
+once, permits at most the original three attempts, and requires identical
+request/response bytes and delivery policy. Connection observations may differ
+between attempts; all original attempts remain subject to the separate complete
+causal/network gate. Changed responses, excess retries and a missing voter fail.
+
+The unchanged retained originals for `3-ADD`, `4-ADD`, `3-REPLACE`, `4-REPLACE`
+and `5-REPLACE` pass the corrected physical continuation through cut 11. This is
+component replay, with `status=PARTIAL`; it does not repair missing connection
+metadata, relabel the hosted campaign, or establish full network qualification.
+The compressed regression fixture records the original 3-REPLACE grant capture
+and independently derived preceding inventory. Its positive case fails against
+the old reader; the corrected focused suite passes 104 tests. See the
+[artifact and validation index](phase3-evidence/profile-hosted-replay.json).
+
+The separate [required-four run 42418110955](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/42418110955)
+failed the native original after installation at cut 9: the joining node's
+ACCEPT exhausted three 30-second transport attempts. Its verifier correctly
+refused a failed execution. This is a separate runtime timing investigation,
+not resolved by the physical-reader correction. Its original evidence and local
+diagnostic execution are retained at `target/v53-hosted-final-debug`.
 
 ## Entry and topology
 

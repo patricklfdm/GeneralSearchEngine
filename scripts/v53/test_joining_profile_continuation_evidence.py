@@ -65,8 +65,8 @@ class JoiningProfileContinuationEvidenceTest(unittest.TestCase):
         reader=e.Continuation.__new__(e.Continuation);reader.joining=new[-1]
         reader.initialization=SimpleNamespace(voters=tuple(old[:size//2+1]))
         reader.replay=SimpleNamespace(phases=[{}]*9+[{'SELECTED':e.f.encode('records','SELECTED',value)}],states=[{}]*9+[v.cap])
-        with patch.object(e.p.Continuation,'campaign') as underlying:reader.campaign(9,8)
-        underlying.assert_called_once_with(9,8)
+        with patch.object(reader,'install_campaign') as underlying:reader.campaign(9,8)
+        underlying.assert_called_once_with(9,8,reader.replay.phases[9]['SELECTED'])
         return reader
 
     def test_overlapping_majorities_can_leave_joiner_unselected(self):
@@ -124,6 +124,29 @@ class JoiningProfileContinuationEvidenceTest(unittest.TestCase):
                               (lambda rows:rows.append(dict(request='invalid',response='invalid')),'base64')):
             with self.subTest(reason=reason),self.assertRaises(ValueError):
                 self.preparation('5-REPLACE',mutate,segmented=True)
+
+    def test_preparation_counts_exact_control_retry_once(self):
+        def duplicate(rows):
+            retry=copy.deepcopy(rows[0])
+            for ordinal,row in enumerate((rows[0],retry),1):
+                row['connection']=dict(id='00000000-0000-0001-0000-'+str(ordinal).zfill(12),
+                    local=dict(address='127.0.0.1',port=12345),remote=dict(address='127.0.0.1',port=23450+ordinal))
+            rows.insert(1,retry)
+        for segmented in (False,True):
+            with self.subTest(segmented=segmented):
+                result=self.preparation('3-ADD',duplicate,segmented=segmented)
+                self.assertEqual(['node-2'],result['oldPeers'])
+
+    def test_preparation_rejects_changed_or_excess_control_retry(self):
+        def changed(rows):
+            retry=copy.deepcopy(rows[0]);kind,value=e.c.exchange.wire(retry['response'])
+            value['payload']['basis']='f'*64
+            retry['response']=base64.b64encode(e.f.encode('wire',kind,value)).decode();rows.insert(1,retry)
+        def excess(rows):rows[1:1]=[copy.deepcopy(rows[0]) for _ in range(3)]
+        for mutate in (changed,excess):
+            for segmented in (False,True):
+                with self.subTest(mutate=mutate.__name__,segmented=segmented),self.assertRaisesRegex(ValueError,'changed/excess retry'):
+                    self.preparation('3-ADD',mutate,segmented=segmented)
 
     def test_preparation_does_not_retain_decoded_unrelated_transfer_frames(self):
         class Tracked(dict):pass
@@ -186,7 +209,7 @@ class JoiningProfileContinuationEvidenceTest(unittest.TestCase):
 
     def test_duplicate_prepare_cannot_replace_missing_peer(self):
         def change(rows):rows[4]=copy.deepcopy(rows[0])
-        with self.assertRaisesRegex(ValueError,'^joining profile preparation exact peers$'):self.preparation('5-REPLACE',change)
+        with self.assertRaisesRegex(ValueError,'^joining profile preparation response count$'):self.preparation('5-REPLACE',change)
 
     def test_promise_transfer_requires_commit_not_just_matching_data(self):
         with self.assertRaisesRegex(ValueError,'^joining profile preparation promise incomplete transcript$'):

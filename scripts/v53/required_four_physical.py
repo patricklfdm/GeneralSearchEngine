@@ -51,19 +51,10 @@ class Retirements(retirement.Retirements):
             files['grants.gsr']=compact
 
 
-def deferred(files,ballot):
-    """Derive the fresh-PROMISE reclaim case from preceding original ownership."""
-    _,members,packet=disk.current(files);cap=packet['capsule'];node=f.decode(files['node.gsr'],'records','NODE')['identity']['node']
-    rows=disk.journal(files['grants.gsr'],cap['root'],node)
-    sources={name.split('/')[1] for name in files if name.startswith('sources/') and name.endswith('/source.gscp')}
-    if len(sources)<2 or [v[0] for v in rows[-2:]]!=['PROMISE','BASIS']:return False
-    promise,basis=rows[-2:]
-    return (profile.ballot_order(promise[2]['ballot'])<profile.ballot_order(ballot) and basis[2]['accepted'] is None and
-            basis[2]['cut']==cap['cut'] and promise[1]!=members['promise.gsr'] and basis[1]!=members.get('basis.gsr') and
-            files['pending.accept']==disk.EMPTY)
-
+deferred=profile.deferred
 
 class Continuation(profile.Continuation):
+    preparation_label="required-four"
     def __init__(self,root,initialized,captures,retirements):
         super().__init__(root,initialized,captures);self.retirements=retirements;self.pinned_floors=0
 
@@ -77,29 +68,6 @@ class Continuation(profile.Continuation):
         def compare(owner,files,copies,identifiers):self.retirements.compare(owner,files,copies,identifiers,pinned=pinned)
         return c.maintenance(group,node,compare,voters=voters)
 
-    def prepare(self,node,ballot):
-        files=self.group[node];actual=self.captures.original(node,ballot)
-        if deferred(files,ballot):
-            prefix,_,packet=disk.current(files)
-            need(not any(n.startswith('generations/') and n!=prefix[:-1] and not n.startswith(prefix) for n in files),
-                 'required-four deferred predecessor still owned')
-            rows=disk.journal(actual['grants.gsr'],self.replay.root,node)
-            need([v[0] for v in rows[-2:]]==['PROMISE','BASIS'],'required-four deferred captured suffix')
-            identifier=rows[-2][2]['basisId']
-            promise=f.encode('records','PROMISE',dict(root=self.replay.root,
-                view=s.catalog.authority(self.replay.root,packet['capsule']['cut']['view']),ballot=ballot,basisId=identifier))
-            need(rows[-2][1]==promise,'required-four deferred original promise')
-            # No BASIS/source exists yet. The higher promise releases only an
-            # obsolete unselected source; the installed current stays pinned.
-            staged=dict(files,**{'grants.gsr':files['grants.gsr']+promise})
-            if node==ballot['proposer']:
-                staged['allocator.gsr']=f.encode('records','ALLOCATOR',dict(root=self.replay.root,node=node,counter=ballot['counter']))
-            group=dict(self.group,**{node:staged});files=self.maintenance(group,node)
-            need(files['grants.gsr'].endswith(promise),'required-four deferred promise preserved')
-            files=dict(files,**{'grants.gsr':files['grants.gsr'][:-len(promise)]})
-        self.group[node],source=init.prepare(files,ballot,actual['grants.gsr'],self.identifiers)
-        self.prepared(node,self.group[node]);return source
-
     def preparation(self):
         ballot=init.next_ballot(self.group['node-1'])
         need(ballot['counter']==self.captures.counter,'joining profile preparation next ballot')
@@ -108,19 +76,6 @@ class Continuation(profile.Continuation):
         for node in self.initialization.voters:self.group[node]=self.maintenance(self.group,node)
         return boundary
 
-    def campaign(self,cut,counter):
-        selected=self.replay.phases[cut]['SELECTED'];value=f.decode(selected,'records','SELECTED')
-        self.voters=tuple(v['voter'] for v in value['sources'])
-        s.catalog.majority(self.replay.states[cut]['cut']['view'],list(self.voters))
-        need(set(self.voters)<=set((*self.initialization.voters,self.joining)),'joining profile selected reachable owners')
-        ballot=dict(counter=counter,proposer='node-1',incarnation=f.decode(self.group['node-1']['node.gsr'],'records','NODE')['identity']['storage'])
-        sources={node:self.prepare(node,ballot) for node in self.voters}
-        maintained={node:self.maintenance(self.group,node) for node in self.voters}
-        for node in self.voters:self.group[node]=c.install(maintained[node],sources,selected)
-        self.match('continuation-installed-'+str(cut))
-        for node in self.voters:
-            need((self.root/f'continuation-grants-{cut}-{node}.gsr').read_bytes()==self.group[node]['grants.gsr'],
-                 'joining continuation exact standalone grants')
 
 
 def replay(root, *, bootstrap_source='EMPTY', wire_layout='JSON'):

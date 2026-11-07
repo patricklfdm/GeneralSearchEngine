@@ -56,6 +56,11 @@ native execution. Ordinary profile producers now capture existing connection
 identities, and their admission requires complete metadata. The failed originals
 remain failed; short component replay does not supply corrected-source profile
 qualification. Expansion beyond the two authorized initial workflows is held.
+The five ADD/REPLACE native originals succeeded but their downloaded physical
+replays omitted deferred source reclamation before a new BASIS. The shared
+reader correction replays all five retained physical histories through cut 11;
+this remains component evidence. The required-four original separately exhausted
+ACCEPT request retries after cut 9 and remains under runtime investigation.
 
 [Membership control ownership](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md) adds
 original local PUBLISH capture and voting/slot/activation composition to the
