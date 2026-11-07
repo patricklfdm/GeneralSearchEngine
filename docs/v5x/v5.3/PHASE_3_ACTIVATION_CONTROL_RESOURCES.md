@@ -38,6 +38,11 @@ observations, original publication transactions and resource transitions. It:
   have arrived earlier and waited for the journal writer. The actual publishing
   call still needs its complete physical control/caller interval; a later or
   merely matching certificate cannot replace it.
+- Requires every publication derived from the independently replayed physical
+  images to have its original transaction, even when every call has a waiter
+  and no fast replies occur. Omitting transactions cannot remove custody work
+  from the reader. The [complete-history failure and correction](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md#complete-publication-coverage-without-fast-replies)
+  retain this distinction from the original fast-reply-only regression.
 
 An iterative bipartite matcher first covers mandatory ordinary calls, then
 matches remaining waiters without consuming an ordinary call's only witness

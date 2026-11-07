@@ -119,5 +119,46 @@ both the original and unpacked inventories remain unchanged. The corrected
 diagnostic passes the 138 voting reservations but rejects slot waiter binding
 and activation allocations lacking original local callers. The two corrected
 Java tests, 152 focused Python tests, 96 optimized-Python tests, document contract
-and qualification-plan inspection pass. No new full producer was run after
-these corrections, and no hosted or paid-cloud execution occurred.
+and qualification-plan inspection pass. At that batch's close, no new full
+producer had run after these corrections, and no hosted or paid-cloud execution
+had occurred.
+
+## Complete publication coverage without fast replies
+
+The next complete original at `2a8ed056` passes one unretried JVM execution in
+**1,467.178 seconds**. It retains 7,020 raw files / 126,137,260 bytes, including
+all eleven original local PUBLISH request/response pairs. The original archive
+is unpacked and replayed using its retained reader, with source and compiled
+class pins checked; no live worktree reader is substituted. Complete original resource replay passes, then
+the first eight negative families pass all **127** cases.
+
+The complete v2 gate nevertheless **fails** after 2,691.795 seconds: activation
+accepts `fast-publication-witness-omitted`. The mutation removes every physical
+publication transaction. The reader previously detected missing transactions
+indirectly when a fast reply lacked a new waiter. A history whose calls all have
+waiters can still satisfy caller matching; deleting the transactions then skips
+the publication custody loop entirely. Full original validation passing does
+not make this accepted mutation a passing negative.
+
+The reader now requires the exact publication key set derived from the
+independently validated physical images, before evaluating caller intervals.
+Both complete omission and one omitted voter's publication are rejected even
+with zero fast replies. Extra and duplicate transactions retain their existing
+checks. The existing negative name is retained, with the exact reason
+`activation resources complete publication witnesses`; it now checks the
+physical prerequisite regardless of whether fast replies occurred. No negative
+is dropped, made conditional or counted from an unrelated failure.
+
+Two regressions reproduce the omission on the old reader and pass after this
+correction. The prior fast-reply response-cut and caller-matching checks remain.
+Corrected-reader component replay of the same unchanged full original passes in
+**404.209 seconds**, binding 133 cached controls, 137 waiters/calls, eleven local
+callers and all 34 physical publications, with **zero fast replies**. Its full
+20-case activation negative vector passes. The 65 focused Python tests also
+pass normally and with assertions disabled. These checks do not combine with
+the old source's 127 negatives to manufacture a new full admission.
+The [evidence index](phase3-evidence/required-four-publication-coverage.json)
+separates the failed source-bound gate from corrected-reader component diagnostics.
+The failed producer, pinned reader, archive and unpacked copy remain unchanged.
+This changes Python evidence validation only; the new full source-bound v2 gate
+and all five Phase 3 closure gaps remain pending.

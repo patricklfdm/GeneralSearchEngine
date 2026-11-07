@@ -27,7 +27,7 @@ NEGATIVES={
     'growth-before-durability':'activation resources original durable boundary',
     'release-before-caller':'activation resources cached reply caller custody',
     'missing-grant-boundary':'activation resources original durable boundary',
-    'fast-publication-witness-omitted':'activation resources missing mandatory caller',
+    'fast-publication-witness-omitted':'activation resources complete publication witnesses',
     'slot-child-binding':'activation resources slot child custody',
     'publication-control-omitted':'activation resources publication caller custody',
 }

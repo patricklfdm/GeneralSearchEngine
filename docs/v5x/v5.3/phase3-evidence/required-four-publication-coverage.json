@@ -1,0 +1,251 @@
+{
+  "buildSha256": "b704fa2cc7524f57348fe627c59681ef7cb10cb3b47e49cdbbce11e7304bbffe",
+  "capture": {
+    "elapsedSeconds": 1467.178,
+    "exit": 0
+  },
+  "combinedResourcesQualified": false,
+  "completeNegativeCredit": 0,
+  "correctedActivationDiagnostic": {
+    "execution": {
+      "elapsedSeconds": 404.209,
+      "exit": 0
+    },
+    "receipt": {
+      "combinedResourcesQualified": false,
+      "completeNegativeCredit": 0,
+      "correctedReaderSha256": "b22d9d583919654567959f58b296798a1a01c69d0865fb75c2584f84080be2d9",
+      "expectedPublications": 34,
+      "finalSourceCohortQualified": false,
+      "negatives": [
+        {
+          "case": "request-short",
+          "reason": "activation resources original request extent",
+          "status": "REJECTED"
+        },
+        {
+          "case": "request-long",
+          "reason": "activation resources original request extent",
+          "status": "REJECTED"
+        },
+        {
+          "case": "cache-short",
+          "reason": "activation resources original cached extent",
+          "status": "REJECTED"
+        },
+        {
+          "case": "cache-long",
+          "reason": "activation resources original cached extent",
+          "status": "REJECTED"
+        },
+        {
+          "case": "control-binding",
+          "reason": "activation resources unobserved allocation",
+          "status": "REJECTED"
+        },
+        {
+          "case": "waiter-binding",
+          "reason": "activation resources unobserved allocation",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-control",
+          "reason": "activation resources one cache and callers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-waiter",
+          "reason": "activation resources one cache and callers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "legacy-control",
+          "reason": "activation resources original bindings required",
+          "status": "REJECTED"
+        },
+        {
+          "case": "extra-control",
+          "reason": "activation resources one cache and callers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "extra-waiter",
+          "reason": "activation resources unmatched waiter",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reused-control",
+          "reason": "activation resources reused allocation",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-growth",
+          "reason": "activation resources original reply growth",
+          "status": "REJECTED"
+        },
+        {
+          "case": "extra-growth",
+          "reason": "activation resources single cache growth",
+          "status": "REJECTED"
+        },
+        {
+          "case": "growth-before-durability",
+          "reason": "activation resources original durable boundary",
+          "status": "REJECTED"
+        },
+        {
+          "case": "release-before-caller",
+          "reason": "activation resources cached reply caller custody",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-grant-boundary",
+          "reason": "activation resources original durable boundary",
+          "status": "REJECTED"
+        },
+        {
+          "case": "fast-publication-witness-omitted",
+          "reason": "activation resources complete publication witnesses",
+          "status": "REJECTED"
+        },
+        {
+          "case": "slot-child-binding",
+          "reason": "activation resources slot child custody",
+          "status": "REJECTED"
+        },
+        {
+          "case": "publication-control-omitted",
+          "reason": "activation resources publication caller custody",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "activationResourcesQualified": true,
+        "boundReservations": 270,
+        "cachedControls": 133,
+        "calls": 137,
+        "durableBoundaryChecks": 77,
+        "fastPublicationReplies": 0,
+        "interruptedHandlersQualified": false,
+        "kinds": {
+          "ACCEPT": 23,
+          "APPLY": 23,
+          "PREPARE": 17,
+          "PROOF": 23,
+          "PUBLISH": 34,
+          "SELECTED": 13
+        },
+        "localCallers": 11,
+        "phase3Complete": false,
+        "publicationTransactions": 34,
+        "slotChildWaiters": 103,
+        "status": "PASS",
+        "waiterReservations": 137,
+        "wholeRuntimeResourcesQualified": false
+      },
+      "originalInventorySha256": "0417c22a4348c6e73e6ae59030ad6f8f0f1eeef8573cd5c2b255e037e450371f",
+      "originalPreserved": true,
+      "originalReaderSha256": "1de8638726a46c62b37d2a5b17edc7570859d065f306a5d19242ba3485d50b59",
+      "originalSource": "2a8ed05646d0a15864daf979cb62d7d41bb4ca3d",
+      "phase3Complete": false,
+      "scope": "corrected-reader-activation-component-only",
+      "status": "PASS"
+    }
+  },
+  "finalSourceCohortQualified": false,
+  "junit": {
+    "className": "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest",
+    "errors": 0,
+    "failures": 0,
+    "method": "requiredFourVotersCompleteReplacementFinalAndStableBarrier",
+    "retries": 0,
+    "skipped": 0,
+    "tests": 1
+  },
+  "localObservations": {
+    "LOCAL_SLOT_REQUEST": 11,
+    "LOCAL_SLOT_RESPONSE": 11
+  },
+  "originalPreserved": true,
+  "phase3Complete": false,
+  "pinnedReplay": {
+    "completedNegativeCases": 127,
+    "completedNegativeFamilies": {
+      "accounting": 15,
+      "export-allocations": 18,
+      "files": 13,
+      "handoff": 19,
+      "joining-close": 12,
+      "network-close": 12,
+      "slot-control": 22,
+      "voting-control": 16
+    },
+    "execution": {
+      "elapsedSeconds": 2691.795,
+      "exit": 1
+    },
+    "originalResourcesPassed": true,
+    "receipt": {
+      "failure": {
+        "message": "activation resources accepted negative: fast-publication-witness-omitted",
+        "type": "ValueError"
+      },
+      "phase3Complete": false,
+      "profile": "5-REPLACE-required-four",
+      "schema": "gse-v53-required-four-resources-execution-v1",
+      "status": "FAIL"
+    }
+  },
+  "raw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-f425eb82-78c3-46dd-8813-14f1a53b5271",
+  "rawBytes": 126137260,
+  "rawFiles": 7020,
+  "readerSha256": "1de8638726a46c62b37d2a5b17edc7570859d065f306a5d19242ba3485d50b59",
+  "regression": {
+    "after": {
+      "documentContractTests": 19,
+      "failures": 0,
+      "focused": 65,
+      "optimized": 65
+    },
+    "before": {
+      "errors": 0,
+      "failures": 2,
+      "tests": 2
+    },
+    "fixtureDevelopment": "The first single-publication test incorrectly invoked a mutation driver requiring a PREPARE grant. That unrelated fixture error is retained; the corrected direct mutation reproduces both reader omissions."
+  },
+  "relocatedOriginalPreserved": true,
+  "retainedArtifacts": {
+    "target/v53-required-four-control-final/activation-diagnostic-execution.json": "1e618d73dac5ad91b527b4ebc255fd1711c5a30c49cef247a1fa0dd496133c11",
+    "target/v53-required-four-control-final/activation-diagnostic/reader.json": "d8ca7ce55131dbf5e1b3f3867b5a5a68f477712190baab151ae506ea28a22ed2",
+    "target/v53-required-four-control-final/activation-diagnostic/receipt.json": "396dfd3fc72003a842256e8c4341a2df231d065e7a2e1759c6ab4cf1dfbae26a",
+    "target/v53-required-four-control-final/activation_diagnostic.py": "709feb455731579b12cdd72fc4b55ec3fa71f5a41034cafc53460bf8b90abeba",
+    "target/v53-required-four-control-final/artifact/manifest.json": "b110e4dc354f564ff0ba64c5b5b52135422d04a55cd5553e886260927b8367a2",
+    "target/v53-required-four-control-final/corrected-reader-source.json": "befbc68619849cc6c3d91c369733150b601cb47356b088cca4ee1e999d176417",
+    "target/v53-required-four-control-final/document-contract-tests.log": "6f054a6a026ce8216dcb853e5c9a3bacba82d9da14d690c6653306746323b946",
+    "target/v53-required-four-control-final/failure-preservation.json": "e9aa612b63e8b5e05f65caed313e813aae80d467b1001e1a1d538af108545150",
+    "target/v53-required-four-control-final/final-document-contract-tests.log": "2688c03f608d69d852f51b239696a3a69fd05a87f20f7f0a4ac117637558ee38",
+    "target/v53-required-four-control-final/final-document-contract.json": "9944431d8a3d146e2a27401ed1c81fe8ea1adaed18cd5473f4a3e2297e5cc035",
+    "target/v53-required-four-control-final/missing-publication-before-corrected-fixture.log": "18bdce204e6bda6e951fbc499f68761cf705e2393671219ae8ded83ab13f6a57",
+    "target/v53-required-four-control-final/missing-publication-before.log": "bbecaa0b04d5543f37efe837ee8a4784a1be389853ff359755822e3963fdee1c",
+    "target/v53-required-four-control-final/producer/build.json": "b704fa2cc7524f57348fe627c59681ef7cb10cb3b47e49cdbbce11e7304bbffe",
+    "target/v53-required-four-control-final/producer/collection.json": "5cf9f91e549b0ca4c72aa9b4597590388ce20e026c4cbb7f013d70a24d466b84",
+    "target/v53-required-four-control-final/producer/pins.json": "dd515bc6babd30e77cac42834ee4e95cc4073a7d1e703e88126b3bdae66261ef",
+    "target/v53-required-four-control-final/producer/reader.json": "9892db3c69162a0c43a15403e1fd998f892951ab879e4b637fb14c15a2d68fb8",
+    "target/v53-required-four-control-final/producer/receipt.json": "182b38baa527fe8a1ec8404395252aa157189c4f3710d8e2530586ce40389cfa",
+    "target/v53-required-four-control-final/producer/source.json": "72bc5fd7359b7b10bdbfcf07e33adb7f1b3c2793a20f9c3589ace7b4ed4da111",
+    "target/v53-required-four-control-final/producer/toolchain.json": "f877828d45ea42e8ff993ccbd2cbf547621f14cb44ba7579e1173f84fa94fc87",
+    "target/v53-required-four-control-final/publication-coverage-optimized.log": "8a0e87a111a5b1003d272083e027d644b071734641ab66da35bd4b81017b87a2",
+    "target/v53-required-four-control-final/publication-coverage-tests.log": "344745c8a9bf5be0dc2ccd4f97b2f9749f5fa5d4ec4f294d0554be597ab790d0",
+    "target/v53-required-four-control-final/qualification/receipt.json": "0f82f376eb3e89c7f3a20767330c7d4acf56b30b09ada8ce9d267517f618de77",
+    "target/v53-required-four-control-final/record_failure.py": "9c6ea67b1e18ae2856813b1c6ec5733e0e437f185205e31afd6301102b7fc5e0",
+    "target/v53-required-four-control-final/run_activation_diagnostic.py": "20265273c4595827ff9c82499b40674e8e4226f85439d2bb5555b8548893b5bc",
+    "target/v53-required-four-control-final/verification-execution.json": "d3da00d90e843f5c336e3a7c11b14dff6567e5e2747c32027e52a06ad4477955",
+    "target/v53-required-four-control-final/verification.log": "3a934006db33012ef47bf2d6f71e43b42075933eaeaed162c624ae4c31438e0e"
+  },
+  "source": "2a8ed05646d0a15864daf979cb62d7d41bb4ca3d",
+  "sourceSha256": "72bc5fd7359b7b10bdbfcf07e33adb7f1b3c2793a20f9c3589ace7b4ed4da111",
+  "status": "FAILED_ORIGINAL_WITH_CORRECTED_COMPONENT",
+  "toolchainSha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad",
+  "workflowExecutionAttested": false
+}

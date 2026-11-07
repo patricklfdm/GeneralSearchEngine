@@ -108,6 +108,10 @@ def replay(events,wires,traces,points,identities,root,expected,transactions,*,re
         key=node,slots.publication.sha(raw);last=transaction[-1]['eventIndex']
         need(key in expected and key not in published and events[last]['event']=='PUBLICATION_BEFORE_RETURN',
              'activation resources original publication boundary');published[key]=last
+    # The independently replayed images define every publication requiring
+    # custody. A history with a waiter for every call need not have fast ACKs;
+    # missing transactions must not erase the custody loop in that history.
+    need(set(published)==set(expected),'activation resources complete publication witnesses')
     network=source.network.replay(events,wires,identities,root)
     need(all(v['kind'] not in REPLIES or v['received'] is None or any(r['sent']==v['sent'] for r in network['rows'])
              for v in network['failed']),'activation resources failed handler outside qualification')

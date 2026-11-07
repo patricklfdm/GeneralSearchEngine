@@ -10,6 +10,15 @@ Its first v2 complete producer at `42d85176` passes once, but pinned replay and
 diagnosis expose [missing adapter observations and an identity-map lookup](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md#complete-execution-exposed-observer-adapters).
 Both are corrected with focused real evidence; a new full original is required.
 
+That subsequent `2a8ed056` original passes its complete JVM execution and pinned
+original resource replay with all eleven local publication calls. Its complete
+gate fails after 127 successful negatives because omitting publication witnesses
+can pass activation matching when every call has a waiter. The
+[publication-coverage correction](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md#complete-publication-coverage-without-fast-replies)
+requires the complete physically derived publication set. The failed admission
+is retained; corrected-reader component checks cannot upgrade its source pin or
+close any of the five gaps.
+
 Use the concise [current entry and closure checklist](PHASE_3_ENTRY_PLAN.md)
 for the twelve obligations, five gaps and acceptance order. The former entry's
 complete text is retained byte-for-byte in

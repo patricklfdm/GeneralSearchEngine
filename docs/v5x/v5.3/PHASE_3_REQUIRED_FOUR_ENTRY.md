@@ -14,6 +14,11 @@ is outside the twelve-subset catalogue (566 histories, 260 execution groups,
 500 raw archives and 544 selected jobs); it adds one original and three jobs
 when explicitly selected. The five Phase 3 closure gaps remain OPEN.
 
+The complete `2a8ed056` local original and pinned physical/resource replay pass,
+but its negative gate fails on omitted activation publication witnesses after
+127 passing cases. See the [retained failure and correction](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md#complete-publication-coverage-without-fast-replies).
+The failed attempt cannot supply the full 147-case admission.
+
 ## Pipeline and immutable inputs
 
 [`v53-required-four-resources.yml`](../../../.github/workflows/v53-required-four-resources.yml)

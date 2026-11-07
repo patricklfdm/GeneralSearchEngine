@@ -31,6 +31,19 @@ def fixture():
     return (events,wires,traces,points,{},'b'*64,{},[]),dict(rows=[reply],failed=[])
 
 
+def publication_fixture():
+    data,network=fixture();events,_,_,_,_,_,expected,transactions=data
+    raw=b'original physical certificate';certificate=r.slots.publication.sha(raw)
+    payload={'certificate':certificate}
+    expected['node-2',certificate]={'payload':payload,'view':'c'*64,'ballot':{'counter':1}}
+    for event,name in zip(events,('NETWORK_REQUEST','PUBLICATION_VALIDATED','PUBLICATION_WRITING','PUBLICATION_BEFORE_RETURN','WIRE_RESPONSE')):
+        event['event']=name
+    transactions.append([dict(node='node-2',eventIndex=1,files={'applied-end/certificate.gsr':raw}),dict(node='node-2',eventIndex=3)])
+    network['rows'][0].update(kind='PUBLISH',answer='PUBLISH_ACK',response={'payload':payload})
+    network['rows'][0]['request']['payload']={'certificate':certificate}
+    return data,network
+
+
 class ActivationControlResourcesTest(unittest.TestCase):
     def replay(self,data,network):
         with patch.object(r.source.network,'replay',return_value=network),patch.object(r.slots,'local_calls',return_value=[]):
@@ -78,6 +91,33 @@ class ActivationControlResourcesTest(unittest.TestCase):
         data,network=fixture();network['rows'][0]['answer']='REJECT'
         with self.assertRaisesRegex(ValueError,'successful original reply'):self.replay(data,network)
 
+    def test_publication_witness_required_without_any_fast_replies(self):
+        data,network=publication_fixture();before=copy.deepcopy(data)
+        result=self.replay(data,network)
+        self.assertEqual((0,1,1),(result['fastPublicationReplies'],result['waiterReservations'],result['publicationTransactions']))
+        data[-1].clear()
+        with self.assertRaisesRegex(ValueError,'^activation resources complete publication witnesses$'):
+            self.replay(data,network)
+        self.assertEqual(before[:-1],data[:-1])
+
+    def test_partial_publication_omission_cannot_hide_one_voters_custody(self):
+        data,network=publication_fixture();second,other=publication_fixture()
+        events,wires,traces,points,_,_,expected,transactions=data;offset=len(events)
+        for event in second[0]:event['node']='node-3'
+        for point in second[3]:point['node']='node-3';point['eventIndex']+=offset
+        for capture in second[-1][0]:capture['node']='node-3';capture['eventIndex']+=offset
+        reply=other['rows'][0];reply['request']['recipient']['node']='node-3'
+        reply['received']+=offset;reply['offered']+=offset;reply['serverConnection']='second'
+        second[1][0]['connection']['id']='second'
+        events.extend(second[0]);wires.extend(second[1]);traces['node-3']=second[2]['node-2'];points.extend(second[3])
+        expected.update({('node-3',key[1]):value for key,value in second[6].items()})
+        transactions.extend(second[-1]);network['rows'].extend(other['rows'])
+        result=self.replay(data,network)
+        self.assertEqual((0,2,2),(result['fastPublicationReplies'],result['waiterReservations'],result['publicationTransactions']))
+        transactions.pop()
+        with self.assertRaisesRegex(ValueError,'^activation resources complete publication witnesses$'):
+            self.replay(data,network)
+
     def test_fast_publish_can_arrive_before_completion_but_needs_a_prior_response_cut(self):
         data,network=fixture();events,wires,traces,points,ids,root,expected,transactions=data
         raw=b'original physical certificate';certificate=r.slots.publication.sha(raw)
@@ -96,7 +136,7 @@ class ActivationControlResourcesTest(unittest.TestCase):
         transactions[0][-1]['eventIndex']=6
         with self.assertRaisesRegex(ValueError,'missing mandatory caller'):self.replay(data,network)
         transactions.clear()
-        with self.assertRaisesRegex(ValueError,'missing mandatory caller'):self.replay(data,network)
+        with self.assertRaisesRegex(ValueError,'complete publication witnesses'):self.replay(data,network)
 
     def test_legacy_and_absent_bindings_never_qualify_strictly(self):
         data,_=fixture();negatives.mutate(data,'legacy-control')

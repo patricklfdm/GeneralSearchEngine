@@ -55,6 +55,10 @@ original local PUBLISH capture and voting/slot/activation composition to the
 required-four gate. Its v2 result requires **147** exact negatives. Focused native
 validation is component evidence; a complete new-source v2 execution remains
 pending. Earlier 89-case diagnostics below retain their historical scope.
+The complete original at `2a8ed056` now passes execution and original resource
+replay; its gate fails on a publication-witness omission after 127 passing
+negatives. The [reader correction](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md#complete-publication-coverage-without-fast-replies)
+and retained failure remain distinct from a future corrected-source admission.
 
 | Gap | Existing prerequisite | Evidence still required |
 | --- | --- | --- |
@@ -76,7 +80,9 @@ catalogue total:
 - [Required-four resource entry](PHASE_3_REQUIRED_FOUR_ENTRY.md): one full
   `5-REPLACE-required-four` original, including file handoff, five joining
   journal close intervals, network closes and complete session/direct/probe
-  export bindings; all **89** exact negatives are required. It is a supplementary
+  export bindings, plus original local PUBLISH calls and voting/slot/activation
+  control ownership; the current v2 gate requires all **147** exact negatives.
+  The 89-case results below describe the preceding gate. This is a supplementary
   three-job entry outside the twelve-subset count. An earlier complete local JVM run
   passed, but strict replay exposed observer-order and missing-request evidence
   gaps; the [integration corrections](PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md#local-complete-integration-and-observer-order-correction)
