@@ -90,8 +90,11 @@ long positive execution, maximum-input memory and cohort admission remain
 pending; it does not replace the earlier resource originals. The
 [dedicated manual hosted transport](PHASE_3_MAXIMUM_QUEUE_HOSTED.md) now freezes
 the same source/build/tools/dependencies, retains exact-attempt originals and
-performs a fresh-process downloaded replay. External run attestation, execution
-on an admitted large host and all five closure gaps remain pending.
+performs a fresh-process downloaded replay. The
+[external workflow/artifact observer](PHASE_3_MAXIMUM_EXTERNAL_ATTESTATION.md) now
+binds both maximum components to live exact-attempt jobs and original GitHub ZIP
+digests. Composition with both physical readers, actual large-host execution
+and all five closure gaps remain pending.
 
 | Gap | Existing prerequisite | Evidence still required |
 | --- | --- | --- |

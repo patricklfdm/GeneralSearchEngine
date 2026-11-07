@@ -1,0 +1,104 @@
+{
+  "schema": "gse-v53-maximum-external-attestation-development-v1",
+  "status": "PARTIAL",
+  "developmentResult": "PASS",
+  "baseCommit": "891c01e9e206a4605c0563f017cc10127464d395",
+  "code": [
+    {
+      "path": "scripts/v53/maximum_resource_workflows.py",
+      "bytes": 6575,
+      "sha256": "cd33f5ed41ea9ed24f65e9c456868ee0a8bb3385e250152fff19f0d52edaedbe"
+    },
+    {
+      "path": "scripts/v53/maximum_resource_artifacts.py",
+      "bytes": 13051,
+      "sha256": "bd7cfa579e5d3f97e9152bac98dbeae4b1e6dbb40d252a5934a6e0a7edb016aa"
+    },
+    {
+      "path": "scripts/v53/test_maximum_resource_workflows.py",
+      "bytes": 7840,
+      "sha256": "ccd2fbc4d18eb0771d3bcfa66b2d9a4309431c85113bc290e17390bc59d51ef2"
+    },
+    {
+      "path": "scripts/v53/test_maximum_resource_artifacts.py",
+      "bytes": 11935,
+      "sha256": "9ccc91685f8f1bccbe8afeb2becb47073a76c48b0bcce06c21af6609770d9d3f"
+    }
+  ],
+  "checks": [
+    {
+      "log": "target/v53-maximum-external-attestation/python-final.log",
+      "tests": 122,
+      "seconds": 16.035,
+      "status": "PASS"
+    },
+    {
+      "log": "target/v53-maximum-external-attestation/python-optimized.log",
+      "tests": 122,
+      "seconds": 16.169,
+      "status": "PASS"
+    },
+    {
+      "log": "target/v53-maximum-external-attestation/contracts.log",
+      "tests": 19,
+      "seconds": 0.415,
+      "status": "PASS"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "target/v53-maximum-external-attestation/contracts.log",
+      "bytes": 251,
+      "sha256": "6bbe39543a6f2285eba17943ce442abfb27a3802852960d03d2e2b7dc75d3d7a"
+    },
+    {
+      "path": "target/v53-maximum-external-attestation/python-final.log",
+      "bytes": 223,
+      "sha256": "3903a355ab420b7ec93ad6a9aaf821a113edae756974697e95f65799ebc6415f"
+    },
+    {
+      "path": "target/v53-maximum-external-attestation/python-initial.log",
+      "bytes": 114,
+      "sha256": "9d6ab00068ea514dabf9720a72bbb53a1e749e9e128ef95a35188ec2ee6d4f92"
+    },
+    {
+      "path": "target/v53-maximum-external-attestation/python-observation-guards.log",
+      "bytes": 116,
+      "sha256": "c58dbcb82ff8af32e8d44f2bc4b58b58929a8d4cf9b814902ef320b6daa35fd6"
+    },
+    {
+      "path": "target/v53-maximum-external-attestation/python-optimized.log",
+      "bytes": 223,
+      "sha256": "8f384292459f6701f3d9e389c1b1f8f9699d66d00ad782c8d5029380787f718a"
+    },
+    {
+      "path": "target/v53-maximum-external-attestation/python.log",
+      "bytes": 223,
+      "sha256": "04ebe1dc05365e8bbbd00c9dac8386793e71f0927e033455db989e7a3f50de94"
+    }
+  ],
+  "scope": "Synthetic API observations and real fixture ZIP/bundle byte validation, not live hosted evidence",
+  "observedWorkflowComponents": 2,
+  "selectedJobContract": 6,
+  "syntheticNewTests": 17,
+  "existingSupplementalCohortChanged": false,
+  "productionJavaChanged": false,
+  "workflowChanged": false,
+  "liveGitHubRunsQueried": false,
+  "workflowDispatched": false,
+  "maximumHistoryExecuted": false,
+  "originalHistoriesQualified": false,
+  "priorFailuresResolved": false,
+  "combinedResourcesQualified": false,
+  "phase3Complete": false,
+  "primaryReferences": [
+    "https://docs.github.com/en/rest/actions/artifacts",
+    "https://github.com/actions/toolkit/blob/main/packages/artifact/src/internal/download/download-artifact.ts"
+  ],
+  "remaining": [
+    "Compose same-original external byte binding with both fresh-process physical readers",
+    "Retain live observations around the entire physical replay and check common source/build/toolchain pins",
+    "Arrange native Linux large-evidence environment after development",
+    "Execute complete maximum histories, combined-owner pressure and final-source cohorts"
+  ]
+}
