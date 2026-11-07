@@ -78,6 +78,11 @@ The [multi-chunk completion prerequisite](PHASE_3_QUEUE_COMPLETION.md#multi-chun
 removes the queue fixture's fixed two-chunk image tail and independently checks
 all remaining bytes. Its separate small rehearsal confers no maximum-image or
 full-pressure qualification; the formal resource profile remains unchanged.
+The [explicit segmented queue entry](PHASE_3_QUEUE_COMPLETION.md#explicit-segmented-queue-transport)
+now has a separate source-bound producer and twelve-negative gate. It retains
+the whole continuous history and rejects substitution into the JSON resource
+slot. Its full-pressure execution and any maximum-image composition remain
+pending; the existing hosted matrix and five closure gaps are unchanged.
 
 | Gap | Existing prerequisite | Evidence still required |
 | --- | --- | --- |

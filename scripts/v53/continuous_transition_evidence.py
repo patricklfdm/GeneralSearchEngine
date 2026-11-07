@@ -12,6 +12,7 @@ from pathlib import Path
 import shutil
 import tempfile
 from . import authority_transition_evidence as a
+from . import wire_archive
 
 b,c,d,e,f,need=a.b,a.c,a.d,a.e,a.f,a.need
 def topology(size):
@@ -119,13 +120,33 @@ def publication(root,slot,ordinal,*,wire=None):
     need(received==set(voters[1:]),'continuous all publication acknowledgements')
 
 
-def history(root, result_file, *, size=4, current_maintenance=False, backup=False, additional=(), maximum_bytes=512*e.MIB, wire_bytes=8*e.MIB):
+def wire_history(root,*,backup,wire_layout,maximum_bytes,wire_bytes):
+    need(type(backup) is bool,'continuous explicit bootstrap profile')
+    source=wire_archive.source.BACKUP if backup else wire_archive.source.EMPTY
+    wire_archive.source.check_layout(source,wire_layout)
+    root=Path(root)
+    if wire_layout==wire_archive.JSON:
+        need(not (root/wire_archive.DIRECTORY).exists() and not (root/wire_archive.DIRECTORY).is_symlink(),
+             'continuous unexpected segmented wire')
+        wire=json.loads(b.t.plans.read(root/'wire.json',wire_bytes));archive=None
+    else:
+        archive=wire_archive.Archive(root,bootstrap_source=source,maximum=maximum_bytes)
+        need(set(archive.entries)=={'wire.json'},'continuous exact segmented histories')
+        wire=archive.read('wire.json')
+    need(wire_archive.segmented.rows(wire) and len(wire)<=32768,'continuous bounded traces')
+    return wire,archive
+
+
+def history(root, result_file, *, size=4, current_maintenance=False, backup=False, additional=(), maximum_bytes=512*e.MIB, wire_bytes=8*e.MIB,
+            wire_layout=wire_archive.JSON):
     """Shared original-byte reduction; callers separately enforce their scope.
 
     Only the declared result filename varies. Sources, traces, images, quorums
     and exact inventories are still reduced from the same unmodified directory.
     """
     root=Path(root);profiles=topology(size)
+    need(type(backup) is bool,'continuous explicit bootstrap profile')
+    wire_archive.source.check_layout(wire_archive.source.BACKUP if backup else wire_archive.source.EMPTY,wire_layout)
     need(result_file in ('continuous-result.json','transition-round-result.json'),'continuous result filename')
     need(root.is_dir() and not root.is_symlink(),'continuous regular original inventory')
     total=0
@@ -134,7 +155,8 @@ def history(root, result_file, *, size=4, current_maintenance=False, backup=Fals
         if path.is_file():total+=path.stat().st_size
         need(count<=65536 and total<=maximum_bytes,'continuous bounded original inventory')
     expected={'initial','original-plan.gsbp','original-application.image','before-network','after-close',
-              'calls.json','events.json','wire.json','failures.json',result_file}
+              'calls.json','events.json','failures.json',result_file}
+    expected.add('wire.json' if wire_layout==wire_archive.JSON else wire_archive.DIRECTORY)
     expected|={'round-1-'+stage for stage in ('prepared','selected','installed','settled')}
     expected|={f'slot-{slot}-{stage}' for slot in range(1,5) for stage in ('accepted','proved','certified','applied','published','settled')}
     expected|={f'{name}-{slot}.{suffix}' for slot in range(1,5) for name,suffix in (('entry','gsr'),('payload','bin'))}
@@ -143,9 +165,9 @@ def history(root, result_file, *, size=4, current_maintenance=False, backup=Fals
     expected|={f'{label}-{slot}' for slot in range(5,8) for label in ('applied','published')}
     expected|={f'native-{name}-{slot}.{suffix}' for slot in range(5,8) for name,suffix in (('entry','gsr'),('payload','bin'))}
     b.selection.layout(root,expected|set(additional),'continuous transition')
-    wire=json.loads(b.t.plans.read(root/'wire.json',wire_bytes))
-    for name in ('events','wire','failures'):
-        values=wire if name=='wire' else d.read(root/(name+'.json'));need(type(values) is list and len(values)<=32768,'continuous bounded traces')
+    wire,archive=wire_history(root,backup=backup,wire_layout=wire_layout,maximum_bytes=maximum_bytes,wire_bytes=wire_bytes)
+    for name in ('events','failures'):
+        values=d.read(root/(name+'.json'));need(type(values) is list and len(values)<=32768,'continuous bounded traces')
     walk=a.prelude(root,'INTENT',size=size,backup=backup);native=NativeSlot.__new__(NativeSlot);native.__dict__.update(walk.__dict__)
     for ordinal,(kind,voters) in enumerate(profiles,1):
         native.group=install(root,native.group,ordinal,voters,current_maintenance=current_maintenance)
@@ -160,8 +182,11 @@ def history(root, result_file, *, size=4, current_maintenance=False, backup=Fals
             dict(binding=operation['binding']) if kind=='FINAL' else None)
         native.publish(kind,command);publication(root,native,ordinal,wire=wire)
     b.match(root,'after-close',native.group)
-    return dict(status='PASS',kind='REMOVE',activations=3,publishedSlots=[5,6,7],physicalQualified=True,
+    if archive is not None:archive.check_unchanged()
+    result=dict(status='PASS',kind='REMOVE',activations=3,publishedSlots=[5,6,7],physicalQualified=True,
                 publicationBoundaryQualified=True,publicReady=False,phase3Complete=False)
+    if archive is not None:result.update(bootstrapSource=wire_archive.source.BACKUP,wireLayout=wire_layout)
+    return result
 
 
 def validate(root):

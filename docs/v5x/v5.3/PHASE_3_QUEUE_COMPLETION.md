@@ -69,6 +69,72 @@ completion, fresh-process recovery, a final-source admission or Phase 3 closure.
 
 ## Development observations and limits
 
+### Explicit segmented queue transport
+
+The retained continuous native fixture can now use the existing segmented wire
+registry. Its constructor fixes the selected format before starting listeners.
+The registry has one shared 8 GiB ceiling; collection and independent replay also
+retain this component's existing 8 GiB whole-original ceiling. The ordinary JSON
+queue profile keeps its 256 MiB wire ceiling. Runtime frame, queue, staging and
+time limits are unchanged. This transport work does not admit a maximum-image
+history or enlarge the formal resource cohort.
+
+Both continuous physical replay and queue replay require the caller to choose
+`SEGMENTED_BACKUP` explicitly. The bootstrap must still be the original verified
+backup; the only registered logical history is `wire.json`. The reader validates
+the complete registry, segment hashes, exact inventory and all rows before
+exposing any prefix, and checks that the archive remains unchanged after replay.
+It iterates the checked reader rather than rebuilding one large wire array.
+Mixed JSON/segmented layouts, extra auxiliary histories and relabelled source or
+layout metadata are rejected.
+
+The new source-bound profile is `joint-queue-final-64mib-segmented`. It selects
+only `V53QueueCompletionQualification#segmentedQueuePressureCompletesSameNativeHistory`:
+the same 129 documents, four additional sessions, seven held sends, one real
+aggregate-byte refusal, identical-request recovery and uninterrupted native
+FINAL/BARRIER. Its separate execution schema binds source, classes, toolchain,
+reader, exact unretried JUnit and the retained original. Capture is only PARTIAL;
+verification requires the complete physical original, the ten existing negatives
+and two additional exact source/layout rejections. It cannot fill the original
+JSON resource slot, and the existing two-member hosted workflow is unchanged.
+
+The following commands are for later full execution; development of the entry
+does not imply that this full pressure profile has passed:
+
+```bash
+python3 -m scripts.v53.queue_completion_run capture \
+  target/v53-segmented-queue-acceptance/execution \
+  --profile joint-queue-final-64mib-segmented --maven /opt/maven/bin/mvn
+python3 -m scripts.v53.queue_completion_run verify \
+  target/v53-segmented-queue-acceptance/verification \
+  --profile joint-queue-final-64mib-segmented \
+  --producer target/v53-segmented-queue-acceptance/execution \
+  --pins target/v53-segmented-queue-acceptance/execution/pins.json
+```
+
+`segmentedImageRehearsesSameNativeCompletion` is the separate six-chunk small
+rehearsal. Its original is read with `--multi-chunk-rehearsal --segmented`; its
+`pressureRequired=false` receipt and different JUnit method cannot stand in for
+the full profile. Long full-pressure and maximum-image acceptance remain pending.
+
+The BASIS audit also confirms that `MembershipGrantJournal` emits a descriptor
+containing cut/identity and capsule/inventory digests, not the capsule's complete
+metadata payload. The queue probe now checks its existing single-record-chunk
+precondition before starting pressure; actual capsule transfers remain the
+native activation path's responsibility.
+
+The [segmented development index](phase3-evidence/queue-segmented-development.json)
+records the final 8 GiB collector's small native rehearsal (308.8 seconds),
+11 passing Java tests, 128 Python tests in both normal and optimized modes, and
+19 plan/contract tests. Independent replay and local pack/unpack replay returned
+the same result, preserving all 4,216 original files: four sessions, 53 calls
+and a 20,867-byte application delivered in six chunks. This original uses one
+wire segment; multi-segment transport guards are covered separately. Neither
+full-pressure nor maximum-image qualification follows from the small run.
+Current-reader replay of the unchanged historical JSON full-pressure original
+also preserves its exact result and ten negatives. The earlier collector
+prototype and its observations remain separately identified in the index.
+
 ### Multi-chunk development prerequisite
 
 The image tail now consumes all remaining bytes of the original SOURCE image

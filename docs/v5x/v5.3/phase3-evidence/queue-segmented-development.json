@@ -1,0 +1,264 @@
+{
+  "schema": "gse-v53-segmented-queue-development-v1",
+  "status": "PARTIAL",
+  "developmentResult": "PASS",
+  "baseCommit": "cce9dc3811d4c2592c2fb6bcc6b26f8a9835b08d",
+  "finalSourceQualified": false,
+  "combinedResourcesQualified": false,
+  "fullSegmentedPressureQualified": false,
+  "maximumNativeQualified": false,
+  "phase3Complete": false,
+  "productionRuntimeChanged": false,
+  "existingHostedResourceProfileChanged": false,
+  "workflowChanged": false,
+  "code": [
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java",
+      "bytes": 38637,
+      "sha256": "01290b43654f2dc568b1d4b03497b4d768f2b211b9c304b9bda4852540d4cdd6"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53QueueCompletionQualification.java",
+      "bytes": 13148,
+      "sha256": "9cb353f216eee84eea302381043f65b89bc99e8c6928eda4a5372b45b4e1872e"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53QueueEvidenceBudgetTest.java",
+      "bytes": 1802,
+      "sha256": "38ce2b3d9a720eaebf4c384dfc9b5f862e5ba648c73c607deb9d0bd22aa0831b"
+    },
+    {
+      "path": "scripts/v53/continuous_transition_evidence.py",
+      "bytes": 18199,
+      "sha256": "44ad7a29acbab21a2049cbcb6de5960d3f993bca0d70fa914a3cf92f33aad22c"
+    },
+    {
+      "path": "scripts/v53/queue_completion_evidence.py",
+      "bytes": 17712,
+      "sha256": "4ad8b9c88f0fd7fa6b0145b3824b2516701b6f54b44c737a613ea78c7d1226ef"
+    },
+    {
+      "path": "scripts/v53/queue_completion_run.py",
+      "bytes": 15837,
+      "sha256": "5a79c03a4552257554c4a48f99f95641a90c711c7a5048a27aa086182f17b422"
+    },
+    {
+      "path": "scripts/v53/test_continuous_segmented_wire.py",
+      "bytes": 6943,
+      "sha256": "bc5291fb2a7ab373be5e6a9f8eb10c2e60188183be73221c8dee523df34ead2d"
+    },
+    {
+      "path": "scripts/v53/test_segmented_queue_run.py",
+      "bytes": 6864,
+      "sha256": "b345348c723c98948e813f8c1b657df9e088b33b7e103cca42aa8686b24d7f32"
+    }
+  ],
+  "javaTests": [
+    {
+      "name": "io.github.patricklfdm.generalsearch.replication.V53QueueCompletionQualification",
+      "tests": "1",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "308.82"
+    },
+    {
+      "name": "io.github.patricklfdm.generalsearch.replication.V53QueueEvidenceBudgetTest",
+      "tests": "4",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "0.049"
+    },
+    {
+      "name": "io.github.patricklfdm.generalsearch.replication.V53WireArchiveTest",
+      "tests": "6",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "0.094"
+    }
+  ],
+  "pythonTests": 128,
+  "optimizedPythonTests": 128,
+  "planAndContractTests": 19,
+  "corrected": {
+    "status": "PASS",
+    "scope": "segmented-native-rehearsal-and-local-portability-only",
+    "root": "general-search-engine-replication/target/v53-queue-completion/run-6b6939c7-12cc-4b91-90e0-2bd87000f69a",
+    "elapsedSeconds": 12.477,
+    "result": {
+      "status": "PASS",
+      "scope": "multi-chunk-completion-rehearsal",
+      "sessions": 4,
+      "capacityRefusals": 0,
+      "nativeFinalCompleted": true,
+      "queuePressureQualified": false,
+      "maximumQueuedBytes": 1782046,
+      "phase3Complete": false,
+      "combinedMaximumQualified": false,
+      "bootstrapSource": "VERIFIED_DURABLE_BACKUP",
+      "wireLayout": "SEGMENTED_BACKUP"
+    },
+    "portableResultIdentical": true,
+    "originalUnchanged": true,
+    "formalRejections": {
+      "json-layout": {
+        "type": "ValueError",
+        "reason": "context selection continuous transition inventory"
+      },
+      "full-pressure": {
+        "type": "ValueError",
+        "reason": "queue completion scope"
+      }
+    },
+    "phase3Complete": false,
+    "fullPressureQualified": false,
+    "maximumImageQualified": false,
+    "hostedExecution": false,
+    "originalFiles": 4216,
+    "archiveBytes": 3997792,
+    "calls": 53,
+    "applicationBytes": 20867,
+    "wireRows": 1243,
+    "pressureSegments": 1
+  },
+  "historicalFullReplay": {
+    "original": "target/v53-joint-queue-original/original-e532f2df/workspace/general-search-engine-replication/target/v53-queue-completion/run-82f134bf-4a74-4aec-9471-d7d48994513b",
+    "originalUnchanged": true,
+    "resultIdentical": true,
+    "negatives": 10,
+    "elapsedSeconds": 17.047
+  },
+  "implementedUnexecuted": {
+    "profile": "joint-queue-final-64mib-segmented",
+    "negativeCases": 12
+  },
+  "prototype": {
+    "raw": "general-search-engine-replication/target/v53-queue-completion/run-7e9c714d-d090-4037-9f20-217655cd01de",
+    "registryCapacityGiB": 128,
+    "scope": "earlier small rehearsal; superseded by a separate final 8 GiB execution; originals retained"
+  },
+  "finalRegistryCapacityGiB": 8,
+  "wholeOriginalCapacityGiB": 8,
+  "acceptanceEnvironment": "Operator has no qualifying maximum-native Linux host; arrange after development without weakening admission",
+  "artifacts": [
+    {
+      "path": "target/v53-segmented-queue/native.log",
+      "bytes": 5984,
+      "sha256": "4eb434705748a52d38fa8b744945e9a3b3c15a27902e80f72649337410cfed31"
+    },
+    {
+      "path": "target/v53-segmented-queue/native-final.log",
+      "bytes": 5984,
+      "sha256": "5af85bdc908fbf1960045a881c12fa7a6df7c240c99f23949e4d9ed26eb61d7f"
+    },
+    {
+      "path": "target/v53-segmented-queue/python-final.log",
+      "bytes": 228,
+      "sha256": "5b33a7b5a1283f7ea73b3aff54b2d90c92346c3a1968922fd8c4d0e4d6f5137b"
+    },
+    {
+      "path": "target/v53-segmented-queue/python-optimized.log",
+      "bytes": 228,
+      "sha256": "a72e61e8ccac57fff816ec765eee285ec422464fc36cb556bba0da62d8cd7b48"
+    },
+    {
+      "path": "target/v53-segmented-queue/plan-contract-tests.log",
+      "bytes": 251,
+      "sha256": "38a20cbec67f54a7dac7e0e0d996ae4d1e9cd5779cf4ab162bee29c093d3bad3"
+    },
+    {
+      "path": "target/v53-segmented-queue/replay-final.json",
+      "bytes": 1211,
+      "sha256": "b12ef755c6d02be79e33efd2970dffe8417cab6d3d3a7c76b2638bfafffc577a"
+    },
+    {
+      "path": "target/v53-segmented-queue/original-inventory.json",
+      "bytes": 569787,
+      "sha256": "b6a9419730db903f6fd9727aece928c32337d761b34adfc1545aaa9cfd6b3c9f"
+    },
+    {
+      "path": "target/v53-segmented-queue/historical-replay.json",
+      "bytes": 2105,
+      "sha256": "7a563695abc8d4ff7fab368001e181fa3ec50473eaadd4f5197a942a48f52bba"
+    },
+    {
+      "path": "target/v53-segmented-queue/prototype-native-dispatch.java",
+      "bytes": 38410,
+      "sha256": "682f88f217101be68fedce01605002231621d0faed699193d8cf1c025a4a6145"
+    },
+    {
+      "path": "target/v53-segmented-queue/final-V53QueueCompletionQualification.xml",
+      "bytes": 8016,
+      "sha256": "9b1ada186e93144747a4432cf5d54618d99c1eab10e25744563a25964a55c576"
+    },
+    {
+      "path": "target/v53-segmented-queue/final-V53QueueEvidenceBudgetTest.xml",
+      "bytes": 7230,
+      "sha256": "29a00ef35ea7fd6e67aea8e8706b72ddfa5b36b333c6390fd0a8974748674e99"
+    },
+    {
+      "path": "target/v53-segmented-queue/final-V53WireArchiveTest.xml",
+      "bytes": 7551,
+      "sha256": "9808f4fa8da759c5ec1c1bd4b1621ad26ff8aab7861859092fada49f0967a805"
+    },
+    {
+      "path": "target/v53-segmented-queue/prototype-V53QueueCompletionQualification.xml",
+      "bytes": 8017,
+      "sha256": "eccc3593cbd28c6cb1c27d8e7daccbaedefc76423a70ab4e06da7db6381bd339"
+    },
+    {
+      "path": "target/v53-segmented-queue/prototype-V53QueueEvidenceBudgetTest.xml",
+      "bytes": 7230,
+      "sha256": "4191e241f26b4f11eb797db53ea031f36cd1534a336e8f1f05133a4a206a7a4c"
+    },
+    {
+      "path": "target/v53-segmented-queue/prototype-V53WireArchiveTest.xml",
+      "bytes": 7550,
+      "sha256": "04de93431a351c924b4edcf0225c8260e09da9693cbc74aeb8ec09cdcdbf49e5"
+    }
+  ],
+  "executedClasses": [
+    {
+      "path": "general-search-engine-replication/target/test-classes/io/github/patricklfdm/generalsearch/replication/V53QueueCompletionQualification$Session.class",
+      "bytes": 2265,
+      "sha256": "584ff51ad56f4170224cf0ea435383970850b781aaa64a1422c13b95ba2e9008"
+    },
+    {
+      "path": "general-search-engine-replication/target/test-classes/io/github/patricklfdm/generalsearch/replication/V53QueueCompletionQualification.class",
+      "bytes": 32268,
+      "sha256": "4cc3c1745235ecb6cbd4051aee8a64ab43524de751d1ea80291ec032d5c5bbe1"
+    },
+    {
+      "path": "general-search-engine-replication/target/test-classes/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest$Network$1.class",
+      "bytes": 1563,
+      "sha256": "99ed83beea49ed8e450c2e7aac264af7230052943ad8962e6765449c11e3c2f8"
+    },
+    {
+      "path": "general-search-engine-replication/target/test-classes/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest$Network$2.class",
+      "bytes": 3704,
+      "sha256": "b01ed32f0e90ac28913219525de07b3b91bb75775302c3567acbf2f12c6e9e26"
+    },
+    {
+      "path": "general-search-engine-replication/target/test-classes/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest$Network.class",
+      "bytes": 66212,
+      "sha256": "3d12b4ef5e3e45b623d3b8c3cadae922f29eb6542c01fe27a553b8edd6984d85"
+    },
+    {
+      "path": "general-search-engine-replication/target/test-classes/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest$Preparation.class",
+      "bytes": 781,
+      "sha256": "4859772d3be04dc8138831b00c911c61748bc7208adc4c62c86d7a530ceb0a56"
+    },
+    {
+      "path": "general-search-engine-replication/target/test-classes/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.class",
+      "bytes": 17675,
+      "sha256": "e65e2844938793bd01e525c22d0c1afa974494368aaac3ea3f55188e20d726e4"
+    },
+    {
+      "path": "general-search-engine-replication/target/test-classes/io/github/patricklfdm/generalsearch/replication/V53QueueEvidenceBudgetTest.class",
+      "bytes": 4349,
+      "sha256": "4cf1b2cf1c8fb9a8f23f3fe864b64f7a7c70234afa2916949e3723915aef2921"
+    }
+  ]
+}

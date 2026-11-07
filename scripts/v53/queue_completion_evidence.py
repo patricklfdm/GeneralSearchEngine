@@ -25,15 +25,21 @@ def rehearsal_profile(rehearsal,multi_chunk_rehearsal):
          (not multi_chunk_rehearsal or rehearsal),'queue completion replay profile')
 
 
-def load(directory,*,rehearsal=False,multi_chunk_rehearsal=False):
+def layout_options(wire_layout):
+    history.wire_archive.source.check_layout(history.wire_archive.source.BACKUP,wire_layout)
+    return {} if wire_layout==history.wire_archive.JSON else dict(wire_layout=wire_layout)
+
+
+def load(directory,*,rehearsal=False,multi_chunk_rehearsal=False,wire_layout=history.wire_archive.JSON):
     rehearsal_profile(rehearsal,multi_chunk_rehearsal)
+    layout=layout_options(wire_layout)
     root=Path(directory);scope=root/'continuous-result.json'
     need(root.is_dir() and not root.is_symlink() and scope.is_file() and not scope.is_symlink() and
          scope.stat().st_size<=4096,'queue completion regular receipt')
     need(history.d.read(root/'continuous-result.json')==dict(status='PASS',kind='REMOVE',activations=3,
          publicReady=False,automaticLifecycle=False),'queue completion continuous scope')
     physical=history.history(root,'continuous-result.json',backup=True,current_maintenance=True,
-        additional={'queue-resources.json','queue-completion.json'},maximum_bytes=8*1024*t.MIB,wire_bytes=256*t.MIB)
+        additional={'queue-resources.json','queue-completion.json'},maximum_bytes=8*1024*t.MIB,wire_bytes=256*t.MIB,**layout)
     original=history.b.original(root,4,True)
     identity={n:queue.f.decode(v['node.gsr'],'records','NODE')['identity'] for n,v in original.items()}
     root_record=queue.f.decode(original['node-1']['root.gsr'],'records','ROOT')
@@ -45,9 +51,12 @@ def load(directory,*,rehearsal=False,multi_chunk_rehearsal=False):
     journal=history.c.journal(installed['grants.gsr'],packet['capsule']['root'],'node-1')
     selected=queue.f.decode((root/'selected-2.gsr').read_bytes(),'records','SELECTED')
     promise,basis=joint_grant(journal,selected['ballot'])
-    return dict(physical=physical,receipt=history.d.read(root/'queue-completion.json'),
+    wire,archive=history.wire_history(root,backup=True,wire_layout=wire_layout,maximum_bytes=8*1024*t.MIB,wire_bytes=256*t.MIB)
+    value=dict(physical=physical,receipt=history.d.read(root/'queue-completion.json'),
                 trace=t.read(root/'queue-resources.json')[1],events=history.d.read(root/'events.json'),
-                wire=json.loads(history.b.t.plans.read(root/'wire.json',256*t.MIB)),identity=identity,basis=basis,image=image,selected=selected,exportBytes=len(basis)+len(promise))
+                wire=wire,identity=identity,basis=basis,image=image,selected=selected,exportBytes=len(basis)+len(promise))
+    if archive is not None:value['wireArchive']=archive
+    return value
 
 
 def joint_grant(rows,ballot):
@@ -91,13 +100,18 @@ def replay_session(session,requests,answers,frames,basis,image,chunk):
         need(akind==reply_kind and a['payload']==payload,'queue completion original content')
 
 
-def replay(value,*,rehearsal=False,multi_chunk_rehearsal=False):
+def replay(value,*,rehearsal=False,multi_chunk_rehearsal=False,wire_layout=history.wire_archive.JSON):
     rehearsal_profile(rehearsal,multi_chunk_rehearsal)
+    layout_options(wire_layout);segmented=wire_layout==history.wire_archive.SEGMENTED
     chunk=4096 if rehearsal else queue.CHUNK
     receipt=value['receipt'];trace=value['trace'];events=value['events'];selected=value['selected']
-    need(set(receipt)=={'schema','status','points','attempts','traces','phase3Complete','combinedMaximumQualified','pressureRequired'} and
-         receipt['schema']=='gse-v53-queue-completion-v1' and receipt['status']=='PASS' and
+    fields={'schema','status','points','attempts','traces','phase3Complete','combinedMaximumQualified','pressureRequired'}
+    if segmented:fields.update(('wireLayout','bootstrapSource'))
+    schema='gse-v53-segmented-queue-completion-v1' if segmented else 'gse-v53-queue-completion-v1'
+    need(set(receipt)==fields and receipt['schema']==schema and receipt['status']=='PASS' and
          receipt['pressureRequired'] is (not rehearsal) and receipt['phase3Complete'] is False and receipt['combinedMaximumQualified'] is False,'queue completion scope')
+    if segmented:need(receipt['wireLayout']==wire_layout and receipt['bootstrapSource']==history.wire_archive.source.BACKUP,
+                      'queue completion original wire profile')
     need(trace['queueLimit']==64*t.MIB,'queue completion frozen queue')
     accounting=t.replay(trace);states=[];state={}
     for row in trace['changes']:
@@ -122,6 +136,10 @@ def replay(value,*,rehearsal=False,multi_chunk_rehearsal=False):
         done=[i for i,v in enumerate(events) if v.get('event')=='DRIVER_PUBLISHED' and v.get('index')==index]
         need(len(done)==1 and end<done[0]<markers[name]['eventIndex'],'queue completion native publication')
     traces=receipt['traces'];need(len(traces)==4 and traces==sorted(set(traces)) and all(str(UUID(v))==v for v in traces),'queue completion trace set')
+    if segmented:
+        archive=value.get('wireArchive')
+        need(type(archive) is history.wire_archive.Archive and value['wire'] is archive.read('wire.json'),
+             'queue completion original segmented reader')
     requests={};answers={};frames={};sessions={};deliveries=[]
     for wire in value['wire']:
         raw=base64.b64decode(wire['request'],validate=True);kind,q,qbytes=queue.frame(raw)
@@ -171,18 +189,23 @@ def replay(value,*,rehearsal=False,multi_chunk_rehearsal=False):
         else:queue.byte_refusal(trace['changes'][point['sequence']]['usage'],size)
     need(markers['PRESSURE_DRAINED']['queued']<t.MIB and markers['CLOSED']['queued']==0 and not states[-1],
          'queue completion drained and closed')
-    return dict(status='PASS',scope='multi-chunk-completion-rehearsal' if multi_chunk_rehearsal else 'small-image-completion-rehearsal' if rehearsal else 'joint-queue-completion-component-only',sessions=4,capacityRefusals=0 if rehearsal else 1,
+    result=dict(status='PASS',scope='multi-chunk-completion-rehearsal' if multi_chunk_rehearsal else 'small-image-completion-rehearsal' if rehearsal else 'joint-queue-completion-component-only',sessions=4,capacityRefusals=0 if rehearsal else 1,
                 nativeFinalCompleted=True,queuePressureQualified=not rehearsal,maximumQueuedBytes=accounting['maximumObservedReservations']['queued'],
                 phase3Complete=False,combinedMaximumQualified=False)
+    if segmented:
+        archive.check_unchanged();result.update(bootstrapSource=history.wire_archive.source.BACKUP,wireLayout=wire_layout)
+    return result
 
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('directory');p.add_argument('--qualify',action='store_true');p.add_argument('--rehearsal',action='store_true')
-    p.add_argument('--multi-chunk-rehearsal',action='store_true');a=p.parse_args()
+    p.add_argument('--multi-chunk-rehearsal',action='store_true');p.add_argument('--segmented',action='store_true');a=p.parse_args()
     options=dict(rehearsal=a.rehearsal or a.multi_chunk_rehearsal,multi_chunk_rehearsal=a.multi_chunk_rehearsal)
+    layout=history.wire_archive.SEGMENTED if a.segmented else history.wire_archive.JSON
+    options.update(layout_options(layout))
     need(not(a.qualify and options['rehearsal']),'queue completion negatives require full original')
     value=load(a.directory,**options)
-    print(json.dumps(qualify(value) if a.qualify else replay(value,**options),sort_keys=True))
+    print(json.dumps(qualify(value,**layout_options(layout)) if a.qualify else replay(value,**options),sort_keys=True))
 
 
 NEGATIVES={
@@ -197,11 +220,19 @@ NEGATIVES={
     'unclassified-refusal':'queue completion classified refusal',
     'retry-missing':'queue completion complete attempts',
 }
+SEGMENTED_NEGATIVES={'declared-empty':'queue completion original wire profile',
+                     'declared-json':'queue completion original wire profile'}
 
 
-def qualify(value):
-    original=replay(value);results=[]
-    for name,reason in NEGATIVES.items():
+def negative_cases(wire_layout=history.wire_archive.JSON):
+    layout_options(wire_layout)
+    return dict(NEGATIVES,**(SEGMENTED_NEGATIVES if wire_layout==history.wire_archive.SEGMENTED else {}))
+
+
+def qualify(value,*,wire_layout=history.wire_archive.JSON):
+    options=layout_options(wire_layout)
+    original=replay(value,**options);results=[]
+    for name,reason in negative_cases(wire_layout).items():
         changed=dict(value,receipt=copy.deepcopy(value['receipt']),events=copy.deepcopy(value['events']),
                      trace=dict(value['trace']),selected=copy.deepcopy(value['selected']))
         r=changed['receipt'];points=r['points']
@@ -216,7 +247,9 @@ def qualify(value):
         elif name=='unclassified-refusal':
             next(v for v in changed['events'] if v.get('event')=='NETWORK_ATTEMPT_FAILED' and v.get('reason')=='CAPACITY')['reason']='IO'
         elif name=='retry-missing':r['attempts'].pop()
-        try:replay(changed)
+        elif name=='declared-empty':r['bootstrapSource']=history.wire_archive.source.EMPTY
+        elif name=='declared-json':r['wireLayout']=history.wire_archive.JSON
+        try:replay(changed,**options)
         except ValueError as error:
             need(str(error)==reason,'queue completion negative reason drift: '+name+': '+str(error))
             results.append(dict(case=name,status='REJECTED',reason=str(error)))

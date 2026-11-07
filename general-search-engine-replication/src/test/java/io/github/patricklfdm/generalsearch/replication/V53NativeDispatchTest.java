@@ -16,7 +16,16 @@ class V53NativeDispatchTest {
     @TempDir Path temp;
     static final long BUDGET=TimeUnit.SECONDS.toNanos(180);
     static int admitWireLimit(MembershipBootstrapSource source,int requested) {
+        return admitWireLimit(source,requested,V53WireArchive.Layout.JSON);
+    }
+    static int admitWireLimit(MembershipBootstrapSource source,int requested,V53WireArchive.Layout layout) {
         Objects.requireNonNull(source);
+        Objects.requireNonNull(layout);
+        if(layout==V53WireArchive.Layout.SEGMENTED_BACKUP) {
+            if(source!=MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP || requested!=V53EvidenceArray.WIRE_BYTES)
+                throw new IllegalArgumentException("native segmented wire evidence profile");
+            return requested;
+        }
         if(requested!=V53EvidenceArray.WIRE_BYTES &&
                 !(source==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP && requested==256*1024*1024))
             throw new IllegalArgumentException("native JSON wire evidence profile");
@@ -146,11 +155,22 @@ class V53NativeDispatchTest {
         }
         Network(V53BootstrapPublicationTest.Fixture retained,ReplicationBounds bounds,long endpointBudget,boolean liveDirectory,boolean observeExports,
                 int wireLimit)throws Exception {
-            assertEquals(V53NativeResourceProfile.SMALL_FIXTURE,retained.resourceProfile,"legacy JSON resume resource policy");
-            wireEvidenceLimit=admitWireLimit(retained.request.source(),wireLimit);
+            this(retained,bounds,endpointBudget,liveDirectory,observeExports,wireLimit,V53WireArchive.Layout.JSON);
+        }
+        Network(V53BootstrapPublicationTest.Fixture retained,ReplicationBounds bounds,long endpointBudget,boolean liveDirectory,boolean observeExports,
+                V53WireArchive.Layout layout)throws Exception {
+            this(retained,bounds,endpointBudget,liveDirectory,observeExports,V53EvidenceArray.WIRE_BYTES,layout);
+        }
+        private Network(V53BootstrapPublicationTest.Fixture retained,ReplicationBounds bounds,long endpointBudget,boolean liveDirectory,boolean observeExports,
+                int wireLimit,V53WireArchive.Layout layout)throws Exception {
+            assertEquals(V53NativeResourceProfile.SMALL_FIXTURE,retained.resourceProfile,"retained native resource policy");
+            wireEvidenceLimit=admitWireLimit(retained.request.source(),wireLimit,layout);
             this.bounds=bounds;f=retained;observeExportResources=observeExports;
-            wireArchive=null;
-            auxiliaryWire=new V53AuxiliaryWire(f.raw,f.request.source()==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP);
+            // The retained continuous component admits at most 8 GiB of original
+            // evidence. Its registry must not consume a larger wire allowance.
+            // Fresh maximum backup histories keep their separate constructor.
+            wireArchive=layout==V53WireArchive.Layout.SEGMENTED_BACKUP?new V53WireArchive(f.raw,8L*1024*1024*1024):null;
+            auxiliaryWire=new V53AuxiliaryWire(f.raw,f.request.source()==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP,wireArchive);
             try {events=eventHistory();wire=wireHistory();openActors(endpointBudget,liveDirectory);}
             catch(Exception|Error error){closeEvidenceOnFailure(error);throw error;}
         }

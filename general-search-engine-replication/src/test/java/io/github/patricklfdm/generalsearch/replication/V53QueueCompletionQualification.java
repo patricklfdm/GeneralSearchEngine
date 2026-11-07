@@ -43,6 +43,9 @@ class V53QueueCompletionQualification {
     }
     void pressure()throws Exception {
         var own=network.owners.getFirst();var basis=own.originalBasis().orElseThrow();
+        // BASIS carries cut/identity/digests, not the entire metadata capsule.
+        // This component intentionally transfers that record in one chunk.
+        assertTrue(basis.size()<=chunk,"queue completion basis extent");
         var images=own.originalSource().capsule.packet.images();assertEquals(1,images.size());
         String image=images.keySet().iterator().next();long imageBytes=images.get(image);
         assertTrue(imageBytes>chunk && imageBytes<=MembershipApplicationImage.MAXIMUM);
@@ -100,10 +103,15 @@ class V53QueueCompletionQualification {
     @Test void admittedRemoveFinishesAfterRealJointQueuePressure()throws Exception {run(true);}
     @Test void smallImageRehearsesSameNativeCompletion()throws Exception {run(false);}
     @Test void multiChunkImageRehearsesSameNativeCompletion()throws Exception {run(false,10000);}
+    @Test void segmentedImageRehearsesSameNativeCompletion()throws Exception {run(false,10000,V53WireArchive.Layout.SEGMENTED_BACKUP);}
+    @Test void segmentedQueuePressureCompletesSameNativeHistory()throws Exception {run(true,32768,V53WireArchive.Layout.SEGMENTED_BACKUP);}
     private void run(boolean full)throws Exception {
         run(full,full?32768:3000);
     }
     private void run(boolean full,int valueBytes)throws Exception {
+        run(full,valueBytes,V53WireArchive.Layout.JSON);
+    }
+    private void run(boolean full,int valueBytes,V53WireArchive.Layout layout)throws Exception {
         pressureRequired=full;chunk=full?CHUNK:4096;
         var raw=Files.createDirectories(Path.of("target/v53-queue-completion/run-"+UUID.randomUUID()));
         System.out.println("v53QueueCompletionEvidence="+raw.toAbsolutePath());
@@ -124,7 +132,8 @@ class V53QueueCompletionQualification {
             var b=ReplicationBounds.defaults();var bounds=new ReplicationBounds(b.maxFrameBytes(),b.maxEntriesPerAppend(),b.maxInFlightPerPeer(),b.maxPendingClientOperations(),
                     b.maxRetryAttempts(),30000,b.retryBackoffMillis(),chunk,b.maxRetainedLogBytes(),b.maxSnapshotStagingBytes());
             var networkHelper=new V53NativeDispatchTest();networkHelper.temp=temp;
-            network=networkHelper.new Network(fixture,bounds,continuous.budget,true,true,256*1024*1024);
+            network=layout==V53WireArchive.Layout.JSON?networkHelper.new Network(fixture,bounds,continuous.budget,true,true,256*1024*1024):
+                    networkHelper.new Network(fixture,bounds,continuous.budget,true,true,layout);
             boolean passed=false;
             network.observeRequests=true;
             try {
@@ -144,8 +153,13 @@ class V53QueueCompletionQualification {
                 passed=true;
             }finally {
                 point("CLOSED");V53ResourceTraceFiles.write(raw.resolve("queue-resources.json"),network.resources.getFirst().observations());
-                Files.write(raw.resolve("queue-completion.json"),canonical(Map.of("schema","gse-v53-queue-completion-v1","status",passed?"PASS":"FAIL",
-                        "pressureRequired",pressureRequired,"points",points,"attempts",attempts,"traces",pressureTraces.stream().sorted().toList(),"phase3Complete",false,"combinedMaximumQualified",false),1024*1024));
+                var receipt=new TreeMap<String,Object>(Map.of("schema","gse-v53-queue-completion-v1","status",passed?"PASS":"FAIL",
+                        "pressureRequired",pressureRequired,"points",points,"attempts",attempts,"traces",pressureTraces.stream().sorted().toList(),"phase3Complete",false,"combinedMaximumQualified",false));
+                if(layout==V53WireArchive.Layout.SEGMENTED_BACKUP) {
+                    receipt.put("schema","gse-v53-segmented-queue-completion-v1");receipt.put("wireLayout",layout.name());
+                    receipt.put("bootstrapSource",fixture.request.source().name());
+                }
+                Files.write(raw.resolve("queue-completion.json"),canonical(receipt,1024*1024));
             }
         }
     }

@@ -16,4 +16,11 @@ class V53QueueEvidenceBudgetTest {
         for(var source:MembershipBootstrapSource.values())for(int requested:new int[]{0,-1,4096,64*1024*1024-1,256*1024*1024+1,Integer.MAX_VALUE})
             assertThrows(IllegalArgumentException.class,()->V53NativeDispatchTest.admitWireLimit(source,requested));
     }
+    @Test void segmentedSelectionRequiresBackupAndCannotReinterpretAJsonLimit() {
+        var layout=V53WireArchive.Layout.SEGMENTED_BACKUP;
+        assertEquals(V53EvidenceArray.WIRE_BYTES,V53NativeDispatchTest.admitWireLimit(
+                MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP,V53EvidenceArray.WIRE_BYTES,layout));
+        assertThrows(IllegalArgumentException.class,()->V53NativeDispatchTest.admitWireLimit(MembershipBootstrapSource.EMPTY,V53EvidenceArray.WIRE_BYTES,layout));
+        assertThrows(IllegalArgumentException.class,()->V53NativeDispatchTest.admitWireLimit(MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP,256*1024*1024,layout));
+    }
 }

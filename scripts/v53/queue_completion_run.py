@@ -1,6 +1,6 @@
 """Immutable native joint queue pressure through FINAL/BARRIER admission.
 
-One complete original and ten exact negatives. A small-image rehearsal, isolated
+One complete original and ten exact negatives (twelve for explicit segmentation). A small-image rehearsal, isolated
 SOURCE pressure, or downloaded PASS receipt cannot fill this resource slot.
 """
 import argparse
@@ -17,24 +17,35 @@ from .maximum_transition_inventory import inventory
 
 need=h.need;read=shared.read;reader_manifest=shared.reader_manifest;BUILDS=shared.BUILDS
 SCHEMA='gse-v53-queue-completion-execution-v1'
+SEGMENTED_SCHEMA='gse-v53-segmented-queue-completion-execution-v1'
 PACKAGE='io.github.patricklfdm.generalsearch.replication.'
 # Complete raw inventory cap; the physical reader also checks its individual files.
 RAW_BYTES=8*1024*1024*1024
 PINS=('sourceSha256','buildSha256','toolchainSha256','readerSha256')
 PROFILE='joint-queue-final-64mib'
+SEGMENTED_PROFILE=PROFILE+'-segmented'
 CLASS='V53QueueCompletionQualification'
 METHOD='admittedRemoveFinishesAfterRealJointQueuePressure'
+SEGMENTED_METHOD='segmentedQueuePressureCompletesSameNativeHistory'
 
 
 def selected(profile):
-    need(type(profile) is str and profile==PROFILE,'queue-completion run explicit profile')
-    return CLASS,METHOD,'v53-queue-completion'
+    need(type(profile) is str and profile in (PROFILE,SEGMENTED_PROFILE),'queue-completion run explicit profile')
+    return CLASS,METHOD if profile==PROFILE else SEGMENTED_METHOD,'v53-queue-completion'
+
+
+def schema(profile):
+    selected(profile);return SCHEMA if profile==PROFILE else SEGMENTED_SCHEMA
+
+
+def options(profile):
+    selected(profile);return {} if profile==PROFILE else dict(wire_layout=gate.history.wire_archive.SEGMENTED)
 
 
 def command(profile):
-    selected(profile)
+    cls,method,_=selected(profile)
     return ['-o','-B','-ntp','-f','reactor/pom.xml','-pl','../'+h.MODULE,'-am',
-            '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+CLASS+'#'+METHOD,'test']
+            '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+cls+'#'+method,'test']
 
 
 def junit(reports,profile):
@@ -61,14 +72,21 @@ def locate(work,profile):
 def collect(raw,profile):
     selected(profile);raw=Path(raw);before=inventory(raw,maximum=RAW_BYTES)
     # Collection proves completeness of the retained inventory, not runtime acceptance.
-    for name in ('events.json','calls.json','wire.json','failures.json','continuous-result.json',
+    for name in ('events.json','calls.json','failures.json','continuous-result.json',
                  'queue-completion.json','queue-resources.json','original-plan.gsbp','original-application.image'):
         need(name in before['files'],'queue-completion run missing observations: '+name)
+    if profile==PROFILE:
+        need('wire.json' in before['files'],'queue-completion run missing observations: wire.json')
+        need(not any(p.startswith(gate.history.wire_archive.DIRECTORY+'/') for p in before['files']),
+             'queue-completion run unexpected segmented evidence')
+    else:
+        # Prove complete transport collection without granting physical admission.
+        gate.history.wire_history(raw,backup=True,maximum_bytes=RAW_BYTES,wire_bytes=256*gate.t.MIB,**options(profile))
     for name in ('initial','before-network','installed-1','installed-2','installed-3',
                  'published-5','published-6','published-7','after-close'):
         need(any(p.startswith(name+'/') for p in before['files']),'queue-completion run missing original directory: '+name)
     need(inventory(raw,maximum=RAW_BYTES)==before,'queue-completion run changed during collection')
-    return dict(schema=SCHEMA,status='PARTIAL',profile=profile,collectionComplete=True,
+    return dict(schema=schema(profile),status='PARTIAL',profile=profile,collectionComplete=True,
                 queuePressureQualified=False,combinedResourcesQualified=False,phase3Complete=False,inventory=before)
 
 
@@ -86,7 +104,7 @@ def capture(output,maven,profile,source_from=None):
     selected(profile);output=Path(output).absolute()
     need(source_from is None or not output.resolve().is_relative_to(Path(source_from).resolve()),'queue-completion run source separation')
     output.mkdir(parents=True,exist_ok=False)
-    receipt=dict(schema=SCHEMA,profile=profile,status='RUNNING',executionStatus='NOT_RUN',collectionComplete=False,
+    receipt=dict(schema=schema(profile),profile=profile,status='RUNNING',executionStatus='NOT_RUN',collectionComplete=False,
                  queuePressureQualified=False,combinedResourcesQualified=False,phase3Complete=False,retries=0)
     try:
         work=output/'workspace';source=h.source_copy(h.ROOT,work) if source_from is None else h.recorded_source(source_from,work)
@@ -124,7 +142,7 @@ def check_pins(pins):
 def member(path,profile,pins):
     selected(profile);manifest=check_pins(pins);path=Path(path)
     need(path.is_dir() and not path.is_symlink(),'queue-completion admission producer directory');receipt=read(path/'receipt.json')
-    need(type(receipt) is dict and receipt.get('schema')==SCHEMA and receipt.get('profile')==profile and receipt.get('status')=='PARTIAL' and
+    need(type(receipt) is dict and receipt.get('schema')==schema(profile) and receipt.get('profile')==profile and receipt.get('status')=='PARTIAL' and
          receipt.get('executionStatus')=='PASS' and receipt.get('collectionComplete') is True and
          all(receipt.get(k) is False for k in ('queuePressureQualified','combinedResourcesQualified','phase3Complete')) and
          type(receipt.get('retries')) is int and receipt['retries']==0,'queue-completion admission successful unretried producer')
@@ -165,19 +183,20 @@ def check_result(value,profile):
     original=value['original']
     expected=dict(status='PASS',scope='joint-queue-completion-component-only',sessions=4,capacityRefusals=1,
                   nativeFinalCompleted=True,queuePressureQualified=True,phase3Complete=False,combinedMaximumQualified=False)
+    if profile==SEGMENTED_PROFILE:expected.update(wireLayout=gate.history.wire_archive.SEGMENTED,bootstrapSource=gate.history.wire_archive.source.BACKUP)
     need(type(original) is dict and set(original)==set(expected)|{'maximumQueuedBytes'} and
          all(type(original.get(k)) is type(v) and original[k]==v for k,v in expected.items()) and
          type(original.get('maximumQueuedBytes')) is int and
          11*((gate.queue.CHUNK+2)//3)*4<original['maximumQueuedBytes']<=gate.queue.LIMIT,
          'queue-completion admission original pressure and native completion')
-    expected=[dict(case=name,status='REJECTED',reason=reason) for name,reason in gate.NEGATIVES.items()]
+    expected=[dict(case=name,status='REJECTED',reason=reason) for name,reason in gate.negative_cases(**options(profile)).items()]
     need(value['negatives']==expected,'queue-completion admission exact negatives')
 
 
 def qualify(path,profile,pins):
-    before=member(path,profile,pins);result=gate.qualify(gate.load(before['raw']));check_result(result,profile)
+    before=member(path,profile,pins);result=gate.qualify(gate.load(before['raw'],**options(profile)),**options(profile));check_result(result,profile)
     need(member(path,profile,pins)==before,'queue-completion admission changed during replay');check_pins(pins)
-    return dict(schema=SCHEMA,status='PASS',scope='joint-queue-completion-component-only',profile=profile,**pins,
+    return dict(schema=schema(profile),status='PASS',scope='joint-queue-completion-component-only',profile=profile,**pins,
                 producerReceiptSha256=before['producerReceiptSha256'],rawInventorySha256=h.digest(h.snapshot.f.canonical(before['inventory'])),
                 originalFirst=True,originalPreserved=True,queuePressureQualified=True,nativeFinalCompleted=True,combinedResourcesQualified=False,phase3Complete=False,qualification=result)
 
@@ -185,7 +204,7 @@ def qualify(path,profile,pins):
 def verify(output,producer,profile,pins):
     output=Path(output);need(not output.resolve().is_relative_to(Path(producer).resolve()),'queue-completion verifier original separation')
     output.mkdir(parents=True,exist_ok=False)
-    receipt=dict(schema=SCHEMA,status='FAIL',profile=profile,phase3Complete=False)
+    receipt=dict(schema=schema(profile),status='FAIL',profile=profile,phase3Complete=False)
     try:receipt=qualify(producer,profile,pins)
     except BaseException as error:receipt['failure']=dict(type=type(error).__name__,message=str(error));raise
     finally:h.save(output/'receipt.json',receipt)
@@ -195,7 +214,7 @@ def verify(output,producer,profile,pins):
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__);sub=parser.add_subparsers(dest='action',required=True)
     for action in ('capture','collect','verify'):
-        p=sub.add_parser(action);p.add_argument('output');p.add_argument('--profile',choices=(PROFILE,),required=True)
+        p=sub.add_parser(action);p.add_argument('output');p.add_argument('--profile',choices=(PROFILE,SEGMENTED_PROFILE),required=True)
         if action=='capture':p.add_argument('--maven',default='mvn');p.add_argument('--source-from')
         elif action=='collect':p.add_argument('--raw',required=True)
         else:p.add_argument('--producer',required=True);p.add_argument('--pins',required=True)
