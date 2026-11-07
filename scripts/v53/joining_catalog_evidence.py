@@ -81,14 +81,18 @@ def applied_voter(before, after, kind, node, end):
 
 
 class Replay:
-    def __init__(self, root, *, size=3, kind='ADD', required_four=False):
+    def __init__(self, root, *, size=3, kind='ADD', required_four=False, bootstrap_source='EMPTY'):
         need((size,kind) in ((3,'ADD'),(4,'ADD'),(3,'REPLACE'),(4,'REPLACE'),(5,'REPLACE')), 'joining replay profile')
+        # The caller declares its source contract; do not infer authority from
+        # a producer's plan or receipt. Existing full gates still require EMPTY.
+        need(type(bootstrap_source) is str and bootstrap_source in ('EMPTY','VERIFIED_DURABLE_BACKUP'),
+             'joining explicit bootstrap source')
         self.size, self.kind = size, kind
         self.joining = 'node-' + str(size+1)
         self.old = tuple('node-' + str(i) for i in range(1,size+1))
         self.offline = self.old[size//2+1:]
         self.targets = target_nodes(size, kind, required_four)
-        self.path = Path(root); self.original = bootstrap.original(self.path, size, False)
+        self.path = Path(root); self.original = bootstrap.original(self.path, size, bootstrap_source=='VERIFIED_DURABLE_BACKUP')
         _, members, packet = disk.current(self.original['node-1'])
         self.root = packet['capsule']['root']; self.root_bytes = self.original['node-1']['root.gsr']
         self.genesis = self.original['node-1']['genesis.gsr']

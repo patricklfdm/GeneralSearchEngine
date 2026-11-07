@@ -14,7 +14,10 @@ import static io.github.patricklfdm.generalsearch.replication.V53SourceExchangeT
 class V53OwnedCrossViewTest {
     @TempDir Path temp;
     static MembershipBootstrapRequest<Integer,Doc> networkRequest(Path path,int size,boolean backup)throws Exception {
-        var original=V53BootstrapPublicationTest.Fixture.request(path,size,backup);
+        return networkRequest(V53BootstrapPublicationTest.Fixture.request(path,size,backup));
+    }
+    /** Rebind only endpoints; preserve the explicit offline admission request. */
+    static MembershipBootstrapRequest<Integer,Doc> networkRequest(MembershipBootstrapRequest<Integer,Doc> original)throws Exception {
         var sockets=new ArrayList<ServerSocket>();var targets=new ArrayList<MembershipBootstrapTarget<Integer,Doc>>();
         try {
             for(var target:original.targets()) {

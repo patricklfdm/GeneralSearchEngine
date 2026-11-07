@@ -1,0 +1,33 @@
+{
+  "combinedResourcesQualified": false,
+  "files": {
+    "target/v53-native-backup-seed/contract.log": "f9b1cc9dc053f26534c5cac18a4bcdb41f80b24758c02da4048a2ee8d6e44439",
+    "target/v53-native-backup-seed/empty-round-tests.xml": "0366b027aa4695c41f08e79c8eedbc1e8e2bc0aa43c8b63e5165db3ba94f7bf5",
+    "target/v53-native-backup-seed/initial-seed-tests.xml": "54a3aa5fee647f668a72e308f624e8956a8800c32f909caf6b0cbb820988b22e",
+    "target/v53-native-backup-seed/maven-reactor.log": "6a150e475a25b72406221f7ee62410f7e2c7c521bbe03378a520d3c9924cfa58",
+    "target/v53-native-backup-seed/maven.log": "cbdeac721ca9275f5a523f4fdeca7e2b71e70395c83e5030cc16964cd5c758b8",
+    "target/v53-native-backup-seed/plan-tests.log": "74da6245076e8e2bd9c12f49cef9146c304504d6511fd4c87fdc2c3be7622c55",
+    "target/v53-native-backup-seed/python-integration.log": "30336f8a24879ae0d6ff26703e47fd6721202b8222b5d906f6d7372c7340bd23",
+    "target/v53-native-backup-seed/refusal-recheck.xml": "6f7fda47c614c7dbf4bd9e3464aa717af3dc18366f8b046b006ffcaf205ab085",
+    "target/v53-native-backup-seed/replay_seed.py": "5608ebf7b77bbe46825d8dd4e1bf6a33eaf3fbe426d0e205d017669fe0595913",
+    "target/v53-native-backup-seed/seed-replay.json": "956cb11f7ef384985581e4373a1fae32c5ead11460c3208d56385c317c85d939",
+    "target/v53-native-backup-seed/seed-replay.log": "2218a20ecaa00b4d1fb0176607826b640bce50ef6236ea3084f1f598aceaf180",
+    "target/v53-native-backup-seed/source-refusal.log": "a2d4f245b177473921081f208ba1fb20bda0ec5460c618905e0b13dd54b08c02",
+    "target/v53-native-backup-seed/validation-summary.json": "bc7ba94ea4cf3bf88e2442aff6e277218b248d0cc7a0f36f4d20ca9751a537c1"
+  },
+  "finalSourceCohortQualified": false,
+  "fullJoiningQualified": false,
+  "independentReplayNegatives": 2,
+  "javaUniqueCases": 6,
+  "maximumImageQualified": false,
+  "original": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-dispatch/run-9b12a631-c9eb-4629-ac7b-647a253c2996",
+  "originalBytes": 2418046,
+  "originalFiles": 654,
+  "parent": "8c1515cd563f0eec6efbd7fbcabe0587820c8535",
+  "phase3Complete": false,
+  "pythonContractTests": 19,
+  "pythonFocusedTests": 36,
+  "schema": "gse-v53-native-backup-seed-development-v1",
+  "scope": "development working tree; not a final-source cohort",
+  "status": "PASS"
+}

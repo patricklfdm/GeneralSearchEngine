@@ -179,6 +179,19 @@ class V53JoiningIntentExportTest {
     }
     private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined,boolean maintainJoined,boolean seedJoined,
             boolean initializeJoined,boolean continueJoint,boolean remoteRetention,boolean earlyStartup,V53JoiningProfile profile,boolean prefixOnly)throws Exception {
+        nativeJoining(retainPending,publishJoint,installJoined,maintainJoined,seedJoined,initializeJoined,continueJoint,
+                remoteRetention,earlyStartup,profile,prefixOnly,null);
+    }
+    /** Opt-in seed hook for a future combined byte-pressure collector, not an EMPTY cohort substitute. */
+    void requiredFourFromVerifiedBackup(MembershipBootstrapRequest<Integer,Doc> request)throws Exception {
+        assertEquals(MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP,request.source());
+        assertEquals(5,request.targets().size());
+        assertTrue(System.getProperty("v53.joining.sourceFault","").isEmpty());
+        nativeJoining(true,true,true,true,true,true,true,true,true,V53JoiningProfile.parse("5-REPLACE-required-four"),false,request);
+    }
+    private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined,boolean maintainJoined,boolean seedJoined,
+            boolean initializeJoined,boolean continueJoint,boolean remoteRetention,boolean earlyStartup,V53JoiningProfile profile,boolean prefixOnly,
+            MembershipBootstrapRequest<Integer,Doc> bootstrapRequest)throws Exception {
         assertTrue(!prefixOnly || retainPending && publishJoint && !installJoined && !continueJoint && !earlyStartup);
         assertTrue(!earlyStartup || remoteRetention && initializeJoined && continueJoint);
         String sourceFault=System.getProperty("v53.joining.sourceFault","");
@@ -193,9 +206,13 @@ class V53JoiningIntentExportTest {
         // fixture lifetime once at construction; individual RPC/retry and
         // learner-source budgets remain unchanged. Legacy methods are unchanged.
         long lifetime=continueJoint?TimeUnit.MINUTES.toNanos(40):(installJoined || prefixOnly)?TimeUnit.MINUTES.toNanos(20):BUDGET;
-        try(var n=network.new Network(profile.size(),helper.controlBounds(),lifetime,f->{
+        if(bootstrapRequest!=null)assertEquals(profile.size(),bootstrapRequest.targets().size());
+        V53NativeDispatchTest.Preparation preparation=f->{
             for(var target:f.request.targets())try(var owner=f.open(target,"initialize-learners")){owner.initializeLearnerRetention();}
-        },true);var round=helper.driver(n,MembershipRoundDriver.Events.NONE,lifetime)) {
+        };
+        try(var n=bootstrapRequest==null?network.new Network(profile.size(),helper.controlBounds(),lifetime,preparation,true):
+                network.new Network(bootstrapRequest,helper.controlBounds(),lifetime,preparation,true,false);
+            var round=helper.driver(n,MembershipRoundDriver.Events.NONE,lifetime)) {
             // Preserve original attempts and receives for full causal replay.
             // Older fixture families retain their existing trace vocabulary.
             n.observeRequests=earlyStartup || prefixOnly || initializationProcess!=null;

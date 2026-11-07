@@ -91,11 +91,18 @@ class V53NativeDispatchTest {
             this(size,bounds,endpointBudget,preparation,liveDirectory,false);
         }
         Network(int size,ReplicationBounds bounds,long endpointBudget,Preparation preparation,boolean liveDirectory,boolean observeExports)throws Exception {
+            this(V53BootstrapPublicationTest.Fixture.request(Files.createDirectory(temp.resolve(UUID.randomUUID().toString())),size,false),
+                    bounds,endpointBudget,preparation,liveDirectory,observeExports);
+        }
+        /** Explicit seed admission for native histories; default constructors still use EMPTY. */
+        Network(MembershipBootstrapRequest<Integer,Doc> request,ReplicationBounds bounds,long endpointBudget,
+                Preparation preparation,boolean liveDirectory,boolean observeExports)throws Exception {
             this.bounds=bounds;
             observeExportResources=observeExports;
+            var bound=V53OwnedCrossViewTest.networkRequest(request);
             Path raw=Files.createDirectories(Path.of("target/v53-native-dispatch/run-"+UUID.randomUUID()));
             System.out.println("v53NativeDispatchEvidence="+raw.toAbsolutePath());
-            f=new V53BootstrapPublicationTest.Fixture(raw,V53OwnedCrossViewTest.networkRequest(Files.createDirectory(temp.resolve(UUID.randomUUID().toString())),size,false));
+            f=new V53BootstrapPublicationTest.Fixture(raw,bound);
             f.ownedHistory=true;f.nativeApplication=true;
             for(var target:f.request.targets())try(var owner=f.open(target,"initialize-retention")){owner.initializePeerRetention();owner.initializeFutureRetention();}
             preparation.prepare(f);

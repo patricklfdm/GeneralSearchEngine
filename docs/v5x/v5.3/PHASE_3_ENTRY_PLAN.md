@@ -131,6 +131,12 @@ catalogue total:
   final-source slot, and the earlier small rehearsal remains diagnostic. Both source-bound entries feed
   the [five-member supplemental set](PHASE_3_RESOURCE_COHORT.md).
 
+The [native verified-backup seed entry](PHASE_3_NATIVE_BACKUP_SEED.md) now lets a
+future combined-resource collector supply a real nonempty image to the same
+native network/joining fixture. Its focused seed/BARRIER checks do not qualify
+the full backup joining history or physical maximum; bounded large-image capture
+and complete explicit-source replay remain required.
+
 The maximum-image component is a synchronous storage probe. It does not establish
 an admitted learner, full metadata pressure or automatic-runtime peak. The
 required-four entry qualifies observed ownership and completion, not all byte

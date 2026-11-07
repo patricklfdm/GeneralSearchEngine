@@ -10,6 +10,23 @@ from . import joining_catalog_evidence as j
 
 
 class JoiningCatalogEvidenceTest(unittest.TestCase):
+    def test_bootstrap_source_is_explicit_and_defaults_to_empty(self):
+        # A mismatched seed must fail in original admission, before any catalog
+        # can be obtained from the producer's history or claimed outcome.
+        for options,backup in (({},False),({'bootstrap_source':'EMPTY'},False),
+                               ({'bootstrap_source':'VERIFIED_DURABLE_BACKUP'},True)):
+            with self.subTest(options=options), patch.object(j.bootstrap,'original',side_effect=ValueError('source mismatch')) as original:
+                with self.assertRaisesRegex(ValueError,'^source mismatch$'):
+                    j.Replay(Path('/unused'),size=5,kind='REPLACE',**options)
+                original.assert_called_once_with(Path('/unused'),5,backup)
+
+    def test_unknown_or_truthy_bootstrap_profile_cannot_read_originals(self):
+        for source in (None,True,1,[],{},'backup','empty','VERIFIED_DURABLE_BACKUP '):
+            with self.subTest(source=source), patch.object(j.bootstrap,'original') as original:
+                with self.assertRaisesRegex(ValueError,'^joining explicit bootstrap source$'):
+                    j.Replay(Path('/unused'),bootstrap_source=source)
+                original.assert_not_called()
+
     def phase(self, joint=False, voters=None):
         root = 'a' * 64
         identities = {f'node-{i}': dict(node=f'node-{i}', storage=str(uuid.UUID(int=i)), host='127.0.0.1', port=9000+i)
