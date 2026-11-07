@@ -6,6 +6,7 @@ import unittest
 from unittest.mock import patch
 from . import maximum_native_evidence as m
 from . import test_backup_resource_run as fixture
+from . import test_native_retirement_storage as storage_fixture
 
 
 def resources():
@@ -89,9 +90,12 @@ class MaximumNativeEvidenceTest(unittest.TestCase):
     def test_original_first_all150_cases_and_same_input_are_required(self):
         binding=m.binding('a'*64,42,'00000000-0000-0000-0000-000000000001','b'*64);gate=resources()
         with patch.object(m,'seed',return_value=binding) as seed,patch.object(m.source_policy,'inventory',return_value={'same':'original'}) as inventory, \
-             patch.object(m.complete,'qualify_default_staging_backup',return_value=gate) as run:
+             patch.object(m.complete,'qualify_default_staging_backup',return_value=gate) as run, \
+             patch.object(m.storage,'derive',return_value=storage_fixture.result()) as storage:
             result=m.qualify(self.root);m.check_result(result)
             run.assert_called_once_with(self.root,None)
+            storage.assert_called_once_with(self.root,application_bytes=binding['applicationBytes'],
+                application_sha256=binding['bootstrapApplicationSha256'],resource_profile=m.resources.DEFAULT,**m.SOURCE_OPTIONS)
             self.assertEqual(2,seed.call_count);self.assertEqual(2,inventory.call_count)
             self.assertEqual(150,sum(map(len,result['resources']['negatives'].values())))
             self.assertFalse(result['combinedResourcesQualified']);self.assertFalse(result['phase3Complete'])
@@ -100,6 +104,12 @@ class MaximumNativeEvidenceTest(unittest.TestCase):
         for family in gate['negatives']:
             bad=copy.deepcopy(result);bad['resources']['negatives'][family].pop()
             with self.subTest(family=family),self.assertRaises(ValueError):m.check_result(bad)
+        for mutation in ('old-schema','missing-storage','foreign-bootstrap-image'):
+            bad=copy.deepcopy(result)
+            if mutation=='old-schema':bad['schema']='gse-v53-maximum-native-resources-v1'
+            elif mutation=='missing-storage':bad.pop('simultaneousImageStorage')
+            else:bad['simultaneousImageStorage']['applicationSha256']='a'*64
+            with self.subTest(mutation=mutation),self.assertRaises(ValueError):m.check_result(bad)
 
     def test_seed_failure_precedes_gate_and_late_changes_reject(self):
         binding=m.binding('a'*64,42,'00000000-0000-0000-0000-000000000001','b'*64)
@@ -108,11 +118,30 @@ class MaximumNativeEvidenceTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'bad source'):m.qualify(self.root)
             run.assert_not_called()
         with patch.object(m.source_policy,'inventory',side_effect=[{'before':1},{'after':2}]), \
-             patch.object(m,'seed',return_value=binding),patch.object(m.complete,'qualify_default_staging_backup',return_value=resources()):
+             patch.object(m,'seed',return_value=binding),patch.object(m.complete,'qualify_default_staging_backup',return_value=resources()), \
+             patch.object(m.storage,'derive',return_value=storage_fixture.result()):
             with self.assertRaisesRegex(ValueError,'original changed'):m.qualify(self.root)
         with patch.object(m.source_policy,'inventory',return_value={}),patch.object(m,'seed',side_effect=[binding,dict(binding,extra=43)]), \
-             patch.object(m.complete,'qualify_default_staging_backup',return_value=resources()):
+             patch.object(m.complete,'qualify_default_staging_backup',return_value=resources()), \
+             patch.object(m.storage,'derive',return_value=storage_fixture.result()):
             with self.assertRaisesRegex(ValueError,'original changed'):m.qualify(self.root)
+
+    def test_failed_original_or_missing_negative_prevents_storage_projection(self):
+        binding=m.binding('a'*64,42,'00000000-0000-0000-0000-000000000001','b'*64)
+        for failure in (True,False):
+            gate=resources();gate['negatives']['staging-profile']=[]
+            with patch.object(m.source_policy,'inventory',return_value={}),patch.object(m,'seed',return_value=binding), \
+                 patch.object(m.complete,'qualify_default_staging_backup',side_effect=ValueError('original failed') if failure else None,return_value=gate), \
+                 patch.object(m.storage,'derive') as storage:
+                with self.subTest(failure=failure),self.assertRaises(ValueError):m.qualify(self.root)
+                storage.assert_not_called()
+
+    def test_original_success_does_not_admit_missing_simultaneous_maximum_files(self):
+        binding=m.binding('a'*64,42,'00000000-0000-0000-0000-000000000001','b'*64)
+        with patch.object(m.source_policy,'inventory',return_value={}),patch.object(m,'seed',return_value=binding), \
+             patch.object(m.complete,'qualify_default_staging_backup',return_value=resources()), \
+             patch.object(m.storage,'derive',return_value=dict(storage_fixture.result(),matchingCallbacks=0,firstMatch=None)):
+            with self.assertRaisesRegex(ValueError,'missing simultaneous'):m.qualify(self.root)
 
 
 if __name__=='__main__':unittest.main()

@@ -13,12 +13,14 @@ UUID=r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 JOURNAL=('JOURNAL','membership-grants')
 MISC=('MISC','current-authority')
 JOURNAL_FILES={'grants.gsr','grants.rotation.gsr','pending.accept','pending.accept.next',
-               'peer-retention.gspr','peer-retention.next.gspr','future-retention.gsft','future-retention.next.gsft'}
+               'peer-retention.gspr','peer-retention.next.gspr','future-retention.gsft','future-retention.next.gsft',
+               'learner-retention.gslr','learner-retention.next.gslr','joining-retention.gsjr','joining-retention.next.gsjr',
+               'joining-retention.done.gsjr','joining-retention.done.next.gsjr'}
 MISC_FILES={'root.gsr','node.gsr','replica.lock','genesis.gsr','selector.gsr','selector.pending.gsr',
             'allocator.gsr','allocator.pending.gsr','bootstrap-admission.gsbp','bootstrap-prepared.gsbp',
             'bootstrap-seal.gsbp','source.capture.gsr','sources.retirement.gsr'}
 GENERATION_MEMBERS={'generation.gsr','source.gscp','promise.gsr','basis.gsr','selected.gsr','ancestry.gsr',
-                    'owned-tail.gsr','selected-sources.gsr','selected-coverage.json','adoption.gsr'}
+                    'owned-tail.gsr','selected-sources.gsr','selected-coverage.json','adoption.gsr','adopted-certificate.gsr'}
 END_MEMBERS={'plan.json','selector.gsr','certificate.gsr','catalog.gsr','statement.gsr','ack.gsr',
              'parent-statement.gsr','parent-ack.gsr','retirement.gsat','retirement.gsat.next',
              *(f'ancestor-{i}-{kind}.gsr' for i in range(5) for kind in ('statement','ack'))}

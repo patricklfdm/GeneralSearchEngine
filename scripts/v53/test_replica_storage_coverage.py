@@ -35,6 +35,34 @@ class StorageCoverageTest(unittest.TestCase):
         files,charges,ordinals=self.fixture();charges[m.JOURNAL]['bytes']=32*m.t.MIB
         self.assertEqual(80,m.compare(files,charges,ordinals)['physicalBytes'])
 
+    def test_native_joining_and_learner_retention_share_the_original_journal(self):
+        names=('learner-retention.gslr','learner-retention.next.gslr','joining-retention.gsjr',
+               'joining-retention.next.gsjr','joining-retention.done.gsjr','joining-retention.done.next.gsjr')
+        for name in names:
+            files={'grants.gsr':file(5),name:file(13)}
+            with self.subTest(name=name):
+                result=m.compare(files,{m.JOURNAL:charge(*m.JOURNAL,18)}, {})
+                self.assertEqual(18,result['physicalBytes']);self.assertEqual(1,len(result['required']))
+                with self.assertRaisesRegex(ValueError,'simultaneous owner extent'):
+                    m.compare(files,{m.JOURNAL:charge(*m.JOURNAL,5)}, {})
+                with self.assertRaisesRegex(ValueError,'original charge owner'):
+                    m.compare(files,{m.MISC:charge(*m.MISC,100)}, {})
+
+    def test_adopted_certificate_stays_with_its_generation_or_floor_copy(self):
+        for prefix,key in (('generations/a',('GENERATION','a')),('floor-copies/'+B,('SOURCE','floor:'+B))):
+            files={prefix.split('/')[0]:D,prefix:D,prefix+'/generation.gsr':file(7),prefix+'/adopted-certificate.gsr':file(11)}
+            with self.subTest(prefix=prefix):
+                result=m.compare(files,{key:charge(*key,18)}, {})
+                self.assertEqual(18,result['physicalBytes']);self.assertEqual(1,len(result['required']))
+                with self.assertRaisesRegex(ValueError,'simultaneous owner extent'):m.compare(files,{key:charge(*key,7)}, {})
+
+    def test_native_ledger_and_adoption_names_do_not_allow_similar_unknown_files(self):
+        for name in ('joining-retention.other.gsjr','joining-retention.done.next.next.gsjr','learner-retention.tmp.gslr'):
+            with self.subTest(name=name),self.assertRaisesRegex(ValueError,'unclassified root'):m.owners({name:file()}, {})
+        for name in ('adopted-certificate.gsr.other','adopted-certificate.next.gsr'):
+            with self.subTest(name=name),self.assertRaisesRegex(ValueError,'generation member'):
+                m.owners({'generations':D,'generations/a':D,'generations/a/'+name:file()}, {})
+
     def test_combined_active_and_candidate_exceeding_one_charge_rejects(self):
         files,charges,ordinals=self.fixture();charges[m.JOURNAL]['bytes']=5
         with self.assertRaisesRegex(ValueError,'^storage coverage simultaneous owner extent$'):m.compare(files,charges,ordinals)

@@ -109,6 +109,12 @@ to held-send and refusal checkpoints](PHASE_3_QUEUE_STORAGE_PRESSURE.md). This
 strengthens resource observations without closing the combined-maximum or
 final-source gaps.
 
+The [maximum native image-storage gate](PHASE_3_NATIVE_IMAGE_STORAGE.md) now
+requires seven actual calibrated image copies and their exclusive live leases
+at one original source-retirement callback. Complete original replay precedes
+the projection. The existing maximum-native entry requires its v2 result;
+large execution and the combined-resource audit remain pending.
+
 The [native activation receive lifetime regressions](PHASE_3_ACTIVATION_RECEIVE_LIFETIME.md)
 check selected-source cleanup before successful activation and across a complete
 REMOVE round. A cleanup obstruction retains the original files/charges and

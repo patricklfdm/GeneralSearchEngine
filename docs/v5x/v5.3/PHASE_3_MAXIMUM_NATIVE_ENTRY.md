@@ -45,7 +45,11 @@ inventory to every retained imported-backup member. A producer-declared new
 history alone cannot authorize different content or a different source. The seed bytes
 are included in the same 128 GiB whole-original inventory. Replay then requires
 the complete [default-staging resource gate](PHASE_3_NATIVE_STAGING.md), including
-all 150 exact negative outcomes, and rechecks the seed and original inventories.
+all 150 exact negative outcomes, followed by the mandatory
+[same-callback image/storage projection](PHASE_3_NATIVE_IMAGE_STORAGE.md).
+The v2 wrapper requires seven distinct physical copies of the calibrated
+bootstrapped image, each covered by its own original APPLICATION lease, and
+rechecks the seed and original inventories. Old v1 receipts lack this requirement.
 Its successful scope is one maximum-image native history's observed ownership;
 combined maximum pressure, whole-reader memory and final-source qualification
 remain explicitly false.

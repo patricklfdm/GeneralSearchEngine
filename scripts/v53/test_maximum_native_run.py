@@ -21,6 +21,7 @@ def capacity_record(stage='execute'):
 def maximum_result():
     return dict(schema=m.maximum_native.SCHEMA,status='PASS',profile=m.MAXIMUM_PROFILE,
                 seed=m.maximum_native.binding('a'*64,42,'00000000-0000-0000-0000-000000000001','b'*64),resources=fixture.resources(),originalFirst=True,originalPreserved=True,
+                simultaneousImageStorage=fixture.storage_fixture.result(),
                 maximumNativeHistoryQualified=True,combinedResourcesQualified=False,wholeReaderMemoryQualified=False,
                 finalSourceCohortQualified=False,phase3Complete=False)
 

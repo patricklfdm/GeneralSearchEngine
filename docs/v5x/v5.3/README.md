@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+The [maximum native image-storage gate](PHASE_3_NATIVE_IMAGE_STORAGE.md) now
+requires seven actual calibrated images at one original callback, with exact
+file/lease ownership after complete physical replay. The existing maximum-native
+entry requires the v2 result; reservations or cross-callback peaks cannot replace
+the observation. Full maximum execution and final-source qualification remain OPEN.
+
 [Native admitted learner resource lifetimes](PHASE_3_NATIVE_LEARNER_RESOURCES.md)
 now bind actual READY/CANCEL and same-file cold recovery to continuous original
 charges, forced generation handoffs and six real close intervals. The explicit

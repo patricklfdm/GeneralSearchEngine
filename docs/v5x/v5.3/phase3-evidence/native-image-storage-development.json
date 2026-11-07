@@ -1,0 +1,258 @@
+{
+  "schema": "gse-v53-native-image-storage-development-v1",
+  "status": "PARTIAL",
+  "developmentResult": "PASS",
+  "baseCommit": "b11f0036524380d24febe63721499326e00c1e42",
+  "code": [
+    {
+      "path": "scripts/v53/native_retirement_storage.py",
+      "bytes": 12095,
+      "sha256": "7f7f576f9c36ec4b05be8622e25087bce3a7cb38af905f17bad55fab8f2fa74f"
+    },
+    {
+      "path": "scripts/v53/maximum_native_evidence.py",
+      "bytes": 6605,
+      "sha256": "4cff741457e0d8695ddea7ac4ecabef64d5d72624b542100c83e99fcd71ee71a"
+    },
+    {
+      "path": "scripts/v53/replica_storage_coverage.py",
+      "bytes": 12810,
+      "sha256": "6742935c1293563bfdaa443fb815b3fb2d5ab41c00948bd5c2987ab0d99069a2"
+    },
+    {
+      "path": "scripts/v53/test_native_retirement_storage.py",
+      "bytes": 12054,
+      "sha256": "1bc194055b4a3a0fe4987637760cfa0139ca309d21a743e09fff37c976612268"
+    },
+    {
+      "path": "scripts/v53/test_maximum_native_evidence.py",
+      "bytes": 10943,
+      "sha256": "70a3156f2b03ae23b8986aeb01a71f173e7df64654ea9067586f3602def61c82"
+    },
+    {
+      "path": "scripts/v53/test_maximum_native_run.py",
+      "bytes": 9370,
+      "sha256": "1768322fec9a99aead09f9efbca5988e35e13eca65da33c3a225f3afc9e0b6b0"
+    },
+    {
+      "path": "scripts/v53/test_replica_storage_coverage.py",
+      "bytes": 13618,
+      "sha256": "4a80fd43799049c3d1073c6c6739fbbd4b80ce861fd0712597f7318e71052e01"
+    }
+  ],
+  "checks": [
+    {
+      "status": "PASS",
+      "tests": 117,
+      "log": {
+        "path": "target/v53-maximum-native-overlap/python-tests.log",
+        "bytes": 217,
+        "sha256": "80e3345c9a2b3223a45586291777ba96ce2aa24fe0acd8917a5bde0b578041c0"
+      }
+    },
+    {
+      "status": "PASS",
+      "tests": 44,
+      "log": {
+        "path": "target/v53-maximum-native-overlap/admission-tests.log",
+        "bytes": 144,
+        "sha256": "2463681e8d8fcda78152e7fe0a12c8bb011577899883b2eb291ad361f4339828"
+      }
+    },
+    {
+      "status": "PASS",
+      "tests": 19,
+      "log": {
+        "path": "target/v53-maximum-native-overlap/contracts.log",
+        "bytes": 251,
+        "sha256": "56be92f9c9acabf308bfc263244697c885bc1818b8e95cd8ba6353cfe1937f8d"
+      }
+    },
+    {
+      "status": "PASS",
+      "tests": 51,
+      "log": {
+        "path": "target/v53-maximum-native-overlap/optimized.log",
+        "bytes": 150,
+        "sha256": "a6d01aaa1f09387b8737c8a51650a0133ca965698efc81761dc44d8696c25685"
+      }
+    },
+    {
+      "status": "PASS",
+      "tests": 26,
+      "log": {
+        "path": "target/v53-maximum-native-overlap/headroom-tests.log",
+        "bytes": 125,
+        "sha256": "562485cd1b92136b9fe6e57d9a106b24a8f10ddd0a96f399041898a52861cf4b"
+      }
+    }
+  ],
+  "checkScope": "Optimized and final headroom checks overlap the related suites. Synthetic fixtures are not maximum execution evidence.",
+  "historicalOriginalReplay": {
+    "callbacks": 330,
+    "elapsedSeconds": 458.622,
+    "finalSourceCohortQualified": false,
+    "historicalSource": "78403d87de095a3393594725008849ed967bfe74",
+    "matchingCallbacks": 70,
+    "maximumExecution": false,
+    "original": "target/v53-required-four-complete-v2/original-78403d87/workspace/general-search-engine-replication/target/v53-native-dispatch/run-66c3303e-c1e3-401c-8c61-aea19c2e5d15",
+    "originalFirst": true,
+    "originalInventorySha256": "77dedf0a6e5f66c279157d7ce560765a3e4fc5983d40e4cfac9dd3b77de78c58",
+    "originalPreserved": true,
+    "phase3Complete": false,
+    "physicalApplicationBytes": 5859,
+    "readerBase": "b11f0036524380d24febe63721499326e00c1e42",
+    "schema": "gse-v53-native-storage-development-replay-v1",
+    "scope": "historical-small-required-four-original-replay",
+    "smallOriginalMaximumRejection": "native storage missing simultaneous original maximum images",
+    "status": "PASS",
+    "summary": {
+      "path": "target/v53-maximum-native-overlap/original-replay-summary.json",
+      "bytes": 910,
+      "sha256": "b60b61c2b6b68b87abe9c187ddb9936e9204d0a107a21dfd3f35607f29b62f30"
+    },
+    "log": {
+      "path": "target/v53-maximum-native-overlap/original-replay.log",
+      "bytes": 1300,
+      "sha256": "38ef55e4aad8b2d9ed39a91707f74bf863477d0eefef76a12cc1e8608d93226c"
+    },
+    "positiveReceipt": {
+      "path": "target/v53-maximum-native-overlap/original-replay.json",
+      "bytes": 202995,
+      "sha256": "fc582c376d47709d4e54ca3e0a153c3bd772c9917583e4f52c9b4ebffce6ef11"
+    },
+    "projection": {
+      "path": "target/v53-maximum-native-overlap/original-storage-projection.json",
+      "bytes": 4757,
+      "sha256": "97b4505e515aa94925003300c39a43023e5bced0ff7dc725350de44c5e2601d7"
+    },
+    "beforeInventory": {
+      "path": "target/v53-maximum-native-overlap/original-inventory-before.json",
+      "bytes": 976837,
+      "sha256": "3294eb896c9d83c7f922789d4b5ece3db8665e4c7e54c832ad58533d8d25144d"
+    },
+    "afterInventory": {
+      "path": "target/v53-maximum-native-overlap/original-inventory-after.json",
+      "bytes": 976837,
+      "sha256": "3294eb896c9d83c7f922789d4b5ece3db8665e4c7e54c832ad58533d8d25144d"
+    },
+    "driver": {
+      "path": "target/v53-maximum-native-overlap/replay-original.py",
+      "bytes": 3115,
+      "sha256": "9b6e0ec7961b1183a1466d1d7b2e3cffce8c245c0d895642c48a434668346d5c"
+    },
+    "firstMatch": {
+      "afterSequence": 21193,
+      "beforeSequence": 21193,
+      "captureSha256": "ac266bfe4713ddddec9049b0e80928424dc8d2e74f135f7af976b115299461a3",
+      "capturedEventIndex": 28230,
+      "eventIndex": 28229,
+      "images": [
+        {
+          "bytes": 837,
+          "owner": "floor:3e215dbd089391dd1fef65f90bce67dce145b22464dc5d84ea4910ec518e3aef:0",
+          "path": "floor-copies/3e215dbd089391dd1fef65f90bce67dce145b22464dc5d84ea4910ec518e3aef/ef14d7eccd1369ef3d8a08e1921bf174712c2e6d5389a7f3d0a0c08c596e6d54.image",
+          "sha256": "ef14d7eccd1369ef3d8a08e1921bf174712c2e6d5389a7f3d0a0c08c596e6d54"
+        },
+        {
+          "bytes": 837,
+          "owner": "floor:4c21559c45a67d14cd5dc9d715ff668343e871972c3c2f7dc38d6b83c695b534:0",
+          "path": "floor-copies/4c21559c45a67d14cd5dc9d715ff668343e871972c3c2f7dc38d6b83c695b534/ef14d7eccd1369ef3d8a08e1921bf174712c2e6d5389a7f3d0a0c08c596e6d54.image",
+          "sha256": "ef14d7eccd1369ef3d8a08e1921bf174712c2e6d5389a7f3d0a0c08c596e6d54"
+        },
+        {
+          "bytes": 837,
+          "owner": "floor:b207e79614185c4bcfa8f8efce6231fc9d33ed2234b7ab3c672c0f73b988977c:0",
+          "path": "floor-copies/b207e79614185c4bcfa8f8efce6231fc9d33ed2234b7ab3c672c0f73b988977c/ef14d7eccd1369ef3d8a08e1921bf174712c2e6d5389a7f3d0a0c08c596e6d54.image",
+          "sha256": "ef14d7eccd1369ef3d8a08e1921bf174712c2e6d5389a7f3d0a0c08c596e6d54"
+        },
+        {
+          "bytes": 837,
+          "owner": "floor:b43e25c3c75e507e7445d37399bffb2eb661e7ec7f8dd93070760f5cc7f6b040:0",
+          "path": "floor-copies/b43e25c3c75e507e7445d37399bffb2eb661e7ec7f8dd93070760f5cc7f6b040/ef14d7eccd1369ef3d8a08e1921bf174712c2e6d5389a7f3d0a0c08c596e6d54.image",
+          "sha256": "ef14d7eccd1369ef3d8a08e1921bf174712c2e6d5389a7f3d0a0c08c596e6d54"
+        },
+        {
+          "bytes": 837,
+          "owner": "generation-b:ef14d7eccd1369ef3d8a08e1921bf174712c2e6d5389a7f3d0a0c08c596e6d54.image",
+          "path": "generations/b/ef14d7eccd1369ef3d8a08e1921bf174712c2e6d5389a7f3d0a0c08c596e6d54.image",
+          "sha256": "ef14d7eccd1369ef3d8a08e1921bf174712c2e6d5389a7f3d0a0c08c596e6d54"
+        },
+        {
+          "bytes": 837,
+          "owner": "1bb8b103-3d4d-4bb4-b2dd-49747c803356:ef14d7eccd1369ef3d8a08e1921bf174712c2e6d5389a7f3d0a0c08c596e6d54",
+          "path": "sources/1bb8b103-3d4d-4bb4-b2dd-49747c803356/ef14d7eccd1369ef3d8a08e1921bf174712c2e6d5389a7f3d0a0c08c596e6d54.image",
+          "sha256": "ef14d7eccd1369ef3d8a08e1921bf174712c2e6d5389a7f3d0a0c08c596e6d54"
+        },
+        {
+          "bytes": 837,
+          "owner": "539a361e-10c8-4a28-acc6-601c78438ea6:ef14d7eccd1369ef3d8a08e1921bf174712c2e6d5389a7f3d0a0c08c596e6d54",
+          "path": "sources/539a361e-10c8-4a28-acc6-601c78438ea6/ef14d7eccd1369ef3d8a08e1921bf174712c2e6d5389a7f3d0a0c08c596e6d54.image",
+          "sha256": "ef14d7eccd1369ef3d8a08e1921bf174712c2e6d5389a7f3d0a0c08c596e6d54"
+        }
+      ],
+      "inventorySha256": "ea2dbcb0c31b4e1c06e9d4af835a6d7c5f8f3e8287d983088cbfd8cc27e240a0",
+      "limits": {
+        "metadata": 402653184,
+        "queued": 67108864,
+        "staging": 536870912
+      },
+      "node": "node-1",
+      "nonemptyPhysicalOwnerCounts": {
+        "APPLICATION": 7,
+        "GENERATION": 1,
+        "JOURNAL": 1,
+        "MISC": 1,
+        "SOURCE": 6
+      },
+      "physicalApplicationBytes": 5859,
+      "physicalBytes": 372639,
+      "physicalDirectories": 10,
+      "physicalFiles": 63,
+      "physicalMetadataBytes": 366780,
+      "physicalStagingBytes": 287802,
+      "point": "SOURCE_RETIREMENT_CREATED",
+      "resourceTraceSha256": "77c2a801873e7e48dbd366e6b3f6c38e91cf4a3c2b5d2cfce4d02641f634f8c2",
+      "scope": "network-owner",
+      "unspentProtectedHeadroomBytes": 2097152,
+      "usage": {
+        "counts": {
+          "APPLICATION": 7,
+          "CONTROL": 12,
+          "GENERATION": 1,
+          "JOURNAL": 1,
+          "MISC": 1,
+          "SOURCE": 6
+        },
+        "leases": 28,
+        "metadata": 35981764,
+        "queued": 245505,
+        "staging": 287802
+      }
+    },
+    "negativeVectorRerun": false
+  },
+  "preservedDiagnostic": [
+    {
+      "path": "target/v53-maximum-native-overlap/initial-projection.json",
+      "bytes": 42058,
+      "sha256": "88058d26d9ffbb40d94b27cdb000ebc729580bb9f9ccfd257ff745ea810bd9db"
+    },
+    {
+      "path": "target/v53-maximum-native-overlap/mapped-projection.json",
+      "bytes": 14061,
+      "sha256": "0f6c8ad65cf23feac58bbfe08e561cd3a37a06ee609e2767926c322562dbad75"
+    }
+  ],
+  "maximumExecution": false,
+  "combinedResourcesQualified": false,
+  "wholeReaderMemoryQualified": false,
+  "finalSourceCohortQualified": false,
+  "phase3Complete": false,
+  "remaining": [
+    "native Linux acceptance environment",
+    "full maximum-native and maximum-queue execution",
+    "combined resource audit",
+    "complete final-source cohort"
+  ]
+}

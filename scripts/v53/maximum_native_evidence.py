@@ -12,10 +12,11 @@ from . import native_resource_policy as resources
 from . import required_four_resources as complete
 from . import joining_grant_captures as captures
 from . import bootstrap_plan_evidence as plans
+from . import native_retirement_storage as storage
 
 need=maximum.e.need
 DIRECTORY='maximum-native-seed'
-SCHEMA='gse-v53-maximum-native-resources-v1'
+SCHEMA='gse-v53-maximum-native-resources-v2'
 PROFILE='maximum-application-required-four-backup-segmented'
 SOURCE_OPTIONS=dict(bootstrap_source=source_policy.BACKUP,wire_layout=source_policy.SEGMENTED)
 
@@ -74,9 +75,15 @@ def qualify(root,progress=None):
     original=seed(root)
     result=complete.qualify_default_staging_backup(root,progress)
     complete.check_default_staging_backup_result(result)
+    simultaneous=storage.derive(root,application_bytes=original['applicationBytes'],
+        application_sha256=original['bootstrapApplicationSha256'],resource_profile=resources.DEFAULT,**SOURCE_OPTIONS)
+    storage.check_result(simultaneous,application_bytes=original['applicationBytes'],
+                         application_sha256=original['bootstrapApplicationSha256'])
+    if progress:progress(dict(stage='maximum-native-simultaneous-images',status='PASS',
+                              callbacks=simultaneous['matchingCallbacks']))
     need(seed(root)==original and source_policy.inventory(root,**SOURCE_OPTIONS)==before,
          'maximum native original changed during replay')
-    value=dict(schema=SCHEMA,status='PASS',profile=PROFILE,seed=original,resources=result,
+    value=dict(schema=SCHEMA,status='PASS',profile=PROFILE,seed=original,resources=result,simultaneousImageStorage=simultaneous,
                 originalFirst=True,originalPreserved=True,maximumNativeHistoryQualified=True,
                 combinedResourcesQualified=False,wholeReaderMemoryQualified=False,
                 finalSourceCohortQualified=False,phase3Complete=False)
@@ -84,7 +91,7 @@ def qualify(root,progress=None):
 
 
 def check_result(value):
-    fields={'schema','status','profile','seed','resources','originalFirst','originalPreserved',
+    fields={'schema','status','profile','seed','resources','simultaneousImageStorage','originalFirst','originalPreserved',
             'maximumNativeHistoryQualified','combinedResourcesQualified','wholeReaderMemoryQualified',
             'finalSourceCohortQualified','phase3Complete'}
     need(type(value) is dict and set(value)==fields and value['schema']==SCHEMA and
@@ -93,3 +100,5 @@ def check_result(value):
          all(value[k] is False for k in ('combinedResourcesQualified','wholeReaderMemoryQualified','finalSourceCohortQualified','phase3Complete')),
          'maximum native qualification scope')
     check_binding(value['seed']);complete.check_default_staging_backup_result(value['resources'])
+    storage.check_result(value['simultaneousImageStorage'],application_bytes=value['seed']['applicationBytes'],
+                         application_sha256=value['seed']['bootstrapApplicationSha256'])

@@ -19,8 +19,9 @@ successful maximum native history or close Phase 3.
    smaller fallback profile, history splitting or stitching.
 3. `verify` downloads that attempt's seed and original, then starts a fresh Python
    process for the whole source-bound resource verification. Acceptance requires
-   the calibrated maximum seed, complete original history and all 150 exact
-   negatives. It rechecks source, classes, reader, tools and the downloaded
+   the calibrated maximum seed, complete original history, all 150 exact
+   negatives and the [seven-image same-callback storage observation](PHASE_3_NATIVE_IMAGE_STORAGE.md).
+   It rechecks source, classes, reader, tools and the downloaded
    inventory. The child result, original producer receipt and measurement record
    are bound together; missing, failed or killed child execution cannot qualify.
    A failed execution job is rejected without downloading its large original
