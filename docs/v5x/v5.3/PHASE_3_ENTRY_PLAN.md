@@ -93,8 +93,10 @@ the same source/build/tools/dependencies, retains exact-attempt originals and
 performs a fresh-process downloaded replay. The
 [external workflow/artifact observer](PHASE_3_MAXIMUM_EXTERNAL_ATTESTATION.md) now
 binds both maximum components to live exact-attempt jobs and original GitHub ZIP
-digests. Composition with both physical readers, actual large-host execution
-and all five closure gaps remain pending.
+digests. The [complete maximum component composition](PHASE_3_MAXIMUM_ATTESTED_REPLAY.md)
+now preserves those external observations across both physical readers and
+checks common preparation pins before replay. Actual large-host execution and
+all five closure gaps remain pending.
 
 | Gap | Existing prerequisite | Evidence still required |
 | --- | --- | --- |

@@ -1,0 +1,104 @@
+{
+  "schema": "gse-v53-maximum-attested-replay-development-v1",
+  "status": "PARTIAL",
+  "developmentResult": "PASS",
+  "baseCommit": "7d291bd0c36ce6082e3f63a389400b3d2c677ea8",
+  "code": [
+    {
+      "path": "scripts/v53/maximum_resource_attested.py",
+      "bytes": 12247,
+      "sha256": "36a0d7a7d6bcce92f54e1e0c0915e5a04f930de133e9964a100c658398af4120"
+    },
+    {
+      "path": "scripts/v53/test_maximum_resource_attested.py",
+      "bytes": 17614,
+      "sha256": "8794998e5662056cc347c487c5a5a795427bcfa4d7dd5ee961eaaadccf3d8554"
+    }
+  ],
+  "checks": [
+    {
+      "log": "target/v53-maximum-attested-replay/python.log",
+      "tests": 142,
+      "seconds": 20.771,
+      "status": "PASS"
+    },
+    {
+      "log": "target/v53-maximum-attested-replay/python-optimized.log",
+      "tests": 142,
+      "seconds": 20.902,
+      "status": "PASS"
+    },
+    {
+      "log": "target/v53-maximum-attested-replay/contracts.log",
+      "tests": 19,
+      "seconds": 0.417,
+      "status": "PASS"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "target/v53-maximum-attested-replay/contracts.log",
+      "bytes": 251,
+      "sha256": "d65e1cb2af630aec5fbe2f3e6e4c8d64c25e2d2eca28cb5bafd81323d8ebee6a"
+    },
+    {
+      "path": "target/v53-maximum-attested-replay/python-first.log",
+      "bytes": 14631,
+      "sha256": "eccc6fca9952209b3d5b5c0867548741891e5fe68e5f555189baad550f626fc1"
+    },
+    {
+      "path": "target/v53-maximum-attested-replay/python-optimized.log",
+      "bytes": 243,
+      "sha256": "3826bf40126e2e960149817b55e88fa5cd3b9c42b8640c26509556ecae34b9a3"
+    },
+    {
+      "path": "target/v53-maximum-attested-replay/python-reader-execution.log",
+      "bytes": 114,
+      "sha256": "eb91b1d84326d69a74976160b97ea09f23fd8bd5c2b1e71aee9e5def082773ec"
+    },
+    {
+      "path": "target/v53-maximum-attested-replay/python-second.log",
+      "bytes": 113,
+      "sha256": "b3afc627baae671441ab2b48db4705d5f287f0733f27345734534bc314d0dee6"
+    },
+    {
+      "path": "target/v53-maximum-attested-replay/python.log",
+      "bytes": 243,
+      "sha256": "a32adae1b5c2b609d43ba71fd5a8ad22d706cf4ef4ce1849949987566d9461e0"
+    }
+  ],
+  "newTests": 15,
+  "scope": "Real seed/archive/API/result-reader composition over synthetic producer and child boundaries; no native maximum history executed",
+  "commonPreparationPins": [
+    "sourceSha256",
+    "buildSha256",
+    "toolchainSha256",
+    "repositorySha256",
+    "readerSha256"
+  ],
+  "wholeComponentContract": 2,
+  "requiredNegativeCounts": {
+    "maximum-native": 150,
+    "maximum-queue": 15
+  },
+  "minimumFreeWorkspaceGiB": 448,
+  "runtimeBudgetsChanged": false,
+  "productionJavaChanged": false,
+  "workflowChanged": false,
+  "existingSupplementalCohortChanged": false,
+  "liveGitHubRunsQueried": false,
+  "workflowDispatched": false,
+  "paidCloud": false,
+  "maximumHistoryExecuted": false,
+  "maximumComponentOriginalsReplayed": false,
+  "wholeReaderMemoryQualified": false,
+  "combinedResourcesQualified": false,
+  "finalSourceCohortQualified": false,
+  "phase3Complete": false,
+  "remaining": [
+    "Feasible combined same-owner byte pressure and admitted completion",
+    "Arrange native Linux large-evidence environment after development",
+    "Actual complete maximum histories and live externally attested replay",
+    "Complete frozen coverage, final-source cohorts, prior failure review and Phase 3 closure audit"
+  ]
+}

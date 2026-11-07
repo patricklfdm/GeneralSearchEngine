@@ -77,8 +77,9 @@ A successful run means `maximum-image-joint-queue-component-only`.
 `workflowContextBound` describes the checked in-workflow context;
 `externalRunAttested` remains false within this producer/reader workflow. The
 [external observer and ZIP-byte binder](PHASE_3_MAXIMUM_EXTERNAL_ATTESTATION.md)
-now check both maximum workflows and their exact API artifact digests; composition
-with the owning readers remains pending. Receipt claims alone cannot enter the
+now check both maximum workflows and their exact API artifact digests. The
+[owning-reader composition](PHASE_3_MAXIMUM_ATTESTED_REPLAY.md) is implemented,
+with actual large-host execution and live acceptance still pending. Receipt claims alone cannot enter the
 existing cohort.
 `wholeReaderMemoryQualified`, `combinedResourcesQualified` and `phase3Complete`
 also remain false. One observed process peak does not prove all maximum-input

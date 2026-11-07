@@ -107,11 +107,12 @@ true. `originalHistoriesReplayed`, `priorFailuresResolved`,
 origin cannot prove that its stored history is valid; this binder intentionally
 does not accept producer PASS receipts as physical evidence.
 
-The next composition must invoke both owning fresh-process readers against these
-same bound originals, preserve the before/after external observations across the
-entire replay, and check common source/build/toolchain pins. That composition,
-large-host execution, memory observations, combined-owner pressure and final
-source cohort audit remain pending. Existing in-workflow receipts retain their
+The [complete composition entry](PHASE_3_MAXIMUM_ATTESTED_REPLAY.md) now invokes
+both owning fresh-process readers against these same bound originals, preserves
+before/after external observations across the entire replay, and checks common
+source/build/toolchain/reader/dependency pins before either reader. Actual
+large-host execution, live acceptance, maximum-input memory observations,
+combined-owner pressure and final source cohort audit remain pending. Existing in-workflow receipts retain their
 current scopes and cannot substitute for this external byte binding.
 
 The [development index](phase3-evidence/maximum-external-attestation-development.json)
