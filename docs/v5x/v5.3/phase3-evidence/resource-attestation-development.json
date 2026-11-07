@@ -1,0 +1,89 @@
+{
+  "baseHead": "9c8d7becb28435eaeabdb330ed35192e5105ceda",
+  "changes": [
+    "four fixed supplemental workflow contracts, all attempts and pages",
+    "streamed raw archive binding to five actual producer directories",
+    "v3 enclosing admission with common offline dependency pins and post-replay rechecks"
+  ],
+  "contracts": {
+    "localLinks": 3114,
+    "phase3Complete": false,
+    "plannedHostedHistories": 566
+  },
+  "files": {
+    "target/v53-resource-attestation/artifact-tests-corrected-fixture.log": "df0e2cb9cd9f707e65b70ed7e73963f2f8523634863bb46907d4605d940729c3",
+    "target/v53-resource-attestation/check_local_archive.py": "002db46611b014ef7bea5daa2c47dc8d0135d1848756395c829c3e8cc0afb3b0",
+    "target/v53-resource-attestation/collector-tests-initial.log": "a89654998fc8ce3b25f52466860a4d45ff7bdda7c98de81e43cd8889b0750ff9",
+    "target/v53-resource-attestation/contract-check.log": "88f5b7bf2a1127723d85c3a6a78bab09b81fa6575a1ffd458e84fbac6c7a22a7",
+    "target/v53-resource-attestation/document-tests.log": "f2071063163bbb9f8735e7b25c1e8d19a90ca477afd4ada0830df7de480c7c66",
+    "target/v53-resource-attestation/local-archive-binding.json": "e8e77680206176f83d5e69cbcd7c6eb7aff2ad0f3f7636ee52b03548349816f7",
+    "target/v53-resource-attestation/plan.log": "5831b8e36275da84da0e202da185f006cc2344cfe2957800ad1243ec23394286",
+    "target/v53-resource-attestation/resource-workflow-tests-initial.log": "ff3ac8ef7ab553f8a332c45f9776a61538dbf0f1fc53ab1f0a7857cf65de5766",
+    "target/v53-resource-attestation/tests-final.log": "731b5da520dba1bd17a96e9e94e375d93fbeff2d6b69cec7cfe17dc61139b97c",
+    "target/v53-resource-attestation/tests-initial-binding.log": "36f57d377e20c9cd16b2f97497dd152ec88f3d74cadab16fb79b5f4a440d7630",
+    "target/v53-resource-attestation/tests-optimized-final.log": "f47d0dff8bef60f8c0539e1e035bc695e31702b2aa4b63622e56df40ab6bf795"
+  },
+  "finalSourceCohort": false,
+  "githubObserved": false,
+  "hostedExecution": false,
+  "localStreamedCheck": {
+    "archiveSha256": "996bedd2189f64ab22061af7a87d8d6e4d7c23ae82b507885f0dc130a9f0874c",
+    "bytes": 177172437,
+    "context": {
+      "attempt": "1",
+      "event": "workflow_dispatch",
+      "kind": "local-development-transport",
+      "ref": "refs/heads/experiment/v53-queue-resources",
+      "repository": "patricklfdm/GeneralSearchEngine",
+      "run": "1",
+      "source": "055875103c4b7ddfb71ffeb43a281a923c18d33d",
+      "workflow": ".github/workflows/v53-queue-resources.yml"
+    },
+    "elapsedSeconds": 1.424,
+    "execution": "existing-local-original-streamed-binding-only",
+    "files": 8311,
+    "originalReplayed": false,
+    "phase3Complete": false,
+    "producerFiles": 8310,
+    "status": "PASS",
+    "workflowExecutionAttested": false
+  },
+  "notExecuted": [
+    "final-source whole histories",
+    "full maximum-image or joint queue pressure original",
+    "actual GitHub API observations",
+    "hosted dispatch",
+    "paid cloud",
+    "new JVM workload"
+  ],
+  "phase3Complete": false,
+  "plannedSupplementalSet": {
+    "rawArchives": 5,
+    "seedArchives": 4,
+    "selectedJobs": 15,
+    "wholeHistories": 5,
+    "workflows": 4
+  },
+  "preservedDevelopmentFailures": [
+    {
+      "path": "target/v53-resource-attestation/resource-workflow-tests-initial.log",
+      "reason": "test assumed dictionary order instead of retained workflow identity"
+    },
+    {
+      "path": "target/v53-resource-attestation/tests-initial-binding.log",
+      "reason": "new synthetic dependency filename did not include required surefire marker"
+    },
+    {
+      "path": "target/v53-resource-attestation/artifact-tests-corrected-fixture.log",
+      "reason": "new synthetic inventory fixture omitted explicit byte bound"
+    }
+  ],
+  "schema": "gse-v53-resource-attestation-development-v1",
+  "scope": "development-validation-only",
+  "status": "PASS",
+  "tests": {
+    "affected": 135,
+    "documentation": 19,
+    "optimized": 135
+  }
+}

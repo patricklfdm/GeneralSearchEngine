@@ -65,7 +65,8 @@ six-session TCP cache/send overlap, aggregate-byte refusal and identical-request
 recovery component. The [joint queue completion](PHASE_3_QUEUE_COMPLETION.md)
 fixture extends real pressure through native FINAL/BARRIER; full-pressure
 execution remains pending. The [supplemental resource cohort](PHASE_3_RESOURCE_COHORT.md)
-now makes all five resource originals mandatory in the v2 attested replay.
+now makes all five resource originals mandatory in the v3 attested replay, with
+[four source-bound workflows and nine seed/raw archives](PHASE_3_RESOURCE_ATTESTATION.md).
 Combined byte maxima and final-source admission remain open.
 The two queue originals have a [manual parallel execution entry](PHASE_3_QUEUE_RESOURCE_HOSTED.md),
 outside Required CI. Hosted execution and supplemental workflow attestation are

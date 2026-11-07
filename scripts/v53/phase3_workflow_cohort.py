@@ -159,11 +159,22 @@ def observed_attempt(run,jobs):
         steps=[{k:s.get(k) for k in step_fields} for s in j.get('steps',[])]) for j in sorted(jobs,key=lambda v:v['id'])])
 
 
+def inspect_index(index):
+    raw=seeds.read_bytes(index);value=plan.decode(raw);modules=seeds.adapters();source_sha=seeds.validate_index(value,modules)
+    source=seeds.checkout_source(source_sha);catalogs=plan.catalogues();expected=contracts(modules,catalogs,source)
+    return raw,value,source,expected,catalogs
+
+
 def collect(index,output,get=github):
+    return collect_declared(index,output,get,inspect_index,SCHEMA)
+
+
+def collect_declared(index,output,get,inspect,schema):
+    """Shared read-only collector; inspectors are fixed owning code, not input imports."""
     index,output=seeds.unlinked(index),seeds.unlinked(output)
     need(not index.is_relative_to(output),'workflow cohort output overlaps index')
     output.mkdir(parents=True,exist_ok=False)
-    receipt=dict(schema=SCHEMA,status='FAIL',execution='read-only-github-observation',workflowExecutionAttested=False,
+    receipt=dict(schema=schema,status='FAIL',execution='read-only-github-observation',workflowExecutionAttested=False,
                  originalHistoriesReplayed=False,phase3Complete=False,runtimeQualified=False,cohorts={})
     inventory={};total_bytes=0
     def fetch(path,file):
@@ -176,8 +187,7 @@ def collect(index,output,get=github):
         h.save(output/'api-inventory.json',inventory)
         return plan.decode(raw)
     try:
-        raw=seeds.read_bytes(index);value=plan.decode(raw);modules=seeds.adapters();source_sha=seeds.validate_index(value,modules)
-        source=seeds.checkout_source(source_sha);catalogs=plan.catalogues();expected=contracts(modules,catalogs,source)
+        inspected=inspect(index);raw,value,source,expected,_=inspected;source_sha=value['source']
         (output/'index.json').write_bytes(raw);h.save(output/'contracts.json',expected)
         latest={};observations={};prior_count=0;all_job_ids=set();workflow_ids=set()
         for name,ctx in value['cohorts'].items():
@@ -229,10 +239,9 @@ def collect(index,output,get=github):
         for name,ctx in value['cohorts'].items():
             current=fetch('actions/runs/'+ctx['run'],'api/'+name+'/final.json');run_identity(current,ctx,int(ctx['attempt']))
             need(selected_signature(current)==selected_signature(latest[name]),'workflow cohort later rerun/state change')
-        need(seeds.read_bytes(index)==raw and seeds.checkout_source(source_sha)==source and plan.catalogues()==catalogs,
-             'workflow cohort input/source changed')
+        need(inspect(index)==inspected,'workflow cohort input/source changed')
         receipt.update(status='PARTIAL',source=source_sha,indexSha256=h.digest(raw),contractsSha256=h.digest(plan.encoded(expected)),
-            apiInventorySha256=h.digest(plan.encoded(inventory)),workflowExecutionAttested=True,subsets=len(modules),
+            apiInventorySha256=h.digest(plan.encoded(inventory)),workflowExecutionAttested=True,subsets=len(expected),
             observationsSha256=h.digest(plan.encoded(observations)),
             selectedJobs=sum(len(v['jobs']) for v in expected.values()),priorAttempts=prior_count,
             priorAttemptsRequireReview=prior_count>0,failedOriginalsReplayed=False,

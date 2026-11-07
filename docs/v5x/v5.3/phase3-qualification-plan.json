@@ -1199,7 +1199,9 @@
         "scripts/v53/phase3_workflow_cohort.py",
         "scripts/v53/phase3_attested_cohort.py",
         "scripts/v53/phase3_resource_cohort.py",
-        "scripts/v53/queue_resource_hosted.py"
+        "scripts/v53/queue_resource_hosted.py",
+        "scripts/v53/phase3_resource_workflows.py",
+        "scripts/v53/phase3_resource_artifacts.py"
       ],
       "tests": [
         "scripts/v53/test_case_inventory.py",
@@ -1231,7 +1233,9 @@
         "scripts/v53/test_phase3_workflow_cohort.py",
         "scripts/v53/test_native_application_refusal_capture_history.py",
         "scripts/v53/test_phase3_resource_cohort.py",
-        "scripts/v53/test_queue_resource_hosted.py"
+        "scripts/v53/test_queue_resource_hosted.py",
+        "scripts/v53/test_phase3_resource_workflows.py",
+        "scripts/v53/test_phase3_resource_artifacts.py"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -1259,7 +1263,9 @@
         "scripts/v53/phase3_attested_cohort.py",
         "scripts/v53/native_application_refusal_capture_history.py",
         "scripts/v53/phase3_resource_cohort.py",
-        "scripts/v53/queue_resource_hosted.py"
+        "scripts/v53/queue_resource_hosted.py",
+        "scripts/v53/phase3_resource_workflows.py",
+        "scripts/v53/phase3_resource_artifacts.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md",
@@ -1290,7 +1296,8 @@
         "docs/v5x/v5.3/phase3-evidence/workflow-cohort.json",
         "docs/v5x/v5.3/PHASE_3_NATIVE_REFUSAL_COHORT.md",
         "docs/v5x/v5.3/PHASE_3_RESOURCE_COHORT.md",
-        "docs/v5x/v5.3/PHASE_3_QUEUE_RESOURCE_HOSTED.md"
+        "docs/v5x/v5.3/PHASE_3_QUEUE_RESOURCE_HOSTED.md",
+        "docs/v5x/v5.3/PHASE_3_RESOURCE_ATTESTATION.md"
       ],
       "cohorts": [
         "profiles",
@@ -1407,7 +1414,7 @@
         "combined-resources",
         "frozen-coverage"
       ],
-      "work": "Admit one complete source/build/toolchain/reader-bound set across all twelve subsets: 500 original archives, 566 whole histories, 260 execution groups and 544 selected workflow jobs. Require exact source, run and attempt, all declared unretried original executions, independent downloaded replay, immutable archive inventories, original witness outcomes and combined-resource prerequisites. Never mix prior development originals, old catalogue schemas, successful fragments, reruns or independent leases to fill missing slots. Offline source/seed/history/workflow gates exist but a final-source accepted set is still pending. The v2 attested entry now requires independent replay of all five resource supplements against the same source/build/toolchain, checks their pins before historical replay, and rechecks originals after workflow observation. Supplemental workflow attestation, combined-resource qualification and failed-attempt review remain open; see PHASE_3_RESOURCE_COHORT.md.",
+      "work": "Admit one complete source/build/toolchain/reader-bound set across all twelve subsets: 500 original archives, 566 whole histories, 260 execution groups and 544 selected workflow jobs. Require exact source, run and attempt, all declared unretried original executions, independent downloaded replay, immutable archive inventories, original witness outcomes and combined-resource prerequisites. Never mix prior development originals, old catalogue schemas, successful fragments, reruns or independent leases to fill missing slots. Offline source/seed/history/workflow gates exist but a final-source accepted set is still pending. The v3 attested entry requires all five resource originals, observes their four workflows and 15 selected jobs before and after replay, and streams their five raw bundles against actual producer bytes. Four preparation seeds and twelve history seeds must share source/build/toolchain/dependency pins. Archive binding and execution observation are implemented, but final-source observations, combined-resource qualification and failed-attempt review remain open; see PHASE_3_RESOURCE_ATTESTATION.md.",
       "acceptance": "Bind exact source and actual build/toolchain/readers, each workflow/run/attempt and complete declared inventories; reconcile independent seed provenance. Reject missing/failed/mixed originals. No acceptance from this planning report."
     },
     {

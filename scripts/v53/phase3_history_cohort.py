@@ -112,7 +112,7 @@ def run(index, seed_inputs, inputs, output, *, expected_common=None):
         need(seed_receipt['seedCohortVerified'] is True and seed_receipt['source'] == source_sha and
              seed_receipt['indexSha256'] == h.digest(index_raw), 'history cohort seed provenance')
         if expected_common is not None:
-            need(type(expected_common) is dict and set(expected_common)=={'sourceSha256','buildSha256','toolchainSha256'} and
+            need(type(expected_common) is dict and set(expected_common) in ({'sourceSha256','buildSha256','toolchainSha256'},set(seeds.COMMON_PINS)) and
                  all(seed_receipt['commonPins'].get(k)==v for k,v in expected_common.items()),
                  'history cohort differs from supplemental source/build/tools')
         receipt.update(source=source_sha, indexSha256=h.digest(index_raw),

@@ -170,6 +170,13 @@ class HistoryCohortTest(unittest.TestCase):
         self.assertEqual([],self.verified);self.assertEqual([],self.aggregated)
         self.assertEqual('FAIL',c.seeds.read(self.root/'resource-mismatch/receipt.json')['status'])
 
+    def test_matching_resource_source_build_tools_with_different_dependencies_rejects(self):
+        seed=c.seeds.read(self.f.data['profiles']/'seed.json')
+        common={k:seed[k] for k in c.seeds.COMMON_PINS};common['repositorySha256']='0'*64
+        with redirect_stdout(io.StringIO()),self.assertRaisesRegex(ValueError,'differs from supplemental'):
+            c.run(self.f.index_path,self.f.inputs,self.inputs,self.root/'resource-dependencies',expected_common=common)
+        self.assertEqual([],self.verified);self.assertEqual([],self.aggregated)
+
     def test_missing_group_extra_group_and_partial_joining_group_refuse_before_readers(self):
         group = self.bundles[0]; moved = self.root/'saved'; group.rename(moved)
         with self.assertRaisesRegex(ValueError, 'exact artifact inventory'): self.run_gate()

@@ -39,8 +39,9 @@ Before physical replay the entry validates every producer, compares all recorded
 source files with the actual clean Git tree, requires equal source/build/toolchain
 pins, and checks that every reader belongs to that source. The enclosing attested
 entry additionally compares those common pins with the independently verified
-history seeds. It retains the history seeds' dependency check; supplemental
-directories do not establish a separately attested dependency archive or workflow.
+history seeds. Directories alone do not establish a separately attested
+dependency archive or workflow. The enclosing v3 entry therefore requires the
+[supplemental archive and workflow checks](PHASE_3_RESOURCE_ATTESTATION.md).
 
 Each owning verifier then reads the actual original before its exact negatives.
 The aggregate checks the resulting scope, pins, original inventory and complete
@@ -68,20 +69,22 @@ feasible combined byte occupancy, coverage and prior-failure review remain open.
 ## Enclosing admission
 
 The [attested cohort entry](PHASE_3_WORKFLOW_COHORT.md) now uses schema
-`gse-v53-phase3-attested-cohort-v2` and requires `--resource-index` and
-`--resources`. No flag bypasses the supplemental set. Its order is:
+`gse-v53-phase3-attested-cohort-v3` and requires `--resource-index`, `--resources`,
+`--resource-workflows` and `--resource-artifacts`. No flag bypasses the set. Its order is:
 
 1. Observe all selected twelve-subset workflow attempts.
-2. Precheck all supplemental producers and their source.
+2. Precheck all supplemental producers and their source, observe their four
+   workflows, and bind their four seed/five raw archives to the actual inputs.
 3. Reconcile the history seeds against the supplemental pins before replaying
    the complete twelve-subset original history set.
 4. Replay all five resource originals against those seeds' common pins.
-5. Observe the workflow attempts again; recheck both original input sets.
+5. Observe both workflow sets again; recheck originals, archives and receipts.
 
 The existing `workflowExecutionAttested` field covers the twelve observed
-workflow subsets only. The additional explicit
-`resourceWorkflowExecutionAttested=false` prevents claiming unobserved resource
-executions. Earlier v1 receipts remain historical and cannot satisfy v2.
+workflow subsets. In the enclosing v3 result, `resourceWorkflowExecutionAttested`
+and `resourceArtifactsBound` can become true only after the additional checks;
+the standalone resource reader retains its offline scope and false workflow
+flag. Earlier v1/v2 receipts remain historical and cannot satisfy v3.
 
 ## Queue completion producer
 

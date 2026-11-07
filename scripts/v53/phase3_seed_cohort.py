@@ -105,12 +105,13 @@ def checkout_source(source):
     return dict(head=source, files=files)
 
 
-def bundle_identity(directory):
+def bundle_identity(directory, *, maximum=shared.MAX_BYTES):
+    need(type(maximum) is int and maximum>0,'seed cohort explicit archive bound')
     directory = unlinked(directory)
     need(directory.is_dir() and {p.name for p in directory.iterdir()} == {'manifest.json', 'bundle.tar.gz'},
          'seed cohort exact artifact files')
     archive = unlinked(directory/'bundle.tar.gz')
-    need(archive.is_file() and archive.stat().st_nlink == 1 and 0 < archive.stat().st_size <= shared.MAX_BYTES,
+    need(archive.is_file() and archive.stat().st_nlink == 1 and 0 < archive.stat().st_size <= maximum,
          'seed cohort archive capacity/type')
     raw = read_bytes(directory/'manifest.json'); manifest = plan.decode(raw)
     need(type(manifest) is dict, 'seed cohort artifact manifest')
