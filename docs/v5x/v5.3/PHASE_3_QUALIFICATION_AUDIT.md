@@ -1,5 +1,11 @@
 # Phase 3 qualification inventory and remaining work
 
+The [full joint queue development original](PHASE_3_QUEUE_COMPLETION.md#full-size-development-original)
+now passes unretried native execution, physical replay and all ten exact
+negatives at `e532f2df`. Same-owner FINAL/BARRIER after actual byte refusal is
+observed; combined metadata/application maxima and final-source acceptance
+remain open. This result changes no catalogue or workflow counts.
+
 [Membership control resources](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md) integrate
 three previously stable-only readers into required-four admission, using actual
 local publication observations and per-slot original authority. The v2 gate

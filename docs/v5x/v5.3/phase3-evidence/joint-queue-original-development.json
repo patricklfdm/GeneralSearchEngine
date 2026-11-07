@@ -1,0 +1,104 @@
+{
+  "combinedMaximumQualified": false,
+  "execution": 1005.112,
+  "files": {
+    "target/v53-joint-queue-original/execution-receipt.json": "28155cc7351985f672fed8c31be61d172b52c7f74b6531fac76c0c6b2aebce59",
+    "target/v53-joint-queue-original/execution.log": "a9f00133b5aff359fd5851da172ed825daa844556097d6a28528cb1eb1e309fe",
+    "target/v53-joint-queue-original/original-e532f2df/build.json": "f3ae026adc0b5226765b557bb9d99ede12475d703645aad3750181da16b4d22e",
+    "target/v53-joint-queue-original/original-e532f2df/maven.log": "c6ff6eab5224df0d4fa1b86247ae2402b732ed6cb4eefb015a28a8b995980534",
+    "target/v53-joint-queue-original/original-e532f2df/pins.json": "9a9cb40063ac697c077bc252b6035d7651277205f201ecddd902723bfe9beeb4",
+    "target/v53-joint-queue-original/original-e532f2df/reader.json": "f0083c32e2bde1161e4b18fea8cdb215b2d86bb69acb9c121c1b67d5df0bdbbd",
+    "target/v53-joint-queue-original/original-e532f2df/receipt.json": "61efd8f0116c8f18d7b62255bdf5110f1c77bd72ee63db547d41b886117e9358",
+    "target/v53-joint-queue-original/original-e532f2df/source.json": "0f2db8e51e26b20a4234724d51ac1728f740b26fddbfa6421a3a08a4f7eaed53",
+    "target/v53-joint-queue-original/original-e532f2df/toolchain.json": "1fdcb48f5bfd1630d5d0283c4f1e1c929064e8139ff9a460096607c447fd2d93",
+    "target/v53-joint-queue-original/replay-e532f2df/receipt.json": "c4f119038204823c08e45646ed9c5344687d3d1dbb15343d60495f50e2b82c84",
+    "target/v53-joint-queue-original/replay-timing.json": "ef993ac15a336a0f42087cd64ac829c738ceeb1fc933d887082f8e1e4a9c066d",
+    "target/v53-joint-queue-original/replay_original.py": "3981cccdb21d6306137244ac9ac575e32c6c298dcbad9fb28140c2640a6f7904",
+    "target/v53-joint-queue-original/run_original.py": "dd5eb8f2eea047184677f63eabde7f2350f8acdee2a989eda159ce9fca99fd4d"
+  },
+  "finalSourceCohort": false,
+  "hostedExecution": false,
+  "negatives": [
+    {
+      "case": "scope",
+      "reason": "queue completion scope",
+      "status": "REJECTED"
+    },
+    {
+      "case": "queue-limit",
+      "reason": "queue completion frozen queue",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-milestone",
+      "reason": "queue completion complete milestones",
+      "status": "REJECTED"
+    },
+    {
+      "case": "checkpoint-usage",
+      "reason": "queue completion checkpoint binding",
+      "status": "REJECTED"
+    },
+    {
+      "case": "pressure-after-final",
+      "reason": "queue completion joint before FINAL",
+      "status": "REJECTED"
+    },
+    {
+      "case": "publication-boundary",
+      "reason": "queue completion native publication",
+      "status": "REJECTED"
+    },
+    {
+      "case": "foreign-ballot",
+      "reason": "queue completion original joint authority",
+      "status": "REJECTED"
+    },
+    {
+      "case": "changed-original-image",
+      "reason": "queue completion exact request",
+      "status": "REJECTED"
+    },
+    {
+      "case": "unclassified-refusal",
+      "reason": "queue completion classified refusal",
+      "status": "REJECTED"
+    },
+    {
+      "case": "retry-missing",
+      "reason": "queue completion complete attempts",
+      "status": "REJECTED"
+    }
+  ],
+  "original": {
+    "capacityRefusals": 1,
+    "combinedMaximumQualified": false,
+    "maximumQueuedBytes": 62142358,
+    "nativeFinalCompleted": true,
+    "phase3Complete": false,
+    "queuePressureQualified": true,
+    "scope": "joint-queue-completion-component-only",
+    "sessions": 4,
+    "status": "PASS"
+  },
+  "phase3Complete": false,
+  "pins": {
+    "buildSha256": "f3ae026adc0b5226765b557bb9d99ede12475d703645aad3750181da16b4d22e",
+    "readerSha256": "71c1915d343fd25494def0429b5216793cc345a36d3ac1c4ca4f6534587e880f",
+    "sourceSha256": "0f2db8e51e26b20a4234724d51ac1728f740b26fddbfa6421a3a08a4f7eaed53",
+    "toolchainSha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+  },
+  "rawBytes": 1768608365,
+  "rawFiles": 4214,
+  "rawOriginal": "target/v53-joint-queue-original/original-e532f2df/workspace/general-search-engine-replication/target/v53-queue-completion/run-82f134bf-4a74-4aec-9471-d7d48994513b",
+  "replay": {
+    "elapsedSeconds": 35.52,
+    "maximumRssKiB": 1218664,
+    "phase3Complete": false,
+    "status": "PASS"
+  },
+  "schema": "gse-v53-joint-queue-original-development-v1",
+  "scope": "joint-queue-completion-component-only",
+  "source": "e532f2df3fb823b2b7faa9fb9f60b0d4cc80dbc4",
+  "status": "PASS"
+}

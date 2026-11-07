@@ -109,13 +109,13 @@ python3 -B -u -m scripts.v53.queue_completion_run verify \
   --pins target/v53-joint-queue-final/producer/pins.json
 ```
 
-Full native execution remains pending and may join the later authorized long
-acceptance batch. This implementation does not dispatch it. Development checks
-are synthetic routing/provenance tests plus collection of the earlier small
-original and rejection of its small JUnit. They do not convert that rehearsal
-into a full-pressure or final-source result. The
-[development index](phase3-evidence/resource-cohort-development.json) records
-the actual checks and preserves the initial path-guard test failure.
+The full native component now has one source-bound development original at
+`e532f2df`: its unretried execution, independent physical replay and ten exact
+negatives pass. The [full-size observation](PHASE_3_QUEUE_COMPLETION.md#full-size-development-original)
+records the actual bytes, timings and limits. Final-source execution remains
+required. The earlier [development index](phase3-evidence/resource-cohort-development.json)
+records the initial orchestration checks, small-profile rejection and path-guard
+failure; none is relabelled as the later full result.
 
 The two queue originals now have a [manual shared-seed workflow](PHASE_3_QUEUE_RESOURCE_HOSTED.md)
 with parallel whole-history execution and independent downloaded replay. Its

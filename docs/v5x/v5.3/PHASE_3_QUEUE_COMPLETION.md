@@ -1,6 +1,6 @@
 # Joint queue pressure and native REMOVE completion
 
-Status: **DEVELOPMENT ENTRY; full-size execution and acceptance pending**.
+Status: **full-size development original qualified; final-source acceptance OPEN**.
 
 The [source-bound producer and supplemental cohort](PHASE_3_RESOURCE_COHORT.md)
 now bind the full experiment to its exact source, compiled classes, toolchain,
@@ -99,9 +99,29 @@ It observed no capacity refusal and is rejected by the full-pressure gate.
 Six existing continuous-transition tests and 38 Python guards also passed;
 optimized Python produces the same guard results. The final fixture additionally
 uses dedicated virtual threads for the seven blocked sends and prints pressure
-milestones; those final scheduling/observation edits compile but are not a new
-source-bound execution receipt.
+milestones; those scheduling/observation edits are included in the subsequent full original
+reported below. The earlier small receipt keeps its original source and scope.
 
 The [development evidence index](phase3-evidence/queue-completion-development.json)
 retains failed originals, exact executed fixture source, reports and raw hash
 inventories. The twelve obligations and 566 planned whole histories are unchanged.
+
+## Full-size development original
+
+The clean `e532f2df3fb823b2b7faa9fb9f60b0d4cc80dbc4` source executed the exact
+full-profile method once: one test, no failures/errors/skips, 979.2 seconds in
+the original JUnit report (993.892 seconds for the recorded Maven execution).
+Collection retained 4,214 original files / 1,768,608,365 bytes. Independent
+original-first replay passed in 35.52 seconds, followed by all ten exact negative
+rejections. Peak replay RSS was 1,218,664 KiB on this development machine.
+
+The original derives four additional sessions, 62,142,358 maximum queued bytes,
+one capacity refusal and identical-request recovery. The same native owners
+complete FINAL/BARRIER and close with zero queued bytes. No history was retried,
+no runtime bound changed, and no earlier failed evidence was replaced. The
+[source/pins/hash index](phase3-evidence/joint-queue-original-development.json)
+identifies the retained producer, immutable raw inventory and complete replay.
+
+This is a local development component result. It is not the shared-seed hosted
+queue pair, final-source supplemental cohort, maximum metadata/application
+occupancy, automatic public runtime or Phase 3 closure. Those flags remain false.

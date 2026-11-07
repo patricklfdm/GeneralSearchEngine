@@ -63,8 +63,8 @@ and retained failure remain distinct from a future corrected-source admission.
 [SOURCE queue byte pressure](PHASE_3_SOURCE_QUEUE_PRESSURE.md) now adds a real
 six-session TCP cache/send overlap, aggregate-byte refusal and identical-request
 recovery component. The [joint queue completion](PHASE_3_QUEUE_COMPLETION.md)
-fixture extends real pressure through native FINAL/BARRIER; full-pressure
-execution remains pending. The [supplemental resource cohort](PHASE_3_RESOURCE_COHORT.md)
+fixture now passes one full-pressure development original and all ten exact
+negatives through native FINAL/BARRIER. Final-source execution remains pending. The [supplemental resource cohort](PHASE_3_RESOURCE_COHORT.md)
 now makes all five resource originals mandatory in the v3 attested replay, with
 [four source-bound workflows and nine seed/raw archives](PHASE_3_RESOURCE_ATTESTATION.md).
 Combined byte maxima and final-source admission remain open.
@@ -123,8 +123,9 @@ catalogue total:
   **62** negatives; earlier weaker originals cannot fill its final-source slot.
 - [SOURCE queue pressure](PHASE_3_SOURCE_QUEUE_PRESSURE.md) and
   [joint queue completion](PHASE_3_QUEUE_COMPLETION.md): two separate originals
-  with eight and ten negatives respectively. Small queue-completion rehearsal
-  evidence cannot fill the full-pressure slot. Both source-bound entries feed
+  with eight and ten negatives respectively. The full joint component now passes
+  local original-first qualification at `e532f2df`; this does not fill its
+  final-source slot, and the earlier small rehearsal remains diagnostic. Both source-bound entries feed
   the [five-member supplemental set](PHASE_3_RESOURCE_COHORT.md).
 
 The maximum-image component is a synchronous storage probe. It does not establish
@@ -149,8 +150,9 @@ its imposed receiving lifetime is not evidence of permitted runtime overlap.
 4. Reconcile the [seeds](PHASE_3_SEED_COHORT.md), replay the
    [whole original history set](PHASE_3_HISTORY_COHORT.md), and observe the
    [exact workflow attempts](PHASE_3_WORKFLOW_COHORT.md) before and after replay.
-   Include the five supplemental resource originals in that same v2 invocation;
-   their independent workflow attestation remains an explicit open obligation.
+   Include the five supplemental resource originals in that same v3 invocation,
+   with their four observed workflows and nine original seed/raw bundles. The
+   entry is implemented; actual final-source observations remain pending.
    Inspect every prior failed/cancelled attempt. Do not mix source, toolchain,
    run/attempt, original fragments or independent ownership chains.
 5. Audit all twelve obligations and five gaps against the actual original
