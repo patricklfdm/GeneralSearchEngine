@@ -374,3 +374,10 @@ Existing operation tests exercise result/identity/revision/counter refusal; reco
 tests retain exact owned tails and forced selectors. Later storage/public tests
 must measure real bytes, peak staging, interrupted rotation and capacity headroom.
 Passing a bound formula is not physical disk, long-duration or performance evidence.
+
+The [original SOURCE queue component](PHASE_3_SOURCE_QUEUE_PRESSURE.md) now
+observes six cached 4 MiB chunks and five actual encoded response-send buffers
+at one checkpoint. A sixth send exceeds the 64 MiB queue budget and is refused;
+it succeeds unchanged after the held send buffers drain. This addresses a real
+aggregate CONTROL-byte boundary, not combined metadata/staging saturation or
+admitted FINAL completion under that pressure.

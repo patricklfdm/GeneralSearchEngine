@@ -43,8 +43,11 @@ class V53MembershipTransportTest {
         final List<MembershipResources> budgets=new ArrayList<>();
         Group(int size)throws Exception {this(size,Files.createDirectories(temp.resolve(UUID.randomUUID().toString()+"-raw")));}
         Group(int size,Path raw)throws Exception {
+            this(size,raw,null);
+        }
+        Group(int size,Path raw,Path source)throws Exception {
             var helper=new V53BootstrapSeedTest();helper.temp=temp;
-            var request=helper.request(temp.resolve(UUID.randomUUID().toString()),size,null);
+            var request=helper.request(temp.resolve(UUID.randomUUID().toString()),size,source);
             var sockets=new ArrayList<ServerSocket>();var targets=new ArrayList<MembershipBootstrapTarget<Integer,Doc>>();
             try {
                 for(var old:request.targets()) {

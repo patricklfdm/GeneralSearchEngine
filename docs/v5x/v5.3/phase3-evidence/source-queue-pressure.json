@@ -1,0 +1,122 @@
+{
+  "baseCommit": "c1e5758caa2da05b309fdf50788d15fed9629395",
+  "combinedResources": false,
+  "finalSourceCohort": false,
+  "originalUnchanged": true,
+  "phase3Complete": false,
+  "raw": "general-search-engine-replication/target/v53-source-queue/run-71d3abe7-16e2-4cfc-a20a-a16e51dcb247",
+  "rawBytes": 93474062,
+  "rawFiles": 238,
+  "relocated": "target/v53-source-queue-pressure/relocated/run-71d3abe7-16e2-4cfc-a20a-a16e51dcb247",
+  "relocationIdentical": true,
+  "replaySeconds": 6.152,
+  "result": {
+    "negatives": [
+      {
+        "case": "missing-event",
+        "reason": "source queue complete events",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-limit",
+        "reason": "source queue frozen limit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-charge",
+        "reason": "source queue checkpoint usage",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-reason",
+        "reason": "source queue classified capacity refusal",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-pressure",
+        "reason": "source queue complete events",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-content",
+        "reason": "source queue original content bytes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-retry",
+        "reason": "source queue delivered original bytes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-response-extent",
+        "reason": "resource transitions derived usage",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "attempts": 49,
+      "capacityRefusals": 1,
+      "combinedResources": false,
+      "maximumQueuedBytes": 61771102,
+      "phase3Complete": false,
+      "queueLimit": 67108864,
+      "recoveredIdenticalRetries": 1,
+      "sessions": 6,
+      "status": "PASS"
+    }
+  },
+  "retainedFailures": [
+    {
+      "kind": "maven-entry-mismatch",
+      "log": "target/v53-source-queue-pressure/java-qualification.log"
+    },
+    {
+      "kind": "sandbox-socket-denied",
+      "log": "target/v53-source-queue-pressure/java-qualification-reactor.log"
+    },
+    {
+      "kind": "unreachable-eleven-exports",
+      "log": "target/v53-source-queue-pressure/java-qualification-tcp.log",
+      "raw": "general-search-engine-replication/target/v53-source-queue/run-8124928d-1b56-4fdf-b0c1-a05738c41148"
+    },
+    {
+      "kind": "reader-tuple-unpacking",
+      "log": "target/v53-source-queue-pressure/replay-initial.log"
+    }
+  ],
+  "schema": "gse-v53-source-queue-development-index-v1",
+  "sourceBinding": "uncommitted-development-file-hashes",
+  "sources": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53MembershipTransportTest.java": "0abd7b9598eba649e436fee0fd64d1327037d46f6da1b308337e631d47ed3783",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SourceQueueQualification.java": "afd19420af04dcc3be256dd331e60dc4f207f49c24faaeefa9433c3e2f930c1b",
+    "scripts/v53/source_export_evidence.py": "25c4e21aa6900c7352eeb052433a80489f5414a1317a302938534ae32dabeb2a",
+    "scripts/v53/source_queue_evidence.py": "ec6c1a8b66dc6fef877600bbf9a1bee2e02751e2b0ef05468efbbcd972752ee2",
+    "scripts/v53/test_source_queue_evidence.py": "38cc80b97759b2fb28ea54f82f5ed0c6f41846cdae252795c784043efb669a12"
+  },
+  "status": "COMPONENT_PASS",
+  "validation": {
+    "documentationTests": 19,
+    "exportReaderTests": 3,
+    "focusedPythonTests": 28,
+    "javaErrors": 0,
+    "javaFailures": 0,
+    "javaSkipped": 0,
+    "javaTests": 2,
+    "localLinks": 3085,
+    "optimizedFocusedPythonTests": 28,
+    "queueQualificationSeconds": 21.79,
+    "wholeCohortExecuted": false
+  },
+  "validationFiles": {
+    "target/v53-source-queue-pressure/document-contract.json": "72f398e7d22f4c66d0cfc15be10949110bb4e1b5f4512f786e6b8e9b80eb8354",
+    "target/v53-source-queue-pressure/document-tests.log": "343d2b978ceacd725431f4ad7d855d0947ad6009661fa389a5f7af0365a71591",
+    "target/v53-source-queue-pressure/export-reader-regression.log": "199ba496f288116d36c62f29346d4fbf0bd75745a1c893abfcbdaa4c6d5b1033",
+    "target/v53-source-queue-pressure/java-final-validation.log": "03b112270ce1b089d3fc98e0b0f402688514135869dc069c373e9aaad9a694ed",
+    "target/v53-source-queue-pressure/original-replay.json": "5cee3bc15202f3dc9e3abbbd37b920f2943fc53cb6154f4121585dc79ce4bbd8",
+    "target/v53-source-queue-pressure/portable-replay.json": "5cee3bc15202f3dc9e3abbbd37b920f2943fc53cb6154f4121585dc79ce4bbd8",
+    "target/v53-source-queue-pressure/raw-inventory.json": "0deb9372c3b9e36f84989123d5cbc4011d35df56a90a2759379d079e1da9a376",
+    "target/v53-source-queue-pressure/unit-tests-final.log": "9ca3a837da1c2d2bccccc30149ee1a91adcbe0accd9f554e40b033d5d2500136",
+    "target/v53-source-queue-pressure/unit-tests-optimized-final.log": "e96772991abe78d77a4db5a72603661a1148041005dd5869003ec69543ffa568",
+    "target/v53-source-queue-pressure/unit-tests-optimized.log": "fbba6b3c9193aa2a1886510a5e2b118b0815e217c435afccb4aef6b7fc451d28"
+  }
+}

@@ -858,3 +858,10 @@ qualification is repeated for this tooling/documentation batch.
 Rollback removes this optional inspector, tests, plan and documentation links.
 Runtime, record/wire formats, bounds, existing workflows, Required and V5.2
 experiments are unchanged.
+
+## Original SOURCE queue byte pressure
+
+The [six-session TCP component](PHASE_3_SOURCE_QUEUE_PRESSURE.md) adds actual
+64 MiB queue-bound refusal and recovery with independent original-byte replay.
+It preserves the failed eleven-export development attempt and does not change
+the whole-history catalogue, combined FINAL obligation or final-source status.

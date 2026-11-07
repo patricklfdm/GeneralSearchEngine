@@ -60,6 +60,10 @@ replay; its gate fails on a publication-witness omission after 127 passing
 negatives. The [reader correction](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md#complete-publication-coverage-without-fast-replies)
 and retained failure remain distinct from a future corrected-source admission.
 
+[SOURCE queue byte pressure](PHASE_3_SOURCE_QUEUE_PRESSURE.md) now adds a real
+six-session TCP cache/send overlap, aggregate-byte refusal and identical-request
+recovery component. Combined FINAL/headroom and final-source admission remain open.
+
 | Gap | Existing prerequisite | Evidence still required |
 | --- | --- | --- |
 | component-cohorts | Twelve source-bound catalogues and their independent readers | Complete current-source original histories, exact negatives and undeleted failures |
