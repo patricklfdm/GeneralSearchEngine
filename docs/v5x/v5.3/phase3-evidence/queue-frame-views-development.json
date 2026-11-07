@@ -1,0 +1,140 @@
+{
+  "schema": "gse-v53-queue-frame-views-development-v1",
+  "status": "PARTIAL",
+  "developmentResult": "PASS",
+  "baseCommit": "f904db8766c5848928da2a1f37a16f92d5ff839b",
+  "code": [
+    {
+      "path": "scripts/v53/queue_completion_evidence.py",
+      "bytes": 18055,
+      "sha256": "f4506aa9d830db48673851a1f7b0309cf066e556414ef6130b6a50deb5ee06d6"
+    },
+    {
+      "path": "scripts/v53/segmented_queue_frames.py",
+      "bytes": 1616,
+      "sha256": "5af5cc6f97c9f41c2a85ca9e26eb235722d221b790fd991d3fb365d03283bd41"
+    },
+    {
+      "path": "scripts/v53/test_segmented_queue_frames.py",
+      "bytes": 5218,
+      "sha256": "e824edeefa8b1f12754864745b48ed2e9afb93c99b48e9e3718d5bd1aef26419"
+    }
+  ],
+  "pythonTests": 135,
+  "optimizedPythonTests": 135,
+  "planAndContractTests": 19,
+  "compatibility": {
+    "status": "PASS",
+    "scope": "current-reader-development-compatibility-only",
+    "members": [
+      {
+        "name": "original",
+        "status": "PASS",
+        "elapsedSeconds": 4.903,
+        "resultIdentical": true,
+        "originalUnchanged": true
+      },
+      {
+        "name": "portable",
+        "status": "PASS",
+        "elapsedSeconds": 4.716,
+        "resultIdentical": true,
+        "originalUnchanged": true
+      },
+      {
+        "name": "historical-json-full",
+        "status": "PASS",
+        "elapsedSeconds": 12.978,
+        "negatives": 10,
+        "resultIdentical": true,
+        "originalUnchanged": true
+      }
+    ],
+    "elapsedSeconds": 28.635,
+    "maximumNativeQualified": false,
+    "phase3Complete": false
+  },
+  "memory": {
+    "status": "PASS",
+    "scope": "isolated-synthetic-queue-index-only",
+    "responseChunks": 12,
+    "chunkBytes": 262144,
+    "framesIdentical": true,
+    "measurements": {
+      "decoded-map": {
+        "frames": 36,
+        "retainedPythonBytes": 4351924,
+        "peakPythonBytes": 21161650
+      },
+      "original-positions": {
+        "frames": 36,
+        "retainedPythonBytes": 25044,
+        "peakPythonBytes": 16838161
+      }
+    },
+    "wholeReaderMemoryQualified": false,
+    "maximumNativeQualified": false,
+    "phase3Complete": false
+  },
+  "nativeReexecuted": false,
+  "productionRuntimeChanged": false,
+  "workflowChanged": false,
+  "resourceLimitsChanged": false,
+  "finalSourceQualified": false,
+  "combinedResourcesQualified": false,
+  "maximumNativeQualified": false,
+  "wholeReaderMemoryQualified": false,
+  "phase3Complete": false,
+  "artifacts": [
+    {
+      "path": "target/v53-queue-frame-views/python-focused.log",
+      "bytes": 143,
+      "sha256": "a0182f4f01755952b245bae919023dd3f6996620dfed2dfaa6eb64e7fe0f52b5"
+    },
+    {
+      "path": "target/v53-queue-frame-views/python-related.log",
+      "bytes": 235,
+      "sha256": "51b38ba014e3a886a093f0e51afc64612079f7b17bb66e661ff63fbe050c52b7"
+    },
+    {
+      "path": "target/v53-queue-frame-views/python-optimized.log",
+      "bytes": 235,
+      "sha256": "75a4cb240fe38ca698527e225ee5d3ad3610ed278c1f717f799b57fc84b0a2b2"
+    },
+    {
+      "path": "target/v53-queue-frame-views/contracts.log",
+      "bytes": 251,
+      "sha256": "b9e2a4f987d0488b3913b8c377b7cf299040766479e6a35628f5fb1569e18150"
+    },
+    {
+      "path": "target/v53-queue-frame-views/replay.py",
+      "bytes": 1800,
+      "sha256": "079d46f280f64a88d05b7e32d057a79bc493d9d30e20f3a5026cf949eed7549f"
+    },
+    {
+      "path": "target/v53-queue-frame-views/replay.json",
+      "bytes": 699,
+      "sha256": "91e04ff8a8cf66429d0d42a9459792e643c7dede00ac542e9129efb114d7f24a"
+    },
+    {
+      "path": "target/v53-queue-frame-views/replay.log",
+      "bytes": 787,
+      "sha256": "8f4f521556011281a4632c40d5ab6f05d74519772b98f3293eeeaf098bf4b9f6"
+    },
+    {
+      "path": "target/v53-queue-frame-views/memory_probe.py",
+      "bytes": 1835,
+      "sha256": "ee2d27edd63103061e7221b1a1b8dc2a2b0284178a59894948aafdaaff18b469"
+    },
+    {
+      "path": "target/v53-queue-frame-views/memory-probe.json",
+      "bytes": 518,
+      "sha256": "361c97bc5db22d5c5b0aea67be5528d971e9002d2ee4384a34a080579e5ce8a6"
+    },
+    {
+      "path": "target/v53-queue-frame-views/memory-probe.log",
+      "bytes": 438,
+      "sha256": "ec51a8fa59726adb0f4f7bf7e3917bd4514662671595002567824833f43cf87e"
+    }
+  ]
+}

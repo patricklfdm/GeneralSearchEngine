@@ -13,6 +13,7 @@ from uuid import UUID
 from . import continuous_transition_evidence as history
 from . import source_queue_evidence as queue
 from . import resource_transitions as t
+from . import segmented_queue_frames
 from .offline_fixture_image import application
 
 need=queue.need
@@ -140,8 +141,10 @@ def replay(value,*,rehearsal=False,multi_chunk_rehearsal=False,wire_layout=histo
         archive=value.get('wireArchive')
         need(type(archive) is history.wire_archive.Archive and value['wire'] is archive.read('wire.json'),
              'queue completion original segmented reader')
-    requests={};answers={};frames={};sessions={};deliveries=[]
-    for wire in value['wire']:
+    requests=segmented_queue_frames.Frames(value['wire'],'request') if segmented else {}
+    frames=segmented_queue_frames.Frames(value['wire'],'response') if segmented else {}
+    answers={};sessions={};deliveries=[]
+    for position,wire in enumerate(value['wire']):
         raw=base64.b64decode(wire['request'],validate=True);kind,q,qbytes=queue.frame(raw)
         if q['trace'] not in traces:continue
         reply_raw=base64.b64decode(wire['response'],validate=True);akind,a,abytes=queue.frame(reply_raw)
@@ -152,7 +155,10 @@ def replay(value,*,rehearsal=False,multi_chunk_rehearsal=False,wire_layout=histo
         need(a==dict(q,sender=q['recipient'],recipient=q['sender'],payload=a['payload']),'queue completion correlated reply')
         session=sessions.setdefault(q['trace'],{})
         need(session.setdefault(q['sequence'],h)==h and answers.setdefault(h,answer)==answer,'queue completion identical replay')
-        requests[h]=(kind,q,qbytes);frames[answer]=(akind,a,abytes);deliveries.append((h,answer))
+        if segmented:
+            requests.record(position,h,kind,qbytes);frames.record(position,answer,akind,abytes)
+        else:requests[h]=(kind,q,qbytes);frames[answer]=(akind,a,abytes)
+        deliveries.append((h,answer))
     terminal=image_commit_sequence(value['image'],chunk);unique_requests=4*terminal
     need(set(sessions)==set(traces) and len(requests)==unique_requests and
          len(deliveries)==unique_requests+(9 if rehearsal else 8),'queue completion complete delivered history')

@@ -135,6 +135,21 @@ Current-reader replay of the unchanged historical JSON full-pressure original
 also preserves its exact result and ten negatives. The earlier collector
 prototype and its observations remain separately identified in the index.
 
+For explicitly segmented originals, the queue reader now retains frame
+positions, hashes, kinds and sizes rather than all decoded request/response
+payloads. It still validates every exchange before indexing and rechecks original
+bytes and the frame binding on each lookup. Returned values are fresh; neither a
+caller mutation nor a changed retained file can be hidden by a payload cache.
+The JSON path, complete physical replay and original-first negatives are unchanged.
+
+The [frame-view development index](phase3-evidence/queue-frame-views-development.json)
+records 135 Python tests (also with assertions disabled), 19 plan/contract tests,
+and identical replay of the existing segmented original, its portable copy and
+the historical JSON full-pressure original with ten negatives. An isolated
+synthetic index probe compares twelve distinct 256 KiB responses with the decoded
+map; it measures retained Python allocations for this index only. It does not
+qualify whole-reader RSS at maximum input or replace a native large-image run.
+
 ### Multi-chunk development prerequisite
 
 The image tail now consumes all remaining bytes of the original SOURCE image
