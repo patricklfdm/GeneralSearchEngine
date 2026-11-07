@@ -11,6 +11,7 @@ import shutil
 import sys
 import tempfile
 
+from . import bootstrap_replay_contract as source_policy
 from . import joining_profile_export_evidence as exports
 from . import joining_control_evidence as control
 from .joining_profile_evidence import PROFILES, topology
@@ -40,11 +41,12 @@ def quorum_time(view,owner,rows,end):
 
 
 class Replay(c.Replay):
-    def __init__(self,root,profile,*,old_owner_lifetimes=None,required_four=False):
+    def __init__(self,root,profile,*,old_owner_lifetimes=None,required_four=False, bootstrap_source='EMPTY'):
+        source_args = source_policy.options(bootstrap_source)
         self.root=Path(root);self.profile=profile
         need(type(required_four) is bool,'joining export required-four profile')
         self.__dict__.update(vars(exports.context(root,profile,old_owner_lifetimes=old_owner_lifetimes,
-            **({'required_four':True} if required_four else {}))));self.kind=self.model.kind
+            **({'required_four':True} if required_four else {}),**source_args)));self.kind=self.model.kind
         self.phases=c.n.phase.blocks(self.events,self.model,old_owner_lifetimes=old_owner_lifetimes);self.recordings=[];self.confirmations={}
         proofs=f.decode(self.model.phases[8]['CERTIFICATE'],'records','CERTIFICATE')['proofs']
         self.expected_confirmations={v['voter'] for v in proofs}

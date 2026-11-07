@@ -225,15 +225,58 @@ fixture captures encoded frames, and an empty new learner must receive the
 image. Moving the old wire array to a file therefore does not make that maximum
 history admissible under the old evidence layout.
 
-The complete required-four readers also still select EMPTY through their
-semantic/publication/network/export/maintenance/ledger/resource chain; the
-low-level seed replay parameter alone does not change that contract. Next work
-must introduce explicit backup-source binding throughout that complete chain
-and a dedicated, bounded large-backup evidence layout with corresponding
-readers and retained-inventory accounting. Existing EMPTY gates, their limits
-and protocol resource limits must stay intact. Do not run the maximum through
+The audit also found that complete required-four readers selected EMPTY through
+their semantic/publication/network/export/maintenance/ledger/resource chain.
+The explicit-source implementation below addresses that reader-selection gap;
+it does not increase any evidence capacity. Next work must introduce a dedicated,
+bounded large-backup evidence layout with corresponding readers and
+retained-inventory accounting. Existing EMPTY gates, their limits and protocol
+resource limits must stay intact. Do not run the maximum through
 the current small-seed hook and wait for a predictable collection-capacity
 failure, or weaken physical checks to admit it.
+
+## Explicit source throughout complete replay
+
+The complete semantic, publication, physical, network, export, maintenance,
+ledger and resource readers now accept a caller-selected `bootstrap_source`.
+Every reconstructed reader receives that same contract, including later
+handoff, floor and published-prefix resource projections. Shared ledger contexts
+must have a matching source. The bootstrap still derives the image, identities
+and authority from the original files; producer receipts never choose policy.
+Existing entry points default to EMPTY and keep their historical result shape.
+All byte, row, protocol, physical and original-immutability checks remain intact.
+
+`required_four_resources.qualify_backup` is a separate complete-reader entry.
+It requires the whole original before any negatives, keeps all 147 existing
+resource negatives, and adds one exact rejection of the unchanged backup
+original under the default EMPTY contract. Its schema is
+`gse-v53-backup-required-four-resources-v1`, its profile is
+`5-REPLACE-required-four-backup`, and its result and original explicitly carry
+`bootstrapSource: VERIFIED_DURABLE_BACKUP`. The existing EMPTY result checker
+rejects this receipt, and the backup checker rejects an EMPTY receipt. Neither
+entry can fill the other's cohort slot. No hosted/cohort registration or new
+CLI admission is added in this batch.
+
+The [backup replay development index](phase3-evidence/backup-replay-development.json)
+records 18 new source-policy/orchestration regression tests, 220 existing reader
+tests and 19 contract/plan checks. The orchestration fixtures verify all 148
+expected backup negative results and reject missing source markers, wrong
+default-source rejection reasons, mutated originals and broader claims; these
+synthetic fixtures are not full backup execution evidence.
+
+Two unchanged retained native originals supply separate real-file checks. The
+short nonempty backup original passes its independently derived first BARRIER.
+All ten complete entry layers reject it under EMPTY for the exact source
+mismatch, and under the explicit backup contract for the exact incomplete
+control history. The earlier complete EMPTY original is rejected by all ten
+backup-bound entry layers for the exact source mismatch. These 30 rejections
+and the prefix check preserve both original inventories and rerun no workload.
+The complete EMPTY history is used only for source rejection here; its earlier
+147-negative acceptance still belongs to its recorded earlier source.
+
+Full backup positive qualification, maximum-image capture and final-source
+cohort execution remain pending. Threading the source through readers is a
+prerequisite, not evidence that a full large-image native history has passed.
 
 ## Remaining combined-resource work
 
@@ -243,8 +286,8 @@ or required-four qualification. The [complete EMPTY required-four
 original](PHASE_3_REQUIRED_FOUR_ENTRY.md) remains a separate development result.
 
 Before executing a full physical maximum, complete bounded evidence capture for
-large images and all auxiliary joining/retention/lifecycle observations, propagate
-the explicit source contract through a dedicated complete validator, and declare
+large images and all auxiliary joining/retention/lifecycle observations, exercise
+the explicit source contract through the complete backup validator, and declare
 the feasible combined pressure and refusal/continuation boundaries. The main
 and auxiliary backup wire spools, main event spool and resource boundary spool
 remove their aggregate in-memory allocations. Lifecycle/copy snapshots, the

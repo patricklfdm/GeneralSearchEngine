@@ -9,6 +9,7 @@ from pathlib import Path
 import shutil
 import sys
 import tempfile
+from . import bootstrap_replay_contract as source_policy
 from . import required_four_physical as physical
 from . import joining_network_evidence as network
 from . import joining_connections as connections
@@ -23,22 +24,24 @@ def observations(root):
     return events,wires
 
 
-def replay(root):
+def replay(root, *, bootstrap_source='EMPTY'):
+    source_args = source_policy.options(bootstrap_source)
     observations(root)
-    return network.network(root,size=5,kind='REPLACE',required_four=True)
+    return network.network(root,size=5,kind='REPLACE',required_four=True,**source_args)
 
 
-def validate(directory):
+def validate(directory, *, bootstrap_source='EMPTY'):
+    source_args = source_policy.options(bootstrap_source)
     root=Path(directory);before=collection.inventory(root)
-    original=physical.validate(root);result=replay(root)
+    original=physical.validate(root,**source_args);result=replay(root,**source_args)
     need(result['slots']==11 and result['ownedSlotTransactions']==34,
          'required-four complete network slots')
     need(collection.inventory(root)==before,'required-four network original changed')
-    return dict(status='PASS',scope='required-four-original-connections-and-durable-ACKs',profile=physical.semantic.PROFILE,
+    return source_policy.receipt(dict(status='PASS',scope='required-four-original-connections-and-durable-ACKs',profile=physical.semantic.PROFILE,
                 physical=original,network=result,observedNetworkQualified=True,durableACKsQualified=True,
                 completeControlExportQualified=False,maintenanceAndPeerCompositionQualified=False,
                 completePhysicalQualified=False,forceAndNetworkQualified=False,processDeathQualified=False,
-                finalSourceCohortQualified=False,phase3Complete=False)
+                finalSourceCohortQualified=False,phase3Complete=False),bootstrap_source)
 
 
 # The same mutations now reach the connection reader first. Durable/transfer

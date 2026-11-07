@@ -1,0 +1,117 @@
+{
+  "backupContract": {
+    "bootstrapSource": "VERIFIED_DURABLE_BACKUP",
+    "expectedNegatives": 148,
+    "extraNegatives": [
+      "declared-empty"
+    ],
+    "negativeFamilies": 10,
+    "originalFirst": true,
+    "originalNegatives": 147,
+    "originalPreserved": true,
+    "profile": "5-REPLACE-required-four-backup",
+    "schema": "gse-v53-backup-required-four-resources-v1",
+    "syntheticOrchestrationTestOnly": true
+  },
+  "combinedResourcesQualified": false,
+  "diagnosticCorrections": [
+    {
+      "corrected": "source-tests-v2.log",
+      "log": "source-tests.log",
+      "reason": "test driver omitted required profile argument",
+      "workloadRerun": false
+    },
+    {
+      "corrected": "contract.log",
+      "log": "contract-before-index.log",
+      "reason": "documentation link checked before new index was written",
+      "workloadRerun": false
+    }
+  ],
+  "evidenceFiles": {
+    "target/v53-backup-replay/contract-before-index.log": "98c8f56f8b53c88a1a13719199cd9f0515cb771a0ae15c9a1847deaf65678ba6",
+    "target/v53-backup-replay/contract.log": "cbf824ad680c96f223615f1d3fc03a7601923eb20d9dba17f308682270fa40ad",
+    "target/v53-backup-replay/focused-tests.json": "02afb09a62f7a3ba5df057247739352a69be1ab7729ec54fa132db037232aec1",
+    "target/v53-backup-replay/focused-tests.log": "ab8687c2dd2791a322daafa7c19e3b23ef2304a4573f5c6518eea2fbba4a92b5",
+    "target/v53-backup-replay/legacy-tests.log": "f64b968068cfdd3339c4bb706aa0c359b18547a602dec9dfa135a67d1179edbd",
+    "target/v53-backup-replay/retained-originals.json": "38d5d6b6a487498515eb13f37856784ddc8ba834ad831ba5eb9f84597320c1b6",
+    "target/v53-backup-replay/retained-originals.log": "c1aedc2fba8ccd2d658a808bae4d5226503f195797f8524acf413e1b2e763934",
+    "target/v53-backup-replay/retained_originals.py": "e9c2f7f0f8061cdf7e45b666e0f3a789ab69549b6d8f58161ef8f326129d2173",
+    "target/v53-backup-replay/source-tests-v2.log": "49ee8e7845fa1a088fc3c5cd9e804cbf0aa1ffa18097af984d719c739b9f78ae",
+    "target/v53-backup-replay/source-tests-v3.log": "36d4f2f757c5df2bb76834dcd4ba9829766635f1a595b1ffc2e5701446f77219",
+    "target/v53-backup-replay/source-tests.log": "98aaed8f221347d089be11d2ece42576bc9caf6bfc27b39fcb954c45a687a6fc",
+    "target/v53-backup-replay/summarize.py": "3a3c084854b75d6fcb6e38bb648337e1e07a4127f0af1dbc0d31750ab2a693bf",
+    "target/v53-backup-replay/thread_source.py": "b19660770f21d41028b9fd13e858912aaf23bac88e13f34e2b8a882424a6ed67",
+    "target/v53-backup-replay/validation-summary.json": "c623c65e5e3752feab85aa1ef648737dbfa1725e54031b9dc823a11257ef59dd"
+  },
+  "finalSourceCohortQualified": false,
+  "fullBackupQualification": false,
+  "javaChanged": false,
+  "legacyContract": {
+    "bootstrapSource": "EMPTY",
+    "cohortRegistrationUnchanged": true,
+    "expectedNegatives": 147,
+    "receiptShapeUnchanged": true,
+    "schema": "gse-v53-required-four-resources-v2"
+  },
+  "mavenRun": false,
+  "maximumImageQualified": false,
+  "originals": [
+    {
+      "bytes": 4737531,
+      "files": 661,
+      "inventorySha256": "5325be85bf2aeadcd4f4b32a9b33db9a33bc6bb4eec7315dd67126dc30e30cf6",
+      "kind": "short-backup",
+      "originalPreserved": true,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-dispatch/run-67bbd862-a3c1-4e7a-905b-b2941c72bb7b"
+    },
+    {
+      "bytes": 126129414,
+      "files": 7020,
+      "inventorySha256": "77dedf0a6e5f66c279157d7ce560765a3e4fc5983d40e4cfac9dd3b77de78c58",
+      "kind": "complete-empty",
+      "originalPreserved": true,
+      "path": "target/v53-required-four-complete-v2/original-78403d87/workspace/general-search-engine-replication/target/v53-native-dispatch/run-66c3303e-c1e3-401c-8c61-aea19c2e5d15"
+    }
+  ],
+  "parent": "d84ff83a0d4bfae77ea9ba7e06a53f4eabc52b59",
+  "phase3Complete": false,
+  "retainedExactRejections": 30,
+  "retainedPrefixChecks": 1,
+  "retainedReplaySeconds": 22.854,
+  "schema": "gse-v53-backup-replay-development-v1",
+  "scope": "development source propagation and separate receipt contract; no full backup positive",
+  "status": "PASS",
+  "tests": {
+    "elapsedSeconds": 3.159,
+    "errors": 0,
+    "failures": 0,
+    "modules": [
+      "scripts.v53.test_bootstrap_replay_contract",
+      "scripts.v53.test_backup_required_four_resources",
+      "scripts.v53.test_joining_catalog_evidence",
+      "scripts.v53.test_joining_publication_evidence",
+      "scripts.v53.test_joining_network_evidence",
+      "scripts.v53.test_joining_profile_export_evidence",
+      "scripts.v53.test_joining_profile_control_evidence",
+      "scripts.v53.test_required_four_evidence",
+      "scripts.v53.test_required_four_physical",
+      "scripts.v53.test_required_four_network",
+      "scripts.v53.test_required_four_exports",
+      "scripts.v53.test_required_four_maintenance",
+      "scripts.v53.test_required_four_ledgers",
+      "scripts.v53.test_joined_handoff_resources",
+      "scripts.v53.test_publication_resource_evidence",
+      "scripts.v53.test_native_resource_evidence",
+      "scripts.v53.test_required_four_resources",
+      "scripts.v53.test_required_four_resource_run",
+      "scripts.v53.test_contract_check",
+      "scripts.v53.test_phase3_qualification_plan"
+    ],
+    "skipped": 0,
+    "status": "PASS",
+    "tests": 257
+  },
+  "workflowChanged": false,
+  "workloadRerun": false
+}

@@ -11,6 +11,7 @@ import shutil
 import sys
 import tempfile
 
+from . import bootstrap_replay_contract as source_policy
 from . import required_four_maintenance as maintenance
 from . import joining_profile_peer_evidence as profile_peer
 from . import joining_same_view_learner as learner
@@ -24,8 +25,10 @@ need,collection=maintenance.need,maintenance.collection
 class PeerReplay(peer.Replay,maintenance.Replay):
     expected_write_counts=None
 
-    def __init__(self,root,*,base=None):
-        base=maintenance.Replay(root) if base is None else base
+    def __init__(self,root,*,base=None, bootstrap_source='EMPTY'):
+        source_args = source_policy.options(bootstrap_source)
+        base=maintenance.Replay(root,**source_args) if base is None else base
+        source_policy.check_base(base,bootstrap_source)
         self.__dict__.update(vars(base))
         # Only immutable original observations are shared across the four readers.
         self.direct_nodes=set();self.pinned_floors=set();self.initialize_chain()
@@ -38,18 +41,27 @@ class PeerReplay(peer.Replay,maintenance.Replay):
 
 
 class LearnerReplay(learner.Replay):
-    def __init__(self,root,*,base=None):
-        super().__init__(root,base=maintenance.Replay(root) if base is None else base)
+    def __init__(self,root,*,base=None, bootstrap_source='EMPTY'):
+        source_args = source_policy.options(bootstrap_source)
+        base=maintenance.Replay(root,**source_args) if base is None else base
+        source_policy.check_base(base,bootstrap_source)
+        super().__init__(root,base=base)
 
 
 class FutureReplay(future.Replay):
-    def __init__(self,root,*,base=None):
-        super().__init__(root,base=maintenance.Replay(root) if base is None else base)
+    def __init__(self,root,*,base=None, bootstrap_source='EMPTY'):
+        source_args = source_policy.options(bootstrap_source)
+        base=maintenance.Replay(root,**source_args) if base is None else base
+        source_policy.check_base(base,bootstrap_source)
+        super().__init__(root,base=base)
 
 
 class BallotReplay(ballot_profile.ballot.Replay):
-    def __init__(self,root,*,base=None):
-        super().__init__(root,base=maintenance.Replay(root) if base is None else base)
+    def __init__(self,root,*,base=None, bootstrap_source='EMPTY'):
+        source_args = source_policy.options(bootstrap_source)
+        base=maintenance.Replay(root,**source_args) if base is None else base
+        source_policy.check_base(base,bootstrap_source)
+        super().__init__(root,base=base)
 
 
 READERS={'peers':PeerReplay,'learner':LearnerReplay,'future':FutureReplay,'ballot':BallotReplay}
@@ -64,10 +76,11 @@ PEER_OMISSIONS={
 }
 
 
-def replay(root,progress=None):
-    base=maintenance.Replay(root);results={};owners=set((*base.model.old,base.model.joining))
+def replay(root,progress=None, *, bootstrap_source='EMPTY'):
+    source_args = source_policy.options(bootstrap_source)
+    base=maintenance.Replay(root,**source_args);results={};owners=set((*base.model.old,base.model.joining))
     for name,reader in READERS.items():
-        instance=reader(root,base=base);result=instance.run()
+        instance=reader(root,base=base,**source_args);result=instance.run()
         key='finalCounters' if name=='ballot' else 'finalRevisions'
         need(set(result[key])==owners,'required-four complete ledger owners: '+name)
         if name=='learner':result['joiningWrites']=sum(v['node']==base.model.joining for v in instance.steps)
@@ -77,15 +90,16 @@ def replay(root,progress=None):
     return results
 
 
-def validate(directory,progress=None):
+def validate(directory,progress=None, *, bootstrap_source='EMPTY'):
+    source_args = source_policy.options(bootstrap_source)
     root=Path(directory);before=collection.inventory(root)
-    original=maintenance.validate(root);ledgers=replay(root,progress)
+    original=maintenance.validate(root,**source_args);ledgers=replay(root,progress,**source_args)
     need(collection.inventory(root)==before,'required-four ledgers original changed')
-    return dict(status='PASS',scope='required-four-original-continuous-ledgers',profile=maintenance.exports.PROFILE,
+    return source_policy.receipt(dict(status='PASS',scope='required-four-original-continuous-ledgers',profile=maintenance.exports.PROFILE,
                 precondition=original,ledgers=ledgers,peerLedgerCompositionQualified=True,
                 learnerLedgerCompositionQualified=True,futureLedgerCompositionQualified=True,ballotCompositionQualified=True,
                 wholeRuntimeResourcesQualified=False,completePhysicalQualified=False,processDeathQualified=False,
-                finalSourceCohortQualified=False,phase3Complete=False)
+                finalSourceCohortQualified=False,phase3Complete=False),bootstrap_source)
 
 
 def cases(original):

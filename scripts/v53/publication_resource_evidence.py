@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 import re
 
+from . import bootstrap_replay_contract as source_policy
 from . import joining_grant_captures as grants
 from . import native_dispatch_evidence as native
 from . import joining_history_run as history
@@ -205,7 +206,9 @@ def compare(transactions, plans):
     return dict(publications=len(transactions),observedBoundaries=sum(map(len,transactions)),maximumObservedStorage=maxima)
 
 
-def original(root, profile, progress=None, *, resource_transitions=False, control_closes=False):
+def original(root, profile, progress=None, *, resource_transitions=False, control_closes=False, bootstrap_source='EMPTY'):
+    source_args = source_policy.options(bootstrap_source)
+    need(bootstrap_source==source_policy.EMPTY or profile=='5-REPLACE-required-four', 'publication resources bootstrap source profile')
     plans = {}
     if profile == 'stable':
         receipt = native.validate(root,confirmed_retention=True,publication_resources=True,resource_transitions=resource_transitions,control_closes=control_closes)
@@ -221,21 +224,23 @@ def original(root, profile, progress=None, *, resource_transitions=False, contro
             receipt = joint.validate(root,progress,publication_observer=observer)
         else:
             from . import required_four_physical as required_four
-            receipt = required_four.validate(root,publication_observer=observer)
+            receipt = required_four.validate(root,publication_observer=observer,**source_args)
             need(len(plans)==34,'publication resources required-four complete publications')
     else: raise ValueError('publication resources unknown profile')
     return receipt,plans
 
 
-def validate(directory, profile='stable', progress=None, *, resource_transitions=False, control_closes=False):
+def validate(directory, profile='stable', progress=None, *, resource_transitions=False, control_closes=False, bootstrap_source='EMPTY'):
+    source_args = source_policy.options(bootstrap_source)
+    need(bootstrap_source==source_policy.EMPTY or profile=='5-REPLACE-required-four', 'publication resources bootstrap source profile')
     root = Path(directory); before = history.inventory(root)
-    receipt,plans = original(root,profile,progress,resource_transitions=resource_transitions,control_closes=control_closes)
+    receipt,plans = original(root,profile,progress,resource_transitions=resource_transitions,control_closes=control_closes,**source_args)
     transactions = collect(root,events(root))
     result = compare(transactions,plans)
     need(history.inventory(root) == before, 'publication resources original changed')
-    return dict(status='PASS',scope='native-publication-storage-boundaries',profile=profile,precondition=receipt,**result,
+    return source_policy.receipt(dict(status='PASS',scope='native-publication-storage-boundaries',profile=profile,precondition=receipt,**result,
                 publicationStorageDerived=True,controlChargesDerived=False,wholeRuntimePeakQualified=False,
-                processDeathQualified=False,phase3Complete=False)
+                processDeathQualified=False,phase3Complete=False),bootstrap_source)
 
 
 if __name__ == '__main__':

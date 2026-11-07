@@ -134,13 +134,14 @@ catalogue total:
 The [native verified-backup seed entry](PHASE_3_NATIVE_BACKUP_SEED.md) now lets a
 future combined-resource collector supply a real nonempty image to the same
 native network/joining fixture. Its focused seed/BARRIER checks do not qualify
-the full backup joining history or physical maximum; bounded large-image capture
-and complete explicit-source replay remain required.
+the full backup joining history or physical maximum. The complete reader chain
+now has explicit backup-source binding and a separate resource receipt contract;
+full positive backup replay and bounded large-image capture remain required.
 Main/auxiliary wire, event and resource-boundary collectors now have bounded
 spooled paths for that seed. Their short development replay is recorded there.
 The same audit identifies a separate byte-capacity gap: one maximum image's
 base64 representation already exceeds the old whole-wire bound. A dedicated
-backup evidence layout and complete explicit-source readers are required before
+backup evidence layout and complete positive backup replay are required before
 the long maximum native history can be admitted; the existing EMPTY limits are
 unchanged.
 

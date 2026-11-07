@@ -8,6 +8,7 @@ import argparse
 import json
 from pathlib import Path
 
+from . import bootstrap_replay_contract as source_policy
 from . import resource_transitions as transitions
 from . import publication_resource_evidence as publication
 
@@ -90,7 +91,9 @@ def bind_publications(transactions,boundaries):
     return count
 
 
-def validate(directory,profile='stable',progress=None,*,source_control=False,control_closes=False,export_ownership=False,direct_exports=False,joining_requests=False,joining_extents=False,published_probe=False,session_extents=False,complete_exports=False,voting_control=False,slot_control=False,activation_control=False,joined_files=False,joined_closes=False,export_bindings_out=None):
+def validate(directory,profile='stable',progress=None,*,source_control=False,control_closes=False,export_ownership=False,direct_exports=False,joining_requests=False,joining_extents=False,published_probe=False,session_extents=False,complete_exports=False,voting_control=False,slot_control=False,activation_control=False,joined_files=False,joined_closes=False,export_bindings_out=None, bootstrap_source='EMPTY'):
+    source_args = source_policy.options(bootstrap_source)
+    need(bootstrap_source==source_policy.EMPTY or profile=='5-REPLACE-required-four', 'native resources bootstrap source profile')
     need(export_bindings_out is None or type(export_bindings_out) is dict and not export_bindings_out and complete_exports is True,
          'native resources empty complete-export output only')
     need(type(joined_closes) is bool and (not joined_closes or profile=='5-REPLACE-required-four'), 'native resources joined closes policy')
@@ -125,14 +128,14 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
         captured=root/storage_transfer_evidence.DIRECTORY
         need(captured.is_dir() and not captured.is_symlink(),'storage transfer missing original capture')
     if control_closes:need((root/'control-close-captures').is_dir(),'native resources missing control close observations')
-    physical=publication.validate(root,profile,progress,resource_transitions=True,control_closes=control_closes)
+    physical=publication.validate(root,profile,progress,resource_transitions=True,control_closes=control_closes,**source_args)
     if profile=='stable':
         states,rounds,selection,identities=publication.native.physical(root,confirmed_retention=True)
         authority=selection['root'];preceding=physical;closing=set(identities)
     elif profile=='5-REPLACE-required-four':
         from . import required_four_ledgers as ledgers
-        preceding=ledgers.validate(root,progress)
-        controls=ledgers.maintenance.exports.control_reader(root);model=controls.model
+        preceding=ledgers.validate(root,progress,**source_args)
+        controls=ledgers.maintenance.exports.control_reader(root,**source_args);model=controls.model
         network=ledgers.maintenance.exports.network.network
         identities=network.s.catalog.identities(model.states[-1]['identities']);authority=model.root
         closing=set(identities)-{model.joining}
@@ -178,13 +181,13 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
         # explicit gaps, not be assigned to a later identical connected retry.
         transport=transport_resource_evidence.replay(events,wires,traces,boundaries,identities,authority,require_all_frames=False)
         from . import floor_resource_evidence, receive_resource_evidence, basis_resource_evidence
-        reader=floor_resource_evidence.maintenance.Replay(root);reader.run()
+        reader=floor_resource_evidence.maintenance.Replay(root,**source_args);reader.run()
         need(reader.events==events,'native resources original maintenance event input')
         floors=floor_resource_evidence.replay(floor_resource_evidence.plans(reader),events,traces,boundaries)
         receiving=receive_resource_evidence.replay(receive_resource_evidence.derive(reader),events,traces,boundaries)
         bases=basis_resource_evidence.replay(basis_resource_evidence.derive(reader),events,traces,boundaries)
         from . import joined_handoff_resources
-        handoff=joined_handoff_resources.original(root)
+        handoff=joined_handoff_resources.original(root,**source_args)
         joined=joined_handoff_resources.replay(joined_handoff_resources.project(handoff),events,traces,boundaries)
         if joined_files:
             from . import joined_file_resources
@@ -197,7 +200,7 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
             from . import published_prefix_probe_evidence
             # Derive the permit from the original quorum/head confirmations.
             # Local probe markers never synthesize a network exchange or permit.
-            controls.run(ledgers.maintenance.exports.content(root))
+            controls.run(ledgers.maintenance.exports.content(root,**source_args))
             need(controls.events==events,'native resources original published probe event input')
             published=published_prefix_probe_evidence.replay(traces,control_close_evidence.load(root,index),controls,boundaries,bindings=export_bindings)
     export_coverage=None
@@ -226,11 +229,11 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
         # Output only after all original readers and final immutability pass.
         # No caller-supplied proof is accepted; failures publish nothing.
         export_allocation_coverage.publish(export_bindings_out,list(export_bindings.values()))
-    return dict(result,status=cleanup['status'] if cleanup else result['status'],scope='native-owner-accounting-with-original-publication-boundaries',profile=profile,
+    return source_policy.receipt(dict(result,status=cleanup['status'] if cleanup else result['status'],scope='native-owner-accounting-with-original-publication-boundaries',profile=profile,
                 precondition=preceding,publicationResources=physical,publicationBoundaries=count,publicationGenerationResources=generations,transportResources=transport,
                 floorResources=floors,receivingResources=receiving,basisResources=bases,ownerCloseResources=closed,joinedOwnerCloses=joining_closed,joinedHandoffResources=joined,joinedFileResources=files,
                 sourceControlResources=source_result,sourceCleanupIntervals=cleanup,directExportOwnership=direct,publishedPrefixProbe=published,exportAllocationCoverage=export_coverage,
-                votingControlResources=voting,slotControlResources=slots,activationControlResources=activation,physicalPeakQualified=False,controlLifetimesQualified=False,finalSourceCohortQualified=False)
+                votingControlResources=voting,slotControlResources=slots,activationControlResources=activation,physicalPeakQualified=False,controlLifetimesQualified=False,finalSourceCohortQualified=False),bootstrap_source)
 
 
 if __name__=='__main__':

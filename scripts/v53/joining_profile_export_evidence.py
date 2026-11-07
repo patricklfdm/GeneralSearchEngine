@@ -11,6 +11,7 @@ import sys
 import tempfile
 from types import SimpleNamespace
 
+from . import bootstrap_replay_contract as source_policy
 from . import joining_profile_network_evidence as network
 from . import joining_export_evidence as exports
 from .joining_control_evidence import owner_lifetime
@@ -22,14 +23,15 @@ NEGATIVES=e.NEGATIVES
 PENDING_ABSENT='no committed pending checkpoint export in original'
 
 
-def context(root,profile,*,old_owner_lifetimes=None,required_four=False):
+def context(root,profile,*,old_owner_lifetimes=None,required_four=False, bootstrap_source='EMPTY'):
+    source_args = source_policy.options(bootstrap_source)
     size,kind,old,new=topology(profile);root=Path(root)
     need(type(required_four) is bool and (not required_four or profile=='5-REPLACE'),
          'joining export required-four profile')
     # This explicit development topology removes node-3, not the ordinary
     # profile's last voter. Its caller must use the required-four precondition.
     if required_four:new=e.n.s.target_nodes(size,kind,True)
-    model=e.n.s.Replay(root,size=size,kind=kind,**({'required_four':True} if required_four else {}))
+    model=e.n.s.Replay(root,size=size,kind=kind,**({'required_four':True} if required_four else {}),**source_args)
     for index in range(1,12):model.step(index)
     need(model.joining==new[-1] and tuple(model.old)==tuple(old),'joining profile export topology')
     if required_four:need(model.targets==new,'joining export required-four target')
@@ -47,9 +49,10 @@ def context(root,profile,*,old_owner_lifetimes=None,required_four=False):
                            groups=e.sessions(contents),windows=windows,sources=sources,records=records)
 
 
-def replay(root,profile,*,required_four=False):
+def replay(root,profile,*,required_four=False, bootstrap_source='EMPTY'):
+    source_args = source_policy.options(bootstrap_source)
     need(type(required_four) is bool,'joining export required-four profile')
-    reader=context(root,profile,**({'required_four':True} if required_four else {}))
+    reader=context(root,profile,**({'required_four':True} if required_four else {}),**source_args)
     result=e.authorize_contents(reader.model,reader.events,reader.contents,reader.windows,reader.sources,reader.records)
     bound=0
     for values in reader.groups:

@@ -9,6 +9,7 @@ from pathlib import Path
 import shutil
 import sys
 import tempfile
+from . import bootstrap_replay_contract as source_policy
 from . import required_four_evidence as semantic
 from . import joining_profile_continuation_evidence as profile
 from . import joining_same_view_physical as covering
@@ -122,11 +123,12 @@ class Continuation(profile.Continuation):
                  'joining continuation exact standalone grants')
 
 
-def replay(root):
+def replay(root, *, bootstrap_source='EMPTY'):
+    source_args = source_policy.options(bootstrap_source)
     root=Path(root);events=s.collection.read_json(root,'events.json',s.collection.EVENT_BYTES)
     captures=p.Captures(root,events,voters=semantic.OLD_LIVE)
     retirements=Retirements(root,events,voters=(*semantic.OLD,'node-6'))
-    model=s.Replay(root,size=5,kind='REPLACE',required_four=True)
+    model=s.Replay(root,size=5,kind='REPLACE',required_four=True,**source_args)
     for index in range(1,12):model.step(index)
     model.publication_receipts=c.t.publication.CheckpointReceipts(root,model)
     history=covering.History(root,model,captures,retirements);before=history.run()
@@ -141,14 +143,15 @@ def replay(root):
                 governingFloorForceWindows=len(retirements.floors),pinnedMaintenanceFloors=continuation.pinned_floors)
 
 
-def validate(root, *, publication_observer=None):
+def validate(root, *, publication_observer=None, bootstrap_source='EMPTY'):
+    source_args = source_policy.options(bootstrap_source)
     root=Path(root);before=s.collection.inventory(root)
-    original=semantic.validate(root) if publication_observer is None else semantic.validate(root,publication_observer=publication_observer)
-    result=replay(root)
+    original=semantic.validate(root,**source_args) if publication_observer is None else semantic.validate(root,publication_observer=publication_observer,**source_args)
+    result=replay(root,**source_args)
     need(s.collection.inventory(root)==before,'required-four physical original changed')
-    return dict(status='PASS',scope='required-four-derived-owner-files',profile=semantic.PROFILE,semantic=original,physical=result,
+    return source_policy.receipt(dict(status='PASS',scope='required-four-derived-owner-files',profile=semantic.PROFILE,semantic=original,physical=result,
                 ownerFilesQualified=True,sourceRetirementPhysicalQualified=True,completePhysicalQualified=False,
-                forceAndNetworkQualified=False,processDeathQualified=False,finalSourceCohortQualified=False,phase3Complete=False)
+                forceAndNetworkQualified=False,processDeathQualified=False,finalSourceCohortQualified=False,phase3Complete=False),bootstrap_source)
 
 
 NEGATIVES={

@@ -12,6 +12,7 @@ from pathlib import Path
 import shutil
 import tempfile
 
+from . import bootstrap_replay_contract as source_policy
 from . import joining_catalog_evidence as semantic
 from . import joining_phase_evidence as phases
 from . import admitted_cross_view_evidence as cross
@@ -251,10 +252,11 @@ def expected_publication(replay, files, index, node):
     return expected
 
 
-def validate(root, *, size=3, kind='ADD', required_four=False, publication_observer=None):
+def validate(root, *, size=3, kind='ADD', required_four=False, publication_observer=None, bootstrap_source='EMPTY'):
+    source_args = source_policy.options(bootstrap_source)
     root = Path(root); inventory = semantic.collection.inventory(root)
-    original = semantic.validate(root,size=size,kind=kind,required_four=required_four)
-    replay = semantic.Replay(root,size=size,kind=kind,required_four=required_four)
+    original = semantic.validate(root,size=size,kind=kind,required_four=required_four,**source_args)
+    replay = semantic.Replay(root,size=size,kind=kind,required_four=required_four,**source_args)
     for index in range(1, original['slots']+1): replay.step(index)
     replay.publication_receipts=CheckpointReceipts(root,replay)
     replay.publication_observer=publication_observer
@@ -266,10 +268,10 @@ def validate(root, *, size=3, kind='ADD', required_four=False, publication_obser
             need(replay.owner('published', index, node) == expected, 'joining exact publication inventory')
             publications += 1; byte_count += sum(len(v) for v in expected.values() if v is not None)
     need(semantic.collection.inventory(root) == inventory, 'joining original changed during publication replay')
-    return dict(status='PASS', scope='native-'+kind+'-applied-to-published-inventories', profile=original['profile'], slots=original['slots'],
+    return source_policy.receipt(dict(status='PASS', scope='native-'+kind+'-applied-to-published-inventories', profile=original['profile'], slots=original['slots'],
         publications=publications, comparedBytes=byte_count, collectedCheckpointTransfers=replay.publication_receipts.transfers,
         publicationPhysicalQualified=True,
-        completePhysicalQualified=False, forceAndNetworkQualified=False, processDeathQualified=False, phase3Complete=False)
+        completePhysicalQualified=False, forceAndNetworkQualified=False, processDeathQualified=False, phase3Complete=False),bootstrap_source)
 
 
 NEGATIVES = {name: 'joining exact publication inventory' for name in (

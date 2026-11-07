@@ -11,6 +11,7 @@ from pathlib import Path
 import shutil
 import tempfile
 
+from . import bootstrap_replay_contract as source_policy
 from . import joining_retirement_replay as physical
 from . import joining_phase_evidence as phase
 from . import joining_install_storage as install
@@ -240,9 +241,10 @@ def installations(root, events, rows, replay, bases, *, recovery=None, old_owner
     return result
 
 
-def network(root, *, size=3, kind='ADD', recovery=None, old_owner_lifetimes=None, required_four=False):
+def network(root, *, size=3, kind='ADD', recovery=None, old_owner_lifetimes=None, required_four=False, bootstrap_source='EMPTY'):
     """Only called standalone after the original physical precondition passes."""
-    root = Path(root); replay = s.Replay(root,size=size,kind=kind,required_four=required_four)
+    source_args = source_policy.options(bootstrap_source)
+    root = Path(root); replay = s.Replay(root,size=size,kind=kind,required_four=required_four,**source_args)
     for index in range(1,12): replay.step(index)
     events = s.collection.read_json(root,'events.json',s.collection.EVENT_BYTES)
     phases=phase.blocks(events,replay,old_owner_lifetimes=old_owner_lifetimes)

@@ -11,6 +11,7 @@ import shutil
 import sys
 import tempfile
 
+from . import bootstrap_replay_contract as source_policy
 from . import required_four_exports as exports
 from . import joining_profile_maintenance_evidence as profile
 from . import joining_source_retirement as captures
@@ -51,8 +52,9 @@ def captured_pin(transactions,own,start,end,selector):
 
 
 class Replay(profile.Replay):
-    def __init__(self,root):
-        self.__dict__.update(vars(exports.control_reader(root)))
+    def __init__(self,root, *, bootstrap_source='EMPTY'):
+        source_args = source_policy.options(bootstrap_source)
+        self.__dict__.update(vars(exports.control_reader(root,**source_args)))
         self.direct_nodes=set();self.floor_inputs=[];self.pinned_floors=set()
         self.capture_transactions=captures.collect(self.root,self.events)
 
@@ -67,20 +69,23 @@ class Replay(profile.Replay):
         return dict(result,pinnedMaintenanceFloors=len(self.pinned_floors))
 
 
-def replay(root):return Replay(root).run()
+def replay(root, *, bootstrap_source='EMPTY'):
+    source_args = source_policy.options(bootstrap_source)
+    return Replay(root,**source_args).run()
 
 
-def validate(directory):
+def validate(directory, *, bootstrap_source='EMPTY'):
+    source_args = source_policy.options(bootstrap_source)
     root=Path(directory);before=collection.inventory(root)
-    original=exports.validate(root);result=replay(root)
+    original=exports.validate(root,**source_args);result=replay(root,**source_args)
     physical=original['precondition']['physical']['physical']
     need(result['pinnedMaintenanceFloors']==physical['pinnedMaintenanceFloors'],
          'required-four complete physical pin coverage')
     need(collection.inventory(root)==before,'required-four maintenance original changed')
-    return dict(status='PASS',scope='required-four-original-maintenance-and-pinned-local-custody',
+    return source_policy.receipt(dict(status='PASS',scope='required-four-original-maintenance-and-pinned-local-custody',
                 profile=exports.PROFILE,precondition=original,maintenance=result,maintenanceForceQualified=True,
                 peerLedgerCompositionQualified=False,wholeRuntimeResourcesQualified=False,
-                completePhysicalQualified=False,processDeathQualified=False,finalSourceCohortQualified=False,phase3Complete=False)
+                completePhysicalQualified=False,processDeathQualified=False,finalSourceCohortQualified=False,phase3Complete=False),bootstrap_source)
 
 
 def mutate(root,case):

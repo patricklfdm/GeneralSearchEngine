@@ -11,6 +11,7 @@ from pathlib import Path
 import shutil
 import tempfile
 
+from . import bootstrap_replay_contract as source_policy
 from . import joining_catalog_evidence as c
 from . import joining_publication_evidence as publication
 
@@ -37,10 +38,11 @@ def required_joint(view, voters):
     return rejected
 
 
-def validate(root, *, publication_observer=None):
+def validate(root, *, publication_observer=None, bootstrap_source='EMPTY'):
+    source_args = source_policy.options(bootstrap_source)
     root = Path(root); inventory = c.collection.inventory(root)
-    original = c.validate(root, size=5, kind='REPLACE', required_four=True)
-    replay = c.Replay(root, size=5, kind='REPLACE', required_four=True)
+    original = c.validate(root, size=5, kind='REPLACE', required_four=True,**source_args)
+    replay = c.Replay(root, size=5, kind='REPLACE', required_four=True,**source_args)
     for index in range(1, 12): replay.step(index)
     need(original['slots'] == 11 and original['internalReadyCuts'] == [1, 3, 5, 7, 11],
          'required-four complete native history')
@@ -61,15 +63,15 @@ def validate(root, *, publication_observer=None):
     need(sorted(n for h, n in replay.acks if h == c.sha(final_statement)) == STABLE_LIVE,
          'required-four successor checkpoint voters')
     publications = publication.validate(root, size=5, kind='REPLACE', required_four=True,
-                                        publication_observer=publication_observer)
+                                        publication_observer=publication_observer,**source_args)
     need(publications['publications'] == 34, 'required-four complete publications')
     need(c.collection.inventory(root) == inventory, 'required-four original changed')
-    return dict(status='PASS', scope='required-four-native-semantic-chain', profile=PROFILE,
+    return source_policy.receipt(dict(status='PASS', scope='required-four-native-semantic-chain', profile=PROFILE,
         original=original, publications=publications, jointVoters=JOINT_LIVE, refusedThreeVoterSubsets=subsets,
         successorVoters=STABLE_LIVE, departingCheckpointVotes=0,
         semanticChainQualified=True, publicationPhysicalQualified=True, completePhysicalQualified=False,
         forceAndNetworkQualified=False, processDeathQualified=False,
-        finalSourceCohortQualified=False, phase3Complete=False)
+        finalSourceCohortQualified=False, phase3Complete=False),bootstrap_source)
 
 
 NEGATIVES = {

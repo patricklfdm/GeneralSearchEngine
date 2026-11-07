@@ -11,6 +11,7 @@ import shutil
 import sys
 import tempfile
 
+from . import bootstrap_replay_contract as source_policy
 from . import required_four_network as network
 from . import joining_profile_export_evidence as exports
 from . import joining_profile_control_evidence as control
@@ -21,16 +22,24 @@ NEGATIVES={**{'content/'+name:reason for name,reason in exports.NEGATIVES.items(
            **{'control/'+name:reason for name,reason in control.NEGATIVES.items()}}
 
 
-def context(root):return exports.context(root,'5-REPLACE',required_four=True)
+def context(root, *, bootstrap_source='EMPTY'):
+    source_args = source_policy.options(bootstrap_source)
+    return exports.context(root,'5-REPLACE',required_four=True,**source_args)
 
 
-def control_reader(root):return control.Replay(root,'5-REPLACE',required_four=True)
+def control_reader(root, *, bootstrap_source='EMPTY'):
+    source_args = source_policy.options(bootstrap_source)
+    return control.Replay(root,'5-REPLACE',required_four=True,**source_args)
 
 
-def content(root):return exports.replay(root,'5-REPLACE',required_four=True)
+def content(root, *, bootstrap_source='EMPTY'):
+    source_args = source_policy.options(bootstrap_source)
+    return exports.replay(root,'5-REPLACE',required_four=True,**source_args)
 
 
-def controls(root,prior):return control_reader(root).run(prior)
+def controls(root,prior, *, bootstrap_source='EMPTY'):
+    source_args = source_policy.options(bootstrap_source)
+    return control_reader(root,**source_args).run(prior)
 
 
 def coverage(result,counts):
@@ -44,21 +53,22 @@ def coverage(result,counts):
          'required-four original pending checkpoint readers')
 
 
-def validate(directory):
+def validate(directory, *, bootstrap_source='EMPTY'):
+    source_args = source_policy.options(bootstrap_source)
     root=Path(directory);before=collection.inventory(root)
-    original=network.validate(root);contents=content(root);counts=original['network']
+    original=network.validate(root,**source_args);contents=content(root,**source_args);counts=original['network']
     coverage(contents,counts)
-    result=controls(root,contents)
+    result=controls(root,contents,**source_args)
     need(result['observedCommittedContents']==counts['committedTransfers'] and
          result['observedContentSessions']==counts['transferSessions']-counts['rejectedTransferAttempts'],
          'required-four control complete transfer coverage')
     need(collection.inventory(root)==before,'required-four export original changed')
-    return dict(status='PASS',scope='required-four-observed-temporal-content-and-control-exports',profile=PROFILE,
+    return source_policy.receipt(dict(status='PASS',scope='required-four-observed-temporal-content-and-control-exports',profile=PROFILE,
                 precondition=original,exports=contents,controls=result,temporalContentExportsQualified=True,
                 observedControlExportsQualified=True,observedLearnerRetentionQualified=True,
                 allExportFamiliesQualified=False,maintenanceAndPeerCompositionQualified=False,
                 wholeRuntimeResourcesQualified=False,completePhysicalQualified=False,
-                processDeathQualified=False,finalSourceCohortQualified=False,phase3Complete=False)
+                processDeathQualified=False,finalSourceCohortQualified=False,phase3Complete=False),bootstrap_source)
 
 
 def mutate(root,case):

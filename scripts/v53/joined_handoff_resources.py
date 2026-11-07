@@ -7,6 +7,7 @@ deletion and native-owner handoff, not whole-runtime maximum pressure or death.
 from collections import Counter
 from pathlib import Path
 
+from . import bootstrap_replay_contract as source_policy
 from . import resource_transitions as t
 from . import required_four_physical as physical
 
@@ -37,17 +38,18 @@ def project(handoff):
                 deletions=len(handoff.removed))
 
 
-def original(root):
+def original(root, *, bootstrap_source='EMPTY'):
     """Replay original prefix, placement and retirement before deriving charges.
 
     Complete continuation/network/ledger admission remains a mandatory caller
     precondition. The special required-four topology must not use a 3-ADD seed.
     """
+    source_args = source_policy.options(bootstrap_source)
     p = physical; root = Path(root)
     events = p.s.collection.read_json(root, 'events.json', p.s.collection.EVENT_BYTES)
     captures = p.p.Captures(root, events, voters=p.semantic.OLD_LIVE)
     retirements = p.Retirements(root, events, voters=(*p.semantic.OLD, 'node-6'))
-    model = p.s.Replay(root, size=5, kind='REPLACE', required_four=True)
+    model = p.s.Replay(root, size=5, kind='REPLACE', required_four=True,**source_args)
     for index in range(1, 12): model.step(index)
     model.publication_receipts = p.c.t.publication.CheckpointReceipts(root, model)
     history = p.covering.History(root, model, captures, retirements); history.run()

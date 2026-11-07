@@ -22,6 +22,7 @@ from . import capsule_evidence as capsules
 from . import joining_snapshot as joining
 from . import joining_history_run as collection
 from . import bootstrap_revalidation_evidence as images
+from . import bootstrap_replay_contract as source_policy
 from .ancestry_pruning_evidence import frames
 
 f, need, sha = catalog.f, catalog.need, catalog.sha
@@ -84,9 +85,8 @@ class Replay:
     def __init__(self, root, *, size=3, kind='ADD', required_four=False, bootstrap_source='EMPTY'):
         need((size,kind) in ((3,'ADD'),(4,'ADD'),(3,'REPLACE'),(4,'REPLACE'),(5,'REPLACE')), 'joining replay profile')
         # The caller declares its source contract; do not infer authority from
-        # a producer's plan or receipt. Existing full gates still require EMPTY.
-        need(type(bootstrap_source) is str and bootstrap_source in ('EMPTY','VERIFIED_DURABLE_BACKUP'),
-             'joining explicit bootstrap source')
+        # a producer's plan or receipt. Existing cohort entries still require EMPTY.
+        self.bootstrap_source = source_policy.check(bootstrap_source)
         self.size, self.kind = size, kind
         self.joining = 'node-' + str(size+1)
         self.old = tuple('node-' + str(i) for i in range(1,size+1))
@@ -324,13 +324,14 @@ def lifecycle(root, replay):
     return ready
 
 
-def validate(root, *, size=3, kind='ADD', required_four=False):
+def validate(root, *, size=3, kind='ADD', required_four=False, bootstrap_source='EMPTY'):
+    source_args = source_policy.options(bootstrap_source)
     root = Path(root); original = collection.inventory(root)
     indices = sorted(int(p.name.removeprefix('applied-')) for p in root.iterdir() if re.fullmatch(r'applied-[1-9][0-9]*', p.name))
     need(1 <= len(indices) <= 64 and indices == list(range(1, len(indices)+1)), 'joining complete consecutive applied history')
     need(sorted(p.name for p in root.iterdir() if re.fullmatch(r'published-[1-9][0-9]*', p.name)) ==
          sorted('published-' + str(i) for i in indices), 'joining complete publication history')
-    replay = Replay(root,size=size,kind=kind,required_four=required_four); kinds = [replay.step(i) for i in indices]
+    replay = Replay(root,size=size,kind=kind,required_four=required_four,**source_args); kinds = [replay.step(i) for i in indices]
     need(tuple(k for k in kinds if k != 'BARRIER') == CONTROLS and kinds[0] == kinds[-1] == 'BARRIER' and
          kinds[-2] == 'FINAL' and kinds[kinds.index('INTENT')+1] == 'FINAL', 'joining complete control order')
     final = replay.states[-1]
@@ -354,10 +355,10 @@ def validate(root, *, size=3, kind='ADD', required_four=False):
          catalog.identities(final['identities'])[replay.joining], 'joining retaining cold identity')
     replay.packet(disk.current(cold)[2], len(indices)); ready = lifecycle(root, replay)
     need(collection.inventory(root) == original, 'joining original history changed during replay')
-    return dict(status='PASS', scope='native-'+kind+'-catalog-certificate-checkpoint-chain', slots=len(indices), controls=kinds,
+    return source_policy.receipt(dict(status='PASS', scope='native-'+kind+'-catalog-certificate-checkpoint-chain', slots=len(indices), controls=kinds,
         profile=str(size)+'-'+kind+('-required-four' if required_four else ''), selections=len(replay.selections), checkpointObservations=len(replay.acks), internalReadyCuts=ready, semanticChainQualified=True,
         publicReady=False,
-        completePhysicalQualified=False, forceAndNetworkQualified=False, processDeathQualified=False, phase3Complete=False)
+        completePhysicalQualified=False, forceAndNetworkQualified=False, processDeathQualified=False, phase3Complete=False),bootstrap_source)
 
 
 NEGATIVES = {
