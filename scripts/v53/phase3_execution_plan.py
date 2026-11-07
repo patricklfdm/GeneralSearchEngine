@@ -29,6 +29,10 @@ def entries(source):
             events=text.split('\non:\n')[1].split('\npermissions:',1)[0]
             dispatch=re.findall(r'^  workflow_dispatch:\n(.*?)(?=^  [a-z_]+:|\Z)',events,re.M|re.S)
             need(len(dispatch)==1 and not dispatch[0].strip(),'execution plan unsupported dispatch inputs')
+            push=re.findall(r'^  push:\n(.*?)(?=^  [a-z_]+:|\Z)',events,re.M|re.S)
+            branch=adapter.BRANCH.removeprefix('refs/heads/')
+            need(not push or len(push)==1 and push[0].strip()=='branches: ['+branch+']',
+                 'execution plan push trigger differs from owning branch')
             if family=='histories':contract=workflows.contract(name,adapter,catalogs[name],text)
             else:contract=(resources if family=='resources' else maximum).contract(name,adapter,text)
             chunks=re.split(r'^  ([\w-]+):\n',text.split('\njobs:\n')[1],flags=re.M)
@@ -47,7 +51,8 @@ def entries(source):
             row=dict(id=family+'/'+name,family=family,name=name,workflow=adapter.WORKFLOW,
                      workflowSha256=contract['workflowSha256'],groups=contract['groups'],
                      selectedJobs=len(contract['jobs']),roles=roles,jobContracts=contract['jobs'],
-                     requiresLargeHost=large)
+                     requiresLargeHost=large,pushTriggerRef=adapter.BRANCH if push else None,
+                     manualDispatchRequiresDefaultBranchWorkflow=True)
             if large:row['concurrency']=workflows.large_runner_concurrency(text)
             if family=='histories':row['wholeHistories']=catalogs[name]['members']
             rows.append(row)
@@ -67,6 +72,9 @@ def inspect(source,ref):
     inventory,_,_=plan.inspect();rows=entries(before)
     for row in rows:
         row['dispatchCommand']=['gh','workflow','run',Path(row['workflow']).name,'--repo',workflows.REPOSITORY,'--ref',ref]
+        row['createOnlyPushCommand']=(['git','push','--porcelain','--force-with-lease='+row['pushTriggerRef']+':',
+            'git@github.com:'+workflows.REPOSITORY+'.git',source+':'+row['pushTriggerRef']]
+            if row['pushTriggerRef'] else None)
     need(seeds.checkout_source(source)==before,'execution plan source changed during inspection')
     count=Counter()
     for row in rows:count[row['family']]+=row['selectedJobs']
@@ -75,6 +83,8 @@ def inspect(source,ref):
         sourceFilesSha256=plan.digest(plan.encoded(before['files'])),
         qualificationInputsSha256=inventory['inspectedInputsSha256'],
         workflowCount=len(rows),selectedJobs=sum(count.values()),selectedJobsByFamily=dict(count),
+        pushEntryWorkflows=sum(r['pushTriggerRef'] is not None for r in rows),
+        manualOnlyWorkflows=sum(r['pushTriggerRef'] is None for r in rows),
         wholeHistoryGroups=sum(r['groups'] for r in rows if r['family']=='histories'),
         wholeHistories=inventory['plannedHostedHistories'],workflows=rows,
         machineRequirements=dict(nativeLinuxRequired=True,wslAccepted=False,
@@ -84,7 +94,9 @@ def inspect(source,ref):
             finalReplayFreeBytesAfterInputs=attested.MINIMUM_FREE_BYTES,
             capacitiesArePerStage=True,retainedInputsAndFailedRunsAreAdditional=True),
         prerequisites=['Explicit operator authorization and a pushed frozen ref are required before dispatch.',
-            'Verify remote ref still equals source and workflows are dispatchable; neither was queried by this offline plan.',
+            'Manual dispatch requires the workflow definition on the default branch as well as the frozen target ref; neither was queried by this offline plan.',
+            'If manual registration is absent, only workflows with their existing push trigger can start via the create-only experimental branch command.',
+            'Create-only pushes reject changing an existing remote branch; a ref already at the selected source is an up-to-date no-op, not a new run. Require the porcelain new-branch result and inspect Actions before recording a start. Do not force-update, delete or reset a ref to manufacture a fresh attempt.',
             'Provision the dedicated native Linux runner before dispatching the three large workflows.',
             'All large workflows share one group with queue=max and cancel-in-progress=false; maximum 100 pending, no order guarantee.',
             'Never change the selected ref until every selected run is complete; retain every failed/cancelled attempt.'],
@@ -102,9 +114,11 @@ def render(value):
         f"{value['workflowCount']} workflows / {value['selectedJobs']} selected jobs. "
         f"The twelve history subsets contain {value['wholeHistories']} whole histories in {value['wholeHistoryGroups']} groups.",'',
         'The five supplemental and two maximum originals remain additional requirements; do not sum separate resource peaks.','',
-        '| Set | Workflow | Jobs | Large native host |','| --- | --- | ---: | --- |']
+        '| Set | Workflow | Jobs | Large native host | Existing push entry |','| --- | --- | ---: | --- | --- |']
     for row in value['workflows']:
-        lines.append(f"| {row['id']} | `{Path(row['workflow']).name}` | {row['selectedJobs']} | {'yes' if row['requiresLargeHost'] else 'no'} |")
+        lines.append(f"| {row['id']} | `{Path(row['workflow']).name}` | {row['selectedJobs']} | {'yes' if row['requiresLargeHost'] else 'no'} | {'yes' if row['pushTriggerRef'] else 'no'} |")
+    lines+=['',f"{value['pushEntryWorkflows']} workflows have an existing exact experimental push entry; "
+        f"{value['manualOnlyWorkflows']} are manual-only. Pushing the development branch does not register all manual workflows on the default branch."]
     lines+=['','## Before execution','']+['- '+v for v in value['prerequisites']]
     machine=value['machineRequirements'];gib=1024**3
     lines+=['',f"Native Linux: at least {machine['minimumAvailableMemoryBytes']//gib} GiB available memory. "
@@ -113,10 +127,19 @@ def render(value):
     for prefix,key in [('Direct large','largeDirectFreeBytes'),('Maximum hosted','maximumHostedFreeBytes')]:
         for stage,size in machine[key].items():lines.append(f'| {prefix} {stage} | {size//gib} |')
     lines += [f"| Complete final replay, after inputs | {machine['finalReplayFreeBytesAfterInputs']//gib} |",'',
-        '## Individual dispatch commands — execute only after authorization','',
-        'These commands are printed, never executed by the planner. Freeze and verify the remote ref first.','']
+        '## Manual dispatch — only after authorization and default-branch registration','',
+        'These commands are printed, never executed by the planner. Verify the default-branch workflow and frozen remote ref first.','']
     for row in value['workflows']:
         lines+=['### '+row['id'],'','```bash',shlex.join(row['dispatchCommand']),'```','']
+    lines+=['## Existing push entry — alternate startup before manual registration','',
+        'Only these existing trigger branches may start from a push. Every command publishes the same exact source. '
+        'The empty expected lease permits creation and prevents changing an existing branch. '
+        'A porcelain new-branch result (*) publishes a new trigger; up-to-date (=) starts nothing, even with exit zero. '
+        'Confirm the actual Actions run after creation. Execute only after explicit authorization. '
+        'Do not also manually dispatch the same member. Manual-only entries remain pending.','']
+    for row in value['workflows']:
+        if row['createOnlyPushCommand']:
+            lines+=['### '+row['id'],'','```bash',shlex.join(row['createOnlyPushCommand']),'```','']
     lines+=['## Acceptance order','']+[str(i)+'. '+v for i,v in enumerate(value['acceptanceOrder'],1)]
     lines+=['','Open gaps: '+', '.join(value['openGaps'])+'.','']
     return '\n'.join(lines)

@@ -21,7 +21,8 @@ python3 -B -m scripts.v53.phase3_execution_plan \
 
 `plan.json` retains exact job names, dependency roles, matrix group counts,
 runner selections, explicit per-job parallel limits and workflow/source hashes.
-`EXECUTION.md` contains individual dispatch commands and the acceptance order.
+`EXECUTION.md` contains conditional manual-dispatch commands, creation-only push
+commands for existing experimental triggers, and the acceptance order.
 The planner only prints those commands. It performs no API request, Maven build,
 Git write, dispatch or original replay. Both outputs remain PLANNED and cannot
 satisfy a seed or evidence gate.
@@ -80,10 +81,43 @@ promise that concurrent unrelated work cannot fill the disk. No limit changes.
 After explicit authorization, push a frozen ref and verify that its remote SHA
 matches the plan and that the workflows are dispatchable. The offline planner
 does not verify remote existence, runner availability or GitHub permissions.
-Manual dispatch may use the same branch for all eighteen workflows: the existing
+GitHub requires the workflow definition on the default branch before
+`workflow_dispatch` can trigger it; merely publishing a new development branch
+does not establish that condition. See
+[manual workflow prerequisites](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow).
+After registration, manual dispatch may use the same branch for all eighteen workflows: the existing
 adapters bind the workflow to that branch and exact SHA. The named
 `experiment/v53-*` branches additionally enable the corresponding push triggers;
-creating eighteen moving refs is unnecessary for manual dispatch.
+creating eighteen moving refs is unnecessary for registered manual dispatch.
+
+### Before default-branch registration
+
+The [2026-11-07 read-only startup review](phase3-evidence/remote-startup-review.json)
+found zero V5.3 workflow definitions on `master` and zero V5.3 registrations among
+all 21 API workflow records. The remote development branch was still at the
+Phase 2 source `f0d4dcaf0eaab7bc8a7ca5d86facc052260e5b1a`. No matching V5.3
+experimental refs existed. These are dated observations, not assumptions to
+reuse after another push or repository change.
+
+Fourteen existing workflows have exact experimental push triggers: the twelve
+history subsets, required-four resources and capacity completion. Their 550
+selected jobs can start from the same frozen commit without first enabling
+manual dispatch on master. The planner derives the trigger from each actual
+workflow and checks it against the owning adapter; it does not invent a branch
+name or broaden a trigger. The generated Git command has an empty expected lease,
+so it can create an absent remote ref but cannot overwrite an existing one.
+An already identical ref returns success as an up-to-date no-op; that does not
+start another run. The commands request porcelain output: require `*` / new
+branch, then inspect the actual Actions run. Publishing each new ref starts its
+corresponding experiment and still requires explicit authorization. Do not follow
+that push with a duplicate manual run.
+
+Queue resources and the three large workflows are manual-only: four workflows,
+15 selected jobs. They remain mandatory and pending until the workflow definitions
+are registered on the default branch; the large three also need the native host.
+This entry does not modify master, create a registration PR, change repository
+settings or weaken their manual-only guards. Do not replace their missing results
+with the fourteen available workflows.
 
 Keep the selected ref fixed throughout the cohort. Provision the large runner
 before dispatching its three workflows. Retain explicit run/attempt IDs, original
@@ -101,7 +135,12 @@ Local validation covers the actual eighteen workflow contracts and synthetic
 source/ref drift, missing dispatch inputs, preservation of prior outputs,
 unacceptable branch strings and removal/change of any large queue policy. It
 does not demonstrate a live hosted run or maximum-history execution.
-The focused suites passed 115 distinct Python tests, including the existing
+The initial handoff suites passed 115 distinct Python tests, including the existing
 workflow observers and hosted adapters. All three changed YAML files and their
 14 shell blocks passed local syntax checks. Runtime Java, frozen protocol
 parameters and existing Required workflows are unchanged.
+The startup correction adds checks of all actual push adapters, exact trigger
+branches and creation-only commands. An isolated local bare Git repository checks
+new-ref creation, identical-ref no-op and rejection of an existing-ref update.
+Remote observation and command generation
+are not a live test of workflow execution.

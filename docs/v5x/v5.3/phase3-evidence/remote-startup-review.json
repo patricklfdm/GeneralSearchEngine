@@ -1,0 +1,49 @@
+{
+  "schema": "gse-v53-phase3-remote-startup-review-v1",
+  "observedAt": "2026-11-07T14:47:39.344996+00:00",
+  "reviewedLocalSource": "79226be587935fd6fc00058508df35ce897ce0c6",
+  "repository": "patricklfdm/GeneralSearchEngine",
+  "defaultBranch": "master",
+  "remoteDevelopmentSource": "f0d4dcaf0eaab7bc8a7ca5d86facc052260e5b1a",
+  "defaultWorkflowPaths": [
+    ".github/workflows/ci.yml",
+    ".github/workflows/cloud-performance.yml",
+    ".github/workflows/release.yml",
+    ".github/workflows/v4-durable-failure-drill.yml",
+    ".github/workflows/v4-durable-performance.yml",
+    ".github/workflows/v41-operational-evidence.yml",
+    ".github/workflows/v42-storage-evolution-evidence.yml",
+    ".github/workflows/v43-fast-reopen-evidence.yml",
+    ".github/workflows/v44-final-durable-evidence.yml",
+    ".github/workflows/v50-expired-cleanup.yml",
+    ".github/workflows/v50-manual-cleanup.yml",
+    ".github/workflows/v50-replication-evidence.yml",
+    ".github/workflows/v50-replication-foundation.yml",
+    ".github/workflows/v51-expired-cleanup.yml",
+    ".github/workflows/v51-manual-cleanup.yml",
+    ".github/workflows/v51-replication-evidence.yml",
+    ".github/workflows/v51-replication-foundation.yml",
+    ".github/workflows/v52-cloud-build.yml",
+    ".github/workflows/v52-manual-cleanup.yml",
+    ".github/workflows/v52-replication-evidence.yml"
+  ],
+  "registeredWorkflowCount": 21,
+  "registeredPhase3Workflows": 0,
+  "existingExperimentRefs": [],
+  "workflowInputsPresentOnDefault": false,
+  "executionAuthorizedByReview": false,
+  "sourceAndRuntimeQualified": false,
+  "phase3Complete": false,
+  "rawObservations": {
+    "workflows.json": "61ae6b2de3ae3129ec012c20a2074ec2a0984afb0bc1801f59ac3cfb39c3c406",
+    "branch.json": "49b047bbc5b165a1df255062a8c3ea490342bdc546446ee0f40e52a76b744f79",
+    "default-workflows.json": "677d3715ac63e484bc2b3c108ab93433cc89f68d3b2827b337c0163e3ae24afd",
+    "experiment-refs.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "blockers": [
+    "Current Phase 3 source has not been pushed; current authorization remains local commits only.",
+    "Four manual-only workflows require default-branch registration before manual dispatch.",
+    "The operator has no qualifying native Linux acceptance host; local environment remains WSL."
+  ],
+  "availableNextAction": "After separate push/run authorization, fourteen existing push-triggered workflows can run on their exact experimental branches at one frozen source; keep the remaining four requirements pending."
+}

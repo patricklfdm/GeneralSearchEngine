@@ -1,5 +1,6 @@
 """Offline handoff/queue guards; synthetic provenance supplies no run credit."""
 import copy
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -28,17 +29,49 @@ class ExecutionPlanTest(unittest.TestCase):
         self.assertEqual((18,565,566,260),(value['workflowCount'],value['selectedJobs'],value['wholeHistories'],value['wholeHistoryGroups']))
         self.assertEqual({'histories':544,'resources':15,'maximum':6},value['selectedJobsByFamily'])
         self.assertEqual(3,sum(r['requiresLargeHost'] for r in value['workflows']))
+        self.assertEqual((14,4),(value['pushEntryWorkflows'],value['manualOnlyWorkflows']))
         self.assertEqual('PLANNED',value['status']);self.assertFalse(value['phase3Complete']);self.assertFalse(value['runtimeQualified'])
         self.assertEqual(0,value['workflowsDispatched']);self.assertEqual(5,len(value['openGaps']))
         for row in value['workflows']:
             self.assertEqual(row['selectedJobs'],sum(r['jobs'] for r in row['roles'].values()))
             self.assertEqual(['gh','workflow','run',Path(row['workflow']).name,'--repo',m.workflows.REPOSITORY,'--ref',self.ref],row['dispatchCommand'])
+            self.assertTrue(row['manualDispatchRequiresDefaultBranchWorkflow'])
+            if row['pushTriggerRef']:
+                self.assertEqual(['git','push','--porcelain','--force-with-lease='+row['pushTriggerRef']+':',
+                    'git@github.com:'+m.workflows.REPOSITORY+'.git',self.source+':'+row['pushTriggerRef']],row['createOnlyPushCommand'])
+            else:self.assertIsNone(row['createOnlyPushCommand'])
             if row['requiresLargeHost']:self.assertEqual(dict(group=m.workflows.LARGE_CONCURRENCY_GROUP,queue='max',cancelInProgress=False),row['concurrency'])
         capacities=value['machineRequirements'];gib=1024**3
         self.assertEqual(448*gib,capacities['finalReplayFreeBytesAfterInputs'])
         self.assertEqual({'execute':280*gib,'verify-download':416*gib,'verify':288*gib},capacities['maximumHostedFreeBytes'])
         text=(self.root/'output/EXECUTION.md').read_text();self.assertEqual(18,text.count('gh workflow run '))
+        self.assertEqual(14,text.count('git push --porcelain --force-with-lease='))
         self.assertIn('No workflow or experiment was started',text);self.assertIn('after inputs',text)
+
+    def test_local_git_lease_prevents_overwrite_but_same_source_is_not_a_new_run(self):
+        row=next(r for r in self.generate()['workflows'] if r['pushTriggerRef'])
+        source=self.root/'source';remote=self.root/'remote.git'
+        env=dict(os.environ,GIT_CONFIG_NOSYSTEM='1',GIT_CONFIG_GLOBAL='/dev/null')
+        def git(*args,cwd=self.root):
+            return m.subprocess.run(['git',*args],cwd=cwd,env=env,capture_output=True,text=True)
+        for args in [('init','--bare',str(remote)),('init',str(source))]:
+            result=git(*args);self.assertEqual(0,result.returncode,result.stderr)
+        def commit(value):
+            (source/'data').write_text(value)
+            self.assertEqual(0,git('add','data',cwd=source).returncode)
+            result=git('-c','user.name=Local Test','-c','user.email=local@example.invalid',
+                '-c','commit.gpgsign=false','-c','core.hooksPath=/dev/null','commit','-m','fixture',cwd=source)
+            self.assertEqual(0,result.returncode,result.stderr)
+            return git('rev-parse','HEAD',cwd=source).stdout.strip()
+        first=commit('one\n');command=row['createOnlyPushCommand'][1:-2]+[str(remote),first+':'+row['pushTriggerRef']]
+        created=git(*command,cwd=source);self.assertEqual(0,created.returncode,created.stderr)
+        self.assertIn('\n*\t',created.stdout)
+        noop=git(*command,cwd=source);self.assertEqual(0,noop.returncode,noop.stderr)
+        self.assertIn('\n=\t',noop.stdout);self.assertNotIn('\n*\t',noop.stdout)
+        second=commit('two\n');command[-1]=second+':'+row['pushTriggerRef']
+        rejected=git(*command,cwd=source);self.assertNotEqual(0,rejected.returncode)
+        self.assertIn('\n!\t',rejected.stdout)
+        self.assertEqual(first,git('rev-parse',row['pushTriggerRef'],cwd=remote).stdout.strip())
 
     def test_all_three_large_contracts_reject_pending_eviction_or_cancel(self):
         targets=[('maximum-image',m.resources.adapters()['maximum-image'],m.resources.contract)]
@@ -68,6 +101,28 @@ class ExecutionPlanTest(unittest.TestCase):
                     actual=a.context()
                     self.assertEqual('refs/heads/'+self.ref,actual['ref']);self.assertEqual(self.source,actual['source'])
                     self.assertEqual(a.WORKFLOW,actual['workflow'])
+
+    def test_actual_adapters_accept_only_their_declared_push_entries(self):
+        rows={r['workflow']:r for r in m.entries(self.snapshot)}
+        for adapters in (m.seeds.adapters(),m.resources.adapters(),m.maximum.adapters()):
+            for name,a in adapters.items():
+                env=dict(GITHUB_ACTIONS='true',GITHUB_REPOSITORY=m.workflows.REPOSITORY,GITHUB_SHA=self.source,
+                    GITHUB_REF=a.BRANCH,GITHUB_EVENT_NAME='push',GITHUB_RUN_ID='123',GITHUB_RUN_ATTEMPT='1',
+                    V53_WORKFLOW_REF=m.workflows.REPOSITORY+'/'+a.WORKFLOW+'@'+a.BRANCH,V53_WORKFLOW_SHA=self.source)
+                with self.subTest(name=name),patch.dict('os.environ',env,clear=True), \
+                     patch.object(m.subprocess,'check_output',return_value=self.source+'\n'):
+                    if rows[a.WORKFLOW]['pushTriggerRef']:self.assertEqual('push',a.context()['event'])
+                    else:
+                        with self.assertRaises(ValueError):a.context()
+
+    def test_wrong_push_branch_cannot_generate_an_ineffective_or_unrelated_command(self):
+        original=m.plan.regular;path=m.seeds.adapters()['profiles'].WORKFLOW
+        def changed(root,name):
+            raw=original(root,name)
+            return raw.replace(b'branches: [experiment/v53-membership-profiles]',b'branches: [master]') if name==path else raw
+        snapshot=copy.deepcopy(self.snapshot);snapshot['files'][path]=m.plan.digest(changed(m.plan.ROOT,path))
+        with patch.object(m.plan,'regular',side_effect=changed),self.assertRaisesRegex(ValueError,'push trigger'):
+            self.generate([snapshot])
 
     def test_changed_source_during_inspection_leaves_no_completed_plan(self):
         changed=copy.deepcopy(self.snapshot);changed['head']='b'*40
