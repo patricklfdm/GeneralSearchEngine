@@ -76,17 +76,32 @@ Retain the original downloaded seed/raw artifacts for their owning replay gates.
 
 ## Observe, replay originals, observe again
 
-The v3 [attested cohort entry](../../../scripts/v53/phase3_attested_cohort.py)
-calls the real collectors for both workflow sets, prechecks all supplemental
-resource producers and binds their nine seed/raw bundles to actual originals.
-It calls the complete original-first history entry, replays all five supplemental
-originals against the history seeds, then calls both collectors again.
-Both observations and all original-reader diagnostics are kept.
+The v4 [attested cohort entry](../../../scripts/v53/phase3_attested_cohort.py)
+requires the twelve history subsets, all five supplemental resource originals
+and both [maximum component originals](PHASE_3_MAXIMUM_ATTESTED_REPLAY.md).
+The maximum pair cannot be omitted or substituted for the five supplemental slots.
+All owning workflows, exact attempts and original bundles retain their existing
+contracts; the twelve-subset catalogue and its counts are unchanged.
+
+The entry admits the large host before API calls or hashing original histories,
+observes the history and supplemental workflows, prechecks the supplemental
+producers and binds their nine seed/raw bundles. It then observes and binds both
+maximum components and validates their preparation. All source, build, toolchain
+and dependency pins must match across the sets before any physical replay.
+Each owning reader manifest must belong to the exact checkout; the two maximum
+readers also require their existing identical reader pin.
+
+Inside the maximum observer's before/after interval, the entry replays the twelve
+history subsets, the five supplemental originals, then the two maximum originals.
+This order prunes only successful temporary extractions of the earlier readers
+before retaining the large maximum outputs. Failures keep their original files
+and stop subsequent readers. All workflow observations and reader diagnostics remain.
 It compares normalized execution identities, statuses, times and steps for every
 attempt; harmless JSON formatting or unrelated actor metadata is not execution
 drift. A new attempt or changed execution during the long replay rejects. It
 rechecks raw inventories, resource producers and seed bytes after the final API
-observation as well. Missing resource inputs reject; v1/v2 receipts remain historical.
+observation as well. Missing resource or maximum inputs reject; v1–v3 receipts
+remain historical and cannot satisfy v4.
 
 ```bash
 python3 -B -u -m scripts.v53.phase3_attested_cohort \
@@ -97,13 +112,21 @@ python3 -B -u -m scripts.v53.phase3_attested_cohort \
   --resources target/v53-phase3-cohort/resources \
   --resource-workflows target/v53-phase3-cohort/resource-workflows.json \
   --resource-artifacts target/v53-phase3-cohort/resource-artifacts \
+  --maximum-workflows /evidence/maximum-workflows.json \
+  --maximum-zips /evidence/zips \
+  --maximum-bundles /evidence/bundles \
   --output target/v53-phase3-cohort/attested-replay-01
 ```
 
 The output must be new and outside all inputs. Progress appears at each collected
 cohort and every minute during the enclosing entry. No producer or Maven build
-is invoked. A successful result remains PARTIAL: the current complete workflow
-and history set plus five resource originals and their workflow observations
+is invoked. The enclosing workspace requires native Linux, 448 GiB free disk
+after all inputs are present, and 8 GiB available memory, as described in the
+maximum composition contract. Each existing reader still checks its own capacity;
+the initial reserve does not guarantee space if other work consumes the disk.
+
+A successful result remains PARTIAL: the current workflow and history set,
+five supplemental originals and two maximum originals with their observations
 have been checked, while exact coverage, combined physical resource maxima,
 historical failure review and final Phase 3 closure stay separate.
 Neither command authorizes hosted execution or supplies missing originals.
@@ -112,3 +135,6 @@ The [development receipt](phase3-evidence/workflow-cohort.json) records actual
 source-contract inspection and synthetic collection/orchestration tests. No
 GitHub cohort has been collected or attested by this implementation yet. Existing
 workflows, Required checks, runtime Java, POMs and frozen limits are unchanged.
+The [v4 development index](phase3-evidence/cohort-maximum-development.json)
+records synthetic integration checks only. No complete hosted cohort or maximum
+JVM history was executed for this change.

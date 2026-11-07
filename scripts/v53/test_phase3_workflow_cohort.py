@@ -43,6 +43,11 @@ class Phase3WorkflowCohortTest(unittest.TestCase):
                     self.api[base+f'/attempts/{attempt}/jobs?per_page=100&page={page}']=dict(total_count=len(jobs),jobs=jobs[start:start+100])
                 if attempt==2:self.api[base]=copy.deepcopy(run)
         self.index_path=self.root/'index.json';w.h.save(self.index_path,self.index)
+        self.maximum_index_path=self.root/'maximum-workflows.json'
+        w.h.save(self.maximum_index_path,dict(schema=admitted.maximum.workflows.INDEX_SCHEMA,source=self.sha,cohorts={
+            name:dict(kind='github',repository=w.REPOSITORY,source=self.sha,ref=adapter.BRANCH,event='workflow_dispatch',
+                      run=str(i),attempt='1',workflow=adapter.WORKFLOW)
+            for i,(name,adapter) in enumerate(admitted.maximum.workflows.adapters().items(),500)}))
         mock=patch.object(w.seeds,'checkout_source',return_value=self.source);mock.start();self.addCleanup(mock.stop)
 
     def get(self,path):
@@ -193,15 +198,27 @@ class Phase3WorkflowCohortTest(unittest.TestCase):
             work.mkdir();result=dict(status='PARTIAL',resourceArtifactsBound=True,phase3Complete=False,source=self.sha,
                 executionIndexSha256='e'*64,resourceIndexSha256='f'*64,commonPins=common)
             w.h.save(work/'receipt.json',result);return result
+        def maximum(index,zips,bundles,work,get,*,expected_common,replay_prerequisites):
+            self.assertEqual(common,expected_common)
+            replay_prerequisites(dict(common,readerSha256='9'*64));work.mkdir()
+            result=dict(schema=admitted.maximum.SCHEMA,status='PARTIAL',source=self.sha,
+                indexSha256=w.h.digest(self.maximum_index_path.read_bytes()),commonPins=dict(common,readerSha256='9'*64),
+                workflowExecutionAttested=True,artifactBytesBound=True,maximumComponentOriginalsReplayed=True,wholeHistories=2,
+                combinedResourcesQualified=False,wholeReaderMemoryQualified=False,finalSourceCohortQualified=False,
+                priorFailuresResolved=False,phase3Complete=False,priorAttempts=0,priorAttemptsRequireReview=False)
+            w.h.save(work/'receipt.json',result);return result
         # Owning physical replay is covered by its separate suite. This test
         # exercises actual paginated workflow observations around both replays.
         with patch.object(admitted.resources,'inspect',return_value=dict(source=self.sha,indexSha256='f'*64,commonPins={k:v for k,v in common.items() if k!='repositorySha256'})), \
                 patch.object(admitted.resources,'run',side_effect=resources),patch.object(admitted.resources,'unchanged'), \
                 patch.object(admitted.resource_workflows,'collect',side_effect=observe), \
-                patch.object(admitted.resource_artifacts,'bind',side_effect=bind),patch.object(admitted.resource_artifacts,'unchanged'):
+                patch.object(admitted.resource_artifacts,'bind',side_effect=bind),patch.object(admitted.resource_artifacts,'unchanged'), \
+                patch.object(admitted.maximum,'run',side_effect=maximum), \
+                patch.object(admitted.maximum,'capacity',return_value={'synthetic':True}):
             return admitted.run(self.index_path,self.root/'seeds',self.root/'raw',self.root/output,get or self.get,
                 resource_index=self.root/'resource-index.json',resource_inputs=self.root/'resources',
-                resource_execution_index=self.root/'resource-workflows.json',resource_bundles=self.root/'resource-bundles')
+                resource_execution_index=self.root/'resource-workflows.json',resource_bundles=self.root/'resource-bundles',
+                maximum_index=self.maximum_index_path,maximum_zips=self.root/'maximum-zips',maximum_bundles=self.root/'maximum-bundles')
 
     def history_seed(self,output):
         (output/'seeds').mkdir()
@@ -230,6 +247,8 @@ class Phase3WorkflowCohortTest(unittest.TestCase):
         self.assertTrue(result['allDeclaredHistoriesReplayed']);self.assertTrue(result['priorAttemptsRequireReview'])
         self.assertTrue(result['allSupplementalOriginalsReplayed']);self.assertTrue(result['resourceWorkflowExecutionAttested'])
         self.assertTrue(result['resourceArtifactsBound']);self.assertEqual(15,result['supplementalJobs'])
+        self.assertTrue(result['maximumComponentOriginalsReplayed']);self.assertEqual(6,result['maximumJobs'])
+        self.assertEqual(2,result['maximumHistories']);self.assertIn('maximum',result['receipts'])
         self.assertIn('resources',result['receipts'])
         self.assertFalse(result['phase3Complete']);self.assertFalse(result['runtimeQualified']);self.assertFalse(result['failedOriginalsReplayed'])
 
@@ -243,11 +262,13 @@ class Phase3WorkflowCohortTest(unittest.TestCase):
         with self.assertRaises(TypeError):
             admitted.run(self.index_path,self.root/'seeds',self.root/'raw',self.root/'missing',self.get)
         with patch.object(admitted.resources,'inspect',return_value=dict(source='0'*40)), \
+                patch.object(admitted.maximum,'capacity',return_value={'synthetic':True}), \
                 patch.object(admitted.histories,'run') as replay,redirect_stdout(io.StringIO()), \
                 self.assertRaisesRegex(ValueError,'resource source'):
             admitted.run(self.index_path,self.root/'seeds',self.root/'raw',self.root/'wrong-resource-source',self.get,
                 resource_index=self.root/'resource-index.json',resource_inputs=self.root/'resources',
-                resource_execution_index=self.root/'resource-workflows.json',resource_bundles=self.root/'resource-bundles')
+                resource_execution_index=self.root/'resource-workflows.json',resource_bundles=self.root/'resource-bundles',
+                maximum_index=self.maximum_index_path,maximum_zips=self.root/'maximum-zips',maximum_bundles=self.root/'maximum-bundles')
         replay.assert_not_called()
 
     def test_resource_rejection_stops_admission_even_after_histories_pass(self):

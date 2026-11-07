@@ -1,0 +1,117 @@
+{
+  "schema": "gse-v53-cohort-maximum-development-v1",
+  "status": "PARTIAL",
+  "developmentResult": "PASS",
+  "baseCommit": "9447711e8d8f200938c1cdc0700da3528d6efa20",
+  "code": [
+    {
+      "path": "scripts/v53/maximum_resource_attested.py",
+      "bytes": 13175,
+      "sha256": "980138e23bc060cf2767a19191f81d99267d3706360cdca25d687147ddd03d59"
+    },
+    {
+      "path": "scripts/v53/phase3_attested_cohort.py",
+      "bytes": 12185,
+      "sha256": "41c23b7775e6742ba7268765a2f9a3c1438e0fa1d7bda0612dc9bd2fa0d6bd9f"
+    },
+    {
+      "path": "scripts/v53/test_maximum_resource_attested.py",
+      "bytes": 20294,
+      "sha256": "8c27c07180bd5fb3415d3932e89c6a071631e3984a47c79197f9c9f58727c533"
+    },
+    {
+      "path": "scripts/v53/test_phase3_workflow_cohort.py",
+      "bytes": 26666,
+      "sha256": "6d8eb30559929c432ba747bd059e0607a7622c5dbce1100dd1db3c1612d419ee"
+    },
+    {
+      "path": "scripts/v53/test_phase3_attested_maximum.py",
+      "bytes": 10517,
+      "sha256": "5345263a2dbd9136b25332295bd48464880d3b2e2b9e4215d1bda4ed43bd8503"
+    }
+  ],
+  "checks": [
+    {
+      "log": "target/v53-cohort-maximum/python.log",
+      "tests": 127,
+      "seconds": 45.677,
+      "status": "PASS"
+    },
+    {
+      "log": "target/v53-cohort-maximum/optimized.log",
+      "tests": 28,
+      "seconds": 3.392,
+      "status": "PASS"
+    },
+    {
+      "log": "target/v53-cohort-maximum/contracts.log",
+      "tests": 19,
+      "seconds": 0.654,
+      "status": "PASS"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "target/v53-cohort-maximum/python.log",
+      "bytes": 228,
+      "sha256": "1efa6e65427f70e87c367dcd0edfdb52872af2619c8e7cdbb0029a8365d384f4"
+    },
+    {
+      "path": "target/v53-cohort-maximum/integration-first.log",
+      "bytes": 106,
+      "sha256": "6ba0cc3eb9175896a31058fbda51d9fb277092a3133568be12d6a33c695e1d84"
+    },
+    {
+      "path": "target/v53-cohort-maximum/cli-help.txt",
+      "bytes": 1238,
+      "sha256": "90d4dfd92f4f81b175469b0c88155ad2478e6d0cbe20b047a9e1102d554eec47"
+    },
+    {
+      "path": "target/v53-cohort-maximum/optimized.log",
+      "bytes": 127,
+      "sha256": "5faeca6618e975da27d02c19d0042d01dec95a442a96f16c296d6e800ebd9ad6"
+    },
+    {
+      "path": "target/v53-cohort-maximum/contracts.log",
+      "bytes": 251,
+      "sha256": "1a6cab9f1ef2fbbdc01013e286b4b37f4719a65f9b2c610345f4f2cf42aaef84"
+    },
+    {
+      "path": "target/v53-cohort-maximum/documentation.json",
+      "bytes": 167,
+      "sha256": "87b385490cf17cb935196861333653a1d770f3bb9615c5c0729dc88298189b75"
+    }
+  ],
+  "scope": "Cohort orchestration with real seed/archive/API/result readers around synthetic JVM and history/resource boundaries; no live GitHub or maximum history execution",
+  "enclosingSchema": "gse-v53-phase3-attested-cohort-v4",
+  "requiredInputs": {
+    "historySubsets": 12,
+    "supplementalOriginals": 5,
+    "maximumOriginals": 2
+  },
+  "existingCatalogueUnchanged": {
+    "histories": 566,
+    "groups": 260,
+    "rawArchives": 500,
+    "jobs": 544
+  },
+  "maximumJobs": 6,
+  "minimumFreeWorkspaceGiB": 448,
+  "availableMemoryGiB": 8,
+  "runtimeBudgetsChanged": false,
+  "productionJavaChanged": false,
+  "workflowChanged": false,
+  "liveGitHubRunsQueried": false,
+  "workflowDispatched": false,
+  "paidCloud": false,
+  "maximumHistoryExecuted": false,
+  "combinedResourcesQualified": false,
+  "finalSourceCohortQualified": false,
+  "phase3Complete": false,
+  "remaining": [
+    "Feasible combined same-owner byte pressure and admitted completion",
+    "Arrange native Linux large-evidence environment after development",
+    "Complete final-source originals, frozen coverage, exact negatives and prior-failure review"
+  ],
+  "newTests": 13
+}

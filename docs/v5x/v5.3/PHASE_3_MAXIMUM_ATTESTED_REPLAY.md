@@ -88,6 +88,27 @@ They cannot prove simultaneous metadata/image/queue pressure across one owner
 history. That evidence, the full frozen coverage, final-source execution and
 requirement-by-requirement closure audit remain separate requirements.
 
+## Complete cohort composition
+
+The [v4 cohort entry](PHASE_3_WORKFLOW_COHORT.md) now makes this pair mandatory
+alongside the twelve history subsets and five supplemental originals. It supplies
+the supplemental source/build/toolchain/dependency pins to this entry. They must
+match both maximum seeds before the enclosing history reader reconciles its own
+twelve seeds and starts any physical replay.
+
+An internal `replay_prerequisites` callback runs those existing history and
+supplemental readers after maximum preparation checks and before the two maximum
+readers. It is not an input-selectable reader and has no CLI bypass. Its return
+value grants no qualification; the enclosing entry checks each owning result and
+raises on failure. The callback's failure is retained and prevents both maximum
+readers from starting. Live maximum observations therefore span all physical
+readers, not just the final two. Standalone invocation still replays only this pair.
+
+The v4 root receipt preserves the maximum component receipt hash, two-history
+count, six selected jobs and prior-attempt review flag separately from the older
+sets. Neither a prior green receipt nor completion of the earlier readers can
+replace a failed maximum original. All Phase 3 closure flags remain false.
+
 ## Development verification
 
 The [development index](phase3-evidence/maximum-attested-replay-development.json)

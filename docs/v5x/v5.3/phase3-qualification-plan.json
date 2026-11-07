@@ -1203,7 +1203,10 @@
         "scripts/v53/phase3_resource_cohort.py",
         "scripts/v53/queue_resource_hosted.py",
         "scripts/v53/phase3_resource_workflows.py",
-        "scripts/v53/phase3_resource_artifacts.py"
+        "scripts/v53/phase3_resource_artifacts.py",
+        "scripts/v53/maximum_resource_attested.py",
+        "scripts/v53/maximum_resource_workflows.py",
+        "scripts/v53/maximum_resource_artifacts.py"
       ],
       "tests": [
         "scripts/v53/test_case_inventory.py",
@@ -1237,7 +1240,9 @@
         "scripts/v53/test_phase3_resource_cohort.py",
         "scripts/v53/test_queue_resource_hosted.py",
         "scripts/v53/test_phase3_resource_workflows.py",
-        "scripts/v53/test_phase3_resource_artifacts.py"
+        "scripts/v53/test_phase3_resource_artifacts.py",
+        "scripts/v53/test_phase3_attested_maximum.py",
+        "scripts/v53/test_maximum_resource_attested.py"
       ],
       "readers": [
         "scripts/v53/profile_matrix.py",
@@ -1267,7 +1272,9 @@
         "scripts/v53/phase3_resource_cohort.py",
         "scripts/v53/queue_resource_hosted.py",
         "scripts/v53/phase3_resource_workflows.py",
-        "scripts/v53/phase3_resource_artifacts.py"
+        "scripts/v53/phase3_resource_artifacts.py",
+        "scripts/v53/maximum_resource_attested.py",
+        "scripts/v53/maximum_resource_artifacts.py"
       ],
       "docs": [
         "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md",
@@ -1299,7 +1306,8 @@
         "docs/v5x/v5.3/PHASE_3_NATIVE_REFUSAL_COHORT.md",
         "docs/v5x/v5.3/PHASE_3_RESOURCE_COHORT.md",
         "docs/v5x/v5.3/PHASE_3_QUEUE_RESOURCE_HOSTED.md",
-        "docs/v5x/v5.3/PHASE_3_RESOURCE_ATTESTATION.md"
+        "docs/v5x/v5.3/PHASE_3_RESOURCE_ATTESTATION.md",
+        "docs/v5x/v5.3/PHASE_3_MAXIMUM_ATTESTED_REPLAY.md"
       ],
       "cohorts": [
         "profiles",

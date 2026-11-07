@@ -108,9 +108,46 @@ class MaximumAttestedTest(unittest.TestCase):
         if name=='maximum-queue' and self.after:self.after()
         return value
 
-    def run_gate(self):
+    def run_gate(self,**options):
         self.outputs+=1;self.output=self.root/('attested-'+str(self.outputs))
-        with redirect_stdout(io.StringIO()):return c.run(self.index,self.zips,self.bundles,self.output,self.fixture.get)
+        with redirect_stdout(io.StringIO()):return c.run(self.index,self.zips,self.bundles,self.output,self.fixture.get,**options)
+
+    def test_cohort_common_pins_reject_before_prerequisite_or_maximum_readers(self):
+        common={k:c.seeds.read(self.data['maximum-native']/'seed.json')[k] for k in c.seeds.COMMON_PINS}
+        for key in c.seeds.COMMON_PINS:
+            bad=dict(common);bad[key]='0'*64
+            with self.subTest(key=key),patch('builtins.print'),self.assertRaisesRegex(ValueError,'differs from cohort'):
+                self.run_gate(expected_common=bad,replay_prerequisites=lambda _:self.fail('prerequisite ran'))
+        for bad in ({},dict(common,readerSha256='f'*64)):
+            with self.assertRaisesRegex(ValueError,'differs from cohort'):
+                self.run_gate(expected_common=bad,replay_prerequisites=lambda _:self.fail('prerequisite ran'))
+        self.assertEqual([],self.calls)
+
+    def test_prerequisite_readers_follow_binding_and_seeds_before_both_maxima(self):
+        seen=[]
+        def prerequisite(common):
+            self.assertEqual([],self.calls);self.assertTrue((self.output/'prepared.json').is_file())
+            self.assertTrue((self.output/'binding-before/receipt.json').is_file())
+            self.assertEqual(set(c.COMMON_PINS),set(common));seen.append('prerequisites')
+            common.clear()  # A callback cannot mutate this gate's retained pins.
+            return {'status':'FAIL'}  # No callback label grants/denies maximum acceptance.
+        result=self.run_gate(replay_prerequisites=prerequisite)
+        self.assertEqual(['prerequisites'],seen);self.assertEqual(list(self.modules),self.calls)
+        self.assertEqual(set(c.COMMON_PINS),set(result['commonPins']))
+
+    def test_failed_prerequisite_retains_first_binding_and_stops_both_maximum_readers(self):
+        def failed(_):raise ValueError('history original rejected')
+        with self.assertRaisesRegex(ValueError,'history original rejected'):self.run_gate(replay_prerequisites=failed)
+        self.assertEqual([],self.calls);result=c.seeds.read(self.output/'receipt.json')
+        self.assertEqual('FAIL',result['status']);self.assertEqual('cohort-prerequisites',result['active'])
+        self.assertTrue((self.output/'binding-before/receipt.json').is_file())
+        self.assertFalse((self.output/'replay').exists())
+
+    def test_live_observations_span_prerequisite_readers_as_well_as_both_maxima(self):
+        def changed(_):self.fixture.api['actions/runs/100'].update(run_attempt=3)
+        with self.assertRaisesRegex(ValueError,'exact context'):self.run_gate(replay_prerequisites=changed)
+        self.assertEqual(list(self.modules),self.calls)
+        self.assertFalse(c.seeds.read(self.output/'receipt.json')['maximumComponentOriginalsReplayed'])
 
     def test_both_actual_seed_readers_and_full_result_gates_compose_with_live_byte_binding(self):
         result=self.run_gate();self.assertEqual('PARTIAL',result['status']);self.assertEqual(list(self.modules),self.calls)

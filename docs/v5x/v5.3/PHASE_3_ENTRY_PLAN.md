@@ -68,7 +68,7 @@ six-session TCP cache/send overlap, aggregate-byte refusal and identical-request
 recovery component. The [joint queue completion](PHASE_3_QUEUE_COMPLETION.md)
 fixture now passes one full-pressure development original and all ten exact
 negatives through native FINAL/BARRIER. Final-source execution remains pending. The [supplemental resource cohort](PHASE_3_RESOURCE_COHORT.md)
-now makes all five resource originals mandatory in the v3 attested replay, with
+now makes all five resource originals mandatory in the attested replay, with
 [four source-bound workflows and nine seed/raw archives](PHASE_3_RESOURCE_ATTESTATION.md).
 Combined byte maxima and final-source admission remain open.
 The two queue originals have a [manual parallel execution entry](PHASE_3_QUEUE_RESOURCE_HOSTED.md),
@@ -97,6 +97,12 @@ digests. The [complete maximum component composition](PHASE_3_MAXIMUM_ATTESTED_R
 now preserves those external observations across both physical readers and
 checks common preparation pins before replay. Actual large-host execution and
 all five closure gaps remain pending.
+The [v4 complete cohort entry](PHASE_3_WORKFLOW_COHORT.md) now also requires both
+maximum components, binds their preparation to the twelve history subsets and
+five supplemental originals, and encloses all physical readers in the maximum
+observer's before/after interval. Missing maximum evidence can no longer be
+silently omitted from this entry. Implementation is tested with synthetic inputs;
+it grants no execution or combined-resource qualification.
 
 The [native activation receive lifetime regressions](PHASE_3_ACTIVATION_RECEIVE_LIFETIME.md)
 check selected-source cleanup before successful activation and across a complete

@@ -75,22 +75,30 @@ feasible combined byte occupancy, coverage and prior-failure review remain open.
 ## Enclosing admission
 
 The [attested cohort entry](PHASE_3_WORKFLOW_COHORT.md) now uses schema
-`gse-v53-phase3-attested-cohort-v3` and requires `--resource-index`, `--resources`,
-`--resource-workflows` and `--resource-artifacts`. No flag bypasses the set. Its order is:
+`gse-v53-phase3-attested-cohort-v4` and requires `--resource-index`, `--resources`,
+`--resource-workflows` and `--resource-artifacts`, plus the two separate maximum
+components' `--maximum-workflows`, `--maximum-zips` and `--maximum-bundles`.
+No flag bypasses either set. Its order is:
 
-1. Observe all selected twelve-subset workflow attempts.
+1. Admit the large workspace and observe all selected twelve-subset workflow attempts.
 2. Precheck all supplemental producers and their source, observe their four
    workflows, and bind their four seed/five raw archives to the actual inputs.
-3. Reconcile the history seeds against the supplemental pins before replaying
-   the complete twelve-subset original history set.
+3. Observe and bind the two maximum components. Reconcile their seeds and the
+   history seeds against the supplemental pins before replaying the complete
+   twelve-subset original history set.
 4. Replay all five resource originals against those seeds' common pins.
-5. Observe both workflow sets again; recheck originals, archives and receipts.
+5. Replay both maximum originals, then finish the maximum observer's after check.
+6. Observe the history and supplemental workflow sets again; recheck originals,
+   archives and receipts.
 
 The existing `workflowExecutionAttested` field covers the twelve observed
-workflow subsets. In the enclosing v3 result, `resourceWorkflowExecutionAttested`
+workflow subsets. In the enclosing v4 result, `resourceWorkflowExecutionAttested`
 and `resourceArtifactsBound` can become true only after the additional checks;
 the standalone resource reader retains its offline scope and false workflow
-flag. Earlier v1/v2 receipts remain historical and cannot satisfy v3.
+flag. The new `maximumComponentOriginalsReplayed`, `maximumWorkflowExecutionAttested`
+and `maximumArtifactsBound` fields describe only the two additional components.
+Neither the five-member set nor the twelve-subset catalogue changes. Earlier
+v1–v3 receipts remain historical and cannot satisfy v4. Separate peaks are not summed.
 
 ## Queue completion producer
 

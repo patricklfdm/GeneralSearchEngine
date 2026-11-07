@@ -92,7 +92,14 @@ def check_replay(name,adapter,result,path,ctx,pins,bound):
                 readerMemory=memory,inventory=inventory(path,maximum=adapter.BUNDLE_BYTES+adapter.limit('seed')+OBSERVATION_BYTES))
 
 
-def run(index,zips,bundles,output,get=artifacts.github):
+def run(index,zips,bundles,output,get=artifacts.github,*,expected_common=None,replay_prerequisites=None):
+    """Optionally enclose the other cohort readers in this observation interval.
+
+    The callback is an in-process composition hook, never an input-selected
+    reader or a receipt granting acceptance. All maximum seed checks precede
+    it; its exception stops this run before either maximum reader. Its return
+    value is ignored and cannot qualify either maximum component.
+    """
     index,zips,bundles,output=map(seeds.unlinked,(index,zips,bundles,output))
     need(not index.is_relative_to(output) and all(not p.is_relative_to(output) and not output.is_relative_to(p) for p in (zips,bundles)),
          'maximum attested output overlaps inputs')
@@ -108,6 +115,13 @@ def run(index,zips,bundles,output,get=artifacts.github):
         external_before=inventory(output/'binding-before',maximum=4*1024**3)
         common,prepared,source=inspect_seeds(value,bundles,output/'seeds',bound)
         h.save(output/'prepared.json',dict(commonPins=common,members=prepared))
+        if expected_common is not None:
+            need(type(expected_common) is dict and set(expected_common)==set(seeds.COMMON_PINS) and
+                 all(common[k]==expected_common[k] for k in seeds.COMMON_PINS),
+                 'maximum attested differs from cohort source/build/tools/dependencies')
+        if replay_prerequisites is not None:
+            receipt['active']='cohort-prerequisites';h.save(output/'receipt.json',receipt)
+            replay_prerequisites(dict(common))
         completed={};results={}
         for name,adapter in modules.items():
             receipt['active']=name;h.save(output/'receipt.json',receipt)
