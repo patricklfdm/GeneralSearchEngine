@@ -121,6 +121,11 @@ REMOVE round. A cleanup obstruction retains the original files/charges and
 cannot return an activation result. These controller checks do not qualify
 simultaneous maximum resources or change the five closure gaps below.
 
+The [automatic waiter completion correction](PHASE_3_AUTOMATIC_OWNER.md#client-backlog-completion-regression)
+reserves admission headroom within the existing 64-waiter pool. A real native
+DATA regression checks completion while all admitted client calls remain
+charged. This scoped correction does not close the five qualification gaps.
+
 | Gap | Existing prerequisite | Evidence still required |
 | --- | --- | --- |
 | component-cohorts | Twelve source-bound catalogues and their independent readers | Complete current-source original histories, exact negatives and undeleted failures |

@@ -159,6 +159,15 @@ final class MembershipResources {
             if(first)synchronized(MembershipResources.this){record("RETURNED",true);}
         }
     }
+    /** Client backlog must leave room for the original local PUBLISH path:
+     * activation reply caller plus its nested slot handler. These are ordinary
+     * charged waiters, not extra capacity or a bypass for protocol admission.
+     * Count all live waiters and reserve atomically under the same monitor. */
+    synchronized Lease reserveAutomaticWaiter(String owner) {
+        require(leases.keySet().stream().filter(k->k.unit==Unit.WAITER).count()<Unit.WAITER.count-2,
+                "automatic waiter completion headroom");
+        return reserve(Unit.WAITER,owner,0);
+    }
     synchronized Lease reserve(Unit unit,String owner,long bytes) {
         Objects.requireNonNull(unit,"unit");Objects.requireNonNull(owner,"owner");
         require(!owner.isEmpty() && owner.length()<=128 && bytes>=0 && bytes<=unit.bytes,"reservation shape");

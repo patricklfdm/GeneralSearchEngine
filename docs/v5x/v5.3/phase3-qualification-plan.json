@@ -534,7 +534,9 @@
         "scripts/v53/test_automatic_history.py",
         "scripts/v53/test_automatic_history_replay.py",
         "scripts/v53/test_automatic_history_hosted.py",
-        "scripts/v53/test_automatic_history_workflow.py"
+        "scripts/v53/test_automatic_history_workflow.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AutomaticOwnerTest.java",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AutomaticWaiterCompletionTest.java"
       ],
       "readers": [
         "scripts/v53/competing_node_evidence.py",
@@ -570,7 +572,8 @@
         "docs/v5x/v5.3/PHASE_3_TRANSFER_REPLY_LIFETIME.md",
         "docs/v5x/v5.3/PHASE_3_AUTOMATIC_HISTORY_COHORT.md",
         "docs/v5x/v5.3/PHASE_3_AUTOMATIC_HISTORY_HOSTED.md",
-        "docs/v5x/v5.3/PHASE_3_TRANSFER_RESOURCE_LIFETIME.md"
+        "docs/v5x/v5.3/PHASE_3_TRANSFER_RESOURCE_LIFETIME.md",
+        "docs/v5x/v5.3/phase3-evidence/automatic-waiter-completion.json"
       ],
       "cohorts": [
         "node-renames",

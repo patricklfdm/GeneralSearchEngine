@@ -34,6 +34,49 @@ is reserved before copying, including an input at the existing 8 MiB frame
 ceiling; execution's own reservations remain additional. Failure to reserve
 returns the waiter immediately. Invalid commands are rejected before admission.
 
+Client admission additionally leaves two free shared waiter slots for the
+original local publication's activation caller and nested slot handler. The
+count and reservation occur atomically under the resource monitor. With no
+other waiters, at most 62 automatic calls (including the executing call) are
+admitted; existing protocol waiters or a smaller configured pending-call bound
+reduce that number. Both internal handlers still acquire and release ordinary
+charged leases under the unchanged global limit of 64. Admission does not
+reserve fictitious protocol work, bypass accounting or increase capacity.
+
+### Client backlog completion regression
+
+An original native three-voter run admitted 64 automatic calls, completed the
+remote DATA work, then failed at local PUBLISH because its own client backlog
+occupied every waiter. The original resource trace records 64 automatic waiters
+at that publication request and no matching successful local response. An
+earlier diagnostic exhausted its original lifetime after a 90–150 second
+election wait; that retained failure alone does not establish waiter starvation.
+The isolated regression uses a supported 15–25 second election window while
+retaining the 30 second RPC bound and original 180 second lifetime.
+
+`V53AutomaticWaiterCompletionTest` holds one admitted DATA call before dispatch,
+fills the remaining client queue, and then runs the actual native protocol.
+Success requires the same DATA publication to complete, every queued readiness
+call to drain, the owner to remain READY and an observed overlap of 62 original
+client leases with its two request-bound publication handler leases. No client
+mutation is retried. Two additional control-loop regressions check atomic
+refusal, pre-existing protocol occupancy and full-backlog close/release.
+
+This protects completion against the owner's own client backlog. Concurrent
+external control requests can still consume the remaining capacity; byte
+exhaustion and adverse protocol floods are separate bounds. These focused
+regressions do not qualify the full resource envelope or the final-source
+cohort. The [development receipt](phase3-evidence/automatic-waiter-completion.json)
+retains the failed originals and the validation actually completed.
+
+The corrected-source checks passed 48 Java tests and 19 Python contract tests.
+The isolated native test failed on the original runtime at 77.35 seconds and
+passed after correction at 77.80 seconds. Independent accounting replay of all
+three owner traces passed, including empty final ownership. The leader trace
+ties the 62+2 overlap to the same original local PUBLISH request and successful
+response. This is a component regression and accounting replay, not the full
+physical/history admission of that new source.
+
 The private result handle permits blocking waits and completion inspection,
 without caller completion/cancellation or executable callbacks on the control
 thread. A wait timeout does not cancel or retry an admitted mutation. Errors

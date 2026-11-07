@@ -1,0 +1,200 @@
+{
+  "schema": "gse-v53-automatic-waiter-completion-development-v1",
+  "status": "PASS",
+  "scope": "automatic-client-backlog-completion-component",
+  "phase3Complete": false,
+  "wholeHistoryQualified": false,
+  "finalSourceCohortQualified": false,
+  "originalImplementation": "a828e961",
+  "runtimeAndTestSha256": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java": "4f4325eca61a6a8163c5a1d7e99d6cfc15ae0f1a767761d3e0253a5e51380c06",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipAutomaticOwner.java": "0b3055a5eec440107d61f1aa10cebef4226895a492a0ad6ffaed4dd75d9caa76",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AutomaticWaiterCompletionTest.java": "85d3e0cd118d517064542c9d11ec39ba00dbb089069961ff43f6363d6e826582",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AutomaticOwnerTest.java": "46d94772d12104da88008eb075ebe6bbcbdaa5089287342941c867d9384c1ada"
+  },
+  "inconclusiveOriginal": {
+    "raw": "general-search-engine-replication/target/v53-native-dispatch/run-2e111cea-edcf-4239-8b40-c1676439777b",
+    "result": "FAIL",
+    "reason": "original future quorum deadline/closed",
+    "electionWindowMillis": [
+      90000,
+      150000
+    ],
+    "notes": "Retained diagnostic; this result alone does not establish waiter starvation."
+  },
+  "pairedConfiguration": {
+    "requestTimeoutMillis": 30000,
+    "electionWindowMillis": [
+      15000,
+      25000
+    ],
+    "originalLifetimeSeconds": 180,
+    "globalWaiters": 64,
+    "clientWaiterCeilingAfter": 62,
+    "measurementRetries": false
+  },
+  "originalFailure": {
+    "raw": "general-search-engine-replication/target/v53-native-dispatch/run-c65e136c-e503-4573-8099-191508523410",
+    "inventorySha256": "90746d56d85a63e937429b9240a224d61302a13564ddd8936042d16813011b6a",
+    "fileCount": 496,
+    "localPublications": [
+      {
+        "requestSha256": "48f93db3ae9a9ad6365c210a071deef5739fc6088a64fac63978c1ce02433578",
+        "waiters": 0,
+        "clients": 0,
+        "acknowledged": true
+      },
+      {
+        "requestSha256": "4a1baa32a0ff7554590e851a7880becb02de721134f5c7a4eab10ae89cb2c035",
+        "waiters": 64,
+        "clients": 64,
+        "acknowledged": false
+      }
+    ],
+    "sameRequestOverlapTransitions": 0,
+    "resourceReplay": {
+      "node-1": {
+        "status": "PASS",
+        "transitions": 2156,
+        "closed": true,
+        "maximumObservedCounts": {
+          "MISC": 1,
+          "GENERATION": 2,
+          "APPLICATION": 6,
+          "JOURNAL": 1,
+          "CONTROL": 115,
+          "SOURCE": 4,
+          "WAITER": 64
+        }
+      },
+      "node-2": {
+        "status": "PASS",
+        "transitions": 1735,
+        "closed": true,
+        "maximumObservedCounts": {
+          "MISC": 1,
+          "GENERATION": 2,
+          "APPLICATION": 6,
+          "JOURNAL": 1,
+          "CONTROL": 25,
+          "WAITER": 3,
+          "SOURCE": 4
+        }
+      },
+      "node-3": {
+        "status": "PASS",
+        "transitions": 74,
+        "closed": true,
+        "maximumObservedCounts": {
+          "MISC": 1,
+          "GENERATION": 1,
+          "APPLICATION": 1,
+          "JOURNAL": 1,
+          "CONTROL": 3
+        }
+      }
+    }
+  },
+  "correctedOriginal": {
+    "raw": "general-search-engine-replication/target/v53-native-dispatch/run-3fc3cd37-da7b-44a7-a9aa-5a7fd08c901d",
+    "inventorySha256": "867c1bd9fc8c8cb77442ba2afa08036c9ce9ddf3193dce7949ecc22b1b4f2b72",
+    "fileCount": 578,
+    "localPublications": [
+      {
+        "requestSha256": "6a879635e85e1a0864891f8c7d20791eec9c4d4f1e95a57101a3d6e1ce919ce3",
+        "waiters": 0,
+        "clients": 0,
+        "acknowledged": true
+      },
+      {
+        "requestSha256": "998e0788fbc617f67a2b1f414ebf0bd68d012dc7749f83a2ea7f38235582c21b",
+        "waiters": 62,
+        "clients": 62,
+        "acknowledged": true
+      }
+    ],
+    "sameRequestOverlapTransitions": 61,
+    "resourceReplay": {
+      "node-1": {
+        "status": "PASS",
+        "transitions": 2235,
+        "closed": true,
+        "maximumObservedCounts": {
+          "MISC": 1,
+          "GENERATION": 2,
+          "APPLICATION": 6,
+          "JOURNAL": 1,
+          "CONTROL": 113,
+          "SOURCE": 4,
+          "WAITER": 64
+        }
+      },
+      "node-2": {
+        "status": "PASS",
+        "transitions": 1796,
+        "closed": true,
+        "maximumObservedCounts": {
+          "MISC": 1,
+          "GENERATION": 2,
+          "APPLICATION": 6,
+          "JOURNAL": 1,
+          "CONTROL": 25,
+          "WAITER": 3,
+          "SOURCE": 4
+        }
+      },
+      "node-3": {
+        "status": "PASS",
+        "transitions": 79,
+        "closed": true,
+        "maximumObservedCounts": {
+          "MISC": 1,
+          "GENERATION": 1,
+          "APPLICATION": 1,
+          "JOURNAL": 1,
+          "CONTROL": 3
+        }
+      }
+    }
+  },
+  "validation": {
+    "javaFocused": {
+      "tests": 25,
+      "failures": 0,
+      "errors": 0
+    },
+    "nativeSecondsBefore": 77.35,
+    "nativeSecondsAfter": 77.8,
+    "originalRegressions": {
+      "focusedFailures": 2,
+      "nativeErrors": 1
+    },
+    "javaAdjacent": {
+      "tests": 23,
+      "failures": 0,
+      "errors": 0
+    },
+    "pythonContracts": {
+      "tests": 19,
+      "failures": 0,
+      "errors": 0
+    },
+    "localLinks": 3225,
+    "whitespace": "PASS"
+  },
+  "retainedDiagnostics": {
+    "target/v53-automatic-waiter-completion/before.log": "869db86c793cc801022ab3bc2728dfcb6633ccb7473e0e5d34c3b0759dc5636b",
+    "target/v53-automatic-waiter-completion/before-isolated.log": "12663d161e257ea43a05f5e589e9826b38ecbf94238a3da4da6330a2221d9b09",
+    "target/v53-automatic-waiter-completion/before-focused.log": "6bcbfbc27b52bac4384911c229fcdf83e4f8220ec6631c58beb17a0c7547c368",
+    "target/v53-automatic-waiter-completion/after.log": "351e8ccdaadbdf8bb2e707a107664f9a6314fa6979d7b9916b4daa52f0d8e02b",
+    "target/v53-automatic-waiter-completion/audit.py": "f9af231ec39e35e9c457e9536ed5c649be9bff00cf1b1c83c503efdb35e84043",
+    "target/v53-automatic-waiter-completion/before-audit.json": "75f73eaad4d2b44854804fe64cdbc6e700c091b2cd47c7092aa6ee969e4bb96b",
+    "target/v53-automatic-waiter-completion/after-audit.json": "065aab696cd55b6a9348aae1468fa0a22d3aff29f6e758d175d0f279d0ddaed1",
+    "target/v53-automatic-waiter-completion/adjacent.log": "60f03f0b5f3a2e2c369d93112dcab4bfb9a0b17e10cd793b0eeb0b2662e87175",
+    "target/v53-automatic-waiter-completion/contracts.log": "9968edb296d66a7c6d6dbd96c433010e595c6061e00e20f7bdf649651eaf5c9c"
+  },
+  "limitations": [
+    "Concurrent external protocol calls may consume completion capacity; this is client-backlog isolation, not an overload SLA.",
+    "Byte maxima, the complete original physical/history replay, final-source cohorts and all five Phase 3 qualification gaps remain open."
+  ]
+}

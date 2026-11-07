@@ -45,7 +45,7 @@ final class MembershipAutomaticOwner implements AutoCloseable {
         final MembershipResources.Lease waiter,input;
         Work(String kind,byte[] value) {
             this.kind=kind;String key="automatic-call-"+UUID.randomUUID();
-            waiter=resources.reserve(MembershipResources.Unit.WAITER,key,0);
+            waiter=resources.reserveAutomaticWaiter(key);
             MembershipResources.Lease held=null;
             try {
                 // The fixed owner reservation covers at most 64 global waiter

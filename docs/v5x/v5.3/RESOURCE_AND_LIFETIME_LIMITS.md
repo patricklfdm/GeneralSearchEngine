@@ -74,6 +74,13 @@ all control reply callers, including duplicates, against the shared 64-waiter
 pool and inherited pending-call bound before dispatch. Capacity refusal retains
 early fencing; caller exit releases the lease. Full Phase 3 closure remains OPEN.
 
+[Automatic client admission](PHASE_3_AUTOMATIC_OWNER.md#client-backlog-completion-regression)
+leaves two shared waiter slots for the original local publication's activation
+and slot handlers. This caps client occupancy at 62 before other protocol
+waiters or stricter caller bounds, while preserving the total limit of 64 and
+normal accounting for every handler. It prevents client-backlog starvation;
+it does not promise completion under arbitrary external control pressure.
+
 [Activation caller drain](PHASE_3_ACTIVATION_CLOSE_DRAIN.md) preserves original
 incoming scratch until synchronous calls and local registration/maintenance
 return. Revocation and cooperative executor shutdown precede bounded drain;

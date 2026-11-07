@@ -77,6 +77,45 @@ class V53AutomaticOwnerTest {
         }
         assertEquals(0,s.resources.usage().leases());
     }
+    @Test void fullClientQueuePreservesTwoNativeCompletionWaiters()throws Exception {
+        var s=new Script();s.holdSubmit=new CountDownLatch(1);
+        try(var owner=s.owner(128,100)) {
+            owner.start().await(5,TimeUnit.SECONDS);var active=owner.submit("DATA",new byte[]{1});await(s.enteredSubmit);
+            var queued=new ArrayList<MembershipAutomaticOwner.Call>();
+            for(int i=1;i<62;i++)queued.add(owner.readiness());
+            var before=s.resources.usage();assertEquals(62,owner.pending());
+            assertThrows(IllegalArgumentException.class,owner::readiness);
+            assertEquals(before,s.resources.usage());assertEquals(62,owner.pending());
+            try(var activation=s.resources.reserve(MembershipResources.Unit.WAITER,"native-activation",0);
+                var slot=s.resources.reserve(MembershipResources.Unit.WAITER,"native-slot",0)) {
+                assertEquals(64,s.resources.usage().counts().get(MembershipResources.Unit.WAITER));
+                assertThrows(IllegalArgumentException.class,()->s.resources.reserve(MembershipResources.Unit.WAITER,"over-limit",0));
+                assertFalse(active.isDone());assertTrue(queued.stream().noneMatch(MembershipAutomaticOwner.Call::isDone));
+            }
+            s.holdSubmit.countDown();assertSame(s.answer,active.await(5,TimeUnit.SECONDS));
+            for(var call:queued)assertSame(s.answer,call.await(5,TimeUnit.SECONDS));
+            V53MembershipTransportTest.waitFor(()->owner.pending()==0);
+            assertSame(s.answer,owner.readiness().await(5,TimeUnit.SECONDS));
+        }
+        assertEquals(0,s.resources.usage().leases());
+    }
+    @Test void existingProtocolWaiterReducesAdmissionAndCloseDrainsFullBacklog()throws Exception {
+        var s=new Script();s.holdSubmit=new CountDownLatch(1);
+        try(var protocol=s.resources.reserve(MembershipResources.Unit.WAITER,"existing-protocol",0)) {
+            try(var owner=s.owner(128,100)) {
+                owner.start().await(5,TimeUnit.SECONDS);var active=owner.submit("DATA",new byte[]{1});await(s.enteredSubmit);
+                var queued=new ArrayList<MembershipAutomaticOwner.Call>();
+                for(int i=1;i<61;i++)queued.add(owner.readiness());
+                assertEquals(61,owner.pending());var before=s.resources.usage();
+                assertThrows(IllegalArgumentException.class,owner::readiness);assertEquals(before,s.resources.usage());
+                owner.close();assertThrows(ExecutionException.class,()->active.await(5,TimeUnit.SECONDS));
+                for(var call:queued)assertThrows(ExecutionException.class,()->call.await(5,TimeUnit.SECONDS));
+                assertEquals(0,owner.pending());assertEquals(List.of("start","DATA"),s.calls);
+            }
+            assertEquals(1,s.resources.usage().leases());
+        }
+        assertEquals(0,s.resources.usage().leases());
+    }
     @Test void timerNeverRenewsOriginalLifetimeAfterHeartbeat()throws Exception {
         var s=new Script();
         try(var owner=s.owner(2,30)) {
