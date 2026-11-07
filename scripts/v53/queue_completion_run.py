@@ -1,7 +1,7 @@
 """Immutable native joint queue pressure through FINAL/BARRIER admission.
 
-One complete original: ten exact JSON negatives, twelve for small segmented
-input, or fifteen for the explicit maximum-image profile. A rehearsal, isolated
+One complete original: fifteen exact JSON negatives, seventeen for small segmented
+input, or twenty for the explicit maximum-image profile. A rehearsal, isolated
 SOURCE pressure, or downloaded PASS receipt cannot fill these resource slots.
 """
 import argparse
@@ -82,7 +82,7 @@ def collect(raw,profile):
     selected(profile);raw=Path(raw);before=inventory(raw,maximum=raw_bytes(profile))
     # Collection proves completeness of the retained inventory, not runtime acceptance.
     for name in ('events.json','calls.json','failures.json','continuous-result.json',
-                 'queue-completion.json','queue-resources.json','original-plan.gsbp','original-application.image'):
+                 'queue-completion.json','queue-resources.json','queue-storage-captures/index.json','original-plan.gsbp','original-application.image'):
         need(name in before['files'],'queue-completion run missing observations: '+name)
     if profile==PROFILE:
         need('wire.json' in before['files'],'queue-completion run missing observations: wire.json')
@@ -99,7 +99,8 @@ def collect(raw,profile):
             need(gate.maximum.DIRECTORY+'/'+name in before['files'],'maximum queue complete seed members')
         gate.maximum.check_binding(read(directory/'binding.json'))
     for name in ('initial','before-network','installed-1','installed-2','installed-3',
-                 'published-5','published-6','published-7','after-close'):
+                 'published-5','published-6','published-7','after-close',
+                 'queue-storage-captures/SEVEN_SENDS_HELD','queue-storage-captures/EIGHTH_SEND_REFUSED'):
         need(any(p.startswith(name+'/') for p in before['files']),'queue-completion run missing original directory: '+name)
     need(inventory(raw,maximum=raw_bytes(profile))==before,'queue-completion run changed during collection')
     return dict(schema=schema(profile),status='PARTIAL',profile=profile,collectionComplete=True,
@@ -213,11 +214,13 @@ def check_result(value,profile):
         seed=original.get('maximumSeed');gate.maximum.check_binding(seed)
         expected=gate.maximum.resources.receipt(expected,gate.maximum.resources.DEFAULT)
         expected.update(scope='maximum-image-joint-queue-component-only',maximumSeed=seed,maximumImageQueueQualified=True)
-    need(type(original) is dict and set(original)==set(expected)|{'maximumQueuedBytes'} and
+    need(type(original) is dict and set(original)==set(expected)|{'maximumQueuedBytes','pressureStorage'} and
          all(type(original.get(k)) is type(v) and original[k]==v for k,v in expected.items()) and
          type(original.get('maximumQueuedBytes')) is int and
          11*((gate.queue.CHUNK+2)//3)*4<original['maximumQueuedBytes']<=gate.queue.LIMIT,
          'queue-completion admission original pressure and native completion')
+    gate.pressure_storage.check_result(original['pressureStorage'],
+        image_bytes=gate.maximum.maximum.NATIVE_MAXIMUM if profile==MAXIMUM_PROFILE else None)
     expected=[dict(case=name,status='REJECTED',reason=reason) for name,reason in gate.negative_cases(**options(profile)).items()]
     need(value['negatives']==expected,'queue-completion admission exact negatives')
 

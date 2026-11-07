@@ -79,13 +79,13 @@ removes the queue fixture's fixed two-chunk image tail and independently checks
 all remaining bytes. Its separate small rehearsal confers no maximum-image or
 full-pressure qualification; the formal resource profile remains unchanged.
 The [explicit segmented queue entry](PHASE_3_QUEUE_COMPLETION.md#explicit-segmented-queue-transport)
-now has a separate source-bound producer and twelve-negative gate. It retains
+now has a separate source-bound producer and seventeen-negative gate. It retains
 the whole continuous history and rejects substitution into the JSON resource
 slot. Its full-pressure execution and any maximum-image composition remain
 pending; the existing hosted matrix and five closure gaps are unchanged.
 The [maximum-image joint queue entry](PHASE_3_MAXIMUM_QUEUE_ENTRY.md) now connects
 the calibrated source and default staging to one complete REMOVE history, with
-an explicit capacity-admitted producer and 15-negative independent gate. Its
+an explicit capacity-admitted producer and 20-negative independent gate. Its
 long positive execution, maximum-input memory and cohort admission remain
 pending; it does not replace the earlier resource originals. The
 [dedicated manual hosted transport](PHASE_3_MAXIMUM_QUEUE_HOSTED.md) now freezes
@@ -103,6 +103,11 @@ five supplemental originals, and encloses all physical readers in the maximum
 observer's before/after interval. Missing maximum evidence can no longer be
 silently omitted from this entry. Implementation is tested with synthetic inputs;
 it grants no execution or combined-resource qualification.
+
+The existing queue-completion original now also binds [same-owner disk snapshots
+to held-send and refusal checkpoints](PHASE_3_QUEUE_STORAGE_PRESSURE.md). This
+strengthens resource observations without closing the combined-maximum or
+final-source gaps.
 
 The [native activation receive lifetime regressions](PHASE_3_ACTIVATION_RECEIVE_LIFETIME.md)
 check selected-source cleanup before successful activation and across a complete

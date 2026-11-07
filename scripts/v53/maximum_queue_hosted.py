@@ -1,6 +1,6 @@
 """Manual-only maximum-image joint queue history and measured downloaded replay.
 
-One original, all 15 negatives and exact source/build/workflow/run/attempt pins.
+One original, all 20 negatives and exact source/build/workflow/run/attempt pins.
 Execution and verification use a dedicated capacity-admitted native Linux host.
 """
 import argparse
@@ -153,7 +153,7 @@ def verify(seed_bundle,raw_bundle,output,ctx,execute_result):
 
 def summary(path,ctx,stage,result):
     rows=[('Status',result['status']),('Source',ctx['source']),('Run / attempt',ctx['run']+' / '+ctx['attempt']),
-          ('Profile',PROFILE),('Scope','One complete maximum queue history; 15 exact negatives'),('Bootstrap source',source.BACKUP),('Wire layout',source.SEGMENTED),
+          ('Profile',PROFILE),('Scope','One complete maximum queue history; 20 exact negatives'),('Bootstrap source',source.BACKUP),('Wire layout',source.SEGMENTED),
           ('Artifact byte ceiling',BUNDLE_BYTES),('Staging bytes',16*1024**3),('Phase 3 complete',False)]
     for key in (*m.PINS,'wholeHistories','queuePressureQualified','maximumImageQueueQualified','externalRunAttested','combinedResourcesQualified'):
         if key in result:rows.append((key,result[key]))

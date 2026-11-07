@@ -17,13 +17,29 @@ class V53QueueCompletionQualification {
     boolean pressureRequired=true;
     final List<Map<String,Object>> points=new ArrayList<>();
     final List<Map<String,Object>> attempts=new ArrayList<>();
+    final List<Map<String,Object>> storagePoints=new ArrayList<>();
+    Path storageCaptures;
     V53NativeDispatchTest.Network network;
     final Set<String> pressureTraces=new HashSet<>();
     V53MaximumApplicationTest.Seed maximumSeed;
     record Session(int reader,UUID trace,UUID basis,UUID image) {}
-    synchronized void point(String name) {
+    static List<Map<String,String>> storageFiles(Path captured)throws Exception {
+        return V53ReplayFilesTest.files(captured).entrySet().stream()
+                .map(entry->Map.of("path",entry.getKey(),"sha256",entry.getValue())).toList();
+    }
+    synchronized void point(String name)throws Exception {
         var p=network.resources.getFirst().observationCheckpoint();assertTrue(p.complete());
-        points.add(Map.of("event",name,"sequence",p.sequence(),"queued",p.usage().queued(),"eventIndex",network.events.size()));
+        int eventIndex=network.events.size();
+        if(Set.of("SEVEN_SENDS_HELD","EIGHTH_SEND_REFUSED","EIGHTH_SEND_DELIVERED").contains(name)) {
+            Path original=network.f.request.targets().getFirst().replicaDirectory();
+            Path captured=storageCaptures.resolve(name);
+            V53JournalApplicationTest.copy(original,captured);
+            var after=network.resources.getFirst().observationCheckpoint();assertTrue(after.complete());
+            assertEquals(V53PublicationResourceCapture.storage(p.usage()),V53PublicationResourceCapture.storage(after.usage()));
+            storagePoints.add(Map.of("event",name,"node","node-1","eventIndex",eventIndex,
+                    "beforeSequence",p.sequence(),"afterSequence",after.sequence(),"files",storageFiles(captured)));
+        }
+        points.add(Map.of("event",name,"sequence",p.sequence(),"queued",p.usage().queued(),"eventIndex",eventIndex));
         System.out.println("v53QueueCompletionStage="+name+" queuedBytes="+p.usage().queued());
     }
     Decoded request(Session session,long sequence,String digest,long offset,boolean commit,boolean image)throws Exception {
@@ -133,6 +149,7 @@ class V53QueueCompletionQualification {
         assertEquals(original,V53ReplayFilesTest.files(maximumSeed.source()));
     }
     private void execute(Path raw,Path backup,V53WireArchive.Layout layout,V53NativeResourceProfile profile)throws Exception {
+        storageCaptures=Files.createDirectory(raw.resolve("queue-storage-captures"));
         var helper=new V53MembershipTransportTest();helper.temp=temp;
         var continuous=new V53ContinuousTransitionTest();continuous.temp=temp;continuous.budget=TimeUnit.MINUTES.toNanos(15);
         try(var group=helper.new Group(4,raw,backup,profile)) {
@@ -170,14 +187,16 @@ class V53QueueCompletionQualification {
                 passed=true;
             }finally {
                 point("CLOSED");V53ResourceTraceFiles.write(raw.resolve("queue-resources.json"),network.resources.getFirst().observations());
-                var receipt=new TreeMap<String,Object>(Map.of("schema","gse-v53-queue-completion-v1","status",passed?"PASS":"FAIL",
+                Files.write(storageCaptures.resolve("index.json"),canonical(Map.of("schema","gse-v53-queue-storage-captures-v1",
+                        "points",storagePoints),1024*1024),StandardOpenOption.CREATE_NEW);
+                var receipt=new TreeMap<String,Object>(Map.of("schema","gse-v53-queue-completion-v2","status",passed?"PASS":"FAIL",
                         "pressureRequired",pressureRequired,"points",points,"attempts",attempts,"traces",pressureTraces.stream().sorted().toList(),"phase3Complete",false,"combinedMaximumQualified",false));
                 if(layout==V53WireArchive.Layout.SEGMENTED_BACKUP) {
-                    receipt.put("schema","gse-v53-segmented-queue-completion-v1");receipt.put("wireLayout",layout.name());
+                    receipt.put("schema","gse-v53-segmented-queue-completion-v2");receipt.put("wireLayout",layout.name());
                     receipt.put("bootstrapSource",fixture.request.source().name());
                 }
                 if(maximumBinding!=null) {
-                    receipt.put("schema","gse-v53-maximum-queue-completion-v1");
+                    receipt.put("schema","gse-v53-maximum-queue-completion-v2");
                     receipt.put("maximumSeed",maximumBinding);
                     receipt.put("resourceProfile",profile.name());receipt.put("stagingLimit",profile.stagingBytes);
                 }

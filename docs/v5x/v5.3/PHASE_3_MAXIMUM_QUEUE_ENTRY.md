@@ -2,7 +2,7 @@
 
 Status: **implemented, full execution pending**. This supplementary component
 does not establish Phase 3 closure or simultaneous maximum metadata, seven
-images and all owners. Existing JSON and small segmented profiles are unchanged.
+images and all owners. JSON and small segmented profiles retain their separate execution identities.
 
 ## One complete original
 
@@ -36,11 +36,15 @@ smaller profiles and relabelled receipts cannot fill this slot.
 
 Original byte positions bind requests/replies; lookup rechecks their content.
 Joint authority, actual charged bytes, live original exports, publication order,
-refusal and cleanup checks remain. A passing original precedes all **15** exact
-negatives: ten queue families, two source/layout families and three maximum-seed
-and staging families. The changed-image family must fail the independently bound
+refusal and cleanup checks remain. A passing original precedes all **20** exact
+negatives: ten queue families, five storage-capture families, two source/layout
+families and three maximum-seed and staging families. The changed-image family must fail the independently bound
 maximum-image digest. Implemented unit guards do not count as executed negatives
 against a maximum original.
+
+The v2 raw receipt also requires the two [same-owner storage snapshots](PHASE_3_QUEUE_STORAGE_PRESSURE.md)
+at held-send and capacity-refusal pressure; their files and complete resource
+intervals must match the independently replayed joint authority.
 
 The producer binds immutable source, reader, classes, toolchain, exact unretried
 method, collection and environment receipt. Collection returns only `PARTIAL`.
@@ -86,4 +90,5 @@ FINAL/BARRIER/close, followed by independent original-first replay. Unchanged
 historical JSON pressure evidence still returns the exact prior result and ten
 negatives; the earlier five-member maximum seed binding is also unchanged.
 These observations validate compatibility and entry guards. They do not count
-as a maximum queue execution or its fifteen-negative qualification.
+as a maximum queue execution. Those historical v1 observations do not qualify
+the current v2 storage-capture requirement or its twenty-negative gate.

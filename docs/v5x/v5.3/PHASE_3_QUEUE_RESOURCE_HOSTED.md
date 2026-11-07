@@ -11,7 +11,7 @@ dispatch a run.
 | Member | Exact producer | Independent scope |
 | --- | --- | --- |
 | `source-queue` | `source_queue_run`, profile `source-queue-64mib` | Six SOURCE caches, actual queue refusal and identical retry; eight exact negatives |
-| `queue-completion` | `queue_completion_run`, profile `joint-queue-final-64mib` | Four additional SOURCE traces and seven held sends in the original joint activation, real refusal/retry, same-owner FINAL and stable BARRIER; ten exact negatives |
+| `queue-completion` | `queue_completion_run`, profile `joint-queue-final-64mib` | Four additional SOURCE traces and seven held sends in the original joint activation, real refusal/retry, same-owner FINAL and stable BARRIER; fifteen exact negatives |
 
 The [orchestrator](../../../scripts/v53/queue_resource_hosted.py) freezes one
 source/classes/toolchain/dependency seed. Each member independently rebuilds and
@@ -45,7 +45,7 @@ replace this replay.
 
 The aggregate requires successful execute/verify job results and exactly both
 verifier artifacts. It checks source/build/tools/reader pins, full profiles,
-original/seed digests, distinct originals, exact results and all 18 negatives.
+original/seed digests, distinct originals, exact results and all 23 negatives.
 It rechecks earlier verifier bytes after the last member. Its successful result
 is deliberately PARTIAL: `declaredQueueOriginalsReplayed=true` and
 `workflowStagesReportedSuccessful=true` are separate from

@@ -14,7 +14,7 @@ OPTIONS=dict(wire_layout=q.history.wire_archive.SEGMENTED,maximum_image=True)
 class MaximumQueueEvidenceTest(unittest.TestCase):
     def value(self):
         value=fixture.QueueCompletionEvidenceTest().value();seed=native.maximum_result()['seed']
-        value['receipt'].update(schema='gse-v53-maximum-queue-completion-v1',bootstrapSource=q.maximum.source_policy.BACKUP,
+        value['receipt'].update(schema='gse-v53-maximum-queue-completion-v2',bootstrapSource=q.maximum.source_policy.BACKUP,
             wireLayout=q.maximum.source_policy.SEGMENTED,resourceProfile=q.maximum.resources.DEFAULT,
             stagingLimit=16*1024**3,maximumSeed=copy.deepcopy(seed))
         value.update(maximumSeed=seed,image=b'not a maximum image');return value
@@ -55,8 +55,8 @@ class MaximumQueueEvidenceTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'^queue completion default resource limits$'):q.replay(value,**OPTIONS)
 
     def test_all_negatives_require_the_passing_maximum_original_first(self):
-        self.assertEqual(10,len(q.negative_cases()));self.assertEqual(12,len(q.negative_cases(q.history.wire_archive.SEGMENTED)))
-        self.assertEqual(15,len(q.negative_cases(**OPTIONS)))
+        self.assertEqual(15,len(q.negative_cases()));self.assertEqual(17,len(q.negative_cases(q.history.wire_archive.SEGMENTED)))
+        self.assertEqual(20,len(q.negative_cases(**OPTIONS)))
         with patch.object(q,'replay',side_effect=ValueError('bad original')) as replay,patch.object(q.copy,'deepcopy') as mutate:
             with self.assertRaisesRegex(ValueError,'^bad original$'):q.qualify({},**OPTIONS)
             replay.assert_called_once_with({},**OPTIONS);mutate.assert_not_called()

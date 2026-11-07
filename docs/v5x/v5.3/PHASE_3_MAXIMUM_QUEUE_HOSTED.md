@@ -18,7 +18,7 @@ operation or repository setting change is part of this implementation.
 | --- | --- | --- |
 | Prepare | Freeze one source, compiled classes, reader, portable toolchain and dependency repository | `PARTIAL` seed; no maximum history |
 | Execute | One unretried `V53MaximumQueueQualification#maximumImageFinishesAfterJointQueuePressure` on the seed source and dependencies | `PARTIAL` complete original, or retained failure |
-| Verify | Download the seed and original from this attempt, validate pins, replay the complete original and all 15 exact negatives in one fresh interpreter | Component-only result and measured process memory |
+| Verify | Download the seed and original from this attempt, validate pins, replay the complete original and all 20 exact negatives in one fresh interpreter | Component-only result and measured process memory |
 
 The history preserves bootstrap, INTENT, joint activation, pressure/refusal and
 identical-request recovery, FINAL, final activation, BARRIER and close. It is
@@ -64,7 +64,7 @@ workflow does not clean previous attempts to satisfy disk admission.
 ## Independent replay and memory scope
 
 `scripts.v53.maximum_queue_reader` starts exactly one fresh child interpreter.
-It checks the complete original before the 15 negative mutations and binds the
+It checks the complete original before the 20 negative mutations and binds the
 verified receipt to the child's PID, CPU/elapsed time and retained Linux
 `/proc/self/status` peak RSS (`VmHWM`). The shared parser rejects missing or
 mismatched PID/units and changed measurement bytes. `getrusage` peak RSS is

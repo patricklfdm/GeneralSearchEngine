@@ -94,8 +94,8 @@ the same 129 documents, four additional sessions, seven held sends, one real
 aggregate-byte refusal, identical-request recovery and uninterrupted native
 FINAL/BARRIER. Its separate execution schema binds source, classes, toolchain,
 reader, exact unretried JUnit and the retained original. Capture is only PARTIAL;
-verification requires the complete physical original, the ten existing negatives
-and two additional exact source/layout rejections. It cannot fill the original
+verification requires the complete physical original, ten queue negatives, five
+storage-capture negatives and two exact source/layout rejections. It cannot fill the original
 JSON resource slot, and the existing two-member hosted workflow is unchanged.
 
 The following commands are for later full execution; development of the entry
@@ -118,7 +118,7 @@ rehearsal. Its original is read with `--multi-chunk-rehearsal --segmented`; its
 the full profile. Long full-pressure and maximum-image acceptance remain pending.
 The separate [maximum-image queue entry](PHASE_3_MAXIMUM_QUEUE_ENTRY.md) now
 connects the calibrated seed, default staging and larger observation envelope
-to this continuous path. Its original and fifteen-negative gate remain distinct
+to this continuous path. Its original and twenty-negative gate remain distinct
 from both small-image entries; full execution is still required.
 
 The BASIS audit also confirms that `MembershipGrantJournal` emits a descriptor
@@ -266,3 +266,10 @@ identifies the retained producer, immutable raw inventory and complete replay.
 This is a local development component result. It is not the shared-seed hosted
 queue pair, final-source supplemental cohort, maximum metadata/application
 occupancy, automatic public runtime or Phase 3 closure. Those flags remain false.
+
+## Same-owner storage during pressure
+
+Current v2 originals require two physical snapshots at held-send and capacity-refusal
+pressure. See [storage-pressure binding](PHASE_3_QUEUE_STORAGE_PRESSURE.md) for
+independent byte/reservation derivation, the 15/17/20 negative sets and the limits
+of this observation. Historical v1 evidence remains bound to its original reader and source; it cannot substitute for the new captures.

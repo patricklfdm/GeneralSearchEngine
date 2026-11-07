@@ -33,7 +33,7 @@ The complete sequence is:
    physical replay**.
 4. Invoke the native required-four reader and the maximum joint queue reader
    once each, against the same externally bound bundles. Each complete original
-   must pass before its exact **150** or **15** negative results can count.
+   must pass before its exact **150** or **20** negative results can count.
 5. Revalidate the actual fresh-child command, successful exit, pins, measured
    memory record, complete owner-specific result and producer/raw inventory.
    Preserve each owning receipt and its complete output inventory.

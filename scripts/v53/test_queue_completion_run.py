@@ -10,10 +10,18 @@ from . import queue_completion_run as m
 from .test_process_toolchain import record
 
 
+def pressure_storage(image_bytes=1024):
+    return dict(schema=m.gate.pressure_storage.SCHEMA,status='PASS',sameOwnerStorageObserved=True,
+        combinedMaximumQualified=False,phase3Complete=False,points=[dict(event=name,node='node-1',eventIndex=i+10,
+            beforeSequence=i+20,afterSequence=i+20,inventorySha256='f'*64,physicalBytes=2*image_bytes+256,
+            physicalApplicationBytes=2*image_bytes,imageCopies=2,reservedMetadataBytes=256,
+            reservedStagingBytes=2*image_bytes,queuedBytes=61771102) for i,name in enumerate(m.gate.pressure_storage.names())])
+
+
 def replay():
     return dict(original=dict(status='PASS',scope='joint-queue-completion-component-only',sessions=4,capacityRefusals=1,
                 maximumQueuedBytes=61771102,nativeFinalCompleted=True,queuePressureQualified=True,
-                phase3Complete=False,combinedMaximumQualified=False),
+                phase3Complete=False,combinedMaximumQualified=False,pressureStorage=pressure_storage()),
                 negatives=[dict(case=n,status='REJECTED',reason=r) for n,r in m.gate.NEGATIVES.items()])
 
 
@@ -40,7 +48,8 @@ class QueueCompletionRunTest(unittest.TestCase):
         raw=work/m.h.MODULE/'target/v53-queue-completion/run-00000000-0000-0000-0000-000000000001';raw.mkdir(parents=True)
         for name in ('events.json','calls.json','wire.json','failures.json','continuous-result.json','queue-completion.json','queue-resources.json',
                      'original-plan.gsbp','original-application.image','initial/member','before-network/member',
-                     'installed-1/member','installed-2/member','installed-3/member','published-5/member','published-6/member','published-7/member','after-close/member'):
+                     'installed-1/member','installed-2/member','installed-3/member','published-5/member','published-6/member','published-7/member','after-close/member',
+                     'queue-storage-captures/index.json','queue-storage-captures/SEVEN_SENDS_HELD/member','queue-storage-captures/EIGHTH_SEND_REFUSED/member'):
             p=raw/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b'{}')
         (raw/'synthetic.bin').write_bytes(b'not native evidence');return raw
 
@@ -72,7 +81,8 @@ class QueueCompletionRunTest(unittest.TestCase):
         with patch.object(m.gate,'qualify',side_effect=AssertionError('no replay in collection')):
             value=m.collect(raw,m.PROFILE)
         self.assertEqual('PARTIAL',value['status']);self.assertFalse(value['queuePressureQualified'])
-        for directory in ('initial','before-network','installed-1','installed-2','installed-3','published-5','published-6','published-7','after-close'):
+        for directory in ('initial','before-network','installed-1','installed-2','installed-3','published-5','published-6','published-7','after-close',
+                          'queue-storage-captures/SEVEN_SENDS_HELD','queue-storage-captures/EIGHTH_SEND_REFUSED'):
             p=raw/directory/'member';data=p.read_bytes();p.unlink()
             with self.assertRaisesRegex(ValueError,'missing original directory'):m.collect(raw,m.PROFILE)
             p.write_bytes(data)
@@ -145,6 +155,14 @@ class QueueCompletionRunTest(unittest.TestCase):
                           ('phase3Complete',True),('combinedMaximumQualified',True)]:
             result=replay();result['original'][key]=value
             with self.subTest(key=key),self.assertRaisesRegex(ValueError,'original pressure and native completion'):m.check_result(result,m.PROFILE)
+
+    def test_existing_queue_success_and_negatives_cannot_replace_storage_observations(self):
+        for mode in ('missing','foreign-owner','unreserved-storage'):
+            result=replay()
+            if mode=='missing':del result['original']['pressureStorage']
+            elif mode=='foreign-owner':result['original']['pressureStorage']['points'][0]['node']='node-2'
+            else:result['original']['pressureStorage']['points'][0]['reservedStagingBytes']=0
+            with self.subTest(mode=mode),self.assertRaises(ValueError):m.check_result(result,m.PROFILE)
 
     def test_original_failure_retained_without_qualification(self):
         out=self.root/'failed'

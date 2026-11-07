@@ -68,7 +68,7 @@ class SegmentedQueueRunTest(unittest.TestCase):
         with self.assertRaises(ValueError):m.collect(self.raw,m.SEGMENTED_PROFILE)
 
     def test_segmented_gate_requires_twelve_exact_negatives_and_its_bound_profile(self):
-        value=result();m.check_result(value,m.SEGMENTED_PROFILE);self.assertEqual(12,len(value['negatives']))
+        value=result();m.check_result(value,m.SEGMENTED_PROFILE);self.assertEqual(17,len(value['negatives']))
         for mode in ('missing-negative','reason','source','layout'):
             changed=copy.deepcopy(value)
             if mode=='missing-negative':changed['negatives'].pop()

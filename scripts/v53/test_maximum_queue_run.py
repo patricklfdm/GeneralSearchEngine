@@ -12,7 +12,8 @@ from . import test_maximum_native_run as native
 def result():
     value=segmented.result();value['original']=m.gate.maximum.resources.receipt(value['original'],m.gate.maximum.resources.DEFAULT)
     value['original'].update(scope='maximum-image-joint-queue-component-only',maximumImageQueueQualified=True,
-                             maximumSeed=native.maximum_result()['seed'])
+                             maximumSeed=native.maximum_result()['seed'],
+                             pressureStorage=segmented.legacy.pressure_storage(m.gate.maximum.maximum.NATIVE_MAXIMUM))
     value['negatives']=[dict(case=n,status='REJECTED',reason=r) for n,r in m.gate.negative_cases(**m.options(m.MAXIMUM_PROFILE)).items()]
     return value
 
@@ -67,8 +68,8 @@ class MaximumQueueRunTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'^unqualified verifier$'):m.qualify(self.path,m.MAXIMUM_PROFILE,self.pins)
             member.assert_not_called()
 
-    def test_complete_gate_requires_maximum_seed_default_limits_and_all_fifteen_negatives(self):
-        value=result();m.check_result(value,m.MAXIMUM_PROFILE);self.assertEqual(15,len(value['negatives']))
+    def test_complete_gate_requires_maximum_seed_default_limits_and_all_twenty_negatives(self):
+        value=result();m.check_result(value,m.MAXIMUM_PROFILE);self.assertEqual(20,len(value['negatives']))
         for mode in ('seed','staging','scope','negative','reason'):
             changed=copy.deepcopy(value)
             if mode=='seed':changed['original']['maximumSeed']['bootstrapHistory']=m.gate.maximum.maximum.HISTORY

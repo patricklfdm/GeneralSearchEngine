@@ -16,6 +16,7 @@ from . import resource_transitions as t
 from . import segmented_queue_frames
 from . import maximum_native_evidence as maximum
 from .offline_fixture_image import application
+from . import queue_pressure_storage as pressure_storage
 
 need=queue.need
 POINTS=('JOINT_BEFORE_PRESSURE','SEVEN_SENDS_HELD','EIGHTH_SEND_REFUSED','PRESSURE_DRAINED',
@@ -52,7 +53,7 @@ def load(directory,*,rehearsal=False,multi_chunk_rehearsal=False,wire_layout=his
     maximum_bytes=(128 if maximum_image else 8)*1024*t.MIB
     seed=maximum.seed(root,size=4) if maximum_image else None
     physical=history.history(root,'continuous-result.json',backup=True,current_maintenance=True,
-        additional={'queue-resources.json','queue-completion.json'}|({maximum.DIRECTORY} if maximum_image else set()),
+        additional={'queue-resources.json','queue-completion.json',pressure_storage.DIRECTORY}|({maximum.DIRECTORY} if maximum_image else set()),
         maximum_bytes=maximum_bytes,wire_bytes=256*t.MIB,**layout)
     original=history.b.original(root,4,True)
     identity={n:queue.f.decode(v['node.gsr'],'records','NODE')['identity'] for n,v in original.items()}
@@ -71,7 +72,8 @@ def load(directory,*,rehearsal=False,multi_chunk_rehearsal=False,wire_layout=his
     wire,archive=history.wire_history(root,backup=True,wire_layout=wire_layout,maximum_bytes=maximum_bytes,wire_bytes=256*t.MIB)
     value=dict(physical=physical,receipt=history.d.read(root/'queue-completion.json'),
                 trace=t.read(root/'queue-resources.json')[1],events=history.d.read(root/'events.json'),
-                wire=wire,identity=identity,basis=basis,image=image,selected=selected,exportBytes=len(basis)+len(promise))
+                wire=wire,identity=identity,basis=basis,image=image,selected=selected,exportBytes=len(basis)+len(promise),
+                storagePressure=pressure_storage.load(root,installed,rehearsal=rehearsal))
     if archive is not None:value['wireArchive']=archive
     if maximum_image:value['maximumSeed']=seed
     return value
@@ -126,8 +128,8 @@ def replay(value,*,rehearsal=False,multi_chunk_rehearsal=False,wire_layout=histo
     receipt=value['receipt'];trace=value['trace'];events=value['events'];selected=value['selected']
     fields={'schema','status','points','attempts','traces','phase3Complete','combinedMaximumQualified','pressureRequired'}
     if segmented:fields.update(('wireLayout','bootstrapSource'))
-    schema='gse-v53-segmented-queue-completion-v1' if segmented else 'gse-v53-queue-completion-v1'
-    if maximum_image:fields.update(('maximumSeed','resourceProfile','stagingLimit'));schema='gse-v53-maximum-queue-completion-v1'
+    schema='gse-v53-segmented-queue-completion-v2' if segmented else 'gse-v53-queue-completion-v2'
+    if maximum_image:fields.update(('maximumSeed','resourceProfile','stagingLimit'));schema='gse-v53-maximum-queue-completion-v2'
     need(set(receipt)==fields and receipt['schema']==schema and receipt['status']=='PASS' and
          receipt['pressureRequired'] is (not rehearsal) and receipt['phase3Complete'] is False and receipt['combinedMaximumQualified'] is False,'queue completion scope')
     if segmented:need(receipt['wireLayout']==wire_layout and receipt['bootstrapSource']==history.wire_archive.source.BACKUP,
@@ -222,9 +224,10 @@ def replay(value,*,rehearsal=False,multi_chunk_rehearsal=False,wire_layout=histo
         else:queue.byte_refusal(trace['changes'][point['sequence']]['usage'],size)
     need(markers['PRESSURE_DRAINED']['queued']<t.MIB and markers['CLOSED']['queued']==0 and not states[-1],
          'queue completion drained and closed')
+    storage=pressure_storage.replay(value.get('storagePressure'),markers,trace,rehearsal=rehearsal)
     result=dict(status='PASS',scope='multi-chunk-completion-rehearsal' if multi_chunk_rehearsal else 'small-image-completion-rehearsal' if rehearsal else 'joint-queue-completion-component-only',sessions=4,capacityRefusals=0 if rehearsal else 1,
                 nativeFinalCompleted=True,queuePressureQualified=not rehearsal,maximumQueuedBytes=accounting['maximumObservedReservations']['queued'],
-                phase3Complete=False,combinedMaximumQualified=False)
+                phase3Complete=False,combinedMaximumQualified=False,pressureStorage=storage)
     if segmented:
         archive.check_unchanged();result.update(bootstrapSource=history.wire_archive.source.BACKUP,wireLayout=wire_layout)
     if maximum_image:
@@ -256,6 +259,11 @@ NEGATIVES={
     'changed-original-image':'queue completion exact request',
     'unclassified-refusal':'queue completion classified refusal',
     'retry-missing':'queue completion complete attempts',
+    'storage-missing':'queue storage complete captures',
+    'storage-owner':'queue storage original owner',
+    'storage-sequence':'queue storage exact resource interval',
+    'storage-inventory':'queue storage original inventory',
+    'storage-reservations':'queue storage original reservations',
 }
 SEGMENTED_NEGATIVES={'declared-empty':'queue completion original wire profile',
                      'declared-json':'queue completion original wire profile'}
@@ -290,6 +298,13 @@ def qualify(value,*,wire_layout=history.wire_archive.JSON,maximum_image=False):
         elif name=='unclassified-refusal':
             next(v for v in changed['events'] if v.get('event')=='NETWORK_ATTEMPT_FAILED' and v.get('reason')=='CAPACITY')['reason']='IO'
         elif name=='retry-missing':r['attempts'].pop()
+        elif name.startswith('storage-'):
+            changed['storagePressure']=copy.deepcopy(value['storagePressure']);storage=changed['storagePressure']
+            if name=='storage-missing':storage['points'].pop()
+            elif name=='storage-owner':storage['points'][0]['node']='node-2'
+            elif name=='storage-sequence':storage['points'][0]['beforeSequence']+=1
+            elif name=='storage-inventory':storage['points'][0]['files']={}
+            elif name=='storage-reservations':storage['storage']['metadata']+=1
         elif name=='declared-empty':r['bootstrapSource']=history.wire_archive.source.EMPTY
         elif name=='declared-json':r['wireLayout']=history.wire_archive.JSON
         elif name=='declared-small-staging':r['stagingLimit']=512*t.MIB

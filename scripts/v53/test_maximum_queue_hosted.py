@@ -123,7 +123,7 @@ class MaximumQueueHostedTest(unittest.TestCase):
         self.assertEqual(1,call.call_count);self.assertIn('/verify/original/data/producer/',str(call.call_args.args[0]))
         self.assertEqual('PASS',value['status']);self.assertTrue(value['maximumImageQueueQualified'])
         self.assertFalse(value['combinedResourcesQualified']);self.assertFalse(value['phase3Complete'])
-        self.assertEqual(15,len(value['qualification']['qualification']['negatives']))
+        self.assertEqual(20,len(value['qualification']['qualification']['negatives']))
         self.assertTrue(value['workflowContextBound']);self.assertFalse(value['externalRunAttested'])
 
     def test_wrong_stage_context_pins_profile_seed_and_producer_receipt_are_rejected(self):
@@ -262,7 +262,7 @@ class MaximumQueueWorkflowTest(unittest.TestCase):
         self.assertIn('--stage verify-download',jobs['verify'])
         self.assertNotIn('needs.execute.result',jobs['execute'])
         self.assertEqual(3,jobs['verify'].count("if: ${{ needs.execute.result == 'success' }}"))
-        self.assertIn('15 exact negatives',jobs['verify']);self.assertIn('/verify/measurement/**',jobs['verify'])
+        self.assertIn('20 exact negatives',jobs['verify']);self.assertIn('/verify/measurement/**',jobs['verify'])
         self.assertIn('scripts.v53.maximum_queue_hosted execute',jobs['execute'])
         for body in jobs.values():
             self.assertIn('ref: ${{ github.sha }}',body);self.assertIn('persist-credentials: false',body)

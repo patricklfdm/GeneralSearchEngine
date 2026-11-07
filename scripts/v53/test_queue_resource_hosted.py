@@ -168,7 +168,7 @@ class QueueResourceHostedTest(unittest.TestCase):
 
     def test_both_producers_and_downloaded_readers_feed_only_partial_whole_set(self):
         inputs=self.all_members();value=w.aggregate(self.bundle,inputs,self.root/'aggregate',self.ctx,'success','success')
-        self.assertEqual('PARTIAL',value['status']);self.assertEqual((2,18),(value['wholeHistories'],value['negativeCases']))
+        self.assertEqual('PARTIAL',value['status']);self.assertEqual((2,23),(value['wholeHistories'],value['negativeCases']))
         self.assertTrue(value['declaredQueueOriginalsReplayed']);self.assertTrue(value['workflowStagesReportedSuccessful'])
         for key in ('phase3Complete','workflowExecutionAttested','combinedPeakResourcesQualified'):self.assertFalse(value[key])
         self.assertTrue(value['cases']['queue-completion']['member']['nativeFinalCompleted'])

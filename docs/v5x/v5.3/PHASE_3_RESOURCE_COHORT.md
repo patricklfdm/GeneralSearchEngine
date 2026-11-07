@@ -13,7 +13,7 @@ requires these five separate, complete originals:
 | `maximum-image` | `maximum-application-remove` | Exact maximum application image, receiver refusal and REMOVE completion; 16 negatives |
 | `capacity-completion` | `capacity-231` | Operation-231 continuation; 34 negatives; historical prefix remains conditional |
 | `source-queue` | `source-queue-64mib` | Six SOURCE caches and real queue refusal/retry; eight negatives |
-| `queue-completion` | `joint-queue-final-64mib` | Joint queue refusal/retry, same-owner native FINAL/BARRIER; ten negatives |
+| `queue-completion` | `joint-queue-final-64mib` | Joint queue refusal/retry, same-owner native FINAL/BARRIER; fifteen negatives |
 
 The required-four member now has one [complete corrected-source development result](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md#complete-corrected-source-development-qualification)
 at `78403d87`, including portable original-first replay and all 147 negatives.

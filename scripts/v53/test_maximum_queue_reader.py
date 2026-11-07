@@ -75,7 +75,7 @@ class MaximumQueueReaderTest(unittest.TestCase):
             self.recorded(Path(command[4]));return {'exit':0,'elapsedSeconds':0.1}
         with patch.object(r.m.h,'execute',side_effect=execute) as call:
             result,memory=r.observe(output,self.helper.path,self.pins);self.assertEqual(1,call.call_count)
-        self.assertEqual(15,len(result['qualification']['negatives']))
+        self.assertEqual(20,len(result['qualification']['negatives']))
         self.assertEqual(memory,r.m.read(output/'reader/memory.json'))
         with patch.object(r.m.h,'execute',return_value={'exit':-9,'elapsedSeconds':0.1}) as call:
             with self.assertRaisesRegex(ValueError,'process failed'):r.observe(self.root/'killed',self.helper.path,self.pins)

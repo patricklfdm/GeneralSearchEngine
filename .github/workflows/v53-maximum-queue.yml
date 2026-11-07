@@ -137,7 +137,7 @@ jobs:
         with:
           name: v53-maximum-queue-raw-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
           path: target/v53-maximum-queue-hosted/${{ github.run_id }}-${{ github.run_attempt }}/download-raw
-      - name: Admit complete maximum image queue history and 15 exact negatives
+      - name: Admit complete maximum image queue history and 20 exact negatives
         run: >-
           python -B -m scripts.v53.maximum_queue_hosted verify
           --seed target/v53-maximum-queue-hosted/${{ github.run_id }}-${{ github.run_attempt }}/download-seed --inputs target/v53-maximum-queue-hosted/${{ github.run_id }}-${{ github.run_attempt }}/download-raw

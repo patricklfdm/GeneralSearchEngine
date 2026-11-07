@@ -11,7 +11,7 @@ from .test_resource_transitions import trace,row
 
 class QueueCompletionEvidenceTest(unittest.TestCase):
     def value(self):
-        return dict(receipt=dict(schema='gse-v53-queue-completion-v1',status='PASS',points=[],attempts=[],traces=[],
+        return dict(receipt=dict(schema='gse-v53-queue-completion-v2',status='PASS',points=[],attempts=[],traces=[],
                                 phase3Complete=False,combinedMaximumQualified=False,pressureRequired=True),
                     trace=trace([row('START')]),events=[],selected={})
 
@@ -26,6 +26,10 @@ class QueueCompletionEvidenceTest(unittest.TestCase):
 
     def test_empty_closed_resources_do_not_replace_actual_completion_boundaries(self):
         with self.assertRaisesRegex(ValueError,'^queue completion complete milestones$'):q.replay(self.value())
+
+    def test_historical_v1_receipt_cannot_claim_new_storage_capture_qualification(self):
+        value=self.value();value['receipt']['schema']='gse-v53-queue-completion-v1'
+        with self.assertRaisesRegex(ValueError,'^queue completion scope$'):q.replay(value)
 
     def test_lowered_queue_limit_is_not_full_byte_pressure(self):
         value=self.value();value['trace']['queueLimit']-=1

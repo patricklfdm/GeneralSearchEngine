@@ -1,0 +1,186 @@
+{
+  "schema": "gse-v53-queue-storage-pressure-development-v1",
+  "status": "PARTIAL",
+  "developmentResult": "PASS",
+  "baseCommit": "e241055a63574b9b07b14682cd93e309be296a57",
+  "code": [
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53QueueCompletionQualification.java",
+      "bytes": 16301,
+      "sha256": "389504abb74f20e5dfb172dafc35ae66d15bb143060992a52b5f12a5523b9cc1"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53QueueStorageCaptureTest.java",
+      "bytes": 2217,
+      "sha256": "8ab92c6e27bc34be5dbfaf40fd39f474b60a0aae888d561b18b3114a275b54c2"
+    },
+    {
+      "path": "scripts/v53/queue_pressure_storage.py",
+      "bytes": 6146,
+      "sha256": "67d1c3785dbc8b2ce7cf71af2b33b0bce486ee023df3d8d53f4b1123d43582d2"
+    },
+    {
+      "path": "scripts/v53/queue_completion_evidence.py",
+      "bytes": 22048,
+      "sha256": "73f7f85575f1b6b48194b41ec974d0ab537748f0109fe3e2e67643e3ee2ba06f"
+    },
+    {
+      "path": "scripts/v53/queue_completion_run.py",
+      "bytes": 18562,
+      "sha256": "09bf2954f64492a612e162428d24a881ed4a4317f3833d58fe115900e8dec0e9"
+    },
+    {
+      "path": "scripts/v53/test_queue_pressure_storage.py",
+      "bytes": 7477,
+      "sha256": "46b1a679b3af64a98db4cd20a56723c10a6bcef4d7f8c1f2d2d2a27732f5eec6"
+    }
+  ],
+  "checks": [
+    {
+      "log": "target/v53-queue-storage-pressure/corrected-related.log",
+      "tests": 196,
+      "status": "PASS"
+    },
+    {
+      "log": "target/v53-queue-storage-pressure/optimized-final.log",
+      "tests": 30,
+      "status": "PASS"
+    },
+    {
+      "log": "target/v53-queue-storage-pressure/contracts-after-docs.log",
+      "tests": 19,
+      "status": "PASS"
+    },
+    {
+      "log": "target/v53-queue-storage-pressure/corrected-rehearsal.log",
+      "tests": 3,
+      "status": "PASS"
+    }
+  ],
+  "failedFullPressure": {
+    "status": "FAIL",
+    "raw": "general-search-engine-replication/target/v53-queue-completion/run-8d0ec1e0-7596-4d9c-837e-c5ecc3c4e50f",
+    "junitSeconds": 997.0,
+    "reason": "Protocol JSON object keys cannot contain paths; new storage index serialization failed after BARRIER and close.",
+    "originalFiles": 4280,
+    "originalBytes": 1802822489,
+    "inventory": {
+      "path": "target/v53-queue-storage-pressure/failed-original-inventory.json",
+      "bytes": 580444,
+      "sha256": "606346db0d58a2c2130a65e781f0937df77942c39dd7cd06ed9c3ce5b1af7373"
+    },
+    "reconstructedReceipts": false,
+    "qualificationCredit": false
+  },
+  "correctedRehearsal": {
+    "status": "PASS",
+    "raw": "general-search-engine-replication/target/v53-queue-completion/run-edf4b2b6-ddb8-4748-85a8-413f513aac7c",
+    "junitSeconds": 329.1,
+    "replaySeconds": 6.207980897001107,
+    "originalPreserved": true,
+    "originalInventorySha256": "d118ea65b355d60905fd1fdea49641e1a5c4ab9d42574dad4e4d46b21b113b54",
+    "queuePressureQualified": false,
+    "negativeCases": 0,
+    "pressureStorage": {
+      "combinedMaximumQualified": false,
+      "phase3Complete": false,
+      "points": [
+        {
+          "afterSequence": 3937,
+          "beforeSequence": 3937,
+          "event": "SEVEN_SENDS_HELD",
+          "eventIndex": 4816,
+          "imageCopies": 4,
+          "inventorySha256": "cc7b971d18cca6a26d42df833ae8b1dca1986c3b3633fc4ca2d10093fe80239d",
+          "node": "node-1",
+          "physicalApplicationBytes": 83468,
+          "physicalBytes": 274346,
+          "queuedBytes": 685231,
+          "reservedMetadataBytes": 35820334,
+          "reservedStagingBytes": 139973
+        },
+        {
+          "afterSequence": 3942,
+          "beforeSequence": 3942,
+          "event": "EIGHTH_SEND_DELIVERED",
+          "eventIndex": 4820,
+          "imageCopies": 4,
+          "inventorySha256": "cc7b971d18cca6a26d42df833ae8b1dca1986c3b3633fc4ca2d10093fe80239d",
+          "node": "node-1",
+          "physicalApplicationBytes": 83468,
+          "physicalBytes": 274346,
+          "queuedBytes": 685231,
+          "reservedMetadataBytes": 35820334,
+          "reservedStagingBytes": 139973
+        }
+      ],
+      "sameOwnerStorageObserved": true,
+      "schema": "gse-v53-queue-pressure-storage-v1",
+      "status": "PASS"
+    }
+  },
+  "evidence": [
+    {
+      "path": "target/v53-queue-storage-pressure/native.log",
+      "bytes": 8195,
+      "sha256": "64deb28fe786d07d7717100b2fe5548726a69756d91908be14e1c77d38045ca7"
+    },
+    {
+      "path": "target/v53-queue-storage-pressure/failed-storage-diagnostic.json",
+      "bytes": 678,
+      "sha256": "ba3348afb436745fa266e881241decb6fcd0bf2bbfd927f51e02c8fcc5c2a5e7"
+    },
+    {
+      "path": "target/v53-queue-storage-pressure/corrected-rehearsal.log",
+      "bytes": 5749,
+      "sha256": "ffecf98dbd940a869263e4ee92c354c9c729c2ebbd39ca1974a55df3f040b6f9"
+    },
+    {
+      "path": "target/v53-queue-storage-pressure/rehearsal-replay/receipt.json",
+      "bytes": 1652,
+      "sha256": "246a791a510fd9851fb2c552f202aa11b0aff7f3c04dafb0c9f81d6d4d571764"
+    },
+    {
+      "path": "target/v53-queue-storage-pressure/rehearsal-replay/qualification.json",
+      "bytes": 1690,
+      "sha256": "9b9b18bf19d3e1f483c873667660710ddd8fe90f95e56f34ddf5f689d1122130"
+    },
+    {
+      "path": "target/v53-queue-storage-pressure/corrected-related.log",
+      "bytes": 297,
+      "sha256": "82a19ea370f93bbe7cd7f50abbf83c1b568f0eceeb2f0ec4a4d3c0a52a94f027"
+    },
+    {
+      "path": "target/v53-queue-storage-pressure/optimized-final.log",
+      "bytes": 129,
+      "sha256": "f6dbe4fb9c6fab972c3716915e6af0a21ac14f992cf802038dfddf453f397826"
+    },
+    {
+      "path": "target/v53-queue-storage-pressure/contracts-after-docs.log",
+      "bytes": 251,
+      "sha256": "60a1a18a81c1e43aa137325b7d500d3bbfef1a1e50de59705630a991f8654f23"
+    }
+  ],
+  "currentNegativeRequirements": {
+    "json": 15,
+    "segmented": 17,
+    "maximum": 20
+  },
+  "limitsUnchanged": true,
+  "correctedFullPressureExecuted": false,
+  "maximumImageExecuted": false,
+  "combinedResourcesQualified": false,
+  "phase3Complete": false,
+  "note": "Development checks only. The failed original remains failed and preserved. Fresh corrected full-pressure/maximum originals and final-source cohort execution remain required; unit negatives and small-image rehearsal cannot replace them.",
+  "failedOriginalPreserved": true,
+  "documentation": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 3216,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  }
+}
