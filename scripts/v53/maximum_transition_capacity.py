@@ -19,6 +19,22 @@ MINIMUM_AVAILABLE_MEMORY = 8*GIB
 SCHEMA = 'gse-v53-maximum-transition-capacity-v1'
 
 
+def validate(value,stage='execute'):
+    need(type(stage) is str and stage in FREE_BY_STAGE, 'maximum-transition capacity stage')
+    fields={'schema','status','stage','workspace','system','release','freeBytes','minimumFreeBytes',
+            'availableMemoryBytes','minimumAvailableMemoryBytes','runtimeBudgetsChanged','phase3Complete'}
+    need(type(value) is dict and set(value)==fields and value['schema']==SCHEMA and value['status']=='PASS' and
+         value['stage']==stage and value['system']=='Linux' and type(value['release']) is str and value['release'] and
+         not any(v in value['release'].lower() for v in ('microsoft','wsl')) and
+         type(value['workspace']) is str and 0<len(value['workspace'])<=4096 and '\0' not in value['workspace'] and
+         Path(value['workspace']).is_absolute() and value['runtimeBudgetsChanged'] is False and value['phase3Complete'] is False,
+         'maximum-transition capacity receipt scope')
+    need(all(type(value[k]) is int for k in ('freeBytes','minimumFreeBytes','availableMemoryBytes','minimumAvailableMemoryBytes')) and
+         value['minimumFreeBytes']==FREE_BY_STAGE[stage] and value['freeBytes']>=FREE_BY_STAGE[stage] and
+         value['minimumAvailableMemoryBytes']==MINIMUM_AVAILABLE_MEMORY and value['availableMemoryBytes']>=MINIMUM_AVAILABLE_MEMORY,
+         'maximum-transition capacity receipt limits')
+
+
 def check(path, stage='execute'):
     need(type(stage) is str and stage in FREE_BY_STAGE, 'maximum-transition capacity stage')
     path = Path(path).resolve(strict=True)
@@ -36,10 +52,11 @@ def check(path, stage='execute'):
     free = shutil.disk_usage(path).free
     need(free >= FREE_BY_STAGE[stage], 'maximum-transition capacity insufficient disk; stage not started')
     need(available[0] >= MINIMUM_AVAILABLE_MEMORY, 'maximum-transition capacity insufficient memory; original not started')
-    return dict(schema=SCHEMA, status='PASS', stage=stage, workspace=str(path), system=system, release=release,
+    value=dict(schema=SCHEMA, status='PASS', stage=stage, workspace=str(path), system=system, release=release,
                 freeBytes=free, minimumFreeBytes=FREE_BY_STAGE[stage], availableMemoryBytes=available[0],
                 minimumAvailableMemoryBytes=MINIMUM_AVAILABLE_MEMORY, runtimeBudgetsChanged=False,
                 phase3Complete=False)
+    validate(value,stage);return value
 
 
 if __name__ == '__main__':

@@ -1,0 +1,301 @@
+{
+  "allFiveClosureGapsOpen": true,
+  "applicationBytes": 67108832,
+  "baseHead": "9f9863b524bfa070d3d88c127a978cefe3416126",
+  "combinedResourcesQualified": false,
+  "contractCheck": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 3174,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "environmentAdmission": {
+    "maximumHistoryExecuted": false,
+    "reason": "maximum-transition capacity requires native Linux backing-volume admission",
+    "status": "BLOCKED_AS_EXPECTED"
+  },
+  "finalSourceCohortQualified": false,
+  "javaComponents": {
+    "maximumNativeHistoryExecuted": false,
+    "reports": [
+      {
+        "errors": "0",
+        "failures": "0",
+        "name": "io.github.patricklfdm.generalsearch.replication.V53MaximumNativeEntryTest",
+        "skipped": "0",
+        "tests": "3",
+        "time": "0.064"
+      },
+      {
+        "errors": "0",
+        "failures": "0",
+        "name": "io.github.patricklfdm.generalsearch.replication.V53NativeResourceProfileTest",
+        "skipped": "0",
+        "tests": "6",
+        "time": "7.66"
+      }
+    ],
+    "status": "PASS",
+    "tests": 9
+  },
+  "logs": [
+    {
+      "bytes": 167,
+      "path": "target/v53-maximum-native-entry/contract.json",
+      "sha256": "2b7c103b60c03616778b8cf2584414dfc6f74a720a66b7f02acde63a97f391d7"
+    },
+    {
+      "bytes": 163,
+      "path": "target/v53-maximum-native-entry/environment.json",
+      "sha256": "92d9f18a1eebce2f5815054227f55ef303560e0dd132eb354f50ffb6fae9c0e8"
+    },
+    {
+      "bytes": 3760,
+      "path": "target/v53-maximum-native-entry/final-python.json",
+      "sha256": "fe98279671405757c8ca576ffa1fa1515f7341698c9cde61e077172e15fffbb7"
+    },
+    {
+      "bytes": 2614,
+      "path": "target/v53-maximum-native-entry/finalize.py",
+      "sha256": "76532cb5570638cf7cb2ee3e2b3936cad48f174716fbad4164d890b797e2fd7b"
+    },
+    {
+      "bytes": 523,
+      "path": "target/v53-maximum-native-entry/java-final.json",
+      "sha256": "96f9fddcd4d5ae834c6146a20fba27d2a0fb81778294d7f608f75ec04af6e323"
+    },
+    {
+      "bytes": 4494,
+      "path": "target/v53-maximum-native-entry/java-final.log",
+      "sha256": "92ce47c57f20a231db20a0327bba8dfdfe7c18ed079038e1b72f5bfe2937fe61"
+    },
+    {
+      "bytes": 4494,
+      "path": "target/v53-maximum-native-entry/java.log",
+      "sha256": "9a13efbe9b21858912fda4980fc891be0e0f06e3ddec3cdab3b0bee63789d191"
+    },
+    {
+      "bytes": 6971,
+      "path": "target/v53-maximum-native-entry/junit-final/TEST-io.github.patricklfdm.generalsearch.replication.V53MaximumNativeEntryTest.xml",
+      "sha256": "d3dba52a84073d7e7cc6f843b6029508a5abd2067bc51311f3ba10873d6b2b51"
+    },
+    {
+      "bytes": 7563,
+      "path": "target/v53-maximum-native-entry/junit-final/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeResourceProfileTest.xml",
+      "sha256": "1758b351d0ff1a04619544fd88d733da78983af604f0565482ddbcf823de8e91"
+    },
+    {
+      "bytes": 157,
+      "path": "target/v53-maximum-native-entry/python-all.json",
+      "sha256": "f18567ab0f149328ec69eae4c53d38a118b5001a70d1b8e2f28fe3a405e05743"
+    },
+    {
+      "bytes": 20476,
+      "path": "target/v53-maximum-native-entry/python-all.log",
+      "sha256": "44ba8f2ac15f92f16f30b3490d0eea283a4d1ad3cd0e77f96ff69587ece00578"
+    },
+    {
+      "bytes": 3120,
+      "path": "target/v53-maximum-native-entry/python-final.log",
+      "sha256": "0abac79ee35234ff4770a133ff6de0bd63eace42215842c79741a26298860251"
+    },
+    {
+      "bytes": 138,
+      "path": "target/v53-maximum-native-entry/python-focused.log",
+      "sha256": "f1eec994a9a65c8d042bf844b20859ef2fc53e1ca54cf262c9cfe9ffae1d82c6"
+    },
+    {
+      "bytes": 146,
+      "path": "target/v53-maximum-native-entry/python-orchestration.log",
+      "sha256": "6d2b986cdf0556e3e5a3aa4f0cabd80f53a35c6da0af695e81c868c5afc33bd5"
+    },
+    {
+      "bytes": 2962,
+      "path": "target/v53-maximum-native-entry/replay_seed.py",
+      "sha256": "72d870a1d8ff9587a0678b2317c58c3a19c44798de183239cb05157890a4ca4c"
+    },
+    {
+      "bytes": 632,
+      "path": "target/v53-maximum-native-entry/run_all.py",
+      "sha256": "e7dd3bba74e1b82e0c6a5d0467567b00f26bffe8f9d4771023bc1c610ab2fd03"
+    },
+    {
+      "bytes": 702,
+      "path": "target/v53-maximum-native-entry/run_tests.py",
+      "sha256": "f60768c8595ff9584eef41cc8a2f6b64632b9df1533cc560b8147f721eee8509"
+    },
+    {
+      "bytes": 2704,
+      "path": "target/v53-maximum-native-entry/seed-replay.json",
+      "sha256": "149820f42dfe860f7c891e19081ac919d3996b02b790bd3eb630245581cf46af"
+    },
+    {
+      "bytes": 184,
+      "path": "target/v53-maximum-native-entry/seed-replay.log",
+      "sha256": "787cdf6b785e1ceb76f426cab2c9bd32d6c39f357c077b374a07ff9455d0b710"
+    },
+    {
+      "bytes": 3481,
+      "path": "target/v53-maximum-native-entry/test-modules.json",
+      "sha256": "5f729129f971b2ca5aa34aa9e15091a03885d8e31dfb7fffe5f962571e4bba31"
+    }
+  ],
+  "maximumNativeHistoryQualified": false,
+  "negativeCasesRequired": 150,
+  "pending": [
+    "native Linux acceptance environment",
+    "dedicated maximum native hosted transport",
+    "whole-reader maximum-input memory",
+    "complete maximum native history and 150 negatives",
+    "simultaneous same-owner resource pressure/refusal/recovery",
+    "final-source cohort execution"
+  ],
+  "phase3Complete": false,
+  "profile": "maximum-application-required-four-backup-segmented",
+  "pythonTests": {
+    "discovery": "scripts/v53/test_*.py",
+    "elapsedSeconds": 237.627,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "status": "PASS",
+    "tests": 4383
+  },
+  "retainedMaximumSourceReader": {
+    "binding": {
+      "applicationBytes": 67108832,
+      "applicationSequence": 41,
+      "applicationSha256": "1b872918ced4c94242ee3d935bd71d3d00b45e5dea0d476cf79f26477641042c",
+      "bootstrapSource": "VERIFIED_DURABLE_BACKUP",
+      "extra": 51350,
+      "history": "00000000-0000-0008-0000-000000000280",
+      "phase3Complete": false,
+      "resourceProfile": "DEFAULT_SNAPSHOT_STAGING",
+      "schema": "gse-v53-maximum-native-seed-v1",
+      "stagingLimit": 17179869184,
+      "status": "PARTIAL",
+      "wireLayout": "SEGMENTED_BACKUP"
+    },
+    "combinedResourcesQualified": false,
+    "elapsedSeconds": 40.894,
+    "historicalOriginal": "/mnt/d/GSE-Archives/GeneralSearchEngine/v53-maximum-run4-20261025/producer/run-dee4ae41-94a7-40c9-b7a7-2ce2e5fdcf1c",
+    "maximumNativeHistoryQualified": false,
+    "negatives": [
+      {
+        "case": "native-image",
+        "reason": "maximum native bootstrap image differs from source",
+        "status": "REJECTED"
+      },
+      {
+        "case": "source-marker",
+        "reason": "maximum native exact seed binding",
+        "status": "REJECTED"
+      }
+    ],
+    "originalUnchanged": true,
+    "phase3Complete": false,
+    "scope": "retained maximum source reader and synthetic native-image binding only",
+    "sourceFiles": {
+      "calibration.image": {
+        "bytes": 67057482,
+        "ctimeNanos": 1792891772143279000,
+        "device": 70,
+        "inode": 281474977104187,
+        "mtimeNanos": 1792891772143279000,
+        "sha256": "9be4f3de83b1bf3cc7bae4667da88c5e8442b441309263958949cb1068749f13"
+      },
+      "source-backup/gse-backup-checkpoint": {
+        "bytes": 67108097,
+        "ctimeNanos": 1792891781581277700,
+        "device": 70,
+        "inode": 281474977104191,
+        "mtimeNanos": 1792891781581277700,
+        "sha256": "6315e4ea1c2b9829818e9c1b9ee452019c222204509383a6ce38750729bab44b"
+      },
+      "source-backup/gse-backup-manifest": {
+        "bytes": 369,
+        "ctimeNanos": 1792891781127015800,
+        "device": 70,
+        "inode": 281474977104190,
+        "mtimeNanos": 1792891781127015800,
+        "sha256": "dfeb2d4ad0fac39d984a917c4f2efbc0c117c01773a0a697e2fbc3e363fb5fb4"
+      },
+      "source-backup/gse-backup-metadata": {
+        "bytes": 374,
+        "ctimeNanos": 1792891781597275800,
+        "device": 70,
+        "inode": 281474977104192,
+        "mtimeNanos": 1792891781597275800,
+        "sha256": "379496d93292737bef9a523a7bc586c0d9c4dcec97cec5136226db3d2ba3e5d2"
+      },
+      "source.image": {
+        "bytes": 67108832,
+        "ctimeNanos": 1792891781119015400,
+        "device": 70,
+        "inode": 281474977104188,
+        "mtimeNanos": 1792891781119015400,
+        "sha256": "1b872918ced4c94242ee3d935bd71d3d00b45e5dea0d476cf79f26477641042c"
+      }
+    },
+    "status": "PASS",
+    "wholeReaderMemoryQualified": false
+  },
+  "schema": "gse-v53-maximum-native-entry-development-v1",
+  "scope": "Explicit maximum native producer and independent reader entry; complete native history not executed",
+  "sourceFiles": [
+    {
+      "bytes": 4203,
+      "path": "scripts/v53/maximum_native_evidence.py",
+      "sha256": "7c62e9962e727bc42d38e339e63d3736e1fd4fb7c9f7bfc286fa291f1ae242f1"
+    },
+    {
+      "bytes": 3926,
+      "path": "scripts/v53/maximum_transition_capacity.py",
+      "sha256": "6b8dc32e6ca666b4c1a5aaa1bd8e1aecdcfcc55b6ffb628c3dbfe1ff3f141598"
+    },
+    {
+      "bytes": 18073,
+      "path": "scripts/v53/required_four_resource_run.py",
+      "sha256": "5fe8795ee21ae9915d9dd2009128a412d9b72605e049be0dbce7b2c9de487f1d"
+    },
+    {
+      "bytes": 5767,
+      "path": "scripts/v53/test_maximum_native_evidence.py",
+      "sha256": "ec29b726edb7a1d7a6a21d18f603af8ed6419b09a959f88b7ffd6d8a85ee628d"
+    },
+    {
+      "bytes": 9203,
+      "path": "scripts/v53/test_maximum_native_run.py",
+      "sha256": "ae59787dbed5f1c4d4ffe0e31bc53518b292e3b22c0fb22eb065f9ec0c865ba2"
+    },
+    {
+      "bytes": 4136,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53MaximumNativeQualification.java",
+      "sha256": "69609a01720441ecc67a12b7fe9d4a6df712ce937f576e50e110c5926b69f660"
+    },
+    {
+      "bytes": 2239,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53MaximumNativeEntryTest.java",
+      "sha256": "4bad30a6d5f528b8f94d575301c839b33b43c867d307c164bca6384938ed1df6"
+    },
+    {
+      "bytes": 98160,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java",
+      "sha256": "60b93c0c7e0ce77cf42fbbe8f072abfc7e45e855025c1d28c43420a56f8e8193"
+    }
+  ],
+  "stagingBytes": 17179869184,
+  "status": "DEVELOPMENT",
+  "unchanged": [
+    "runtime Java",
+    "protocol and lifetime bounds",
+    "existing EMPTY and small-backup profiles",
+    "five frozen supplemental slots",
+    "workflow topology"
+  ],
+  "wholeReaderMemoryQualified": false
+}

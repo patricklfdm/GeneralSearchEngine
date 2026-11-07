@@ -185,6 +185,13 @@ remaining value-first reads from current-generation and checkpoint checks.
 Complete original validation stays in place; whole-reader maximum memory is
 still distinct from these measured projection components.
 
+The [maximum-image native execution entry](PHASE_3_MAXIMUM_NATIVE_ENTRY.md) now
+connects the calibrated maximum backup to that complete history and the explicit
+150-negative default-staging reader. Source/seed binding, workspace-local private
+storage and capacity admission are implemented; full native execution and
+whole-reader memory qualification remain pending. It is separate development
+evidence, not a replacement for any frozen supplemental cohort slot.
+
 The maximum-image component is a synchronous storage probe. It does not establish
 an admitted learner, full metadata pressure or automatic-runtime peak. The
 required-four entry qualifies observed ownership and completion, not all byte

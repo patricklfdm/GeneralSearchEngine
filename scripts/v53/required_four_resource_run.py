@@ -1,7 +1,8 @@
 """Source-bound whole required-four execution, collection and resource admission.
 
-The producer returns PARTIAL. Independent complete replay and all 147 EMPTY or
-149 explicitly segmented-backup negatives are mandatory. No retries, shortened
+The producer returns PARTIAL. Independent complete replay and all 147 EMPTY,
+149 small segmented-backup, or 150 maximum/default-staging negatives are mandatory.
+The maximum profile also checks the original calibrated source. No retries, shortened
 profile or CI dispatch occurs. Backup execution is separate development evidence,
 not a replacement for the frozen EMPTY supplemental cohort.
 """
@@ -17,6 +18,8 @@ from . import remove_process_matrix as shared
 from . import process_toolchain as tc
 from . import bootstrap_replay_contract as source_policy
 from . import wire_archive
+from . import native_resource_policy as resource_policy
+from . import maximum_native_evidence as maximum_native
 
 need=h.need;read=shared.read;reader_manifest=shared.reader_manifest;BUILDS=shared.BUILDS
 SCHEMA='gse-v53-required-four-resources-execution-v1'
@@ -30,10 +33,14 @@ METHOD='requiredFourVotersCompleteReplacementFinalAndStableBarrier'
 BACKUP_PROFILE=gate.BACKUP_PROFILE+'-segmented'
 BACKUP_CLASS='V53BackupJoiningQualification'
 BACKUP_METHOD='verifiedBackupCompletesReplacementFinalAndStableBarrier'
+MAXIMUM_PROFILE=maximum_native.PROFILE
+MAXIMUM_CLASS='V53MaximumNativeQualification'
+MAXIMUM_METHOD='maximumImageCompletesRequiredFourReplacement'
 
 
 def selected(profile):
-    need(type(profile) is str and profile in (PROFILE,BACKUP_PROFILE),'required-four run explicit profile')
+    need(type(profile) is str and profile in (PROFILE,BACKUP_PROFILE,MAXIMUM_PROFILE),'required-four run explicit profile')
+    if profile==MAXIMUM_PROFILE:return MAXIMUM_CLASS,MAXIMUM_METHOD,'v53-native-dispatch'
     return (BACKUP_CLASS,BACKUP_METHOD,'v53-native-dispatch') if profile==BACKUP_PROFILE else (CLASS,METHOD,'v53-native-dispatch')
 
 
@@ -49,13 +56,15 @@ def original_inventory(root,profile):
 
 def marked(value,profile):
     selected(profile)
-    return value if profile==PROFILE else source_policy.receipt(value,source_policy.BACKUP,source_policy.SEGMENTED)
+    value=value if profile==PROFILE else source_policy.receipt(value,source_policy.BACKUP,source_policy.SEGMENTED)
+    return resource_policy.receipt(value,resource_policy.DEFAULT) if profile==MAXIMUM_PROFILE else value
 
 
 def check_markers(value,profile):
     selected(profile)
     source_policy.check_receipt(value,source_policy.EMPTY if profile==PROFILE else source_policy.BACKUP,
                                 source_policy.JSON if profile==PROFILE else source_policy.SEGMENTED)
+    resource_policy.check_receipt(value,resource_policy.DEFAULT if profile==MAXIMUM_PROFILE else resource_policy.SMALL)
 
 
 def command(profile):
@@ -100,9 +109,15 @@ def collect(raw,profile):
         need(name in before['files'],'required-four run missing observations: '+name)
     for name in ('resource-transition-captures','storage-transfer-captures','control-close-captures'):
         need(name+'/index.json' in before['files'],'required-four run missing capture: '+name)
-    if profile==BACKUP_PROFILE:
+    if profile!=PROFILE:
         archive=wire_archive.Archive(raw,bootstrap_source=source_policy.BACKUP)
         archive.read('wire.json');archive.check_unchanged()
+    if profile==MAXIMUM_PROFILE:
+        for name in ('calibration.image','source.image','binding.json',
+                     'source-backup/gse-backup-checkpoint','source-backup/gse-backup-manifest','source-backup/gse-backup-metadata'):
+            need(maximum_native.DIRECTORY+'/'+name in before['files'],'maximum native run missing seed observation')
+        _,binding=maximum_native.captures.json_file(raw/maximum_native.DIRECTORY/'binding.json')
+        maximum_native.check_binding(binding)
     need(original_inventory(raw,profile)==before,'required-four run changed during collection')
     return marked(dict(schema=SCHEMA,status='PARTIAL',profile=profile,collectionComplete=True,
                 observedResourcesQualified=False,combinedResourcesQualified=False,phase3Complete=False,inventory=before),profile)
@@ -125,6 +140,10 @@ def capture(output,maven,profile,source_from=None):
     receipt=marked(dict(schema=SCHEMA,profile=profile,status='RUNNING',executionStatus='NOT_RUN',collectionComplete=False,
                  observedResourcesQualified=False,combinedResourcesQualified=False,phase3Complete=False,retries=0),profile)
     try:
+        if profile==MAXIMUM_PROFILE:
+            from .maximum_transition_capacity import check as capacity
+            h.save(output/'capacity.json',capacity(output))
+            receipt['capacitySha256']=h.digest((output/'capacity.json').read_bytes())
         work=output/'workspace';source=h.source_copy(h.ROOT,work) if source_from is None else h.recorded_source(source_from,work)
         h.save(output/'source.json',source);reader=reader_manifest()
         need(all(source['files'].get(k)==v for k,v in reader['files'].items()),'required-four run reader belongs to source')
@@ -165,6 +184,10 @@ def member(path,profile,pins):
          all(receipt.get(k) is False for k in ('observedResourcesQualified','combinedResourcesQualified','phase3Complete')) and
          type(receipt.get('retries')) is int and receipt['retries']==0,'required-four admission successful unretried producer')
     check_markers(receipt,profile)
+    if profile==MAXIMUM_PROFILE:
+        from .maximum_transition_capacity import validate as capacity_receipt
+        capacity_receipt(read(path/'capacity.json'))
+        need(receipt.get('capacitySha256')==h.digest((path/'capacity.json').read_bytes()),'maximum native producer capacity binding')
     for field,file in (('execution','execution.json'),('collectionExecution','collection-execution.json')):
         value=receipt.get(field)
         need(type(value) is dict and type(value.get('exit')) is int and value['exit']==0 and
@@ -199,15 +222,23 @@ def member(path,profile,pins):
 def check_result(value,profile):
     selected(profile)
     if profile==PROFILE:gate.check_result(value)
+    elif profile==MAXIMUM_PROFILE:maximum_native.check_result(value)
     else:gate.check_backup_result(value,wire_layout=source_policy.SEGMENTED)
 
 
 def qualify(path,profile,pins):
+    selected(profile);environment={}
+    if profile==MAXIMUM_PROFILE:
+        from .maximum_transition_capacity import check as capacity
+        environment['verificationCapacity']=capacity(path,'verify')
     before=member(path,profile,pins);progress=lambda row:print(json.dumps(row,sort_keys=True),file=sys.stderr,flush=True)
-    result=gate.qualify(before['raw'],progress) if profile==PROFILE else gate.qualify_backup(before['raw'],progress,wire_layout=source_policy.SEGMENTED)
+    result=(gate.qualify(before['raw'],progress) if profile==PROFILE else maximum_native.qualify(before['raw'],progress)
+            if profile==MAXIMUM_PROFILE else gate.qualify_backup(before['raw'],progress,wire_layout=source_policy.SEGMENTED))
     check_result(result,profile)
     need(member(path,profile,pins)==before,'required-four admission changed during replay');check_pins(pins)
-    return marked(dict(schema=SCHEMA,status='PASS',scope='required-four-observed-ownership' if profile==PROFILE else 'required-four-backup-observed-ownership',profile=profile,**pins,
+    scope=('required-four-observed-ownership' if profile==PROFILE else 'maximum-native-required-four-observed-ownership'
+           if profile==MAXIMUM_PROFILE else 'required-four-backup-observed-ownership')
+    return marked(dict(schema=SCHEMA,status='PASS',scope=scope,profile=profile,**pins,**environment,
                 producerReceiptSha256=before['producerReceiptSha256'],rawInventorySha256=h.digest(h.snapshot.f.canonical(before['inventory'])),
                 originalFirst=True,originalPreserved=True,observedResourcesQualified=True,combinedResourcesQualified=False,phase3Complete=False,qualification=result),profile)
 
@@ -225,7 +256,7 @@ def verify(output,producer,profile,pins):
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__);sub=parser.add_subparsers(dest='action',required=True)
     for action in ('capture','collect','verify'):
-        p=sub.add_parser(action);p.add_argument('output');p.add_argument('--profile',choices=(PROFILE,BACKUP_PROFILE),required=True)
+        p=sub.add_parser(action);p.add_argument('output');p.add_argument('--profile',choices=(PROFILE,BACKUP_PROFILE,MAXIMUM_PROFILE),required=True)
         if action=='capture':p.add_argument('--maven',default='mvn');p.add_argument('--source-from')
         elif action=='collect':p.add_argument('--raw',required=True)
         else:p.add_argument('--producer',required=True);p.add_argument('--pins',required=True)

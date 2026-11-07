@@ -17,6 +17,7 @@ import static io.github.patricklfdm.generalsearch.replication.V53AuxiliaryWire.H
  * native checkpoint pulls and the unchanged future-retention quorum. */
 class V53JoiningIntentExportTest {
     @TempDir Path temp;
+    private Path lastOriginal;
     @FunctionalInterface interface SeedMaintenance {
         void run(V53NativeDispatchTest.Network network,List<MembershipFloor.Copy> copies,
                 MembershipGrantJournal joining,MembershipLearnerPlan plan,MembershipResources resources,
@@ -190,13 +191,14 @@ class V53JoiningIntentExportTest {
     void requiredFourFromVerifiedBackup(MembershipBootstrapRequest<Integer,Doc> request,V53WireArchive.Layout layout)throws Exception {
         requiredFourFromVerifiedBackup(request,layout,V53NativeResourceProfile.SMALL_FIXTURE);
     }
-    void requiredFourFromVerifiedBackup(MembershipBootstrapRequest<Integer,Doc> request,V53WireArchive.Layout layout,
+    Path requiredFourFromVerifiedBackup(MembershipBootstrapRequest<Integer,Doc> request,V53WireArchive.Layout layout,
             V53NativeResourceProfile resourceProfile)throws Exception {
         assertEquals(MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP,request.source());
         assertEquals(5,request.targets().size());
         assertTrue(System.getProperty("v53.joining.sourceFault","").isEmpty());
         assertNotNull(resourceProfile);resourceProfile.check(request.source(),layout);
         nativeJoining(true,true,true,true,true,true,true,true,true,V53JoiningProfile.parse("5-REPLACE-required-four"),false,request,layout,resourceProfile);
+        return Objects.requireNonNull(lastOriginal,"complete native original");
     }
     private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined,boolean maintainJoined,boolean seedJoined,
             boolean initializeJoined,boolean continueJoint,boolean remoteRetention,boolean earlyStartup,V53JoiningProfile profile,boolean prefixOnly,
@@ -235,6 +237,7 @@ class V53JoiningIntentExportTest {
         try(var n=bootstrapRequest==null?network.new Network(profile.size(),helper.controlBounds(),lifetime,preparation,true):
                 network.new Network(bootstrapRequest,helper.controlBounds(),lifetime,preparation,true,false,layout,resourceProfile);
             var round=helper.driver(n,MembershipRoundDriver.Events.NONE,lifetime)) {
+            lastOriginal=n.f.raw;
             // Preserve original attempts and receives for full causal replay.
             // Older fixture families retain their existing trace vocabulary.
             n.observeRequests=earlyStartup || prefixOnly || initializationProcess!=null;
