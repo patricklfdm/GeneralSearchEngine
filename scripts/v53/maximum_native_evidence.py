@@ -5,11 +5,13 @@ SLA, whole-reader memory, or final-source cohort qualification.
 """
 from pathlib import Path
 import re
+from uuid import UUID
 from . import bootstrap_replay_contract as source_policy
 from . import maximum_application_evidence as maximum
 from . import native_resource_policy as resources
 from . import required_four_resources as complete
 from . import joining_grant_captures as captures
+from . import bootstrap_plan_evidence as plans
 
 need=maximum.e.need
 DIRECTORY='maximum-native-seed'
@@ -18,19 +20,24 @@ PROFILE='maximum-application-required-four-backup-segmented'
 SOURCE_OPTIONS=dict(bootstrap_source=source_policy.BACKUP,wire_layout=source_policy.SEGMENTED)
 
 
-def binding(digest,extra):
+def binding(digest,extra,bootstrap_history,bootstrap_digest):
     need(type(digest) is str and re.fullmatch('[0-9a-f]{64}',digest) and
          type(extra) is int and 0<extra<=65531,'maximum native seed identity')
-    return dict(schema='gse-v53-maximum-native-seed-v1',status='PARTIAL',
+    need(type(bootstrap_history) is str and re.fullmatch(r'[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}',bootstrap_history) and
+         UUID(bootstrap_history).int!=0 and bootstrap_history!=maximum.HISTORY and
+         type(bootstrap_digest) is str and re.fullmatch('[0-9a-f]{64}',bootstrap_digest) and bootstrap_digest!=digest,
+         'maximum native new bootstrap history')
+    return dict(schema='gse-v53-maximum-native-seed-v2',status='PARTIAL',
                 bootstrapSource=source_policy.BACKUP,wireLayout=source_policy.SEGMENTED,
                 resourceProfile=resources.DEFAULT,stagingLimit=resources.LIMITS[resources.DEFAULT],
                 applicationBytes=maximum.NATIVE_MAXIMUM,applicationSha256=digest,
-                history=maximum.HISTORY,applicationSequence=41,extra=extra,phase3Complete=False)
+                history=maximum.HISTORY,applicationSequence=41,extra=extra,phase3Complete=False,
+                bootstrapHistory=bootstrap_history,bootstrapApplicationSha256=bootstrap_digest)
 
 
 def check_binding(value):
     need(type(value) is dict,'maximum native exact seed binding')
-    expected=binding(value.get('applicationSha256'),value.get('extra'))
+    expected=binding(value.get('applicationSha256'),value.get('extra'),value.get('bootstrapHistory'),value.get('bootstrapApplicationSha256'))
     need(value==expected and value['phase3Complete'] is False and
          all(type(value[k]) is int for k in ('stagingLimit','applicationBytes','applicationSequence','extra')),
          'maximum native exact seed binding')
@@ -41,10 +48,20 @@ def seed(root):
     maximum.selection.layout(directory,{'calibration.image','source.image','source-backup','binding.json'},'maximum native seed layout')
     _,value=captures.json_file(directory/'binding.json')
     image,extra=maximum.source(directory)
-    expected=binding(maximum.e.digest(image),extra);check_binding(value)
-    need(len(image)==maximum.NATIVE_MAXIMUM and value==expected,'maximum native exact seed binding')
-    need(maximum.t.plans.read(root/'original-application.image',maximum.MAXIMUM)==image,
-         'maximum native bootstrap image differs from source')
+    check_binding(value)
+    need(len(image)==maximum.NATIVE_MAXIMUM and value['applicationSha256']==maximum.e.digest(image) and
+         value['extra']==extra,'maximum native exact seed binding')
+    bootstrapped=plans.read(root/'original-application.image',maximum.MAXIMUM)
+    plan=plans.decode(plans.read(root/'original-plan.gsbp',2*maximum.e.MIB),bootstrapped,
+                      size=5,source=source_policy.BACKUP,details=True)
+    history=plan['root']['historyId']
+    need(plan['root']['baseSequence']==41,'maximum native bootstrap application sequence')
+    expected=binding(maximum.e.digest(image),extra,history,maximum.e.digest(bootstrapped))
+    need(len(image)==len(bootstrapped)==maximum.NATIVE_MAXIMUM and value==expected,'maximum native exact seed binding')
+    maximum.application(bootstrapped,history,41,maximum.documents(extra))
+    original=maximum.c.inventory(directory/'source-backup')
+    inventory=[dict(path=n,kind=1,size=len(v),sha256=maximum.e.digest(v)) for n,v in sorted(original.items())]
+    need(plan['plan']['descriptor']['sourceInventory']==inventory,'maximum native original source inventory')
     return expected
 
 

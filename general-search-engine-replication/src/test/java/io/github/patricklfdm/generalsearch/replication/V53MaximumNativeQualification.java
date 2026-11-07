@@ -10,6 +10,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.io.TempDirFactory;
 import static org.junit.jupiter.api.Assertions.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
+import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*;
 
 /** Explicit long qualification, excluded from the ordinary *Test discovery.
  * Use only the capacity-admitted execution entry; this producer is not admission. */
@@ -17,6 +18,24 @@ class V53MaximumNativeQualification {
     @TempDir(factory=WorkspaceTemporaryDirectory.class,cleanup=CleanupMode.ON_SUCCESS) Path temp;
     static final String SEED="maximum-native-seed";
     static void checkConfiguration(){V53BackupJoiningQualification.checkConfiguration();}
+
+    /** Bootstrap preserves application content, but allocates a new history. */
+    static Map<String,Object> reboundImage(Path raw,byte[] sourceImage,UUID sourceHistory,Path scratch)throws Exception {
+        byte[] image=Files.readAllBytes(raw.resolve("original-application.image"));
+        var plan=MembershipBootstrapPlanData.decode(Files.readAllBytes(raw.resolve("original-plan.gsbp")),image);
+        assertEquals(MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP.name(),plan.seed.descriptor().get("source"));
+        assertNotEquals(sourceHistory,plan.seed.root.historyId());
+        Files.createDirectories(scratch);var config=builder().configuration();var core=storage(scratch.resolve("core-anchor"),2);
+        var imported=MembershipApplicationImage.read(config,core,sourceImage,scratch.resolve("imported"));
+        var bootstrapped=MembershipApplicationImage.read(config,core,image,scratch.resolve("bootstrapped"));
+        assertEquals(sourceHistory,imported.history());assertEquals(plan.seed.root.historyId(),bootstrapped.history());
+        assertEquals(plan.seed.sequence,bootstrapped.sequence());
+        assertEquals(imported.sequence(),bootstrapped.sequence());assertEquals(imported.documents(),bootstrapped.documents());
+        assertEquals(imported.indexes().stream().map(ReplicaApplication::descriptor).toList(),
+                bootstrapped.indexes().stream().map(ReplicaApplication::descriptor).toList());
+        assertEquals(sourceImage.length,image.length);assertFalse(Arrays.equals(sourceImage,image));
+        return Map.of("bootstrapHistory",bootstrapped.history().toString(),"bootstrapApplicationSha256",hash(image));
+    }
 
     /** Keep live replica and bootstrap storage on the capacity-admitted volume.
      * Failed private work remains available alongside the original observations. */
@@ -44,9 +63,9 @@ class V53MaximumNativeQualification {
         Path raw=history.requiredFourFromVerifiedBackup(request,V53WireArchive.Layout.SEGMENTED_BACKUP,
                 V53NativeResourceProfile.DEFAULT_SNAPSHOT_STAGING);
         assertEquals(original,V53ReplayFilesTest.files(seed.source()));
-        assertArrayEquals(seed.image(),Files.readAllBytes(raw.resolve("original-application.image")));
+        var rebound=reboundImage(raw,seed.image(),V53MaximumApplicationTest.HISTORY,temp.resolve("seed-inspection"));
         var binding=new TreeMap<String,Object>();
-        binding.put("schema","gse-v53-maximum-native-seed-v1");binding.put("status","PARTIAL");
+        binding.put("schema","gse-v53-maximum-native-seed-v2");binding.put("status","PARTIAL");binding.putAll(rebound);
         binding.put("bootstrapSource",request.source().name());binding.put("wireLayout",V53WireArchive.Layout.SEGMENTED_BACKUP.name());
         binding.put("resourceProfile",V53NativeResourceProfile.DEFAULT_SNAPSHOT_STAGING.name());
         binding.put("stagingLimit",V53NativeResourceProfile.DEFAULT_SNAPSHOT_STAGING.stagingBytes);

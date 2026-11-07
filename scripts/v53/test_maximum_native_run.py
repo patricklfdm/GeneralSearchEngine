@@ -20,7 +20,7 @@ def capacity_record(stage='execute'):
 
 def maximum_result():
     return dict(schema=m.maximum_native.SCHEMA,status='PASS',profile=m.MAXIMUM_PROFILE,
-                seed=m.maximum_native.binding('a'*64,42),resources=fixture.resources(),originalFirst=True,originalPreserved=True,
+                seed=m.maximum_native.binding('a'*64,42,'00000000-0000-0000-0000-000000000001','b'*64),resources=fixture.resources(),originalFirst=True,originalPreserved=True,
                 maximumNativeHistoryQualified=True,combinedResourcesQualified=False,wholeReaderMemoryQualified=False,
                 finalSourceCohortQualified=False,phase3Complete=False)
 
@@ -71,7 +71,7 @@ class MaximumNativeRunTest(unittest.TestCase):
         seed=raw/m.maximum_native.DIRECTORY;(seed/'source-backup').mkdir(parents=True)
         for name in ('calibration.image','source.image','source-backup/gse-backup-checkpoint','source-backup/gse-backup-manifest','source-backup/gse-backup-metadata'):
             (seed/name).write_bytes(b'synthetic, not maximum native evidence')
-        (seed/'binding.json').write_bytes(m.h.snapshot.f.canonical(m.maximum_native.binding('a'*64,42)))
+        (seed/'binding.json').write_bytes(m.h.snapshot.f.canonical(m.maximum_native.binding('a'*64,42,'00000000-0000-0000-0000-000000000001','b'*64)))
         report=work/m.h.MODULE/'target/surefire-reports/TEST-original.xml';tree=ET.parse(report);suite=tree.getroot()
         suite.set('name',m.PACKAGE+m.MAXIMUM_CLASS);suite.find('testcase').set('classname',m.PACKAGE+m.MAXIMUM_CLASS)
         suite.find('testcase').set('name',m.MAXIMUM_METHOD);tree.write(report)

@@ -35,7 +35,14 @@ It requires every seed member but does not claim semantic acceptance from file
 presence or producer receipts.
 
 Independent replay first checks the real calibration, source backup, typed
-maximum image and exact binding to `original-application.image`. The seed bytes
+maximum image and the new bootstrap history in `original-plan.gsbp`. Bootstrap
+allocates a fresh history; the imported and bootstrapped images therefore have
+different hashes, while their document bytes, indexes, sequence and exact maximum
+length remain equal. The v2 seed binding records both histories and both hashes.
+The reader derives the new identity from the original plan, independently checks
+the complete typed image under that identity, and matches the plan's source
+inventory to every retained imported-backup member. A producer-declared new
+history alone cannot authorize different content or a different source. The seed bytes
 are included in the same 128 GiB whole-original inventory. Replay then requires
 the complete [default-staging resource gate](PHASE_3_NATIVE_STAGING.md), including
 all 150 exact negative outcomes, and rechecks the seed and original inventories.
@@ -75,6 +82,17 @@ the small-backup profile nor the synchronous maximum-storage component is
 replaced by this development entry.
 
 ## Development validation and remaining work
+
+The [seed-rebinding correction](phase3-evidence/maximum-seed-rebinding-development.json)
+retains a concrete failure of the earlier byte-equality assumption. The already
+retained maximum-storage original has two 67,108,832-byte images with different
+histories/hashes and identical documents at sequence 41. The old reader rejects
+this legitimate pair; the corrected seed reader accepts it with its original
+plan/source binding. The historical producer files remain unchanged. A real
+small-bootstrap Java regression also checks fresh-history allocation and rejects
+wrong source history, documents, sequence and original-plan/image association.
+These results qualify the binding correction only. They do not execute the full
+maximum native replacement or provide final-source cohort credit.
 
 The [development receipt](phase3-evidence/maximum-native-entry-development.json)
 distinguishes configuration/orchestration tests from physical qualification.

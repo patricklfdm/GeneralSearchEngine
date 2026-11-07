@@ -1,0 +1,218 @@
+{
+  "schema": "gse-v53-maximum-seed-rebinding-development-v1",
+  "status": "PARTIAL",
+  "developmentResult": "PASS",
+  "baseCommit": "dea4d89c47a90ecb0bf15511317f5054e66d0d0c",
+  "code": [
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53MaximumNativeQualification.java",
+      "bytes": 5917,
+      "sha256": "95583f74648d9bb0484f71e87f13ffc5f77399f32ba3beb8fbcb226b196ae2a7"
+    },
+    {
+      "path": "scripts/v53/maximum_native_evidence.py",
+      "bytes": 5657,
+      "sha256": "f360f5d3dcf34fab11b0a9b076c44bf5602dc809520db812ffe81b1652ec7c3b"
+    },
+    {
+      "path": "scripts/v53/test_maximum_native_evidence.py",
+      "bytes": 8184,
+      "sha256": "b7ae95a8c9100d4bbce35aeeb6c2a0a87f84a3de8ef20f177b4a196adca54adc"
+    },
+    {
+      "path": "scripts/v53/test_maximum_native_run.py",
+      "bytes": 9295,
+      "sha256": "d799dd35ac88b270dde756f32d33bb1b34acbad913a8511138041d67f7f95caa"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapImageBindingTest.java",
+      "bytes": 3592,
+      "sha256": "7e2f571594091fb695d88ade8a48b298ee64002fe70dafc9f5b9e9597364d65b"
+    }
+  ],
+  "javaTests": [
+    {
+      "name": "io.github.patricklfdm.generalsearch.replication.V53BootstrapImageBindingTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "3.703"
+    },
+    {
+      "name": "io.github.patricklfdm.generalsearch.replication.V53MaximumNativeEntryTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.011"
+    },
+    {
+      "name": "io.github.patricklfdm.generalsearch.replication.V53NativeResourceProfileTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "6.893"
+    }
+  ],
+  "pythonTests": 63,
+  "optimizedPythonTests": 63,
+  "reproduced": {
+    "status": "REPRODUCED",
+    "scope": "retained-maximum-storage-bootstrap-only",
+    "original": "/mnt/d/GSE-Archives/GeneralSearchEngine/v53-maximum-run4-20261025/producer/run-dee4ae41-94a7-40c9-b7a7-2ce2e5fdcf1c",
+    "sourceHistory": "00000000-0000-0008-0000-000000000280",
+    "bootstrapHistory": "df104a26-7a99-4ca5-8d56-a4aba5f09ea0",
+    "sourceSha256": "1b872918ced4c94242ee3d935bd71d3d00b45e5dea0d476cf79f26477641042c",
+    "bootstrapSha256": "31f3883b3d4949a89c5340d6da092bd37ae2064bed303fec37e264578a40e967",
+    "sourceBytes": 67108832,
+    "bootstrapBytes": 67108832,
+    "extra": 51350,
+    "oldByteEquality": false,
+    "documentsEqual": true,
+    "sequence": 41,
+    "elapsedSeconds": 16.46,
+    "maximumNativeHistoryQualified": false,
+    "phase3Complete": false
+  },
+  "currentReader": {
+    "status": "PASS",
+    "scope": "retained-maximum-storage-seed-binding-only",
+    "elapsedSeconds": 16.091,
+    "seed": {
+      "schema": "gse-v53-maximum-native-seed-v2",
+      "status": "PARTIAL",
+      "bootstrapSource": "VERIFIED_DURABLE_BACKUP",
+      "wireLayout": "SEGMENTED_BACKUP",
+      "resourceProfile": "DEFAULT_SNAPSHOT_STAGING",
+      "stagingLimit": 17179869184,
+      "applicationBytes": 67108832,
+      "applicationSha256": "1b872918ced4c94242ee3d935bd71d3d00b45e5dea0d476cf79f26477641042c",
+      "history": "00000000-0000-0008-0000-000000000280",
+      "applicationSequence": 41,
+      "extra": 51350,
+      "phase3Complete": false,
+      "bootstrapHistory": "df104a26-7a99-4ca5-8d56-a4aba5f09ea0",
+      "bootstrapApplicationSha256": "31f3883b3d4949a89c5340d6da092bd37ae2064bed303fec37e264578a40e967"
+    },
+    "originalPreserved": true,
+    "maximumNativeHistoryQualified": false,
+    "phase3Complete": false
+  },
+  "oldReaderRejection": {
+    "type": "ValueError",
+    "reason": "maximum native bootstrap image differs from source"
+  },
+  "smallBootstrapOriginal": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-bootstrap-rebinding/run-ae74e657-f663-4265-8688-34e0f2d238d8",
+  "productionRuntimeChanged": false,
+  "workflowChanged": false,
+  "resourceLimitsChanged": false,
+  "maximumNativeHistoryQualified": false,
+  "combinedResourcesQualified": false,
+  "finalSourceQualified": false,
+  "phase3Complete": false,
+  "artifacts": [
+    {
+      "path": "target/v53-maximum-seed-rebinding/before.json",
+      "bytes": 755,
+      "sha256": "36de470d749a31ebe9ec49ebfc86a74bf34ebeb46173f89aa6f16d8b3e937fe1"
+    },
+    {
+      "path": "target/v53-maximum-seed-rebinding/before-reader.py",
+      "bytes": 4203,
+      "sha256": "7c62e9962e727bc42d38e339e63d3736e1fd4fb7c9f7bfc286fa291f1ae242f1"
+    },
+    {
+      "path": "target/v53-maximum-seed-rebinding/before-producer.java",
+      "bytes": 4136,
+      "sha256": "69609a01720441ecc67a12b7fe9d4a6df712ce937f576e50e110c5926b69f660"
+    },
+    {
+      "path": "target/v53-maximum-seed-rebinding/replay.py",
+      "bytes": 2506,
+      "sha256": "d8e00715ca8122223c09e98b8833b208fe2139886ee52e8e4439bb7b4fd985e0"
+    },
+    {
+      "path": "target/v53-maximum-seed-rebinding/replay.json",
+      "bytes": 3156,
+      "sha256": "95cdb16d759b7c309f0e86d4bfaf340e48f6ea71744b19953e5a10c8e467e4dc"
+    },
+    {
+      "path": "target/v53-maximum-seed-rebinding/replay_final.py",
+      "bytes": 840,
+      "sha256": "277a3ab0e72b3fc4ebc709ff6ad019fb3fe606ac058005343a7e54e11b5bfe2f"
+    },
+    {
+      "path": "target/v53-maximum-seed-rebinding/replay-final.json",
+      "bytes": 895,
+      "sha256": "d87ffbdf28091670d88e95bb9c21c2b5dceb6247daec70f99a8d00f4a7099525"
+    },
+    {
+      "path": "target/v53-maximum-seed-rebinding/binding-v1.json",
+      "bytes": 436,
+      "sha256": "97ed96861e57f43157615922c978a83fc93df56007777d60396c022e8221d212"
+    },
+    {
+      "path": "target/v53-maximum-seed-rebinding/binding-v2.json",
+      "bytes": 590,
+      "sha256": "7e33df5eb32d935d5f194594c6d25de5a7dd780a13b7c8eb48a981a983ef19a4"
+    },
+    {
+      "path": "target/v53-maximum-seed-rebinding/java.log",
+      "bytes": 5094,
+      "sha256": "f95d5699a1f02e0c55b119b6d55e52f1b87bd6539fbd177d9a669fa87f9b9b2d"
+    },
+    {
+      "path": "target/v53-maximum-seed-rebinding/java-fixed.log",
+      "bytes": 4928,
+      "sha256": "ce3bf2c61117a7649c465599efd1d0ba304e6b4df47247ea5703d70be302ea65"
+    },
+    {
+      "path": "target/v53-maximum-seed-rebinding/java-final.log",
+      "bytes": 4928,
+      "sha256": "37ebf81a8babed41eca5490fd36eed1ba49bacf39703d66c9804e358dd3b7fd7"
+    },
+    {
+      "path": "target/v53-maximum-seed-rebinding/python-final.log",
+      "bytes": 162,
+      "sha256": "e93dfae614dc78beb6de4a9cf371846ff8396c3c31bae19ee4f6ccf268e13fe6"
+    },
+    {
+      "path": "target/v53-maximum-seed-rebinding/python-optimized.log",
+      "bytes": 162,
+      "sha256": "3bb2880f7e52c89f6f76f6a5cf562e6ace91f0aaa252cd7595a0e7c5a1e1088b"
+    },
+    {
+      "path": "target/v53-maximum-seed-rebinding/small-bootstrap-inventory.json",
+      "bytes": 6881,
+      "sha256": "57d6e69922b6f38264aeab88d34a14465b20854b23cc906e32c1fc8004cf2759"
+    },
+    {
+      "path": "target/v53-maximum-seed-rebinding/V53BootstrapImageBindingTest.xml",
+      "bytes": 6912,
+      "sha256": "354ead446d6040b1508876f97b0aed03cfcfb7a7894f0623a7a5886e96c8bb52"
+    },
+    {
+      "path": "target/v53-maximum-seed-rebinding/V53MaximumNativeEntryTest.xml",
+      "bytes": 7000,
+      "sha256": "631314a93e59ca85f152159a657294c48a18043bda7be56bff0a42d8060cc3b9"
+    },
+    {
+      "path": "target/v53-maximum-seed-rebinding/V53NativeResourceProfileTest.xml",
+      "bytes": 7595,
+      "sha256": "264453046630f4a0fb5100cc4b21da60cb3d6dfedb6d3b5591c563354f2ed6f9"
+    },
+    {
+      "path": "target/v53-maximum-seed-rebinding/contracts.log",
+      "bytes": 251,
+      "sha256": "6b13983f16f863d98c2393d59b896898bdbb86f9c7799f988c85a6f5acc9ca0c"
+    },
+    {
+      "path": "target/v53-maximum-seed-rebinding/contract-final.log",
+      "bytes": 167,
+      "sha256": "e41a8bf28bd79c7610e41dc40517c71c117b50bf05509072230bc8db2d2eedc2"
+    }
+  ],
+  "planAndContractTests": 19
+}
