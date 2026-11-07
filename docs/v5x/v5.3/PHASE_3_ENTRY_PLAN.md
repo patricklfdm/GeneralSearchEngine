@@ -98,6 +98,12 @@ now preserves those external observations across both physical readers and
 checks common preparation pins before replay. Actual large-host execution and
 all five closure gaps remain pending.
 
+The [native activation receive lifetime regressions](PHASE_3_ACTIVATION_RECEIVE_LIFETIME.md)
+check selected-source cleanup before successful activation and across a complete
+REMOVE round. A cleanup obstruction retains the original files/charges and
+cannot return an activation result. These controller checks do not qualify
+simultaneous maximum resources or change the five closure gaps below.
+
 | Gap | Existing prerequisite | Evidence still required |
 | --- | --- | --- |
 | component-cohorts | Twelve source-bound catalogues and their independent readers | Complete current-source original histories, exact negatives and undeleted failures |

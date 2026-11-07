@@ -72,6 +72,12 @@ not owned by the native activation, maintenance or learner controllers.
 
 The next acceptance work must establish actual permitted ownership overlap:
 
+The [activation receive lifetime regressions](PHASE_3_ACTIVATION_RECEIVE_LIFETIME.md)
+now directly exercise successful drain and fail-closed cleanup on the original
+activating pool, plus the three handoffs of one native REMOVE completion. They
+resolve that scoped controller-boundary question; they do not establish maximum
+byte pressure, every concurrent endpoint lifetime or required-four completion.
+
 1. Follow the native controllers' receiving lifetimes. The activation driver's
    round closes its selected receiving tasks after installation. Generation
    maintenance borrows matching images, then drains a received copy only after

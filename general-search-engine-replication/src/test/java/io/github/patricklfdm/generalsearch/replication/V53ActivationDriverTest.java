@@ -27,6 +27,7 @@ class V53ActivationDriverTest {
         final List<Decoded> requests=Collections.synchronizedList(new ArrayList<>());
         final List<Long> deadlines=Collections.synchronizedList(new ArrayList<>());
         final Map<String,List<String>> events=new TreeMap<>();
+        final AtomicReference<java.util.function.Consumer<String>> localStorageCut=new AtomicReference<>(event->{});
         final ReplicationBounds bound;
         final LongSupplier clock;
         final boolean tcp;
@@ -40,7 +41,10 @@ class V53ActivationDriverTest {
             for(int i=0;i<size;i++) {
                 var target=group.fixture.request.targets().get(i);var budget=pools.get();budgets.add(budget);
                 var steps=Collections.synchronizedList(new ArrayList<String>());events.put(target.identity().nodeId().value(),steps);
-                owners.add(MembershipGrantJournal.openBootstrapped(target.replicaDirectory(),target.materialization().directory(),group.fixture.result.root(),target.identity(),budget,V53ActivationEndpointTest.verifier(),MembershipGrantJournal.MAXIMUM,steps::add));
+                int ordinal=i;
+                owners.add(MembershipGrantJournal.openBootstrapped(target.replicaDirectory(),target.materialization().directory(),group.fixture.result.root(),target.identity(),budget,V53ActivationEndpointTest.verifier(),MembershipGrantJournal.MAXIMUM,event->{
+                    steps.add(event);if(ordinal==0)localStorageCut.get().accept(event);
+                }));
                 transports.add(new AtomicReference<>());
             }
             for(int i=0;i<size;i++) {

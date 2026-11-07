@@ -1,0 +1,198 @@
+{
+  "schema": "gse-v53-native-receive-lifetime-development-v1",
+  "status": "PARTIAL",
+  "developmentResult": "PASS",
+  "baseCommit": "c33aba8f9b0fef2577675182b7efcf2e8fa96200",
+  "code": [
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationDriverTest.java",
+      "bytes": 28655,
+      "sha256": "40aada8dbe56d896d48977ad88ea2e6a057a47e40ada0810216d335c072de128"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationReceiveLifetimeTest.java",
+      "bytes": 10062,
+      "sha256": "c69decadfe5776a94b60b62369a25ef682e23eb63a0bbcf2d6a4777fc43d98af"
+    }
+  ],
+  "finalJava": [
+    {
+      "name": "V53ActivationReceiveLifetimeTest",
+      "tests": 5,
+      "seconds": 367.279,
+      "report": {
+        "path": "target/v53-native-receive-lifetime/final-V53ActivationReceiveLifetimeTest.xml",
+        "bytes": 8120,
+        "sha256": "838faea130615653960bc284c60d9621641ff01188132b17c9b93973822fc136"
+      }
+    },
+    {
+      "name": "V53ActivationDriverTest",
+      "tests": 3,
+      "seconds": 30.849,
+      "report": {
+        "path": "target/v53-native-receive-lifetime/final-V53ActivationDriverTest.xml",
+        "bytes": 7151,
+        "sha256": "8245412c65c8d0b9ef954bb41bce15bbf843b87e60a8778e64ed98f2714fa7f1"
+      }
+    }
+  ],
+  "evidence": [
+    {
+      "path": "target/v53-native-receive-lifetime/initial-java.log",
+      "bytes": 7173,
+      "sha256": "d10f5f398de68dae1a3360942b5b450e4aee92e450796d1fe85a1227fe3cced9"
+    },
+    {
+      "path": "target/v53-native-receive-lifetime/lifecycle-java.log",
+      "bytes": 4749,
+      "sha256": "913fd69466dbf0c8b11ebb98c6576a5f60dea6bda9b2553fe003f312934b8f67"
+    },
+    {
+      "path": "target/v53-native-receive-lifetime/lifecycle-java.xml",
+      "bytes": 7929,
+      "sha256": "f472585bce929174ac224cfa987a649d85fc8d1ca3aaadf19785e64c641dacee"
+    },
+    {
+      "path": "target/v53-native-receive-lifetime/final-java.log",
+      "bytes": 4993,
+      "sha256": "39e6d8370ae196a456a4d3c3c7868efd9217cf4bffaae546206e8666b086988f"
+    },
+    {
+      "path": "target/v53-native-receive-lifetime/physical-replay.log",
+      "bytes": 1311,
+      "sha256": "90c0e1c7260b4dd7abecefb266a64eea4a43b6f8a54ab58edcad0a1b464b57a7"
+    },
+    {
+      "path": "target/v53-native-receive-lifetime/current-physical-replay.log",
+      "bytes": 319,
+      "sha256": "ffc5cd9262183864e12b3709bf118406ec20dc51cfca223933a4744de0f97398"
+    },
+    {
+      "path": "target/v53-native-receive-lifetime/current-physical-replay.json",
+      "bytes": 485,
+      "sha256": "8c54036f93e8126730afe7f0571a75e8caecf80d80a53b89e53c95d02e2f90f9"
+    },
+    {
+      "path": "target/v53-native-receive-lifetime/final-physical-replay.log",
+      "bytes": 377,
+      "sha256": "3ed9b184643ad267210ec45e6e362e9325c01bedf129739873f07c3f289e9321"
+    },
+    {
+      "path": "target/v53-native-receive-lifetime/final-physical-replay.json",
+      "bytes": 555,
+      "sha256": "8138c4257ff4d906a43632cb6d41110bdf4c1eeecd06a7368e932bf55c0fa5b0"
+    },
+    {
+      "path": "target/v53-native-receive-lifetime/drain-mutant.log",
+      "bytes": 225,
+      "sha256": "512993357a142447de3a0ea389d6bd489c93e88e23e0a22099e14bd555941c6f"
+    },
+    {
+      "path": "target/v53-native-receive-lifetime/drain-mutant/result.json",
+      "bytes": 1503,
+      "sha256": "a15b89d9feecaa93d42e4b21c1fabfadb762a048012a03871136ecd24ba105ee"
+    },
+    {
+      "path": "target/v53-native-receive-lifetime/drain-mutant/report.xml",
+      "bytes": 26859,
+      "sha256": "c82cdf7e2406014c266ebc22b37fe76d5b7a0d7f724b5db5f205833bc07ee6db"
+    },
+    {
+      "path": "target/v53-native-receive-lifetime/contracts.log",
+      "bytes": 251,
+      "sha256": "4eee7a5c11c1855a2cb9383422f82d5a1c96ca63455257f947cd4fb26aee0f82"
+    },
+    {
+      "path": "target/v53-native-receive-lifetime/documentation.json",
+      "bytes": 167,
+      "sha256": "2cb6ca9ec1883febd877bc6d529dfac86d3b78979f1ed0a09fdaecc47fb9c958"
+    },
+    {
+      "path": "target/v53-native-receive-lifetime/check-drain-mutant.py",
+      "bytes": 3829,
+      "sha256": "da71bd2f6378310d332e4107025ce83f488f62ee46c9e05c81f7700e64daf718"
+    },
+    {
+      "path": "target/v53-native-receive-lifetime/replay-final.py",
+      "bytes": 562,
+      "sha256": "f7d2ae7b453ebf13eb7f1e3dd316a5fb4376333fdb8c7a4fb56fde450cccaa76"
+    },
+    {
+      "path": "target/v53-native-receive-lifetime/index-evidence.py",
+      "bytes": 4563,
+      "sha256": "548a80b63c374d7a3535292b532cb8b4222e87c334d8dc41f0d8acf4f2e36677"
+    },
+    {
+      "path": "target/v53-native-receive-lifetime/documentation-ready.json",
+      "bytes": 167,
+      "sha256": "e2845b755ddd91857a2a96dfb562a02492fb5728e7948c80b2ee5d25df4d3243"
+    }
+  ],
+  "nativeHistories": [
+    {
+      "root": "general-search-engine-replication/target/v53-native-dispatch/run-ad09c0a6-7c6a-48d1-bc2c-93c56aa57aa4",
+      "inventory": {
+        "path": "target/v53-native-receive-lifetime/lifecycle-java-original-inventory.json",
+        "bytes": 733620,
+        "sha256": "144ea5efc3ffcca55ec5a5c55ef5d75dbd2d86d6942682845b9f9ed28f3a2243"
+      },
+      "files": 4212,
+      "bytes": 17334779,
+      "originalOutcome": "PASS"
+    },
+    {
+      "root": "general-search-engine-replication/target/v53-native-dispatch/run-cd2c1b95-7407-4868-9436-9ff93c538390",
+      "inventory": {
+        "path": "target/v53-native-receive-lifetime/final-java-original-inventory.json",
+        "bytes": 733620,
+        "sha256": "24fda520453e1d7626d62f5160dcd5c175c135e5dbd3e2a7422db502d92483d5"
+      },
+      "files": 4212,
+      "bytes": 17334800,
+      "originalOutcome": "PASS"
+    }
+  ],
+  "newTests": 5,
+  "relatedExistingTests": 3,
+  "negativeMutationCases": 3,
+  "contractTests": 19,
+  "documentation": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 3205,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "priorFailures": [
+    "Initial unit run: one assertion expected IllegalArgumentException after close, while the contract throws IOException. Only the assertion was corrected; log retained.",
+    "Initial native history: PASS, but default historical maintenance replay rejected applied-5. The unchanged original passes the explicit current-maintenance reduction and lifecycle reader. Final fixture declares 4-REMOVE and passes the standard scoped reader."
+  ],
+  "scope": "Real selected receives and cleanup refusal; small EMPTY native REMOVE completion. No fabricated receiver lifetime across rounds.",
+  "productionJavaChanged": false,
+  "resourceLimitsChanged": false,
+  "workflowChanged": false,
+  "maximumHistoryExecuted": false,
+  "combinedResourcesQualified": false,
+  "finalSourceCohortQualified": false,
+  "phase3Complete": false,
+  "paidCloud": false,
+  "remaining": [
+    "Feasible combined byte pressure with actual same-owner physical originals",
+    "Maximum native/queue execution after an acceptance machine is arranged",
+    "Complete current-source cohorts, frozen coverage and final Phase 3 audit"
+  ],
+  "finalDocumentation": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 3206,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  }
+}
