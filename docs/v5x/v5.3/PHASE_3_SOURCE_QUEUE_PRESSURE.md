@@ -93,3 +93,62 @@ python3 -m unittest scripts.v53.test_source_queue_evidence \
 This is a supplementary component entry. Adding it to a final source-bound
 supplementary admission set and executing that set remain separate work; a local
 PASS here must not be substituted for those cohort requirements.
+
+## Source-bound component execution
+
+`scripts.v53.source_queue_run` now provides a separate `capture` / `collect` /
+`verify` boundary for the complete six-session original. `capture` copies source
+into a new workspace, records actual Java/Maven binary identities and the reader
+manifest, and runs exactly one named JUnit method once with offline dependencies.
+It records the compiled classes, exact command and JUnit report, source-bound
+collection subprocess and complete bounded raw inventory. Failure preserves the
+workspace and FAIL receipt; it never substitutes a retry or a shortened case.
+
+The producer and collector return **PARTIAL** with `queuePressureQualified=false`.
+Only the independent verifier checks the explicit source/build/toolchain/reader
+pins, unchanged compiled and original bytes, full physical/queue replay and all
+eight exact negative results. Its success is `scope=source-queue-component-only`;
+`combinedResourcesQualified` and `phase3Complete` remain false. Missing or
+multiple originals, linked parents, altered commands/tools/classes, failed or
+retried tests, counts-only results, mixed source or incomplete negatives reject.
+A qualified component is still not FINAL under combined pressure. The original
+and the later membership transition must remain within their governing history;
+this entry does not splice separate PASS receipts into such evidence.
+
+After dependencies are available locally, use new output directories:
+
+```bash
+python3 -u -m scripts.v53.source_queue_run capture \
+  target/v53-source-queue-admission/producer \
+  --profile source-queue-64mib --maven /absolute/path/to/mvn
+
+python3 -u -m scripts.v53.source_queue_run verify \
+  target/v53-source-queue-admission/qualification \
+  --profile source-queue-64mib \
+  --producer target/v53-source-queue-admission/producer \
+  --pins target/v53-source-queue-admission/producer/pins.json
+```
+
+The existing executor emits a progress heartbeat each minute. Execute verification
+with the recorded reader source; a newer checkout's reader must not stand in for
+that source. Portable replay keeps original recorded paths and rechecks all
+inventories. The [source-bound execution index](phase3-evidence/source-queue-admission.json)
+records local validation separately from final-source admission. No new workflow
+or cloud dispatch is enabled here. The twelve-subset catalogue and its 566 whole
+histories remain unchanged; a future supplementary cohort must explicitly include
+this component with matching final source and execution evidence.
+
+The first immutable local execution passed in **37.254 seconds**, including its
+fresh reactor build; the separate collector passed in **0.515 seconds**. The
+original and packed/unpacked producer both passed verification from their own
+recorded workspaces, with identical receipts and unchanged source, classes and
+raw inventories. The two replays plus packaging took **20.635 seconds**. Twenty
+orchestration/reader tests pass normally and under `python3 -O`; 19 documentation
+checks also pass. The initial synthetic command test incorrectly treated `Retry`
+in the required method name as a retry option; its failing log is retained, and
+the corrected check still rejects actual retry/timeout/skip overrides. No native
+execution was retried.
+
+These local source manifests include development changes on base `30955ba6`.
+They bind the actual immutable bytes but do not attest a clean final Git commit,
+GitHub run/attempt, complete supplementary set or full Phase 3 qualification.

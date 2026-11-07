@@ -1,0 +1,119 @@
+{
+  "baseHead": "30955ba679545cd62eccf450f3d3795786deba12",
+  "collectionSeconds": 0.515,
+  "combinedResourcesQualified": false,
+  "executionSeconds": 37.254,
+  "files": {
+    "target/v53-source-queue-admission/artifact/manifest.json": "7080c296d0569cc02bb1d9b1043201903fa9bd2568fad7f205ae4a6a6c09d2d2",
+    "target/v53-source-queue-admission/document-contract.json": "81c725f1e16203d2cb292acd6b7b846dd48e3f4296201601aef37e62f3c4725f",
+    "target/v53-source-queue-admission/document-tests.log": "31ddb8047f08d63a944f09449291fb920b87974b3045019652f572b2d95173e2",
+    "target/v53-source-queue-admission/original-qualification/receipt.json": "f15c06c239708473a230f8f5cd4c89de00263a26a7a325fe9824526463155fde",
+    "target/v53-source-queue-admission/portable-validation.json": "345f9812f76280149f76468b93cb7b6332d6795fe1201850d0f22ee876303fe1",
+    "target/v53-source-queue-admission/producer/build.json": "836f8f3eb7f01a77d1b980a7ef64d40cf6fc49f2eebb8edfd18c49ebc03e4005",
+    "target/v53-source-queue-admission/producer/collection-execution.json": "fe082c514ae007fb174a0e8a667d670e4a08fc151fac9a9a2cd359001aeff697",
+    "target/v53-source-queue-admission/producer/collection.json": "11ca49b02236a296d58cd385ef5dda2a1bbf4aa49da6c9f29b395c5c65296dc2",
+    "target/v53-source-queue-admission/producer/execution.json": "b1678464293d53c0388a1f0d89202bf841e7328b95619a8480f3b6cccb7f2509",
+    "target/v53-source-queue-admission/producer/pins.json": "2e45f1c51f6931f99aae94a95f70c978d42ba51e6dad3a81b56a796e52759d09",
+    "target/v53-source-queue-admission/producer/reader.json": "6581ccebcd02b84119847bce120737be676a491c938d53e5c1217810f9b2f376",
+    "target/v53-source-queue-admission/producer/receipt.json": "c64645ed8a9fd77e41141ec8e0a448d3e30f0e67e18de8f42bf9eecca93378df",
+    "target/v53-source-queue-admission/producer/source.json": "071b89779985099d4fef17bfa3c04f6936a0fcce036bbf70c87408b0e5996467",
+    "target/v53-source-queue-admission/producer/toolchain.json": "f4ab17b85509e8b08594d8bb7394576d9ff53be8834b4ae2568cb271be11237f",
+    "target/v53-source-queue-admission/relocated-qualification/receipt.json": "f15c06c239708473a230f8f5cd4c89de00263a26a7a325fe9824526463155fde",
+    "target/v53-source-queue-admission/runner-tests-initial.log": "127e89968b35a07a9e76f3eba3275724b35ad075557b2a242fbe4018afb67a81",
+    "target/v53-source-queue-admission/runner-tests-optimized.log": "bce6b1a8730802a1deab4ea715199a09d60d8071cfea64dfc0c8bfba7d5df2e5",
+    "target/v53-source-queue-admission/runner-tests.log": "44a9c9e0fc5534eae092ec2ddee40919c3afad847bada32f91c02c86d359d103"
+  },
+  "finalSourceCohort": false,
+  "junit": {
+    "className": "io.github.patricklfdm.generalsearch.replication.V53SourceQueueQualification",
+    "errors": 0,
+    "failures": 0,
+    "method": "cachedOriginalChunksRefuseSendThenReleaseAndRetry",
+    "retries": 0,
+    "skipped": 0,
+    "tests": 1
+  },
+  "originalUnchanged": true,
+  "phase3Complete": false,
+  "pins": {
+    "buildSha256": "836f8f3eb7f01a77d1b980a7ef64d40cf6fc49f2eebb8edfd18c49ebc03e4005",
+    "readerSha256": "89bd7a7f0f8a80268349727392eb3bf63f8b581bc7967555b55fb798b676e79c",
+    "sourceSha256": "071b89779985099d4fef17bfa3c04f6936a0fcce036bbf70c87408b0e5996467",
+    "toolchainSha256": "dd37e1279c35d47258b78da90fb5f5d94194bad4a96e01e2106944fc5abdf8ad"
+  },
+  "portableSeconds": 20.635,
+  "producerStatus": "PARTIAL",
+  "profile": "source-queue-64mib",
+  "raw": "workspace/general-search-engine-replication/target/v53-source-queue/run-79c775f8-dc31-4a2e-a338-c1863983ef77",
+  "rawBytes": 93474140,
+  "rawFiles": 238,
+  "readerFromRecordedWorkspace": true,
+  "result": {
+    "negatives": [
+      {
+        "case": "missing-event",
+        "reason": "source queue complete events",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-limit",
+        "reason": "source queue frozen limit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-charge",
+        "reason": "source queue checkpoint usage",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-reason",
+        "reason": "source queue classified capacity refusal",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-pressure",
+        "reason": "source queue complete events",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-content",
+        "reason": "source queue original content bytes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-retry",
+        "reason": "source queue delivered original bytes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-response-extent",
+        "reason": "resource transitions derived usage",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "attempts": 49,
+      "capacityRefusals": 1,
+      "combinedResources": false,
+      "maximumQueuedBytes": 61771102,
+      "phase3Complete": false,
+      "queueLimit": 67108864,
+      "recoveredIdenticalRetries": 1,
+      "sessions": 6,
+      "status": "PASS"
+    }
+  },
+  "retainedFailure": {
+    "log": "target/v53-source-queue-admission/runner-tests-initial.log",
+    "reason": "synthetic option guard incorrectly matched Retry in the exact JUnit method name; corrected to inspect options excluding -Dtest"
+  },
+  "schema": "gse-v53-source-queue-admission-development-v1",
+  "sourceBinding": "immutable-development-snapshot-not-hosted-attestation",
+  "status": "COMPONENT_PASS",
+  "validated": {
+    "documentationTests": 19,
+    "localLinks": 3086,
+    "optimizedPythonTests": 20,
+    "pythonTests": 20
+  }
+}
