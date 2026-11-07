@@ -191,6 +191,9 @@ connects the calibrated maximum backup to that complete history and the explicit
 storage and capacity admission are implemented; full native execution and
 whole-reader memory qualification remain pending. It is separate development
 evidence, not a replacement for any frozen supplemental cohort slot.
+Its [dedicated manual transport and fresh-process reader observation](PHASE_3_MAXIMUM_NATIVE_HOSTED.md)
+now preserve exact-attempt originals and child memory diagnostics. Actual large
+native execution and acceptance-environment setup remain pending.
 
 The maximum-image component is a synchronous storage probe. It does not establish
 an admitted learner, full metadata pressure or automatic-runtime peak. The

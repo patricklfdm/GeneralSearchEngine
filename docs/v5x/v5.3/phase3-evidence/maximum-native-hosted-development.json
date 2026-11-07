@@ -1,0 +1,557 @@
+{
+  "allFiveClosureGapsOpen": true,
+  "baseHead": "6d952a9122a351c446f57c7d7db5f215dc936e53",
+  "ciContractTests": {
+    "elapsedSeconds": 80.582,
+    "status": "PASS",
+    "tests": 74
+  },
+  "combinedResourcesQualified": false,
+  "contractCheck": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 3179,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "existingDirectFreeDiskGiB": {
+    "execute": 272,
+    "verify": 144
+  },
+  "failuresRetained": [
+    {
+      "cause": "RUSAGE_SELF peak could inherit parent high-water RSS; replaced by bound post-exec VmHWM",
+      "path": "target/v53-maximum-native-hosted/python-final-corrected.log"
+    },
+    {
+      "cause": "new synthetic fixture setup and expectations corrected",
+      "path": "target/v53-maximum-native-hosted/python-first.log"
+    },
+    {
+      "cause": "development test launcher omitted repository import path; corrected launcher",
+      "path": "target/v53-maximum-native-hosted/python-final.log"
+    }
+  ],
+  "finalSourceCohortQualified": false,
+  "hostedFreeDiskGiB": {
+    "execute": 280,
+    "verifyDownload": 416,
+    "verifyExtract": 288
+  },
+  "logs": [
+    {
+      "bytes": 218,
+      "path": "target/v53-maximum-native-hosted/ci-contracts.log",
+      "sha256": "715e81d9b568e9c3a0fec927b51fee2d1712533fd39b486fb688fba21a44babd"
+    },
+    {
+      "bytes": 167,
+      "path": "target/v53-maximum-native-hosted/contract-final.json",
+      "sha256": "b2c8783dc40acea3c232030fef8f941471795df9fd0907df08dc3d8c398990e1"
+    },
+    {
+      "bytes": 167,
+      "path": "target/v53-maximum-native-hosted/contract.json",
+      "sha256": "b2c8783dc40acea3c232030fef8f941471795df9fd0907df08dc3d8c398990e1"
+    },
+    {
+      "bytes": 3951,
+      "path": "target/v53-maximum-native-hosted/final-python.json",
+      "sha256": "2113be3e0bc892733493ffe6555940220cfc7453c7ea604d5fff2ec0f1f0461d"
+    },
+    {
+      "bytes": 3488,
+      "path": "target/v53-maximum-native-hosted/finalize.py",
+      "sha256": "915452927754da33c39e0225e30cf46370182500e29e701f8586e4ce3cb128d7"
+    },
+    {
+      "bytes": 121,
+      "path": "target/v53-maximum-native-hosted/probe.log",
+      "sha256": "e652605e43b4c707a05325e22e1db42cadc5670f686db46d848a4e754c73cedf"
+    },
+    {
+      "bytes": 3321,
+      "path": "target/v53-maximum-native-hosted/probe.py",
+      "sha256": "8f47692c3f91456062c12bcc7ce48047ba6b4a21eda012fe421e1fa6fdf9a156"
+    },
+    {
+      "bytes": 125,
+      "path": "target/v53-maximum-native-hosted/python-corrected.log",
+      "sha256": "acf750e307df56d580874d07c375bee273ddedf0fcefdbf893a34f38a26d3e36"
+    },
+    {
+      "bytes": 3791,
+      "path": "target/v53-maximum-native-hosted/python-final-corrected.log",
+      "sha256": "b70f17212e7ed24a99b2ee492e428df6c38020eb41a9a0daa361bd3a5779ecad"
+    },
+    {
+      "bytes": 3157,
+      "path": "target/v53-maximum-native-hosted/python-final-proc.log",
+      "sha256": "7dd76af6391cc7899296d09087c97d6c63a46247271771215870068c1be48359"
+    },
+    {
+      "bytes": 34435,
+      "path": "target/v53-maximum-native-hosted/python-final.log",
+      "sha256": "b23427f0042dd4340207c796235173ba8eea8a9b1e9b0c425f0cd0d1951de345"
+    },
+    {
+      "bytes": 10521,
+      "path": "target/v53-maximum-native-hosted/python-first.log",
+      "sha256": "4b8bb9ea4e930c96d3adb52eecfb3a99fd0f30db0e571576ac5b8a85c06d2ca3"
+    },
+    {
+      "bytes": 128,
+      "path": "target/v53-maximum-native-hosted/python-proc-peak.log",
+      "sha256": "6ea34df9c9dc3524f04a3a80b696e1484868587e96288d425201c6c2c31c9462"
+    },
+    {
+      "bytes": 3157,
+      "path": "target/v53-maximum-native-hosted/python-validated-final.log",
+      "sha256": "387e8533c0552e742029bf9988993c6c6a96c0cb6a21dbd3604439b3d4295469"
+    },
+    {
+      "bytes": 481,
+      "path": "target/v53-maximum-native-hosted/rss-1048576/memory.json",
+      "sha256": "31f5ea4d48839c8cdc047bbfc6f60f7cd265c455bf5ccccf41965300275a8967"
+    },
+    {
+      "bytes": 24,
+      "path": "target/v53-maximum-native-hosted/rss-1048576/verification/receipt.json",
+      "sha256": "efa82530f0281abdf7bff98dbf617ee4427f964100fa5fe3f2e8673792b268cf"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-maximum-native-hosted/rss-1048576.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 485,
+      "path": "target/v53-maximum-native-hosted/rss-50331648/memory.json",
+      "sha256": "19df9f713c9419a2d3d0a4a4eaef300c7fbcb6858268d6895b1e887ef65daa34"
+    },
+    {
+      "bytes": 24,
+      "path": "target/v53-maximum-native-hosted/rss-50331648/verification/receipt.json",
+      "sha256": "efa82530f0281abdf7bff98dbf617ee4427f964100fa5fe3f2e8673792b268cf"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-maximum-native-hosted/rss-50331648.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1387,
+      "path": "target/v53-maximum-native-hosted/rss-component.json",
+      "sha256": "92bbe9c34c9c8c019b75afcb8d2a986011a2015c5101bc6dc8c317b750cb1368"
+    },
+    {
+      "bytes": 1496,
+      "path": "target/v53-maximum-native-hosted/rss-final-1048576/memory-status.txt",
+      "sha256": "6e07e19b8716c7c81205f018d128c7df9339d96bc7c59af439d422b2479e3489"
+    },
+    {
+      "bytes": 648,
+      "path": "target/v53-maximum-native-hosted/rss-final-1048576/memory.json",
+      "sha256": "b38ca1e7713b91476032cb3727885378b64a06aacf9ef2825288d6c4f43ded03"
+    },
+    {
+      "bytes": 24,
+      "path": "target/v53-maximum-native-hosted/rss-final-1048576/verification/receipt.json",
+      "sha256": "efa82530f0281abdf7bff98dbf617ee4427f964100fa5fe3f2e8673792b268cf"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-maximum-native-hosted/rss-final-1048576.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1496,
+      "path": "target/v53-maximum-native-hosted/rss-final-50331648/memory-status.txt",
+      "sha256": "ded8f3bfbeab93ecfbad1c00d3f9185b07cbcd55a22f1414304ca6f89a37fc00"
+    },
+    {
+      "bytes": 652,
+      "path": "target/v53-maximum-native-hosted/rss-final-50331648/memory.json",
+      "sha256": "5e2f66c612581c0c912df92843ba325cf2084fffe52a0489b3b0c55385f252cc"
+    },
+    {
+      "bytes": 24,
+      "path": "target/v53-maximum-native-hosted/rss-final-50331648/verification/receipt.json",
+      "sha256": "efa82530f0281abdf7bff98dbf617ee4427f964100fa5fe3f2e8673792b268cf"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-maximum-native-hosted/rss-final-50331648.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1864,
+      "path": "target/v53-maximum-native-hosted/rss-final-component.json",
+      "sha256": "e70dd181697fac8309193aa3a605f85591784d7f61e5c838612a575f579b481b"
+    },
+    {
+      "bytes": 93,
+      "path": "target/v53-maximum-native-hosted/rss-final-probe.log",
+      "sha256": "b911912f4038dc2e4b3390847231e56b0ab5e54585428b7b101351f711488fd8"
+    },
+    {
+      "bytes": 93,
+      "path": "target/v53-maximum-native-hosted/rss-probe.log",
+      "sha256": "c5caebb2ad256bab99e09216bcde1cd817538bec83848b4caa9e7dd4f541f25d"
+    },
+    {
+      "bytes": 1496,
+      "path": "target/v53-maximum-native-hosted/rss-proc-1048576/memory-status.txt",
+      "sha256": "090a792f993e72ad0b1cf39944fd8c8f2e39622ac262bf08361de6c14fa23cad"
+    },
+    {
+      "bytes": 648,
+      "path": "target/v53-maximum-native-hosted/rss-proc-1048576/memory.json",
+      "sha256": "cdc86944090b86862a479c8fdbd9714175173a42c86a26ab66536066a871efe1"
+    },
+    {
+      "bytes": 24,
+      "path": "target/v53-maximum-native-hosted/rss-proc-1048576/verification/receipt.json",
+      "sha256": "efa82530f0281abdf7bff98dbf617ee4427f964100fa5fe3f2e8673792b268cf"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-maximum-native-hosted/rss-proc-1048576.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1496,
+      "path": "target/v53-maximum-native-hosted/rss-proc-50331648/memory-status.txt",
+      "sha256": "11de9131d2f2d120b9613fd24864bcdf479db176296bfa96a5326517c9c878a3"
+    },
+    {
+      "bytes": 652,
+      "path": "target/v53-maximum-native-hosted/rss-proc-50331648/memory.json",
+      "sha256": "f51d5731d76f6d237d2360ed921f0119e88e30a2df3c3217886916f8ecdafeee"
+    },
+    {
+      "bytes": 24,
+      "path": "target/v53-maximum-native-hosted/rss-proc-50331648/verification/receipt.json",
+      "sha256": "efa82530f0281abdf7bff98dbf617ee4427f964100fa5fe3f2e8673792b268cf"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-maximum-native-hosted/rss-proc-50331648.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1778,
+      "path": "target/v53-maximum-native-hosted/rss-proc-component.json",
+      "sha256": "07b17cdc4b723b675f8ff937fa524ca209f1e72e135568298ff6764941c0f19f"
+    },
+    {
+      "bytes": 1557,
+      "path": "target/v53-maximum-native-hosted/rss_probe.py",
+      "sha256": "a66037d934d0c946d4d6a05055c695e13a509f4e6296345bb59e0158024d7c9d"
+    },
+    {
+      "bytes": 1608,
+      "path": "target/v53-maximum-native-hosted/rss_probe_final.py",
+      "sha256": "6b6db85c9d1ae4c4ea2093ca4cc9c16f16f0670766ff06a78359c3f8427f35cc"
+    },
+    {
+      "bytes": 369,
+      "path": "target/v53-maximum-native-hosted/rss_stub.py",
+      "sha256": "e9d45982ea886f95d819926b826ec3ab18f3825b6aa2483f720031f5fd590f84"
+    },
+    {
+      "bytes": 759,
+      "path": "target/v53-maximum-native-hosted/run_tests.py",
+      "sha256": "0ebd63d0f002842e0057863cd89fe7dc2fa4870906a84ca7b1f6909e9275b86e"
+    },
+    {
+      "bytes": 783,
+      "path": "target/v53-maximum-native-hosted/source-transport-artifact/manifest.json",
+      "sha256": "0a21010a4aa34e1b72b995ba8ec44302eb0c26beba1a383b41de46c0daf88f07"
+    },
+    {
+      "bytes": 726,
+      "path": "target/v53-maximum-native-hosted/source-transport.json",
+      "sha256": "383565cac918df22f631d014d3de8025e72341246e5076dbe5c09ba04b237438"
+    },
+    {
+      "bytes": 3665,
+      "path": "target/v53-maximum-native-hosted/test-modules.json",
+      "sha256": "d6cce721591808d5f69fa4abdf1bbc82a765567377beeefef60db3dc63036a8d"
+    },
+    {
+      "bytes": 3952,
+      "path": "target/v53-maximum-native-hosted/validated-python-final.json",
+      "sha256": "8b9c211bf6433c695dc2b960db144f8d4afa568c5674376eaaa55c16da88e1c9"
+    },
+    {
+      "bytes": 3952,
+      "path": "target/v53-maximum-native-hosted/validated-python-proc.json",
+      "sha256": "4e0ec93faed3067e4d3da1882f13ff3d830d1d39622560be6d59e92fbf251f41"
+    },
+    {
+      "bytes": 3952,
+      "path": "target/v53-maximum-native-hosted/validated-python.json",
+      "sha256": "82ec5f4948dd11991cb3222d3a316fc605f0e2ff26b6f088774a5d7132480875"
+    },
+    {
+      "bytes": 635,
+      "path": "target/v53-maximum-native-hosted/workflow-check.json",
+      "sha256": "5e0048d0dd4c16b756a2c96d12e53a0b942d7e638ad7eda369c97d87567488b8"
+    },
+    {
+      "bytes": 635,
+      "path": "target/v53-maximum-native-hosted/workflow-final.json",
+      "sha256": "5e0048d0dd4c16b756a2c96d12e53a0b942d7e638ad7eda369c97d87567488b8"
+    }
+  ],
+  "maximumNativeHistoryQualified": false,
+  "pending": [
+    "native Linux acceptance host after development",
+    "complete maximum native history and 150 negatives",
+    "actual whole-reader memory audit",
+    "simultaneous same-owner resource pressure/refusal/recovery",
+    "broader frozen coverage and final-source cohort execution"
+  ],
+  "phase3Complete": false,
+  "profile": "maximum-application-required-four-backup-segmented",
+  "pythonTests": {
+    "elapsedSeconds": 22.814,
+    "errors": 0,
+    "failures": 0,
+    "modules": [
+      "scripts.v53.test_activation_control_resources",
+      "scripts.v53.test_backup_inventory",
+      "scripts.v53.test_backup_required_four_resources",
+      "scripts.v53.test_backup_resource_capacity",
+      "scripts.v53.test_backup_resource_hosted",
+      "scripts.v53.test_backup_resource_run",
+      "scripts.v53.test_bootstrap_replay_contract",
+      "scripts.v53.test_capture_objects",
+      "scripts.v53.test_connection_transcript",
+      "scripts.v53.test_contract_check",
+      "scripts.v53.test_format_fixture",
+      "scripts.v53.test_format_qualification",
+      "scripts.v53.test_grant_streaming",
+      "scripts.v53.test_joined_handoff_resources",
+      "scripts.v53.test_joining_attempts",
+      "scripts.v53.test_joining_control_evidence",
+      "scripts.v53.test_joining_export_evidence",
+      "scripts.v53.test_joining_grant_captures",
+      "scripts.v53.test_joining_history_run",
+      "scripts.v53.test_joining_initialization_evidence",
+      "scripts.v53.test_joining_initialization_process_evidence",
+      "scripts.v53.test_joining_network_evidence",
+      "scripts.v53.test_joining_preparation_evidence",
+      "scripts.v53.test_joining_profile_ballot_evidence",
+      "scripts.v53.test_joining_profile_continuation_evidence",
+      "scripts.v53.test_joining_profile_control_evidence",
+      "scripts.v53.test_joining_profile_evidence",
+      "scripts.v53.test_joining_profile_export_evidence",
+      "scripts.v53.test_joining_profile_initialization_evidence",
+      "scripts.v53.test_joining_profile_ledger_evidence",
+      "scripts.v53.test_joining_profile_maintenance_evidence",
+      "scripts.v53.test_joining_profile_network_evidence",
+      "scripts.v53.test_joining_profile_peer_evidence",
+      "scripts.v53.test_joining_profile_physical_evidence",
+      "scripts.v53.test_joining_profile_run",
+      "scripts.v53.test_joining_publication_evidence",
+      "scripts.v53.test_joining_retirement_replay",
+      "scripts.v53.test_joining_same_view_ballot",
+      "scripts.v53.test_joining_source_loss",
+      "scripts.v53.test_joining_source_retirement",
+      "scripts.v53.test_json_budget",
+      "scripts.v53.test_maximum_native_capacity",
+      "scripts.v53.test_maximum_native_evidence",
+      "scripts.v53.test_maximum_native_hosted",
+      "scripts.v53.test_maximum_native_reader",
+      "scripts.v53.test_maximum_native_run",
+      "scripts.v53.test_maximum_transition_capacity",
+      "scripts.v53.test_maximum_transition_hosted",
+      "scripts.v53.test_maximum_transition_inventory",
+      "scripts.v53.test_native_resource_evidence",
+      "scripts.v53.test_native_resource_policy",
+      "scripts.v53.test_native_source_resources",
+      "scripts.v53.test_phase3_qualification_plan",
+      "scripts.v53.test_phase3_resource_artifacts",
+      "scripts.v53.test_phase3_resource_cohort",
+      "scripts.v53.test_phase3_resource_workflows",
+      "scripts.v53.test_physical_snapshot",
+      "scripts.v53.test_publication_resource_evidence",
+      "scripts.v53.test_remove_process_hosted",
+      "scripts.v53.test_replica_capture_limits",
+      "scripts.v53.test_required_four_direct_exports",
+      "scripts.v53.test_required_four_evidence",
+      "scripts.v53.test_required_four_exports",
+      "scripts.v53.test_required_four_ledgers",
+      "scripts.v53.test_required_four_maintenance",
+      "scripts.v53.test_required_four_network",
+      "scripts.v53.test_required_four_physical",
+      "scripts.v53.test_required_four_resource_hosted",
+      "scripts.v53.test_required_four_resource_run",
+      "scripts.v53.test_required_four_resources",
+      "scripts.v53.test_segmented_backup_replay",
+      "scripts.v53.test_segmented_evidence",
+      "scripts.v53.test_segmented_transcript",
+      "scripts.v53.test_selected_file_reads",
+      "scripts.v53.test_slot_control_resources",
+      "scripts.v53.test_source_control_resource_evidence",
+      "scripts.v53.test_voting_control_resources",
+      "scripts.v53.test_wire_archive"
+    ],
+    "skipped": 0,
+    "status": "PASS",
+    "tests": 936
+  },
+  "rawBundleMaximumBytes": 138512695296,
+  "readerInstrumentation": {
+    "maximumNativeHistoryQualified": false,
+    "measurements": [
+      {
+        "cpuNanos": 594812,
+        "elapsedNanos": 595103,
+        "peakRssBytes": 31105024,
+        "phase3Complete": false,
+        "procStatusSha256": "6e07e19b8716c7c81205f018d128c7df9339d96bc7c59af439d422b2479e3489",
+        "processId": 5,
+        "profile": "maximum-application-required-four-backup-segmented",
+        "retries": 0,
+        "rssSource": "/proc/self/status:VmHWM",
+        "rusagePeakRssBytes": 160382976,
+        "schema": "gse-v53-maximum-native-reader-observation-v1",
+        "scope": "fresh-process-whole-resource-verification",
+        "status": "PASS",
+        "touchedBytes": 1048576,
+        "verificationReceiptSha256": "efa82530f0281abdf7bff98dbf617ee4427f964100fa5fe3f2e8673792b268cf",
+        "wholeReaderMemoryQualified": false
+      },
+      {
+        "cpuNanos": 15995111,
+        "elapsedNanos": 15994224,
+        "peakRssBytes": 80420864,
+        "phase3Complete": false,
+        "procStatusSha256": "ded8f3bfbeab93ecfbad1c00d3f9185b07cbcd55a22f1414304ca6f89a37fc00",
+        "processId": 6,
+        "profile": "maximum-application-required-four-backup-segmented",
+        "retries": 0,
+        "rssSource": "/proc/self/status:VmHWM",
+        "rusagePeakRssBytes": 160546816,
+        "schema": "gse-v53-maximum-native-reader-observation-v1",
+        "scope": "fresh-process-whole-resource-verification",
+        "status": "PASS",
+        "touchedBytes": 50331648,
+        "verificationReceiptSha256": "efa82530f0281abdf7bff98dbf617ee4427f964100fa5fe3f2e8673792b268cf",
+        "wholeReaderMemoryQualified": false
+      }
+    ],
+    "parentTouchedBytes": 134217728,
+    "phase3Complete": false,
+    "readerSha256": "56273529eaeed66e4b4ca75fe044d044900e59274dd215dd76207b53703f33c3",
+    "scope": "fresh-process instrumentation with synthetic verifier; not native replay",
+    "status": "PASS",
+    "wholeReaderMemoryQualified": false
+  },
+  "retainedSourceTransport": {
+    "archive": "0a7ba02eec98956a900585261ee03913fd4b4ee00d5b7b2f2b0d19782e4b58a0",
+    "archiveBytes": 76885,
+    "elapsedSeconds": 1.115,
+    "maximumNativeHistoryQualified": false,
+    "original": {
+      "bytes": 67108832,
+      "ctime": 1792891781119015400,
+      "device": 70,
+      "inode": 281474977104188,
+      "mtime": 1792891781119015400,
+      "sha256": "1b872918ced4c94242ee3d935bd71d3d00b45e5dea0d476cf79f26477641042c"
+    },
+    "originalUnchanged": true,
+    "phase3Complete": false,
+    "scope": "retained maximum source image transport only; synthetic workflow context",
+    "source": "/mnt/d/GSE-Archives/GeneralSearchEngine/v53-maximum-run4-20261025/producer/run-dee4ae41-94a7-40c9-b7a7-2ce2e5fdcf1c/source.image",
+    "status": "PASS"
+  },
+  "schema": "gse-v53-maximum-native-hosted-development-v1",
+  "scope": "Dedicated transport and measured reader development; native maximum history not executed",
+  "sourceFiles": [
+    {
+      "bytes": 10646,
+      "path": "scripts/v53/maximum_native_hosted.py",
+      "sha256": "647a62100ce4f7d758193922b3dc2bfbde3326004649a941d35a69a68a738f47"
+    },
+    {
+      "bytes": 1245,
+      "path": "scripts/v53/maximum_native_capacity.py",
+      "sha256": "78e9fb9bafad442777298b0869d0a16312014c4d5479717545aa205dbba8fafa"
+    },
+    {
+      "bytes": 6819,
+      "path": "scripts/v53/maximum_native_reader.py",
+      "sha256": "56273529eaeed66e4b4ca75fe044d044900e59274dd215dd76207b53703f33c3"
+    },
+    {
+      "bytes": 21604,
+      "path": "scripts/v53/test_maximum_native_hosted.py",
+      "sha256": "2f4af93e5b4c88a13bb8226887bcb0a621938956bbcdf294464b8481ba530e19"
+    },
+    {
+      "bytes": 2065,
+      "path": "scripts/v53/test_maximum_native_capacity.py",
+      "sha256": "5591b6a68923c22efd18b8826381553726a2390e850bebf827bf7ab8416c4210"
+    },
+    {
+      "bytes": 8729,
+      "path": "scripts/v53/test_maximum_native_reader.py",
+      "sha256": "b6ccf3404d170789e129cb0947d071364584e984223bdcf90386908b49ba1d96"
+    },
+    {
+      "bytes": 7953,
+      "path": ".github/workflows/v53-maximum-native-resources.yml",
+      "sha256": "3da947a8ac73a8b7924c815df4562fd87dbf4e95c3c0ef0cc5c72fa28519bc41"
+    }
+  ],
+  "status": "DEVELOPMENT",
+  "unchanged": [
+    "runtime Java and protocol limits",
+    "frozen five supplemental cohort slots",
+    "existing workflows and Required CI",
+    "V5.2 cloud execution",
+    "paid-cloud and runner settings"
+  ],
+  "wholeReaderMemoryQualified": false,
+  "workflow": ".github/workflows/v53-maximum-native-resources.yml",
+  "workflowCheck": {
+    "jobs": [
+      "prepare",
+      "execute",
+      "verify"
+    ],
+    "shellBlocks": [
+      {
+        "job": "prepare",
+        "step": "Prepare immutable maximum-image source"
+      },
+      {
+        "job": "execute",
+        "step": "Check workspace before downloading seed"
+      },
+      {
+        "job": "execute",
+        "step": "Execute complete maximum native history once"
+      },
+      {
+        "job": "verify",
+        "step": "Check capacity before downloading large original"
+      },
+      {
+        "job": "verify",
+        "step": "Admit complete maximum native history and 150 exact negatives"
+      }
+    ],
+    "status": "PASS",
+    "workflowDispatched": false
+  },
+  "workflowDispatched": false
+}

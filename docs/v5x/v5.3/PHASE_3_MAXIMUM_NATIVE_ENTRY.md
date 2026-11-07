@@ -67,9 +67,10 @@ python3 -m scripts.v53.required_four_resource_run verify \
 Use the final immutable source and populated offline Maven dependencies. The
 existing child-process runner prints minute progress and retains Maven and
 collection logs. Independent replay reports stage progress. These commands do
-not dispatch Actions or provision a machine. A dedicated maximum-native hosted
-transport is still pending: the existing small-backup workflow's archive budget
-must not be reused or silently enlarged. Neither the EMPTY supplemental slot,
+not dispatch Actions or provision a machine. The [dedicated maximum-native
+hosted transport](PHASE_3_MAXIMUM_NATIVE_HOSTED.md) now has separate archive and
+download/extraction capacity checks; its actual execution remains pending.
+The existing small-backup workflow's archive budget is unchanged. Neither the EMPTY supplemental slot,
 the small-backup profile nor the synchronous maximum-storage component is
 replaced by this development entry.
 
@@ -90,7 +91,7 @@ original. Its native-image copy and binding are synthetic: this is a source
 reader component check, not a replay of a completed maximum joining history.
 
 Complete native maximum execution, whole-reader memory measurement, simultaneous
-same-owner metadata/image/queue pressure with refusal and recovery, dedicated
-hosted transport, and final-source cohort evidence remain pending. All five
+same-owner metadata/image/queue pressure with refusal and recovery, hosted
+execution, and final-source cohort evidence remain pending. All five
 Phase 3 closure gaps remain open. Rollback removes this explicit entry and its
 new wrapper; existing profile commands and frozen cohorts remain unchanged.
