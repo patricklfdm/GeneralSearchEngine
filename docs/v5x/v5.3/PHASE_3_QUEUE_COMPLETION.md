@@ -69,6 +69,62 @@ completion, fresh-process recovery, a final-source admission or Phase 3 closure.
 
 ## Development observations and limits
 
+### Multi-chunk development prerequisite
+
+The image tail now consumes all remaining bytes of the original SOURCE image
+under the existing session, transfer identity and deadline, then commits at the
+next sequence. The previous helper sent exactly two chunks and therefore cannot
+be reused for a near-64 MiB image. The formal 129-document profile still produces
+the same two chunks and the same 37 attempts; its limits, ten negative families,
+source-bound entry and acceptance scope are unchanged.
+
+The streamed native collector also now receives this fixture's existing
+256 MiB wire envelope in its constructor, before opening the spool or listeners.
+Previously the queue fixture assigned that value after construction; since the
+backup path became streamed, the spool retained its admitted 64 MiB default and
+normal close rejected the mismatch. The admitted field is now immutable. Other
+JSON histories retain 64 MiB; 256 MiB is an explicit verified-backup option, and
+unrecognized limits are rejected. This changes observation setup, not any
+network frame, queue, resource or operation-time bound.
+
+The independent reader derives the complete sequence set, every offset, tail
+length and terminal COMMIT from the original image. It rejects omitted,
+reordered, truncated or altered tail chunks and early completion. The record
+basis in this component remains one chunk; a larger basis is rejected explicitly
+and is a separate prerequisite for combining maximum metadata pressure. A future
+maximum-image queue history also needs an explicitly admitted segmented evidence
+envelope; this existing 256 MiB JSON component does not become that entry merely
+because its image tail can now contain more chunks.
+
+`multiChunkImageRehearsesSameNativeCompletion` imports two 10,000-byte values and
+uses the existing 4 KiB rehearsal chunk size. Its six-chunk transfer and native
+FINAL/BARRIER are development checks, with `pressureRequired=false`; it cannot
+satisfy the formal resource slot or combined maximum. Select the explicit
+rehearsal reader only for this method's original:
+
+```bash
+/opt/maven/bin/mvn -o -B -ntp -f reactor/pom.xml \
+  -pl :general-search-engine-replication -am \
+  -Dsurefire.failIfNoSpecifiedTests=false \
+  '-Dtest=V53QueueCompletionQualification#multiChunkImageRehearsesSameNativeCompletion' test
+python3 -m scripts.v53.queue_completion_evidence ORIGINAL_DIRECTORY --multi-chunk-rehearsal
+```
+
+No maximum native qualification has been obtained from this rehearsal. The
+operator has no qualifying native Linux machine for that long execution yet;
+environment provisioning and final-source acceptance follow development.
+
+The [multi-chunk development index](phase3-evidence/queue-multichunk-development.json)
+retains the old two-chunk failure, the evidence-spool mismatch and the deliberately
+stopped interim run. The corrected native rehearsal passed in 332.2 seconds;
+its encoded image is 20,867 bytes, so four sessions deliver six chunks each,
+commit at sequence 11 and complete 53 calls. Independent original-first replay
+passed, preserved all 4,214 original files and rejected promotion to full queue
+pressure. Current-reader replay of the unchanged historical full-pressure original
+also preserved the original result and all ten negative outcomes exactly. These
+are development and compatibility observations; final-source execution remains
+required.
+
 The first large-image original completed four preparation slots and its first
 native activation, then failed local INTENT publication with
 `original activation endpoint deadline/closed` under the inherited 180-second

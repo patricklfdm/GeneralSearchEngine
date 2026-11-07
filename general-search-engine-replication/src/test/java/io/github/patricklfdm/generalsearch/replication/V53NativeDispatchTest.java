@@ -15,6 +15,13 @@ import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*
 class V53NativeDispatchTest {
     @TempDir Path temp;
     static final long BUDGET=TimeUnit.SECONDS.toNanos(180);
+    static int admitWireLimit(MembershipBootstrapSource source,int requested) {
+        Objects.requireNonNull(source);
+        if(requested!=V53EvidenceArray.WIRE_BYTES &&
+                !(source==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP && requested==256*1024*1024))
+            throw new IllegalArgumentException("native JSON wire evidence profile");
+        return requested;
+    }
     @FunctionalInterface interface Preparation {void prepare(V53BootstrapPublicationTest.Fixture fixture)throws Exception;}
     final class Network implements AutoCloseable {
         final V53BootstrapPublicationTest.Fixture f;
@@ -66,7 +73,7 @@ class V53NativeDispatchTest {
         final AtomicReference<java.util.function.BiFunction<Decoded,Decoded,Decoded>> response=new AtomicReference<>((request,reply)->reply);
         final AtomicReference<java.util.function.Consumer<Decoded>> beforeSend=new AtomicReference<>(request->{});
         final AtomicReference<java.util.function.Consumer<Decoded>> beforeResponseWrite=new AtomicReference<>(request->{});
-        int wireEvidenceLimit=V53EvidenceArray.WIRE_BYTES;
+        final int wireEvidenceLimit;
         volatile boolean observeRequests;
         volatile V53GrantCapture grantCapture;
         volatile V53SourceRetirementCapture retirementCapture;
@@ -117,7 +124,7 @@ class V53NativeDispatchTest {
                     "legacy export probe requires its original resource policy");
             assertTrue(layout==V53WireArchive.Layout.JSON || request.source()==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP,
                     "segmented wire requires explicit verified backup");
-            this.bounds=bounds;
+            this.bounds=bounds;wireEvidenceLimit=V53EvidenceArray.WIRE_BYTES;
             observeExportResources=observeExports;
             var bound=V53OwnedCrossViewTest.networkRequest(request);
             Path raw=Files.createDirectories(Path.of("target/v53-native-dispatch/run-"+UUID.randomUUID()));
@@ -135,7 +142,12 @@ class V53NativeDispatchTest {
             this(retained,bounds,endpointBudget,false,false);
         }
         Network(V53BootstrapPublicationTest.Fixture retained,ReplicationBounds bounds,long endpointBudget,boolean liveDirectory,boolean observeExports)throws Exception {
+            this(retained,bounds,endpointBudget,liveDirectory,observeExports,V53EvidenceArray.WIRE_BYTES);
+        }
+        Network(V53BootstrapPublicationTest.Fixture retained,ReplicationBounds bounds,long endpointBudget,boolean liveDirectory,boolean observeExports,
+                int wireLimit)throws Exception {
             assertEquals(V53NativeResourceProfile.SMALL_FIXTURE,retained.resourceProfile,"legacy JSON resume resource policy");
+            wireEvidenceLimit=admitWireLimit(retained.request.source(),wireLimit);
             this.bounds=bounds;f=retained;observeExportResources=observeExports;
             wireArchive=null;
             auxiliaryWire=new V53AuxiliaryWire(f.raw,f.request.source()==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP);

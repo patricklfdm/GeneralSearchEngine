@@ -20,7 +20,13 @@ POINTS=('JOINT_BEFORE_PRESSURE','SEVEN_SENDS_HELD','EIGHTH_SEND_REFUSED','PRESSU
         'FINAL_BEGIN','FINAL_PUBLISHED','BARRIER_PUBLISHED','CLOSED')
 
 
-def load(directory,*,rehearsal=False):
+def rehearsal_profile(rehearsal,multi_chunk_rehearsal):
+    need(type(rehearsal) is bool and type(multi_chunk_rehearsal) is bool and
+         (not multi_chunk_rehearsal or rehearsal),'queue completion replay profile')
+
+
+def load(directory,*,rehearsal=False,multi_chunk_rehearsal=False):
+    rehearsal_profile(rehearsal,multi_chunk_rehearsal)
     root=Path(directory);scope=root/'continuous-result.json'
     need(root.is_dir() and not root.is_symlink() and scope.is_file() and not scope.is_symlink() and
          scope.stat().st_size<=4096,'queue completion regular receipt')
@@ -32,7 +38,8 @@ def load(directory,*,rehearsal=False):
     identity={n:queue.f.decode(v['node.gsr'],'records','NODE')['identity'] for n,v in original.items()}
     root_record=queue.f.decode(original['node-1']['root.gsr'],'records','ROOT')
     image=(root/'original-application.image').read_bytes()
-    application(image,root_record['historyId'],41,[(i,'q'*(3000 if rehearsal else 32768)) for i in range(2 if rehearsal else 129)])
+    value_bytes=10000 if multi_chunk_rehearsal else 3000 if rehearsal else 32768
+    application(image,root_record['historyId'],41,[(i,'q'*value_bytes) for i in range(2 if rehearsal else 129)])
     installed=history.c.inventory(root/'installed-2/node-1')
     _,_,packet=history.c.current(installed)
     journal=history.c.journal(installed['grants.gsr'],packet['capsule']['root'],'node-1')
@@ -50,8 +57,42 @@ def joint_grant(rows,ballot):
     return promises[0],bases[0]
 
 
-def replay(value,*,rehearsal=False):
-    need(type(rehearsal) is bool,'queue completion replay profile')
+def image_commit_sequence(image,chunk):
+    need(type(image) is bytes and type(chunk) is int and 0<chunk<=queue.CHUNK and
+         chunk<len(image)<=64*t.MIB,'queue completion image extent')
+    return 5+(len(image)+chunk-1)//chunk
+
+
+def replay_session(session,requests,answers,frames,basis,image,chunk):
+    """Derive every tail offset and terminal sequence from the original bytes.
+
+    The producer's plan or receipt cannot decide which chunks may be omitted.
+    The basis remains the existing one-chunk record in this component.
+    """
+    terminal=image_commit_sequence(image,chunk)
+    need(type(basis) is bytes and 0<len(basis)<=chunk,'queue completion basis extent')
+    need(set(session)==set(range(1,terminal+1)),'queue completion session sequence')
+    basis_digest=queue.sha(basis);image_digest=queue.sha(image)
+    contents={basis_digest:basis,image_digest:image}
+    reader=None;transfer=None
+    for seq,h in sorted(session.items()):
+        kind,q,_=requests[h];akind,a,_=frames[answers[h]];p=q['payload'];digest=basis_digest if seq<=3 else image_digest
+        if seq in (1,4):
+            need(p['id']!=transfer and str(UUID(p['id']))==p['id'],'queue completion transfer identity');transfer=p['id']
+        if reader is None:reader=q['sender']
+        offset=(seq-5)*chunk if 5<=seq<terminal else 0
+        expected=dict(id=transfer,digest=digest) if seq in (3,terminal) else dict(id=transfer,action='REQUEST',offset=offset,digest=digest,bytes='')
+        need(p==expected and q['sender']==reader and kind==('TRANSFER_COMMIT' if seq in (3,terminal) else 'CHUNK'),'queue completion exact request')
+        if seq in (1,4):reply_kind='SOURCE_OFFER';payload=dict(id=transfer,digest=digest,bytes=len(contents[digest]),kind='RECORD' if seq==1 else 'APPLICATION')
+        elif seq in (3,terminal):reply_kind='TRANSFER_COMMIT';payload=expected
+        else:
+            reply_kind='CHUNK';data=contents[digest][offset:offset+chunk]
+            payload=dict(id=transfer,action='DATA',offset=offset,digest=queue.sha(data),bytes=base64.b64encode(data).decode('ascii'))
+        need(akind==reply_kind and a['payload']==payload,'queue completion original content')
+
+
+def replay(value,*,rehearsal=False,multi_chunk_rehearsal=False):
+    rehearsal_profile(rehearsal,multi_chunk_rehearsal)
     chunk=4096 if rehearsal else queue.CHUNK
     receipt=value['receipt'];trace=value['trace'];events=value['events'];selected=value['selected']
     need(set(receipt)=={'schema','status','points','attempts','traces','phase3Complete','combinedMaximumQualified','pressureRequired'} and
@@ -94,27 +135,13 @@ def replay(value,*,rehearsal=False):
         session=sessions.setdefault(q['trace'],{})
         need(session.setdefault(q['sequence'],h)==h and answers.setdefault(h,answer)==answer,'queue completion identical replay')
         requests[h]=(kind,q,qbytes);frames[answer]=(akind,a,abytes);deliveries.append((h,answer))
-    need(set(sessions)==set(traces) and len(requests)==28 and len(deliveries)==(37 if rehearsal else 36),'queue completion complete delivered history')
-    contents={queue.sha(value['basis']):value['basis'],queue.sha(value['image']):value['image']}
+    terminal=image_commit_sequence(value['image'],chunk);unique_requests=4*terminal
+    need(set(sessions)==set(traces) and len(requests)==unique_requests and
+         len(deliveries)==unique_requests+(9 if rehearsal else 8),'queue completion complete delivered history')
     for session in sessions.values():
-        need(set(session)==set(range(1,8)),'queue completion session sequence')
-        reader=None;transfer=None
-        for seq,h in sorted(session.items()):
-            kind,q,_=requests[h];akind,a,_=frames[answers[h]];p=q['payload'];digest=queue.sha(value['basis'] if seq<=3 else value['image'])
-            if seq in (1,4):
-                need(p['id']!=transfer and str(UUID(p['id']))==p['id'],'queue completion transfer identity');transfer=p['id']
-            if reader is None:reader=q['sender']
-            offset=chunk if seq==6 else 0
-            expected=dict(id=transfer,digest=digest) if seq in (3,7) else dict(id=transfer,action='REQUEST',offset=offset,digest=digest,bytes='')
-            need(p==expected and q['sender']==reader and kind==('TRANSFER_COMMIT' if seq in (3,7) else 'CHUNK'),'queue completion exact request')
-            if seq in (1,4):reply_kind='SOURCE_OFFER';payload=dict(id=transfer,digest=digest,bytes=len(contents[digest]),kind='RECORD' if seq==1 else 'APPLICATION')
-            elif seq in (3,7):reply_kind='TRANSFER_COMMIT';payload=expected
-            else:
-                reply_kind='CHUNK';data=contents[digest][offset:offset+chunk]
-                payload=dict(id=transfer,action='DATA',offset=offset,digest=queue.sha(data),bytes=base64.b64encode(data).decode('ascii'))
-            need(akind==reply_kind and a['payload']==payload,'queue completion original content')
+        replay_session(session,requests,answers,frames,value['basis'],value['image'],chunk)
     attempts=receipt['attempts'];passed=[v for v in attempts if v['status']=='PASS'];failed=[v for v in attempts if v['status']=='FAIL']
-    need(len(attempts)==37 and len(failed)==(0 if rehearsal else 1) and
+    need(len(attempts)==unique_requests+9 and len(failed)==(0 if rehearsal else 1) and
          (rehearsal or failed[0].get('reason')=='IO') and
          sorted((v['request'],v['response']) for v in passed)==sorted(deliveries),'queue completion complete attempts')
     failures=[v for v in events[start:end] if v.get('event')=='NETWORK_ATTEMPT_FAILED']
@@ -144,16 +171,18 @@ def replay(value,*,rehearsal=False):
         else:queue.byte_refusal(trace['changes'][point['sequence']]['usage'],size)
     need(markers['PRESSURE_DRAINED']['queued']<t.MIB and markers['CLOSED']['queued']==0 and not states[-1],
          'queue completion drained and closed')
-    return dict(status='PASS',scope='small-image-completion-rehearsal' if rehearsal else 'joint-queue-completion-component-only',sessions=4,capacityRefusals=0 if rehearsal else 1,
+    return dict(status='PASS',scope='multi-chunk-completion-rehearsal' if multi_chunk_rehearsal else 'small-image-completion-rehearsal' if rehearsal else 'joint-queue-completion-component-only',sessions=4,capacityRefusals=0 if rehearsal else 1,
                 nativeFinalCompleted=True,queuePressureQualified=not rehearsal,maximumQueuedBytes=accounting['maximumObservedReservations']['queued'],
                 phase3Complete=False,combinedMaximumQualified=False)
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('directory');p.add_argument('--qualify',action='store_true');p.add_argument('--rehearsal',action='store_true');a=p.parse_args()
-    need(not(a.qualify and a.rehearsal),'queue completion negatives require full original')
-    value=load(a.directory,rehearsal=a.rehearsal)
-    print(json.dumps(qualify(value) if a.qualify else replay(value,rehearsal=a.rehearsal),sort_keys=True))
+    p=argparse.ArgumentParser();p.add_argument('directory');p.add_argument('--qualify',action='store_true');p.add_argument('--rehearsal',action='store_true')
+    p.add_argument('--multi-chunk-rehearsal',action='store_true');a=p.parse_args()
+    options=dict(rehearsal=a.rehearsal or a.multi_chunk_rehearsal,multi_chunk_rehearsal=a.multi_chunk_rehearsal)
+    need(not(a.qualify and options['rehearsal']),'queue completion negatives require full original')
+    value=load(a.directory,**options)
+    print(json.dumps(qualify(value) if a.qualify else replay(value,**options),sort_keys=True))
 
 
 NEGATIVES={

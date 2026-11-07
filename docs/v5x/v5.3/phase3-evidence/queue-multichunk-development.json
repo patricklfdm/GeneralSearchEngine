@@ -1,0 +1,260 @@
+{
+  "schema": "gse-v53-queue-multichunk-development-v1",
+  "status": "PARTIAL",
+  "developmentResult": "PASS",
+  "baseCommit": "17e03081af2b5e077998b38b797054591e617bbe",
+  "finalSourceQualified": false,
+  "combinedResourcesQualified": false,
+  "phase3Complete": false,
+  "productionRuntimeChanged": false,
+  "formalResourceProfileChanged": false,
+  "workflowChanged": false,
+  "code": [
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java",
+      "bytes": 37043,
+      "sha256": "31bc511c041940131bd3be1a34997832fe296a6abaed37ab48185f737df6b2ee"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53QueueCompletionQualification.java",
+      "bytes": 11991,
+      "sha256": "b3c6f86797af233f170fe9b48581c2d13509aa0866d017aab9c902c036e0c2e4"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53QueueEvidenceBudgetTest.java",
+      "bytes": 1134,
+      "sha256": "29d49fe00d95ec477ffc658dade7a41986b096e41a2c8998cd4b49943da8435a"
+    },
+    {
+      "path": "scripts/v53/queue_completion_evidence.py",
+      "bytes": 15568,
+      "sha256": "11c3f9104890771082f662cf98fe3893eb98da7bbc7116dd546695315ec43dd3"
+    },
+    {
+      "path": "scripts/v53/test_queue_completion_chunks.py",
+      "bytes": 5846,
+      "sha256": "0748b94c4a21e7d82bce88ef02144dfdf20c1edac96ed662ae37d0ca495578a3"
+    }
+  ],
+  "javaTests": [
+    {
+      "name": "io.github.patricklfdm.generalsearch.replication.V53QueueCompletionQualification",
+      "tests": "1",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "332.183"
+    },
+    {
+      "name": "io.github.patricklfdm.generalsearch.replication.V53QueueEvidenceBudgetTest",
+      "tests": "3",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "0.046"
+    },
+    {
+      "name": "io.github.patricklfdm.generalsearch.replication.V53EvidenceSpoolTest",
+      "tests": "24",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "1.351"
+    },
+    {
+      "name": "io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest",
+      "tests": "1",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "69.003"
+    }
+  ],
+  "pythonTests": 75,
+  "planAndContractTests": 19,
+  "historicalFullReplay": {
+    "original": "target/v53-joint-queue-original/original-e532f2df/workspace/general-search-engine-replication/target/v53-queue-completion/run-82f134bf-4a74-4aec-9471-d7d48994513b",
+    "originalUnchanged": true,
+    "resultIdentical": true,
+    "negatives": 10,
+    "elapsedSeconds": 17.522
+  },
+  "corrected": {
+    "status": "PASS",
+    "scope": "development-multichunk-rehearsal-only",
+    "root": "general-search-engine-replication/target/v53-queue-completion/run-91d87142-5a73-45fd-9401-f31da3baf4dc",
+    "elapsedSeconds": 4.776,
+    "result": {
+      "status": "PASS",
+      "scope": "multi-chunk-completion-rehearsal",
+      "sessions": 4,
+      "capacityRefusals": 0,
+      "nativeFinalCompleted": true,
+      "queuePressureQualified": false,
+      "maximumQueuedBytes": 1782046,
+      "phase3Complete": false,
+      "combinedMaximumQualified": false
+    },
+    "formalRejection": "queue completion scope",
+    "originalUnchanged": true,
+    "phase3Complete": false,
+    "finalSourceQualified": false,
+    "applicationBytes": 20867,
+    "chunkBytes": 4096,
+    "terminalSequence": 11,
+    "attempts": 53,
+    "files": 4214
+  },
+  "retainedFailures": [
+    {
+      "kind": "sandbox-socket-denial",
+      "log": "target/v53-queue-multichunk/before.log"
+    },
+    {
+      "kind": "original-two-chunk-helper",
+      "raw": "general-search-engine-replication/target/v53-queue-completion/run-0f29fabb-833a-40f7-8ce2-0e385134f73f",
+      "junit": {
+        "name": "io.github.patricklfdm.generalsearch.replication.V53QueueCompletionQualification",
+        "tests": "1",
+        "errors": "1",
+        "failures": "0",
+        "skipped": "0",
+        "time": "244.722"
+      },
+      "rejection": "server PROTOCOL/client IO at premature TRANSFER_COMMIT",
+      "secondary": "spooled history capacity changed after admission"
+    },
+    {
+      "kind": "intentional-interim-abort",
+      "receipt": "target/v53-queue-multichunk/after-native-abort.json"
+    }
+  ],
+  "acceptanceEnvironment": "No qualifying maximum-native Linux host; arrange after development",
+  "artifacts": [
+    {
+      "path": "target/v53-queue-multichunk/before.log",
+      "bytes": 6804,
+      "sha256": "b0657765983da2298eff295da886fc5f8f5f4a8ba9b37967c85ea1f7b9416a09"
+    },
+    {
+      "path": "target/v53-queue-multichunk/before-native.log",
+      "bytes": 9477,
+      "sha256": "40c7d4abec754bf1c9ecf63d7adf4ce0f07cf2ff9ed75ee3f3fc6989ffc07eba"
+    },
+    {
+      "path": "target/v53-queue-multichunk/before-junit.xml",
+      "bytes": 10860,
+      "sha256": "5a3043b091cf49b5870e139b87e60f5b36746964142f8b9cddfed7685e47e388"
+    },
+    {
+      "path": "target/v53-queue-multichunk/before-producer.java",
+      "bytes": 11479,
+      "sha256": "3bffc7da162b534e4cb73208f83de2be1a9583c789f8df36dd1a3c80e7f4b86d"
+    },
+    {
+      "path": "target/v53-queue-multichunk/before-classes.json",
+      "bytes": 437,
+      "sha256": "21504948fcdf514092d7f9bab0bbbad9ded01578d47c615d809ea6c53270a81a"
+    },
+    {
+      "path": "target/v53-queue-multichunk/before-inventory.json",
+      "bytes": 478507,
+      "sha256": "dd5a189d5e7805f74e380216f28ab4f78d3baa4966dbaa577959a4f25e27a294"
+    },
+    {
+      "path": "target/v53-queue-multichunk/after-native.log",
+      "bytes": 3599,
+      "sha256": "834ac4bf0c6140aeb6554d603c8bb5410754654c45a78bcb424bd4617ec67fb4"
+    },
+    {
+      "path": "target/v53-queue-multichunk/after-native-abort.json",
+      "bytes": 206,
+      "sha256": "3b618b8cc52edf064e4d9d97440c3fcf26ed816fe71c0a76d6f0f3162abef4a9"
+    },
+    {
+      "path": "target/v53-queue-multichunk/corrected-native.log",
+      "bytes": 5989,
+      "sha256": "f4b9fe98eae0b4ba38acf337960c43c8cb5ce7197b046a157e3a2492707f7f66"
+    },
+    {
+      "path": "target/v53-queue-multichunk/corrected-replay.json",
+      "bytes": 775,
+      "sha256": "2307a2c788e06c8aa67f15fbc195b692299492cf23d0ae666875c1a03b6a6b57"
+    },
+    {
+      "path": "target/v53-queue-multichunk/corrected-inventory.json",
+      "bytes": 569422,
+      "sha256": "0554d0a977e4308a7373fb64efb0830842dd30466e180783b59de353bc084843"
+    },
+    {
+      "path": "target/v53-queue-multichunk/legacy-native.log",
+      "bytes": 4403,
+      "sha256": "b8cf2da3a544271963ef783d89b00415fb9373f6beef15c13f533ef96691e066"
+    },
+    {
+      "path": "target/v53-queue-multichunk/legacy-junit.xml",
+      "bytes": 7006,
+      "sha256": "aaade661952692bcd0ab0b30d5b93187ee712cbaddb9eb29a87c00d17d1b90d6"
+    },
+    {
+      "path": "target/v53-queue-multichunk/python-final.log",
+      "bytes": 174,
+      "sha256": "4ef7252f3774329ff8e39edaf2bdf2442caaeee0cf4a2e45fa372cda2f992bf5"
+    },
+    {
+      "path": "target/v53-queue-multichunk/python-optimized.log",
+      "bytes": 174,
+      "sha256": "0e275370e385122cd2137ee05a204787fe8ceb85ba6bcd338320ba15e50e3cf3"
+    },
+    {
+      "path": "target/v53-queue-multichunk/historical-replay.json",
+      "bytes": 2105,
+      "sha256": "a7a9378aafbffd907155a8e49474247084867ebbf2ae8b74da3153e4ba24d838"
+    },
+    {
+      "path": "target/v53-queue-multichunk/historical-small-replay.json",
+      "bytes": 256,
+      "sha256": "40e27f85942bf340c60d754743df8175860dd7d481024c4e9a753582de79f58b"
+    },
+    {
+      "path": "target/v53-queue-multichunk/contract-final.log",
+      "bytes": 167,
+      "sha256": "26fe7c0aec9d199f1ef0c7838f57fa7bbe60877cba7671fb8465e51f3bebf6f9"
+    },
+    {
+      "path": "target/v53-queue-multichunk/plan-contract-tests.log",
+      "bytes": 251,
+      "sha256": "68ea61266bff2dd90077e2f50cc9dc8e23fde09919412977910f4c33a4c093c2"
+    },
+    {
+      "path": "target/v53-queue-multichunk/replay_corrected.py",
+      "bytes": 1494,
+      "sha256": "16b0a9ff1f83c165c4a1849f10e1b26331d1dc040aa0f0420a01ca77a2b1f09d"
+    },
+    {
+      "path": "target/v53-queue-multichunk/replay_historical.py",
+      "bytes": 967,
+      "sha256": "3ddf5c5afa4a052ee48aad72e675e555d7fb11574c7c9c94c0d8ba93d112e78a"
+    },
+    {
+      "path": "target/v53-queue-multichunk/record_result.py",
+      "bytes": 3936,
+      "sha256": "c9ecc38f14cf2678b2c501464992881e981f07e3a43106b7a4d1b721c3a5bdd9"
+    },
+    {
+      "path": "target/v53-queue-multichunk/corrected-V53QueueCompletionQualification.xml",
+      "bytes": 8021,
+      "sha256": "3c20ed1fa261dcedf0e83d9c4717c22b7bc96867902ff1a5267dacabdf470dc1"
+    },
+    {
+      "path": "target/v53-queue-multichunk/corrected-V53QueueEvidenceBudgetTest.xml",
+      "bytes": 7049,
+      "sha256": "cb6212c256cfbf3f629553becaf4a30ee54ac4ccd512c091d40d73212297bace"
+    },
+    {
+      "path": "target/v53-queue-multichunk/corrected-V53EvidenceSpoolTest.xml",
+      "bytes": 10545,
+      "sha256": "ad2e073aaf780542bc5362337c742f4205f2a837efccc7fa7718b5ebc2003bf4"
+    }
+  ]
+}

@@ -43,7 +43,9 @@ class V53QueueCompletionQualification {
     }
     void pressure()throws Exception {
         var own=network.owners.getFirst();var basis=own.originalBasis().orElseThrow();
-        String image=own.originalSource().capsule.packet.images().keySet().iterator().next();
+        var images=own.originalSource().capsule.packet.images();assertEquals(1,images.size());
+        String image=images.keySet().iterator().next();long imageBytes=images.get(image);
+        assertTrue(imageBytes>chunk && imageBytes<=MembershipApplicationImage.MAXIMUM);
         var sessions=new ArrayList<Session>();var requests=new ArrayList<Decoded>();long deadline=System.nanoTime()+V53SourceQueueQualification.BUDGET;
         var entered=new CountDownLatch(7);var release=new CountDownLatch(1);var pause=new java.util.concurrent.atomic.AtomicBoolean();
         network.beforeResponseWrite.set(q->{
@@ -83,8 +85,13 @@ class V53QueueCompletionQualification {
             for(int i=1;i<=2;i++)V53TransferFaultsTest.drain(network.transports.getFirst(),network.transports.get(i));
             call(sessions.getLast(),requests.getLast(),"CHUNK",deadline);
             for(var session:sessions) {
-                call(session,request(session,6,image,chunk,false,true),"CHUNK",deadline);
-                call(session,request(session,7,image,0,true,true),"TRANSFER_COMMIT",deadline);
+                long sequence=6;
+                // The pressure/retry request is still the identical first chunk.
+                // Consume every remaining original byte under the same deadline
+                // before the terminal COMMIT, including an exact-sized last chunk.
+                for(long offset=chunk;offset<imageBytes;offset+=chunk)
+                    call(session,request(session,sequence++,image,offset,false,true),"CHUNK",deadline);
+                call(session,request(session,sequence,image,0,true,true),"TRANSFER_COMMIT",deadline);
             }
             for(int i=1;i<=2;i++)V53TransferFaultsTest.drain(network.transports.getFirst(),network.transports.get(i));
             point("PRESSURE_DRAINED");network.beforeResponseWrite.set(q->{});
@@ -92,11 +99,15 @@ class V53QueueCompletionQualification {
     }
     @Test void admittedRemoveFinishesAfterRealJointQueuePressure()throws Exception {run(true);}
     @Test void smallImageRehearsesSameNativeCompletion()throws Exception {run(false);}
+    @Test void multiChunkImageRehearsesSameNativeCompletion()throws Exception {run(false,10000);}
     private void run(boolean full)throws Exception {
+        run(full,full?32768:3000);
+    }
+    private void run(boolean full,int valueBytes)throws Exception {
         pressureRequired=full;chunk=full?CHUNK:4096;
         var raw=Files.createDirectories(Path.of("target/v53-queue-completion/run-"+UUID.randomUUID()));
         System.out.println("v53QueueCompletionEvidence="+raw.toAbsolutePath());
-        var docs=new ArrayList<Doc>();for(int i=0;i<(full?129:2);i++)docs.add(new Doc(i,"q".repeat(full?32768:3000)));
+        var docs=new ArrayList<Doc>();for(int i=0;i<(full?129:2);i++)docs.add(new Doc(i,"q".repeat(valueBytes)));
         var config=builder().configuration();Path backup=temp.resolve("backup");
         MembershipApplicationImage.capture(config,storage(temp.resolve("backup-core"),2),new io.github.patricklfdm.generalsearch.durability.DurableApplicationState<>(
                 V53BootstrapSeedTest.IMPORTED,41,docs,config.indexes()),backup);
@@ -113,8 +124,7 @@ class V53QueueCompletionQualification {
             var b=ReplicationBounds.defaults();var bounds=new ReplicationBounds(b.maxFrameBytes(),b.maxEntriesPerAppend(),b.maxInFlightPerPeer(),b.maxPendingClientOperations(),
                     b.maxRetryAttempts(),30000,b.retryBackoffMillis(),chunk,b.maxRetainedLogBytes(),b.maxSnapshotStagingBytes());
             var networkHelper=new V53NativeDispatchTest();networkHelper.temp=temp;
-            network=networkHelper.new Network(fixture,bounds,continuous.budget,true,true);
-            network.wireEvidenceLimit=256*1024*1024;
+            network=networkHelper.new Network(fixture,bounds,continuous.budget,true,true,256*1024*1024);
             boolean passed=false;
             network.observeRequests=true;
             try {

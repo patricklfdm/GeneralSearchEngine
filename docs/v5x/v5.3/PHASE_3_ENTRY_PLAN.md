@@ -74,6 +74,10 @@ Combined byte maxima and final-source admission remain open.
 The two queue originals have a [manual parallel execution entry](PHASE_3_QUEUE_RESOURCE_HOSTED.md),
 outside Required CI. Hosted execution and supplemental workflow attestation are
 pending; no long history is divided to obtain parallelism.
+The [multi-chunk completion prerequisite](PHASE_3_QUEUE_COMPLETION.md#multi-chunk-development-prerequisite)
+removes the queue fixture's fixed two-chunk image tail and independently checks
+all remaining bytes. Its separate small rehearsal confers no maximum-image or
+full-pressure qualification; the formal resource profile remains unchanged.
 
 | Gap | Existing prerequisite | Evidence still required |
 | --- | --- | --- |
