@@ -1,0 +1,70 @@
+{
+  "arrayChecks": 6,
+  "combinedResourcesQualified": false,
+  "files": {
+    "target/v53-wire-spool/V53EvidenceArrayTest.xml": "ca1b397a8ca75f1e5e381e3ea64eed0583fe91ab30da544e9ad9ab79f34bc3e1",
+    "target/v53-wire-spool/V53EvidenceSpoolTest.xml": "7aa7f0daf65046cdd60a8e9cd3328a53ff1e67d5cb71fa91b24c5f1375e1a205",
+    "target/v53-wire-spool/V53NativeSeedTest.xml": "a27cc09bcd16075babc6769c8e90f91a88f2f81839d34e9538220f6388dbc80d",
+    "target/v53-wire-spool/contract.log": "0a30f9371a8c41b900d807812e01ceb6f062d0e22bf935b133ab1e4a66ecb969",
+    "target/v53-wire-spool/final-compile.log": "365d19b3badb0c901fda65187c7370a9d3a860d8d815b7f75961b5ad0d3bd601",
+    "target/v53-wire-spool/maven.log": "4584ebdf61497a2ed24ce31bbf19d541eb88ab6f45071927d5add423c8d82ea3",
+    "target/v53-wire-spool/plan-tests.log": "6b7d24ffc56385234bd84800cd4283f98fe2fbb23841516e970aca97aa7ecd44",
+    "target/v53-wire-spool/python-final.log": "d3ccd4b46586f0e58f8be6302898ab96319b893ab32520352e71bd4488f4e950",
+    "target/v53-wire-spool/python-tests.log": "f3750079b6a2b36f3c58843165c593ce3341dbf08b585163374821e1a0778670",
+    "target/v53-wire-spool/replay.log": "73ea461a427709a6bac9a8d7c5eda9b9ff3a0fe14bacc0e386944c3784b6dec6",
+    "target/v53-wire-spool/seed-replay.json": "1d16df23a069e885298b95a120f86aa60babd38546e8eafd078555704742e630",
+    "target/v53-wire-spool/spool-final.log": "d6286bc2d3aeee3bc09f709ccd3b9d8750b2385f8db785a7ec9b59622cf9b995",
+    "target/v53-wire-spool/spool-io-depth.log": "42fb77ee042094b1bd285cb8e30e6131cbc0e10fd8c6978b4f7639d20063df05",
+    "target/v53-wire-spool/validation-summary.json": "c433ffc0027e98b6a2a215d30ea5e766a9acf53c2813c2ff1980f80b13a9d4e3",
+    "target/v53-wire-spool/wire-format-replay.json": "525b4bc7d58e0d5766de9715b78243e85e17fa40e19244b4596d141d332f23da"
+  },
+  "finalCompile": "PASS",
+  "finalSourceCohortQualified": false,
+  "fullJoiningQualified": false,
+  "javaInvocations": [
+    {
+      "executedTests": 20,
+      "log": "target/v53-wire-spool/maven.log",
+      "status": "PASS"
+    },
+    {
+      "executedTests": 13,
+      "log": "target/v53-wire-spool/spool-final.log",
+      "status": "PASS"
+    },
+    {
+      "executedTests": 2,
+      "log": "target/v53-wire-spool/spool-io-depth.log",
+      "status": "PASS"
+    }
+  ],
+  "lowHeapProbe": {
+    "heapMiB": 32,
+    "minimumOutputMiB": 50,
+    "rows": 200,
+    "wholeRuntimeMemoryQualified": false
+  },
+  "maximumImageQualified": false,
+  "nativeChecks": 2,
+  "nativeOriginal": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-dispatch/run-c9f6dfd8-857d-40d9-be06-ec727a4df1e0",
+  "nativeReplayNegativeCases": 2,
+  "parent": "529831e2e4dd8202d1b03b6e9ea6563b872fd4a1",
+  "phase3Complete": false,
+  "pythonContractTests": 19,
+  "pythonFocusedTests": 59,
+  "pythonInitialFailure": "pre-existing assertion expected encode(wire,V53EvidenceArray.WIRE_BYTES); producer already used admitted wireEvidenceLimit before this batch",
+  "schema": "gse-v53-wire-spool-development-v1",
+  "scope": "development working tree; no final-source cohort",
+  "spoolChecks": 14,
+  "status": "PASS",
+  "uniqueJavaChecks": 22,
+  "wireFormat": {
+    "bytes": 1039201,
+    "frames": 584,
+    "fullNetworkQualified": false,
+    "phase3Complete": false,
+    "rows": 292,
+    "scope": "existing canonical array and wire frame reader",
+    "status": "PASS"
+  }
+}

@@ -28,7 +28,9 @@ class V53NativeDispatchTest {
         private V53ResourceTransitionCapture resourceTransitions;
         private V53ProcessTrace processTrace;
         volatile V53RestartLifecycleCapture restartLifecycleCapture;
-        final List<Map<String,Object>> wire=Collections.synchronizedList(new ArrayList<>()),events=Collections.synchronizedList(new ArrayList<>() {
+        final List<Map<String,Object>> wire;
+        private V53EvidenceSpool wireSpool;
+        final List<Map<String,Object>> events=Collections.synchronizedList(new ArrayList<>() {
             @Override public boolean add(Map<String,Object> event) {
                 if(processTrace!=null)processTrace.add(event);
                 if(restartLifecycleCapture!=null)restartLifecycleCapture.event(size(),event);
@@ -106,13 +108,26 @@ class V53NativeDispatchTest {
             f.ownedHistory=true;f.nativeApplication=true;
             for(var target:f.request.targets())try(var owner=f.open(target,"initialize-retention")){owner.initializePeerRetention();owner.initializeFutureRetention();}
             preparation.prepare(f);
-            openActors(endpointBudget,liveDirectory);
+            wire=wireHistory();
+            openObservedActors(endpointBudget,liveDirectory);
         }
         Network(V53BootstrapPublicationTest.Fixture retained,ReplicationBounds bounds,long endpointBudget)throws Exception {
             this(retained,bounds,endpointBudget,false,false);
         }
         Network(V53BootstrapPublicationTest.Fixture retained,ReplicationBounds bounds,long endpointBudget,boolean liveDirectory,boolean observeExports)throws Exception {
-            this.bounds=bounds;f=retained;observeExportResources=observeExports;openActors(endpointBudget,liveDirectory);
+            this.bounds=bounds;f=retained;observeExportResources=observeExports;wire=wireHistory();openObservedActors(endpointBudget,liveDirectory);
+        }
+        private List<Map<String,Object>> wireHistory()throws IOException {
+            if(f.request.source()==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP) {
+                wireSpool=new V53EvidenceSpool(f.raw.resolve("wire.json"),wireEvidenceLimit);
+                return wireSpool;
+            }
+            return Collections.synchronizedList(new ArrayList<>());
+        }
+        private void openObservedActors(long endpointBudget,boolean liveDirectory)throws Exception {
+            try{openActors(endpointBudget,liveDirectory);}catch(Exception|Error error) {
+                if(wireSpool!=null)try{wireSpool.close();}catch(Exception|Error close){error.addSuppressed(close);}throw error;
+            }
         }
         private void openActors(long endpointBudget,boolean liveDirectory)throws Exception {
             if(Boolean.getBoolean("v53.resource.source.control")) {
@@ -293,19 +308,23 @@ class V53NativeDispatchTest {
             System.out.println("v53NativeDispatchStage=published-"+certificate.value().get("index"));
         }
         @Override public void close()throws Exception {
+            try(var captured=wireSpool) {
             hook.set(event->{});if(driver!=null)driver.close();for(var endpoint:endpoints)endpoint.close();for(var transport:transports)transport.close();
             for(var owner:owners) {
                 if(resourceTransitions==null)owner.close();else resourceTransitions.closeOwner(owner,events);
             }
             for(var budget:resources)assertEquals(0,budget.usage().leases());
             byte[] eventBytes=V53EvidenceArray.encode(events,V53EvidenceArray.EVENT_BYTES);
-            Files.write(f.raw.resolve("wire.json"),V53EvidenceArray.encode(wire,wireEvidenceLimit));Files.write(f.raw.resolve("events.json"),eventBytes);
+            if(captured==null)Files.write(f.raw.resolve("wire.json"),V53EvidenceArray.encode(wire,wireEvidenceLimit));
+            else assertEquals(captured.maximum(),wireEvidenceLimit,"spooled history capacity changed after admission");
+            Files.write(f.raw.resolve("events.json"),eventBytes);
             Files.write(f.raw.resolve("failures.json"),V53EvidenceArray.encode(failures,1024*1024));
             f.snapshot("after-close");V53NativeApplicationTest.save(f);
             if(publicationResources!=null)publicationResources.save();
             if(resourceTransitions!=null)resourceTransitions.save(eventBytes);
             if(diagnose)try(var writer=Files.newBufferedWriter(Files.createDirectories(Path.of("target/v53-native-dispatch-diagnostics")).resolve(f.raw.getFileName()+".jsonl"))) {
                 for(var row:diagnostics){writer.write(new String(canonical(row,65536),java.nio.charset.StandardCharsets.UTF_8));writer.newLine();}
+            }
             }
         }
     }

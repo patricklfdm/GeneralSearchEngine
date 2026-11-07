@@ -26,7 +26,11 @@ class JoiningHistoryRunTest(unittest.TestCase):
         self.assertEqual((64*1024*1024,32*1024*1024,65536),(h.WIRE_BYTES,h.EVENT_BYTES,h.HISTORY_ROWS))
         self.assertIn('WIRE_BYTES=64*1024*1024, EVENT_BYTES=32*1024*1024, HISTORY_ROWS=65536',java)
         producer=(h.ROOT/h.MODULE/'src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java').read_text()
-        self.assertIn('encode(wire,V53EvidenceArray.WIRE_BYTES)',producer)
+        # The queue component may explicitly raise its own history budget, but
+        # the default wire writer and backup spool both use the admitted limit.
+        self.assertIn('wireEvidenceLimit=V53EvidenceArray.WIRE_BYTES',producer)
+        self.assertIn('encode(wire,wireEvidenceLimit)',producer)
+        self.assertIn('new V53EvidenceSpool(f.raw.resolve("wire.json"),wireEvidenceLimit)',producer)
         self.assertIn('encode(events,V53EvidenceArray.EVENT_BYTES)',producer)
         rows=[{'bytes':'x'*600_000}]*30;rawsave(self.root/'wire.json',rows)
         with self.assertRaises(ValueError):h.read_json(self.root,'wire.json',16*1024*1024)
