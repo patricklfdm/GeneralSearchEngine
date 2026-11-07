@@ -119,7 +119,7 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
     need(type(export_ownership) is bool and (not export_ownership or control_closes),'native resources export-ownership policy')
     need(type(direct_exports) is bool and (not direct_exports or export_ownership and profile in ('stable','5-REPLACE-required-four')),
          'native resources direct-export policy')
-    root=Path(directory);before=collection.inventory(root)
+    root=Path(directory);before=source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)
     if joined_closes:
         from . import joining_owner_close
         # Reject a historical unobserved original before expensive physical replay.
@@ -224,7 +224,7 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
         from . import activation_control_resources
         activation=activation_control_resources.replay(events,wires,traces,boundaries,identities,authority,
                 expected_publications,transactions)
-    need(collection.inventory(root)==before,'native resources original changed')
+    need(source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)==before,'native resources original changed')
     if export_bindings_out is not None:
         need(result['status']=='PASS' and cleanup['status']=='PASS','native resources complete original before binding output')
         # Output only after all original readers and final immutability pass.

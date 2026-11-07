@@ -145,10 +145,10 @@ def replay(root, *, bootstrap_source='EMPTY', wire_layout='JSON'):
 
 def validate(root, *, publication_observer=None, bootstrap_source='EMPTY', wire_layout='JSON'):
     source_args = source_policy.options(bootstrap_source,wire_layout)
-    root=Path(root);before=s.collection.inventory(root)
+    root=Path(root);before=source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)
     original=semantic.validate(root,**source_args) if publication_observer is None else semantic.validate(root,publication_observer=publication_observer,**source_args)
     result=replay(root,**source_args)
-    need(s.collection.inventory(root)==before,'required-four physical original changed')
+    need(source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)==before,'required-four physical original changed')
     return source_policy.receipt(dict(status='PASS',scope='required-four-derived-owner-files',profile=semantic.PROFILE,semantic=original,physical=result,
                 ownerFilesQualified=True,sourceRetirementPhysicalQualified=True,completePhysicalQualified=False,
                 forceAndNetworkQualified=False,processDeathQualified=False,finalSourceCohortQualified=False,phase3Complete=False),bootstrap_source,wire_layout)

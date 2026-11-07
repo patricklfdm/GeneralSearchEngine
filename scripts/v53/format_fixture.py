@@ -9,6 +9,7 @@ import struct
 import uuid
 
 from .membership_model import need
+from . import json_budget
 
 ROOT=Path(__file__).resolve().parents[2]
 CATALOG=ROOT/'docs/v5x/v5.3/format-catalog.json'
@@ -21,14 +22,8 @@ def canonical(value):return json.dumps(value,ensure_ascii=True,sort_keys=True,se
 
 
 def parse_budget(body):
-    depth=0;nodes=0
-    for match in re.finditer(rb'"(?:\\.|[^"\\])*"|[{}\[\],:]|[^\s{}\[\],:"]+',body):
-        token=match.group()
-        if token in (b'{',b'['):depth+=1
-        if token in (b'}',b']'):depth-=1
-        if token not in (b'}',b']',b',',b':'):nodes+=1
-        need(0<=depth<=16 and nodes<=65536,'parser depth/node budget')
-    need(depth==0,'unbalanced JSON')
+    json_budget.scan(body, budget_error='parser depth/node budget',
+                     balance_error='unbalanced JSON', string_error='invalid body')
 
 
 def check_type(value,spec,types):

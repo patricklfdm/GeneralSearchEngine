@@ -275,8 +275,9 @@ segmented backup variant binds `wireLayout: SEGMENTED_BACKUP` in both result and
 original, retains those 148 negatives and adds the exact default-JSON rejection.
 The JSON backup variant retains its existing receipt shape and 148 cases. This
 extension has short native prefix and contract evidence. Deferred transport/
-content retention has separate component checks; full positive backup execution,
-whole-reader memory and maximum-original admission remain pending.
+content retention has separate component checks. Explicit segmented-backup
+entry points now enforce the shared maximum-original streaming inventory;
+full positive backup execution and whole-reader memory remain pending.
 
 The [backup replay development index](phase3-evidence/backup-replay-development.json)
 records 18 new source-policy/orchestration regression tests, 220 existing reader

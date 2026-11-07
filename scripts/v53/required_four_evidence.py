@@ -40,7 +40,7 @@ def required_joint(view, voters):
 
 def validate(root, *, publication_observer=None, bootstrap_source='EMPTY', wire_layout='JSON'):
     source_args = source_policy.options(bootstrap_source,wire_layout)
-    root = Path(root); inventory = c.collection.inventory(root)
+    root = Path(root); inventory = source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)
     original = c.validate(root, size=5, kind='REPLACE', required_four=True,**source_args)
     replay = c.Replay(root, size=5, kind='REPLACE', required_four=True,**source_args)
     for index in range(1, 12): replay.step(index)
@@ -65,7 +65,7 @@ def validate(root, *, publication_observer=None, bootstrap_source='EMPTY', wire_
     publications = publication.validate(root, size=5, kind='REPLACE', required_four=True,
                                         publication_observer=publication_observer,**source_args)
     need(publications['publications'] == 34, 'required-four complete publications')
-    need(c.collection.inventory(root) == inventory, 'required-four original changed')
+    need(source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout) == inventory, 'required-four original changed')
     return source_policy.receipt(dict(status='PASS', scope='required-four-native-semantic-chain', profile=PROFILE,
         original=original, publications=publications, jointVoters=JOINT_LIVE, refusedThreeVoterSubsets=subsets,
         successorVoters=STABLE_LIVE, departingCheckpointVotes=0,

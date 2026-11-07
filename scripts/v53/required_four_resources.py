@@ -88,7 +88,7 @@ def check_backup_result(value,*,wire_layout='JSON'):
 
 def _qualify(root,progress,bootstrap_source,wire_layout='JSON'):
     source_args=source_policy.options(bootstrap_source,wire_layout);backup=bootstrap_source==source_policy.BACKUP
-    root=Path(root);before=native.collection.inventory(root)
+    root=Path(root);before=source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)
     bindings={}
     original=native.validate(root,PROFILE,progress,joined_files=True,joined_closes=True,complete_exports=True,
                              activation_control=True,export_bindings_out=bindings,**source_args)
@@ -133,7 +133,7 @@ def _qualify(root,progress,bootstrap_source,wire_layout='JSON'):
         else:raise ValueError('required-four segmented wire accepted by JSON contract')
         cases['wire-layout']=[dict(LAYOUT_NEGATIVE)]
         if progress:progress(dict(stage='wire-layout-negatives',status='PASS',cases=1))
-    need(native.collection.inventory(root)==before,'required-four resources original changed')
+    need(source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)==before,'required-four resources original changed')
     result=source_policy.receipt(dict(schema=BACKUP_SCHEMA if backup else SCHEMA,status='PASS',profile=BACKUP_PROFILE if backup else PROFILE,
                 original=original,negatives=cases,originalFirst=True,originalPreserved=True,
                 combinedResourcesQualified=False,phase3Complete=False),bootstrap_source,wire_layout)

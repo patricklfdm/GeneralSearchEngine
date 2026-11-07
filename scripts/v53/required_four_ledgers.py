@@ -92,9 +92,9 @@ def replay(root,progress=None, *, bootstrap_source='EMPTY', wire_layout='JSON'):
 
 def validate(directory,progress=None, *, bootstrap_source='EMPTY', wire_layout='JSON'):
     source_args = source_policy.options(bootstrap_source,wire_layout)
-    root=Path(directory);before=collection.inventory(root)
+    root=Path(directory);before=source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)
     original=maintenance.validate(root,**source_args);ledgers=replay(root,progress,**source_args)
-    need(collection.inventory(root)==before,'required-four ledgers original changed')
+    need(source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)==before,'required-four ledgers original changed')
     return source_policy.receipt(dict(status='PASS',scope='required-four-original-continuous-ledgers',profile=maintenance.exports.PROFILE,
                 precondition=original,ledgers=ledgers,peerLedgerCompositionQualified=True,
                 learnerLedgerCompositionQualified=True,futureLedgerCompositionQualified=True,ballotCompositionQualified=True,

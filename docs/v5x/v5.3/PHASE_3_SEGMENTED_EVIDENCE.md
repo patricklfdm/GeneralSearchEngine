@@ -171,17 +171,46 @@ reader but restoring only the previous transfer collector also fails, this time
 while accumulating completed contents. These are development observations,
 not native workload timings or a bound on every permitted frame/history.
 
+## Whole-original admission and frame parsing
+
+The caller-selected `VERIFIED_DURABLE_BACKUP` / `SEGMENTED_BACKUP` pair now
+uses the existing maximum-original streaming inventory at all eleven complete
+replay entry points, before and after replay. Its one 128 GiB total includes
+every wire segment, cut/index, lifecycle capture, physical snapshot and other
+retained member. It retains the 256 MiB per-file bound, 65,536 file/directory
+entries and directory depth of 64. Hashing uses bounded 1 MiB reads and the
+existing file identity, regular-file, link and directory-change checks.
+The wire registry remains a sub-budget; separate archives do not create extra
+whole-original allowances. Evidence markers cannot select this policy.
+Both ordinary EMPTY and backup JSON calls retain the old 512 MiB inventory
+default, call shape and receipt format.
+
+Frame and segmented-row lexical budget checks now share a constant-space string
+scanner. Depth 16, 65,536 tokens, canonical encoding, checksum, schema and
+individual frame limits are unchanged. JSON syntax validation remains separate.
+In the [backup admission development index](phase3-evidence/backup-admission-development.json),
+the same encoded 4 MiB CHUNK passes complete decode under a 128 MiB address-space
+limit (50,852 KiB observed peak RSS); the earlier regex scanner raises
+`MemoryError` under that limit. A separate three-file synthetic sparse tree has
+576 MiB of logical content, exceeding the ordinary whole-original allowance.
+The explicit streaming path hashes it under a 64 MiB address-space limit
+(21,188 KiB observed peak RSS). The old collector fails with `MemoryError` under
+the same limit. Sparse logical bytes are not allocated disk usage, and these
+isolated probes do not establish full native runtime memory limits.
+
+The unchanged short native backup original still replays its first BARRIER,
+292 exchanges, 90 completed contents, six checkpoint bindings and original
+resource/close results. Whole-original hashes are unchanged. Tests additionally
+check shared total accounting, caller-only policy selection, pre-decode capacity
+failure at all entry points and post-negative original immutability.
+
 ## Remaining integration
 
 Physical snapshot/ledger projections still need their full maximum-input memory
-audit, including the codec's large-string budget scanner. The shared registry
-budget is only a sub-budget;
-it does not establish the whole-original bound. The whole-original
-inventory must count every segment and cut alongside lifecycle/copy snapshots;
-per-archive ceilings cannot be added to invent a larger admitted budget.
-The complete chain still uses its existing 512 MiB inventory ceiling. The future
-maximum-backup admission must explicitly apply its 128 GiB whole-original bound
-without increasing the ordinary JSON gate or admitting an unbounded archive.
+audit. In particular, `joining_catalog_evidence.Replay.owner` caches complete
+physical file dictionaries; deferred wire/content views alone do not bound
+those snapshots. No complete positive backup or maximum-native acceptance is
+claimed by whole-original inventory and codec component checks.
 
 After integration, replay a small complete backup original through the same
 format and all independent semantic/physical/resource checks before attempting

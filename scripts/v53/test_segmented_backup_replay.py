@@ -84,6 +84,11 @@ class SegmentedBackupReplayTest(unittest.TestCase):
 
     def setup_gate(self,stack):
         order,inventory,validate,original,probe=backup.BackupRequiredFourResourcesTest().setup_gate(stack)
+        from . import maximum_transition_inventory as large
+        def whole_original(root, *, maximum):
+            self.assertEqual(128*1024**3,maximum)
+            return inventory(root)
+        stack.enter_context(patch.object(large,'inventory',side_effect=whole_original))
         previous=validate.side_effect
         def validation(*args,**kwargs):
             self.assertEqual(p.SEGMENTED,kwargs.pop('wire_layout'))
@@ -123,6 +128,14 @@ class SegmentedBackupReplayTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'wire layout receipt'):
                 m.qualify_backup('/synthetic',wire_layout=p.SEGMENTED)
             self.assertEqual(['original'],order);probe.assert_not_called()
+
+    def test_segmented_gate_checks_the_whole_original_again_after_negatives(self):
+        with ExitStack() as stack:
+            _,inventory,_,_,_,_=self.setup_gate(stack)
+            inventory.side_effect=[{'files':{'original':'a'}},{'files':{'original':'changed'}}]
+            with self.assertRaisesRegex(ValueError,'^required-four resources original changed$'):
+                m.qualify_backup('/synthetic',wire_layout=p.SEGMENTED)
+            self.assertEqual(2,inventory.call_count)
 
     def test_default_layout_probe_must_fail_for_the_exact_reason(self):
         for error in (None,ValueError('unrelated')):

@@ -327,7 +327,7 @@ def lifecycle(root, replay):
 
 def validate(root, *, size=3, kind='ADD', required_four=False, bootstrap_source='EMPTY', wire_layout='JSON'):
     source_args = source_policy.options(bootstrap_source,wire_layout)
-    root = Path(root); original = collection.inventory(root)
+    root = Path(root); original = source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)
     indices = sorted(int(p.name.removeprefix('applied-')) for p in root.iterdir() if re.fullmatch(r'applied-[1-9][0-9]*', p.name))
     need(1 <= len(indices) <= 64 and indices == list(range(1, len(indices)+1)), 'joining complete consecutive applied history')
     need(sorted(p.name for p in root.iterdir() if re.fullmatch(r'published-[1-9][0-9]*', p.name)) ==
@@ -355,7 +355,7 @@ def validate(root, *, size=3, kind='ADD', required_four=False, bootstrap_source=
     need(cold['root.gsr'] == replay.root_bytes and f.decode(cold['node.gsr'], 'records', 'NODE', replay.root)['identity'] ==
          catalog.identities(final['identities'])[replay.joining], 'joining retaining cold identity')
     replay.packet(disk.current(cold)[2], len(indices)); ready = lifecycle(root, replay)
-    need(collection.inventory(root) == original, 'joining original history changed during replay')
+    need(source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout) == original, 'joining original history changed during replay')
     return source_policy.receipt(dict(status='PASS', scope='native-'+kind+'-catalog-certificate-checkpoint-chain', slots=len(indices), controls=kinds,
         profile=str(size)+'-'+kind+('-required-four' if required_four else ''), selections=len(replay.selections), checkpointObservations=len(replay.acks), internalReadyCuts=ready, semanticChainQualified=True,
         publicReady=False,

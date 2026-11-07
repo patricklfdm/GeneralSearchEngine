@@ -11,6 +11,7 @@ from pathlib import Path
 import re
 import stat
 from . import format_fixture as f
+from . import json_budget
 from .membership_model import need
 
 SCHEMA='gse-v53-segmented-evidence-v1'
@@ -28,27 +29,8 @@ def rows(value):
 
 
 def parse_budget(raw):
-    # Unlike a repeated-character regexp, finding string ends does not allocate
-    # a regex backtracking frame per byte of a large base64/string payload.
-    depth=nodes=at=0
-    while at<len(raw):
-        token=raw[at]
-        if token==34:
-            nodes+=1;at+=1
-            while True:
-                end=raw.find(b'"',at);need(end>=0,'segmented evidence JSON string')
-                back=end-1
-                while back>=at and raw[back]==92:back-=1
-                if (end-1-back)%2==0:at=end+1;break
-                at=end+1
-        elif token in (123,91):depth+=1;nodes+=1;at+=1
-        elif token in (125,93):depth-=1;at+=1
-        elif token in b' \t\r\n,:':at+=1
-        else:
-            nodes+=1;at+=1
-            while at<len(raw) and raw[at] not in b' \t\r\n{}[],:"':at+=1
-        need(0<=depth<=16 and nodes<=65536,'segmented evidence parser budget')
-    need(depth==0,'segmented evidence JSON balance')
+    json_budget.scan(raw, budget_error='segmented evidence parser budget',
+                     balance_error='segmented evidence JSON balance', string_error='segmented evidence JSON string')
 
 
 def canonical(raw):

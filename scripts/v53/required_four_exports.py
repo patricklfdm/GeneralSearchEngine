@@ -55,14 +55,14 @@ def coverage(result,counts):
 
 def validate(directory, *, bootstrap_source='EMPTY', wire_layout='JSON'):
     source_args = source_policy.options(bootstrap_source,wire_layout)
-    root=Path(directory);before=collection.inventory(root)
+    root=Path(directory);before=source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)
     original=network.validate(root,**source_args);contents=content(root,**source_args);counts=original['network']
     coverage(contents,counts)
     result=controls(root,contents,**source_args)
     need(result['observedCommittedContents']==counts['committedTransfers'] and
          result['observedContentSessions']==counts['transferSessions']-counts['rejectedTransferAttempts'],
          'required-four control complete transfer coverage')
-    need(collection.inventory(root)==before,'required-four export original changed')
+    need(source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)==before,'required-four export original changed')
     return source_policy.receipt(dict(status='PASS',scope='required-four-observed-temporal-content-and-control-exports',profile=PROFILE,
                 precondition=original,exports=contents,controls=result,temporalContentExportsQualified=True,
                 observedControlExportsQualified=True,observedLearnerRetentionQualified=True,

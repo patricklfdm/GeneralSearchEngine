@@ -76,12 +76,12 @@ def replay(root, *, bootstrap_source='EMPTY', wire_layout='JSON'):
 
 def validate(directory, *, bootstrap_source='EMPTY', wire_layout='JSON'):
     source_args = source_policy.options(bootstrap_source,wire_layout)
-    root=Path(directory);before=collection.inventory(root)
+    root=Path(directory);before=source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)
     original=exports.validate(root,**source_args);result=replay(root,**source_args)
     physical=original['precondition']['physical']['physical']
     need(result['pinnedMaintenanceFloors']==physical['pinnedMaintenanceFloors'],
          'required-four complete physical pin coverage')
-    need(collection.inventory(root)==before,'required-four maintenance original changed')
+    need(source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)==before,'required-four maintenance original changed')
     return source_policy.receipt(dict(status='PASS',scope='required-four-original-maintenance-and-pinned-local-custody',
                 profile=exports.PROFILE,precondition=original,maintenance=result,maintenanceForceQualified=True,
                 peerLedgerCompositionQualified=False,wholeRuntimeResourcesQualified=False,

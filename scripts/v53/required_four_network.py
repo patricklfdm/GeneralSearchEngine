@@ -33,11 +33,11 @@ def replay(root, *, bootstrap_source='EMPTY', wire_layout='JSON'):
 
 def validate(directory, *, bootstrap_source='EMPTY', wire_layout='JSON'):
     source_args = source_policy.options(bootstrap_source,wire_layout)
-    root=Path(directory);before=collection.inventory(root)
+    root=Path(directory);before=source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)
     original=physical.validate(root,**source_args);result=replay(root,**source_args)
     need(result['slots']==11 and result['ownedSlotTransactions']==34,
          'required-four complete network slots')
-    need(collection.inventory(root)==before,'required-four network original changed')
+    need(source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)==before,'required-four network original changed')
     return source_policy.receipt(dict(status='PASS',scope='required-four-original-connections-and-durable-ACKs',profile=physical.semantic.PROFILE,
                 physical=original,network=result,observedNetworkQualified=True,durableACKsQualified=True,
                 completeControlExportQualified=False,maintenanceAndPeerCompositionQualified=False,

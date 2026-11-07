@@ -233,11 +233,11 @@ def original(root, profile, progress=None, *, resource_transitions=False, contro
 def validate(directory, profile='stable', progress=None, *, resource_transitions=False, control_closes=False, bootstrap_source='EMPTY', wire_layout='JSON'):
     source_args = source_policy.options(bootstrap_source,wire_layout)
     need(bootstrap_source==source_policy.EMPTY or profile=='5-REPLACE-required-four', 'publication resources bootstrap source profile')
-    root = Path(directory); before = history.inventory(root)
+    root = Path(directory); before = source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)
     receipt,plans = original(root,profile,progress,resource_transitions=resource_transitions,control_closes=control_closes,**source_args)
     transactions = collect(root,events(root))
     result = compare(transactions,plans)
-    need(history.inventory(root) == before, 'publication resources original changed')
+    need(source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout) == before, 'publication resources original changed')
     return source_policy.receipt(dict(status='PASS',scope='native-publication-storage-boundaries',profile=profile,precondition=receipt,**result,
                 publicationStorageDerived=True,controlChargesDerived=False,wholeRuntimePeakQualified=False,
                 processDeathQualified=False,phase3Complete=False),bootstrap_source,wire_layout)

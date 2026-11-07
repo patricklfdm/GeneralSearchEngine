@@ -255,7 +255,7 @@ def expected_publication(replay, files, index, node):
 
 def validate(root, *, size=3, kind='ADD', required_four=False, publication_observer=None, bootstrap_source='EMPTY', wire_layout='JSON'):
     source_args = source_policy.options(bootstrap_source,wire_layout)
-    root = Path(root); inventory = semantic.collection.inventory(root)
+    root = Path(root); inventory = source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)
     original = semantic.validate(root,size=size,kind=kind,required_four=required_four,**source_args)
     replay = semantic.Replay(root,size=size,kind=kind,required_four=required_four,**source_args)
     for index in range(1, original['slots']+1): replay.step(index)
@@ -268,7 +268,7 @@ def validate(root, *, size=3, kind='ADD', required_four=False, publication_obser
             expected = expected_publication(replay, replay.owner('applied', index, node), index, node)
             need(replay.owner('published', index, node) == expected, 'joining exact publication inventory')
             publications += 1; byte_count += sum(len(v) for v in expected.values() if v is not None)
-    need(semantic.collection.inventory(root) == inventory, 'joining original changed during publication replay')
+    need(source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout) == inventory, 'joining original changed during publication replay')
     return source_policy.receipt(dict(status='PASS', scope='native-'+kind+'-applied-to-published-inventories', profile=original['profile'], slots=original['slots'],
         publications=publications, comparedBytes=byte_count, collectedCheckpointTransfers=replay.publication_receipts.transfers,
         publicationPhysicalQualified=True,

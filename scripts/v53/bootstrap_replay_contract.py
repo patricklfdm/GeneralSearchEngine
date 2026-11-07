@@ -5,6 +5,7 @@ EMPTY = 'EMPTY'
 BACKUP = 'VERIFIED_DURABLE_BACKUP'
 JSON = 'JSON'
 SEGMENTED = 'SEGMENTED_BACKUP'
+ORIGINAL_BYTES = 128 * 1024**3
 
 
 def check(value):
@@ -25,6 +26,21 @@ def options(value, wire_layout=JSON):
     result={} if value == EMPTY else {'bootstrap_source': value}
     if wire_layout != JSON:result['wire_layout']=wire_layout
     return result
+
+
+def inventory(root, *, bootstrap_source=EMPTY, wire_layout=JSON):
+    """One whole-original allowance, selected by the caller, never by evidence.
+
+    Segments, observed cuts, physical copies and all other retained files share
+    the existing maximum-original bound. Ordinary JSON retains its old policy.
+    Imports are deferred because the legacy collector imports replay readers.
+    """
+    check_layout(bootstrap_source, wire_layout)
+    if wire_layout == SEGMENTED:
+        from . import maximum_transition_inventory as large
+        return large.inventory(root, maximum=ORIGINAL_BYTES)
+    from . import joining_history_run as legacy
+    return legacy.inventory(root)
 
 
 def receipt(value, source, wire_layout=JSON):
