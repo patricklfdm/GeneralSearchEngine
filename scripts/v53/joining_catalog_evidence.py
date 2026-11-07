@@ -23,6 +23,7 @@ from . import joining_snapshot as joining
 from . import joining_history_run as collection
 from . import bootstrap_revalidation_evidence as images
 from . import bootstrap_replay_contract as source_policy
+from . import physical_snapshot
 from .ancestry_pruning_evidence import frames
 
 f, need, sha = catalog.f, catalog.need, catalog.sha
@@ -117,7 +118,7 @@ class Replay:
             else:
                 need(node in self.old, 'joining observed phase owner')
                 path = self.path / f'{phase}-{index}' / node
-            self.snapshots[key] = disk.inventory(path)
+            self.snapshots[key] = physical_snapshot.from_model(path, self)
         return self.snapshots[key]
 
     def checkpoint(self, start, end, kind):

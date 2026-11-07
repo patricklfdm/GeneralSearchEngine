@@ -44,7 +44,7 @@ def context(root,profile,*,old_owner_lifetimes=None,required_four=False, bootstr
     # original generation, and cannot justify borrowing another owner's bytes.
     nodes=(*old,model.joining)
     windows=e.generation_windows(root,events,model,nodes=nodes,final_adoption=True)
-    sources=e.source_windows(root,events)
+    sources=e.source_windows(root,events,replay=model)
     records=e.record_windows(root,events,model,windows,sources,nodes=nodes,old_owner_lifetimes=old_owner_lifetimes)
     return SimpleNamespace(model=model,events=events,rows=rows,contents=contents,
                            groups=e.sessions(contents),windows=windows,sources=sources,records=records)

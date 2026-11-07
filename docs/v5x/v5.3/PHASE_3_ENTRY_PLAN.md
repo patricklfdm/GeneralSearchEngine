@@ -155,7 +155,10 @@ views now avoid retaining all decoded payloads and pass an isolated memory probe
 Explicit segmented-backup admission now applies the shared 128 GiB whole-original
 inventory, and a bounded scanner removes the codec's large-string regex peak.
 Ordinary JSON limits remain unchanged. Whole-reader maximum-input memory and
-full positive backup execution remain pending.
+full positive backup execution remain pending. Physical snapshot caches and
+generation/source windows now use original-file views for explicit segmented
+backup replay; isolated memory and retained-file comparisons are recorded in
+the same component document.
 
 The maximum-image component is a synchronous storage probe. It does not establish
 an admitted learner, full metadata pressure or automatic-runtime peak. The

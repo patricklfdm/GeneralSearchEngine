@@ -14,6 +14,7 @@ import tempfile
 
 from . import joining_network_evidence as network
 from . import native_dispatch_evidence as native
+from . import physical_snapshot
 
 n=network; p=n.p; f=n.f; disk=n.disk; need=n.need; sha=n.sha
 LABELS={0:'installed',2:'installed-2',4:'installed-3',6:'installed-4',9:'continuation-installed-9',10:'continuation-installed-10'}
@@ -74,7 +75,9 @@ def generation_windows(root,events,replay,*,recovery=None,nodes=None,final_adopt
         def add(path,start,end):
             nonlocal previous
             need(start<end,'joining export generation lifetime')
-            files=disk.inventory(Path(root)/path);prefix,members,packet=disk.current(files)
+            files=physical_snapshot.from_model(Path(root)/path,replay);prefix,members,packet=disk.current(files)
+            if type(files) is physical_snapshot.Snapshot:
+                members=physical_snapshot.members(files,prefix,exclude=('generation.gsr',))
             identity=f.decode(files['node.gsr'],'records','NODE')['identity']
             need(identity['node']==node,'joining export generation owner')
             window=dict(node=node,start=start,end=end,path=path,members=members,packet=packet,
@@ -123,7 +126,7 @@ def source_authority(windows,request,lower,upper):
              'joining export original source view/ballot')
 
 
-def source_windows(root,events):
+def source_windows(root,events,*,replay=None):
     captures=p.captures.collect(root,events);retirements=n.physical.observed.collect(root,events);ends={}
     for transaction in retirements:
         step=next(v for v in transaction['steps'] if v['point']=='SOURCE_RETIREMENT_WRITTEN')
@@ -135,12 +138,12 @@ def source_windows(root,events):
         ends[key]=transaction['steps'][0]['event']
     result=[]
     for capture in captures:
-        node=capture['node'];files=disk.inventory(Path(root)/capture['capture']/'replica')
+        node=capture['node'];files=physical_snapshot.from_model(Path(root)/capture['capture']/'replica',replay)
         journal=disk.journal(files['grants.gsr'],capture['root'],node);promise,basis=journal[-2][1],journal[-1][1]
         value=f.decode(basis,'records','BASIS');prefix='sources/'+capture['basisId']+'/'
         packet=disk.p.decode(files[prefix+'source.gscp'])
         result.append(dict(node=node,start=capture['capturedEvent'],returnEvent=capture['returnEvent'],end=ends.get((node,capture['basisId']),len(events)),
-            basis=basis,promise=promise,value=value,packet=packet,members={k.removeprefix(prefix):v for k,v in files.items() if k.startswith(prefix)}))
+            basis=basis,promise=promise,value=value,packet=packet,members=physical_snapshot.members(files,prefix)))
     need(set(ends)<={(v['node'],v['value']['basisId']) for v in result},'joining export retirement without original grant')
     return result
 

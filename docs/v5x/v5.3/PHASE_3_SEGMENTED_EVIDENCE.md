@@ -204,13 +204,47 @@ resource/close results. Whole-original hashes are unchanged. Tests additionally
 check shared total accounting, caller-only policy selection, pre-decode capacity
 failure at all entry points and post-negative original immutability.
 
+## Deferred physical snapshots and export windows
+
+Explicit segmented-backup semantic replay now caches checked physical-file views
+instead of a dictionary containing every original payload. Each view inventories
+and streams the complete original tree before exposing a member. The existing
+physical per-owner limits remain 64 MiB per file, 512 MiB total, 256 entries and
+directory depth four; they are separate from whole-history capacity.
+Cached data consists of paths, identities and hashes. Reads return the original
+file bytes after rechecking parent directories, file identity and content hash.
+Generation/source export windows retain projections of those same original
+files, so their longer lifetimes do not reintroduce complete image caches.
+Ordinary JSON models keep the existing dictionary representation.
+
+Comparisons walk one member at a time rather than materializing two complete
+dictionaries. Explicit integrity checks stream every file again. Directory
+membership is checked independently of timestamps: rapid writes on the local
+filesystem can share timestamp values. Symlinks, hardlinks, special files,
+replacement, changed bytes, extra members and capacity overruns remain rejected.
+This is replay storage behavior, not new authority for bootstrap or publication.
+
+The [physical snapshot development index](phase3-evidence/physical-snapshot-development.json)
+retains bounded-memory comparisons and original-file checks. Sixteen independent
+64 MiB synthetic sparse images, plus their window projections, can be validated
+and compared under a 192 MiB address-space limit. The old collector exhausts
+that limit while attempting its third cached snapshot. These are 1 GiB of
+logical input bytes, not allocated disk usage or a native runtime measurement.
+The short native backup/BARRIER original still derives ten physical cache views,
+eleven generation windows and the same wire, checkpoint and resource results.
+Its absent grant-capture collection is not counted as source-window coverage.
+
+Separately, 196 physical snapshots, 59 generation windows and 26 source windows
+from the retained complete EMPTY development history compare exactly with the
+legacy physical reader. This is an isolated file-representation comparison;
+the EMPTY original is not converted into backup evidence, and its full admission
+gate was not rerun. Both original inventories remain unchanged.
+
 ## Remaining integration
 
-Physical snapshot/ledger projections still need their full maximum-input memory
-audit. In particular, `joining_catalog_evidence.Replay.owner` caches complete
-physical file dictionaries; deferred wire/content views alone do not bound
-those snapshots. No complete positive backup or maximum-native acceptance is
-claimed by whole-original inventory and codec component checks.
+The complete physical/ledger chain still needs positive backup execution and a
+maximum-input memory measurement, including working copies and decoded metadata.
+Bounded cached snapshots and windows alone do not prove the whole reader's peak.
 
 After integration, replay a small complete backup original through the same
 format and all independent semantic/physical/resource checks before attempting
