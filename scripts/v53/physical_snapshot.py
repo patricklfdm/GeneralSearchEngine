@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import stat
 from .membership_model import need
+from . import replica_capture_limits as replica_limits
 
 FILE_BYTES = 64 * 1024**2
 TOTAL_BYTES = 512 * 1024**2
@@ -210,6 +211,10 @@ def from_model(root, model):
     source = getattr(model, 'bootstrap_source', policy.EMPTY)
     layout = getattr(model, 'wire_layout', policy.JSON)
     policy.check_layout(source, layout)
-    if layout == policy.SEGMENTED:return Snapshot(root)
+    if layout == policy.SEGMENTED:
+        from .joining_snapshot import relative
+        files = Snapshot(root, limits=Limits(replica_limits.SNAPSHOT_BYTES, replica_limits.MEMBERS, replica_limits.DEPTH))
+        for name in files:relative(name)
+        return files
     from .carried_publication_evidence import inventory
     return inventory(root)

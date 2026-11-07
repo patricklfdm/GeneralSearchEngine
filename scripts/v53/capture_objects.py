@@ -12,9 +12,10 @@ from types import MappingProxyType
 from . import bootstrap_replay_contract as policy
 from . import physical_snapshot as physical
 from .membership_model import need
+from . import replica_capture_limits as replica_limits
 
 MAXIMUM_OBJECTS=8192
-SNAPSHOT_BYTES=512*1024**2
+SNAPSHOT_BYTES=replica_limits.SNAPSHOT_BYTES
 
 
 class Pool:

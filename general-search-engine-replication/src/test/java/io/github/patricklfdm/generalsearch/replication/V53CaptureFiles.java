@@ -12,7 +12,10 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 /** Test-only streaming observations. Descriptor borrowing preserves live POSIX
  * locks; inode, directory membership and exact bytes are checked again after copy. */
 final class V53CaptureFiles {
-    static final long SNAPSHOT_BYTES=512L*1024*1024, ORIGINAL_BYTES=128L*1024*1024*1024;
+    // Observation envelope, not a new runtime reservation or a coexisting-peak claim.
+    static final long SNAPSHOT_BYTES=MembershipResources.METADATA_LIMIT
+            +MembershipResources.Unit.APPLICATION.count*MembershipResources.Unit.APPLICATION.bytes;
+    static final long ORIGINAL_BYTES=128L*1024*1024*1024;
     private final Path root;
     private final Map<String,Map<String,Object>> pinned;
     private final Map<String,Object> inventory;

@@ -1,0 +1,306 @@
+{
+  "allFiveClosureGapsOpen": true,
+  "baseHead": "b7957f8352c41d9285526d5ed57ee38c53c59fe0",
+  "combinedResourcesQualified": false,
+  "contract": {
+    "applicationCount": 7,
+    "depth": 8,
+    "fileBytes": 67108864,
+    "legacyDirectPhysicalBytes": 536870912,
+    "legacyGrantPoolBytes": 268435456,
+    "members": 512,
+    "metadataBytes": 402653184,
+    "productionRuntimeChanged": false,
+    "snapshotBytes": 872415232,
+    "wholeOriginalBudgetShared": true,
+    "wholeOriginalBytes": 137438953472,
+    "workflowChanged": false
+  },
+  "contractCheck": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 3168,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "finalSourceCohortQualified": false,
+  "junit": [
+    {
+      "bytes": 7331,
+      "path": "target/v53-replica-envelope/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53CaptureFilesTest.xml",
+      "sha256": "19ca26312e44efd578c22b6adef24d2cadad22ada5f8fa0a722a9248f6b2710e"
+    },
+    {
+      "bytes": 7423,
+      "path": "target/v53-replica-envelope/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53CaptureObjectsTest.xml",
+      "sha256": "d3eff2de95cc86f3dc9887bc5a5ae36de245fde4be2e78dd5e33a05b232b2906"
+    },
+    {
+      "bytes": 7542,
+      "path": "target/v53-replica-envelope/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53GrantCaptureTest.xml",
+      "sha256": "5c201e7252d00cefe182a9e371e11333b661f3cdbf8aa0c0d73a6f7e4773dcc2"
+    },
+    {
+      "bytes": 6867,
+      "path": "target/v53-replica-envelope/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ReplicaCaptureLimitsTest.xml",
+      "sha256": "1bd3010551d6af70f2cb7fcca175243f70e78e9f05f3e09adaa89c45bedefdf1"
+    }
+  ],
+  "logs": [
+    {
+      "bytes": 167,
+      "path": "target/v53-replica-envelope/contract.json",
+      "sha256": "d8b0517be5c437567d4d2746dfb6f292cb60f6edf720acd823e0258ede0dfe43"
+    },
+    {
+      "bytes": 3625,
+      "path": "target/v53-replica-envelope/final-python.json",
+      "sha256": "04c8b0f29361797f34533352057ae76f88af0597f06cedf51f837bccef53538a"
+    },
+    {
+      "bytes": 5537,
+      "path": "target/v53-replica-envelope/java.log",
+      "sha256": "fb248347904a8ee25324528b2a09bb237ae73037f8a8f8cbfae568bd88d6bb44"
+    },
+    {
+      "bytes": 1094,
+      "path": "target/v53-replica-envelope/native-replay.json",
+      "sha256": "eb33903b9f93f65fb4b0643f98f62914d5d30b1a81f189692193a7801efc8da2"
+    },
+    {
+      "bytes": 3104,
+      "path": "target/v53-replica-envelope/python-final.log",
+      "sha256": "e592e808679465c42934873aee796b324a3319d3328fd92a0e5ab0edf0901b5c"
+    },
+    {
+      "bytes": 129,
+      "path": "target/v53-replica-envelope/python-focused.log",
+      "sha256": "77c682a3dafdf4f8e1bb5c3e0cab124eb47067ef33651ac7a79bcc01201c3b90"
+    },
+    {
+      "bytes": 3105,
+      "path": "target/v53-replica-envelope/python-path-final.log",
+      "sha256": "e00def3ce5b9ccad0fbbf49dc85f4e7eea7ab6842a79da00bbae5553263a8245"
+    },
+    {
+      "bytes": 1020,
+      "path": "target/v53-replica-envelope/replay-native-path-final.log",
+      "sha256": "54f3fd942f7ac47a8d233cf8fa7a048302952c68db33736f0231e408f42e379d"
+    },
+    {
+      "bytes": 1020,
+      "path": "target/v53-replica-envelope/replay-native.log",
+      "sha256": "f89d68580db738aa1d2da57484978a788f4a1a6b26d56b96de6c4a48308f96de"
+    },
+    {
+      "bytes": 4619,
+      "path": "target/v53-replica-envelope/replay.json",
+      "sha256": "e5c0a2ae4c39bf8ce8b9ddefa4d4cd72ff5b86d0d9871759cb168a2703476f59"
+    },
+    {
+      "bytes": 486,
+      "path": "target/v53-replica-envelope/replay.log",
+      "sha256": "3106eeeb6087e23d8021fa2596bf91a867fc316483ed469ba013cca953aceed8"
+    },
+    {
+      "bytes": 4662,
+      "path": "target/v53-replica-envelope/replay.py",
+      "sha256": "cec13f3c18779299bf3e2c25de9e784b4fb6e6dccb65d994b209ab6c8e9d72e4"
+    },
+    {
+      "bytes": 4094,
+      "path": "target/v53-replica-envelope/replay_native.py",
+      "sha256": "1c8058f6927acc3e1ffb45c07c55bc1fd4ba9ee6947c6a210992227deb638cc0"
+    },
+    {
+      "bytes": 698,
+      "path": "target/v53-replica-envelope/run_tests.py",
+      "sha256": "499e16b7c8680728eab16468f437c7934bcca14eca3fc2b773748eb0767ccb0d"
+    },
+    {
+      "bytes": 3352,
+      "path": "target/v53-replica-envelope/test-modules.json",
+      "sha256": "db0a3642cd6bf0b25856848c710d97ce87417a2b635fa5c928db91ac57bebb64"
+    },
+    {
+      "bytes": 167,
+      "path": "target/v53-replica-envelope/contract-final.json",
+      "sha256": "d8b0517be5c437567d4d2746dfb6f292cb60f6edf720acd823e0258ede0dfe43"
+    }
+  ],
+  "memory": {
+    "exactBoundaryPass": true,
+    "inputBytes": 872415232,
+    "javaHeapCeilingBytes": 33554432,
+    "oneAdditionalByteRejected": true,
+    "pythonAddressSpaceCeilingBytes": 167772160,
+    "synthetic": true,
+    "wholeReaderMeasured": false
+  },
+  "nativeMaximumQualified": false,
+  "operatorEnvironment": {
+    "decision": "Finish development; arrange formal acceptance environment later.",
+    "environmentChecksPreserved": true,
+    "qualifiedMaximumLinuxHostAvailable": false
+  },
+  "originals": [
+    {
+      "independentHistoryQualified": false,
+      "inventorySha256": "a800a3f5e73140b7914ce01cc3ce8222855f0b3dfce0b34c2f813ca093c018e8",
+      "kind": "actual-backup-writer",
+      "originalUnchanged": true,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-capture-objects/run-d6430b50-51c5-424d-94d0-5d7faf72d855",
+      "publication": {
+        "prefixes": 33,
+        "rowsSha256": "98087ab7c5ca76e658aa4670aa7922c2e44292da19338911887a890a3e73b5ba",
+        "transactions": 3
+      },
+      "retirement": {
+        "prefixes": 45,
+        "rowsSha256": "f03a95bc5a6ec17b22cbce746aaac3d44564e470912cd74eaf908697a5cc86a3",
+        "transactions": 3
+      }
+    },
+    {
+      "independentHistoryQualified": false,
+      "inventorySha256": "77dedf0a6e5f66c279157d7ce560765a3e4fc5983d40e4cfac9dd3b77de78c58",
+      "kind": "retained-empty-history-component-comparison",
+      "originalUnchanged": true,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-required-four-complete-v2/original-78403d87/workspace/general-search-engine-replication/target/v53-native-dispatch/run-66c3303e-c1e3-401c-8c61-aea19c2e5d15",
+      "publication": {
+        "prefixes": 374,
+        "rowsSha256": "1419f471d9eaad0ecedfeecd63f499a8ee88a9349627c19c71951c8a319198d3",
+        "transactions": 34
+      },
+      "retirement": {
+        "prefixes": 330,
+        "rowsSha256": "45e4a517b247af6fa4851ec6faf6ef5db84e7e33d4551ff61a2c25ba0c425cc8",
+        "transactions": 22
+      }
+    }
+  ],
+  "phase3Complete": false,
+  "rejectedOriginals": [
+    {
+      "containsIdempotentShortPaths": true,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-capture-objects/run-e8c70efe-15d8-4784-98fd-04641f9d0bdd",
+      "reason": "publication resources complete boundary order",
+      "status": "REJECTED"
+    }
+  ],
+  "schema": "gse-v53-development-evidence-v1",
+  "scope": "segmented replica observation envelope; synthetic memory and retained-original replay only",
+  "sourceFiles": [
+    {
+      "bytes": 6386,
+      "path": "docs/v5x/v5.3/PHASE_3_CAPTURE_OBJECTS.md",
+      "sha256": "e5813274e30626995ba89729a13e9469312621c28dfa766026368d169178c684"
+    },
+    {
+      "bytes": 16617,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "c491c9667b41b36481384493763856dc74d06cf42513b18e9c8eaa9150438061"
+    },
+    {
+      "bytes": 5515,
+      "path": "docs/v5x/v5.3/PHASE_3_NATIVE_STAGING.md",
+      "sha256": "46f2c3d6cd20cc08e5a455169536622bee2c4260846ecbea197750da1d8d47e1"
+    },
+    {
+      "bytes": 6303,
+      "path": "docs/v5x/v5.3/PHASE_3_REPLICA_CAPTURE_ENVELOPE.md",
+      "sha256": "f8161234ae3e2d8f4660781ffa56a8dc645b3d8df06de6bebde55873ec176b0c"
+    },
+    {
+      "bytes": 10317,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CaptureFiles.java",
+      "sha256": "cb92786ed346c2348a37b645106f6945599a4aa9cd6a73dc9e9110b367efe650"
+    },
+    {
+      "bytes": 2558,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ReplicaCaptureLimitsTest.java",
+      "sha256": "ea006069dac6f344e35269cd75c97e19c05247a91634c6eb5bf982478eb8712f"
+    },
+    {
+      "bytes": 3804,
+      "path": "scripts/v53/capture_objects.py",
+      "sha256": "8ddead9a171bde40af3a301f981164ba944266dd792178b3f3914a685c1fef6e"
+    },
+    {
+      "bytes": 17656,
+      "path": "scripts/v53/joining_grant_captures.py",
+      "sha256": "201bace3c9235450efc83151cdbbd45f3beb143f7ba5e78f20be55c2c04a0bd2"
+    },
+    {
+      "bytes": 9423,
+      "path": "scripts/v53/physical_snapshot.py",
+      "sha256": "7ff8edd70ddd77ad2644e55c41d8a65e9015214b729490ecde828b7dbf8873ee"
+    },
+    {
+      "bytes": 480,
+      "path": "scripts/v53/replica_capture_limits.py",
+      "sha256": "f8d2406b72e8618b81421de234b880a4a1f7e6ab8a676a14704a20bcc7b6165f"
+    },
+    {
+      "bytes": 5873,
+      "path": "scripts/v53/test_replica_capture_limits.py",
+      "sha256": "7d695d816774feec3a0a71a2e95920d8c74b65639236aa969661edec7aa75e7d"
+    }
+  ],
+  "status": "PARTIAL",
+  "validation": {
+    "java": {
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "status": "PASS",
+      "tests": 14
+    },
+    "python": {
+      "elapsedSeconds": 21.116,
+      "status": "PASS",
+      "tests": 884
+    },
+    "retainedCaptureReplay": {
+      "elapsedSeconds": 30.935,
+      "originalsUnchanged": true,
+      "retirementNegativeCases": 12,
+      "status": "PASS"
+    },
+    "shortNativeReplay": {
+      "bytes": 5521102,
+      "checkpointBindings": 6,
+      "checkpointTransfers": 6,
+      "combinedResourcesQualified": false,
+      "deferredContents": 90,
+      "deferredExchanges": 292,
+      "elapsedSeconds": 4.173,
+      "files": 663,
+      "finalSourceCohortQualified": false,
+      "fullBackupQualification": false,
+      "generationWindows": 11,
+      "inventorySha256": "6bd73454b7bfbea45cd5e5981a8aee37436c147b2b561cf70d43fc6ee119d2ae",
+      "maximumImageQualified": false,
+      "original": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-dispatch/run-625b7e90-7b3f-44e2-ad25-2608f88ada93",
+      "originalPreserved": true,
+      "phase3Complete": false,
+      "physicalViews": 10,
+      "scope": "unchanged short native backup/BARRIER replay with checked deferred physical snapshots",
+      "sourceWindows": 0,
+      "status": "PASS",
+      "transfers": {
+        "committedTransfers": 90,
+        "exactTransferRetries": 0,
+        "rejectedTransferAttempts": 0,
+        "transferSessions": 54,
+        "transferredBytes": 252036
+      },
+      "unchangedResourceResults": true,
+      "wholeRuntimeMemoryQualified": false,
+      "wireRows": 292
+    }
+  }
+}

@@ -175,8 +175,11 @@ it does not reinterpret small-pool evidence or prove a simultaneous maximum.
 [Streaming grant observations](PHASE_3_GRANT_STREAMING.md) now support that
 explicit segmented-backup policy without caching the complete grant snapshot.
 Ordinary JSON bounds remain unchanged. [Source-retirement/publication observation
-pools](PHASE_3_CAPTURE_OBJECTS.md) also stream under explicit segmented policy;
-maximum physical extent and whole-reader memory remain before maximum native runs.
+pools](PHASE_3_CAPTURE_OBJECTS.md) also stream under explicit segmented policy.
+Their [replica transport envelope](PHASE_3_REPLICA_CAPTURE_ENVELOPE.md) now covers
+384 MiB metadata plus seven 64 MiB images consistently across all three readers.
+Real maximum physical composition and whole-reader memory remain before maximum
+native runs; synthetic envelope tests do not supply that qualification.
 
 The maximum-image component is a synchronous storage probe. It does not establish
 an admitted learner, full metadata pressure or automatic-runtime peak. The

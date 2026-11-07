@@ -14,6 +14,7 @@ from . import joining_retention_evidence as retention
 from . import old_owner_lifetimes as cold_owners
 from . import bootstrap_replay_contract as policy
 from . import physical_snapshot
+from . import replica_capture_limits as replica_limits
 
 f, need, sha = snapshot.f, snapshot.need, snapshot.s.digest
 disk = retention.physical
@@ -21,7 +22,7 @@ MIB = snapshot.MIB
 DIRECTORY, EVENT = 'grant-captures', 'GRANT_CAPTURED'
 MAXIMUM_CAPTURES, MAXIMUM_FILES, MAXIMUM_BYTES = 64, 512, 256*MIB
 SCHEMA = 'gse-v53-grant-capture-v1'
-SEGMENTED_BYTES = 512*MIB
+SEGMENTED_BYTES = replica_limits.SNAPSHOT_BYTES
 
 
 def options(model):
@@ -53,7 +54,7 @@ def json_file(path):
 def inventory(root, *, bootstrap_source=policy.EMPTY, wire_layout=policy.JSON):
     policy.check_layout(bootstrap_source, wire_layout)
     if wire_layout == policy.SEGMENTED:
-        files = physical_snapshot.Snapshot(root, limits=physical_snapshot.Limits(SEGMENTED_BYTES, MAXIMUM_FILES, 8))
+        files = physical_snapshot.Snapshot(root, limits=physical_snapshot.Limits(SEGMENTED_BYTES, MAXIMUM_FILES, replica_limits.DEPTH))
         for name in files:snapshot.relative(name)
         return files, files.identities(), files.total_bytes
     need(root.is_dir() and not root.is_symlink(), 'grant capture directory')

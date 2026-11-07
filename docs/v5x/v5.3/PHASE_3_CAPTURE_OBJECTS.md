@@ -38,7 +38,7 @@ The bounds remain explicit:
 | Individual object | 64 MiB |
 | Objects per pool | 8192 |
 | Members per prefix / path depth | 512 / 8 |
-| Logical bytes per replica prefix | 512 MiB, the current physical snapshot ceiling |
+| Logical bytes per replica prefix | 832 MiB under the later [replica envelope](PHASE_3_REPLICA_CAPTURE_ENVELOPE.md); this batch originally used 512 MiB |
 | Retirement / publication captures | 512 / 1024 |
 | Unique pool bytes | At most the existing 128 GiB **shared whole-original** allowance |
 
