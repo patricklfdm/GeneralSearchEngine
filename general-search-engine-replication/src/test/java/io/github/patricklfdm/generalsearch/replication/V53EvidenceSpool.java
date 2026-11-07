@@ -5,6 +5,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
@@ -14,12 +16,13 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
  * A failed append poisons the history; close cannot turn a dropped row into valid evidence. */
 final class V53EvidenceSpool extends AbstractList<Map<String,Object>> implements AutoCloseable {
     private static final int ROW_BYTES=16*1024*1024;
-    private record Row(long offset,int bytes) {}
+    private record Row(long offset,int bytes,byte[] digest) {}
     private final Path path;
     private final long maximum;
     private final FileChannel file;
     private final Object identity;
     private final List<Row> rows=new ArrayList<>();
+    private MessageDigest expected=digest();
     private long end;
     private boolean closed;
     private Throwable failure;
@@ -47,7 +50,23 @@ final class V53EvidenceSpool extends AbstractList<Map<String,Object>> implements
         if(failure!=null)throw new IllegalStateException("evidence spool failed",failure);
     }
     private void write(byte[] bytes)throws IOException {
-        var buffer=ByteBuffer.wrap(bytes);while(buffer.hasRemaining())file.write(buffer);
+        var buffer=ByteBuffer.wrap(bytes);while(buffer.hasRemaining())file.write(buffer);expected.update(bytes);
+    }
+    private static MessageDigest digest() {
+        try{return MessageDigest.getInstance("SHA-256");}catch(NoSuchAlgorithmException error){throw new AssertionError(error);}
+    }
+    private void copyPrefix(FileChannel target,boolean retainDigest)throws IOException {
+        byte[] wanted=expected.digest();var observed=digest();var continuing=retainDigest?digest():null;
+        var buffer=ByteBuffer.allocate(64*1024);long position=0;
+        while(position<end) {
+            buffer.clear();buffer.limit((int)Math.min(buffer.capacity(),end-position));
+            int count=file.read(buffer,position);if(count<0)throw new EOFException("evidence snapshot truncated source");
+            position+=count;buffer.flip();observed.update(buffer.asReadOnlyBuffer());
+            if(continuing!=null)continuing.update(buffer.asReadOnlyBuffer());
+            if(target!=null)while(buffer.hasRemaining())target.write(buffer);
+        }
+        unchanged();require(MessageDigest.isEqual(wanted,observed.digest()),"evidence spool content changed");
+        if(continuing!=null)expected=continuing;
     }
     private RuntimeException poison(Exception error) {
         if(failure==null)failure=error instanceof IOException io?new UncheckedIOException(io):(RuntimeException)error;
@@ -60,7 +79,7 @@ final class V53EvidenceSpool extends AbstractList<Map<String,Object>> implements
             byte[] bytes=canonical(Objects.requireNonNull(row),(int)Math.min(maximum,ROW_BYTES));int comma=rows.isEmpty()?0:1;
             require(bytes.length<=maximum-end-comma-1,"evidence spool byte capacity");
             if(comma!=0)write(new byte[]{','});long offset=end+comma;write(bytes);
-            end=offset+bytes.length;rows.add(new Row(offset,bytes.length));modCount++;return true;
+            end=offset+bytes.length;rows.add(new Row(offset,bytes.length,sha(bytes)));modCount++;return true;
         }catch(IOException|RuntimeException error){throw poison(error);}
         catch(Error error){failure=error;throw error;}
     }
@@ -71,16 +90,38 @@ final class V53EvidenceSpool extends AbstractList<Map<String,Object>> implements
             while(bytes.hasRemaining()) {
                 int count=file.read(bytes,position);if(count<0)throw new EOFException("evidence spool truncated row");position+=count;
             }
-            unchanged();return object(parse(bytes.array(),ROW_BYTES));
+            unchanged();require(MessageDigest.isEqual(row.digest(),sha(bytes.array())),"evidence spool content changed");
+            return object(parse(bytes.array(),ROW_BYTES));
         }catch(IOException|RuntimeException error){throw poison(error);}
         catch(Error error){failure=error;throw error;}
     }
     @Override public synchronized int size(){return rows.size();}
     long maximum(){return maximum;}
+    /** Copy this exact prefix with fixed-size buffers. Later callbacks may append
+     * to this spool but cannot change the exclusively created snapshot. */
+    synchronized void snapshot(Path destination) {
+        active();
+        try {
+            unchanged();
+            try(var target=FileChannel.open(destination,StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+                var before=Files.readAttributes(destination,BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS);
+                require(before.isRegularFile() && before.fileKey()!=null,"evidence snapshot regular file");
+                copyPrefix(target,true);
+                var copied=Files.readAttributes(destination,BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS);
+                require(copied.isRegularFile() && before.fileKey().equals(copied.fileKey()) && copied.size()==end && target.size()==end,
+                        "evidence snapshot file changed");
+                var delimiter=ByteBuffer.wrap(new byte[]{']'});while(delimiter.hasRemaining())target.write(delimiter);
+                var after=Files.readAttributes(destination,BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS);
+                require(after.isRegularFile() && before.fileKey().equals(after.fileKey()) && after.size()==end+1 && target.size()==end+1,
+                        "evidence snapshot file changed");
+            }
+        }catch(IOException|RuntimeException error){throw poison(error);}
+        catch(Error error){failure=error;throw error;}
+    }
     @Override public synchronized void close()throws IOException {
         if(closed)return;
         try(file) {
-            active();unchanged();write(new byte[]{']'});end++;unchanged();
+            active();unchanged();copyPrefix(null,false);write(new byte[]{']'});end++;unchanged();
         }catch(IOException|RuntimeException error){throw poison(error);}
         catch(Error error){failure=error;throw error;}
         finally {closed=true;}

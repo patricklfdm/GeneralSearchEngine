@@ -10,6 +10,7 @@ import org.junit.jupiter.api.io.TempDir;
 import static org.junit.jupiter.api.Assertions.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
 import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*;
+import static io.github.patricklfdm.generalsearch.replication.V53AuxiliaryWire.History.*;
 
 /** Actual bootstrap/typed learner/old-quorum INTENT originals. Only the separate
  * durable pending owner may supply a new-side ACK. Publication still requires
@@ -298,7 +299,7 @@ class V53JoiningIntentExportTest {
                             assertSame(before,owner.activationContext());assertFalse(before.voters().contains(profile.joining()));
                             var files=V53ReplayFilesTest.files(n.f.request.targets().getFirst().replicaDirectory());
                             var learnerFiles=V53ReplayFilesTest.files(request.operationDirectory());
-                            var wire=new ArrayList<Map<String,Object>>();
+                            var wire=n.auxiliaryWire.open(INTENT);
                             try(var contact=MembershipTransport.learnerJoiningIntent(request,new MembershipDiscovery.Hint(targets.getFirst(),before.cut,false),n.bounds,pool,trace.transport("intent-metadata",(event,q,a)->{
                                 if(event.equals("AFTER_RESPONSE_READ"))wire.add(V53SelectedPullTest.wire(q,a));
                             }))) {
@@ -342,7 +343,7 @@ class V53JoiningIntentExportTest {
                                     System.out.println("v53JoiningIntentStage=new-side-end-forced");
                                     if(publishJoint) {
                                         var readers=java.util.concurrent.ConcurrentHashMap.<String>newKeySet();
-                                        var ackWire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
+                                        var ackWire=n.auxiliaryWire.open(ACK);
                                         try(var listener=pending.listen(n.bounds,trace.transport("pending-listener",(event,requestFrame,response)->{
                                             if(event.equals("BEFORE_RESPONSE_WRITE")) {
                                                 readers.add((String)object(requestFrame.value().get("sender")).get("node"));
@@ -357,7 +358,7 @@ class V53JoiningIntentExportTest {
                                             assertFalse(Files.exists(config.materialization().directory()));
                                             assertEquals(0,listener.usage().exports());
                                         }
-                                        Files.write(n.f.raw.resolve("joining-ack-wire.json"),canonical(ackWire,1024*1024));
+                                        n.auxiliaryWire.snapshot(ACK);
                                         System.out.println("v53JoiningIntentStage=joint-published-by-old-majority");
                                         if(prefixOnly) {
                                             pendingSnapshot(plan,config.materialization().directory(),n.f.raw.resolve("joining-originals-pending"));
@@ -372,7 +373,7 @@ class V53JoiningIntentExportTest {
                                             // source. No fixture history, decoded replacement owner
                                             // or direct checkpoint insertion supplies this joining end.
                                             progress.close();var retained=pending.retainSource();Decoded nativeBasis;long nativeCounter=0;
-                                            var confirmationWire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
+                                            var confirmationWire=n.auxiliaryWire.open(HEAD);
                                             try(var headEndpoint=retained.listenHead(n.bounds,trace.transport("retained-head",(event,q,a)->{
                                                 if(event.equals("BEFORE_RESPONSE_WRITE"))confirmationWire.add(V53SelectedPullTest.wire(q,a));
                                             }))) {
@@ -411,7 +412,7 @@ class V53JoiningIntentExportTest {
                                                     ()->new MembershipLearnerPrefixExport(owner,joining,readRequest,resources,
                                                             System::nanoTime,System.nanoTime(),BUDGET,true,null,permit));
                                             assertEquals(originalLedger,owner.learnerRetentionState());
-                                            Files.write(n.f.raw.resolve("joining-head-wire.json"),canonical(confirmationWire,1024*1024));
+                                            n.auxiliaryWire.snapshot(HEAD);
                                             assertEquals(profile.majority(),confirmationWire.size());
                                             System.out.println("v53JoiningIntentStage=selected-old-voters-confirmed-original-sealed-source");
                                             try(var published=new MembershipLearnerProgress(retained,targets.getFirst(),n.bounds,
@@ -474,7 +475,7 @@ class V53JoiningIntentExportTest {
                                                                     old.releaseFloor();seedMaintenance.check();
                                                                 }
                                                                 long retentionStarted=System.nanoTime();
-                                                                var seedWire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
+                                                                var seedWire=n.auxiliaryWire.open(RETENTION);
                                                                 // Capture the actual unused joining copy before the
                                                                 // concurrent initializer may force its ledgers. This
                                                                 // pure expectation never authorizes initialization.
@@ -556,7 +557,7 @@ class V53JoiningIntentExportTest {
                                                                         try(var recoveredInitialization=MembershipGrantJournal.reopenJoinedRetaining(plan,pool,builder().configuration(),config,trace.cut("process-retention-observe"))) {
                                                                             assertJoinedRetention(recoveredInitialization,seed.bytes(),joining);
                                                                         }
-                                                                        Files.write(n.f.raw.resolve("joining-retention-wire.json"),canonical(seedWire,8*1024*1024));
+                                                                        n.auxiliaryWire.snapshot(RETENTION);
                                                                     }else if(remoteRetention) {
                                                                         if(earlyStartup) {
                                                                             long left=BUDGET-(System.nanoTime()-retentionStarted);assertTrue(left>0,"original initialization budget remains");
@@ -568,7 +569,7 @@ class V53JoiningIntentExportTest {
                                                                         assertEquals(MembershipEndpointHandoff.State.ACTIVE,joiningEndpoint.state());
                                                                         assertNotNull(joiningEndpoint.votingEndpoint());
                                                                         assertTrue(retentionPreparation.probeInitialized(),"old proposer observes native completion through TCP");
-                                                                        Files.write(n.f.raw.resolve("joining-retention-wire.json"),canonical(seedWire,8*1024*1024));
+                                                                        n.auxiliaryWire.snapshot(RETENTION);
                                                                         System.out.println("v53JoiningIntentStage=remote-old-majority-retention-initialized-and-endpoint-promoted");
                                                                     }else if(continueJoint)journal.initializeJoinedRetention(originals);
                                                                     if(transport!=null)transport.close();if(joiningEndpoint!=null)joiningEndpoint.close();
@@ -620,7 +621,7 @@ class V53JoiningIntentExportTest {
                                 }
                             }
                             if(!publishJoint)guardChecks(n,request,first);
-                            Files.write(n.f.raw.resolve("joining-intent-wire.json"),canonical(wire,8*1024*1024));
+                            n.auxiliaryWire.snapshot(INTENT);
                             Files.write(n.f.raw.resolve("joining-intent-result.json"),canonical(Map.of("status","PASS","oldVoters",profile.oldVoters(),
                                     "nativeHistory",true,"typedLearner",true,"newSideEndForced",retainPending,"publishedJoint",publishJoint,"nativeJoined",installJoined,
                                     "joinedFloorReconciled",maintainJoined,"publicReady",false),4096));
@@ -645,7 +646,7 @@ class V53JoiningIntentExportTest {
     private void continueJoint(V53NativeDispatchTest.Network n,MembershipLearnerPlan plan,MembershipResources resources,
             MembershipReplicaConfig<Integer,Doc> config,long budget,boolean joiningService,V53JoiningTrace trace,V53JoiningProfile profile)throws Exception {
         long stableIndex=number(n.owners.getFirst().activationContext().cut.get("index"))+2;
-        var wire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
+        var wire=n.auxiliaryWire.open(CONTINUATION);
         var events=new ArrayList<Object>();var failures=Collections.synchronizedList(new ArrayList<Object>());
         var result=new TreeMap<String,Object>();result.put("status","FAIL");result.put("publicReady",false);
         var selections=new ArrayList<Object>();var currentSelected=new java.util.concurrent.atomic.AtomicReference<Set<String>>();
@@ -786,7 +787,7 @@ class V53JoiningIntentExportTest {
         }catch(Exception|Error error){result.put("status","FAIL");result.put("failure",error.toString());throw error;}
         finally {
             joinedSnapshot(plan,config.materialization().directory(),n.f.raw.resolve("joining-originals-continuation"));
-            Files.write(n.f.raw.resolve("joining-continuation-wire.json"),V53EvidenceArray.encode(wire,V53EvidenceArray.WIRE_BYTES));
+            n.auxiliaryWire.snapshot(CONTINUATION);
             Files.write(n.f.raw.resolve("joining-continuation-events.json"),V53EvidenceArray.encode(events,V53EvidenceArray.EVENT_BYTES));
             Files.write(n.f.raw.resolve("joining-continuation-failures.json"),V53EvidenceArray.encode(failures,1024*1024));
             Files.write(n.f.raw.resolve("joining-continuation-result.json"),canonical(result,65536));

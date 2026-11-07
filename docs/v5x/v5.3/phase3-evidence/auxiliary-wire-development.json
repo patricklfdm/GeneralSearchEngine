@@ -1,0 +1,82 @@
+{
+  "combinedResourcesQualified": false,
+  "files": {
+    "target/v53-auxiliary-wire/V53AuxiliaryWireTest.xml": "0dff6bd326408eaec535667aaf700cba6fad9af72b88761b4d0882000a90b6d7",
+    "target/v53-auxiliary-wire/V53EvidenceArrayTest.xml": "89dfbfc36c6e87a6f18bb95d3dd80889b2e3e5f2821d9aa55537cb0c2f74b960",
+    "target/v53-auxiliary-wire/V53EvidenceSpoolTest.xml": "5109dbdf1c882096d3395c4550864b0bbeaf4702c8d863081bd008fa400a6efe",
+    "target/v53-auxiliary-wire/V53NativeSeedTest.xml": "8b3619f1903db035dd57a84681017dff38cc527cf56e64b68c0407bb2ef29580",
+    "target/v53-auxiliary-wire/maven.log": "5e758abf55d5c4bb1f15dc5d1d316e414029a0b74d87c930faa69339064e4aa6",
+    "target/v53-auxiliary-wire/plan-tests.log": "7c6b94898e169ce464c98c8cd73a607bcdb94c5611728dff371e24ad4b0fdfac",
+    "target/v53-auxiliary-wire/python-tests.log": "7e5adaf25c8a063e87792345c46ef4c30ca49772ba5bca80e84ef7e5ed93c54f",
+    "target/v53-auxiliary-wire/replay.log": "b75b167a6b47a6a7bf1332ba9a93c87a5afc3f5037a8add45320663e401e0702",
+    "target/v53-auxiliary-wire/seed-replay.json": "e1fe00ae74e7a06e752a36e14c1d0cf237b771430a1805de86f03f1262c3d0a4",
+    "target/v53-auxiliary-wire/validation-summary.json": "9d6f301359631a1b63686ca82dcbae4541da816c9ae9b4878a6d704fa144dde2",
+    "target/v53-auxiliary-wire/wire-format-replay.json": "8495557865e42df2df49858dfc29d91f95bf9e3036fa8cc324adef56a0bea292"
+  },
+  "finalSourceCohortQualified": false,
+  "fullAuxiliaryJoiningQualified": false,
+  "fullJoiningQualified": false,
+  "javaSuites": [
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53EvidenceSpoolTest",
+      "seconds": 1.137,
+      "skipped": 0,
+      "tests": 18
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53AuxiliaryWireTest",
+      "seconds": 0.019,
+      "skipped": 0,
+      "tests": 8
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53EvidenceArrayTest",
+      "seconds": 0.167,
+      "skipped": 0,
+      "tests": 6
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53NativeSeedTest",
+      "seconds": 60.818,
+      "skipped": 0,
+      "tests": 2
+    }
+  ],
+  "javaTests": 34,
+  "lowHeapProbe": {
+    "copyBufferBytes": 65536,
+    "heapMiB": 32,
+    "minimumCompleteMiB": 50,
+    "minimumPrefixMiB": 25,
+    "rows": 200,
+    "wholeRuntimeMemoryQualified": false
+  },
+  "maximumImageQualified": false,
+  "nativeOriginal": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-dispatch/run-2d9993fa-11ef-47c4-b421-041f6880a625",
+  "nativeReplayNegativeCases": 2,
+  "parent": "f89c9b9b826974e7fbc0cd1026466ee82f4d590d",
+  "phase3Complete": false,
+  "pythonContractTests": 19,
+  "pythonFocusedTests": 75,
+  "schema": "gse-v53-auxiliary-wire-development-v1",
+  "scope": "development working tree; no final-source cohort",
+  "status": "PASS",
+  "wireFormat": {
+    "bytes": 1039201,
+    "frames": 584,
+    "fullAuxiliaryJoiningQualified": false,
+    "fullNetworkQualified": false,
+    "phase3Complete": false,
+    "rows": 292,
+    "scope": "main wire canonical/frame compatibility after auxiliary registry integration",
+    "status": "PASS"
+  }
+}

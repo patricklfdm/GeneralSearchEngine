@@ -119,6 +119,52 @@ class V53EvidenceSpoolTest {
         spool.close();assertThrows(IllegalArgumentException.class,()->spool.add(ROW));assertThrows(IllegalArgumentException.class,()->spool.get(0));
         assertArrayEquals(before,Files.readAllBytes(path));
     }
+    @Test void snapshotsFreezeTheirOwnPrefixWhileLaterCallbacksContinue()throws Exception {
+        Path path=temp.resolve("wire.json"),first=temp.resolve("first.json"),second=temp.resolve("second.json");
+        var later=Map.<String,Object>of("event","later");
+        try(var spool=new V53EvidenceSpool(path,4096)) {
+            spool.add(ROW);spool.snapshot(first);byte[] original=Files.readAllBytes(first);
+            spool.add(later);spool.snapshot(second);assertEquals(2,spool.size());assertEquals(later,spool.getLast());
+            assertArrayEquals(V53EvidenceArray.encode(List.of(ROW),4096),original);
+            assertArrayEquals(original,Files.readAllBytes(first));
+            assertArrayEquals(V53EvidenceArray.encode(List.of(ROW,later),4096),Files.readAllBytes(second));
+        }
+        assertEquals(-1,Files.mismatch(path,second));
+    }
+    @Test void emptySnapshotDoesNotEndTheWriterAndClosedWriterCannotSnapshot()throws Exception {
+        Path path=temp.resolve("wire.json"),empty=temp.resolve("empty.json");var spool=new V53EvidenceSpool(path,1024);
+        spool.snapshot(empty);assertEquals("[]",Files.readString(empty));spool.add(ROW);spool.close();
+        assertThrows(IllegalArgumentException.class,()->spool.snapshot(temp.resolve("after.json")));
+        assertFalse(Files.exists(temp.resolve("after.json")));assertEquals("[]",Files.readString(empty));
+    }
+    @Test void snapshotCannotOverwriteExistingEvidenceOrFollowLinks()throws Exception {
+        for(boolean link:List.of(false,true)) {
+            Path source=temp.resolve("wire-"+link),existing=temp.resolve("old-"+link);Files.writeString(existing,"original");
+            Path destination=existing;
+            if(link){destination=temp.resolve("link");Files.createSymbolicLink(destination,existing);}
+            var spool=new V53EvidenceSpool(source,1024);spool.add(ROW);Path output=destination;
+            assertThrows(java.io.UncheckedIOException.class,()->spool.snapshot(output));
+            assertThrows(java.io.UncheckedIOException.class,spool::close);assertEquals("original",Files.readString(existing));
+            assertFalse(Files.readString(source).endsWith("]"));
+        }
+    }
+    @Test void sameLengthContentChangesFailReadSnapshotAndClose()throws Exception {
+        for(String operation:List.of("read","snapshot","close")) {
+            Path source=temp.resolve(operation);var spool=new V53EvidenceSpool(source,1024);spool.add(Map.of("event","first"));
+            String original=Files.readString(source);Files.writeString(source,original.replace("first","other"));
+            var action=(org.junit.jupiter.api.function.Executable)()->{
+                switch(operation) {
+                    case "read"->spool.getFirst();
+                    case "snapshot"->spool.snapshot(temp.resolve("snapshot.json"));
+                    default->spool.close();
+                }
+            };
+            assertEquals("evidence spool content changed",assertThrows(IllegalArgumentException.class,action).getMessage());
+            if(!operation.equals("close"))assertThrows(IllegalArgumentException.class,spool::close);
+            assertFalse(Files.readString(source).endsWith("]"));
+        }
+        assertFalse(Files.readString(temp.resolve("snapshot.json")).endsWith("]"));
+    }
     @Test void completeHistoryCanExceedTheCollectorHeap()throws Exception {
         Path path=temp.resolve("large.json"),log=temp.resolve("child.log");
         var process=new ProcessBuilder(Path.of(System.getProperty("java.home"),"bin","java").toString(),"-Xmx32m","-cp",
@@ -132,10 +178,17 @@ class V53EvidenceSpoolTest {
     }
     public static final class HeapProbe {
         public static void main(String[] args)throws Exception {
-            try(var spool=new V53EvidenceSpool(Path.of(args[0]),V53EvidenceArray.WIRE_BYTES)) {
-                for(int i=0;i<200;i++)spool.add(Map.of("index",(long)i,"bytes",i+"x".repeat(300*1024)));
+            Path path=Path.of(args[0]),prefix=path.resolveSibling("prefix.json"),complete=path.resolveSibling("complete.json");
+            try(var spool=new V53EvidenceSpool(path,V53EvidenceArray.WIRE_BYTES)) {
+                for(int i=0;i<200;i++) {
+                    spool.add(Map.of("index",(long)i,"bytes",i+"x".repeat(300*1024)));
+                    if(i==99)spool.snapshot(prefix);
+                }
+                spool.snapshot(complete);
                 for(int i=0;i<200;i++)if(!spool.get(i).get("index").equals((long)i))throw new IllegalStateException("row order");
             }
+            if(Files.size(prefix)<25L*1024*1024 || Files.size(prefix)>=Files.size(complete) || Files.mismatch(path,complete)!=-1)
+                throw new IllegalStateException("snapshot prefix/output");
             System.out.println("rows=200");
         }
     }

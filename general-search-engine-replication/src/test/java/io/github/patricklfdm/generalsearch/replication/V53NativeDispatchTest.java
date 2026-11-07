@@ -30,6 +30,7 @@ class V53NativeDispatchTest {
         volatile V53RestartLifecycleCapture restartLifecycleCapture;
         final List<Map<String,Object>> wire;
         private V53EvidenceSpool wireSpool;
+        final V53AuxiliaryWire auxiliaryWire;
         final List<Map<String,Object>> events=Collections.synchronizedList(new ArrayList<>() {
             @Override public boolean add(Map<String,Object> event) {
                 if(processTrace!=null)processTrace.add(event);
@@ -108,6 +109,7 @@ class V53NativeDispatchTest {
             f.ownedHistory=true;f.nativeApplication=true;
             for(var target:f.request.targets())try(var owner=f.open(target,"initialize-retention")){owner.initializePeerRetention();owner.initializeFutureRetention();}
             preparation.prepare(f);
+            auxiliaryWire=new V53AuxiliaryWire(f.raw,f.request.source()==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP);
             wire=wireHistory();
             openObservedActors(endpointBudget,liveDirectory);
         }
@@ -115,7 +117,9 @@ class V53NativeDispatchTest {
             this(retained,bounds,endpointBudget,false,false);
         }
         Network(V53BootstrapPublicationTest.Fixture retained,ReplicationBounds bounds,long endpointBudget,boolean liveDirectory,boolean observeExports)throws Exception {
-            this.bounds=bounds;f=retained;observeExportResources=observeExports;wire=wireHistory();openObservedActors(endpointBudget,liveDirectory);
+            this.bounds=bounds;f=retained;observeExportResources=observeExports;
+            auxiliaryWire=new V53AuxiliaryWire(f.raw,f.request.source()==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP);
+            wire=wireHistory();openObservedActors(endpointBudget,liveDirectory);
         }
         private List<Map<String,Object>> wireHistory()throws IOException {
             if(f.request.source()==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP) {
@@ -126,7 +130,7 @@ class V53NativeDispatchTest {
         }
         private void openObservedActors(long endpointBudget,boolean liveDirectory)throws Exception {
             try{openActors(endpointBudget,liveDirectory);}catch(Exception|Error error) {
-                if(wireSpool!=null)try{wireSpool.close();}catch(Exception|Error close){error.addSuppressed(close);}throw error;
+                try(var auxiliary=auxiliaryWire;var primary=wireSpool){}catch(Exception|Error close){error.addSuppressed(close);}throw error;
             }
         }
         private void openActors(long endpointBudget,boolean liveDirectory)throws Exception {
@@ -308,7 +312,7 @@ class V53NativeDispatchTest {
             System.out.println("v53NativeDispatchStage=published-"+certificate.value().get("index"));
         }
         @Override public void close()throws Exception {
-            try(var captured=wireSpool) {
+            try(var auxiliary=auxiliaryWire;var captured=wireSpool) {
             hook.set(event->{});if(driver!=null)driver.close();for(var endpoint:endpoints)endpoint.close();for(var transport:transports)transport.close();
             for(var owner:owners) {
                 if(resourceTransitions==null)owner.close();else resourceTransitions.closeOwner(owner,events);
