@@ -1,0 +1,103 @@
+# Joint queue pressure and native REMOVE completion
+
+Status: **DEVELOPMENT ENTRY; full-size execution and acceptance pending**.
+
+This explicit development qualification connects actual 64 MiB queue pressure
+to the continuous native REMOVE history. It does not close `combined-resources`:
+simultaneous maximum metadata/application occupancy and final-source cohort
+admission remain separate requirements.
+
+The four original voters import one verified backup containing 129 documents
+with 32,768-byte values. The existing original-byte preparation publishes
+RESERVE, PREPARE, READY and SEAL. Native TCP activation and slot drivers then
+publish INTENT and install the joint configuration. Owners, listeners, journals
+and resource pools remain live through the rest of the experiment.
+
+Four additional reader-bound SOURCE traces retain original 4 MiB image chunks in the actual
+activation endpoint. Seven exact duplicates pause at the real response-write
+callback with send buffers charged. The next duplicate must fail at the
+aggregate queue-byte bound; the server's CAPACITY and client's IO observations
+must agree. Releasing the callbacks drains the sends. The same failed request
+then succeeds with identical bytes, and each trace commits its image tail.
+
+The same native owners subsequently publish FINAL, activate the new stable
+configuration and publish BARRIER. The source sessions belong to the original
+activation scope; the test does not manually release reservations, replace an
+owner, manufacture a vote or enlarge any runtime resource bound. Remaining
+export scope cleanup uses the normal endpoint lifetime. Test scheduling barriers
+are deliberate faults, not a claim about normal traffic or recovery latency.
+
+`scripts.v53.queue_completion_evidence` first reduces the complete original
+bootstrap, preparation, three installations, publication acknowledgements and
+terminal files through the existing continuous-history reader. Its additional
+checks derive the actual queue transitions, four cache/seven send overlap,
+original source bytes, exact request/reply attempts, classified refusal, retry,
+joint/FINAL boundaries and zero terminal ownership. All declared negative
+mutations require a passing original and their exact rejection reasons.
+
+The old continuous reader retains its 512 MiB evidence bound and empty-bootstrap
+default. This large-image adapter explicitly permits an 8 GiB **observation
+archive**, including repeated physical snapshots. The new fixture permits a
+256 MiB wire observation array; old fixtures retain 64 MiB. Neither setting
+changes protocol frame sizes, queue capacity or source counts. The new explicit
+large-image fixture uses a 900-second campaign/slot lifetime; the existing
+continuous tests retain their original 180 seconds. Per-request timeout remains
+30 seconds. These are qualification scheduling budgets, not changed runtime
+defaults, an extension of an in-flight operation, or a failover SLA.
+
+Run the explicit experiment separately from ordinary unit tests:
+
+```bash
+/opt/maven/bin/mvn -o -B -ntp -f reactor/pom.xml \
+  -pl :general-search-engine-replication -am \
+  -Dsurefire.failIfNoSpecifiedTests=false \
+  '-Dtest=V53QueueCompletionQualification#admittedRemoveFinishesAfterRealJointQueuePressure' test
+
+# Use the original directory printed by the experiment.
+python3 -m scripts.v53.queue_completion_evidence ORIGINAL_DIRECTORY --qualify
+```
+
+The explicit `Qualification` class is excluded from the ordinary `*Test`
+discovery pattern. Large original-history execution may be scheduled with the
+later hosted acceptance batch; this change does not add or dispatch a workflow.
+Its observations do not establish public membership readiness, autonomous
+completion, fresh-process recovery, a final-source admission or Phase 3 closure.
+
+## Development observations and limits
+
+The first large-image original completed four preparation slots and its first
+native activation, then failed local INTENT publication with
+`original activation endpoint deadline/closed` under the inherited 180-second
+fixture lifetime. Its 624-second execution, raw files and thread snapshot remain
+retained; it never reached queue pressure. The subsequent 900-second fixture
+must execute as a new history. The failed original is not relabelled as passing.
+
+`smallImageRehearsesSameNativeCompletion` exercises the same endpoint and session
+path with 4 KiB chunks. The eighth send is expected to succeed; its receipt sets
+`pressureRequired=false`, so it cannot satisfy the full queue-pressure reader.
+It checks integration and completion while the full-size experiment remains a
+separate acceptance requirement. The whole original must pass before the ten
+pressure-evidence negatives can count. No successful full-size negative replay
+is claimed merely from their implementation or unit guard tests.
+
+The first small-image rehearsal reproduced the native owner bound when opening
+its fifth additional SOURCE trace: two exports from the actual joint activation
+were still live. The corrected probe keeps those owners and uses four additional
+large caches plus seven held sends. It does not close an activation scope early
+or erase real reservations to reproduce the isolated six-cache experiment.
+The original count-bound refusal remains distinct from aggregate-byte evidence.
+
+The corrected small rehearsal passed its one native test in 302.625 seconds.
+Independent current-maintenance replay of the original and a relocated copy
+passed, including the exact small application, four sessions, 37 delivered
+attempts, original retained exports, native FINAL/BARRIER and terminal cleanup.
+It observed no capacity refusal and is rejected by the full-pressure gate.
+Six existing continuous-transition tests and 38 Python guards also passed;
+optimized Python produces the same guard results. The final fixture additionally
+uses dedicated virtual threads for the seven blocked sends and prints pressure
+milestones; those final scheduling/observation edits compile but are not a new
+source-bound execution receipt.
+
+The [development evidence index](phase3-evidence/queue-completion-development.json)
+retains failed originals, exact executed fixture source, reports and raw hash
+inventories. The twelve obligations and 566 planned whole histories are unchanged.

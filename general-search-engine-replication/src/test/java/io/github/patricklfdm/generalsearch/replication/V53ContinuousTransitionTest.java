@@ -14,6 +14,7 @@ import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*
  * changes. No intermediate store reset or synthetic remote vote observations. */
 class V53ContinuousTransitionTest {
     @TempDir Path temp;
+    long budget=V53NativeDispatchTest.BUDGET;
     @Test void sameCutSourceSweepNeedsNewDurablePromiseAndOriginalGoverningCopies()throws Exception {
         var helper=new V53NativeDispatchTest();helper.temp=temp;
         try(var n=helper.new Network()) {
@@ -54,7 +55,7 @@ class V53ContinuousTransitionTest {
             try(var next=new MembershipActivationDriver(n.owners.getFirst(),n.endpoints.getFirst(),n.resources.getFirst(),n.bounds,
                     (peer,request,kind,deadline)->{if(request.kind().equals("STATUS_PROBE")){entered.countDown();return pending;}
                         return n.transports.getFirst().exchange(peer,request,kind,deadline);},
-                    List.of(),List.of(),temp.resolve("pregrant-"+UUID.randomUUID()),System::nanoTime,V53NativeDispatchTest.BUDGET,2)) {
+                    List.of(),List.of(),temp.resolve("pregrant-"+UUID.randomUUID()),System::nanoTime,budget,2)) {
                 var result=CompletableFuture.supplyAsync(()->assertThrows(Exception.class,next::run));
                 assertTrue(entered.await(30,TimeUnit.SECONDS));
                 if(higher) {
@@ -125,24 +126,24 @@ class V53ContinuousTransitionTest {
             System.out.println("v53ContinuousTransition=PASS raw="+n.f.raw.toAbsolutePath());
         }
     }
-    private void activate(V53NativeDispatchTest.Network n,int ordinal)throws Exception {
+    void activate(V53NativeDispatchTest.Network n,int ordinal)throws Exception {
         if(n.driver!=null){n.driver.close();n.driver=null;}
         n.driver=new MembershipActivationDriver(n.owners.getFirst(),n.endpoints.getFirst(),n.resources.getFirst(),n.bounds,
-                n.transports.getFirst()::exchange,List.of(),List.of(),temp.resolve("activation-"+ordinal),System::nanoTime,V53NativeDispatchTest.BUDGET,2);
+                n.transports.getFirst()::exchange,List.of(),List.of(),temp.resolve("activation-"+ordinal),System::nanoTime,budget,2);
         n.selected=n.driver.run();n.ballot=object(n.selected.value().get("ballot"));
         n.voters=list(n.selected.value().get("sources")).stream().map(v->Integer.parseInt(((String)object(v).get("voter")).substring(5))-1).sorted().toList();
         n.f.snapshot("installed-"+ordinal);Files.write(n.f.raw.resolve("selected-"+ordinal+".gsr"),n.selected.bytes());
         n.events.add(Map.of("node","node-1","event","CONTINUOUS_INSTALLED","ordinal",ordinal,"selection",n.selected.digest()));
         System.out.println("v53ContinuousTransitionStage=installed ordinal="+ordinal);
     }
-    private Decoded publish(V53NativeDispatchTest.Network n,String kind,byte[] payload)throws Exception {
+    Decoded publish(V53NativeDispatchTest.Network n,String kind,byte[] payload)throws Exception {
         var own=n.owners.getFirst();var context=own.activationContext();long index=number(context.cut.get("index"))+1;
         var entry=decode(encode("records","ENTRY",Map.of("root",context.root,"authority",context.authority(),"index",index,
                 "previous",context.cut.get("entry"),"origin",n.ballot,"kind",kind,"payload",hash(payload))),"records","ENTRY");
         Files.write(n.f.raw.resolve("native-entry-"+index+".gsr"),entry.bytes());Files.write(n.f.raw.resolve("native-payload-"+index+".bin"),payload);
         n.events.add(Map.of("node","node-1","event","SLOT_BEGIN","index",index));
         try(var driver=new MembershipSlotDriver(own,n.endpoints.getFirst(),n.resources.getFirst(),n.bounds,n.transports.getFirst(),
-                System::nanoTime,System.nanoTime(),V53NativeDispatchTest.BUDGET,builder().configuration(),n.f.request.targets().getFirst().materialization(),
+                System::nanoTime,System.nanoTime(),budget,builder().configuration(),n.f.request.targets().getFirst().materialization(),
                 (event,record,voters)->{
                     n.events.add(Map.of("node","node-1","event","DRIVER_"+event,"index",record.value().get("index"),"voters",voters.stream().sorted().toList()));
                     if(event.equals("APPLIED") || event.equals("PUBLISHED"))try{n.f.snapshot(event.toLowerCase(Locale.ROOT)+"-"+record.value().get("index"));}

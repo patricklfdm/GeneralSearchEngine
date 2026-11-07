@@ -84,8 +84,8 @@ def maintenance_boundaries(root,ordinal,voters):
             'continuous pre-grant '+node)
 
 
-def publication(root,slot,ordinal):
-    events=d.read(root/'events.json');wire=d.read(root/'wire.json');voters=slot.voters
+def publication(root,slot,ordinal,*,wire=None):
+    events=d.read(root/'events.json');wire=d.read(root/'wire.json') if wire is None else wire;voters=slot.voters
     selected_raw=(root/f'selected-{ordinal}.gsr').read_bytes();selected=f.decode(selected_raw,'records','SELECTED')
     starts=[i for i,row in enumerate(events) if row['event']=='SLOT_BEGIN' and row['index']==slot.slot]
     finishes=[i for i,row in enumerate(events) if row['event']=='DRIVER_PUBLISHED' and row['index']==slot.slot]
@@ -119,7 +119,7 @@ def publication(root,slot,ordinal):
     need(received==set(voters[1:]),'continuous all publication acknowledgements')
 
 
-def history(root, result_file, *, size=4, current_maintenance=False):
+def history(root, result_file, *, size=4, current_maintenance=False, backup=False, additional=(), maximum_bytes=512*e.MIB, wire_bytes=8*e.MIB):
     """Shared original-byte reduction; callers separately enforce their scope.
 
     Only the declared result filename varies. Sources, traces, images, quorums
@@ -132,7 +132,7 @@ def history(root, result_file, *, size=4, current_maintenance=False):
     for count,path in enumerate(root.rglob('*'),1):
         need(not path.is_symlink() and (path.is_dir() or path.is_file()),'continuous regular original inventory')
         if path.is_file():total+=path.stat().st_size
-        need(count<=65536 and total<=512*e.MIB,'continuous bounded original inventory')
+        need(count<=65536 and total<=maximum_bytes,'continuous bounded original inventory')
     expected={'initial','original-plan.gsbp','original-application.image','before-network','after-close',
               'calls.json','events.json','wire.json','failures.json',result_file}
     expected|={'round-1-'+stage for stage in ('prepared','selected','installed','settled')}
@@ -142,10 +142,11 @@ def history(root, result_file, *, size=4, current_maintenance=False):
     expected|={f'selected-{ordinal}.gsr' for ordinal in range(1,4)}
     expected|={f'{label}-{slot}' for slot in range(5,8) for label in ('applied','published')}
     expected|={f'native-{name}-{slot}.{suffix}' for slot in range(5,8) for name,suffix in (('entry','gsr'),('payload','bin'))}
-    b.selection.layout(root,expected,'continuous transition')
+    b.selection.layout(root,expected|set(additional),'continuous transition')
+    wire=json.loads(b.t.plans.read(root/'wire.json',wire_bytes))
     for name in ('events','wire','failures'):
-        values=d.read(root/(name+'.json'));need(type(values) is list and len(values)<=32768,'continuous bounded traces')
-    walk=a.prelude(root,'INTENT',size=size);native=NativeSlot.__new__(NativeSlot);native.__dict__.update(walk.__dict__)
+        values=wire if name=='wire' else d.read(root/(name+'.json'));need(type(values) is list and len(values)<=32768,'continuous bounded traces')
+    walk=a.prelude(root,'INTENT',size=size,backup=backup);native=NativeSlot.__new__(NativeSlot);native.__dict__.update(walk.__dict__)
     for ordinal,(kind,voters) in enumerate(profiles,1):
         native.group=install(root,native.group,ordinal,voters,current_maintenance=current_maintenance)
         from . import remove_maintenance_evidence as maintenance
@@ -157,7 +158,7 @@ def history(root, result_file, *, size=4, current_maintenance=False):
         operation=native.state()[3]['results'][-1]
         command=dict(sealed={k:operation[k] for k in ('request','prepared','receipt')}) if kind=='INTENT' else (
             dict(binding=operation['binding']) if kind=='FINAL' else None)
-        native.publish(kind,command);publication(root,native,ordinal)
+        native.publish(kind,command);publication(root,native,ordinal,wire=wire)
     b.match(root,'after-close',native.group)
     return dict(status='PASS',kind='REMOVE',activations=3,publishedSlots=[5,6,7],physicalQualified=True,
                 publicationBoundaryQualified=True,publicReady=False,phase3Complete=False)

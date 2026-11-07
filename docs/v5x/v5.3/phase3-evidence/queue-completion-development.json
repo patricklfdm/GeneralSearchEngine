@@ -1,0 +1,139 @@
+{
+  "schema": "gse-v53-queue-completion-development-v1",
+  "status": "PARTIAL",
+  "phase3Complete": false,
+  "combinedMaximumQualified": false,
+  "fullQueueCompletionQualified": false,
+  "finalSourceAdmission": false,
+  "baseCommit": "9e4d18fbd720b4681f59ed55a0ec84fb9fa9887e",
+  "fullProfile": {
+    "newSessions": 4,
+    "heldSends": 7,
+    "nativeExportsAlreadyLive": 2,
+    "queueLimitBytes": 67108864,
+    "campaignBudgetSeconds": 900,
+    "requestTimeoutSeconds": 30,
+    "status": "PENDING"
+  },
+  "failedLarge": {
+    "junitSeconds": 624.1,
+    "phase": "INTENT before pressure",
+    "reason": "original activation endpoint deadline/closed",
+    "campaignBudgetSeconds": 180,
+    "log": {
+      "path": "target/v53-queue-completion/native-run-1.log",
+      "bytes": 7617,
+      "sha256": "8fbd43f40230a6262f6aad5a7bb29918a980066698ad7d617eb068b0845e2cc1"
+    },
+    "raw": {
+      "root": "general-search-engine-replication/target/v53-queue-completion/run-19a6916b-3c13-4dfe-a9dc-99f268398f99",
+      "files": 3403,
+      "bytes": 1322010961,
+      "inventory": {
+        "path": "target/v53-queue-completion/failed-large-inventory.json",
+        "bytes": 595478,
+        "sha256": "b9a6e5a3a6e6a29de22a781e4d1bdfc163dc380325d481f50f8561964e160957"
+      }
+    }
+  },
+  "failedSmall": {
+    "junitSeconds": 208.0,
+    "reason": "source export owner capacity at fifth additional trace; two original joint exports remain live",
+    "log": {
+      "path": "target/v53-queue-completion/small-native.log",
+      "bytes": 10697,
+      "sha256": "878660760e5e492e8232ed6abac60e61b25744d8dcab56999479736b09f4f0d3"
+    },
+    "raw": {
+      "root": "general-search-engine-replication/target/v53-queue-completion/run-a336c6e6-bad5-451e-bdc0-93661e14af86",
+      "files": 3645,
+      "bytes": 17173537,
+      "inventory": {
+        "path": "target/v53-queue-completion/failed-small-inventory.json",
+        "bytes": 637111,
+        "sha256": "24dbb735550161189b3651e887670431cc8278aabc9f24cc13b2562eecf8bcbc"
+      }
+    }
+  },
+  "smallRehearsal": {
+    "status": "PASS",
+    "junitSeconds": 302.625,
+    "tests": 1,
+    "documentCount": 2,
+    "valueBytes": 3000,
+    "chunkBytes": 4096,
+    "originalAndRelocated": {
+      "path": "target/v53-queue-completion/small-replay-final.json",
+      "bytes": 683,
+      "sha256": "f9736f30189eff35773b18b1b44773dc66737dde107687a5b282e0d793d2e5a6"
+    },
+    "executedJava": {
+      "path": "target/v53-queue-completion/small-corrected-execution.java",
+      "bytes": 10946,
+      "sha256": "f28381c63a0584bdc43a8ac5ae28784dcda1d055401a2808c4670cd7269af476"
+    },
+    "log": {
+      "path": "target/v53-queue-completion/small-corrected.log",
+      "bytes": 5028,
+      "sha256": "e5b95114d7616967b2081c1b919967ba16722665ef9c094d5973eebd96104db5"
+    },
+    "raw": {
+      "root": "general-search-engine-replication/target/v53-queue-completion/run-68edfc5b-3876-46f0-88a5-d269a6cb171b",
+      "files": 4214,
+      "bytes": 25264152,
+      "inventory": {
+        "path": "target/v53-queue-completion/small-inventory.json",
+        "bytes": 734300,
+        "sha256": "a4376bd9ef8b30bf263f406019d1ace23dd6823b8872a807978ce62592889f79"
+      }
+    },
+    "scope": "small-image-completion-rehearsal",
+    "capacityRefusals": 0
+  },
+  "existingContinuousRegression": {
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "report": {
+      "path": "target/v53-queue-completion/first-small-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ContinuousTransitionTest.xml",
+      "bytes": 9860,
+      "sha256": "5c6964a39563d87601710465a7dd8947fcb42c5771b6f8c9ed0fbbeac3265e20"
+    },
+    "currentPhysicalReplay": {
+      "path": "target/v53-queue-completion/existing-current-replay.log",
+      "bytes": 196,
+      "sha256": "748bf2b46605ec96d7f3bf35e0c57309f11cf14b507ecd7309aa04a3c21ef7e7"
+    }
+  },
+  "pythonGuards": {
+    "tests": 38,
+    "normal": {
+      "path": "target/v53-queue-completion/affected-tests-final.log",
+      "bytes": 137,
+      "sha256": "ed5d038f2d39dce1f37bd8508d1dd4362f6fec54595a617cf8e1dba6fa1128d8"
+    },
+    "optimized": {
+      "path": "target/v53-queue-completion/affected-optimized-final.log",
+      "bytes": 137,
+      "sha256": "f6057aff41ce15949c4f41ca71d600c1da6f0e62f968a9524f40702de8215d60"
+    }
+  },
+  "postExecutionChanges": {
+    "description": "The final fixture uses a dedicated virtual-thread executor for seven blocking sends, avoiding common-pool starvation on small hosts, and prints pressure milestones. These observation/scheduling changes compile; the next source-bound full run remains required.",
+    "compile": {
+      "path": "target/v53-queue-completion/final-compile.log",
+      "bytes": 3470,
+      "sha256": "9f08e671ef686b2c72614b5149065cf5c6f62945b2cce145d92315247b2a4dee"
+    }
+  },
+  "fullNegativeReplay": "NOT_RUN; ten declared cases require a passing full-size original",
+  "preservedDiagnostics": [
+    "native-initial.log",
+    "prelude-replay.log",
+    "existing-native-replay.log",
+    "native-threads.txt",
+    "failed-execution-source",
+    "failed-small-source",
+    "affected-tests.log"
+  ]
+}

@@ -152,3 +152,7 @@ execution was retried.
 These local source manifests include development changes on base `30955ba6`.
 They bind the actual immutable bytes but do not attest a clean final Git commit,
 GitHub run/attempt, complete supplementary set or full Phase 3 qualification.
+
+The [joint queue completion probe](PHASE_3_QUEUE_COMPLETION.md) extends this
+pressure mechanism into the native REMOVE path. Its evidence and completion
+scope remain separate from this source-bound isolated queue admission.

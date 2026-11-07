@@ -62,6 +62,8 @@ class V53NativeDispatchTest {
         final AtomicReference<String> drop=new AtomicReference<>("");
         final AtomicReference<java.util.function.BiFunction<Decoded,Decoded,Decoded>> response=new AtomicReference<>((request,reply)->reply);
         final AtomicReference<java.util.function.Consumer<Decoded>> beforeSend=new AtomicReference<>(request->{});
+        final AtomicReference<java.util.function.Consumer<Decoded>> beforeResponseWrite=new AtomicReference<>(request->{});
+        int wireEvidenceLimit=V53EvidenceArray.WIRE_BYTES;
         volatile boolean observeRequests;
         volatile V53GrantCapture grantCapture;
         volatile V53SourceRetirementCapture retirementCapture;
@@ -100,7 +102,10 @@ class V53NativeDispatchTest {
             openActors(endpointBudget,liveDirectory);
         }
         Network(V53BootstrapPublicationTest.Fixture retained,ReplicationBounds bounds,long endpointBudget)throws Exception {
-            this.bounds=bounds;f=retained;openActors(endpointBudget,false);
+            this(retained,bounds,endpointBudget,false,false);
+        }
+        Network(V53BootstrapPublicationTest.Fixture retained,ReplicationBounds bounds,long endpointBudget,boolean liveDirectory,boolean observeExports)throws Exception {
+            this.bounds=bounds;f=retained;observeExportResources=observeExports;openActors(endpointBudget,liveDirectory);
         }
         private void openActors(long endpointBudget,boolean liveDirectory)throws Exception {
             if(Boolean.getBoolean("v53.resource.source.control")) {
@@ -161,6 +166,7 @@ class V53NativeDispatchTest {
                                 String expected=drop.get();boolean lost=expected.equals(response.kind()) && drop.compareAndSet(expected,"");
                                 var row=new TreeMap<String,Object>(V53SelectedPullTest.wire(request,response));row.put("withheld",lost);wire.add(V53JoiningTrace.connected(row));
                                 events.add(V53JoiningTrace.connected(Map.of("node",owner.activationIdentity().nodeId().value(),"event","WIRE_RESPONSE","request",request.digest(),"response",response.digest())));
+                                beforeResponseWrite.get().accept(request);
                                 if(lost)throw new IOException("lost native dispatch reply");
                             }
                         });
@@ -286,7 +292,7 @@ class V53NativeDispatchTest {
             }
             for(var budget:resources)assertEquals(0,budget.usage().leases());
             byte[] eventBytes=V53EvidenceArray.encode(events,V53EvidenceArray.EVENT_BYTES);
-            Files.write(f.raw.resolve("wire.json"),V53EvidenceArray.encode(wire,V53EvidenceArray.WIRE_BYTES));Files.write(f.raw.resolve("events.json"),eventBytes);
+            Files.write(f.raw.resolve("wire.json"),V53EvidenceArray.encode(wire,wireEvidenceLimit));Files.write(f.raw.resolve("events.json"),eventBytes);
             Files.write(f.raw.resolve("failures.json"),V53EvidenceArray.encode(failures,1024*1024));
             f.snapshot("after-close");V53NativeApplicationTest.save(f);
             if(publicationResources!=null)publicationResources.save();

@@ -19,10 +19,10 @@ b,c,e,f,need=d.b,d.c,d.e,d.f,d.need
 VOTERS=('node-1','node-2','node-3')
 
 
-def prelude(root,kind,*,size=4,match_before=True):
+def prelude(root,kind,*,size=4,match_before=True,backup=False):
     need(kind in ('READY','INTENT','FINAL'),'transition preparation profile')
     need(type(size) is int and size in (4,5),'transition REMOVE voter count')
-    group=d.s.initialize(b.original(root,size,False))
+    group=d.s.initialize(b.original(root,size,backup))
     group={n:dict(v,**{d.future.FILE:d.future.frame(d.future.initial(v),{})}) for n,v in group.items()}
     prepared,selected,installed=d.s.campaign(root,group,2,'round-1-prepared',selected_prefix=d.slot.prefix)
     for label,states in [('prepared',prepared),('selected',selected),('installed',installed),('settled',b.settled(installed))]:

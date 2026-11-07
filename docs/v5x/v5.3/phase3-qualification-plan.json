@@ -839,7 +839,9 @@
         "scripts/v53/test_membership_control_publications.py",
         "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SourceQueueQualification.java",
         "scripts/v53/test_source_queue_evidence.py",
-        "scripts/v53/test_source_queue_run.py"
+        "scripts/v53/test_source_queue_run.py",
+        "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53QueueCompletionQualification.java",
+        "scripts/v53/test_queue_completion_evidence.py"
       ],
       "readers": [
         "scripts/v53/publication_capacity_evidence.py",
@@ -959,7 +961,8 @@
         "scripts/v53/maximum_transition_run.py",
         "scripts/v53/maximum_transition_inventory.py",
         "scripts/v53/source_queue_evidence.py",
-        "scripts/v53/source_queue_run.py"
+        "scripts/v53/source_queue_run.py",
+        "scripts/v53/queue_completion_evidence.py"
       ],
       "docs": [
         "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md",
@@ -1088,7 +1091,9 @@
         "docs/v5x/v5.3/phase3-evidence/required-four-publication-coverage.json",
         "docs/v5x/v5.3/PHASE_3_SOURCE_QUEUE_PRESSURE.md",
         "docs/v5x/v5.3/phase3-evidence/source-queue-pressure.json",
-        "docs/v5x/v5.3/phase3-evidence/source-queue-admission.json"
+        "docs/v5x/v5.3/phase3-evidence/source-queue-admission.json",
+        "docs/v5x/v5.3/PHASE_3_QUEUE_COMPLETION.md",
+        "docs/v5x/v5.3/phase3-evidence/queue-completion-development.json"
       ],
       "cohorts": [
         "profiles",
