@@ -31,8 +31,9 @@ Artifacts bind workflow, source SHA, run ID and attempt, with 90-day retention.
 Small-backup, EMPTY and maximum-storage artifacts cannot substitute for this
 profile. The new entry does not change the frozen five supplemental cohort slots,
 Required CI, V5.2 cloud workflows, credentials or paid-cloud admission. It shares
-the existing maximum-transition workflow's concurrency group, so the two large
-workflows cannot compete for the same scarce runner. Checkout keeps prior target
+the maximum-transition and maximum-queue workflows' concurrency group. The
+[explicit max queue](PHASE_3_EXECUTION_HANDOFF.md#large-runner-queue-and-capacity)
+preserves pending originals while these three entries run serially. Checkout keeps prior target
 evidence, and each attempt uses a fresh output directory.
 
 ## Disk and host admission

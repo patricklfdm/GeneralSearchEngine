@@ -9,6 +9,7 @@ permissions:
 
 concurrency:
   group: v53-maximum-transition-large-runner
+  queue: max
   cancel-in-progress: false
 
 env:

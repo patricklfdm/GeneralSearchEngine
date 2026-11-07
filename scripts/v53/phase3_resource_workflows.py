@@ -46,6 +46,7 @@ def validate_index(value,modules):
 
 
 def contract(name,adapter,text):
+    if name=='maximum-image':observed.large_runner_concurrency(text)
     need(text.count('\njobs:\n')==1 and not re.search(r'continue-on-error:|workflow_call:|^\s*uses:.*@(?:main|master)\s*$',text,re.M),
          'resource workflows unsupported workflow')
     chunks=re.split(r'^  ([\w-]+):\n',text.split('\njobs:\n')[1],flags=re.M)

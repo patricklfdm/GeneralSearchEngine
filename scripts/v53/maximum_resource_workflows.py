@@ -40,6 +40,7 @@ def validate_index(value,modules):
 
 
 def contract(name,adapter,text):
+    observed.large_runner_concurrency(text)
     need(name in WORKFLOWS and text.count('\njobs:\n')==1 and text.count('\non:\n')==1 and
          not re.search(r'continue-on-error:|workflow_call:|^\s*uses:.*@(?:main|master)\s*$',text,re.M),
          'maximum workflows unsupported workflow')

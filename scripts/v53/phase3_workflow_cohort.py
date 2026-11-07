@@ -20,6 +20,7 @@ OWNER_ID=147357093
 MAX_ATTEMPTS=100
 MAX_JOBS=1024
 MAX_RESPONSE=16*1024*1024
+LARGE_CONCURRENCY_GROUP='v53-maximum-transition-large-runner'
 RUN_KEYS=('id','run_attempt','head_sha','head_branch','event','path','workflow_id','status','conclusion','updated_at')
 
 
@@ -32,6 +33,20 @@ def stamp(value):
     try:value=datetime.fromisoformat(value.replace('Z','+00:00'))
     except ValueError:raise ValueError('workflow cohort timestamp') from None
     need(value.tzinfo is not None,'workflow cohort timestamp zone');return value.timestamp()
+
+
+def large_runner_concurrency(text):
+    """All large workflows share one executor and preserve pending originals.
+
+    cancel-in-progress=false alone still permits a newer pending run to evict
+    an older pending run. The explicit max queue preserves up to 100 pending
+    runs; it is not a promise of unbounded capacity or execution order.
+    """
+    blocks=re.findall(r'^concurrency:\n((?:  [^\n]+\n)+)',text,re.M)
+    need(len(blocks)==1 and blocks[0]==
+         '  group: '+LARGE_CONCURRENCY_GROUP+'\n  queue: max\n  cancel-in-progress: false\n',
+         'large workflows shared non-evicting concurrency')
+    return dict(group=LARGE_CONCURRENCY_GROUP,queue='max',cancelInProgress=False)
 
 
 def contract(name,adapter,catalog,text):

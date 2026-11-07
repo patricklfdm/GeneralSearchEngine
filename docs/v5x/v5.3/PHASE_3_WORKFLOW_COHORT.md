@@ -24,8 +24,10 @@ The current twelve subsets expand to **544 selected Jobs** for **260 execution
 groups**, representing **566 histories / 500 raw archives**. A group
 remains indivisible; no lease, source, crash segment or measurement is split.
 The five [supplemental resource originals](PHASE_3_RESOURCE_COHORT.md) are outside
-these counts. The enclosing v3 entry also requires their independent replay and
+these counts. The enclosing v4 entry also requires their independent replay and
 [four supplemental workflows / 15 jobs](PHASE_3_RESOURCE_ATTESTATION.md).
+The two maximum workflows add six jobs. The [offline execution handoff](PHASE_3_EXECUTION_HANDOFF.md)
+derives the complete eighteen-workflow, 565-job plan without dispatching it.
 
 For every selected job, the observer requires exact run/attempt/source/branch,
 unique identity and name, completed success, and successful ordered shell and

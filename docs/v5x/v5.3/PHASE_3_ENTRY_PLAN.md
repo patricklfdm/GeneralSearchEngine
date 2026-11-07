@@ -256,6 +256,13 @@ its imposed receiving lifetime is not evidence of permitted runtime overlap.
 
 ## Final evidence and admission order
 
+Generate the [offline execution handoff](PHASE_3_EXECUTION_HANDOFF.md) from the
+clean final source before scheduling. It derives all eighteen workflows and
+565 selected jobs, includes the three shared large-runner entries and distinguishes
+per-stage free-space admission from disk size. It starts no workflow and grants
+no qualification. The large workflows now explicitly retain multiple pending
+runs in their shared serial queue.
+
 1. Finish the remaining real-resource/coverage work without reducing the frozen
    requirements. Keep failures and original evidence; do not use planning rows,
    receipts alone, synthetic orchestration tests or related profiles as proof.
@@ -268,9 +275,10 @@ its imposed receiving lifetime is not evidence of permitted runtime overlap.
 4. Reconcile the [seeds](PHASE_3_SEED_COHORT.md), replay the
    [whole original history set](PHASE_3_HISTORY_COHORT.md), and observe the
    [exact workflow attempts](PHASE_3_WORKFLOW_COHORT.md) before and after replay.
-   Include the five supplemental resource originals in that same v3 invocation,
+   Include the five supplemental resource originals in that same v4 invocation,
    with their four observed workflows and nine original seed/raw bundles. The
-   entry is implemented; actual final-source observations remain pending.
+   entry also requires both maximum originals and their observations; actual
+   final-source observations remain pending.
    Inspect every prior failed/cancelled attempt. Do not mix source, toolchain,
    run/attempt, original fragments or independent ownership chains.
 5. Audit all twelve obligations and five gaps against the actual original

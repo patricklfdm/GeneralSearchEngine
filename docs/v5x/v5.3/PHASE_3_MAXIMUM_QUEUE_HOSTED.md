@@ -8,7 +8,9 @@ suitable native Linux environment after development.
 ## Execution contract
 
 [`v53-maximum-queue.yml`](../../../.github/workflows/v53-maximum-queue.yml)
-accepts only `workflow_dispatch` on `experiment/v53-maximum-queue`. Its context
+accepts only `workflow_dispatch`; `experiment/v53-maximum-queue` is its dedicated
+branch example. A common frozen manual-dispatch branch is also accepted by the
+existing context adapter. Its context
 requires the exact repository, source, workflow path, workflow source, run and
 attempt. Ordinary push/PR/Required CI, existing queue profiles and the five-member
 resource cohort are unchanged. No dispatch, runner provisioning, paid cloud
