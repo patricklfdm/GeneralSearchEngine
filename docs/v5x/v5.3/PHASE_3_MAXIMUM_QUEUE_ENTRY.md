@@ -68,10 +68,12 @@ python3 -m scripts.v53.queue_completion_run verify \
 
 The operator will arrange acceptance hardware after development. No maximum
 history or workflow was dispatched for this entry. The existing two-member
-hosted queue matrix and five-member supplemental cohort are unchanged. A later
-explicit hosted transport/cohort contract must admit this new original without
-relabeling earlier small histories. Long execution, maximum-input memory,
-combined-resource coverage and final-source acceptance remain open.
+hosted queue matrix and five-member supplemental cohort are unchanged. The [dedicated manual transport](PHASE_3_MAXIMUM_QUEUE_HOSTED.md) now retains
+exact-attempt originals and replays the downloaded history in a fresh measured
+process. External run attestation and cohort admission still require an explicit
+contract; this entry cannot relabel earlier small histories. Long execution,
+maximum-input memory, combined-resource coverage and final-source acceptance
+remain open.
 
 ## Development evidence
 

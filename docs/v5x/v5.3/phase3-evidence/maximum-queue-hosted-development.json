@@ -1,0 +1,100 @@
+{
+  "schema": "gse-v53-maximum-queue-hosted-development-v1",
+  "status": "PARTIAL",
+  "developmentResult": "PASS",
+  "baseCommit": "d23f82ebcdeaf51f4dbe6e13b146d26be735ecdb",
+  "profile": "maximum-application-joint-queue-final-segmented",
+  "code": [
+    {
+      "path": ".github/workflows/v53-maximum-queue.yml",
+      "bytes": 7859,
+      "sha256": "e2ae8cb8fbe8c6bcc582c4ca325f78bfb5285f82618d36527226d3755c5389ac"
+    },
+    {
+      "path": "scripts/v53/maximum_queue_hosted.py",
+      "bytes": 11083,
+      "sha256": "4d82e88ce3e80b53c4edb996706d2f4338f0bc159d2396352237013fdd5b5e6e"
+    },
+    {
+      "path": "scripts/v53/maximum_queue_reader.py",
+      "bytes": 6025,
+      "sha256": "9fa2385e45d8722c71cca2c00a053f35b46f31c14489e82677a8a8e57b6705de"
+    },
+    {
+      "path": "scripts/v53/test_maximum_queue_hosted.py",
+      "bytes": 21752,
+      "sha256": "c0301e19cdde2c536e7ea4431f0f34e3e4f5622e0a830e3b402b68711e15db07"
+    },
+    {
+      "path": "scripts/v53/test_maximum_queue_reader.py",
+      "bytes": 8765,
+      "sha256": "54b970cc171d7858cad1e7c8b0665b3795ea21f9afe73fb5e060bcdd7017813e"
+    }
+  ],
+  "checks": [
+    {
+      "log": "target/v53-maximum-queue-hosted/python.log",
+      "tests": 143,
+      "seconds": 7.488,
+      "status": "PASS"
+    },
+    {
+      "log": "target/v53-maximum-queue-hosted/python-optimized.log",
+      "tests": 143,
+      "seconds": 7.395,
+      "status": "PASS"
+    },
+    {
+      "log": "target/v53-maximum-queue-hosted/contracts.log",
+      "tests": 19,
+      "seconds": 0.777,
+      "status": "PASS"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "target/v53-maximum-queue-hosted/contracts.log",
+      "bytes": 251,
+      "sha256": "ac2ee7bece77fe142b752ba3460c69186ce593bfbab0cebce3f13aad579459bf"
+    },
+    {
+      "path": "target/v53-maximum-queue-hosted/python-first.log",
+      "bytes": 849,
+      "sha256": "a47608bbb043d5bb416885804eac1c1b38a79daf985d535fab706bcb527f61d8"
+    },
+    {
+      "path": "target/v53-maximum-queue-hosted/python-optimized.log",
+      "bytes": 243,
+      "sha256": "41bbe9cceff3498248122a7171b6cd9bc68ad06d4dd33f17d408ef3e1b993039"
+    },
+    {
+      "path": "target/v53-maximum-queue-hosted/python.log",
+      "bytes": 243,
+      "sha256": "46fbe1f7a15ffb166d04db294587f85fb2620d63e741ff9a284a57e67b843921"
+    },
+    {
+      "path": "target/v53-maximum-queue-hosted/structure.json",
+      "bytes": 184,
+      "sha256": "601d528d698f407e68d467757d299e5d8c8288afc84b2ea1fa7e94650b3e42e6"
+    }
+  ],
+  "validationScope": "Synthetic transport and measurement mechanics, compatibility and plan guards only; no maximum original executed",
+  "maximumQueueExecuted": false,
+  "maximumQueueQualified": false,
+  "wholeReaderMemoryQualified": false,
+  "externalRunAttested": false,
+  "combinedResourcesQualified": false,
+  "phase3Complete": false,
+  "workflowDispatched": false,
+  "paidCloud": false,
+  "productionJavaChanged": false,
+  "existingRequiredChanged": false,
+  "environment": "No qualifying native Linux large-evidence host available; operator will arrange after development",
+  "pending": [
+    "whole maximum queue original and exact 15 negatives",
+    "maximum-input reader memory",
+    "external run/job/artifact attestation",
+    "feasible combined owner pressure and completion",
+    "complete final-source cohorts and all five Phase 3 closure gaps"
+  ]
+}

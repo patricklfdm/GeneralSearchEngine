@@ -86,8 +86,12 @@ pending; the existing hosted matrix and five closure gaps are unchanged.
 The [maximum-image joint queue entry](PHASE_3_MAXIMUM_QUEUE_ENTRY.md) now connects
 the calibrated source and default staging to one complete REMOVE history, with
 an explicit capacity-admitted producer and 15-negative independent gate. Its
-long positive execution, maximum-input memory and hosted/cohort admission remain
-pending; it does not replace the earlier resource originals.
+long positive execution, maximum-input memory and cohort admission remain
+pending; it does not replace the earlier resource originals. The
+[dedicated manual hosted transport](PHASE_3_MAXIMUM_QUEUE_HOSTED.md) now freezes
+the same source/build/tools/dependencies, retains exact-attempt originals and
+performs a fresh-process downloaded replay. External run attestation, execution
+on an admitted large host and all five closure gaps remain pending.
 
 | Gap | Existing prerequisite | Evidence still required |
 | --- | --- | --- |
