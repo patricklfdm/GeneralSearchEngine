@@ -9,7 +9,9 @@ remain open. This result changes no catalogue or workflow counts.
 [Membership control resources](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md) integrate
 three previously stable-only readers into required-four admission, using actual
 local publication observations and per-slot original authority. The v2 gate
-requires 147 exact negatives; complete new-source execution remains pending.
+requires 147 exact negatives. Its [complete corrected-source development result](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md#complete-corrected-source-development-qualification)
+now passes all 147 after one unretried whole native execution at `78403d87`.
+The final-source cohort remains pending.
 The preceding 89-case diagnostics retain their narrower reader and scope.
 
 Its first v2 complete producer at `42d85176` passes once, but pinned replay and

@@ -3,8 +3,10 @@
 [Membership control ownership](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md) extends
 the required-four entry with actual local publication calls and three
 voting/slot/activation resource readers. The v2 gate requires **147** exact
-negatives. Earlier 89-case diagnostics below remain historical; complete v2
-execution, full resource maxima and final-source admission remain OPEN.
+negatives. The [complete corrected-source development result](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md#complete-corrected-source-development-qualification)
+passes the complete v2 original and negative vector at `78403d87`. Earlier
+89-case diagnostics below remain historical; full resource maxima and
+final-source admission remain OPEN.
 The complete `2a8ed056` original passes execution and original replay, but its
 negative gate exposes missing activation publication coverage when no fast
 reply is present. The [correction](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md#complete-publication-coverage-without-fast-replies)

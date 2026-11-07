@@ -15,6 +15,12 @@ requires these five separate, complete originals:
 | `source-queue` | `source-queue-64mib` | Six SOURCE caches and real queue refusal/retry; eight negatives |
 | `queue-completion` | `joint-queue-final-64mib` | Joint queue refusal/retry, same-owner native FINAL/BARRIER; ten negatives |
 
+The required-four member now has one [complete corrected-source development result](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md#complete-corrected-source-development-qualification)
+at `78403d87`, including portable original-first replay and all 147 negatives.
+It qualifies observed ownership and completion at that source; it does not fill
+the final-source set or establish simultaneous byte maxima. Its earlier failed
+admissions remain retained.
+
 Learner byte pressure remains mandatory in the twelve-subset learner histories;
 it is not replaced by this set. All five entries remain outside the catalogue's
 566 histories / 260 groups / 500 archives / 544 selected jobs. No count here

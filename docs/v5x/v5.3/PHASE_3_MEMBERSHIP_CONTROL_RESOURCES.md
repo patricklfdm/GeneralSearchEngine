@@ -162,3 +162,37 @@ separates the failed source-bound gate from corrected-reader component diagnosti
 The failed producer, pinned reader, archive and unpacked copy remain unchanged.
 This changes Python evidence validation only; the new full source-bound v2 gate
 and all five Phase 3 closure gaps remain pending.
+
+## Complete corrected-source development qualification
+
+One new original at `78403d87de095a3393594725008849ed967bfe74` completes its
+single unretried native test in **1,392.883 seconds**; its complete offline Maven
+invocation takes **1,407.026 seconds**. The exact required-four
+method reports one passing test, zero failures/errors/skips and zero retries.
+It retains **7,020 files / 126,129,414 raw bytes** through bootstrap,
+learner, old/new joint voting, native FINAL, stable BARRIER and close.
+
+The complete producer is packed, unpacked into a separate directory, and replayed
+using its **recorded immutable reader**, not the later development checkout.
+Original physical/resource replay passes before all **147** exact negative
+results: 15 accounting, 19 handoff, 13 file, 12 network-close, 12 joining-close,
+18 export-allocation, 16 voting-control, 22 slot-control and 20 activation-control.
+Packing, relocation and replay take **2,621.396 seconds**;
+peak replay RSS is **1,103,836 KiB**. Producer and relocated
+inventories remain identical before and after admission. See the
+[complete evidence index](phase3-evidence/required-four-complete-development.json).
+
+The prior `2a8ed056` failed gate remains present with its original hash and FAIL
+result. Its 127 accepted negatives are not joined with the later 20-case
+diagnostic. This new gate passes the entire vector on one matching source and
+reader. The separate 33-module/405-test Python integration check at `4278066e`
+also passes; it is not presented as the producer's source-bound qualification.
+The later progress-only change at `544a1e55` passes 65 focused checks. It adds
+per-case control-negative reporting, and does not alter this original's recorded
+reader or substitute its checks for the complete pinned admission.
+
+This closes the **development observed-ownership entry**. It establishes no
+combined metadata/application maximum, exact-attempt hosted observation or
+final-source cohort admission. All five enclosing Phase 3 gaps remain OPEN.
+No production code, runtime bounds, workload, workflow, push or cloud execution
+is changed by recording this result.

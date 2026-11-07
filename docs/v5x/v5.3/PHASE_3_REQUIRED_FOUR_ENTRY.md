@@ -7,9 +7,11 @@ accounting in one admission path. It does not split leases, votes, FINAL, stable
 BARRIER or cold reopen across jobs. The entire original is produced once, then
 downloaded and replayed by a separate job.
 
-The implementation is ready for later hosted execution. The corrected-source
-native original and its 147 original-first negative results are **pending**.
-Historical diagnostic results cannot fill this slot. This supplementary entry
+The implementation is ready for later hosted execution. One corrected-source
+native development original at `78403d87` now passes portable original-first
+replay and all **147** exact negatives; see the [complete corrected-source development result](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md#complete-corrected-source-development-qualification).
+The final-source hosted slot remains **pending**. Earlier diagnostic results
+and this separate development source cannot fill that slot. This supplementary entry
 is outside the twelve-subset catalogue (566 histories, 260 execution groups,
 500 raw archives and 544 selected jobs); it adds one original and three jobs
 when explicitly selected. The five Phase 3 closure gaps remain OPEN.
@@ -27,7 +29,7 @@ A case is reported only after rejection for its exact declared reason; the
 original still has to pass first. These updates do not change receipts, mutation
 order, the 147-case vector or retry policy. All 65 focused control/resource-entry
 tests pass with the callback connected, including the existing real-format
-voting and slot mutation vectors. The running `78403d87` development replay
+voting and slot mutation vectors. The retained `78403d87` development replay
 keeps its recorded reader and therefore retains the earlier group-level output.
 
 [`v53-required-four-resources.yml`](../../../.github/workflows/v53-required-four-resources.yml)

@@ -53,12 +53,15 @@ family or enable public READY.
 [Membership control ownership](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md) adds
 original local PUBLISH capture and voting/slot/activation composition to the
 required-four gate. Its v2 result requires **147** exact negatives. Focused native
-validation is component evidence; a complete new-source v2 execution remains
-pending. Earlier 89-case diagnostics below retain their historical scope.
+validation is component evidence. The [complete corrected-source development result](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md#complete-corrected-source-development-qualification)
+now passes one unretried whole native original at `78403d87`, portable
+original-first replay and all 147 exact negatives. Final-source cohort execution
+remains pending. Earlier 89-case diagnostics below retain their historical scope.
 The complete original at `2a8ed056` now passes execution and original resource
 replay; its gate fails on a publication-witness omission after 127 passing
 negatives. The [reader correction](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md#complete-publication-coverage-without-fast-replies)
-and retained failure remain distinct from a future corrected-source admission.
+and retained failure remain distinct from the later corrected-source development
+admission; the earlier original is never relabelled PASS.
 
 [SOURCE queue byte pressure](PHASE_3_SOURCE_QUEUE_PRESSURE.md) now adds a real
 six-session TCP cache/send overlap, aggregate-byte refusal and identical-request
