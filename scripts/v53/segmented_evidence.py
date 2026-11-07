@@ -22,6 +22,11 @@ SEGMENTS=4096
 CUTS=16
 
 
+def rows(value):
+    """Only the original list or this fully checked concrete reader is admitted."""
+    return type(value) is list or type(value) is Reader
+
+
 def parse_budget(raw):
     # Unlike a repeated-character regexp, finding string ends does not allocate
     # a regex backtracking frame per byte of a large base64/string payload.

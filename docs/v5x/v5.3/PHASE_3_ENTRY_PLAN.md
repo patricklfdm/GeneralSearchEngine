@@ -147,9 +147,10 @@ unchanged.
 
 The [segmented evidence component](PHASE_3_SEGMENTED_EVIDENCE.md) supplies bounded
 large-history capture/readback and immutable prefix cuts. Its independent
-collector probe is development evidence; selecting it in the backup native
-fixture, adapting complete consumers and accounting for the whole original are
-still pending.
+collector probe is development evidence. The backup native fixture now selects
+it explicitly and a short five-node BARRIER history passes independent
+connection/resource replay. Complete consumers, bounded decoded transfer
+retention and whole-original accounting are still pending.
 
 The maximum-image component is a synchronous storage probe. It does not establish
 an admitted learner, full metadata pressure or automatic-runtime peak. The

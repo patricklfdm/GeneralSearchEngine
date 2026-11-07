@@ -1,0 +1,176 @@
+{
+  "combinedResourcesQualified": false,
+  "completeConsumerIntegration": false,
+  "evidenceFiles": {
+    "target/v53-segmented-wire/V53AuxiliaryWireTest.xml": "90d4140faa55f91fbd2817c66bd03013c0a7c9dd6bf18d99f05879089550cdf3",
+    "target/v53-segmented-wire/V53NativeSeedTest.xml": "011b0bb80cda56218fcf8f55a574ad9b15de8ddff35ffd1529783ceadae9d2aa",
+    "target/v53-segmented-wire/V53SegmentedEvidenceTest.xml": "a392540c77f516057e9a33a2aecd205958971002cb90b919fdb45f484d6f8df0",
+    "target/v53-segmented-wire/V53SegmentedNativeSeedTest.xml": "73e1d6361515906c3433c86333006db92f64528e2230cc70ef0d2cb9215fb945",
+    "target/v53-segmented-wire/V53WireArchiveTest.xml": "b967cdfafb4d4dc6fc2c0780595b00a611e9105e3e94f860b108285f5482ccd7",
+    "target/v53-segmented-wire/contract-tests.json": "aee3f42a1dc6b275feb2df66ad7ae796580b4a2cdee61a164f6c0ae73dd8f940",
+    "target/v53-segmented-wire/contract-tests.log": "e63dabeb13470466b8fe8d6ae0d259af787cfe6898e6c4c46dea606a4b92ce8e",
+    "target/v53-segmented-wire/contract.log": "8881a34ad9c71993fdd5f50799bf8817184f4c6ab5b6df50ea0114859cea9a04",
+    "target/v53-segmented-wire/maven.log": "67f4400a82b14faf3c515739d9f37f2cd2ee26a11f299aa38a2a53207d9d2a48",
+    "target/v53-segmented-wire/native-replay.json": "c093e9cfc166bdf7415f6c27af3d9e5e7bfcc946f620149e3272d0288f4da634",
+    "target/v53-segmented-wire/native-replay.log": "1f01d68fd9b5e27bea12bd96f2055a20b8bedea073b488c4995080b36dd1568c",
+    "target/v53-segmented-wire/python-tests.log": "be1a2babe7e0960c745fd1133f1de0b3fea56e352180779dd5af3d53b0f1aef3",
+    "target/v53-segmented-wire/replay_native.py": "229afa8a42a237e4c935141b0431f9b31e7d0434c519ceff3aa5b243bfe29fb4",
+    "target/v53-segmented-wire/summarize.py": "38ff58e4b69349dce0e525dbfc1b0cf252229f0ca51c0e4e983201e71e6d9687",
+    "target/v53-segmented-wire/validation-summary.json": "99c7e93fd65fa59db1ea4c609cac22fa7fb38f2af6ce0e3e9aef8852506416c7"
+  },
+  "existingEmptyFormatChanged": false,
+  "finalSourceCohortQualified": false,
+  "fullBackupQualification": false,
+  "javaSuites": [
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53WireArchiveTest",
+      "seconds": 0.024,
+      "skipped": 0,
+      "tests": 6
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53AuxiliaryWireTest",
+      "seconds": 0.022,
+      "skipped": 0,
+      "tests": 8
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53SegmentedEvidenceTest",
+      "seconds": 0.983,
+      "skipped": 0,
+      "tests": 9
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53SegmentedNativeSeedTest",
+      "seconds": 56.813,
+      "skipped": 0,
+      "tests": 2
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53NativeSeedTest",
+      "seconds": 60.959,
+      "skipped": 0,
+      "tests": 5
+    }
+  ],
+  "javaTests": 30,
+  "maximumImageQualified": false,
+  "nativeReplay": {
+    "combinedResourcesQualified": false,
+    "connectionAttempts": 304,
+    "elapsedSeconds": 3.217,
+    "eventRows": 2418,
+    "failedConnectionAttempts": 12,
+    "finalSourceCohortQualified": false,
+    "fullBackupQualification": false,
+    "inventorySha256": "6bd73454b7bfbea45cd5e5981a8aee37436c147b2b561cf70d43fc6ee119d2ae",
+    "maximumImageQualified": false,
+    "negatives": [
+      {
+        "case": "default-source",
+        "reason": "bootstrap plan source profile",
+        "status": "REJECTED"
+      },
+      {
+        "case": "empty-segmented-policy",
+        "reason": "segmented wire backup source required",
+        "status": "REJECTED"
+      },
+      {
+        "case": "default-layout",
+        "reason": "segmented wire unexpected layout",
+        "status": "REJECTED"
+      },
+      {
+        "case": "shared-wire-cap",
+        "reason": "segmented wire shared byte capacity",
+        "status": "REJECTED"
+      },
+      {
+        "case": "binding",
+        "reason": "segmented wire complete binding",
+        "status": "REJECTED"
+      },
+      {
+        "case": "payload",
+        "reason": "segmented evidence segment content",
+        "status": "REJECTED"
+      },
+      {
+        "case": "legacy-conflict",
+        "reason": "segmented wire legacy conflict",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-owner-close",
+        "reason": "owner close complete pair",
+        "status": "REJECTED"
+      }
+    ],
+    "original": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-dispatch/run-625b7e90-7b3f-44e2-ad25-2608f88ada93",
+    "originalBytes": 5521102,
+    "originalFiles": 663,
+    "originalPreserved": true,
+    "phase3Complete": false,
+    "scope": "development segmented native backup/BARRIER and connection/resource replay",
+    "slots": 1,
+    "sourceProfile": "VERIFIED_DURABLE_BACKUP",
+    "status": "PASS",
+    "transfers": {
+      "committedTransfers": 90,
+      "exactTransferRetries": 0,
+      "rejectedTransferAttempts": 0,
+      "transferSessions": 54,
+      "transferredBytes": 252036
+    },
+    "wholeRuntimeMemoryQualified": false,
+    "wireArchiveBytes": 1083394,
+    "wireLayout": "SEGMENTED_BACKUP",
+    "wireRows": 292
+  },
+  "parent": "37f32d993c5ddc40626a4ef9d8cb4fcc47210b4c",
+  "phase3Complete": false,
+  "protocolLimitsChanged": false,
+  "pythonTests": {
+    "sourceAndContract": {
+      "elapsedSeconds": 0.996,
+      "errors": 0,
+      "failures": 0,
+      "modules": [
+        "scripts.v53.test_bootstrap_replay_contract",
+        "scripts.v53.test_backup_required_four_resources",
+        "scripts.v53.test_contract_check",
+        "scripts.v53.test_phase3_qualification_plan"
+      ],
+      "skipped": 0,
+      "status": "PASS",
+      "tests": 37
+    },
+    "total": 155,
+    "wireAndTransport": 118
+  },
+  "schema": "gse-v53-segmented-wire-development-v1",
+  "scope": "explicit backup native wire capture and short BARRIER connection/resource replay; complete consumer integration pending",
+  "sharedWireBudget": {
+    "includes": [
+      "six history payloads",
+      "saved cut metadata",
+      "complete indexes",
+      "registry index"
+    ],
+    "maximumBytes": 137438953472,
+    "wholeOriginalBudgetQualified": false
+  },
+  "status": "PASS",
+  "wholeRuntimeMemoryQualified": false
+}

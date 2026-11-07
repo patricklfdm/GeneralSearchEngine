@@ -238,9 +238,12 @@ failure, or weaken physical checks to admit it.
 The [segmented observation format](PHASE_3_SEGMENTED_EVIDENCE.md) now has a
 bounded test collector and independent reader. A retained Java history exceeds
 the old whole-wire bound while preserving its original prefix cut, and is
-replayed with bounded memory. It is not yet selected by the native fixture or
-complete replay chain; aggregate inventory and lifecycle/copy integration are
-still required before running the maximum.
+replayed with bounded memory. The native fixture now supports an explicit
+backup-only segmented wire layout with a shared six-history budget and original
+auxiliary cuts. A short nonempty seed/BARRIER run passes independent connection,
+resource and shutdown replay. The complete replay chain, bounded decoded-content
+retention, and whole-original lifecycle/copy accounting are still required
+before running the maximum.
 
 ## Explicit source throughout complete replay
 

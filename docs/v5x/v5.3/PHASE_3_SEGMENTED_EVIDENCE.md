@@ -85,12 +85,38 @@ expected only a file-attribute error for same-size tampering; the reader
 rejected it by its row hash. The regression now permits either exact integrity
 failure. That original diagnostic log is retained.
 
+## Explicit native wire integration
+
+The backup fixture now has an explicit `SEGMENTED_BACKUP` layout. The default
+remains `JSON`; an EMPTY bootstrap cannot select the new layout. The registry
+owns the main wire and the five existing auxiliary logical histories under
+`segmented-wire/`. Each auxiliary snapshot records its original observed cut;
+later rows remain in its complete lifetime. Missing cuts remain missing and
+cannot be substituted with the later complete history.
+
+One shared byte budget covers all six histories, their saved/final indexes and
+the registry itself. The independent reader inventories and bounds the entire
+registry before decoding any history. It requires exact logical names, index
+hashes, inventories and cuts, and rejects legacy JSON aliases. The explicit
+source/layout selection comes from the caller, never from a producer file.
+Connection and causal readers now accept this checked sequence as well as the
+original JSON list. They retain their existing frame, identity and event checks.
+
+The [native integration index](phase3-evidence/segmented-wire-development.json)
+records 30 passing Java checks, 118 passing wire/transport Python checks, and a
+real five-node nonempty-backup/BARRIER run. Its unchanged original has 663 files,
+5,521,102 bytes and 292 main wire records. Independent connection, transfer,
+resource and owner-close replay passes, including eight exact negative checks.
+This is a short startup history; the six-history snapshot tests are component
+tests, not a complete native joining run.
+
 ## Remaining integration
 
-This component is not yet selected by `Network`, auxiliary history collectors,
-or the complete required-four readers. Integration must explicitly bind a
-large-backup layout to the backup entry, preserve original snapshot cuts, and
-replace full-array assumptions in each consuming validator. The whole-original
+The complete required-four consumers still need an explicit layout context at
+their file-loading boundaries. Full-array assumptions and retained decoded
+frames/transfer payloads must be bounded throughout those consumers, not just
+in the raw format reader. The shared registry budget is only a sub-budget;
+it does not establish the whole-original bound. The whole-original
 inventory must count every segment and cut alongside lifecycle/copy snapshots;
 per-archive ceilings cannot be added to invent a larger admitted budget.
 

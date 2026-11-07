@@ -14,6 +14,7 @@ import shutil
 import tempfile
 
 from . import joining_catalog_evidence as semantic
+from . import segmented_evidence
 from . import discovered_selection_evidence as exchange
 from . import future_retention_evidence as future
 from . import joining_source_loss as loss
@@ -28,7 +29,7 @@ def exchanges(events, wires, identities, root):
     from . import joining_connections
     if joining_connections.present(events,wires):return joining_connections.replay(events,wires,identities,root)['rows']
     positions = defaultdict(deque)
-    need(type(events) is list and len(events) <= semantic.collection.HISTORY_ROWS and type(wires) is list and len(wires) <= semantic.collection.HISTORY_ROWS,
+    need(type(events) is list and len(events) <= semantic.collection.HISTORY_ROWS and segmented_evidence.rows(wires) and len(wires) <= semantic.collection.HISTORY_ROWS,
          'joining bounded wire observations')
     for at, row in enumerate(events):
         if row.get('event') == 'WIRE_RESPONSE':

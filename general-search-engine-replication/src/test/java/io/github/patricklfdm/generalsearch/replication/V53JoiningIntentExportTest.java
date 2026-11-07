@@ -185,14 +185,23 @@ class V53JoiningIntentExportTest {
     }
     /** Opt-in seed hook for a future combined byte-pressure collector, not an EMPTY cohort substitute. */
     void requiredFourFromVerifiedBackup(MembershipBootstrapRequest<Integer,Doc> request)throws Exception {
+        requiredFourFromVerifiedBackup(request,V53WireArchive.Layout.JSON);
+    }
+    void requiredFourFromVerifiedBackup(MembershipBootstrapRequest<Integer,Doc> request,V53WireArchive.Layout layout)throws Exception {
         assertEquals(MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP,request.source());
         assertEquals(5,request.targets().size());
         assertTrue(System.getProperty("v53.joining.sourceFault","").isEmpty());
-        nativeJoining(true,true,true,true,true,true,true,true,true,V53JoiningProfile.parse("5-REPLACE-required-four"),false,request);
+        nativeJoining(true,true,true,true,true,true,true,true,true,V53JoiningProfile.parse("5-REPLACE-required-four"),false,request,layout);
     }
     private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined,boolean maintainJoined,boolean seedJoined,
             boolean initializeJoined,boolean continueJoint,boolean remoteRetention,boolean earlyStartup,V53JoiningProfile profile,boolean prefixOnly,
             MembershipBootstrapRequest<Integer,Doc> bootstrapRequest)throws Exception {
+        nativeJoining(retainPending,publishJoint,installJoined,maintainJoined,seedJoined,initializeJoined,continueJoint,
+                remoteRetention,earlyStartup,profile,prefixOnly,bootstrapRequest,V53WireArchive.Layout.JSON);
+    }
+    private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined,boolean maintainJoined,boolean seedJoined,
+            boolean initializeJoined,boolean continueJoint,boolean remoteRetention,boolean earlyStartup,V53JoiningProfile profile,boolean prefixOnly,
+            MembershipBootstrapRequest<Integer,Doc> bootstrapRequest,V53WireArchive.Layout layout)throws Exception {
         assertTrue(!prefixOnly || retainPending && publishJoint && !installJoined && !continueJoint && !earlyStartup);
         assertTrue(!earlyStartup || remoteRetention && initializeJoined && continueJoint);
         String sourceFault=System.getProperty("v53.joining.sourceFault","");
@@ -212,7 +221,7 @@ class V53JoiningIntentExportTest {
             for(var target:f.request.targets())try(var owner=f.open(target,"initialize-learners")){owner.initializeLearnerRetention();}
         };
         try(var n=bootstrapRequest==null?network.new Network(profile.size(),helper.controlBounds(),lifetime,preparation,true):
-                network.new Network(bootstrapRequest,helper.controlBounds(),lifetime,preparation,true,false);
+                network.new Network(bootstrapRequest,helper.controlBounds(),lifetime,preparation,true,false,layout);
             var round=helper.driver(n,MembershipRoundDriver.Events.NONE,lifetime)) {
             // Preserve original attempts and receives for full causal replay.
             // Older fixture families retain their existing trace vocabulary.

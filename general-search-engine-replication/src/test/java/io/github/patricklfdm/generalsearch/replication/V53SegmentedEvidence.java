@@ -19,6 +19,20 @@ final class V53SegmentedEvidence extends AbstractList<Map<String,Object>> implem
     static final int ROW_BYTES=16*1024*1024,SEGMENT_BYTES=64*1024*1024,SEGMENTS=4096,CUTS=16;
     static final long MAXIMUM=128L*1024*1024*1024;
     static final String SCHEMA="gse-v53-segmented-evidence-v1";
+    /** Shared capture-file accounting, distinct from production resource pools.
+     * Failed reservations remain failed and cannot be reused by another history. */
+    static final class Budget {
+        private final long maximum;
+        private long used;
+        private boolean failed;
+        Budget(long maximum){require(maximum>=0 && maximum<=MAXIMUM,"segmented evidence shared limit");this.maximum=maximum;}
+        synchronized void reserve(long bytes) {
+            require(!failed,"segmented evidence shared budget failed");
+            if(bytes<0 || bytes>maximum-used){failed=true;throw new IllegalArgumentException("segmented evidence shared byte capacity");}
+            used+=bytes;
+        }
+        synchronized long used(){return used;}
+    }
     private record Row(int segment,long offset,int bytes,byte[] digest) {}
     private record Segment(Path path,Object identity,long bytes,int rows,String hash) {
         Map<String,Object> descriptor(){return Map.of("path",path.getFileName().toString(),"bytes",bytes,"rows",rows,"sha256",hash);}
@@ -26,6 +40,7 @@ final class V53SegmentedEvidence extends AbstractList<Map<String,Object>> implem
     private final Path root,segmentsPath,cutsPath;
     private final Object rootIdentity,segmentsIdentity,cutsIdentity;
     private final long maximum;
+    private final Budget aggregate;
     private final List<Row> rows=new ArrayList<>();
     private final List<Segment> segments=new ArrayList<>();
     private final Set<String> cuts=new HashSet<>();
@@ -40,8 +55,11 @@ final class V53SegmentedEvidence extends AbstractList<Map<String,Object>> implem
     private Throwable failure;
 
     V53SegmentedEvidence(Path root,long maximum)throws IOException {
+        this(root,maximum,null);
+    }
+    V53SegmentedEvidence(Path root,long maximum,Budget aggregate)throws IOException {
         require(maximum>=0 && maximum<=MAXIMUM,"segmented evidence byte limit");
-        this.root=root;this.maximum=maximum;
+        this.root=root;this.maximum=maximum;this.aggregate=aggregate;
         Files.createDirectory(root);segmentsPath=Files.createDirectory(root.resolve("segments"));cutsPath=Files.createDirectory(root.resolve("cuts"));
         rootIdentity=directory(root);segmentsIdentity=directory(segmentsPath);cutsIdentity=directory(cutsPath);
     }
@@ -108,6 +126,7 @@ final class V53SegmentedEvidence extends AbstractList<Map<String,Object>> implem
     }
     private Segment index(Path destination)throws IOException {
         byte[] bytes=canonical(index(),ROW_BYTES);
+        if(aggregate!=null)aggregate.reserve(bytes.length);
         Files.write(destination,bytes,StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS);
         return new Segment(destination,regular(destination).fileKey(),bytes.length,0,hex(sha(bytes)));
     }
@@ -117,6 +136,7 @@ final class V53SegmentedEvidence extends AbstractList<Map<String,Object>> implem
             directories();require(rows.size()<V53EvidenceArray.HISTORY_ROWS,"segmented evidence row capacity");
             byte[] bytes=canonical(Objects.requireNonNull(row),ROW_BYTES);
             require(bytes.length+1L<=maximum-total,"segmented evidence byte capacity");
+            if(aggregate!=null)aggregate.reserve(bytes.length+1L);
             if(file!=null){unchanged(path,identity,end);if(bytes.length+1L>SEGMENT_BYTES-end)sealSegment();}
             if(file==null)openSegment();
             long offset=end;write(bytes);write(new byte[]{'\n'});end+=bytes.length+1L;total+=bytes.length+1L;segmentRows++;

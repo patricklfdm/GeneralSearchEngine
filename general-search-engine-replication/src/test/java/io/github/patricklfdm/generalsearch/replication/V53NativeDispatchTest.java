@@ -31,6 +31,7 @@ class V53NativeDispatchTest {
         final List<Map<String,Object>> wire;
         private V53EvidenceSpool wireSpool;
         final V53AuxiliaryWire auxiliaryWire;
+        final V53WireArchive wireArchive;
         final List<Map<String,Object>> events;
         private V53EvidenceSpool eventSpool;
         private void observeEvent(int index,Map<String,Object> event) {
@@ -99,6 +100,13 @@ class V53NativeDispatchTest {
         /** Explicit seed admission for native histories; default constructors still use EMPTY. */
         Network(MembershipBootstrapRequest<Integer,Doc> request,ReplicationBounds bounds,long endpointBudget,
                 Preparation preparation,boolean liveDirectory,boolean observeExports)throws Exception {
+            this(request,bounds,endpointBudget,preparation,liveDirectory,observeExports,V53WireArchive.Layout.JSON);
+        }
+        Network(MembershipBootstrapRequest<Integer,Doc> request,ReplicationBounds bounds,long endpointBudget,
+                Preparation preparation,boolean liveDirectory,boolean observeExports,V53WireArchive.Layout layout)throws Exception {
+            assertNotNull(layout);
+            assertTrue(layout==V53WireArchive.Layout.JSON || request.source()==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP,
+                    "segmented wire requires explicit verified backup");
             this.bounds=bounds;
             observeExportResources=observeExports;
             var bound=V53OwnedCrossViewTest.networkRequest(request);
@@ -108,7 +116,8 @@ class V53NativeDispatchTest {
             f.ownedHistory=true;f.nativeApplication=true;
             for(var target:f.request.targets())try(var owner=f.open(target,"initialize-retention")){owner.initializePeerRetention();owner.initializeFutureRetention();}
             preparation.prepare(f);
-            auxiliaryWire=new V53AuxiliaryWire(f.raw,f.request.source()==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP);
+            wireArchive=layout==V53WireArchive.Layout.SEGMENTED_BACKUP?new V53WireArchive(f.raw,V53SegmentedEvidence.MAXIMUM):null;
+            auxiliaryWire=new V53AuxiliaryWire(f.raw,f.request.source()==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP,wireArchive);
             try {events=eventHistory();wire=wireHistory();openActors(endpointBudget,liveDirectory);}
             catch(Exception|Error error){closeEvidenceOnFailure(error);throw error;}
         }
@@ -117,6 +126,7 @@ class V53NativeDispatchTest {
         }
         Network(V53BootstrapPublicationTest.Fixture retained,ReplicationBounds bounds,long endpointBudget,boolean liveDirectory,boolean observeExports)throws Exception {
             this.bounds=bounds;f=retained;observeExportResources=observeExports;
+            wireArchive=null;
             auxiliaryWire=new V53AuxiliaryWire(f.raw,f.request.source()==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP);
             try {events=eventHistory();wire=wireHistory();openActors(endpointBudget,liveDirectory);}
             catch(Exception|Error error){closeEvidenceOnFailure(error);throw error;}
@@ -131,6 +141,7 @@ class V53NativeDispatchTest {
             });
         }
         private List<Map<String,Object>> wireHistory()throws IOException {
+            if(wireArchive!=null)return wireArchive.open("wire.json");
             if(f.request.source()==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP) {
                 wireSpool=new V53EvidenceSpool(f.raw.resolve("wire.json"),wireEvidenceLimit);
                 return wireSpool;
@@ -138,7 +149,7 @@ class V53NativeDispatchTest {
             return Collections.synchronizedList(new ArrayList<>());
         }
         private void closeEvidenceOnFailure(Throwable error) {
-            try(var captures=resourceTransitions;var auxiliary=auxiliaryWire;var primary=wireSpool;var observed=eventSpool){}
+            try(var captures=resourceTransitions;var archive=wireArchive;var auxiliary=auxiliaryWire;var primary=wireSpool;var observed=eventSpool){}
             catch(Exception|Error close){if(error!=close)error.addSuppressed(close);}
         }
         private void openActors(long endpointBudget,boolean liveDirectory)throws Exception {
@@ -321,7 +332,7 @@ class V53NativeDispatchTest {
             System.out.println("v53NativeDispatchStage=published-"+certificate.value().get("index"));
         }
         @Override public void close()throws Exception {
-            try(var captures=resourceTransitions;var auxiliary=auxiliaryWire;var captured=wireSpool;var observed=eventSpool) {
+            try(var captures=resourceTransitions;var archive=wireArchive;var auxiliary=auxiliaryWire;var captured=wireSpool;var observed=eventSpool) {
             hook.set(event->{});if(driver!=null)driver.close();for(var endpoint:endpoints)endpoint.close();for(var transport:transports)transport.close();
             for(var owner:owners) {
                 if(resourceTransitions==null)owner.close();else resourceTransitions.closeOwner(owner,events);
@@ -329,7 +340,8 @@ class V53NativeDispatchTest {
             for(var budget:resources)assertEquals(0,budget.usage().leases());
             byte[] eventBytes=observed==null?V53EvidenceArray.encode(events,V53EvidenceArray.EVENT_BYTES):null;
             if(observed!=null)observed.close(); // Includes the last original-owner close callbacks.
-            if(captured==null)Files.write(f.raw.resolve("wire.json"),V53EvidenceArray.encode(wire,wireEvidenceLimit));
+            if(archive!=null)assertEquals(V53EvidenceArray.WIRE_BYTES,wireEvidenceLimit,"segmented capture cannot mutate legacy limit");
+            else if(captured==null)Files.write(f.raw.resolve("wire.json"),V53EvidenceArray.encode(wire,wireEvidenceLimit));
             else assertEquals(captured.maximum(),wireEvidenceLimit,"spooled history capacity changed after admission");
             if(observed==null)Files.write(f.raw.resolve("events.json"),eventBytes);
             Files.write(f.raw.resolve("failures.json"),V53EvidenceArray.encode(failures,1024*1024));

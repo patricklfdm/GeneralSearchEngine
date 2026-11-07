@@ -6,6 +6,7 @@ wire row. Legacy traces continue through the existing strict legacy reader.
 import argparse
 import json
 from . import connection_transcript as t
+from . import segmented_evidence
 
 need=t.need
 SENDS={'NETWORK_SEND',t.SEND};READS={'NETWORK_REQUEST',t.READ};OFFERS={'WIRE_RESPONSE',t.OFFER};DELIVERIES={'NETWORK_RECEIVED',t.DELIVER}
@@ -17,7 +18,7 @@ def present(events,wires):
 
 
 def replay(events,wires,identities,root):
-    need(type(events) is list and type(wires) is list and len(events)<=t.native.collection.HISTORY_ROWS and
+    need(type(events) is list and segmented_evidence.rows(wires) and len(events)<=t.native.collection.HISTORY_ROWS and
          len(wires)<=t.native.collection.HISTORY_ROWS,'joining connection bounded observations')
     rows=[];positions=[];starts={};answers={}
     for value in wires:

@@ -21,14 +21,17 @@ final class V53AuxiliaryWire implements AutoCloseable {
     static final String STAGING="auxiliary-wire-spools";
     private final Path root;
     private final boolean spooled;
+    private final V53WireArchive archive;
     private final Map<History,List<Map<String,Object>>> histories=new EnumMap<>(History.class);
     private final Set<History> saved=EnumSet.noneOf(History.class);
     private boolean staged,closed;
-    V53AuxiliaryWire(Path root,boolean spooled){this.root=root;this.spooled=spooled;}
+    V53AuxiliaryWire(Path root,boolean spooled){this(root,spooled,null);}
+    V53AuxiliaryWire(Path root,boolean spooled,V53WireArchive archive){this.root=root;this.spooled=spooled;this.archive=archive;}
     synchronized List<Map<String,Object>> open(History history)throws IOException {
         require(!closed && history!=null && !histories.containsKey(history),"auxiliary wire already opened/closed");
         List<Map<String,Object>> rows;
-        if(spooled) {
+        if(archive!=null)rows=archive.open(history.file);
+        else if(spooled) {
             Path stage=root.resolve(STAGING);
             if(!staged){Files.createDirectory(stage);staged=true;}
             require(Files.isDirectory(stage,LinkOption.NOFOLLOW_LINKS) && !Files.isSymbolicLink(stage),"auxiliary wire staging directory");
@@ -39,7 +42,8 @@ final class V53AuxiliaryWire implements AutoCloseable {
     synchronized void snapshot(History history)throws IOException {
         require(!closed && histories.containsKey(history) && !saved.contains(history),"auxiliary wire snapshot scope");
         var rows=histories.get(history);Path destination=root.resolve(history.file);
-        if(rows instanceof V53EvidenceSpool spool)spool.snapshot(destination);
+        if(archive!=null)archive.snapshot(history.file);
+        else if(rows instanceof V53EvidenceSpool spool)spool.snapshot(destination);
         else synchronized(rows) {
             byte[] bytes=history.array?V53EvidenceArray.encode(rows,history.maximum):canonical(rows,history.maximum);
             Files.write(destination,bytes,StandardOpenOption.CREATE_NEW);

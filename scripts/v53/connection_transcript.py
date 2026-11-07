@@ -8,6 +8,7 @@ from collections import defaultdict
 import ipaddress
 from uuid import UUID
 from . import transport_attempt_evidence as native
+from . import segmented_evidence
 
 need,f,sha=native.need,native.f,native.sha
 wire=native.attempts.wire
@@ -41,7 +42,7 @@ def literal(identity):
 
 
 def replay(events,wires,identities,root,*,positions=None,allow_withheld=False):
-    need(type(events) is list and type(wires) is list and len(events)<=native.collection.HISTORY_ROWS and
+    need(type(events) is list and segmented_evidence.rows(wires) and len(events)<=native.collection.HISTORY_ROWS and
          len(wires)<=native.collection.HISTORY_ROWS,'connection bounded observations')
     need(type(allow_withheld) is bool,'connection withheld policy')
     if positions is None:positions=list(range(len(events)))
