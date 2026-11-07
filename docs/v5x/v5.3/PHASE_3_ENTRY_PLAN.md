@@ -145,6 +145,12 @@ backup evidence layout and complete positive backup replay are required before
 the long maximum native history can be admitted; the existing EMPTY limits are
 unchanged.
 
+The [segmented evidence component](PHASE_3_SEGMENTED_EVIDENCE.md) supplies bounded
+large-history capture/readback and immutable prefix cuts. Its independent
+collector probe is development evidence; selecting it in the backup native
+fixture, adapting complete consumers and accounting for the whole original are
+still pending.
+
 The maximum-image component is a synchronous storage probe. It does not establish
 an admitted learner, full metadata pressure or automatic-runtime peak. The
 required-four entry qualifies observed ownership and completion, not all byte

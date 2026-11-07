@@ -1,0 +1,121 @@
+{
+  "combinedResourcesQualified": false,
+  "earlierReaderReplay": "target/v53-segmented-evidence/large-replay-before-linear-parser.json",
+  "evidenceFiles": {
+    "target/v53-segmented-evidence/V53EvidenceSpoolTest.xml": "a669af2f439b628e5b15ae9f4ea8757b7b0d64484aedb8990d1d60f7efc8581f",
+    "target/v53-segmented-evidence/V53SegmentedEvidenceTest.xml": "26d4bd9b2d00e1dec1e78424df9b893f93f9134b2d8c784dd4c7025b703bb2c2",
+    "target/v53-segmented-evidence/contract.log": "c7751a5e8eb939c595a37ee01b6864167fee7fb1255e532cd51425bf8e2fa8f9",
+    "target/v53-segmented-evidence/focused-tests.json": "e62b0b677877ff57f9b5e97212e32db39f5d00a6c62d05cc0ecb74f6bd656479",
+    "target/v53-segmented-evidence/focused-tests.log": "8aaaf05168815eeca4482825223053d185048b76174c9fa1e5fff821b5734580",
+    "target/v53-segmented-evidence/large-replay-before-linear-parser.json": "a747e74e54148c7e7cec1a54c6aede6e56fcab4d4979187e75408e7b3e4d2c56",
+    "target/v53-segmented-evidence/large-replay-before-linear-parser.log": "291bfada438d49fa1b5d8e02ebed4169e47893417802a0c448df33e963a029a4",
+    "target/v53-segmented-evidence/large-replay.json": "d7b7738f67367d19690cb554b7769fb4b9004a8fae6e8bbcae7cba667d0c3d03",
+    "target/v53-segmented-evidence/large-replay.log": "3b4503c2bd3e5d97bc73358de7848b338a1bf9b59297842365d999381103f036",
+    "target/v53-segmented-evidence/maven.log": "f6ff40929c10aca361d4ad5e2ee27a1ba565ddd06dae41b4cd20d82b667c1046",
+    "target/v53-segmented-evidence/max-row-replay.json": "a81dee27c8231fd4b9ddb74ff42d197db0c6111b6e8a98968e8eccfbb92d6466",
+    "target/v53-segmented-evidence/max-row-replay.log": "e02f4515befe0a84c7b830fcea6d3ab53f149543b9e596b83fabf1182eb5faad",
+    "target/v53-segmented-evidence/python-tests-v2.log": "c8cf00c9101e5c95c500e531aef56043eaf1896881fe4890c3e7133771f2a697",
+    "target/v53-segmented-evidence/python-tests-v3.log": "45087b28132bff7ae5e45b9845c044a1c5eb4c2e48f7393a7de7daea15c1f117",
+    "target/v53-segmented-evidence/python-tests.log": "2d114164910be91101902f421a75d42764085e99b3524ac9e553e76c9cc3efb7",
+    "target/v53-segmented-evidence/replay_large.py": "56a0c97762e626abff22e13d873f502b8998ef814cf71aad17eb6a98e8113734",
+    "target/v53-segmented-evidence/replay_max_row.py": "736958ec8e86962e60eff96ef60d6f65d40dc3c77d76ff7854d9c830c880a979",
+    "target/v53-segmented-evidence/summarize.py": "f51ae183574aa63ac2de4bb28f53f779624277df32f5ecb07912c982fd7d588b",
+    "target/v53-segmented-evidence/validation-summary.json": "b229baaeabaf1ba98830c413f49beab1cd3e840538262d4ed197b21a31edc88b"
+  },
+  "existingEmptyFormatChanged": false,
+  "finalSourceCohortQualified": false,
+  "fullBackupQualification": false,
+  "initialDiagnostic": {
+    "correction": "accept either exact integrity rejection; original evidence preserved",
+    "path": "target/v53-segmented-evidence/python-tests.log",
+    "reason": "same-size tamper rejected by row content hash; test expected only attribute failure"
+  },
+  "javaSuites": [
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53SegmentedEvidenceTest",
+      "seconds": 1.123,
+      "skipped": 0,
+      "tests": 9
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "V53EvidenceSpoolTest",
+      "seconds": 1.271,
+      "skipped": 0,
+      "tests": 24
+    }
+  ],
+  "javaTests": 33,
+  "limits": {
+    "cuts": 16,
+    "historyPayloadMaximum": 137438953472,
+    "rowBytes": 16777216,
+    "rows": 65536,
+    "segmentBytes": 67108864,
+    "segments": 4096,
+    "wholeOriginalBudgetQualified": false
+  },
+  "maximumEncodedRow": {
+    "addressSpaceMiB": 128,
+    "fullBackupQualification": false,
+    "maximumImageQualified": false,
+    "maximumRssKiB": 98396,
+    "original": "target/v53-segmented-evidence/row-probe-5ad5fe873d29418ab7de544d5ea5aae5",
+    "phase3Complete": false,
+    "rowBytes": 16777216,
+    "scope": "reader-only synthetic maximum encoded row",
+    "seconds": 0.176,
+    "status": "PASS"
+  },
+  "maximumImageQualified": false,
+  "nativeFixtureChanged": false,
+  "originalCollectorReplay": {
+    "bytes": 98323200,
+    "combinedResourcesQualified": false,
+    "elapsedSeconds": 1.33,
+    "fullBackupQualification": false,
+    "inventory": {
+      "complete.json": "b3ce04176ce6477bb2c2416f2fa1a0e679c6af73b4bb6509f62ac7edb3c7fef6",
+      "cuts/first-hundred.json": "ad9c98afe6fb9f98cf9ec2db3b7f8494998e351107fed02469971e8503728fdd",
+      "segments/segment-0000.jsonl": "8f6bcc0a3ae49b7724e79ce69fb5c7a4d1e3d8d70c9e45adbbb02accb5fd65a6",
+      "segments/segment-0001.jsonl": "b5c4a2ee884ff26df4f29b335cc8a9533985114fff0a07e67e89962ce0e1ca38",
+      "segments/segment-0002.jsonl": "4bfa01326ee8107729ee7906497033bd4b2c19db9f200415a337af2afc910959"
+    },
+    "javaHeapMiB": 32,
+    "maximumImageQualified": false,
+    "original": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-segmented-evidence/probe-a0b2c301-43a8-404d-8684-fa7b46c30903",
+    "originalPreserved": true,
+    "phase3Complete": false,
+    "prefixRows": 100,
+    "pythonAddressSpaceMiB": 128,
+    "pythonMaximumRssKiB": 17440,
+    "rows": 1600,
+    "scope": "Java segmented collector and independent Python reader; not a native workload",
+    "segments": 3,
+    "status": "PASS"
+  },
+  "parent": "59e0ee6e4899fe9cae6bba9b81e4b71391a1efea",
+  "phase3Complete": false,
+  "protocolLimitsChanged": false,
+  "pythonTests": {
+    "elapsedSeconds": 0.756,
+    "errors": 0,
+    "failures": 0,
+    "modules": [
+      "scripts.v53.test_segmented_evidence",
+      "scripts.v53.test_bootstrap_replay_contract",
+      "scripts.v53.test_backup_required_four_resources",
+      "scripts.v53.test_contract_check",
+      "scripts.v53.test_phase3_qualification_plan"
+    ],
+    "skipped": 0,
+    "status": "PASS",
+    "tests": 53
+  },
+  "schema": "gse-v53-segmented-evidence-development-v1",
+  "scope": "separate bounded collector/reader component; not yet integrated into native backup admission",
+  "status": "PASS"
+}

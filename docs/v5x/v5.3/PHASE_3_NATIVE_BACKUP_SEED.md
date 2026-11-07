@@ -235,6 +235,13 @@ resource limits must stay intact. Do not run the maximum through
 the current small-seed hook and wait for a predictable collection-capacity
 failure, or weaken physical checks to admit it.
 
+The [segmented observation format](PHASE_3_SEGMENTED_EVIDENCE.md) now has a
+bounded test collector and independent reader. A retained Java history exceeds
+the old whole-wire bound while preserving its original prefix cut, and is
+replayed with bounded memory. It is not yet selected by the native fixture or
+complete replay chain; aggregate inventory and lifecycle/copy integration are
+still required before running the maximum.
+
 ## Explicit source throughout complete replay
 
 The complete semantic, publication, physical, network, export, maintenance,
