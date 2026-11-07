@@ -82,11 +82,12 @@ def applied_voter(before, after, kind, node, end):
 
 
 class Replay:
-    def __init__(self, root, *, size=3, kind='ADD', required_four=False, bootstrap_source='EMPTY'):
+    def __init__(self, root, *, size=3, kind='ADD', required_four=False, bootstrap_source='EMPTY', wire_layout='JSON'):
         need((size,kind) in ((3,'ADD'),(4,'ADD'),(3,'REPLACE'),(4,'REPLACE'),(5,'REPLACE')), 'joining replay profile')
         # The caller declares its source contract; do not infer authority from
         # a producer's plan or receipt. Existing cohort entries still require EMPTY.
         self.bootstrap_source = source_policy.check(bootstrap_source)
+        self.wire_layout = source_policy.check_layout(bootstrap_source,wire_layout)
         self.size, self.kind = size, kind
         self.joining = 'node-' + str(size+1)
         self.old = tuple('node-' + str(i) for i in range(1,size+1))
@@ -324,8 +325,8 @@ def lifecycle(root, replay):
     return ready
 
 
-def validate(root, *, size=3, kind='ADD', required_four=False, bootstrap_source='EMPTY'):
-    source_args = source_policy.options(bootstrap_source)
+def validate(root, *, size=3, kind='ADD', required_four=False, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args = source_policy.options(bootstrap_source,wire_layout)
     root = Path(root); original = collection.inventory(root)
     indices = sorted(int(p.name.removeprefix('applied-')) for p in root.iterdir() if re.fullmatch(r'applied-[1-9][0-9]*', p.name))
     need(1 <= len(indices) <= 64 and indices == list(range(1, len(indices)+1)), 'joining complete consecutive applied history')
@@ -358,7 +359,7 @@ def validate(root, *, size=3, kind='ADD', required_four=False, bootstrap_source=
     return source_policy.receipt(dict(status='PASS', scope='native-'+kind+'-catalog-certificate-checkpoint-chain', slots=len(indices), controls=kinds,
         profile=str(size)+'-'+kind+('-required-four' if required_four else ''), selections=len(replay.selections), checkpointObservations=len(replay.acks), internalReadyCuts=ready, semanticChainQualified=True,
         publicReady=False,
-        completePhysicalQualified=False, forceAndNetworkQualified=False, processDeathQualified=False, phase3Complete=False),bootstrap_source)
+        completePhysicalQualified=False, forceAndNetworkQualified=False, processDeathQualified=False, phase3Complete=False),bootstrap_source,wire_layout)
 
 
 NEGATIVES = {

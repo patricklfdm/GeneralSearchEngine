@@ -8,6 +8,7 @@ import shutil
 import sys
 import tempfile
 
+from . import wire_archive
 from . import joining_preparation_evidence as preparation
 from . import joining_profile_initialization_evidence as preceding
 from . import joining_transcript as transcript
@@ -90,14 +91,22 @@ def adoption_order(events,joining,members,promise_appended):
     return first,last
 
 
-def prepared_exchanges(root, group, ballot, sources, voters):
+def prepared_exchanges(root, group, ballot, sources, voters, *, replay=None):
     """Bind every old-majority preparation to the independently derived grants."""
-    rows = s.collection.read_json(Path(root), 'wire.json', s.collection.WIRE_BYTES)
-    decoded = [(row, *c.exchange.wire(row['request']), *c.exchange.wire(row['response'])) for row in rows]
+    rows = wire_archive.read(root,'wire.json') if replay is None else wire_archive.from_model(root,replay)
+    def decoded():
+        for row in rows:
+            yield row,*c.exchange.wire(row['request']),*c.exchange.wire(row['response'])
     proposer = ballot['proposer']; ids = {n:f.decode(v['node.gsr'], 'records', 'NODE')['identity'] for n,v in group.items()}
     own = f.decode(sources[proposer][0], 'records', 'BASIS')
     promise = f.encode('records', 'PROMISE', {k:own[k] for k in ('root','view','ballot','basisId')})
-    observed = [(row,q,answer,a) for row,kind,q,answer,a in decoded if kind == 'PREPARE' and q['ballot'] == ballot]
+    observed=[]
+    for row,kind,q,answer,a in decoded():
+        # Check both frames of every original exchange, but retain only the
+        # bounded current PREPARE set. Other transfers may contain large images.
+        if kind=='PREPARE' and q['ballot']==ballot:
+            need(len(observed)<len(voters)-1,'joining profile preparation response count')
+            observed.append((row,q,answer,a))
     need(len(observed) == len(voters)-1, 'joining profile preparation response count')
     need({q['recipient']['node'] for _,q,_,_ in observed} == set(voters)-{proposer},
          'joining profile preparation exact peers')
@@ -118,12 +127,23 @@ def prepared_exchanges(root, group, ballot, sources, voters):
         need(q == dict(fields, sender=ids[proposer], recipient=ids[peer], payload=dict(promise=sha(promise))) and
              a == dict(fields, sender=ids[peer], recipient=ids[proposer], payload=dict(basis=sha(sources[peer][0]))),
              'joining profile preparation original correlation')
-        offered = [(b,q2,a2) for b,kind,q2,answer,a2 in decoded if answer == 'CHUNK' and q2['ballot'] == ballot
-                   and q2['sender'] == ids[peer] and q2['recipient'] == ids[proposer]
-                   and base64.b64decode(a2['payload']['bytes'], validate=True) == promise]
+        offered=[]
+        for _,_,q2,answer,a2 in decoded():
+            if (answer=='CHUNK' and q2['ballot']==ballot and q2['sender']==ids[peer] and q2['recipient']==ids[proposer]
+                    and base64.b64decode(a2['payload']['bytes'],validate=True)==promise):
+                need(not offered,'joining profile preparation original promise transfer')
+                offered.append(q2['trace'])
         need(len(offered) == 1, 'joining profile preparation original promise transfer')
-        trace = offered[0][1]['trace']
-        session = [{k:b[k] for k in ('request','response')} for b,_,q2,_,_ in decoded if q2['trace'] == trace]
+        trace = offered[0]
+        positions=[i for i,(_,_,q2,_,_) in enumerate(decoded()) if q2['trace']==trace]
+        # Keep row positions rather than every decoded transfer or its payload.
+        # The unchanged transcript reader still checks exact length and order.
+        class Session:
+            def __len__(self):return len(positions)
+            def __getitem__(self,index):
+                row=rows[positions[index]]
+                return {k:row[k] for k in ('request','response')}
+        session=Session()
         c.transfer.transcript(session, [(sha(promise),promise,'RECORD')], own['root'],own['view'],ballot,
                              ids[peer],ids[proposer],'joining profile preparation promise',chunk_bytes=4*1024*1024)
         exchanges += len(session)
@@ -143,7 +163,7 @@ class Continuation(p.Continuation):
             original = self.captures.original(node, ballot)
             self.group[node], sources[node] = init.prepare(self.group[node], ballot, original['grants.gsr'], self.identifiers)
             self.prepared(node, self.group[node])
-        boundary = prepared_exchanges(self.root,self.group,ballot,sources,self.initialization.voters)
+        boundary = prepared_exchanges(self.root,self.group,ballot,sources,self.initialization.voters,replay=self.replay)
         for node in self.initialization.voters: self.group[node] = self.maintenance(self.group,node)
         return boundary
 
@@ -161,7 +181,7 @@ class Continuation(p.Continuation):
         starts=[i for i,v in enumerate(events) if v['event']=='ADOPTION_INSTALL_VALIDATED' and v.get('node')==self.joining]
         need(len(starts)==1,'joining profile recovery requires original newer-authority adoption')
         upper=starts[0];identities=s.catalog.identities(self.replay.states[-1]['identities'])
-        wire=s.collection.read_json(self.root,'wire.json',s.collection.WIRE_BYTES)
+        wire=wire_archive.from_model(self.root,self.replay)
         rows=transcript.causal(events,wire,identities,self.replay.root,transfer_only=True);contents=[]
         transcript.transfers(rows,contents=contents)
         transfers=[v for v in contents if v['offer']['request']['sender']['node']==self.joining and

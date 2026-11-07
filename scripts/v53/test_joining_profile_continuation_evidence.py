@@ -6,6 +6,7 @@ from pathlib import Path
 import tempfile
 from types import SimpleNamespace
 import unittest
+import weakref
 from unittest.mock import patch
 
 from . import joining_profile_continuation_evidence as e
@@ -81,7 +82,7 @@ class JoiningProfileContinuationEvidenceTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'^joining profile selected reachable owners$'):
             self.campaign('3-ADD',['node-1','node-2','node-3'])
 
-    def preparation(self,profile,change=None):
+    def preparation(self,profile,change=None,*,segmented=False):
         size,kind,old,_=e.topology(profile);v=Inputs(size,kind=='REPLACE');voters=old[:size//2+1]
         sources=dict(zip(voters,v.sources()));basis=e.f.decode(sources['node-1'][0],'records','BASIS')
         promise=e.f.encode('records','PROMISE',{k:basis[k] for k in ('root','view','ballot','basisId')})
@@ -104,8 +105,43 @@ class JoiningProfileContinuationEvidenceTest(unittest.TestCase):
                 dict(id=tid,action='DATA',offset=0,digest=digest,bytes=base64.b64encode(promise).decode()))
             fields['sequence']=3;pair('TRANSFER_COMMIT','TRANSFER_COMMIT',fields,node,'node-1',dict(id=tid,digest=digest),dict(id=tid,digest=digest))
         if change:change(rows)
+        if segmented:
+            from .test_wire_archive import WireArchiveTest
+            fixture=WireArchiveTest();fixture.setUp()
+            try:
+                fixture.original({'wire.json':rows})
+                model=SimpleNamespace(bootstrap_source=e.wire_archive.source.BACKUP,wire_layout=e.wire_archive.SEGMENTED)
+                return e.prepared_exchanges(fixture.root,group,v.ballot,sources,voters,replay=model)
+            finally:fixture.doCleanups()
         with patch.object(e.s.collection,'read_json',return_value=rows):
             return e.prepared_exchanges('/original',group,v.ballot,sources,voters)
+
+    def test_segmented_preparation_matches_all_original_profile_bindings(self):
+        for profile in e.PROFILES:
+            with self.subTest(profile=profile):
+                self.assertEqual(self.preparation(profile),self.preparation(profile,segmented=True))
+        for mutate,reason in ((lambda rows:rows.pop(),'promise incomplete transcript'),
+                              (lambda rows:rows.append(dict(request='invalid',response='invalid')),'base64')):
+            with self.subTest(reason=reason),self.assertRaises(ValueError):
+                self.preparation('5-REPLACE',mutate,segmented=True)
+
+    def test_preparation_does_not_retain_decoded_unrelated_transfer_frames(self):
+        class Tracked(dict):pass
+        living=weakref.WeakValueDictionary();peak=0;decode=e.c.exchange.wire
+        def tracked(raw):
+            nonlocal peak
+            kind,value=decode(raw);value=Tracked(value);living[id(value)]=value;peak=max(peak,len(living))
+            return kind,value
+        def noise(rows):
+            row=copy.deepcopy(rows[1])
+            for name in ('request','response'):
+                kind,value=decode(row[name]);value['trace']='00000000-0000-0009-0000-000000000001'
+                row[name]=base64.b64encode(e.f.encode('wire',kind,value)).decode()
+            rows.extend(copy.deepcopy(row) for _ in range(200))
+        with patch.object(e.c.exchange,'wire',side_effect=tracked):
+            result=self.preparation('5-REPLACE',noise)
+        self.assertEqual(['node-2','node-3'],result['oldPeers'])
+        self.assertLess(peak,24,'unrelated frames accumulated across the original history')
 
     def test_preparation_binds_each_old_majority_promise_transfer(self):
         for profile in e.PROFILES:

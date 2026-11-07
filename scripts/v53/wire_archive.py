@@ -98,3 +98,11 @@ def read(native_root,name,*,bootstrap_source=source.EMPTY,layout=JSON):
         need(not (root/DIRECTORY).exists() and not (root/DIRECTORY).is_symlink(),'segmented wire unexpected layout')
         return legacy.read_json(root,name,LIMITS[name])
     return Archive(native_root,bootstrap_source=bootstrap_source).read(name)
+
+
+def from_model(root,model,name='wire.json'):
+    """Use the caller-bound semantic model, never a producer layout marker."""
+    # Historical in-memory projections have no opt-in fields and remain EMPTY
+    # JSON readers. Missing fields can never authorize a segmented backup.
+    return read(root,name,bootstrap_source=getattr(model,'bootstrap_source',source.EMPTY),
+                layout=getattr(model,'wire_layout',JSON))

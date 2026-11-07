@@ -22,23 +22,23 @@ NEGATIVES={**{'content/'+name:reason for name,reason in exports.NEGATIVES.items(
            **{'control/'+name:reason for name,reason in control.NEGATIVES.items()}}
 
 
-def context(root, *, bootstrap_source='EMPTY'):
-    source_args = source_policy.options(bootstrap_source)
+def context(root, *, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args = source_policy.options(bootstrap_source,wire_layout)
     return exports.context(root,'5-REPLACE',required_four=True,**source_args)
 
 
-def control_reader(root, *, bootstrap_source='EMPTY'):
-    source_args = source_policy.options(bootstrap_source)
+def control_reader(root, *, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args = source_policy.options(bootstrap_source,wire_layout)
     return control.Replay(root,'5-REPLACE',required_four=True,**source_args)
 
 
-def content(root, *, bootstrap_source='EMPTY'):
-    source_args = source_policy.options(bootstrap_source)
+def content(root, *, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args = source_policy.options(bootstrap_source,wire_layout)
     return exports.replay(root,'5-REPLACE',required_four=True,**source_args)
 
 
-def controls(root,prior, *, bootstrap_source='EMPTY'):
-    source_args = source_policy.options(bootstrap_source)
+def controls(root,prior, *, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args = source_policy.options(bootstrap_source,wire_layout)
     return control_reader(root,**source_args).run(prior)
 
 
@@ -53,8 +53,8 @@ def coverage(result,counts):
          'required-four original pending checkpoint readers')
 
 
-def validate(directory, *, bootstrap_source='EMPTY'):
-    source_args = source_policy.options(bootstrap_source)
+def validate(directory, *, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args = source_policy.options(bootstrap_source,wire_layout)
     root=Path(directory);before=collection.inventory(root)
     original=network.validate(root,**source_args);contents=content(root,**source_args);counts=original['network']
     coverage(contents,counts)
@@ -68,7 +68,7 @@ def validate(directory, *, bootstrap_source='EMPTY'):
                 observedControlExportsQualified=True,observedLearnerRetentionQualified=True,
                 allExportFamiliesQualified=False,maintenanceAndPeerCompositionQualified=False,
                 wholeRuntimeResourcesQualified=False,completePhysicalQualified=False,
-                processDeathQualified=False,finalSourceCohortQualified=False,phase3Complete=False),bootstrap_source)
+                processDeathQualified=False,finalSourceCohortQualified=False,phase3Complete=False),bootstrap_source,wire_layout)
 
 
 def mutate(root,case):

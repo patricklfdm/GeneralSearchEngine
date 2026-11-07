@@ -52,8 +52,8 @@ def captured_pin(transactions,own,start,end,selector):
 
 
 class Replay(profile.Replay):
-    def __init__(self,root, *, bootstrap_source='EMPTY'):
-        source_args = source_policy.options(bootstrap_source)
+    def __init__(self,root, *, bootstrap_source='EMPTY', wire_layout='JSON'):
+        source_args = source_policy.options(bootstrap_source,wire_layout)
         self.__dict__.update(vars(exports.control_reader(root,**source_args)))
         self.direct_nodes=set();self.floor_inputs=[];self.pinned_floors=set()
         self.capture_transactions=captures.collect(self.root,self.events)
@@ -69,13 +69,13 @@ class Replay(profile.Replay):
         return dict(result,pinnedMaintenanceFloors=len(self.pinned_floors))
 
 
-def replay(root, *, bootstrap_source='EMPTY'):
-    source_args = source_policy.options(bootstrap_source)
+def replay(root, *, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args = source_policy.options(bootstrap_source,wire_layout)
     return Replay(root,**source_args).run()
 
 
-def validate(directory, *, bootstrap_source='EMPTY'):
-    source_args = source_policy.options(bootstrap_source)
+def validate(directory, *, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args = source_policy.options(bootstrap_source,wire_layout)
     root=Path(directory);before=collection.inventory(root)
     original=exports.validate(root,**source_args);result=replay(root,**source_args)
     physical=original['precondition']['physical']['physical']
@@ -85,7 +85,7 @@ def validate(directory, *, bootstrap_source='EMPTY'):
     return source_policy.receipt(dict(status='PASS',scope='required-four-original-maintenance-and-pinned-local-custody',
                 profile=exports.PROFILE,precondition=original,maintenance=result,maintenanceForceQualified=True,
                 peerLedgerCompositionQualified=False,wholeRuntimeResourcesQualified=False,
-                completePhysicalQualified=False,processDeathQualified=False,finalSourceCohortQualified=False,phase3Complete=False),bootstrap_source)
+                completePhysicalQualified=False,processDeathQualified=False,finalSourceCohortQualified=False,phase3Complete=False),bootstrap_source,wire_layout)
 
 
 def mutate(root,case):

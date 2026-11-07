@@ -38,13 +38,13 @@ def project(handoff):
                 deletions=len(handoff.removed))
 
 
-def original(root, *, bootstrap_source='EMPTY'):
+def original(root, *, bootstrap_source='EMPTY', wire_layout='JSON'):
     """Replay original prefix, placement and retirement before deriving charges.
 
     Complete continuation/network/ledger admission remains a mandatory caller
     precondition. The special required-four topology must not use a 3-ADD seed.
     """
-    source_args = source_policy.options(bootstrap_source)
+    source_args = source_policy.options(bootstrap_source,wire_layout)
     p = physical; root = Path(root)
     events = p.s.collection.read_json(root, 'events.json', p.s.collection.EVENT_BYTES)
     captures = p.p.Captures(root, events, voters=p.semantic.OLD_LIVE)

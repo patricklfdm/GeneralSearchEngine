@@ -104,7 +104,7 @@ class Continuation(profile.Continuation):
         ballot=init.next_ballot(self.group['node-1'])
         need(ballot['counter']==self.captures.counter,'joining profile preparation next ballot')
         sources={node:self.prepare(node,ballot) for node in self.initialization.voters}
-        boundary=profile.prepared_exchanges(self.root,self.group,ballot,sources,self.initialization.voters)
+        boundary=profile.prepared_exchanges(self.root,self.group,ballot,sources,self.initialization.voters,replay=self.replay)
         for node in self.initialization.voters:self.group[node]=self.maintenance(self.group,node)
         return boundary
 
@@ -123,8 +123,8 @@ class Continuation(profile.Continuation):
                  'joining continuation exact standalone grants')
 
 
-def replay(root, *, bootstrap_source='EMPTY'):
-    source_args = source_policy.options(bootstrap_source)
+def replay(root, *, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args = source_policy.options(bootstrap_source,wire_layout)
     root=Path(root);events=s.collection.read_json(root,'events.json',s.collection.EVENT_BYTES)
     captures=p.Captures(root,events,voters=semantic.OLD_LIVE)
     retirements=Retirements(root,events,voters=(*semantic.OLD,'node-6'))
@@ -143,15 +143,15 @@ def replay(root, *, bootstrap_source='EMPTY'):
                 governingFloorForceWindows=len(retirements.floors),pinnedMaintenanceFloors=continuation.pinned_floors)
 
 
-def validate(root, *, publication_observer=None, bootstrap_source='EMPTY'):
-    source_args = source_policy.options(bootstrap_source)
+def validate(root, *, publication_observer=None, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args = source_policy.options(bootstrap_source,wire_layout)
     root=Path(root);before=s.collection.inventory(root)
     original=semantic.validate(root,**source_args) if publication_observer is None else semantic.validate(root,publication_observer=publication_observer,**source_args)
     result=replay(root,**source_args)
     need(s.collection.inventory(root)==before,'required-four physical original changed')
     return source_policy.receipt(dict(status='PASS',scope='required-four-derived-owner-files',profile=semantic.PROFILE,semantic=original,physical=result,
                 ownerFilesQualified=True,sourceRetirementPhysicalQualified=True,completePhysicalQualified=False,
-                forceAndNetworkQualified=False,processDeathQualified=False,finalSourceCohortQualified=False,phase3Complete=False),bootstrap_source)
+                forceAndNetworkQualified=False,processDeathQualified=False,finalSourceCohortQualified=False,phase3Complete=False),bootstrap_source,wire_layout)
 
 
 NEGATIVES={

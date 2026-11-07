@@ -25,10 +25,10 @@ need,collection=maintenance.need,maintenance.collection
 class PeerReplay(peer.Replay,maintenance.Replay):
     expected_write_counts=None
 
-    def __init__(self,root,*,base=None, bootstrap_source='EMPTY'):
-        source_args = source_policy.options(bootstrap_source)
+    def __init__(self,root,*,base=None, bootstrap_source='EMPTY', wire_layout='JSON'):
+        source_args = source_policy.options(bootstrap_source,wire_layout)
         base=maintenance.Replay(root,**source_args) if base is None else base
-        source_policy.check_base(base,bootstrap_source)
+        source_policy.check_base(base,bootstrap_source,wire_layout)
         self.__dict__.update(vars(base))
         # Only immutable original observations are shared across the four readers.
         self.direct_nodes=set();self.pinned_floors=set();self.initialize_chain()
@@ -41,26 +41,26 @@ class PeerReplay(peer.Replay,maintenance.Replay):
 
 
 class LearnerReplay(learner.Replay):
-    def __init__(self,root,*,base=None, bootstrap_source='EMPTY'):
-        source_args = source_policy.options(bootstrap_source)
+    def __init__(self,root,*,base=None, bootstrap_source='EMPTY', wire_layout='JSON'):
+        source_args = source_policy.options(bootstrap_source,wire_layout)
         base=maintenance.Replay(root,**source_args) if base is None else base
-        source_policy.check_base(base,bootstrap_source)
+        source_policy.check_base(base,bootstrap_source,wire_layout)
         super().__init__(root,base=base)
 
 
 class FutureReplay(future.Replay):
-    def __init__(self,root,*,base=None, bootstrap_source='EMPTY'):
-        source_args = source_policy.options(bootstrap_source)
+    def __init__(self,root,*,base=None, bootstrap_source='EMPTY', wire_layout='JSON'):
+        source_args = source_policy.options(bootstrap_source,wire_layout)
         base=maintenance.Replay(root,**source_args) if base is None else base
-        source_policy.check_base(base,bootstrap_source)
+        source_policy.check_base(base,bootstrap_source,wire_layout)
         super().__init__(root,base=base)
 
 
 class BallotReplay(ballot_profile.ballot.Replay):
-    def __init__(self,root,*,base=None, bootstrap_source='EMPTY'):
-        source_args = source_policy.options(bootstrap_source)
+    def __init__(self,root,*,base=None, bootstrap_source='EMPTY', wire_layout='JSON'):
+        source_args = source_policy.options(bootstrap_source,wire_layout)
         base=maintenance.Replay(root,**source_args) if base is None else base
-        source_policy.check_base(base,bootstrap_source)
+        source_policy.check_base(base,bootstrap_source,wire_layout)
         super().__init__(root,base=base)
 
 
@@ -76,8 +76,8 @@ PEER_OMISSIONS={
 }
 
 
-def replay(root,progress=None, *, bootstrap_source='EMPTY'):
-    source_args = source_policy.options(bootstrap_source)
+def replay(root,progress=None, *, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args = source_policy.options(bootstrap_source,wire_layout)
     base=maintenance.Replay(root,**source_args);results={};owners=set((*base.model.old,base.model.joining))
     for name,reader in READERS.items():
         instance=reader(root,base=base,**source_args);result=instance.run()
@@ -90,8 +90,8 @@ def replay(root,progress=None, *, bootstrap_source='EMPTY'):
     return results
 
 
-def validate(directory,progress=None, *, bootstrap_source='EMPTY'):
-    source_args = source_policy.options(bootstrap_source)
+def validate(directory,progress=None, *, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args = source_policy.options(bootstrap_source,wire_layout)
     root=Path(directory);before=collection.inventory(root)
     original=maintenance.validate(root,**source_args);ledgers=replay(root,progress,**source_args)
     need(collection.inventory(root)==before,'required-four ledgers original changed')
@@ -99,7 +99,7 @@ def validate(directory,progress=None, *, bootstrap_source='EMPTY'):
                 precondition=original,ledgers=ledgers,peerLedgerCompositionQualified=True,
                 learnerLedgerCompositionQualified=True,futureLedgerCompositionQualified=True,ballotCompositionQualified=True,
                 wholeRuntimeResourcesQualified=False,completePhysicalQualified=False,processDeathQualified=False,
-                finalSourceCohortQualified=False,phase3Complete=False),bootstrap_source)
+                finalSourceCohortQualified=False,phase3Complete=False),bootstrap_source,wire_layout)
 
 
 def cases(original):

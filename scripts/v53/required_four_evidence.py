@@ -38,8 +38,8 @@ def required_joint(view, voters):
     return rejected
 
 
-def validate(root, *, publication_observer=None, bootstrap_source='EMPTY'):
-    source_args = source_policy.options(bootstrap_source)
+def validate(root, *, publication_observer=None, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args = source_policy.options(bootstrap_source,wire_layout)
     root = Path(root); inventory = c.collection.inventory(root)
     original = c.validate(root, size=5, kind='REPLACE', required_four=True,**source_args)
     replay = c.Replay(root, size=5, kind='REPLACE', required_four=True,**source_args)
@@ -71,7 +71,7 @@ def validate(root, *, publication_observer=None, bootstrap_source='EMPTY'):
         successorVoters=STABLE_LIVE, departingCheckpointVotes=0,
         semanticChainQualified=True, publicationPhysicalQualified=True, completePhysicalQualified=False,
         forceAndNetworkQualified=False, processDeathQualified=False,
-        finalSourceCohortQualified=False, phase3Complete=False),bootstrap_source)
+        finalSourceCohortQualified=False, phase3Complete=False),bootstrap_source,wire_layout)
 
 
 NEGATIVES = {

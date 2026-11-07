@@ -11,6 +11,7 @@ import sys
 import tempfile
 from types import SimpleNamespace
 
+from . import wire_archive
 from . import bootstrap_replay_contract as source_policy
 from . import joining_profile_network_evidence as network
 from . import joining_export_evidence as exports
@@ -23,8 +24,8 @@ NEGATIVES=e.NEGATIVES
 PENDING_ABSENT='no committed pending checkpoint export in original'
 
 
-def context(root,profile,*,old_owner_lifetimes=None,required_four=False, bootstrap_source='EMPTY'):
-    source_args = source_policy.options(bootstrap_source)
+def context(root,profile,*,old_owner_lifetimes=None,required_four=False, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args = source_policy.options(bootstrap_source,wire_layout)
     size,kind,old,new=topology(profile);root=Path(root)
     need(type(required_four) is bool and (not required_four or profile=='5-REPLACE'),
          'joining export required-four profile')
@@ -36,7 +37,7 @@ def context(root,profile,*,old_owner_lifetimes=None,required_four=False, bootstr
     need(model.joining==new[-1] and tuple(model.old)==tuple(old),'joining profile export topology')
     if required_four:need(model.targets==new,'joining export required-four target')
     events=collection.read_json(root,'events.json',collection.EVENT_BYTES)
-    wires=collection.read_json(root,'wire.json',collection.WIRE_BYTES)
+    wires=wire_archive.from_model(root,model)
     rows=e.n.causal(events,wires,e.n.s.catalog.identities(model.states[-1]['identities']),model.root)
     contents=[];e.n.transfers(rows,contents=contents)
     # Include inactive original voters: lack of installation is not lack of an
@@ -49,8 +50,8 @@ def context(root,profile,*,old_owner_lifetimes=None,required_four=False, bootstr
                            groups=e.sessions(contents),windows=windows,sources=sources,records=records)
 
 
-def replay(root,profile,*,required_four=False, bootstrap_source='EMPTY'):
-    source_args = source_policy.options(bootstrap_source)
+def replay(root,profile,*,required_four=False, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args = source_policy.options(bootstrap_source,wire_layout)
     need(type(required_four) is bool,'joining export required-four profile')
     reader=context(root,profile,**({'required_four':True} if required_four else {}),**source_args)
     result=e.authorize_contents(reader.model,reader.events,reader.contents,reader.windows,reader.sources,reader.records)

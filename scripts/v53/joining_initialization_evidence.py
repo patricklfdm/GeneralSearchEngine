@@ -13,6 +13,7 @@ import shutil
 import tempfile
 import uuid
 
+from . import wire_archive
 from . import joining_retirement_evidence as retirement
 from . import joining_retention_evidence as retention
 
@@ -170,8 +171,8 @@ def retained_order(events, *, joining):
 
 def confirm_old_learners(root, owner, group, *, replay, voters):
     """Derive the pre-seed learner ledgers from the original head exchanges."""
-    wire = s.catalog.parse((root/'joining-head-wire.json').read_bytes())
-    need(type(wire) is list and len(wire) == len(voters), 'joining initialization original head exchange count')
+    wire = wire_archive.from_model(root,replay,'joining-head-wire.json')
+    need(wire_archive.segmented.rows(wire) and len(wire) == len(voters), 'joining initialization original head exchange count')
     cap = disk.p.decode(owner.history.sources[8]['source.gscp'])['capsule']; traces = set()
     for node, row in zip(voters, wire):
         need(type(row) is dict and set(row) == {'request', 'response'}, 'joining initialization head exchange shape')

@@ -12,6 +12,7 @@ from pathlib import Path
 import shutil
 import tempfile
 
+from . import wire_archive
 from . import bootstrap_replay_contract as source_policy
 from . import joining_catalog_evidence as semantic
 from . import joining_phase_evidence as phases
@@ -32,7 +33,7 @@ class CheckpointReceipts:
     def __init__(self, root, replay, *, old_owner_lifetimes=None):
         from . import joining_transcript as transcript
         events=semantic.collection.read_json(root,'events.json',semantic.collection.EVENT_BYTES)
-        wires=semantic.collection.read_json(root,'wire.json',semantic.collection.WIRE_BYTES)
+        wires=wire_archive.from_model(root,replay)
         identities=semantic.catalog.identities(replay.states[-1]['identities'])
         rows=transcript.causal(events,wires,identities,replay.root,transfer_only=True);contents=[]
         self.transport=transcript.transfers(rows,contents=contents)
@@ -252,8 +253,8 @@ def expected_publication(replay, files, index, node):
     return expected
 
 
-def validate(root, *, size=3, kind='ADD', required_four=False, publication_observer=None, bootstrap_source='EMPTY'):
-    source_args = source_policy.options(bootstrap_source)
+def validate(root, *, size=3, kind='ADD', required_four=False, publication_observer=None, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args = source_policy.options(bootstrap_source,wire_layout)
     root = Path(root); inventory = semantic.collection.inventory(root)
     original = semantic.validate(root,size=size,kind=kind,required_four=required_four,**source_args)
     replay = semantic.Replay(root,size=size,kind=kind,required_four=required_four,**source_args)
@@ -271,7 +272,7 @@ def validate(root, *, size=3, kind='ADD', required_four=False, publication_obser
     return source_policy.receipt(dict(status='PASS', scope='native-'+kind+'-applied-to-published-inventories', profile=original['profile'], slots=original['slots'],
         publications=publications, comparedBytes=byte_count, collectedCheckpointTransfers=replay.publication_receipts.transfers,
         publicationPhysicalQualified=True,
-        completePhysicalQualified=False, forceAndNetworkQualified=False, processDeathQualified=False, phase3Complete=False),bootstrap_source)
+        completePhysicalQualified=False, forceAndNetworkQualified=False, processDeathQualified=False, phase3Complete=False),bootstrap_source,wire_layout)
 
 
 NEGATIVES = {name: 'joining exact publication inventory' for name in (

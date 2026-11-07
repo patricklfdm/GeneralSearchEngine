@@ -8,6 +8,7 @@ import argparse
 import json
 from pathlib import Path
 
+from . import wire_archive
 from . import bootstrap_replay_contract as source_policy
 from . import resource_transitions as transitions
 from . import publication_resource_evidence as publication
@@ -91,8 +92,8 @@ def bind_publications(transactions,boundaries):
     return count
 
 
-def validate(directory,profile='stable',progress=None,*,source_control=False,control_closes=False,export_ownership=False,direct_exports=False,joining_requests=False,joining_extents=False,published_probe=False,session_extents=False,complete_exports=False,voting_control=False,slot_control=False,activation_control=False,joined_files=False,joined_closes=False,export_bindings_out=None, bootstrap_source='EMPTY'):
-    source_args = source_policy.options(bootstrap_source)
+def validate(directory,profile='stable',progress=None,*,source_control=False,control_closes=False,export_ownership=False,direct_exports=False,joining_requests=False,joining_extents=False,published_probe=False,session_extents=False,complete_exports=False,voting_control=False,slot_control=False,activation_control=False,joined_files=False,joined_closes=False,export_bindings_out=None, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args = source_policy.options(bootstrap_source,wire_layout)
     need(bootstrap_source==source_policy.EMPTY or profile=='5-REPLACE-required-four', 'native resources bootstrap source profile')
     need(export_bindings_out is None or type(export_bindings_out) is dict and not export_bindings_out and complete_exports is True,
          'native resources empty complete-export output only')
@@ -153,7 +154,7 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
     from . import publication_generation_resources
     generations=publication_generation_resources.replay(transactions,traces,boundaries)
     from . import native_source_resources
-    wires=collection.read_json(root,'wire.json',collection.WIRE_BYTES)
+    wires=wire_archive.read(root,'wire.json',bootstrap_source=bootstrap_source,layout=wire_layout)
     cleanup=None;export_bindings={} if complete_exports else None
     if control_closes:
         from . import control_close_evidence,native_control_closes
@@ -233,7 +234,7 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
                 precondition=preceding,publicationResources=physical,publicationBoundaries=count,publicationGenerationResources=generations,transportResources=transport,
                 floorResources=floors,receivingResources=receiving,basisResources=bases,ownerCloseResources=closed,joinedOwnerCloses=joining_closed,joinedHandoffResources=joined,joinedFileResources=files,
                 sourceControlResources=source_result,sourceCleanupIntervals=cleanup,directExportOwnership=direct,publishedPrefixProbe=published,exportAllocationCoverage=export_coverage,
-                votingControlResources=voting,slotControlResources=slots,activationControlResources=activation,physicalPeakQualified=False,controlLifetimesQualified=False,finalSourceCohortQualified=False),bootstrap_source)
+                votingControlResources=voting,slotControlResources=slots,activationControlResources=activation,physicalPeakQualified=False,controlLifetimesQualified=False,finalSourceCohortQualified=False),bootstrap_source,wire_layout)
 
 
 if __name__=='__main__':

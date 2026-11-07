@@ -41,8 +41,8 @@ def quorum_time(view,owner,rows,end):
 
 
 class Replay(c.Replay):
-    def __init__(self,root,profile,*,old_owner_lifetimes=None,required_four=False, bootstrap_source='EMPTY'):
-        source_args = source_policy.options(bootstrap_source)
+    def __init__(self,root,profile,*,old_owner_lifetimes=None,required_four=False, bootstrap_source='EMPTY', wire_layout='JSON'):
+        source_args = source_policy.options(bootstrap_source,wire_layout)
         self.root=Path(root);self.profile=profile
         need(type(required_four) is bool,'joining export required-four profile')
         self.__dict__.update(vars(exports.context(root,profile,old_owner_lifetimes=old_owner_lifetimes,

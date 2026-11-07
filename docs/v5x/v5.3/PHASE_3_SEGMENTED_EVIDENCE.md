@@ -110,15 +110,47 @@ resource and owner-close replay passes, including eight exact negative checks.
 This is a short startup history; the six-history snapshot tests are component
 tests, not a complete native joining run.
 
+## Caller-bound complete reader chain
+
+The complete required-four semantic/publication/physical/network/export/
+maintenance/ledger/resource chain now passes `wire_layout` together with the
+explicit bootstrap source. `JSON` remains the default. `SEGMENTED_BACKUP`
+requires the backup source, and shared ledger contexts cannot mix layouts.
+Main wire and learner-head reads use this contract; auxiliary head reads select
+the original observed cut. Result checkers bind the optional `wireLayout` marker
+to the caller's contract instead of allowing a receipt to choose its layout.
+
+The separate `qualify_backup(..., wire_layout='SEGMENTED_BACKUP')` path preserves
+the original-first checks and all 148 backup negative cases, then requires an
+additional exact rejection by the default JSON reader. Its 149-case orchestration
+checks are synthetic contract tests, not a completed backup run.
+
+The [reader integration index](phase3-evidence/segmented-replay-development.json)
+records 484 passing Python checks. It also replays the unchanged segmented native
+BARRIER original through actual publication and connection readers, deriving six
+checkpoint transfers and six bindings. The older JSON backup prefix retains its
+exact rows and semantic BARRIER. That older original has no request/connection
+observations and remains rejected by the strict network gate. Neither short
+prefix can satisfy the complete joining lifetime requirements.
+
+Preparation replay now decodes one exchange at a time and retains only its
+current PREPARE set and selected row positions. A regression with 200 unrelated
+exchanges observed 418 simultaneously retained decoded objects in the previous
+implementation and requires fewer than 24 after the change. The same physical
+preparation checks pass using both layouts for all five existing profiles.
+This is a component retention bound, not whole-reader RSS qualification.
+
 ## Remaining integration
 
-The complete required-four consumers still need an explicit layout context at
-their file-loading boundaries. Full-array assumptions and retained decoded
-frames/transfer payloads must be bounded throughout those consumers, not just
-in the raw format reader. The shared registry budget is only a sub-budget;
+Decoded frames and transfer payloads are still retained by the connection,
+publication and export readers. They must be bounded throughout those consumers,
+not just in the raw format reader. The shared registry budget is only a sub-budget;
 it does not establish the whole-original bound. The whole-original
 inventory must count every segment and cut alongside lifecycle/copy snapshots;
 per-archive ceilings cannot be added to invent a larger admitted budget.
+The complete chain still uses its existing 512 MiB inventory ceiling. The future
+maximum-backup admission must explicitly apply its 128 GiB whole-original bound
+without increasing the ordinary JSON gate or admitting an unbounded archive.
 
 After integration, replay a small complete backup original through the same
 format and all independent semantic/physical/resource checks before attempting

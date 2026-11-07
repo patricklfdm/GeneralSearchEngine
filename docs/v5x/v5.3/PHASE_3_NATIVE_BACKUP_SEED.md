@@ -241,8 +241,9 @@ the old whole-wire bound while preserving its original prefix cut, and is
 replayed with bounded memory. The native fixture now supports an explicit
 backup-only segmented wire layout with a shared six-history budget and original
 auxiliary cuts. A short nonempty seed/BARRIER run passes independent connection,
-resource and shutdown replay. The complete replay chain, bounded decoded-content
-retention, and whole-original lifecycle/copy accounting are still required
+resource and shutdown replay. The complete replay chain now accepts the same
+explicit layout. Bounded decoded-content retention, whole-original lifecycle/
+copy accounting and full positive backup qualification are still required
 before running the maximum.
 
 ## Explicit source throughout complete replay
@@ -266,6 +267,14 @@ original under the default EMPTY contract. Its schema is
 rejects this receipt, and the backup checker rejects an EMPTY receipt. Neither
 entry can fill the other's cohort slot. No hosted/cohort registration or new
 CLI admission is added in this batch.
+
+The [segmented reader extension](PHASE_3_SEGMENTED_EVIDENCE.md) additionally
+threads caller-selected `wire_layout` through this entire chain. Its explicit
+segmented backup variant binds `wireLayout: SEGMENTED_BACKUP` in both result and
+original, retains those 148 negatives and adds the exact default-JSON rejection.
+The JSON backup variant retains its existing receipt shape and 148 cases. This
+extension has short native prefix and contract evidence; full positive backup
+execution, decoded-content bounds and maximum-original admission remain pending.
 
 The [backup replay development index](phase3-evidence/backup-replay-development.json)
 records 18 new source-policy/orchestration regression tests, 220 existing reader

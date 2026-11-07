@@ -206,8 +206,8 @@ def compare(transactions, plans):
     return dict(publications=len(transactions),observedBoundaries=sum(map(len,transactions)),maximumObservedStorage=maxima)
 
 
-def original(root, profile, progress=None, *, resource_transitions=False, control_closes=False, bootstrap_source='EMPTY'):
-    source_args = source_policy.options(bootstrap_source)
+def original(root, profile, progress=None, *, resource_transitions=False, control_closes=False, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args = source_policy.options(bootstrap_source,wire_layout)
     need(bootstrap_source==source_policy.EMPTY or profile=='5-REPLACE-required-four', 'publication resources bootstrap source profile')
     plans = {}
     if profile == 'stable':
@@ -230,8 +230,8 @@ def original(root, profile, progress=None, *, resource_transitions=False, contro
     return receipt,plans
 
 
-def validate(directory, profile='stable', progress=None, *, resource_transitions=False, control_closes=False, bootstrap_source='EMPTY'):
-    source_args = source_policy.options(bootstrap_source)
+def validate(directory, profile='stable', progress=None, *, resource_transitions=False, control_closes=False, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args = source_policy.options(bootstrap_source,wire_layout)
     need(bootstrap_source==source_policy.EMPTY or profile=='5-REPLACE-required-four', 'publication resources bootstrap source profile')
     root = Path(directory); before = history.inventory(root)
     receipt,plans = original(root,profile,progress,resource_transitions=resource_transitions,control_closes=control_closes,**source_args)
@@ -240,7 +240,7 @@ def validate(directory, profile='stable', progress=None, *, resource_transitions
     need(history.inventory(root) == before, 'publication resources original changed')
     return source_policy.receipt(dict(status='PASS',scope='native-publication-storage-boundaries',profile=profile,precondition=receipt,**result,
                 publicationStorageDerived=True,controlChargesDerived=False,wholeRuntimePeakQualified=False,
-                processDeathQualified=False,phase3Complete=False),bootstrap_source)
+                processDeathQualified=False,phase3Complete=False),bootstrap_source,wire_layout)
 
 
 if __name__ == '__main__':

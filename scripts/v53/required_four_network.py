@@ -9,6 +9,7 @@ from pathlib import Path
 import shutil
 import sys
 import tempfile
+from . import wire_archive
 from . import bootstrap_replay_contract as source_policy
 from . import required_four_physical as physical
 from . import joining_network_evidence as network
@@ -17,21 +18,21 @@ from . import joining_connections as connections
 need,collection=network.need,network.s.collection
 
 
-def observations(root):
+def observations(root, *, bootstrap_source='EMPTY', wire_layout='JSON'):
     events=collection.read_json(root,'events.json',collection.EVENT_BYTES)
-    wires=collection.read_json(root,'wire.json',collection.WIRE_BYTES)
+    wires=wire_archive.read(root,'wire.json',bootstrap_source=bootstrap_source,layout=wire_layout)
     need(connections.present(events,wires),'required-four original connection observations absent')
     return events,wires
 
 
-def replay(root, *, bootstrap_source='EMPTY'):
-    source_args = source_policy.options(bootstrap_source)
-    observations(root)
+def replay(root, *, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args = source_policy.options(bootstrap_source,wire_layout)
+    observations(root,**source_args)
     return network.network(root,size=5,kind='REPLACE',required_four=True,**source_args)
 
 
-def validate(directory, *, bootstrap_source='EMPTY'):
-    source_args = source_policy.options(bootstrap_source)
+def validate(directory, *, bootstrap_source='EMPTY', wire_layout='JSON'):
+    source_args = source_policy.options(bootstrap_source,wire_layout)
     root=Path(directory);before=collection.inventory(root)
     original=physical.validate(root,**source_args);result=replay(root,**source_args)
     need(result['slots']==11 and result['ownedSlotTransactions']==34,
@@ -41,7 +42,7 @@ def validate(directory, *, bootstrap_source='EMPTY'):
                 physical=original,network=result,observedNetworkQualified=True,durableACKsQualified=True,
                 completeControlExportQualified=False,maintenanceAndPeerCompositionQualified=False,
                 completePhysicalQualified=False,forceAndNetworkQualified=False,processDeathQualified=False,
-                finalSourceCohortQualified=False,phase3Complete=False),bootstrap_source)
+                finalSourceCohortQualified=False,phase3Complete=False),bootstrap_source,wire_layout)
 
 
 # The same mutations now reach the connection reader first. Durable/transfer
