@@ -49,8 +49,9 @@ class CheckpointReceipts:
                 raw=local['applied-end/statement.gsr'];value=f.decode(raw,'records','CHECKPOINT',replay.root)
                 need(value['end']==replay.states[index]['cut'], 'joining publication nonvoting statement')
                 groups[sha(raw)]={}
-            for name,raw in local.items():
+            for name in local:
                 if name.startswith('applied-end/') and (name=='applied-end/ack.gsr' or name.endswith('-ack.gsr')):
+                    raw=local[name]
                     value=f.decode(raw,'records','CHECKPOINT_ACK',replay.root)
                     need(value['voter']==node and replay.acks.get((value['statement'],node))==raw,'joining publication original local ACK')
                     need(value['statement'] not in groups,'joining publication duplicate local statement')
@@ -58,8 +59,9 @@ class CheckpointReceipts:
             for transfer in contents:
                 offer,commit=transfer['offer'],transfer['commit'];request=offer['request']
                 if request['sender']['node']!=node or not lower<offer['sent']<commit['delivered']<upper:continue
+                if transfer['kind']!='RECORD':continue
                 raw=transfer['raw']
-                if transfer['kind']!='RECORD' or len(raw)<10 or int.from_bytes(raw[8:10],'big')!=f.catalog()['records']['CHECKPOINT_ACK']['id']:continue
+                if len(raw)<10 or int.from_bytes(raw[8:10],'big')!=f.catalog()['records']['CHECKPOINT_ACK']['id']:continue
                 value=f.decode(raw,'records','CHECKPOINT_ACK',replay.root);statement=value['statement'];peer=value['voter']
                 need(statement in groups and peer==request['recipient']['node'] and peer not in groups[statement]
                      and replay.acks.get((statement,peer))==raw,'joining publication original delivered ACK')

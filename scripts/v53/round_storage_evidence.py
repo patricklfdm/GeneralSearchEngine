@@ -49,7 +49,9 @@ def votes(raw, parent):
 def current(files):
     selector = f.decode(files['selector.gsr'], 'records', 'SELECTOR'); prefix = 'generations/'+selector['generation']+'/'
     manifest = f.decode(files[prefix+'generation.gsr'], 'records', 'GENERATION')
-    members = {k.removeprefix(prefix): v for k, v in files.items() if k.startswith(prefix) and k != prefix+'generation.gsr'}
+    # Checked lazy snapshots must not materialize unrelated generations/images
+    # merely to discover which member names belong to the selected generation.
+    members = {k.removeprefix(prefix): files[k] for k in files if k.startswith(prefix) and k != prefix+'generation.gsr'}
     need(manifest['files'] == [dict(path=k, size=len(v), sha256=digest(v)) for k, v in sorted(members.items())]
          and selector['digest'] == digest(files[prefix+'generation.gsr'])
          and all(selector[k] == manifest[k] for k in ('root', 'node', 'generation')), 'round original generation inventory')

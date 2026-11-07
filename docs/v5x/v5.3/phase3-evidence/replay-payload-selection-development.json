@@ -1,0 +1,335 @@
+{
+  "allFiveClosureGapsOpen": true,
+  "baseHead": "5aa72adb473e8b27cb7369e5de74ddb0ebc48de4",
+  "combinedResourcesQualified": false,
+  "contractCheck": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 3171,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "finalSourceCohortQualified": false,
+  "logs": [
+    {
+      "bytes": 1463,
+      "path": "target/v53-selected-file-reads/compare_original.py",
+      "sha256": "ebba442a71aab3eacfd5999a564e6c712c58f3cf5076b491f338ad2c1b115b70"
+    },
+    {
+      "bytes": 167,
+      "path": "target/v53-selected-file-reads/contract.json",
+      "sha256": "eb040f26d3082ea66c359eaa9a63e1bb7c1dc2c596e5c600ec0f7dc068e55c45"
+    },
+    {
+      "bytes": 3669,
+      "path": "target/v53-selected-file-reads/final-python.json",
+      "sha256": "99a13000bf7d8b2263d20a4d8d77316f05191ec7bef52e34418a8123b3f13ab8"
+    },
+    {
+      "bytes": 620,
+      "path": "target/v53-selected-file-reads/memory-comparison-pinned.log",
+      "sha256": "789298c08e5ef6156c73b4e201a116a63e64475b21216edbb31eab1698236a06"
+    },
+    {
+      "bytes": 754,
+      "path": "target/v53-selected-file-reads/memory-comparison.json",
+      "sha256": "ed3000b4c18ecaab1b349716fa2224b12df689e99352d34498f897ea120046cf"
+    },
+    {
+      "bytes": 620,
+      "path": "target/v53-selected-file-reads/memory-comparison.log",
+      "sha256": "ea4ea544be22d86d97c21e148640d27996ffa208b27b7941b30a623dbff26b8a"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-selected-file-reads/memory-corrected.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 167,
+      "path": "target/v53-selected-file-reads/memory-corrected.stdout",
+      "sha256": "16a426b97863a89db13a7d6f394aff42398bf7024beba376a28315f42a05637a"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-selected-file-reads/memory-original.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 184,
+      "path": "target/v53-selected-file-reads/memory-original.stdout",
+      "sha256": "36c68de6e36f96356bf61ad5b1c8983d31f9d36466359c4835439ce02eedd107"
+    },
+    {
+      "bytes": 2359,
+      "path": "target/v53-selected-file-reads/memory_comparison.py",
+      "sha256": "7df4a7e52d7ba35c9ccd8e3a69cc56fbbdd0c311af610e89ed17f095b4a0311e"
+    },
+    {
+      "bytes": 1094,
+      "path": "target/v53-selected-file-reads/native-replay.json",
+      "sha256": "b72c5be568e28b1a014b6c08971ddb0deea531d7ef594fdf7394b0cfbe9679e0"
+    },
+    {
+      "bytes": 4514,
+      "path": "target/v53-selected-file-reads/original-regressions-pinned.log",
+      "sha256": "10179280e8f56223839fa4523808d97ba4c440dcfb57f9d0000113d1c9daea43"
+    },
+    {
+      "bytes": 404,
+      "path": "target/v53-selected-file-reads/original-regressions.json",
+      "sha256": "03e8a298bce173f15a7092645b83d608b5b0c469a34c482ce223ff04e2de1c03"
+    },
+    {
+      "bytes": 4514,
+      "path": "target/v53-selected-file-reads/original-regressions.log",
+      "sha256": "20a3738646882a39cd563f79793884edec823d3af0d2cb4b474ae92325ba54b4"
+    },
+    {
+      "bytes": 20462,
+      "path": "target/v53-selected-file-reads/python-all.log",
+      "sha256": "3c3ca7105a5ac5580cd236b0b4e9f9a024aade9184ddc4a3a3e71eabb896ea6b"
+    },
+    {
+      "bytes": 3110,
+      "path": "target/v53-selected-file-reads/python-final.log",
+      "sha256": "77a19bad4aeeac9db4dfb18907a4df3e660d5368b1f2e0106a797b117ce90c97"
+    },
+    {
+      "bytes": 122,
+      "path": "target/v53-selected-file-reads/python-focused.log",
+      "sha256": "09e79e23d8825929e5051fafec3a044e5824492b53e7c1abf2d8dd8cd9218334"
+    },
+    {
+      "bytes": 1020,
+      "path": "target/v53-selected-file-reads/replay-native.log",
+      "sha256": "711a7024e8bb67b5efd66a72aa2ded7bf07240fc4a03f28ea21f35a58631d354"
+    },
+    {
+      "bytes": 4097,
+      "path": "target/v53-selected-file-reads/replay_native.py",
+      "sha256": "fb0843bf06dd512591dc66cc3a8a981789043f7653ce68eaf4eedd6132acd121"
+    },
+    {
+      "bytes": 701,
+      "path": "target/v53-selected-file-reads/run_tests.py",
+      "sha256": "6dc4ea3f0f69ef79b5a80d5914f790b9a15d2c8312bdf579e3bd0cfa3ba97d9e"
+    },
+    {
+      "bytes": 3394,
+      "path": "target/v53-selected-file-reads/test-modules.json",
+      "sha256": "d6ed8475719d3eea4f6e0e14f7499662a7b9825edc22834dbf34c451c12f0342"
+    },
+    {
+      "bytes": 167,
+      "path": "target/v53-selected-file-reads/contract-final.json",
+      "sha256": "eb040f26d3082ea66c359eaa9a63e1bb7c1dc2c596e5c600ec0f7dc068e55c45"
+    }
+  ],
+  "memory": {
+    "maximumImageQualified": false,
+    "phase3Complete": false,
+    "results": [
+      {
+        "addressSpaceLimit": 67108864,
+        "elapsedSeconds": 1.077,
+        "implementation": "original",
+        "inputBytes": 805313387,
+        "originalUnchanged": true,
+        "peakRssKiB": 24708,
+        "status": "MEMORY_LIMIT_EXCEEDED",
+        "synthetic": true
+      },
+      {
+        "addressSpaceLimit": 67108864,
+        "elapsedSeconds": 0.897,
+        "implementation": "corrected",
+        "inputBytes": 805313387,
+        "originalUnchanged": true,
+        "peakRssKiB": 24708,
+        "status": "PASS",
+        "synthetic": true
+      }
+    ],
+    "scope": "synthetic current-generation projection; not complete reader qualification",
+    "status": "PASS",
+    "wholeReaderMeasured": false
+  },
+  "nativeMaximumQualified": false,
+  "operatorEnvironment": {
+    "decision": "Finish development; arrange formal acceptance environment later.",
+    "environmentChecksPreserved": true,
+    "qualifiedMaximumLinuxHostAvailable": false
+  },
+  "originalEvidenceChanged": false,
+  "phase3Complete": false,
+  "productionRuntimeChanged": false,
+  "schema": "gse-v53-development-evidence-v1",
+  "scope": "current-generation and checkpoint payload selection; not complete maximum reader qualification",
+  "sourceFiles": [
+    {
+      "bytes": 16902,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "d2ad6fe0eebea23ab8286d9590bf1435926b7f9f98fade05342481be82f35d40"
+    },
+    {
+      "bytes": 4201,
+      "path": "docs/v5x/v5.3/PHASE_3_REPLAY_PAYLOAD_SELECTION.md",
+      "sha256": "ff1316902b3ee1ef7eb0d0429fab89760785247c8c5bf3cb39bc66dece750b96"
+    },
+    {
+      "bytes": 26484,
+      "path": "scripts/v53/joining_publication_evidence.py",
+      "sha256": "0f2b9cfcf08b613893fc9570dda8615dbc7c13bb27eba979787f92b9fae41b88"
+    },
+    {
+      "bytes": 18453,
+      "path": "scripts/v53/round_storage_evidence.py",
+      "sha256": "71bcaf0d461ba853f534c33192cfa5d44165e3639dc253c3019d964307611ccb"
+    },
+    {
+      "bytes": 4567,
+      "path": "scripts/v53/test_selected_file_reads.py",
+      "sha256": "64c0b56906bd172d1a749e11298f35dbd1513f1c1b9cee6002748d9475aad2bc"
+    }
+  ],
+  "status": "PARTIAL",
+  "validation": {
+    "focusedPython": {
+      "elapsedSeconds": 21.111,
+      "errors": 0,
+      "failures": 0,
+      "modules": [
+        "scripts.v53.test_activation_control_resources",
+        "scripts.v53.test_backup_inventory",
+        "scripts.v53.test_backup_required_four_resources",
+        "scripts.v53.test_backup_resource_capacity",
+        "scripts.v53.test_backup_resource_hosted",
+        "scripts.v53.test_backup_resource_run",
+        "scripts.v53.test_bootstrap_replay_contract",
+        "scripts.v53.test_capture_objects",
+        "scripts.v53.test_connection_transcript",
+        "scripts.v53.test_contract_check",
+        "scripts.v53.test_format_fixture",
+        "scripts.v53.test_format_qualification",
+        "scripts.v53.test_grant_streaming",
+        "scripts.v53.test_joined_handoff_resources",
+        "scripts.v53.test_joining_attempts",
+        "scripts.v53.test_joining_control_evidence",
+        "scripts.v53.test_joining_export_evidence",
+        "scripts.v53.test_joining_grant_captures",
+        "scripts.v53.test_joining_history_run",
+        "scripts.v53.test_joining_initialization_evidence",
+        "scripts.v53.test_joining_initialization_process_evidence",
+        "scripts.v53.test_joining_network_evidence",
+        "scripts.v53.test_joining_preparation_evidence",
+        "scripts.v53.test_joining_profile_ballot_evidence",
+        "scripts.v53.test_joining_profile_continuation_evidence",
+        "scripts.v53.test_joining_profile_control_evidence",
+        "scripts.v53.test_joining_profile_evidence",
+        "scripts.v53.test_joining_profile_export_evidence",
+        "scripts.v53.test_joining_profile_initialization_evidence",
+        "scripts.v53.test_joining_profile_ledger_evidence",
+        "scripts.v53.test_joining_profile_maintenance_evidence",
+        "scripts.v53.test_joining_profile_network_evidence",
+        "scripts.v53.test_joining_profile_peer_evidence",
+        "scripts.v53.test_joining_profile_physical_evidence",
+        "scripts.v53.test_joining_profile_run",
+        "scripts.v53.test_joining_publication_evidence",
+        "scripts.v53.test_joining_retirement_replay",
+        "scripts.v53.test_joining_same_view_ballot",
+        "scripts.v53.test_joining_source_loss",
+        "scripts.v53.test_joining_source_retirement",
+        "scripts.v53.test_json_budget",
+        "scripts.v53.test_maximum_transition_hosted",
+        "scripts.v53.test_maximum_transition_inventory",
+        "scripts.v53.test_native_resource_evidence",
+        "scripts.v53.test_native_resource_policy",
+        "scripts.v53.test_native_source_resources",
+        "scripts.v53.test_phase3_qualification_plan",
+        "scripts.v53.test_phase3_resource_artifacts",
+        "scripts.v53.test_phase3_resource_cohort",
+        "scripts.v53.test_phase3_resource_workflows",
+        "scripts.v53.test_physical_snapshot",
+        "scripts.v53.test_publication_resource_evidence",
+        "scripts.v53.test_remove_process_hosted",
+        "scripts.v53.test_required_four_direct_exports",
+        "scripts.v53.test_required_four_evidence",
+        "scripts.v53.test_required_four_exports",
+        "scripts.v53.test_required_four_ledgers",
+        "scripts.v53.test_required_four_maintenance",
+        "scripts.v53.test_required_four_network",
+        "scripts.v53.test_required_four_physical",
+        "scripts.v53.test_required_four_resource_hosted",
+        "scripts.v53.test_required_four_resource_run",
+        "scripts.v53.test_required_four_resources",
+        "scripts.v53.test_segmented_backup_replay",
+        "scripts.v53.test_segmented_evidence",
+        "scripts.v53.test_segmented_transcript",
+        "scripts.v53.test_slot_control_resources",
+        "scripts.v53.test_source_control_resource_evidence",
+        "scripts.v53.test_voting_control_resources",
+        "scripts.v53.test_wire_archive",
+        "scripts.v53.test_replica_capture_limits",
+        "scripts.v53.test_selected_file_reads"
+      ],
+      "skipped": 0,
+      "status": "PASS",
+      "tests": 889
+    },
+    "fullPython": {
+      "elapsedSeconds": 209.893,
+      "status": "PASS",
+      "tests": 4369
+    },
+    "nativeReplay": {
+      "bytes": 5521102,
+      "checkpointBindings": 6,
+      "checkpointTransfers": 6,
+      "combinedResourcesQualified": false,
+      "deferredContents": 90,
+      "deferredExchanges": 292,
+      "elapsedSeconds": 3.831,
+      "files": 663,
+      "finalSourceCohortQualified": false,
+      "fullBackupQualification": false,
+      "generationWindows": 11,
+      "inventorySha256": "6bd73454b7bfbea45cd5e5981a8aee37436c147b2b561cf70d43fc6ee119d2ae",
+      "maximumImageQualified": false,
+      "original": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-dispatch/run-625b7e90-7b3f-44e2-ad25-2608f88ada93",
+      "originalPreserved": true,
+      "phase3Complete": false,
+      "physicalViews": 10,
+      "scope": "unchanged short native backup/BARRIER replay with checked deferred physical snapshots",
+      "sourceWindows": 0,
+      "status": "PASS",
+      "transfers": {
+        "committedTransfers": 90,
+        "exactTransferRetries": 0,
+        "rejectedTransferAttempts": 0,
+        "transferSessions": 54,
+        "transferredBytes": 252036
+      },
+      "unchangedResourceResults": true,
+      "wholeRuntimeMemoryQualified": false,
+      "wireRows": 292
+    },
+    "oldSourceRegressions": {
+      "baseHead": "5aa72adb473e8b27cb7369e5de74ddb0ebc48de4",
+      "expectedFailures": 3,
+      "scope": "three regressions must reject the unchanged HEAD implementation",
+      "status": "PASS",
+      "tests": [
+        "test_current_generation_reads_only_selected_member_payloads",
+        "test_checkpoint_receipts_do_not_load_unrelated_local_images",
+        "test_checkpoint_receipts_do_not_assemble_non_record_transfers"
+      ]
+    }
+  },
+  "wholeReaderMemoryQualified": false,
+  "workflowChanged": false
+}

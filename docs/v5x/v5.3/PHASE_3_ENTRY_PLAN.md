@@ -180,6 +180,10 @@ Their [replica transport envelope](PHASE_3_REPLICA_CAPTURE_ENVELOPE.md) now cove
 384 MiB metadata plus seven 64 MiB images consistently across all three readers.
 Real maximum physical composition and whole-reader memory remain before maximum
 native runs; synthetic envelope tests do not supply that qualification.
+[Selected-member replay](PHASE_3_REPLAY_PAYLOAD_SELECTION.md) removes three
+remaining value-first reads from current-generation and checkpoint checks.
+Complete original validation stays in place; whole-reader maximum memory is
+still distinct from these measured projection components.
 
 The maximum-image component is a synchronous storage probe. It does not establish
 an admitted learner, full metadata pressure or automatic-runtime peak. The
