@@ -14,6 +14,7 @@ final class V53ResourceTransitionCapture implements AutoCloseable {
     private final String root;
     private final Path directory;
     private final boolean controlCloses,exportOwnership;
+    private final V53NativeResourceProfile resourceProfile;
     private final Map<String,Owner> owners=new TreeMap<>();
     private final List<Map<String,Object>> boundaries;
     private final V53EvidenceSpool boundarySpool;
@@ -36,6 +37,11 @@ final class V53ResourceTransitionCapture implements AutoCloseable {
     }
     V53ResourceTransitionCapture(Path raw,String root,List<String> closingOwners,boolean controlCloses,boolean exportOwnership,
                                  boolean spoolBoundaries)throws IOException {
+        this(raw,root,closingOwners,controlCloses,exportOwnership,spoolBoundaries,V53NativeResourceProfile.SMALL_FIXTURE);
+    }
+    V53ResourceTransitionCapture(Path raw,String root,List<String> closingOwners,boolean controlCloses,boolean exportOwnership,
+                                 boolean spoolBoundaries,V53NativeResourceProfile resourceProfile)throws IOException {
+        this.resourceProfile=Objects.requireNonNull(resourceProfile);
         require(closingOwners.size()<=6 && closingOwners.equals(closingOwners.stream().distinct().sorted().toList()) &&
                 closingOwners.stream().allMatch(n->n.matches("node-[1-6]")),"resource close original owners");
         this.closingOwners=List.copyOf(closingOwners);
@@ -64,7 +70,7 @@ final class V53ResourceTransitionCapture implements AutoCloseable {
         String node=identity.nodeId().value();
         require(!saved && !closed && node.matches("node-[1-9][0-9]*") && !owners.containsKey(node) && owners.size()<6 && eventIndex==boundaries.size(),
                 "resource capture owner registration");
-        var budget=new MembershipResources(MembershipResources.METADATA_LIMIT,512*MembershipResources.MIB,
+        var budget=new MembershipResources(MembershipResources.METADATA_LIMIT,resourceProfile.stagingBytes,
                 MembershipResources.QUEUE_LIMIT,MembershipResourceObservations.MAXIMUM,
                 controlCloses?MembershipControlCloseObservations.MAXIMUM:0,exportOwnership);
         owners.put(node,new Owner(identity,budget,eventIndex));return budget;

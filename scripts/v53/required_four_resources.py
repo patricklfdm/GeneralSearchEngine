@@ -5,6 +5,7 @@ qualifies observed ownership; it does not claim the simultaneous byte maximum.
 """
 from pathlib import Path
 from . import wire_archive
+from . import native_resource_policy as resource_policy
 from . import bootstrap_replay_contract as source_policy
 from . import joining_catalog_evidence as bootstrap_catalog
 from . import joined_file_negatives as files
@@ -24,6 +25,9 @@ PROFILE='5-REPLACE-required-four'
 SCHEMA='gse-v53-required-four-resources-v2'
 BACKUP_SCHEMA='gse-v53-backup-required-four-resources-v1'
 BACKUP_PROFILE=PROFILE+'-backup'
+DEFAULT_STAGING_SCHEMA='gse-v53-default-staging-backup-resources-v1'
+DEFAULT_STAGING_PROFILE=BACKUP_PROFILE+'-default-staging'
+STAGING_NEGATIVE=dict(case='declared-small-staging',status='REJECTED',reason='native resources original limits')
 SOURCE_NEGATIVE=dict(case='declared-empty',status='REJECTED',reason='bootstrap plan source profile')
 LAYOUT_NEGATIVE=dict(case='declared-json',status='REJECTED',reason='segmented wire unexpected layout')
 NEGATIVES={'accounting':accounting.NEGATIVES,'handoff':handoff.NEGATIVES,'files':files.NEGATIVES,
@@ -32,7 +36,9 @@ NEGATIVES={'accounting':accounting.NEGATIVES,'handoff':handoff.NEGATIVES,'files'
            'voting-control':voting.NEGATIVES,'slot-control':slot.NEGATIVES,'activation-control':activation.NEGATIVES}
 
 
-def check_original(value,*,bootstrap_source='EMPTY', wire_layout='JSON'):
+def check_original(value,*,bootstrap_source='EMPTY', wire_layout='JSON',resource_profile=resource_policy.SMALL):
+    resource_policy.scope(resource_profile,bootstrap_source,wire_layout)
+    resource_policy.check_receipt(value,resource_profile)
     source_policy.check_receipt(value,bootstrap_source,wire_layout)
     need(type(value) is dict and value.get('status')=='PASS' and value.get('profile')==PROFILE and
          value.get('nativeBudgetAccountingQualified') is True and
@@ -51,6 +57,7 @@ def check_original(value,*,bootstrap_source='EMPTY', wire_layout='JSON'):
         part=value.get(key)
         need(type(part) is dict and part.get('status')=='PASS' and part.get(flag) is True and
              part.get('phase3Complete') is False,'required-four resources complete original '+key)
+        if key=='joinedHandoffResources':resource_policy.check_receipt(part,resource_profile)
     coverage=value['exportAllocationCoverage'];scopes=coverage.get('byScope')
     need(type(scopes) is dict and set(scopes)==set(exports.r.SCOPES) and
          all(type(v) is int and v>0 for v in scopes.values()) and
@@ -60,21 +67,28 @@ def check_original(value,*,bootstrap_source='EMPTY', wire_layout='JSON'):
          'required-four resources complete original export scope')
 
 
-def _check_result(value,bootstrap_source,wire_layout='JSON'):
+def _check_result(value,bootstrap_source,wire_layout='JSON',resource_profile=resource_policy.SMALL):
+    resource_policy.scope(resource_profile,bootstrap_source,wire_layout)
+    resource_args=resource_policy.options(resource_profile);default=resource_profile==resource_policy.DEFAULT
     source_args=source_policy.options(bootstrap_source,wire_layout);backup=bootstrap_source==source_policy.BACKUP
     fields={'schema','status','profile','original','negatives','originalFirst',
             'originalPreserved','combinedResourcesQualified','phase3Complete'}
     if backup:fields.add('bootstrapSource')
     if wire_layout==source_policy.SEGMENTED:fields.add('wireLayout')
-    need(type(value) is dict and set(value)==fields and value['schema']==(BACKUP_SCHEMA if backup else SCHEMA) and
-         value['status']=='PASS' and value['profile']==(BACKUP_PROFILE if backup else PROFILE) and value['originalFirst'] is True and
+    if default:fields.update(('resourceProfile','stagingLimit'))
+    schema=DEFAULT_STAGING_SCHEMA if default else BACKUP_SCHEMA if backup else SCHEMA
+    profile=DEFAULT_STAGING_PROFILE if default else BACKUP_PROFILE if backup else PROFILE
+    need(type(value) is dict and set(value)==fields and value['schema']==schema and
+         value['status']=='PASS' and value['profile']==profile and value['originalFirst'] is True and
          value['originalPreserved'] is True and value['combinedResourcesQualified'] is False and value['phase3Complete'] is False,
          'required-four resources qualification scope')
     source_policy.check_receipt(value,bootstrap_source,wire_layout)
-    check_original(value['original'],**source_args)
+    resource_policy.check_receipt(value,resource_profile)
+    check_original(value['original'],**source_args,**resource_args)
     expected={family:[dict(case=n,status='REJECTED',reason=r) for n,r in cases.items()] for family,cases in NEGATIVES.items()}
     if backup:expected['bootstrap-source']=[SOURCE_NEGATIVE]
     if wire_layout==source_policy.SEGMENTED:expected['wire-layout']=[LAYOUT_NEGATIVE]
+    if default:expected['staging-profile']=[STAGING_NEGATIVE]
     need(value['negatives']==expected,'required-four resources exact negative families')
 
 
@@ -86,13 +100,19 @@ def check_backup_result(value,*,wire_layout='JSON'):
     _check_result(value,source_policy.BACKUP,wire_layout)
 
 
-def _qualify(root,progress,bootstrap_source,wire_layout='JSON'):
+def check_default_staging_backup_result(value):
+    _check_result(value,source_policy.BACKUP,source_policy.SEGMENTED,resource_policy.DEFAULT)
+
+
+def _qualify(root,progress,bootstrap_source,wire_layout='JSON',resource_profile=resource_policy.SMALL):
+    resource_policy.scope(resource_profile,bootstrap_source,wire_layout)
+    resource_args=resource_policy.options(resource_profile);default=resource_profile==resource_policy.DEFAULT
     source_args=source_policy.options(bootstrap_source,wire_layout);backup=bootstrap_source==source_policy.BACKUP
     root=Path(root);before=source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)
     bindings={}
     original=native.validate(root,PROFILE,progress,joined_files=True,joined_closes=True,complete_exports=True,
-                             activation_control=True,export_bindings_out=bindings,**source_args)
-    check_original(original,**source_args)
+                             activation_control=True,export_bindings_out=bindings,**source_args,**resource_args)
+    check_original(original,**source_args,**resource_args)
     if progress:progress(dict(stage='complete-resource-original',status='PASS'))
     index,traces,boundaries,events=native.load(root)
     closes=control_close_evidence.load(root,index)
@@ -103,8 +123,8 @@ def _qualify(root,progress,bootstrap_source,wire_layout='JSON'):
     # Derive both mappings from this original. Never use a previous run's plan.
     plan=files.r.derive(physical.owner,reader)
     cases={
-        'accounting':accounting.replay((index,traces,boundaries,events),identities,index['root']),
-        'handoff':handoff.replay((handoff.r.project(physical),events,traces,boundaries),progress),
+        'accounting':accounting.replay((index,traces,boundaries,events),identities,index['root'],**resource_args),
+        'handoff':handoff.replay((handoff.r.project(physical),events,traces,boundaries),progress,**resource_args),
         'files':files.replay((plan,events,traces,boundaries,files.r.transfers.load(root,index)),progress),
         'network-close':network_close.replay((index,traces,boundaries,events,set(identities)-{plan['node']}),progress),
         'joining-close':joining_close.replay((events,traces,boundaries,plan['node']),progress),
@@ -133,11 +153,18 @@ def _qualify(root,progress,bootstrap_source,wire_layout='JSON'):
         else:raise ValueError('required-four segmented wire accepted by JSON contract')
         cases['wire-layout']=[dict(LAYOUT_NEGATIVE)]
         if progress:progress(dict(stage='wire-layout-negatives',status='PASS',cases=1))
+    if default:
+        try:native.replay(index,traces,boundaries,events,identities,index['root'])
+        except ValueError as error:need(str(error)==STAGING_NEGATIVE['reason'],'required-four backup exact staging rejection')
+        else:raise ValueError('default-staging backup accepted by small fixture contract')
+        cases['staging-profile']=[dict(STAGING_NEGATIVE)]
+        if progress:progress(dict(stage='staging-profile-negatives',status='PASS',cases=1))
     need(source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)==before,'required-four resources original changed')
-    result=source_policy.receipt(dict(schema=BACKUP_SCHEMA if backup else SCHEMA,status='PASS',profile=BACKUP_PROFILE if backup else PROFILE,
+    result=resource_policy.receipt(source_policy.receipt(dict(schema=DEFAULT_STAGING_SCHEMA if default else BACKUP_SCHEMA if backup else SCHEMA,
+                status='PASS',profile=DEFAULT_STAGING_PROFILE if default else BACKUP_PROFILE if backup else PROFILE,
                 original=original,negatives=cases,originalFirst=True,originalPreserved=True,
-                combinedResourcesQualified=False,phase3Complete=False),bootstrap_source,wire_layout)
-    _check_result(result,bootstrap_source,wire_layout);return result
+                combinedResourcesQualified=False,phase3Complete=False),bootstrap_source,wire_layout),resource_profile)
+    _check_result(result,bootstrap_source,wire_layout,resource_profile);return result
 
 
 def qualify(root,progress=None):
@@ -148,3 +175,8 @@ def qualify(root,progress=None):
 def qualify_backup(root,progress=None,*,wire_layout='JSON'):
     """Separate backup entry; neither a replacement EMPTY slot nor a maximum gate."""
     return _qualify(root,progress,source_policy.BACKUP,wire_layout)
+
+
+def qualify_default_staging_backup(root,progress=None):
+    """Explicit production-default staging; neither a small cohort nor maximum proof."""
+    return _qualify(root,progress,source_policy.BACKUP,source_policy.SEGMENTED,resource_policy.DEFAULT)

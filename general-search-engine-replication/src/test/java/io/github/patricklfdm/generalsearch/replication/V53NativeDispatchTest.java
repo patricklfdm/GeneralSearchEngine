@@ -104,7 +104,17 @@ class V53NativeDispatchTest {
         }
         Network(MembershipBootstrapRequest<Integer,Doc> request,ReplicationBounds bounds,long endpointBudget,
                 Preparation preparation,boolean liveDirectory,boolean observeExports,V53WireArchive.Layout layout)throws Exception {
+            this(request,bounds,endpointBudget,preparation,liveDirectory,observeExports,layout,V53NativeResourceProfile.SMALL_FIXTURE);
+        }
+        Network(MembershipBootstrapRequest<Integer,Doc> request,ReplicationBounds bounds,long endpointBudget,
+                Preparation preparation,boolean liveDirectory,boolean observeExports,V53WireArchive.Layout layout,
+                V53NativeResourceProfile resourceProfile)throws Exception {
             assertNotNull(layout);
+            assertNotNull(resourceProfile);resourceProfile.check(request.source(),layout);
+            assertTrue(resourceProfile==V53NativeResourceProfile.SMALL_FIXTURE ||
+                    bounds.maxSnapshotStagingBytes()==resourceProfile.stagingBytes,"default staging requires matching transport bounds");
+            assertTrue(!observeExports || resourceProfile==V53NativeResourceProfile.SMALL_FIXTURE,
+                    "legacy export probe requires its original resource policy");
             assertTrue(layout==V53WireArchive.Layout.JSON || request.source()==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP,
                     "segmented wire requires explicit verified backup");
             this.bounds=bounds;
@@ -112,7 +122,7 @@ class V53NativeDispatchTest {
             var bound=V53OwnedCrossViewTest.networkRequest(request);
             Path raw=Files.createDirectories(Path.of("target/v53-native-dispatch/run-"+UUID.randomUUID()));
             System.out.println("v53NativeDispatchEvidence="+raw.toAbsolutePath());
-            f=new V53BootstrapPublicationTest.Fixture(raw,bound);
+            f=new V53BootstrapPublicationTest.Fixture(raw,bound,resourceProfile);
             f.ownedHistory=true;f.nativeApplication=true;
             for(var target:f.request.targets())try(var owner=f.open(target,"initialize-retention")){owner.initializePeerRetention();owner.initializeFutureRetention();}
             preparation.prepare(f);
@@ -125,6 +135,7 @@ class V53NativeDispatchTest {
             this(retained,bounds,endpointBudget,false,false);
         }
         Network(V53BootstrapPublicationTest.Fixture retained,ReplicationBounds bounds,long endpointBudget,boolean liveDirectory,boolean observeExports)throws Exception {
+            assertEquals(V53NativeResourceProfile.SMALL_FIXTURE,retained.resourceProfile,"legacy JSON resume resource policy");
             this.bounds=bounds;f=retained;observeExportResources=observeExports;
             wireArchive=null;
             auxiliaryWire=new V53AuxiliaryWire(f.raw,f.request.source()==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP);
@@ -166,7 +177,7 @@ class V53NativeDispatchTest {
             if(Boolean.getBoolean("v53.resource.transitions"))resourceTransitions=new V53ResourceTransitionCapture(f.raw,f.result.root().manifestDigest(),
                     Boolean.getBoolean("v53.resource.owner.close")?f.request.targets().stream().map(t->t.identity().nodeId().value()).sorted().toList():List.of(),
                     Boolean.getBoolean("v53.resource.control.close"),Boolean.getBoolean("v53.resource.export.ownership"),
-                    f.request.source()==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP);
+                    f.request.source()==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP,f.resourceProfile);
             f.snapshot("before-network");
             for(var target:f.request.targets()) {
                 var budget=resourceBudget(target.identity());resources.add(budget);links.add(new AtomicReference<>());
@@ -223,7 +234,7 @@ class V53NativeDispatchTest {
         }
         MembershipResources resourceBudget(MembershipIdentity identity) {
             synchronized(events) {
-                return resourceTransitions==null?(observeExportResources?V53SpecialExportResources.budget():new MembershipResources(512*MembershipResources.MIB)):
+                return resourceTransitions==null?(observeExportResources?V53SpecialExportResources.budget():new MembershipResources(f.resourceProfile.stagingBytes)):
                         resourceTransitions.create(identity,events.size());
             }
         }

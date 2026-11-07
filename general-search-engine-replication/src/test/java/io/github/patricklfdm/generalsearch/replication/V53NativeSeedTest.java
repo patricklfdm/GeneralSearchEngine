@@ -44,13 +44,24 @@ class V53NativeSeedTest {
     }
 
     @Test void verifiedSeedSurvivesNativeBarrierAndReleasesResources()throws Exception {
+        verifySeed(V53NativeResourceProfile.SMALL_FIXTURE,V53WireArchive.Layout.JSON);
+    }
+    @Test void defaultStagingSeedSurvivesNativeBarrierWithExplicitResourceTraces()throws Exception {
+        String key="v53.resource.transitions",before=System.getProperty(key);
+        try {
+            System.setProperty(key,"true");
+            verifySeed(V53NativeResourceProfile.DEFAULT_SNAPSHOT_STAGING,V53WireArchive.Layout.SEGMENTED_BACKUP);
+        }finally {if(before==null)System.clearProperty(key);else System.setProperty(key,before);}
+    }
+    private void verifySeed(V53NativeResourceProfile profile,V53WireArchive.Layout layout)throws Exception {
         var request=request(5,true);var original=V53ReplayFilesTest.files(request.sourcePath().orElseThrow());
         var helper=new V53NativeDispatchTest();helper.temp=temp;var driver=new V53RoundDriverTest();driver.temp=temp;
         var prepared=new AtomicBoolean();
         var n=helper.new Network(request,driver.controlBounds(),V53NativeDispatchTest.BUDGET,f->{
             assertEquals(SEQUENCE,f.result.applicationSequence());prepared.set(true);
-        },true,false);
+        },true,false,layout,profile);
         try(n;var round=driver.driver(n,MembershipRoundDriver.Events.NONE)) {
+            assertEquals(profile,n.f.resourceProfile);
             assertInstanceOf(V53EvidenceSpool.class,n.events);
             assertTrue(prepared.get());assertEquals(MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP,n.f.request.source());
             assertNotEquals(V53BootstrapSeedTest.IMPORTED,n.f.result.root().historyId());
@@ -67,10 +78,18 @@ class V53NativeSeedTest {
             }
         }
         assertEquals(original,V53ReplayFilesTest.files(request.sourcePath().orElseThrow()));
-        for(var resources:n.resources)assertEquals(0,resources.usage().leases());
-        Files.write(n.f.raw.resolve("seed-result.json"),canonical(Map.of("status","PASS","source","VERIFIED_DURABLE_BACKUP",
+        for(var resources:n.resources) {
+            assertEquals(0,resources.usage().leases());
+            if(profile==V53NativeResourceProfile.DEFAULT_SNAPSHOT_STAGING)
+                assertEquals(profile.stagingBytes,resources.observations().stagingLimit());
+        }
+        var result=new TreeMap<String,Object>(Map.of("status","PASS","source","VERIFIED_DURABLE_BACKUP",
                 "size",5,"applicationSequence",SEQUENCE,"documents",DOCUMENTS.size(),"slots",1,"leasesAfterClose",0,
-                "fullJoiningQualified",false,"maximumImageQualified",false),4096));
+                "fullJoiningQualified",false,"maximumImageQualified",false));
+        if(profile!=V53NativeResourceProfile.SMALL_FIXTURE) {
+            result.put("resourceProfile",profile.name());result.put("stagingLimit",profile.stagingBytes);
+        }
+        Files.write(n.f.raw.resolve("seed-result.json"),canonical(result,4096));
     }
 
     @Test void defaultNetworkStillAdmitsEmptySource()throws Exception {

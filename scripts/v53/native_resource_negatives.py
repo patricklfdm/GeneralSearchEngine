@@ -49,12 +49,13 @@ def mutate(data,name):
     else:raise ValueError('unknown native resource negative')
 
 
-def replay(data,identities,root):
+def replay(data,identities,root,*,resource_profile=evidence.resource_policy.SMALL):
+    options=evidence.resource_policy.options(resource_profile)
     # The unmodified observations must pass before any mutation may count.
-    evidence.replay(*data,identities,root);result=[]
+    evidence.replay(*data,identities,root,**options);result=[]
     for name,reason in NEGATIVES.items():
         value=copy.deepcopy(data);mutate(value,name)
-        try:evidence.replay(*value,identities,root)
+        try:evidence.replay(*value,identities,root,**options)
         except ValueError as error:
             evidence.need(str(error)==reason,'native resources unexpected negative: '+name+': '+str(error))
             result.append(dict(case=name,status='REJECTED',reason=reason))

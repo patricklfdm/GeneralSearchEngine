@@ -8,6 +8,7 @@ import argparse
 import json
 from pathlib import Path
 
+from . import native_resource_policy as resource_policy
 from . import wire_archive
 from . import bootstrap_replay_contract as source_policy
 from . import resource_transitions as transitions
@@ -48,7 +49,8 @@ def load(root):
     return index,traces,boundaries,events
 
 
-def replay(index,traces,boundaries,events,identities,root):
+def replay(index,traces,boundaries,events,identities,root,*,resource_profile=resource_policy.SMALL):
+    staging=resource_policy.check(resource_profile)
     owners=index['owners'];nodes=[v['identity']['node'] for v in owners]
     need(index['root']==root and nodes==sorted(identities) and set(traces)==set(identities) and
          all(v['identity']==identities[v['identity']['node']] for v in owners),
@@ -62,7 +64,7 @@ def replay(index,traces,boundaries,events,identities,root):
         registered[node]=start
         trace=traces[node]
         need((trace.get('metadataLimit'),trace.get('stagingLimit'),trace.get('queueLimit'))==
-             (384*transitions.MIB,512*transitions.MIB,64*transitions.MIB),'native resources original limits')
+             (384*transitions.MIB,staging,64*transitions.MIB),'native resources original limits')
         results[node]=transitions.replay(trace)
         need(results[node]['transitions']>1,'native resources unobserved budget lifetime')
     previous={n:0 for n in nodes};counts={n:0 for n in nodes}
@@ -77,8 +79,8 @@ def replay(index,traces,boundaries,events,identities,root):
         sequence=boundary['sequence'];transitions.same_usage(boundary['usage'],rows[sequence]['usage'])
         previous[node]=sequence;counts[node]+=1
     need(all(counts.values()),'native resources omitted owner events')
-    return dict(status='PASS',owners=results,eventBoundaries=len(boundaries),ownerEvents=counts,
-                nativeBudgetAccountingQualified=True,wholeRuntimeResourcesQualified=False,phase3Complete=False)
+    return resource_policy.receipt(dict(status='PASS',owners=results,eventBoundaries=len(boundaries),ownerEvents=counts,
+                nativeBudgetAccountingQualified=True,wholeRuntimeResourcesQualified=False,phase3Complete=False),resource_profile)
 
 
 def bind_publications(transactions,boundaries):
@@ -92,7 +94,9 @@ def bind_publications(transactions,boundaries):
     return count
 
 
-def validate(directory,profile='stable',progress=None,*,source_control=False,control_closes=False,export_ownership=False,direct_exports=False,joining_requests=False,joining_extents=False,published_probe=False,session_extents=False,complete_exports=False,voting_control=False,slot_control=False,activation_control=False,joined_files=False,joined_closes=False,export_bindings_out=None, bootstrap_source='EMPTY', wire_layout='JSON'):
+def validate(directory,profile='stable',progress=None,*,source_control=False,control_closes=False,export_ownership=False,direct_exports=False,joining_requests=False,joining_extents=False,published_probe=False,session_extents=False,complete_exports=False,voting_control=False,slot_control=False,activation_control=False,joined_files=False,joined_closes=False,export_bindings_out=None, bootstrap_source='EMPTY', wire_layout='JSON', resource_profile=resource_policy.SMALL):
+    resource_policy.scope(resource_profile,bootstrap_source,wire_layout)
+    resource_args=resource_policy.options(resource_profile)
     source_args = source_policy.options(bootstrap_source,wire_layout)
     need(bootstrap_source==source_policy.EMPTY or profile=='5-REPLACE-required-four', 'native resources bootstrap source profile')
     need(export_bindings_out is None or type(export_bindings_out) is dict and not export_bindings_out and complete_exports is True,
@@ -142,7 +146,7 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
         closing=set(identities)-{model.joining}
     else:raise ValueError('native resources unknown profile')
     index,traces,boundaries,events=load(root)
-    result=replay(index,traces,boundaries,events,identities,authority)
+    result=replay(index,traces,boundaries,events,identities,authority,**resource_args)
     from . import owner_close_evidence
     closed=owner_close_evidence.replay(index,traces,boundaries,events,closing)
     joining_closed=None
@@ -189,7 +193,7 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
         bases=basis_resource_evidence.replay(basis_resource_evidence.derive(reader),events,traces,boundaries)
         from . import joined_handoff_resources
         handoff=joined_handoff_resources.original(root,**source_args)
-        joined=joined_handoff_resources.replay(joined_handoff_resources.project(handoff),events,traces,boundaries)
+        joined=joined_handoff_resources.replay(joined_handoff_resources.project(handoff),events,traces,boundaries,**resource_args)
         if joined_files:
             from . import joined_file_resources
             files=joined_file_resources.replay(joined_file_resources.derive(handoff.owner,reader),events,traces,boundaries,
@@ -230,11 +234,11 @@ def validate(directory,profile='stable',progress=None,*,source_control=False,con
         # Output only after all original readers and final immutability pass.
         # No caller-supplied proof is accepted; failures publish nothing.
         export_allocation_coverage.publish(export_bindings_out,list(export_bindings.values()))
-    return source_policy.receipt(dict(result,status=cleanup['status'] if cleanup else result['status'],scope='native-owner-accounting-with-original-publication-boundaries',profile=profile,
+    return resource_policy.receipt(source_policy.receipt(dict(result,status=cleanup['status'] if cleanup else result['status'],scope='native-owner-accounting-with-original-publication-boundaries',profile=profile,
                 precondition=preceding,publicationResources=physical,publicationBoundaries=count,publicationGenerationResources=generations,transportResources=transport,
                 floorResources=floors,receivingResources=receiving,basisResources=bases,ownerCloseResources=closed,joinedOwnerCloses=joining_closed,joinedHandoffResources=joined,joinedFileResources=files,
                 sourceControlResources=source_result,sourceCleanupIntervals=cleanup,directExportOwnership=direct,publishedPrefixProbe=published,exportAllocationCoverage=export_coverage,
-                votingControlResources=voting,slotControlResources=slots,activationControlResources=activation,physicalPeakQualified=False,controlLifetimesQualified=False,finalSourceCohortQualified=False),bootstrap_source,wire_layout)
+                votingControlResources=voting,slotControlResources=slots,activationControlResources=activation,physicalPeakQualified=False,controlLifetimesQualified=False,finalSourceCohortQualified=False),bootstrap_source,wire_layout),resource_profile)
 
 
 if __name__=='__main__':

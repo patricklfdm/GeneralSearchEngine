@@ -17,7 +17,8 @@ class V53BootstrapPublicationTest {
         final MembershipBootstrapRequest<Integer,Doc> request;
         final MembershipBootstrapResult result;
         final MembershipBootstrapPlanData original;
-        final MembershipResources resources=new MembershipResources(512*MembershipResources.MIB);
+        final V53NativeResourceProfile resourceProfile;
+        final MembershipResources resources;
         final Set<Owned> observations=new HashSet<>();
         final List<Map<String,Object>> calls=new ArrayList<>();
         final Map<String,Map<String,String>> immutable=new TreeMap<>();
@@ -35,9 +36,16 @@ class V53BootstrapPublicationTest {
         /** New observation directory, same original runtime directories and bootstrap identity. */
         Fixture(Path raw,Fixture retained) {
             this.raw=raw;request=retained.request;result=retained.result;original=retained.original;
+            resourceProfile=retained.resourceProfile;resources=new MembershipResources(resourceProfile.stagingBytes);
             immutable.putAll(retained.immutable);ownedHistory=retained.ownedHistory;nativeApplication=retained.nativeApplication;
         }
         Fixture(Path raw,MembershipBootstrapRequest<Integer,Doc> request)throws Exception {
+            this(raw,request,V53NativeResourceProfile.SMALL_FIXTURE);
+        }
+        Fixture(Path raw,MembershipBootstrapRequest<Integer,Doc> request,V53NativeResourceProfile resourceProfile)throws Exception {
+            assertNotNull(resourceProfile);
+            assertTrue(resourceProfile==V53NativeResourceProfile.SMALL_FIXTURE || request.source()==MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP);
+            this.resourceProfile=resourceProfile;resources=new MembershipResources(resourceProfile.stagingBytes);
             this.raw=raw;this.request=request;
             var plan=MembershipStorageOperations.planBootstrap(builder(),request);
             result=MembershipStorageOperations.applyBootstrap(builder(),request,plan);

@@ -307,6 +307,11 @@ prerequisite, not evidence that a full large-image native history has passed.
 
 ## Remaining combined-resource work
 
+The [explicit staging policy](PHASE_3_NATIVE_STAGING.md) now lets a declared
+segmented-backup caller use the existing 16 GiB default. Existing native fixtures
+remain at 512 MiB. Capture and replay bind the policy independently; additional
+headroom does not prove feasible simultaneous ownership or a maximum image.
+
 The [maximum transition](PHASE_3_MAXIMUM_TRANSITION_EXECUTION.md) is still a
 synchronous storage probe. This seed entry does not convert it into native learner
 or required-four qualification. The [complete EMPTY required-four

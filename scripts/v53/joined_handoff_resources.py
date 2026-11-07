@@ -6,6 +6,7 @@ deletion and native-owner handoff, not whole-runtime maximum pressure or death.
 """
 from collections import Counter
 from pathlib import Path
+from . import native_resource_policy as resource_policy
 
 from . import bootstrap_replay_contract as source_policy
 from . import resource_transitions as t
@@ -88,13 +89,14 @@ def retirement_order(count):
             ['JOINED_RETIREMENT_COMPLETE'])
 
 
-def replay(plan, events, traces, boundaries):
+def replay(plan, events, traces, boundaries, *, resource_profile=resource_policy.SMALL):
+    staging=resource_policy.check(resource_profile)
     """Conditional accounting binding, following full original admission."""
     node = plan['node']; points = positions(events, node)
     need(node in traces and len(events) == len(boundaries), 'joined resources complete observations')
     trace = traces[node]; t.replay(trace); rows = trace['changes']
     need(tuple(trace[k] for k in ('metadataLimit', 'stagingLimit', 'queueLimit')) ==
-         (384*t.MIB, 512*t.MIB, 64*t.MIB), 'joined resources original limits')
+         (384*t.MIB, staging, 64*t.MIB), 'joined resources original limits')
     previous = -1
     for at, (event, point) in enumerate(zip(events, boundaries)):
         if event.get('node') != node: continue
@@ -154,7 +156,7 @@ def replay(plan, events, traces, boundaries):
     need(sum(row['event'] == 'TRANSFER' for row in rows) == 1 and
          sum(row['event'] == 'REPLACE' for row in rows) == 1,
          'joined resources unbound storage handoff')
-    return dict(status='PASS', scope='required-four-original-learner-native-handoff', node=node,
+    return resource_policy.receipt(dict(status='PASS', scope='required-four-original-learner-native-handoff', node=node,
                 predecessorLeases=len(old), nativeLeases=len(native), deletedMembers=plan['deletions'],
                 custodySequence=seq[1], nativeSequence=seq[7],
                 predecessorUsage=rows[seq[1]]['usage'], nativeUsage=rows[seq[7]]['usage'],
@@ -162,4 +164,4 @@ def replay(plan, events, traces, boundaries):
                 continuousHandoffQualified=True, observedAccountingClosed=True,
                 explicitJoiningCloseIntervalsQualified=False, physicalPeakQualified=False,
                 wholeRuntimeResourcesQualified=False, processDeathQualified=False,
-                finalSourceCohortQualified=False, phase3Complete=False)
+                finalSourceCohortQualified=False, phase3Complete=False),resource_profile)

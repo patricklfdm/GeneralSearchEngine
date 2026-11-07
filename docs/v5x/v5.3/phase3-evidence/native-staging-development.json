@@ -1,0 +1,513 @@
+{
+  "combinedResourcesQualified": false,
+  "contract": {
+    "arithmeticIsPhysicalEvidence": false,
+    "defaultProfile": "5-REPLACE-required-four-backup-default-staging",
+    "defaultSchema": "gse-v53-default-staging-backup-resources-v1",
+    "emptyNegatives": 147,
+    "limits": {
+      "DEFAULT_SNAPSHOT_STAGING": 17179869184,
+      "SMALL_FIXTURE": 536870912
+    },
+    "negativeCases": 150,
+    "oldEntrypointsDefault": "SMALL_FIXTURE",
+    "simultaneousReservationArithmeticBytes": 704643072,
+    "smallBackupNegatives": 149
+  },
+  "evidenceFiles": {
+    "target/v53-native-staging/final-contract.log": "895ec634ddac6de384eefb7769dcccf6cb1052ae4f208f59e23674477839a1ed",
+    "target/v53-native-staging/focused-tests.json": "32b205ff9711579bcb1b1191a172e5ea631c4ce764ac7d9d86412caf98322bf6",
+    "target/v53-native-staging/focused-tests.log": "79c83e3d1803b329cfe0f2a4ba8329ddc1c32893d14bc79d75eaadcad026cec6",
+    "target/v53-native-staging/java-admission-final.log": "5a122eea0670b5503b64bb59272ebf09733aeaeb18c9d164ddbf62427ce2ad9c",
+    "target/v53-native-staging/java-policy-corrected.log": "7f0dce55eb50a444299ba410fa1c079a04e2b477da31d5310e5a07cc0316efb7",
+    "target/v53-native-staging/java-policy-final.log": "084e3f0a770aea005b9a0138cd3311fda2252c7f245fbd623afed770d0220479",
+    "target/v53-native-staging/java-policy.log": "712b6769ef5a2c1fe0823c75a820cb690580f8e3b06a3ecf4cc140b79f73df87",
+    "target/v53-native-staging/java-tests.json": "ac159fdd88f1c559773a84c56fdbbf3510a12b3259ddb03c149a430769e1be42",
+    "target/v53-native-staging/native-replay.json": "f6ca28f0126607ac29ceffe79ad7185cd09993325810f2bee0fff0c81472ec39",
+    "target/v53-native-staging/native-replay.log": "043ddc88fb77a61d0283a5da5aa0bdf0585e10b6f6fc9f8ec7bc7df27bf108cf",
+    "target/v53-native-staging/native-seeds.log": "300be283a5e50a361b16bbad62cf93ce75f6a17f3639f2dff71b20cab16106a2",
+    "target/v53-native-staging/replay_native.py": "ce2e53719dca0a952ab80d3c76ff2a3159093f206e9f79bace8af6cc3ef72407",
+    "target/v53-native-staging/run_tests.py": "34d008cfe368c6b6e481f3cfe9a5568e12545f8b6ec9c849ab719743bd2e4732"
+  },
+  "finalSourceCohortQualified": false,
+  "full150NegativeQualification": false,
+  "fullDefaultStagingHistoryExecuted": false,
+  "javaTests": {
+    "distinctTests": 20,
+    "status": "PASS",
+    "suites": [
+      {
+        "cases": [
+          "retainedFixtureCannotSilentlyReopenThroughLegacyJsonNetwork",
+          "everyOldAndJoiningBudgetRecordsOnlyTheDeclaredStagingProfile",
+          "largerStagingDoesNotChangeMetadataImageCountsOrCompletionReservations",
+          "networkRejectsConflictingCallerStagingBeforePreparation",
+          "networkRejectsWrongSourceBeforeBootstrapOrPreparation",
+          "productionDefaultIsExplicitAndNeverAnEmptyOrJsonUpgrade"
+        ],
+        "errors": 0,
+        "failures": 0,
+        "junit": "target/v53-native-staging/final-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeResourceProfileTest.xml",
+        "sha256": "a697731dd8520da46a5b67176a854b3f0f3241322a460abc23ee1f004a4acfc3",
+        "skipped": 0,
+        "suite": "V53NativeResourceProfileTest",
+        "tests": 6,
+        "timeSeconds": 9.686
+      },
+      {
+        "cases": [
+          "longJournalUsesPerChangeEncodingBeyondOneMessageTokenLimit",
+          "registrationAndEventOmissionsCannotBeSilentlyIgnored",
+          "lightweightCheckpointsAreExactImmutableAndDoNotAppendChanges",
+          "closeOwnerDeclarationCannotHideDuplicatesOrForeignNodes",
+          "sealedEventsBindAllResourceIndexesWithoutAWholeArrayArgument",
+          "failedOrForeignSpoolsCannotProduceAResourceIndex",
+          "unfinishedLifetimeIsRetainedWithoutClaimingClosed",
+          "actualBudgetsRetainEveryEventAndLateJoiningRegistration",
+          "alreadyClosedJournalCannotMasqueradeAsOriginalClose",
+          "originalJournalCloseHasTwoBoundariesAndAllowsExclusiveReopen"
+        ],
+        "errors": 0,
+        "failures": 0,
+        "junit": "target/v53-native-staging/final-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ResourceTransitionCaptureTest.xml",
+        "sha256": "a601979556fc8566e2199e8f0171df8396c8620b5ee2a77ca1e07b417837e7af",
+        "skipped": 0,
+        "suite": "V53ResourceTransitionCaptureTest",
+        "tests": 10,
+        "timeSeconds": 6.517
+      },
+      {
+        "cases": [
+          "everyOriginalObservationIsRequiredBeforeStartingTheHistory"
+        ],
+        "errors": 0,
+        "failures": 0,
+        "junit": "target/v53-native-staging/final-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53BackupJoiningQualificationTest.xml",
+        "sha256": "974c7d5d572d68c2f72e80bb2ad03eeb9ac369977995ad2cd42f2ed735789f72",
+        "skipped": 0,
+        "suite": "V53BackupJoiningQualificationTest",
+        "tests": 1,
+        "timeSeconds": 0.037
+      },
+      {
+        "cases": [
+          "defaultNetworkStillAdmitsEmptySource",
+          "verifiedSeedSurvivesNativeBarrierAndReleasesResources",
+          "defaultStagingSeedSurvivesNativeBarrierWithExplicitResourceTraces"
+        ],
+        "errors": 0,
+        "failures": 0,
+        "junit": "target/v53-native-staging/final-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeSeedTest.xml",
+        "sha256": "e5a4089c9cdc04a2af95a0396c839d24810d221597f6679cce51a5e92a8fc07d",
+        "skipped": 0,
+        "suite": "V53NativeSeedTest",
+        "tests": 3,
+        "timeSeconds": 117.73
+      }
+    ]
+  },
+  "maximumImageQualified": false,
+  "nativeExecutionNotes": "Native prefix ran before the final constructor mismatch guard and additional guard-only tests; its actual recorded limits and independent replay are retained. This is not an immutable final-source run.",
+  "nativePrefix": {
+    "applicationSequence": 731,
+    "barrierIndex": 1,
+    "bytes": 4735634,
+    "elapsedSeconds": 2.212,
+    "files": 663,
+    "finalSourceCohortQualified": false,
+    "full150NegativeQualification": false,
+    "fullJoiningQualified": false,
+    "inventorySha256": "0e3bb9736c78c04b47f2b4dc898badc1cb0fdeb3dd1a6ce7fef533eee6007213",
+    "maximumImageQualified": false,
+    "negativeCases": [
+      {
+        "case": "missing-owner",
+        "reason": "native resources original complete identities",
+        "status": "REJECTED"
+      },
+      {
+        "case": "foreign-identity",
+        "reason": "native resources original complete identities",
+        "status": "REJECTED"
+      },
+      {
+        "case": "foreign-root",
+        "reason": "native resources original complete identities",
+        "status": "REJECTED"
+      },
+      {
+        "case": "omitted-boundary",
+        "reason": "native resources complete event boundaries",
+        "status": "REJECTED"
+      },
+      {
+        "case": "duplicate-boundary",
+        "reason": "native resources exact event sequence",
+        "status": "REJECTED"
+      },
+      {
+        "case": "foreign-boundary-owner",
+        "reason": "native resources exact event sequence",
+        "status": "REJECTED"
+      },
+      {
+        "case": "outside-sequence",
+        "reason": "native resources exact event sequence",
+        "status": "REJECTED"
+      },
+      {
+        "case": "forged-boundary-usage",
+        "reason": "resource transitions derived usage",
+        "status": "REJECTED"
+      },
+      {
+        "case": "late-registration",
+        "reason": "native resources exact event sequence",
+        "status": "REJECTED"
+      },
+      {
+        "case": "widened-limit",
+        "reason": "native resources original limits",
+        "status": "REJECTED"
+      },
+      {
+        "case": "truncated-journal",
+        "reason": "resource transitions incomplete observation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "failed-journal",
+        "reason": "resource transitions incomplete observation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-transition",
+        "reason": "resource transitions exact event sequence",
+        "status": "REJECTED"
+      },
+      {
+        "case": "foreign-release",
+        "reason": "resource transitions original removed charge",
+        "status": "REJECTED"
+      },
+      {
+        "case": "live-close",
+        "reason": "resource transitions outstanding charges at close",
+        "status": "REJECTED"
+      }
+    ],
+    "original": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-native-dispatch/run-01d80cee-9efd-4be1-98eb-90cf4829ed5a",
+    "originalPreserved": true,
+    "owners": [
+      "node-1",
+      "node-2",
+      "node-3",
+      "node-4",
+      "node-5"
+    ],
+    "phase3Complete": false,
+    "resourceReplay": {
+      "eventBoundaries": 1776,
+      "nativeBudgetAccountingQualified": true,
+      "ownerEvents": {
+        "node-1": 612,
+        "node-2": 571,
+        "node-3": 571,
+        "node-4": 11,
+        "node-5": 11
+      },
+      "owners": {
+        "node-1": {
+          "closed": true,
+          "events": {
+            "CONTROL_GROW": 244,
+            "EXTEND_BEGIN": 7,
+            "EXTEND_COMMIT": 7,
+            "GENERATION_RELOAD": 2,
+            "RELEASE": 826,
+            "RESERVE": 826,
+            "START": 1,
+            "STORAGE_GROW": 2
+          },
+          "maximumObservedCounts": {
+            "APPLICATION": 7,
+            "CONTROL": 57,
+            "GENERATION": 2,
+            "JOURNAL": 1,
+            "MISC": 1,
+            "SOURCE": 5,
+            "WAITER": 2
+          },
+          "maximumObservedReservations": {
+            "leases": 69,
+            "metadata": 35792742,
+            "queued": 1703713,
+            "staging": 268446396
+          },
+          "observedAccountingQualified": true,
+          "phase3Complete": false,
+          "physicalStorageQualified": false,
+          "scope": "one-observed-resource-accounting-lifetime",
+          "status": "PASS",
+          "transitions": 1915,
+          "wholeRuntimeResourcesQualified": false
+        },
+        "node-2": {
+          "closed": true,
+          "events": {
+            "CONTROL_GROW": 203,
+            "EXTEND_BEGIN": 7,
+            "EXTEND_COMMIT": 7,
+            "GENERATION_RELOAD": 2,
+            "RELEASE": 678,
+            "RESERVE": 678,
+            "START": 1,
+            "STORAGE_GROW": 2
+          },
+          "maximumObservedCounts": {
+            "APPLICATION": 7,
+            "CONTROL": 37,
+            "GENERATION": 2,
+            "JOURNAL": 1,
+            "MISC": 1,
+            "SOURCE": 5,
+            "WAITER": 3
+          },
+          "maximumObservedReservations": {
+            "leases": 48,
+            "metadata": 35792742,
+            "queued": 672609,
+            "staging": 268446396
+          },
+          "observedAccountingQualified": true,
+          "phase3Complete": false,
+          "physicalStorageQualified": false,
+          "scope": "one-observed-resource-accounting-lifetime",
+          "status": "PASS",
+          "transitions": 1578,
+          "wholeRuntimeResourcesQualified": false
+        },
+        "node-3": {
+          "closed": true,
+          "events": {
+            "CONTROL_GROW": 203,
+            "EXTEND_BEGIN": 7,
+            "EXTEND_COMMIT": 7,
+            "GENERATION_RELOAD": 2,
+            "RELEASE": 678,
+            "RESERVE": 678,
+            "START": 1,
+            "STORAGE_GROW": 2
+          },
+          "maximumObservedCounts": {
+            "APPLICATION": 7,
+            "CONTROL": 38,
+            "GENERATION": 2,
+            "JOURNAL": 1,
+            "MISC": 1,
+            "SOURCE": 5,
+            "WAITER": 3
+          },
+          "maximumObservedReservations": {
+            "leases": 49,
+            "metadata": 35792742,
+            "queued": 699589,
+            "staging": 268446396
+          },
+          "observedAccountingQualified": true,
+          "phase3Complete": false,
+          "physicalStorageQualified": false,
+          "scope": "one-observed-resource-accounting-lifetime",
+          "status": "PASS",
+          "transitions": 1578,
+          "wholeRuntimeResourcesQualified": false
+        },
+        "node-4": {
+          "closed": true,
+          "events": {
+            "CONTROL_GROW": 6,
+            "RELEASE": 11,
+            "RESERVE": 11,
+            "START": 1
+          },
+          "maximumObservedCounts": {
+            "APPLICATION": 1,
+            "CONTROL": 2,
+            "GENERATION": 1,
+            "JOURNAL": 1,
+            "MISC": 1
+          },
+          "maximumObservedReservations": {
+            "leases": 6,
+            "metadata": 35656855,
+            "queued": 34843,
+            "staging": 1762
+          },
+          "observedAccountingQualified": true,
+          "phase3Complete": false,
+          "physicalStorageQualified": false,
+          "scope": "one-observed-resource-accounting-lifetime",
+          "status": "PASS",
+          "transitions": 29,
+          "wholeRuntimeResourcesQualified": false
+        },
+        "node-5": {
+          "closed": true,
+          "events": {
+            "CONTROL_GROW": 5,
+            "RELEASE": 10,
+            "RESERVE": 10,
+            "START": 1
+          },
+          "maximumObservedCounts": {
+            "APPLICATION": 1,
+            "CONTROL": 2,
+            "GENERATION": 1,
+            "JOURNAL": 1,
+            "MISC": 1
+          },
+          "maximumObservedReservations": {
+            "leases": 6,
+            "metadata": 35656855,
+            "queued": 34843,
+            "staging": 1762
+          },
+          "observedAccountingQualified": true,
+          "phase3Complete": false,
+          "physicalStorageQualified": false,
+          "scope": "one-observed-resource-accounting-lifetime",
+          "status": "PASS",
+          "transitions": 26,
+          "wholeRuntimeResourcesQualified": false
+        }
+      },
+      "phase3Complete": false,
+      "resourceProfile": "DEFAULT_SNAPSHOT_STAGING",
+      "stagingLimit": 17179869184,
+      "status": "PASS",
+      "wholeRuntimeResourcesQualified": false
+    },
+    "scope": "one actual first-BARRIER backup prefix; full joining not qualified",
+    "smallFixtureRejection": "native resources original limits",
+    "stagingByOwner": {
+      "node-1": 17179869184,
+      "node-2": 17179869184,
+      "node-3": 17179869184,
+      "node-4": 17179869184,
+      "node-5": 17179869184
+    },
+    "status": "PASS",
+    "wholeRuntimeResourcesQualified": false
+  },
+  "parent": "d35b791d4ebed5975662edd7c700762426ca7c0c",
+  "phase3Complete": false,
+  "pythonTests": {
+    "elapsedSeconds": 16.86,
+    "errors": 0,
+    "failures": 0,
+    "modules": [
+      "scripts.v53.test_activation_control_resources",
+      "scripts.v53.test_backup_inventory",
+      "scripts.v53.test_backup_required_four_resources",
+      "scripts.v53.test_backup_resource_capacity",
+      "scripts.v53.test_backup_resource_hosted",
+      "scripts.v53.test_backup_resource_run",
+      "scripts.v53.test_bootstrap_replay_contract",
+      "scripts.v53.test_connection_transcript",
+      "scripts.v53.test_contract_check",
+      "scripts.v53.test_format_fixture",
+      "scripts.v53.test_format_qualification",
+      "scripts.v53.test_joined_handoff_resources",
+      "scripts.v53.test_joining_attempts",
+      "scripts.v53.test_joining_control_evidence",
+      "scripts.v53.test_joining_export_evidence",
+      "scripts.v53.test_joining_history_run",
+      "scripts.v53.test_joining_initialization_evidence",
+      "scripts.v53.test_joining_initialization_process_evidence",
+      "scripts.v53.test_joining_network_evidence",
+      "scripts.v53.test_joining_profile_ballot_evidence",
+      "scripts.v53.test_joining_profile_continuation_evidence",
+      "scripts.v53.test_joining_profile_control_evidence",
+      "scripts.v53.test_joining_profile_evidence",
+      "scripts.v53.test_joining_profile_export_evidence",
+      "scripts.v53.test_joining_profile_initialization_evidence",
+      "scripts.v53.test_joining_profile_ledger_evidence",
+      "scripts.v53.test_joining_profile_maintenance_evidence",
+      "scripts.v53.test_joining_profile_network_evidence",
+      "scripts.v53.test_joining_profile_peer_evidence",
+      "scripts.v53.test_joining_profile_physical_evidence",
+      "scripts.v53.test_joining_profile_run",
+      "scripts.v53.test_joining_publication_evidence",
+      "scripts.v53.test_joining_source_loss",
+      "scripts.v53.test_json_budget",
+      "scripts.v53.test_maximum_transition_hosted",
+      "scripts.v53.test_maximum_transition_inventory",
+      "scripts.v53.test_native_resource_evidence",
+      "scripts.v53.test_native_resource_policy",
+      "scripts.v53.test_native_source_resources",
+      "scripts.v53.test_phase3_qualification_plan",
+      "scripts.v53.test_phase3_resource_artifacts",
+      "scripts.v53.test_phase3_resource_cohort",
+      "scripts.v53.test_phase3_resource_workflows",
+      "scripts.v53.test_physical_snapshot",
+      "scripts.v53.test_publication_resource_evidence",
+      "scripts.v53.test_remove_process_hosted",
+      "scripts.v53.test_required_four_direct_exports",
+      "scripts.v53.test_required_four_evidence",
+      "scripts.v53.test_required_four_exports",
+      "scripts.v53.test_required_four_ledgers",
+      "scripts.v53.test_required_four_maintenance",
+      "scripts.v53.test_required_four_network",
+      "scripts.v53.test_required_four_physical",
+      "scripts.v53.test_required_four_resource_hosted",
+      "scripts.v53.test_required_four_resource_run",
+      "scripts.v53.test_required_four_resources",
+      "scripts.v53.test_segmented_backup_replay",
+      "scripts.v53.test_segmented_evidence",
+      "scripts.v53.test_segmented_transcript",
+      "scripts.v53.test_slot_control_resources",
+      "scripts.v53.test_source_control_resource_evidence",
+      "scripts.v53.test_voting_control_resources",
+      "scripts.v53.test_wire_archive"
+    ],
+    "skipped": 0,
+    "status": "PASS",
+    "tests": 805
+  },
+  "retainedFailures": [
+    {
+      "log": "target/v53-native-staging/java-policy.log",
+      "reason": "test accessed a private observation field",
+      "resolved": true,
+      "stage": "development compilation"
+    }
+  ],
+  "schema": "gse-v53-native-staging-development-v1",
+  "scope": "explicit caller staging profile, complete gate routing, short native prefix and independent resource replay; not maximum qualification",
+  "sourceSha256": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapPublicationTest.java": "38c4d1af584dc08e4771f08fcf5c1fd7cb775209928fdbcd383ea4fba0660820",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "b87ce20c79b5e2ba01ddaeefa3fad30270a178454f5f1ece5555a47d9f39f974",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java": "018e66bc1aef39900805290d468f7d5e9da10fb9b05a79bba712c963a54eff58",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeResourceProfile.java": "838030bac0693d5fd3aeb309426abca3ca85b0a9a7fb857ff81b8eebdd6bcb54",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeResourceProfileTest.java": "117c54f08459f3b538d7ef80089e558695097f86c61fa082e5ff7711e9de4fbf",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeSeedTest.java": "77c946eb3062560d63e5a81048cef6d467a4754e46994addccd0fa13590e485d",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransitionCapture.java": "afd57582123fc05252fb11f41885d2a3ae2f5f3e7b305d3b5ab535f24cce7157",
+    "scripts/v53/joined_handoff_negatives.py": "9db3668707d9997c01161015bbf3d091dc73d5c55f1d3592200b0dd65d1d26e7",
+    "scripts/v53/joined_handoff_resources.py": "e7db7da2f1aaa4cb2a4ad60172b96390d7d0fb84ec8c8f95826798348da610ac",
+    "scripts/v53/native_resource_evidence.py": "8610039fa2cef740ff260e9c1c6df71425ca4d854abc9a05a3f5dcb572813094",
+    "scripts/v53/native_resource_negatives.py": "b4aed3042b5b2b2f8605e13385ff5b2881e6fde4db5cbccd41b81675d31359b2",
+    "scripts/v53/native_resource_policy.py": "b235bda06f8dbe796af3fafb20d78352acf29eb7510566480c9667660b2a3e13",
+    "scripts/v53/required_four_resources.py": "21c5fc74fa3d522e3be89f5af0f7a8a367852b2b6c45664bb7010514eff78df2",
+    "scripts/v53/test_native_resource_policy.py": "288030b5aace0ad5ec635a420e7521d3a4ed47f44cd661b9b44e32397a679856"
+  },
+  "status": "PASS",
+  "unchangedContracts": {
+    ".github/workflows/v53-backup-resources.yml": "14d685d0a1da081e065cbba6d680bb330270fc70ead9368839e66d9f3c1ba253",
+    ".github/workflows/v53-required-four-resources.yml": "182655f26218464ff0835716cf374607825716b6021d813f594888846a09435a",
+    "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md": "e378fcf5fb3817adf0400eaf54a5634387d1cdee0a0deebe0fcab1b2ab355806",
+    "scripts/v53/backup_resource_hosted.py": "ef8a3ccd6f43391793b1ca8d265d3b971e422f3179d719a451a8f23e7262989a",
+    "scripts/v53/phase3_resource_cohort.py": "2783464287f33513db6e8895cd58ae277ea2b65068b239d6bc12cf26514a098a",
+    "scripts/v53/required_four_resource_run.py": "baf1eac22bea9df37f01e4d186525e572266433967030aee2fa5c9d5274fef35"
+  },
+  "wholeReaderMaximumMemoryQualified": false
+}

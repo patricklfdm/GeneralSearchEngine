@@ -167,6 +167,11 @@ now binds the complete original and 149 negatives to one workflow attempt.
 Actual positive execution remains pending; the frozen EMPTY supplemental
 workflow is unchanged.
 
+[Explicit native staging policy](PHASE_3_NATIVE_STAGING.md) now separates the
+existing 512 MiB fixture from the frozen 16 GiB public default for future large
+backup histories. The new caller-bound resource gate requires 150 negatives;
+it does not reinterpret small-pool evidence or prove a simultaneous maximum.
+
 The maximum-image component is a synchronous storage probe. It does not establish
 an admitted learner, full metadata pressure or automatic-runtime peak. The
 required-four entry qualifies observed ownership and completion, not all byte

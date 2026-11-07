@@ -94,11 +94,12 @@ def mutate(data, name):
     recount(traces,boundaries)
 
 
-def replay(data, progress=None):
-    r.replay(*data); results=[]
+def replay(data, progress=None, *, resource_profile=r.resource_policy.SMALL):
+    options=r.resource_policy.options(resource_profile)
+    r.replay(*data,**options); results=[]
     for name,reason in NEGATIVES.items():
         changed=copy.deepcopy(data);mutate(changed,name)
-        try:r.replay(*changed)
+        try:r.replay(*changed,**options)
         except ValueError as error:
             r.need(str(error)==reason, 'joined resources unrelated rejection: '+name+': '+str(error))
         else:raise ValueError('joined resources accepted mutation: '+name)
