@@ -112,7 +112,18 @@ def source_authority(windows,request,lower,upper):
     still use current() over the entire transfer.
     """
     node=request['recipient']['node']
-    first=current(windows,node,lower,lower);last=current(windows,node,upper,upper)
+    last=current(windows,node,upper,upper)
+    starts=[w for w in windows if w['node']==node and w['start']<lower<w['end']]
+    if not starts:
+        # Request receipt precedes the synchronized export operation. It can
+        # occur during a selector replacement, but the offer must follow a
+        # completed installation. Only a physically proven, same-owner edge
+        # may fill this receipt boundary; never extend current-byte lifetimes.
+        starts=[before for before in windows for after in windows
+                if before['node']==after['node']==node and
+                before['end']<lower<after['start']<upper and
+                after.get('sourcePredecessor')==(before['start'],before['end'])]
+    need(len(starts)==1,'joining export inactive current generation');first=starts[0]
     need(lower<=upper,'joining export inactive current generation')
     chain=sorted((w for w in windows if w['node']==node and
                   first['start']<=w['start']<=last['start']),key=lambda w:w['start'])

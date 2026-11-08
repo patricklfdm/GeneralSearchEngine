@@ -111,6 +111,38 @@ class JoiningExportEvidenceTest(unittest.TestCase):
         windows[-1]['end']=18
         self.assertIs(source,e.authorize_source(values,windows,[source]))
 
+    def test_frozen_basis_request_can_wait_inside_a_proven_install_gap(self):
+        windows,q,source,values=self.switching_source()
+        # NETWORK_REQUEST is outside the synchronized operation. The original
+        # request can arrive after rename, then wait until installation returns.
+        values[0]['offer']['received']=13
+        self.assertIs(source,e.authorize_source(values,windows,[source]))
+        # Mutable generation content still has no lifetime inside that gap.
+        with self.assertRaisesRegex(ValueError,'inactive current generation'):
+            e.current(windows,'node-2',13,16)
+
+    def test_frozen_basis_wait_needs_exact_completed_edge_and_both_authorities(self):
+        for change in ('no-link','wrong-link','duplicate-before','duplicate-after',
+                       'missing-before','missing-after','unfinished','view','root','owner'):
+            windows,q,source,values=self.switching_source();values[0]['offer']['received']=13
+            after=windows[-1]
+            reason='inactive current generation'
+            if change=='no-link':after.pop('sourcePredecessor')
+            elif change=='wrong-link':after['sourcePredecessor']=(1,12)
+            elif change=='duplicate-before':windows.append(copy.deepcopy(windows[1]))
+            elif change=='duplicate-after':windows.append(copy.deepcopy(after))
+            elif change=='missing-before':windows.pop(1)
+            elif change=='missing-after':windows.pop()
+            elif change=='unfinished':values[0]['offer']['offered']=14
+            else:
+                reason='original source view/ballot'
+                # The post-install authority alone cannot authorize the gap.
+                if change=='view':windows[1]['packet']['capsule']['cut']['view']['old']=['node-1']
+                elif change=='root':windows[1]['packet']['capsule']['root']='f'*64
+                else:windows[1]['identity']=dict(windows[1]['identity'],storage='00000000-0000-0000-0000-000000000099')
+            with self.subTest(change=change),self.assertRaisesRegex(ValueError,reason):
+                e.authorize_source(values,windows,[source])
+
     def test_frozen_source_cannot_bridge_unknown_or_ambiguous_generation_changes(self):
         windows,q,source,values=self.switching_source()
         for change in ('no-link','wrong-link','overlap','duplicate','missing-before','missing-after'):
