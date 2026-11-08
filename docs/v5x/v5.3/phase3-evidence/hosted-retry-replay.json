@@ -1,0 +1,340 @@
+{
+  "schema": "gse-v53-hosted-retry-replay-v1",
+  "source": "37b0bf4f191f84ba8464305748db8252afadcb6f",
+  "failedRuns": [
+    42463390918,
+    42463390938
+  ],
+  "attempt": 1,
+  "scope": "local diagnostic replay of retained original bytes; not matching-source hosted qualification",
+  "originalNativeHistoriesCompleted": 8,
+  "hostedProfileVerifiersPassed": [
+    "3-REPLACE",
+    "4-ADD"
+  ],
+  "jobs": [
+    {
+      "run": 42463390918,
+      "id": 128677318307,
+      "name": "Freeze source, classes, tools and offline dependencies",
+      "conclusion": "success"
+    },
+    {
+      "run": 42463390918,
+      "id": 128677536221,
+      "name": "Membership original (3-replace)",
+      "conclusion": "success"
+    },
+    {
+      "run": 42463390918,
+      "id": 128677536224,
+      "name": "Membership original (5-remove)",
+      "conclusion": "failure"
+    },
+    {
+      "run": 42463390918,
+      "id": 128677536230,
+      "name": "Membership original (3-add)",
+      "conclusion": "success"
+    },
+    {
+      "run": 42463390918,
+      "id": 128677536238,
+      "name": "Membership original (4-replace)",
+      "conclusion": "success"
+    },
+    {
+      "run": 42463390918,
+      "id": 128677536260,
+      "name": "Membership original (5-replace)",
+      "conclusion": "success"
+    },
+    {
+      "run": 42463390918,
+      "id": 128677536282,
+      "name": "Membership original (4-add)",
+      "conclusion": "success"
+    },
+    {
+      "run": 42463390918,
+      "id": 128677536319,
+      "name": "Membership original (4-remove)",
+      "conclusion": "failure"
+    },
+    {
+      "run": 42463390918,
+      "id": 128688220640,
+      "name": "Membership downloaded replay (5-replace)",
+      "conclusion": "failure"
+    },
+    {
+      "run": 42463390918,
+      "id": 128688220642,
+      "name": "Membership downloaded replay (4-replace)",
+      "conclusion": "failure"
+    },
+    {
+      "run": 42463390918,
+      "id": 128688220715,
+      "name": "Membership downloaded replay (4-remove)",
+      "conclusion": "failure"
+    },
+    {
+      "run": 42463390918,
+      "id": 128688220718,
+      "name": "Membership downloaded replay (3-add)",
+      "conclusion": "failure"
+    },
+    {
+      "run": 42463390918,
+      "id": 128688220722,
+      "name": "Membership downloaded replay (3-replace)",
+      "conclusion": "success"
+    },
+    {
+      "run": 42463390918,
+      "id": 128688220751,
+      "name": "Membership downloaded replay (5-remove)",
+      "conclusion": "failure"
+    },
+    {
+      "run": 42463390918,
+      "id": 128688220766,
+      "name": "Membership downloaded replay (4-add)",
+      "conclusion": "success"
+    },
+    {
+      "run": 42463390918,
+      "id": 128692860199,
+      "name": "Membership complete exact-attempt matrix",
+      "conclusion": "failure"
+    },
+    {
+      "run": 42463390938,
+      "id": 128677318464,
+      "name": "Freeze source, classes, tools and dependencies",
+      "conclusion": "success"
+    },
+    {
+      "run": 42463390938,
+      "id": 128677525497,
+      "name": "Complete required-four original",
+      "conclusion": "success"
+    },
+    {
+      "run": 42463390938,
+      "id": 128685011109,
+      "name": "Downloaded original resource replay",
+      "conclusion": "failure"
+    }
+  ],
+  "rawArtifacts": [
+    {
+      "run": 42463390918,
+      "id": 13611885047,
+      "name": "v53-profiles-raw-42463390918-1-37b0bf4f191f84ba8464305748db8252afadcb6f-4-add",
+      "githubDigest": "sha256:36ac7c79bad90403e5073522150549fd0dc34c18daaad31e0aeb7fd2cb04a241",
+      "archive": {
+        "path": "target/v53-hosted-debug-37b0bf4f/artifacts/v53-profiles-raw-42463390918-1-37b0bf4f191f84ba8464305748db8252afadcb6f-4-add.zip",
+        "bytes": 36783565,
+        "sha256": "36ac7c79bad90403e5073522150549fd0dc34c18daaad31e0aeb7fd2cb04a241"
+      }
+    },
+    {
+      "run": 42463390918,
+      "id": 13611826869,
+      "name": "v53-profiles-raw-42463390918-1-37b0bf4f191f84ba8464305748db8252afadcb6f-4-replace",
+      "githubDigest": "sha256:80e52d066c9faf1acd1635321a08216ded39272aba23fb6217ffa70aba7236df",
+      "archive": {
+        "path": "target/v53-hosted-debug-37b0bf4f/artifacts/v53-profiles-raw-42463390918-1-37b0bf4f191f84ba8464305748db8252afadcb6f-4-replace.zip",
+        "bytes": 37183085,
+        "sha256": "80e52d066c9faf1acd1635321a08216ded39272aba23fb6217ffa70aba7236df"
+      }
+    },
+    {
+      "run": 42463390918,
+      "id": 13611770567,
+      "name": "v53-profiles-raw-42463390918-1-37b0bf4f191f84ba8464305748db8252afadcb6f-3-replace",
+      "githubDigest": "sha256:b9467bf1645b783e29510b03a9e2691cea34bea9d7f40e0522035f603b73532e",
+      "archive": {
+        "path": "target/v53-hosted-debug-37b0bf4f/artifacts/v53-profiles-raw-42463390918-1-37b0bf4f191f84ba8464305748db8252afadcb6f-3-replace.zip",
+        "bytes": 29528221,
+        "sha256": "b9467bf1645b783e29510b03a9e2691cea34bea9d7f40e0522035f603b73532e"
+      }
+    },
+    {
+      "run": 42463390918,
+      "id": 13611381399,
+      "name": "v53-profiles-raw-42463390918-1-37b0bf4f191f84ba8464305748db8252afadcb6f-4-remove",
+      "githubDigest": "sha256:5f0ed869d637ffc83c48a2187738c9907e79c49be8f8187a9622fca94b34aa1f",
+      "archive": {
+        "path": "target/v53-hosted-debug-37b0bf4f/artifacts/v53-profiles-raw-42463390918-1-37b0bf4f191f84ba8464305748db8252afadcb6f-4-remove.zip",
+        "bytes": 28428941,
+        "sha256": "5f0ed869d637ffc83c48a2187738c9907e79c49be8f8187a9622fca94b34aa1f"
+      }
+    },
+    {
+      "run": 42463390918,
+      "id": 13611296751,
+      "name": "v53-profiles-raw-42463390918-1-37b0bf4f191f84ba8464305748db8252afadcb6f-5-replace",
+      "githubDigest": "sha256:3502dcf1aca08da8b1e654d239eff3ce096d3622ca72198c50ca58ebc0abb05d",
+      "archive": {
+        "path": "target/v53-hosted-debug-37b0bf4f/artifacts/v53-profiles-raw-42463390918-1-37b0bf4f191f84ba8464305748db8252afadcb6f-5-replace.zip",
+        "bytes": 37267491,
+        "sha256": "3502dcf1aca08da8b1e654d239eff3ce096d3622ca72198c50ca58ebc0abb05d"
+      }
+    },
+    {
+      "run": 42463390918,
+      "id": 13611071652,
+      "name": "v53-profiles-raw-42463390918-1-37b0bf4f191f84ba8464305748db8252afadcb6f-5-remove",
+      "githubDigest": "sha256:72bb4c3964fb8aa66fd2444df506cfbbe600987913e6c9c7560b2a8fa68d6e51",
+      "archive": {
+        "path": "target/v53-hosted-debug-37b0bf4f/artifacts/v53-profiles-raw-42463390918-1-37b0bf4f191f84ba8464305748db8252afadcb6f-5-remove.zip",
+        "bytes": 30377103,
+        "sha256": "72bb4c3964fb8aa66fd2444df506cfbbe600987913e6c9c7560b2a8fa68d6e51"
+      }
+    },
+    {
+      "run": 42463390918,
+      "id": 13610838227,
+      "name": "v53-profiles-raw-42463390918-1-37b0bf4f191f84ba8464305748db8252afadcb6f-3-add",
+      "githubDigest": "sha256:9a9ed5d3b9550b558782254a861e38b72a217b8d598985daccdce90822cd3f77",
+      "archive": {
+        "path": "target/v53-hosted-debug-37b0bf4f/artifacts/v53-profiles-raw-42463390918-1-37b0bf4f191f84ba8464305748db8252afadcb6f-3-add.zip",
+        "bytes": 32064633,
+        "sha256": "9a9ed5d3b9550b558782254a861e38b72a217b8d598985daccdce90822cd3f77"
+      }
+    },
+    {
+      "run": 42463390938,
+      "id": 13611652343,
+      "name": "v53-required-four-resources-raw-42463390938-1-37b0bf4f191f84ba8464305748db8252afadcb6f",
+      "githubDigest": "sha256:01f7046309d8154efe433e870b8b24df01c22709f91720d2725c667c472603db",
+      "archive": {
+        "path": "target/v53-hosted-debug-37b0bf4f/artifacts/v53-required-four-resources-raw-42463390938-1-37b0bf4f191f84ba8464305748db8252afadcb6f.zip",
+        "bytes": 44115314,
+        "sha256": "01f7046309d8154efe433e870b8b24df01c22709f91720d2725c667c472603db"
+      }
+    }
+  ],
+  "failureClasses": [
+    {
+      "kind": "infrastructure",
+      "jobs": [
+        128688220640,
+        128688220718,
+        128692860199
+      ],
+      "reason": "pinned Temurin download repeatedly returned HTTP 504"
+    },
+    {
+      "kind": "REMOVE replay",
+      "jobs": [
+        128677536224,
+        128677536319
+      ],
+      "reason": "handler-vs-transport diagnostics, exact retries and nonselected activation send accounting"
+    },
+    {
+      "kind": "joining replay",
+      "jobs": [
+        128688220642
+      ],
+      "reason": "abandoned replaced-generation prefix and physically captured unselected grant"
+    },
+    {
+      "kind": "required-four replay",
+      "jobs": [
+        128685011109
+      ],
+      "reason": "identical SELECTED retry shares one durable installation"
+    }
+  ],
+  "originalReplayResults": {
+    "3-ADD": {
+      "path": "target/v53-hosted-debug-37b0bf4f/3-add-full-original.json",
+      "bytes": 13956,
+      "sha256": "377b0eeee433a13e11cadbf8bb3fca6a921bae216987454dea05fa724192bb06"
+    },
+    "4-REMOVE": {
+      "path": "target/v53-hosted-debug-37b0bf4f/4-remove-full-original.json",
+      "bytes": 7590,
+      "sha256": "50a9908c7626ec4b8b6b580f0cfad2517441219c0a1864f1cca98100b459d155"
+    },
+    "5-REMOVE": {
+      "path": "target/v53-hosted-debug-37b0bf4f/5-remove-full-original.json",
+      "bytes": 7722,
+      "sha256": "410773f4cd1c5334a3a6c28b1f6526b5cfac6832ebcd145c2b1c17d88c3a1536"
+    },
+    "4-REPLACE": {
+      "path": "target/v53-hosted-debug-37b0bf4f/4-replace-ballot-replay.json",
+      "bytes": 9866,
+      "sha256": "45e5cbcf9ff258fc4828f1fcfd23ddc32dbab261136c997099366dd1c07536c9"
+    },
+    "5-REPLACE": {
+      "path": "target/v53-hosted-debug-37b0bf4f/5-replace-full-original.json",
+      "bytes": 15384,
+      "sha256": "ceb13022ded723f85f149ce416975ffa00f36d24b3e9d4667a07db2ada07676f"
+    },
+    "required-four": {
+      "path": "target/v53-hosted-debug-37b0bf4f/required-four-full-original.json",
+      "bytes": 195849,
+      "sha256": "7cc2c588cc57b133f899a323c0a2df24f7a2cfb720d903cdf296e2564bb917ab"
+    }
+  },
+  "negativeReplay": {
+    "path": "target/v53-hosted-debug-37b0bf4f/4-replace-abort-mutations.json",
+    "bytes": 4931,
+    "sha256": "5bb2b5af56835d0f58fa54ffd325da3c38793a1760ea9722a077bc6ed594ca5a"
+  },
+  "regressionFixture": {
+    "path": "scripts/v53/fixtures/profile-unselected-preparation.json.gz",
+    "bytes": 905492,
+    "sha256": "22ef18b6bc47ee36b57fcf816f7f00deed7e09750dc96deb17d659f143607873"
+  },
+  "baselineRegression": {
+    "path": "target/v53-hosted-debug-37b0bf4f/unselected-baseline-red.log",
+    "bytes": 1659,
+    "sha256": "dd6a9b0e260cc8c380dd2590d82f9686a577e4c04bb889274d5053fb16f679c2"
+  },
+  "pythonTests": {
+    "tests": 4613,
+    "result": "PASS",
+    "log": {
+      "path": "target/v53-hosted-debug-37b0bf4f/python-final.log",
+      "bytes": 20706,
+      "sha256": "f012ff885319b8b751aef3db0b77c1e33edbcb7d0c09eeda98c57b88394b4b15"
+    }
+  },
+  "limitations": [
+    "Old producer receipts and source/attempt pins are unchanged; corrected readers cannot upgrade those failed hosted members.",
+    "All 147 resource negatives and the hosted ballot negatives must pass in the replacement campaign.",
+    "No runtime Java, workflow, toolchain, workload, deadline, capacity or transport retry change.",
+    "One successful native history does not rule out future delay; the older required-four native timeout remains an earlier failed original.",
+    "Remaining twelve hosted groups stay held until both initial workflows pass."
+  ],
+  "phase3Complete": false,
+  "focusedTests": {
+    "tests": 59,
+    "result": "PASS",
+    "log": {
+      "path": "target/v53-hosted-debug-37b0bf4f/final-focused.log",
+      "bytes": 158,
+      "sha256": "f8ef3360cc363ab8b4e16e9e6ba5162a117e6386779d4029bc67957cab6fa965"
+    }
+  },
+  "contractCheck": {
+    "path": "target/v53-hosted-debug-37b0bf4f/contract.log",
+    "bytes": 167,
+    "sha256": "7d74a16ce65328c3ab3f0cafd9167445caae37b4ad1b240c8857a505279f1034"
+  },
+  "localReplaySeconds": {
+    "3-ADD": 100.05,
+    "4-REMOVE": 29.28,
+    "5-REMOVE": 39.54,
+    "4-REPLACE": 221.33,
+    "5-REPLACE": 201.87,
+    "required-four": 461.13
+  }
+}

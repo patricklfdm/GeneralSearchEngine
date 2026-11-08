@@ -219,7 +219,15 @@ class Continuation(p.Continuation):
 
     def install_campaign(self,cut,counter,selected):
         ballot=dict(counter=counter,proposer='node-1',incarnation=f.decode(self.group['node-1']['node.gsr'],'records','NODE')['identity']['storage'])
-        sources={node:self.prepare(node,ballot) for node in self.voters}
+        # A slower peer may force its grant even though the proposer selects a
+        # different majority. Derive every observed grant from preceding state,
+        # but install only the immutable selected cohort. Captures supply UUIDs
+        # and exact comparison targets; they never replace derived owner files.
+        prepared={node for node,key in self.captures.by_ballot if key==f.canonical(ballot)}
+        need(set(self.voters)<=prepared<=set((*self.initialization.voters,self.joining)),
+             'joining profile campaign prepared owners')
+        sources={node:self.prepare(node,ballot) for node in sorted(prepared)}
+        sources={node:sources[node] for node in self.voters}
         maintained={node:self.maintenance(self.group,node) for node in self.voters}
         for node in self.voters:self.group[node]=c.install(maintained[node],sources,selected)
         self.match('continuation-installed-'+str(cut))

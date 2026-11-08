@@ -220,6 +220,15 @@ def authorize_generation(values,windows):
         if reference==cut:expected += [(h,members[h+'.image'],'APPLICATION') for h in sorted(own['packet']['images'])]
     else:raise ValueError('joining export current generation alias')
     expected[0]=(original_reference,*expected[0][1:])
+    aborted=first.get('abortedPrefix')
+    if aborted is not None:
+        # The native snapshot supplies the expected missing member and the
+        # physical selector timeline, never the failing request's own claim.
+        need(reference in (generation,metadata) and 0<len(values)<len(expected) and
+             aborted['selector']==own['end'] and
+             aborted['request']['payload']['digest']==expected[len(values)][0],
+             'joining export abandoned generation boundary')
+        expected=expected[:len(values)]
     exact(values,expected,'joining export exact current generation')
     return 'learner-current-content' if learner else 'current-generation'
 
@@ -385,11 +394,16 @@ def replay(root,*,kind='ADD',recovery=None):
 
 def authorize_contents(model,events,contents,generations,sources,records):
     """Shared capability checks after the caller derives its original windows."""
-    covered=Counter();transfers=Counter();remaining=[]
+    covered=Counter();transfers=Counter();remaining=[];abandoned=[]
     for values in sessions(contents):
         first=values[0];kind=record_kind(first['raw']);scope=None
         if kind=='GENERATION' or first['kind']=='CAPSULE':
             scope=authorize_generation(values,generations)
+            if 'abortedPrefix' in first['offer']:
+                claim=first['offer']['abortedPrefix'];q=first['offer']['request']
+                abandoned.append(dict(owner=q['recipient']['node'],reader=q['sender']['node'],trace=q['trace'],
+                    committedObjects=len(values),missingReference=claim['request']['payload']['digest'],
+                    terminalAttempts=claim['attempts'],selector=claim['selector']))
         elif kind=='BASIS':authorize_source(values,generations,sources);scope='frozen-source'
         elif first['offer']['request']['payload']['digest']==sha(pending_ack(model)):
             authorize_pending(values,events,model);scope='pending-joining-checkpoint'
@@ -403,12 +417,14 @@ def authorize_contents(model,events,contents,generations,sources,records):
             remaining.append(dict(owner=q['recipient']['node'],reader=q['sender']['node'],trace=q['trace'],
                 firstEvent=first['offer']['sent'],reference=q['payload']['digest'],firstKind=kind or 'unframed-record',transfers=len(values)))
     need(covered['current-generation']>0 and covered['frozen-source']>0,'joining export target families absent')
-    return dict(status='PARTIAL',scope='native-'+model.kind+'-temporal-exports-and-original-record-capabilities',
+    result=dict(status='PARTIAL',scope='native-'+model.kind+'-temporal-exports-and-original-record-capabilities',
         generationWindows=len(generations),sourceWindows=len(sources),recordWindows=len(records),boundSessions=dict(covered),
         boundTransfers=dict(transfers),unqualifiedSessions=remaining,unqualifiedSessionCount=len(remaining),
         unqualifiedTransfers=sum(v['transfers'] for v in remaining),allExportFamiliesQualified=False,
         learnerRetentionAuthorizationQualified=False,
         completePhysicalQualified=False,forceAndNetworkQualified=False,processDeathQualified=False,phase3Complete=False)
+    if abandoned:result['abandonedGenerationPrefixes']=abandoned
+    return result
 
 
 def validate(root):

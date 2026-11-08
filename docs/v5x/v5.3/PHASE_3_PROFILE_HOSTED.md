@@ -2,10 +2,68 @@
 
 Status: the isolated workflow, portable seed, seven whole-history collectors and
 seven independent downloaded verifiers are implemented. The first authorized
-hosted campaign at `5652d074` exposed missing connection observations in both
-REMOVE originals and a missing deferred-preparation path in the five downloaded
-ADD/REPLACE physical replays. The corrections below require a new matching-source execution;
-the final-source cohort and Phase 3 remain OPEN.
+hosted campaign at `5652d074` and its replacement at `37b0bf4f` remain failed
+originals. The latter completed all eight native histories across the two groups,
+but exposed further replay assumptions and Java-download failures. The corrections
+below require a new matching-source execution; the final-source cohort and
+Phase 3 remain OPEN.
+
+## Second hosted attempt: original retries and nonselected grants
+
+[Profiles 42463390918](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/42463390918)
+and [required-four 42463390938](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/42463390938)
+used `37b0bf4f191f84ba8464305748db8252afadcb6f`, attempt 1. All seven ordinary
+native JVM histories and the required-four native history completed. The two
+REMOVE producer jobs subsequently failed retirement-prefix replay; their native
+success does not make those jobs successful. Three profile jobs (3-ADD replay,
+5-REPLACE replay and aggregate) failed while downloading the pinned Temurin JDK
+with repeated HTTP 504 responses, before their qualification code ran. The
+3-REPLACE and 4-ADD downloaded verifiers passed. See the
+[retained failure and validation index](phase3-evidence/hosted-retry-replay.json).
+
+The following reader corrections preserve original attempts and strict physical
+comparison:
+
+- A SELECTED operation can finish while its first connection times out, then
+  return the same ACK on an identical retry. Bind one durable installation to
+  the earliest original request and response boundaries, and require an actual
+  delivered ACK before proposer installation. All socket attempts remain in
+  causal replay; changed requests/responses, missing initial triggers, missing
+  delivery and more than three attempts still fail.
+- REMOVE handler diagnostics exclude failures after the handler has produced
+  its response. The paired transport terminal remains mandatory. Recovered
+  controls must match an already qualified operation with a delivered response;
+  failed attempts never supply votes. Activation correlation uses the actual
+  original contiguous send sequence, including unsuccessful nonselected PREPAREs.
+- In 4-REPLACE, node-5 froze a ballot-8 grant after being solicited, although
+  node-1 selected nodes 1, 2 and 3. Derive every captured grant for that ballot
+  from preceding owner state, compare its complete original inventory, and
+  install only the selected cohort. The retained regression fixture fails with
+  the old reader's exact node-5 inventory mismatch. No snapshot is copied in
+  place of state derivation and no extra voter is counted.
+- Also in 4-REPLACE, node-5 committed two generation metadata objects from
+  node-2, whose selector then changed before the next object could be served.
+  The three identical failed next-object requests terminate that trace. Admit
+  only a committed prefix matching independently derived generation members,
+  an exact physical selector boundary and the expected missing reference.
+  Missing bytes never become a completed transfer or a retention proof. The
+  export receipt records this abandoned prefix separately. Mid-object failures,
+  continued dead traces, foreign selectors and altered bytes remain rejected.
+
+Local diagnostic replay uses the unchanged downloaded originals, not fabricated
+success receipts or a rerun of their workloads. The index records the completed
+original chains, regression checks and their hashes. It does not upgrade failed
+producer receipts or source/attempt pins, and does not substitute for the complete
+hosted negative matrices on a new source. A separate stale Python fixture now
+uses the current segmented queue-completion v2 schema so its negative check
+reaches the intended layout guard.
+
+Only these two initial workflows are authorized for replacement. The remaining
+twelve groups stay held until both pass. Runtime Java, tool pins, workflow
+topology, workloads, deadlines, capacities and the three-attempt policy are
+unchanged. The HTTP failures need a fresh hosted execution; they do not justify
+changing the pinned JDK. Partial-job reruns still cannot mix attempt-bound seeds
+and originals.
 
 ## First hosted attempt and connection capture correction
 

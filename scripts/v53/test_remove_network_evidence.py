@@ -84,6 +84,37 @@ class RemoveNetworkEvidenceTest(unittest.TestCase):
         with patch.object(n.collection,'read_json',return_value=[row]*4),self.assertRaisesRegex(ValueError,'bounded failed attempts'):
             n.failed_controls('/unused',[],failed,SimpleNamespace(phases=[]))
 
+    def recovered_control(self,*,offered=True,change=None,diagnostics=None):
+        q=dict(sender=dict(node='node-1'),recipient=dict(node='node-2'),payload={'selection':'original'})
+        answer=dict(payload={'selection':'original'})
+        failure=dict(recipient='node-2',kind='SELECTED',requestHash='request',sent=0,
+                     serverFailed=4,responseOffered=offered,clientReason='DEADLINE',serverReason='IO')
+        rows=[dict(kind='SELECTED',request=q,response=answer,sent=0,delivered=None),
+              dict(kind='SELECTED',request=q,response=answer,sent=5,delivered=8)]
+        if not offered:rows.pop(0)
+        if change:change(failure,rows)
+        if diagnostics is None:
+            diagnostics=[] if offered else [dict(node='node-2',kind='SELECTED',request='request',failure='handler error')]
+        with patch.object(n.collection,'read_json',return_value=diagnostics),patch.object(n.transcript,'wire',return_value=('SELECTED',q)):
+            return n.failed_controls('/unused',[{'bytes':'original'}],[failure],SimpleNamespace(phases=[]),rows)
+
+    def test_post_handler_transport_failure_needs_terminal_but_no_handler_exception(self):
+        self.assertEqual({'boundFailedControls':1},self.recovered_control())
+        self.assertEqual({'boundFailedControls':1},self.recovered_control(offered=False))
+        with self.assertRaisesRegex(ValueError,'complete failure diagnostics'):
+            self.recovered_control(diagnostics=[dict(node='node-2',kind='SELECTED',request='request',failure='invented')])
+        with self.assertRaisesRegex(ValueError,'complete failure diagnostics'):self.recovered_control(offered=False,diagnostics=[])
+
+    def test_failed_control_never_supplies_vote_or_changes_retry_result(self):
+        changes=[lambda failure,rows:rows.pop(),
+                 lambda failure,rows:rows[-1].update(delivered=True),
+                 lambda failure,rows:rows[-1].update(response={'payload':'different'}),
+                 lambda failure,rows:failure.update(clientReason='CLOSED'),
+                 lambda failure,rows:failure.update(serverReason='PROTOCOL')]
+        for index,change in enumerate(changes):
+            with self.subTest(change=index),self.assertRaisesRegex(ValueError,'failed control exact recovery'):
+                self.recovered_control(change=change)
+
     def test_future_control_binds_governing_peer_and_distinct_sequence(self):
         selected=dict(ballot=dict(proposer='node-1'),view='v',cut=dict(view=dict(
             old=['node-1','node-2','node-3','node-4','node-5'],new=['node-1','node-2','node-3','node-4'])))

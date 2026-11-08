@@ -80,29 +80,45 @@ def activations(events,rows,history):
             need(not capture_callbacks.intersection(bound),'REMOVE network reused grant capture callback')
             capture_callbacks.update(bound)
             positions[node]=(starts[0],returns[0],selections[0]);grant_returns[node]=returns[0];grants+=1
-        prepare=[];propagation=[];promises=[]
+        prepare=[];propagation=[];promises=[];attempts={};requests={};trace=None
+        for event in events[prior+1:end]:
+            if event['event'] not in transcript.SENDS or event['kind'] not in ('PREPARE','SELECTED'):continue
+            _,request=transcript.wire(event['bytes'])
+            need(request['ballot']==selected['ballot'] and request['sender']['node']==proposer and
+                 request['view']==selected['view'],'REMOVE network activation authority')
+            if trace is None:trace=request['trace']
+            need(request['trace']==trace,'REMOVE network activation authority')
+            if event['request'] not in requests:
+                need(request['sequence']==len(requests)+1,'REMOVE network activation authority')
+                requests[event['request']]=request
+            need(request==requests[event['request']],'REMOVE network activation authority')
         for row in rows:
             if row['kind'] not in ('PREPARE','SELECTED') or row['request']['ballot']!=selected['ballot']:continue
             q,a=row['request'],row['response'];node=q['recipient']['node'];own=members.get(node)
             need(q['sender']['node']==proposer and node in voters and node!=proposer and q['view']==selected['view'] and
-                 q['sequence']==voters.index(node)+(len(voters)-1 if row['kind']=='SELECTED' else 0),
+                 q in requests.values(),
                  'REMOVE network activation authority')
-            if row['kind']=='PREPARE':
-                need(row['answer']=='PROMISE' and q['payload']==dict(promise=sha(members[proposer]['promise.gsr'])) and
+            attempts.setdefault((row['kind'],node),[]).append(row);used.add(row['offered'])
+        for (kind,node),exchanges in attempts.items():
+            own=members[node];q,a=exchanges[0]['request'],exchanges[0]['response']
+            row=shared.activation_exchange(exchanges,'REMOVE network exact activation retry')
+            if kind=='PREPARE':
+                need(exchanges[0]['answer']=='PROMISE' and q['payload']==dict(promise=sha(members[proposer]['promise.gsr'])) and
                      a['payload']==dict(basis=sha(own['basis.gsr'])),'REMOVE network prepare authority')
                 start,returned,forced=positions[node]
-                need(grant_returns[proposer]<row['sent']<row['received']<start<returned<row['offered']<row['delivered']<positions[proposer][2],
+                need(type(row['delivered']) is int and
+                     grant_returns[proposer]<row['sent']<row['received']<start<returned<row['offered']<row['delivered']<positions[proposer][2],
                      'REMOVE network grant before delivered promise')
                 prepare.append(node);promises.append(row['delivered'])
             else:
-                need(row['answer']=='INSTALL_ACK' and q['payload']==dict(selection=digest) and
+                need(exchanges[0]['answer']=='INSTALL_ACK' and q['payload']==dict(selection=digest) and
                      a['payload']==dict(selection=digest,cut=selected['cut']),'REMOVE network installation authority')
-                need(positions[proposer][2]<row['sent']<row['received']<positions[node][2]<row['offered']<row['delivered']<end,
+                need(type(row['delivered']) is int and
+                     positions[proposer][2]<row['sent']<row['received']<positions[node][2]<row['offered']<row['delivered']<end,
                      'REMOVE network selected propagation order')
                 shared.install.interval(events,node,None,row['received'],row['offered'],own,
                     ['SELECTED_FORCED','SELECTED_BEFORE_RETURN'],'REMOVE network durable installation order')
-                propagation.append(row);installations+=1
-            used.add(row['offered'])
+                propagation.append(dict(row,request=q));installations+=1
         need(sorted(prepare)==sorted(v for v in voters if v!=proposer) and
              sorted(v['request']['recipient']['node'] for v in propagation)==sorted(prepare),'REMOVE network complete peer activation')
         shared.proposer_forces(events,proposer,None,positions[proposer][2],end,propagation,members[proposer])
@@ -165,16 +181,41 @@ def failed_controls(root,events,failed,history,rows=(),physical=None):
     diagnostics=collection.read_json(Path(root),'failures.json',collection.EVENT_BYTES)
     need(all(type(v) is dict and set(v)=={'node','kind','request','failure'} and
              type(v['failure']) is str and 0<len(v['failure'])<=8192 for v in diagnostics),'REMOVE network failure diagnostic shape')
-    expected=Counter((v['recipient'],v['kind'],v['requestHash']) for v in failed if v['serverFailed'] is not None)
+    # failures.json observes handler exceptions, not transport writes after a
+    # handler has already returned its response. Keep both terminal classes.
+    expected=Counter((v['recipient'],v['kind'],v['requestHash']) for v in failed if v['serverFailed'] is not None and
+                     not v.get('responseOffered',v.get('withheldResponse',False)))
     need(Counter((v['node'],v['kind'],v['request']) for v in diagnostics)==expected,'REMOVE network complete failure diagnostics')
     need(all(count<=3 for count in Counter(v['requestHash'] for v in failed).values()),'REMOVE network bounded failed attempts')
     for value in failed:
         kind,q=transcript.wire(events[value['sent']]['bytes']);matched=False
+        if kind in ('PREPARE','SELECTED','ACCEPT','PROOF','APPLY','PUBLISH') and any(r['kind']==kind and r['request']==q for r in rows):
+            # These exact operations already passed activation/slot force and
+            # delivered-ACK qualification above. A failure supplies no vote.
+            matches=[r for r in rows if r['kind']==kind and r['request']==q]
+            successes=[r for r in matches if type(r['delivered']) is int]
+            own=[r for r in matches if r['sent']==value['sent']]
+            offered=value.get('responseOffered',value.get('withheldResponse',False))
+            need(successes and value.get('clientReason') in ('IO','DEADLINE') and
+                 (not offered or len(own)==1 and own[0]['delivered'] is None and
+                  value.get('serverReason') in ('IO','DEADLINE') and
+                  all(r['response']==own[0]['response'] for r in matches)),
+                 'REMOVE network failed control exact recovery')
+            matched=True
         for ordinal,parts in enumerate(history.phases,1):
             selected=f.decode(parts['SELECTED'],'records','SELECTED')
             parent=c.anchor(c.current(history.applied[ordinal,'node-1'])[2]['capsule'])
             upper=c.anchor(c.current(history.published[ordinal,'node-1'])[2]['capsule'])
             voters=[v['voter'] for v in selected['sources']]
+            if kind=='PREPARE' and q['recipient']['node'] not in voters:
+                proposer=selected['ballot']['proposer'];own=c.current(history.installed[ordinal,proposer])[1]
+                end=next(i for i,v in enumerate(events) if v['event']=='ROUND_INSTALLED' and v['record']==sha(parts['SELECTED']))
+                forced=max(i for i,v in enumerate(events[:end]) if v.get('node')==proposer and v['event']=='SELECTED_FORCED')
+                granted=max(i for i,v in enumerate(events[:forced]) if v.get('node')==proposer and v['event']=='GRANT_BEFORE_RETURN')
+                matched=matched or (q['sender']['node']==proposer and q['ballot']==selected['ballot'] and
+                    q['view']==selected['view'] and q['recipient']['node'] in set(selected['cut']['view']['old']+selected['cut']['view']['new']) and
+                    q['payload']==dict(promise=sha(own['promise.gsr'])) and granted<value['sent']<forced and
+                    not value.get('responseOffered',value.get('withheldResponse',False)))
             for target in voters[1:]:
                 identity=d.future.identity(history.applied[ordinal,target])
                 intent=dict(selection=sha(parts['SELECTED']),certificate=sha(parts['CERTIFICATE']),peer=identity,
@@ -210,7 +251,7 @@ def replay(root,history):
     result.update(phase.phase_replay(events,rows,history,physical))
     result.update(statuses(rows,history,physical))
     result.update(failed_controls(root,events,failed,history,rows,physical))
-    response_less=[v for v in failed if not v['withheldResponse']]
+    response_less=[v for v in failed if not v.get('responseOffered',v.get('withheldResponse',False))]
     result.update(wireExchanges=len(rows),sentRequests=len(rows)+len(response_less),
         receivedRequests=len(rows)+sum(v['received'] is not None for v in response_less),
         deliveredResponses=sum(v['delivered'] is not None for v in rows),failedAttempts=len(failed),

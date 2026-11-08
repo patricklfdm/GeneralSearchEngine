@@ -112,6 +112,24 @@ def delivered_promises(rows, proposer, basis, before):
             type(row['delivered']) is int and row['delivered'] < before]
 
 
+def activation_exchange(attempts, reason):
+    """One durable operation, with bounds taken from its original attempts.
+
+    Socket replay already binds every failure/delivery. Identical retries may
+    arrive while the first handler is still installing, and their offers may
+    overtake one another. Never treat a failed delivery as an ACK or count a
+    second durable operation. Missing initial requests still fail force order.
+    """
+    need(0 < len(attempts) <= 3, reason)
+    first = attempts[0]
+    need(all(v['kind'] == first['kind'] and v['answer'] == first['answer'] and
+             v['request'] == first['request'] and v['response'] == first['response'] for v in attempts), reason)
+    return dict(sent=min(v['sent'] for v in attempts), received=min(v['received'] for v in attempts),
+                offered=min(v['offered'] for v in attempts),
+                delivered=(min((v['delivered'] for v in attempts if type(v['delivered']) is int), default=None)
+                           if all(v['delivered'] is None or type(v['delivered']) is int for v in attempts) else None))
+
+
 def proposer_forces(events,node,scope,selected_at,upper,replies,members):
     """Local installation follows every selected peer's original delivered ACK."""
     need(replies and all(type(v.get('delivered')) is int for v in replies),
@@ -163,6 +181,7 @@ def installations(root, events, rows, replay, bases, *, recovery=None, old_owner
                     replies = delivered_promises(rows, node, source['basisDigest'], at)
                     need(replies,
                          'joining network selection before delivered promises')
+    exchanges = {}
     for row in rows:
         if row['kind'] != 'SELECTED': continue
         q, a = row['request'], row['response']; digest = q['payload']['selection']; selected = selections.get(digest)
@@ -171,8 +190,13 @@ def installations(root, events, rows, replay, bases, *, recovery=None, old_owner
              q['sender']['node'] == selected['ballot']['proposer'] and
              q['recipient']['node'] in [v['voter'] for v in selected['sources']] and
              a['payload'] == dict(selection=digest, cut=selected['cut']), 'joining network installation authority')
-        node = q['recipient']['node']; scope = owner_scope(node, forced[node,digest])
-        need((node,digest) not in used and forced[q['sender']['node'],digest] < row['sent'] and
+        node = q['recipient']['node']
+        exchanges.setdefault((node,digest), []).append(row)
+    bounds = {}
+    for (node,digest),attempts in exchanges.items():
+        selected = selections[digest]; scope = owner_scope(node, forced[node,digest])
+        row = activation_exchange(attempts, 'joining network exact selected retry'); bounds[node,digest] = row
+        need(forced[selected['ballot']['proposer'],digest] < row['sent'] and
              row['received'] < forced[node,digest] < row['offered'], 'joining network selected propagation order')
         used.add((node,digest))
         cut = selected['cut']['index']
@@ -196,7 +220,7 @@ def installations(root, events, rows, replay, bases, *, recovery=None, old_owner
         if digest==recovery_digest:continue  # separately bounded by cold reopen below
         node=selected['ballot']['proposer'];scope=owner_scope(node, forced[node,digest])
         selected_at=forced[node,digest];cut=selected['cut']['index']
-        replies=[v for v in rows if v['kind']=='SELECTED' and v['request']['payload']==dict(selection=digest)]
+        replies=[v for (peer,h),v in bounds.items() if h==digest]
         boundaries=[at for at,v in enumerate(events) if at>selected_at and v.get('node')==node and v['event']=='ACCEPT_VALIDATED']
         need(boundaries,'joining network proposer next slot boundary')
         need(cut in labels,'joining network known installation snapshot')
@@ -207,7 +231,7 @@ def installations(root, events, rows, replay, bases, *, recovery=None, old_owner
     result = dict(boundInstallReplies=count, forcedSelections=len(forced),proposerLocalInstallations=local_count)
     if recovery_digest is not None:
         node = replay.joining; scope = 'continuation-owner'
-        replies = [v for v in rows if v['kind']=='SELECTED' and v['request']['payload']==dict(selection=recovery_digest)]
+        replies = [v for (peer,h),v in bounds.items() if h==recovery_digest]
         need(replies and all(type(v.get('delivered')) is int for v in replies),'joining network recovery delivered ACKs')
         interval(events,node,forced[node,recovery_digest],min(v['sent'] for v in replies),
                  ['SELECTED_BEFORE_RETURN'],'joining network recovery local selection return',scope)
@@ -228,7 +252,7 @@ def installations(root, events, rows, replay, bases, *, recovery=None, old_owner
     for (node,digest),at in forced.items():
         selected=selections[digest]
         scope=owner_scope(node,at)
-        replies=[v for v in rows if v['kind']=='SELECTED' and v['request']['payload']==dict(selection=digest)]
+        replies=[v for (peer,h),v in bounds.items() if h==digest]
         if node==selected['ballot']['proposer']:
             grants=[bases[v['basisDigest']] for v in selected['sources']]
             # Each selected peer contributes once. Later duplicate deliveries
@@ -237,7 +261,7 @@ def installations(root, events, rows, replay, bases, *, recovery=None, old_owner
                       for source in selected['sources'] if source['voter']!=node]
             lower=max([v['capturedEvent'] for v in grants]+promises);upper=min(v['sent'] for v in replies)
         else:
-            reply=next(v for v in replies if v['request']['recipient']['node']==node)
+            reply=bounds[node,digest]
             lower,upper=reply['received'],reply['offered']
         journal_bounds.append(dict(node=node,scope=scope,selection=digest,forced=at,lower=lower,upper=upper))
     selection_journal.validate(events,journal_bounds)

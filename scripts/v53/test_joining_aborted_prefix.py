@@ -1,0 +1,93 @@
+"""Bounded abandoned requests and independently authenticated byte prefixes."""
+import copy
+import unittest
+from unittest.mock import patch
+from . import joining_aborted_prefix as a
+from . import joining_transcript as t
+from . import test_joining_network_evidence as network_fixture
+from . import test_joining_export_evidence as export_fixture
+from . import joining_export_evidence as e
+
+
+def fixture():
+    rows=network_fixture.JoiningNetworkEvidenceTest().transfer()
+    q=dict(rows[-1]['request'],sequence=4,payload=dict(id='next',action='REQUEST',offset=0,digest='missing',bytes=''))
+    events=[dict(event='OTHER') for _ in range(32)];failures=[]
+    events[18]=dict(event='INSTALL_SELECTOR_RENAMED',node='node-2')
+    for sent in (16,22,27):
+        events[sent]=dict(event='NETWORK_SEND',kind='CHUNK',bytes='encoded')
+        failures.append(dict(kind='CHUNK',sent=sent,received=sent+1,serverFailed=sent+3,finished=sent+4,
+                             clientReason='IO',serverReason='PROTOCOL',responseOffered=False))
+    return events,dict(rows=rows,failed=failures),q
+
+
+class JoiningAbortedPrefixTest(unittest.TestCase):
+    def bind(self,data):
+        events,result,q=data
+        with patch.object(a.t,'wire',return_value=('CHUNK',q)):a.bind(events,result)
+        return result
+
+    def test_terminal_next_object_is_retained_but_never_manufactures_content(self):
+        data=fixture();result=self.bind(data);contents=[]
+        counts=t.transfers(result['rows'],contents=contents)
+        self.assertEqual(1,counts['committedTransfers']);self.assertEqual(b'original transfer',contents[0]['raw'])
+        self.assertEqual(3,contents[0]['offer']['abortedPrefix']['attempts'])
+        self.assertEqual(3,len(result['failed']));self.assertEqual(3,len(result['rows']))
+
+    def test_unsupported_transfer_failure_shapes_reject(self):
+        for changes in ({'responseOffered':True},{'serverFailed':None},{'received':None},
+                        {'clientReason':'CLOSED'},{'serverReason':'IO'},{'kind':'TRANSFER_COMMIT'}):
+            data=fixture();data[1]['failed'][0].update(changes)
+            with self.subTest(changes=changes),self.assertRaisesRegex(ValueError,'unqualified transfer attempt'):self.bind(data)
+
+    def test_missing_foreign_or_ambiguous_selector_cannot_explain_abort(self):
+        for change in ('absent','foreign','duplicate','before-prefix','after-failure'):
+            data=fixture();events=data[0]
+            if change=='absent':events[18]['event']='OTHER'
+            elif change=='foreign':events[18]['node']='node-3'
+            elif change=='duplicate':events[17]=dict(events[18])
+            else:events[13 if change=='before-prefix' else 20]=events[18];events[18]=dict(event='OTHER')
+            with self.subTest(change=change),self.assertRaisesRegex(ValueError,'original selector change'):self.bind(data)
+
+    def test_missing_commit_or_next_object_context_cannot_be_skipped(self):
+        for change in ('no-commit','undelivered','sequence','offset','id','view'):
+            data=fixture();q=data[2]
+            if change=='no-commit':data[1]['rows'].pop()
+            elif change=='undelivered':data[1]['rows'][-1]['delivered']=None
+            elif change=='sequence':q['sequence']+=1
+            elif change=='offset':q['payload']['offset']=1
+            elif change=='id':q['payload']['id']='id'
+            else:q['view']='other'
+            with self.subTest(change=change),self.assertRaisesRegex(ValueError,'next object boundary'):self.bind(data)
+
+    def test_dead_trace_cannot_continue_or_overlap_its_retry(self):
+        for change in ('continue','overlap','excess'):
+            data=fixture()
+            if change=='continue':data[0].append(dict(event='NETWORK_SEND',kind='CHUNK',bytes='encoded'))
+            elif change=='overlap':data[1]['failed'][0]['finished']=22
+            else:data[1]['failed'].append(copy.deepcopy(data[1]['failed'][-1]))
+            with self.subTest(change=change),self.assertRaisesRegex(ValueError,'exact terminal attempts'):self.bind(data)
+
+    def export(self):
+        helper=export_fixture.JoiningExportEvidenceTest();windows,q=helper.inputs();own=windows[1]
+        expected=e.native.maintenance_generations(own['manifest'],own['members'],own['packet'])[1]
+        values=helper.values(q,expected[:1])
+        values[0]['offer']['abortedPrefix']=dict(selector=own['end'],request=dict(payload=dict(digest=expected[1][0])))
+        return values,windows
+
+    def test_completed_prefix_must_equal_derived_generation_members(self):
+        values,windows=self.export();self.assertEqual('current-generation',e.authorize_generation(values,windows))
+        values[0]['raw']=b'foreign bytes'
+        with self.assertRaisesRegex(ValueError,'exact current generation'):e.authorize_generation(values,windows)
+
+    def test_abort_claim_cannot_extend_window_or_select_another_missing_member(self):
+        for change in ('window','reference','missing-abort'):
+            values,windows=self.export();claim=values[0]['offer']['abortedPrefix']
+            if change=='window':claim['selector']+=1
+            elif change=='reference':claim['request']['payload']['digest']='forged'
+            else:del values[0]['offer']['abortedPrefix']
+            with self.subTest(change=change),self.assertRaisesRegex(ValueError,'abandoned generation boundary|exact current generation'):
+                e.authorize_generation(values,windows)
+
+
+if __name__=='__main__':unittest.main()

@@ -32,7 +32,8 @@ def fixture():
         for point in names:add(point,node)
     def row(kind,sent,received,offered,delivered):
         q=dict(sender=dict(node='node-1'),recipient=dict(node='node-2'),view='view',ballot=selected['ballot'],
-            sequence=1 if kind=='PREPARE' else 2,payload=dict(promise=n.sha(b'promise')) if kind=='PREPARE' else dict(selection=digest))
+            trace='original-round',sequence=1 if kind=='PREPARE' else 2,
+            payload=dict(promise=n.sha(b'promise')) if kind=='PREPARE' else dict(selection=digest))
         a=dict(payload=dict(basis=n.sha(b'node-2-basis')) if kind=='PREPARE' else dict(selection=digest,cut=selected['cut']))
         return dict(kind=kind,answer='PROMISE' if kind=='PREPARE' else 'INSTALL_ACK',request=q,response=a,
                     sent=sent,received=received,offered=offered,delivered=delivered)
@@ -41,6 +42,10 @@ def fixture():
     select('node-1');sent=add('SEND');received=add('REQUEST');select('node-2');install('node-2')
     offered=add('REPLY');delivered=add('DELIVERY');rows.append(row('SELECTED',sent,received,offered,delivered))
     install('node-1');add('ROUND_INSTALLED',record=digest)
+    for exchange in rows:
+        key='request-'+exchange['kind']
+        events[exchange['sent']].update(event='NETWORK_SEND',kind=exchange['kind'],request=key,bytes=key)
+        records[key]=(exchange['kind'],exchange['request'])
     return events,rows,SimpleNamespace(phases=[dict(SELECTED=raw)],installed=files),records
 
 
@@ -48,6 +53,7 @@ class RemoveActivationWritesTest(unittest.TestCase):
     def check(self,data):
         events,rows,history,records=data
         with patch.object(n.f,'decode',side_effect=lambda raw,*args:records[raw]), \
+             patch.object(n.transcript,'wire',side_effect=lambda raw:records[raw]), \
              patch.object(n.c,'current',side_effect=lambda files:('',files['members'],{})), \
              patch.object(n.c.p,'decode',return_value=dict(images={'image':5})):
             return n.activations(events,rows,history)

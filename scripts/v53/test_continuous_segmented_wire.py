@@ -87,7 +87,7 @@ class ContinuousSegmentedWireTest(unittest.TestCase):
     def test_queue_scope_cannot_be_promoted_between_explicit_layouts(self):
         value=queue_fixture.QueueCompletionEvidenceTest().value()
         with self.assertRaisesRegex(ValueError,'^queue completion scope$'):q.replay(value,wire_layout=h.wire_archive.SEGMENTED)
-        value['receipt'].update(schema='gse-v53-segmented-queue-completion-v1',wireLayout=h.wire_archive.SEGMENTED,
+        value['receipt'].update(schema='gse-v53-segmented-queue-completion-v2',wireLayout=h.wire_archive.SEGMENTED,
                                 bootstrapSource=h.wire_archive.source.BACKUP)
         with self.assertRaisesRegex(ValueError,'^queue completion scope$'):q.replay(value)
         for key,wrong in (('bootstrapSource','EMPTY'),('wireLayout','JSON')):

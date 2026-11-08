@@ -46,14 +46,12 @@ def replay(events,wires,identities,root):
         elif event==t.FAIL and 'scope' not in row:row['scope']='legacy-unscoped'
         if row['event']==t.SEND:starts[identifier]=row
         rows.append(row);positions.append(at)
-    # Deliberate transfer loss still needs its existing exact declaration and
-    # temporal/export checks. Incidental failed transfer attempts remain gated.
+    # Deliberate reply loss and abandoned replaced-generation pulls have
+    # separate exact qualifications; neither invents delivered content.
     from . import joining_source_loss as loss
     result=t.replay(rows,wires,identities,root,positions=positions,allow_withheld=loss.declaration(events) is not None)
-    for failed in result['failed']:
-        if failed['kind'] in ('CHUNK','TRANSFER_COMMIT'):
-            responses=[row for row in result['rows'] if row['sent']==failed['sent']]
-            need(len(responses)==1 and responses[0].get('withheld',False),'joining connection unqualified transfer attempt')
+    from . import joining_aborted_prefix
+    joining_aborted_prefix.bind(events,result)
     loss.requests(events,result['rows'])
     return result
 
