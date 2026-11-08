@@ -94,6 +94,12 @@ final class MembershipLearnerRetentionPlan {
     }
     /** The actual owner authenticates this entire set before renewal/adoption. */
     List<MembershipCapsule.Anchor> required(MembershipCapsule current,byte[] ancestry) {
+        var retained=requiredContext(current);current.verifyAncestry(ancestry,retained);return retained;
+    }
+    List<MembershipCapsule.Anchor> required(MembershipCapsule current,MembershipCapsule.CheckedAncestry ancestry) {
+        var retained=requiredContext(current);ancestry.require(current,retained);return retained;
+    }
+    private List<MembershipCapsule.Anchor> requiredContext(MembershipCapsule current) {
         require(root.equals(current.context.root),"learner retention foreign root");
         if(!empty()) {
             require(learner.equals(current.context.identities.get(learner.nodeId().value())),"learner retention identity changed");
@@ -102,7 +108,7 @@ final class MembershipLearnerRetentionPlan {
         }
         if(confirmation!=null)confirmation.identities(current.context);
         var retained=new ArrayList<>(renewals);retained.addAll(possible);
-        current.verifyAncestry(ancestry,retained);return List.copyOf(retained);
+        return List.copyOf(retained);
     }
     boolean preventsRetirement(String kind,byte[] payload) {
         return !empty() && kind.equals("RETIRE") && number(object(command(kind,payload)).get("through"))>=number(request.get("number"));

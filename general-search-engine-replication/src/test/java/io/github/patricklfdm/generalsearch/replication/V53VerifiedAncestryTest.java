@@ -10,6 +10,23 @@ class V53VerifiedAncestryTest {
     static MembershipCapsule.Anchor lower(MembershipSelection.Bridge bridge) {
         var v=bridge.statement.value();return new MembershipCapsule.Anchor(object(v.get("start")),(String)v.get("catalogBefore"),(String)v.get("applicationBefore"));
     }
+    @Test void sharedValidationBindsEveryParentToOneAuthenticatedCapsule() {
+        var fixture=new V53SelectionFixture(3,"REPLACE",5);var original=fixture.capsule.verify();
+        var bridge=fixture.bridge(1,5);var bytes=MembershipGenerationPlan.ancestry(List.of(bridge));
+        var retained=original.retainingVerifiedAncestry(List.of(bridge));var parent=lower(bridge);
+        var checked=retained.checkedAncestry(bytes);
+        checked.require(retained,List.of(parent,retained.terminal()));
+        assertThrows(IllegalArgumentException.class,()->original.checkedAncestry(bytes));
+        assertThrows(IllegalArgumentException.class,()->checked.require(original,List.of(parent)));
+        // Even equivalent bytes under a distinct capsule require a fresh proof.
+        var equivalent=original.retainingVerifiedAncestry(List.of(bridge));
+        assertThrows(IllegalArgumentException.class,()->checked.require(equivalent,List.of(parent)));
+        var changed=new MembershipCapsule.Anchor(parent.cut(),"f".repeat(64),parent.application());
+        assertThrows(IllegalArgumentException.class,()->checked.require(retained,List.of(changed)));
+        bytes[bytes.length-1]^=1;
+        assertThrows(IllegalArgumentException.class,()->retained.checkedAncestry(bytes));
+        checked.require(retained,List.of(parent)); // prior immutable result is not mutable input storage
+    }
     @Test void exactOwnedBridgeSurvivesSerializationWithoutChangingOriginalCapsule() {
         var f=new V53SelectionFixture(3,"REPLACE",5);var original=f.capsule.verify();var bridge=f.bridge(1,5);
         var bytes=MembershipGenerationPlan.ancestry(List.of(bridge));var parent=lower(bridge);

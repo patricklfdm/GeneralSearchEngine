@@ -1,0 +1,273 @@
+{
+  "schema": "gse-v53-hosted-failure-followup-v1",
+  "hostedSource": "5652d07421e9a41a80fa0908a343c1834fcf2ec3",
+  "failedRuns": [
+    {
+      "run": 42418110516,
+      "attempt": 1,
+      "workflow": "profiles"
+    },
+    {
+      "run": 42418110955,
+      "attempt": 1,
+      "workflow": "required-four"
+    }
+  ],
+  "baseline": {
+    "scope": "local diagnostic only; not matching-source hosted qualification",
+    "raw": "target/v53-hosted-final-debug/native-diagnostic/workspace/general-search-engine-replication/target/v53-native-dispatch/run-9b097e95-97c5-4a2e-a1b0-74d626cce3c4",
+    "source": {
+      "path": "target/v53-hosted-final-debug/native-diagnostic/source.json",
+      "bytes": 771214,
+      "sha256": "7c015ddc833aa2a7c057b30a68e2a7ee2c07efe96d34a3c9de0f0f3bd2982a5c"
+    },
+    "command": {
+      "path": "target/v53-hosted-final-debug/native-diagnostic/command.json",
+      "bytes": 1151,
+      "sha256": "7bbdccb7a39638ea7c1603b17a50404b58708f3009d9c04e9f6bf183c60c0f33"
+    },
+    "nativeLog": {
+      "path": "target/v53-hosted-final-debug/native-diagnostic/maven.log",
+      "bytes": 6111,
+      "sha256": "bbbba8e295e15d28a563f564fcc8b145c3661286235be088e05e7e9fa6171c1d"
+    },
+    "junit": {
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "time": "1667.391"
+    },
+    "events": {
+      "path": "target/v53-hosted-final-debug/native-diagnostic/workspace/general-search-engine-replication/target/v53-native-dispatch/run-9b097e95-97c5-4a2e-a1b0-74d626cce3c4/events.json",
+      "bytes": 12634440,
+      "sha256": "a4bc08449b4a9c2576dae7d800fd8549d443c2cd15253da4b59e68fb51e2f2ff"
+    },
+    "wire": {
+      "path": "target/v53-hosted-final-debug/native-diagnostic/workspace/general-search-engine-replication/target/v53-native-dispatch/run-9b097e95-97c5-4a2e-a1b0-74d626cce3c4/wire.json",
+      "bytes": 28389445,
+      "sha256": "595e8c82cc69efd42a1ef8d1114c9e9b850c8dd923abe6422075624625ccea3e"
+    },
+    "transportFailures": [
+      {
+        "kind": "ACCEPT",
+        "direction": "INBOUND",
+        "reason": "DEADLINE",
+        "count": 1
+      },
+      {
+        "kind": "ACCEPT",
+        "direction": "OUTBOUND",
+        "reason": "DEADLINE",
+        "count": 1
+      },
+      {
+        "kind": "PREPARE",
+        "direction": "INBOUND",
+        "reason": "DEADLINE",
+        "count": 1
+      },
+      {
+        "kind": "PREPARE",
+        "direction": "OUTBOUND",
+        "reason": "DEADLINE",
+        "count": 1
+      }
+    ],
+    "resourceQualification": {
+      "path": "target/v53-hosted-final-debug/required-four-local-replay-stopped.json",
+      "bytes": 392,
+      "sha256": "d47a4075398d6c22cc4b9d4cd36d45ff90026991b883c6e5383d8ca2705a7ee9"
+    },
+    "negativeCounts": {},
+    "fullNegativeQualification": false,
+    "originalPreserved": null,
+    "partialProgress": {
+      "path": "target/v53-hosted-final-debug/required-four-local-replay-corrected.log",
+      "bytes": 8256,
+      "sha256": "8773cd4043f5229935b5ecb77a63d0c96bb03fa726a4e51d681a9b23454ff4ce"
+    }
+  },
+  "corrected": {
+    "scope": "local diagnostic only; not matching-source hosted qualification",
+    "raw": "target/v53-hosted-final-debug/native-corrected/workspace/general-search-engine-replication/target/v53-native-dispatch/run-a3480dc8-6184-41c5-bd49-c523848930d4",
+    "source": {
+      "path": "target/v53-hosted-final-debug/native-corrected/source.json",
+      "bytes": 771603,
+      "sha256": "47a3510e06f4e549a8f4eec6e8aa8f5d2e841428110d0aca9320511aaac18464"
+    },
+    "command": {
+      "path": "target/v53-hosted-final-debug/native-corrected/command.json",
+      "bytes": 1035,
+      "sha256": "f315ede93399f3f79c5f5e7285944d148da9a5b57bfa59d9bb26bffa66622732"
+    },
+    "nativeLog": {
+      "path": "target/v53-hosted-final-debug/native-corrected/maven.log",
+      "bytes": 5791,
+      "sha256": "2cc5fb9182b1da30773ddc4ead27b29e7fda73c9c84c867072d57fa280927aef"
+    },
+    "junit": {
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "time": "1587.554"
+    },
+    "events": {
+      "path": "target/v53-hosted-final-debug/native-corrected/workspace/general-search-engine-replication/target/v53-native-dispatch/run-a3480dc8-6184-41c5-bd49-c523848930d4/events.json",
+      "bytes": 12642061,
+      "sha256": "f4e700b2ff99b28643eb0e8e78abed497e5c3c8041b8927063d0f41787986603"
+    },
+    "wire": {
+      "path": "target/v53-hosted-final-debug/native-corrected/workspace/general-search-engine-replication/target/v53-native-dispatch/run-a3480dc8-6184-41c5-bd49-c523848930d4/wire.json",
+      "bytes": 28395433,
+      "sha256": "825655e1a14e28933ecd350f37bcc009d427874ee66f498112cfc44046690073"
+    },
+    "transportFailures": [
+      {
+        "kind": "ACCEPT",
+        "direction": "INBOUND",
+        "reason": "DEADLINE",
+        "count": 2
+      },
+      {
+        "kind": "ACCEPT",
+        "direction": "OUTBOUND",
+        "reason": "DEADLINE",
+        "count": 2
+      },
+      {
+        "kind": "PREPARE",
+        "direction": "INBOUND",
+        "reason": "DEADLINE",
+        "count": 3
+      },
+      {
+        "kind": "PREPARE",
+        "direction": "OUTBOUND",
+        "reason": "DEADLINE",
+        "count": 3
+      }
+    ],
+    "resourceQualification": {
+      "path": "target/v53-hosted-final-debug/required-four-corrected-runtime-replay.json",
+      "bytes": 237224,
+      "sha256": "4f6ae5906c3fcf3bce8b937e4d4f17cf522fada0738f3df58e06df5f1abd77bc"
+    },
+    "negativeCounts": {
+      "accounting": 15,
+      "handoff": 19,
+      "files": 13,
+      "network-close": 12,
+      "joining-close": 12,
+      "export-allocations": 18,
+      "voting-control": 16,
+      "slot-control": 22,
+      "activation-control": 20
+    },
+    "fullNegativeQualification": true,
+    "originalPreserved": true,
+    "partialProgress": null
+  },
+  "runtimeFiles": [
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCapsule.java",
+      "bytes": 31641,
+      "sha256": "a208ec8daed9f398cc0c851e6fedc47cd256fa3cbd4c7b87606b6238f8fecd80"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFormat.java",
+      "bytes": 12644,
+      "sha256": "58097960df3805cf5505f689912a6fd1dbc24de985769a381409049f0ff15134"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "bytes": 349066,
+      "sha256": "f40b4835124a454dabbc753d129432d021f349d2444f59004359be92b6849ce1"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerRetentionPlan.java",
+      "bytes": 15103,
+      "sha256": "edf27d3125f495b85722300c1adbba96f67804d066281efae818c79f0e228e60"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPeerRetentionPlan.java",
+      "bytes": 23901,
+      "sha256": "fe2a4fed2a4072b9562e97093f2cf4fbc7496bcbbfc335de82abe2b32de21f48"
+    },
+    {
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipValidation.java",
+      "bytes": 5747,
+      "sha256": "7cb9fcfb591c988acb669c8dfa2af1c457247813b4b4c59049390d541a071c7e"
+    },
+    {
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53VerifiedAncestryTest.java",
+      "bytes": 6812,
+      "sha256": "94f9f99e74e9d64df8edc9a3fc78a76ace90ebfc0b5a02559435ba90d938b1dc"
+    }
+  ],
+  "readerFiles": [
+    {
+      "path": "scripts/v53/joining_export_evidence.py",
+      "bytes": 36946,
+      "sha256": "2991c84d2def3f4fdf66a1a828a725cedca30196e1413bb4c7cf7baf6365ce01"
+    },
+    {
+      "path": "scripts/v53/joining_profile_continuation_evidence.py",
+      "bytes": 27813,
+      "sha256": "d3bc2df88a64817aeaece5896ac4b517ed55ce5ca6df7b01a6ae64c62b2d9695"
+    },
+    {
+      "path": "scripts/v53/required_four_physical.py",
+      "bytes": 10241,
+      "sha256": "6cbd27faf2e39718a35ee158b09d3db64f06a69ef23a709c0614bd8a3d7d5be1"
+    }
+  ],
+  "focusedTests": {
+    "java": 46,
+    "exportPython": 112,
+    "profilePython": 104
+  },
+  "testLogs": [
+    {
+      "path": "target/v53-hosted-final-debug/retention-checks.log",
+      "bytes": 6317,
+      "sha256": "cef000b5a59815144b796ddc545a51e61373f7b07e4230f7209f288d5618a16c"
+    },
+    {
+      "path": "target/v53-hosted-final-debug/export-gap-tests.log",
+      "bytes": 212,
+      "sha256": "142a7225ac93ef9788398a9d90bf6b44f4f8216c15addb5b5f976a6cd6af4909"
+    },
+    {
+      "path": "target/v53-hosted-final-debug/export-gap-red.log",
+      "bytes": 1452,
+      "sha256": "19afd7039d1687555a19a61c6ab2b77db3b8d524ac295237a2857400c92f7637"
+    },
+    {
+      "path": "target/v53-hosted-final-debug/reader-tests-final-connection.log",
+      "bytes": 204,
+      "sha256": "3da2356835d6e592fc68f2ddd3ad4dc55c81641d1b85439b65c2f7f5aa9ec6f4"
+    }
+  ],
+  "gap": {
+    "path": "target/v53-hosted-final-debug/export-gap-validation.json",
+    "bytes": 1018,
+    "sha256": "26d8a4f1f277f56426ce2ab275720d66e30358874607754142fc2868b6d43071"
+  },
+  "handlerDiagnostics": {
+    "path": "target/v53-hosted-final-debug/handler-cost-summary.json",
+    "bytes": 3342,
+    "sha256": "26acd1965960775d1eef37a3bc5179bbbcc97e5942b7175aea9d066cf45a1aac"
+  },
+  "limitsUnchanged": true,
+  "phase3Complete": false,
+  "finalSourceHostedQualified": false,
+  "hostedRetryExhaustionProvenFixed": false,
+  "limitations": [
+    "local OpenJDK differs from pinned hosted Temurin",
+    "baseline enabled JFR; corrected run did not; background loads differ",
+    "native diagnostic outputs use their copied source inventories, not a clean formal cohort pin",
+    "small owner-check probe did not show an improvement",
+    "both local native executions retain recoverable transport timeouts",
+    "previous hosted failures remain failed; remaining twelve workflows are held"
+  ]
+}

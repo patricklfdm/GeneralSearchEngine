@@ -2,10 +2,16 @@ package io.github.patricklfdm.generalsearch.replication;
 
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /** Pure declaration checks. Filesystem ownership and authority are checked at admission. */
 final class MembershipValidation {
     static final long MAX = Long.MAX_VALUE - 1;
+    private static final Pattern DIGEST = Pattern.compile("[0-9a-f]{64}");
+    private static final Pattern IPV6 = Pattern.compile("[0-9a-f:]+");
+    private static final Pattern IPV4 = Pattern.compile("[0-9.]+");
+    private static final Pattern OCTET = Pattern.compile("0|[1-9][0-9]{0,2}");
+    private static final Pattern DNS_LABEL = Pattern.compile("[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?");
     private MembershipValidation() {}
 
     static void require(boolean condition, String message) {
@@ -19,7 +25,7 @@ final class MembershipValidation {
 
     static void digest(String value) {
         Objects.requireNonNull(value, "digest");
-        require(value.matches("[0-9a-f]{64}"), "digest must be lowercase SHA-256");
+        require(DIGEST.matcher(value).matches(), "digest must be lowercase SHA-256");
     }
 
     static void position(long value) { require(value >= 0 && value <= MAX, "position out of range"); }
@@ -61,7 +67,7 @@ final class MembershipValidation {
         require(host.length() <= 253 && host.chars().allMatch(c -> c > 32 && c < 127)
                 && host.equals(host.toLowerCase(Locale.ROOT)), "noncanonical host");
         if (host.indexOf(':') >= 0) {
-            require(host.matches("[0-9a-f:]+") && !host.contains(":::")
+            require(IPV6.matcher(host).matches() && !host.contains(":::")
                     && host.indexOf("::") == host.lastIndexOf("::"), "invalid IPv6 host");
             String[] groups = host.split(":", -1);
             int count = 0;
@@ -95,14 +101,14 @@ final class MembershipValidation {
                 }
             }
             require(host.contentEquals(canonical), "noncanonical IPv6 compression");
-        } else if (host.matches("[0-9.]+")) {
+        } else if (IPV4.matcher(host).matches()) {
             String[] parts = host.split("\\.", -1);
             require(parts.length == 4, "invalid IPv4 host");
             for (String part : parts)
-                require(part.matches("0|[1-9][0-9]{0,2}") && Integer.parseInt(part) <= 255, "invalid IPv4 octet");
+                require(OCTET.matcher(part).matches() && Integer.parseInt(part) <= 255, "invalid IPv4 octet");
         } else {
             for (String label : host.split("\\.", -1))
-                require(label.matches("[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?"), "invalid DNS label");
+                require(DNS_LABEL.matcher(label).matches(), "invalid DNS label");
         }
     }
 }

@@ -85,6 +85,47 @@ refused a failed execution. This is a separate runtime timing investigation,
 not resolved by the physical-reader correction. Its original evidence and local
 diagnostic execution are retained at `target/v53-hosted-final-debug`.
 
+## Required-four local investigation
+
+The hosted original retained 104 transport failure observations and terminated
+after the joining ACCEPT exhausted its three original 30-second attempts.
+The installed-cut-9 control path includes real generation maintenance and remote
+floor-copy validation before the vote. A timeout message alone does not identify
+GitHub scheduling, a deadlock or storage latency as its cause.
+
+An unchanged local runtime diagnostic completed in 1,667.391 JUnit seconds with
+two active JVM processors and JFR enabled. It retained four transport failure
+observations and completed FINAL, BARRIER and cold reopen. Thus the hosted terminal
+failure was not reproduced locally. Profiling did expose repeated format-regex
+compilation and repeated authentication of the same freshly read ancestry within
+one owner check. Precompiled equivalent regexes and one capsule-bound immutable
+ancestry projection now remove that repeated computation. Every owner check still
+reads/checks its original files and all three ledgers; the projection cannot cross
+capsules, owner checks, callbacks or durable operations. No timeout, retry count,
+resource limit, protocol record or voting rule changes.
+
+All 46 focused Java format, ancestry and retention tests pass, including
+corruption between owner checks and failed-owner poisoning. The corrected runtime
+completed the same local history in 1,587.554 JUnit seconds (26m49s including the
+build), retaining ten recoverable transport failure observations. Both local runs
+used OpenJDK rather than the pinned hosted Temurin and had different profiling
+and background load, so their times do not establish a controlled speedup. The
+small owner-check probe also showed no improvement. These results do not prove
+that hosted retry exhaustion is eliminated.
+
+Independent replay of the unchanged local original exposed and corrected the
+[request-inside-install export boundary](PHASE_3_REQUIRED_FOUR_EXPORT_ENTRY.md#request-received-during-installation).
+Both complete original resource replays pass. The unchanged runtime's duplicate
+negative gate was stopped after its 16 voting-control negatives passed; that
+diagnostic remains PARTIAL with its retained log. The corrected runtime's complete
+original-first replay and all 147 exact negatives pass in 2,469.835 seconds,
+with its original inventory preserved. Neither local original can
+fill a final-source hosted cohort slot; both
+initial workflows still require a new, matching-source execution before expansion.
+The [follow-up evidence index](phase3-evidence/hosted-failure-followup.json)
+records exact copied sources, original logs, diagnostics, reader hashes and the
+scope of each completed check.
+
 ## Entry and topology
 
 [The workflow](../../../.github/workflows/v53-membership-profiles.yml) has only

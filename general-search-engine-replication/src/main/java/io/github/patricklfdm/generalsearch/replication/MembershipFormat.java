@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.*;
+import java.util.regex.Pattern;
 import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
 
 /** Bounded 1.3 byte syntax. Contextual authority validation is a separate required step. */
@@ -12,6 +13,9 @@ final class MembershipFormat {
     static final int HEADER = 48;
     static final int FRAME = 8 * 1024 * 1024;
     static final Map<String, Object> CATALOG = loadCatalog();
+    private static final Pattern NODE = Pattern.compile("[a-z0-9][a-z0-9._-]{0,63}");
+    private static final Pattern ID = Pattern.compile("[a-z0-9][a-z0-9._-]{0,127}");
+    private static final Pattern PATH_COMPONENT = Pattern.compile("[A-Za-z0-9][A-Za-z0-9._-]*");
     private MembershipFormat() {}
 
     record Decoded(String family, String kind, Map<String, Object> value, byte[] bytes) {
@@ -166,11 +170,11 @@ final class MembershipFormat {
                 switch (name) {
                     case "hash" -> MembershipValidation.digest(s);
                     case "uuid" -> { UUID id = UUID.fromString(s); MembershipValidation.uuid(id); require(id.toString().equals(s), "canonical UUID"); }
-                    case "node", "id" -> require(s.matches("[a-z0-9][a-z0-9._-]{0," + (name.equals("node") ? 63 : 127) + "}"), "identifier");
+                    case "node", "id" -> require((name.equals("node") ? NODE : ID).matcher(s).matches(), "identifier");
                     case "host" -> { require(!s.isEmpty(), "empty host"); MembershipValidation.host(s); }
                     case "relative" -> {
                         require(!s.isEmpty() && s.length() <= 256 && !s.startsWith("/"), "relative path bound");
-                        for (String part : s.split("/", -1)) require(part.matches("[A-Za-z0-9][A-Za-z0-9._-]*"), "relative path component");
+                        for (String part : s.split("/", -1)) require(PATH_COMPONENT.matcher(part).matches(), "relative path component");
                     }
                     case "blob" -> {
                         require(s.length() <= ((4194304 + 2) / 3) * 4, "base64 capacity");

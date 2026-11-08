@@ -36,9 +36,10 @@ the complete BASIS transfer before treating it as a frozen-source session;
 record kind alone never exempts a transfer. Genuine learner aliases still need
 their original current-generation permit for the entire session.
 
-The reader now permits this overlap only across consecutive, physically derived
-selector transitions. Both callback endpoints must still belong to unique
-completed generation windows, and every intervening generation must keep the
+That first correction permits overlap only across consecutive, physically derived
+selector transitions. It still required both callback endpoints to belong to unique
+completed generation windows; the receipt-inside-install case below extends this
+boundary. Every intervening generation must keep the
 request's exact root, authority and permanent recipient. Explicit predecessor
 edges prevent borrowing unrelated or missing historical windows. Owner-scope
 changes (including old-voter cold reopen) or joining close markers prevent an
@@ -73,6 +74,36 @@ reauthorizes all 42 frozen-source sessions after that guard. The full 89-case
 diagnostic was not repeated after this conservative guard; its reader hash and
 the later guard's hash are recorded separately. Final matching-source full
 qualification remains a hosted-batch obligation, not a claim of this diagnostic.
+
+### Request received during installation
+
+The local diagnostic of the failed `5652d074` hosted campaign found a second
+boundary of this same synchronization rule. Its unmodified native implementation
+completed the required-four history, but independent content replay rejected a
+BASIS request received on `node-3` at event 31,801: the selector had renamed at
+31,793, installation returned at 31,818, and the offer followed at 31,819.
+The unchanged original and the rejected replay remain retained.
+
+The request callback runs before the synchronized export operation and can wait
+inside that installation interval. Frozen-source authorization now admits that
+receipt boundary only when one exact physically derived predecessor edge spans
+it and the offer follows a completed installation. Both surrounding generations
+and every later intervening edge must preserve the request's root, authority and
+permanent owner. An offer inside an unfinished installation, missing/duplicate
+windows, a missing predecessor, owner restart or changed authority still fails.
+`current()` is unchanged: mutable current bytes and receiver image availability
+cannot borrow this frozen-source exception.
+
+The new positive regression fails against the preceding reader. The 112 focused
+export/owner tests pass after correction, including ten invalid edge/authority
+variants. All 42 frozen-source sessions in this retained local original also
+pass component replay. Both local complete original resource replays pass. The
+corrected runtime original additionally passes all 147 exact resource negatives
+in 2,469.835 seconds with its original inventory preserved; the unchanged
+runtime's duplicate negative gate was stopped and remains PARTIAL. The
+[follow-up index](phase3-evidence/hosted-failure-followup.json) retains the exact
+sources and result scopes. These local diagnostics do not relabel either failed
+hosted workflow or replace a new matching-source hosted campaign.
 
 ## Downstream integration diagnostic
 

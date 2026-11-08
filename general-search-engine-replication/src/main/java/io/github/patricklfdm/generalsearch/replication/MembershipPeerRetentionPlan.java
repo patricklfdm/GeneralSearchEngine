@@ -96,11 +96,13 @@ final class MembershipPeerRetentionPlan {
         return new MembershipPeerRetentionPlan(capsule.context.root,capsule.context.view,peers);
     }
     private void context(MembershipCapsule current,byte[] ancestry,boolean sameView) {
+        context(current,sameView);current.verifyAncestry(ancestry,anchors());
+    }
+    private void context(MembershipCapsule current,boolean sameView) {
         require(root.equals(current.context.root),"peer retention foreign root");
         require(viewPosition(current.context.view)>=viewPosition(view),"peer retention configuration rollback");
         if(sameView)require(view.equals(current.context.view),"peer retention configuration reconciliation required");
         for(var peer:peers.values())require(peer.identity.equals(current.context.identities.get(peer.identity.nodeId().value())),"peer retention identity changed");
-        current.verifyAncestry(ancestry,anchors());
     }
     private List<MembershipCapsule.Anchor> anchors() {
         var ordered=new TreeMap<Long,MembershipCapsule.Anchor>();
@@ -115,6 +117,9 @@ final class MembershipPeerRetentionPlan {
     }
     List<MembershipCapsule.Anchor> required(MembershipCapsule current,byte[] ancestry) {
         context(current,ancestry,false);return anchors();
+    }
+    List<MembershipCapsule.Anchor> required(MembershipCapsule current,MembershipCapsule.CheckedAncestry ancestry) {
+        context(current,false);var result=anchors();ancestry.require(current,result);return result;
     }
     void capture(MembershipCapsule current,byte[] ancestry){context(current,ancestry,true);}
     /** Metadata projection only; the installation must authenticate these anchors. */

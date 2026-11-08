@@ -247,12 +247,25 @@ final class MembershipCapsule {
         return new MembershipCapsule(context,packet,anchors,states,owned,history,highestMembershipCertificate);
     }
     void verifyAncestry(byte[] bytes,Collection<Anchor> required) {
-        var lower=ancestryAnchors(bytes);
-        for(var anchor:required) {
-            var direct=anchor(number(anchor.cut().get("index")));
-            require(direct==null?anchor.equals(lower.get(anchor.cut())):anchor.equals(direct),"generation did not preserve original proven parent");
+        checkedAncestry(bytes).require(this,required);
+    }
+    /** One authenticated, immutable projection for a caller's single validation.
+     * It grants no file ownership and cannot be applied to another capsule. The
+     * journal never retains it across owner checks, callbacks or durable work. */
+    static final class CheckedAncestry {
+        private final MembershipCapsule owner;
+        private final Map<Map<String,Object>,Anchor> lower;
+        private CheckedAncestry(MembershipCapsule owner,Map<Map<String,Object>,Anchor> lower){this.owner=owner;this.lower=lower;}
+        void require(MembershipCapsule current,Collection<Anchor> required) {
+            MembershipValidation.require(current==owner,"ancestry validation capsule changed");
+            for(var anchor:required) {
+                var direct=current.anchor(number(anchor.cut().get("index")));
+                MembershipValidation.require(direct==null?anchor.equals(lower.get(anchor.cut())):anchor.equals(direct),
+                        "generation did not preserve original proven parent");
+            }
         }
     }
+    CheckedAncestry checkedAncestry(byte[] bytes){return new CheckedAncestry(this,ancestryAnchors(bytes));}
     /** Return only fully authenticated lower endpoints; packed inventory extras are not ancestry. */
     Map<Map<String,Object>,Anchor> ancestryAnchors(byte[] bytes) {
         var lower=new HashMap<Map<String,Object>,Anchor>();

@@ -708,6 +708,9 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(futurePending())verifyFutureRetention(current.ancestry());
     }
     private void verifyFutureRetention(byte[] ancestry)throws IOException {
+        if(futurePending())verifyFutureRetention(current.capsule.checkedAncestry(ancestry));
+    }
+    private void verifyFutureRetention(MembershipCapsule.CheckedAncestry ancestry)throws IOException {
         if(!futurePending())return;var state=futureRetention.state();var currentIndex=number(current.capsule.context.cut.get("index"));
         var parents=new ArrayList<MembershipCapsule.Anchor>();
         for(var peer:state.peers) {
@@ -734,7 +737,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                 if(!coveredCapture){require(appliedEnd!=null,"future retention application owner unavailable");appliedEnd.retainedTarget(state);}
             }
         }
-        current.capsule.verifyAncestry(ancestry,parents);
+        ancestry.require(current.capsule,parents);
         checkFutureEndpointCapacity(peerRetention.state().plan());
     }
     private void checkFutureEndpointCapacity(MembershipPeerRetentionPlan plan) {
@@ -2601,17 +2604,21 @@ final class MembershipGrantJournal implements AutoCloseable {
             byte[] ancestry=peers || learners || futures?current.ancestry():null;
             if(current!=null && ancestry==null)current.check();
             if(inactive!=null)inactive.check();
+            // Decode/authenticate the freshly read supplemental statements once
+            // for these three read-only ledger checks. Each ledger still checks
+            // its own identities, view, completions and exact required parents.
+            var checked=ancestry==null?null:current.capsule.checkedAncestry(ancestry);
             if(peers) {
-                peerRetention.state().plan().required(current.capsule,ancestry);
+                peerRetention.state().plan().required(current.capsule,checked);
                 var intent=selectedRetentionIntent();
                 require(intent==null || !intent.needsCompletion(peerRetention.state()),"selected retention completion required");
             }
             if(learners) {
-                learnerRetention.state().plan().required(current.capsule,ancestry);
+                learnerRetention.state().plan().required(current.capsule,checked);
                 var intent=selectedLearnerRetentionIntent();
                 require(intent==null || !intent.needsCompletion(learnerRetention.state()),"selected learner completion required");
             }
-            if(futures)verifyFutureRetention(ancestry);
+            if(futures)verifyFutureRetention(checked);
         }finally{validatedBaseReader=previous;}
     }
     private void checkWithoutRetirement() throws IOException {checkWithoutFloor();if(floors!=null)floors.check();}

@@ -60,7 +60,12 @@ The five ADD/REPLACE native originals succeeded but their downloaded physical
 replays omitted deferred source reclamation before a new BASIS. The shared
 reader correction replays all five retained physical histories through cut 11;
 this remains component evidence. The required-four original separately exhausted
-ACCEPT request retries after cut 9 and remains under runtime investigation.
+ACCEPT request retries after cut 9. Local diagnostics of both the unchanged and
+optimized runtime complete the history, but do not reproduce that terminal
+failure or establish its hosted cause. The
+[investigation](PHASE_3_PROFILE_HOSTED.md#required-four-local-investigation)
+retains the recoverable timeouts and the independent export-boundary correction;
+corrected-source hosted qualification remains pending.
 
 [Membership control ownership](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md) adds
 original local PUBLISH capture and voting/slot/activation composition to the
