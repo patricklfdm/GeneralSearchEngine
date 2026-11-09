@@ -121,6 +121,7 @@ class Replay(c.Replay):
         node=own['node'];copies={node:own};used=[]
         for values in self.groups:
             first,last=values[0]['offer'],values[-1]['commit'];q=first['request'];peer=q['recipient']['node']
+            if 'abortedPrefix' in first or 'abortedPreparation' in first:continue
             if q['sender']['node']!=node or not lower<first['sent']<start:continue
             remote=self.current(peer,first['received'],last['offered'])
             reference=e.native.current_reference(remote['packet']['capsule'],'retained-current-generation-metadata')

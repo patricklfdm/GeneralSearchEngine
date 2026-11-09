@@ -108,7 +108,7 @@ def transfers(rows, *, contents=None):
         # Group by trace and endpoints; changing root/view/ballot within a
         # session must fail, rather than silently create a different session.
         sessions[q['sender']['node'], q['recipient']['node'], q['trace']].append(row)
-    complete = retries = rejected = total = 0
+    complete = retries = rejected = total = uncommitted = 0
     for values in sessions.values():
         values.sort(key=lambda v: v['sent']); header = None; prior = None; sequence = 0
         active = None; identifiers = set(); terminal = False
@@ -173,6 +173,20 @@ def transfers(rows, *, contents=None):
                         dict(offer=active['offer'],commit=row,raw=bytes(active['parts']),kind=active['kind']))
                 total += active['offset']; complete += 1; active = None
             prior = row
-        need(active is None, 'joining network incomplete transfer')
-    return dict(transferSessions=len(sessions), committedTransfers=complete, transferredBytes=total,
+        claim=values[0].get('abortedPrefix',{})
+        if claim.get('commitPending',False):
+            need(active is not None and active['chunks'] is None and
+                 claim['request']['payload']==dict(id=active['id'],digest=active['digest']) and
+                 active['offset']==active['bytes'] and active['digest_state'].hexdigest()==active['digest'],
+                 'joining network uncommitted object bytes')
+            # Retain received bytes for independent authority comparison. No
+            # commit row is invented, and these bytes never enter contents.
+            if contents is not None:
+                claim['uncommittedObject']=dict(offer=active['offer'],last=prior,
+                    raw=bytes(active['parts']),kind=active['kind'])
+            uncommitted+=1
+        else:need(active is None, 'joining network incomplete transfer')
+    result=dict(transferSessions=len(sessions), committedTransfers=complete, transferredBytes=total,
                 exactTransferRetries=retries, rejectedTransferAttempts=rejected)
+    if uncommitted:result['uncommittedTransferObjects']=uncommitted
+    return result

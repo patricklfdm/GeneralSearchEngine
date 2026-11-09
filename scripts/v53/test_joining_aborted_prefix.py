@@ -24,8 +24,41 @@ def fixture():
 class JoiningAbortedPrefixTest(unittest.TestCase):
     def bind(self,data):
         events,result,q=data
-        with patch.object(a.t,'wire',return_value=('CHUNK',q)):a.bind(events,result)
+        with patch.object(a.t,'wire',return_value=(result['failed'][0]['kind'],q)):a.bind(events,result)
         return result
+
+    def pending_commit(self):
+        events,result,q=fixture();extra=copy.deepcopy(result['rows'][:2])
+        for row in extra:
+            row['request']['sequence']+=3
+            row['request']['payload']['id']='pending'
+            row['response']['payload']['id']='pending'
+            for key in ('sent','received','offered','delivered'):row[key]+=12
+        result['rows']+=extra
+        q=dict(extra[-1]['request'],sequence=6,payload=dict(id='pending',digest=extra[0]['response']['payload']['digest']))
+        events=[dict(event='OTHER') for _ in range(44)];events[30]=dict(event='INSTALL_SELECTOR_RENAMED',node='node-2')
+        for fail in result['failed']:
+            fail['kind']='TRANSFER_COMMIT'
+            for key in ('sent','received','serverFailed','finished'):fail[key]+=12
+            events[fail['sent']]=dict(event='NETWORK_SEND',kind='TRANSFER_COMMIT',bytes='encoded')
+        return events,result,q
+
+    def test_failed_commit_keeps_received_bytes_separate_from_committed_content(self):
+        data=self.pending_commit();result=self.bind(data);contents=[]
+        counts=t.transfers(result['rows'],contents=contents)
+        self.assertEqual(1,counts['committedTransfers']);self.assertEqual(1,len(contents))
+        pending=contents[0]['offer']['abortedPrefix']['uncommittedObject']
+        self.assertEqual(b'original transfer',pending['raw']);self.assertNotIn('commit',pending)
+        self.assertEqual(1,counts['uncommittedTransferObjects'])
+
+    def test_failed_commit_still_requires_all_bytes_and_original_object(self):
+        for change in ('id','digest','truncated','no-prior-commit'):
+            data=self.pending_commit()
+            if change in ('id','digest'):data[2]['payload'][change]='foreign'
+            elif change=='truncated':data[1]['rows'][-2]['response']['payload']['bytes']+=1
+            else:data[1]['rows'].pop(2)
+            with self.subTest(change=change),self.assertRaises(ValueError):
+                result=self.bind(data);t.transfers(result['rows'])
 
     def test_terminal_next_object_is_retained_but_never_manufactures_content(self):
         data=fixture();result=self.bind(data);contents=[]
@@ -88,6 +121,35 @@ class JoiningAbortedPrefixTest(unittest.TestCase):
             else:del values[0]['offer']['abortedPrefix']
             with self.subTest(change=change),self.assertRaisesRegex(ValueError,'abandoned generation boundary|exact current generation'):
                 e.authorize_generation(values,windows)
+
+    def uncommitted_export(self):
+        values,windows=self.export();own=windows[1];q=values[0]['offer']['request']
+        expected=e.native.maintenance_generations(own['manifest'],own['members'],own['packet'])[1]
+        pending=export_fixture.JoiningExportEvidenceTest().values(q,[expected[1]],start=20)[0]
+        pending['last']=pending.pop('commit');values[0]['commit']['delivered']=15
+        values[0]['offer']['abortedPrefix'].update(commitPending=True,uncommittedObject=pending)
+        return values,windows
+
+    def test_uncommitted_bytes_require_independent_exact_generation_member(self):
+        values,windows=self.uncommitted_export()
+        self.assertEqual('current-generation',e.authorize_generation(values,windows))
+        for change in ('bytes','kind','reference','time','missing'):
+            values,windows=self.uncommitted_export();claim=values[0]['offer']['abortedPrefix'];pending=claim['uncommittedObject']
+            if change=='bytes':pending['raw']=b'forged'
+            elif change=='kind':pending['kind']='APPLICATION'
+            elif change=='reference':pending['offer']['request']['payload']['digest']='foreign'
+            elif change=='time':pending['last']['offered']=windows[1]['end']
+            else:claim.pop('uncommittedObject')
+            with self.subTest(change=change),self.assertRaises(ValueError):e.authorize_generation(values,windows)
+
+    def test_interrupted_generation_cannot_supply_maintenance_floor_copy(self):
+        from . import joining_maintenance_evidence as m
+        for flag in ('abortedPrefix','abortedPreparation'):
+            values,windows=self.export();values[0]['offer'][flag]={}
+            reader=object.__new__(m.Replay);reader.groups=[values]
+            with patch.object(reader,'current',side_effect=AssertionError('partial copy consulted')):
+                with self.assertRaisesRegex(ValueError,'absent acquired copies'):
+                    reader.acquired(dict(node='node-1'),0,100)
 
 
 if __name__=='__main__':unittest.main()

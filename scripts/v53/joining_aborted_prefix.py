@@ -1,9 +1,9 @@
 """Bind an abandoned generation pull; its missing member never becomes content.
 
-Only a response-less next-object request after complete committed objects is
-admitted here. A real donor selector replacement must end the old export; the
+Only a response-less next-object request or final object commit after complete
+committed objects is admitted here. A real donor selector replacement must end the old export; the
 physical export reader independently binds that boundary and exact byte prefix.
-Mid-object loss, fabricated delivery and continuing the dead trace still fail.
+Partial chunks, fabricated delivery and continuing the dead trace still fail.
 """
 from collections import defaultdict
 from . import connection_transcript as t
@@ -22,7 +22,7 @@ def bind(events,result):
         replies=[row for row in rows if row['sent']==value['sent']]
         if len(replies)==1 and replies[0].get('withheld',False):continue
         kind,request=t.wire(events[value['sent']]['bytes'])
-        need(kind==value['kind']=='CHUNK' and not replies and not value['responseOffered'] and
+        need(kind==value['kind'] and kind in ('CHUNK','TRANSFER_COMMIT') and not replies and not value['responseOffered'] and
              value['clientReason']=='IO' and value['serverReason']=='PROTOCOL' and
              type(value['received']) is int and type(value['serverFailed']) is int,
              'joining connection unqualified transfer attempt')
@@ -40,15 +40,27 @@ def bind(events,result):
              [at for at,_ in sends[key] if at>=first['sent']]==[v['sent'] for v,_ in attempts],
              'joining aborted prefix exact terminal attempts')
         need(prefix and all(type(r['delivered']) is int and not r.get('failedAttempt',False) for r in prefix) and
-             prefix[0]['answer']=='SOURCE_OFFER' and prefix[-1]['answer']=='TRANSFER_COMMIT' and
+             prefix[0]['answer']=='SOURCE_OFFER' and
              prefix[-1]['delivered']<first['sent'] and q['sequence']==prefix[-1]['request']['sequence']+1 and
              {k:v for k,v in q.items() if k not in ('payload','sequence')}==
-             {k:v for k,v in prefix[0]['request'].items() if k not in ('payload','sequence')} and
-             q['payload']==dict(id=q['payload']['id'],action='REQUEST',offset=0,digest=q['payload']['digest'],bytes='') and
-             q['payload']['id'] not in {r['request']['payload']['id'] for r in prefix},
+             {k:v for k,v in prefix[0]['request'].items() if k not in ('payload','sequence')},
              'joining aborted prefix next object boundary')
+        pending=first['kind']=='TRANSFER_COMMIT'
+        if pending:
+            committed=[i for i,r in enumerate(prefix) if r['answer']=='TRANSFER_COMMIT']
+            need(committed and committed[-1]<len(prefix)-2,'joining aborted prefix missing committed prefix')
+            tail=prefix[committed[-1]+1:];offer=tail[0]
+            need(offer['answer']=='SOURCE_OFFER' and all(r['answer']=='CHUNK' for r in tail[1:]) and
+                 q['payload']==dict(id=offer['response']['payload']['id'],digest=offer['response']['payload']['digest']),
+                 'joining aborted prefix uncommitted object binding')
+        else:
+            need(prefix[-1]['answer']=='TRANSFER_COMMIT' and
+                 q['payload']==dict(id=q['payload']['id'],action='REQUEST',offset=0,digest=q['payload']['digest'],bytes='') and
+                 q['payload']['id'] not in {r['request']['payload']['id'] for r in prefix},
+                 'joining aborted prefix next object boundary')
         changes=[at for at,event in enumerate(events) if prefix[-1]['offered']<at<first['serverFailed'] and
                  event.get('node')==key[1] and event.get('event')=='INSTALL_SELECTOR_RENAMED']
         need(len(changes)==1,'joining aborted prefix original selector change')
         prefix[0]['abortedPrefix']=dict(request=q,firstSent=first['sent'],finished=last['finished'],
                                        selector=changes[0],attempts=len(attempts))
+        if pending:prefix[0]['abortedPrefix']['commitPending']=True

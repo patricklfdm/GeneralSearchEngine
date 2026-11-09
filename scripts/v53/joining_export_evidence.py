@@ -197,7 +197,9 @@ def learner_alias(own,request):
 
 def authorize_generation(values,windows):
     first,last=values[0]['offer'],values[-1]['commit'];q=first['request'];node=q['recipient']['node']
-    own=current(windows,node,first['received'],last['offered']);cap=own['packet']['capsule'];members=own['members']
+    interrupted=first.get('abortedPreparation')
+    own=current(windows,node,first['offered'] if interrupted else first['received'],last['offered'])
+    cap=own['packet']['capsule'];members=own['members']
     identities=n.s.catalog.identities(f.decode(own['packet']['objects'][cap['catalog']],'records','CATALOG')['identities'])
     proposer=identities.get(q['ballot']['proposer'])
     need(q['sender']==identities.get(q['sender']['node']) and q['recipient']==own['identity'] and
@@ -220,6 +222,11 @@ def authorize_generation(values,windows):
         if reference==cut:expected += [(h,members[h+'.image'],'APPLICATION') for h in sorted(own['packet']['images'])]
     else:raise ValueError('joining export current generation alias')
     expected[0]=(original_reference,*expected[0][1:])
+    if interrupted:
+        need(reference==metadata and len(values)==1<len(expected) and interrupted['generationStart']==own['start'] and
+             interrupted['selector']==own.get('sourcePredecessor',(None,None))[1],
+             'joining export interrupted preparation boundary')
+        expected=expected[:1]
     aborted=first.get('abortedPrefix')
     if aborted is not None:
         # The native snapshot supplies the expected missing member and the
@@ -228,6 +235,11 @@ def authorize_generation(values,windows):
              aborted['selector']==own['end'] and
              aborted['request']['payload']['digest']==expected[len(values)][0],
              'joining export abandoned generation boundary')
+        if aborted.get('commitPending',False):
+            pending=aborted.get('uncommittedObject')
+            need(pending is not None and last['delivered']<pending['offer']['sent'] and
+                 pending['last']['offered']<own['end'], 'joining export uncommitted object lifetime')
+            exact([pending],[expected[len(values)]],'joining export exact uncommitted object')
         expected=expected[:len(values)]
     exact(values,expected,'joining export exact current generation')
     return 'learner-current-content' if learner else 'current-generation'
@@ -394,7 +406,7 @@ def replay(root,*,kind='ADD',recovery=None):
 
 def authorize_contents(model,events,contents,generations,sources,records):
     """Shared capability checks after the caller derives its original windows."""
-    covered=Counter();transfers=Counter();remaining=[];abandoned=[]
+    covered=Counter();transfers=Counter();remaining=[];abandoned=[];interrupted=[]
     for values in sessions(contents):
         first=values[0];kind=record_kind(first['raw']);scope=None
         if kind=='GENERATION' or first['kind']=='CAPSULE':
@@ -404,6 +416,11 @@ def authorize_contents(model,events,contents,generations,sources,records):
                 abandoned.append(dict(owner=q['recipient']['node'],reader=q['sender']['node'],trace=q['trace'],
                     committedObjects=len(values),missingReference=claim['request']['payload']['digest'],
                     terminalAttempts=claim['attempts'],selector=claim['selector']))
+            if 'abortedPreparation' in first['offer']:
+                claim=first['offer']['abortedPreparation'];q=first['offer']['request']
+                interrupted.append(dict(owner=q['recipient']['node'],reader=q['sender']['node'],trace=q['trace'],
+                    committedObjects=len(values),generationCopy=False,promiseOffered=False,
+                    failedPrepare=claim['serverFailed'],selector=claim['selector']))
         elif kind=='BASIS':authorize_source(values,generations,sources);scope='frozen-source'
         elif first['offer']['request']['payload']['digest']==sha(pending_ack(model)):
             authorize_pending(values,events,model);scope='pending-joining-checkpoint'
@@ -424,6 +441,7 @@ def authorize_contents(model,events,contents,generations,sources,records):
         learnerRetentionAuthorizationQualified=False,
         completePhysicalQualified=False,forceAndNetworkQualified=False,processDeathQualified=False,phase3Complete=False)
     if abandoned:result['abandonedGenerationPrefixes']=abandoned
+    if interrupted:result['interruptedPreparationCopies']=interrupted
     return result
 
 

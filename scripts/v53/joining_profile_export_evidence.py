@@ -38,13 +38,16 @@ def context(root,profile,*,old_owner_lifetimes=None,required_four=False, bootstr
     if required_four:need(model.targets==new,'joining export required-four target')
     events=collection.read_json(root,'events.json',collection.EVENT_BYTES)
     wires=wire_archive.from_model(root,model)
-    rows=e.n.causal(events,wires,e.n.s.catalog.identities(model.states[-1]['identities']),model.root)
+    failed=[];rows=e.n.causal(events,wires,e.n.s.catalog.identities(model.states[-1]['identities']),model.root,failed=failed)
     contents=[];e.n.transfers(rows,contents=contents)
     # Include inactive original voters: lack of installation is not lack of an
     # original generation, and cannot justify borrowing another owner's bytes.
     nodes=(*old,model.joining)
     windows=e.generation_windows(root,events,model,nodes=nodes,final_adoption=True)
     sources=e.source_windows(root,events,replay=model)
+    from . import joining_interrupted_preparation
+    diagnostics=collection.read_json(root,'joining-continuation-failures.json',1024*1024)
+    joining_interrupted_preparation.bind(events,rows,failed,contents,windows,sources,diagnostics)
     records=e.record_windows(root,events,model,windows,sources,nodes=nodes,old_owner_lifetimes=old_owner_lifetimes)
     return SimpleNamespace(model=model,events=events,rows=rows,contents=contents,
                            groups=e.sessions(contents),windows=windows,sources=sources,records=records)

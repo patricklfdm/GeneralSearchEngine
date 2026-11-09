@@ -55,7 +55,7 @@ def grant_capture_order(events, node, scope, lower, upper, packet):
     return {at for at, row in actual if capture_callback(row['event'])}
 
 
-def grants(root, events, rows, *, bootstrap_source='EMPTY', wire_layout='JSON'):
+def grants(root, events, rows, *, failed=(), bootstrap_source='EMPTY', wire_layout='JSON'):
     """The physical reader already compared all captured grants to derivation."""
     captures = p.captures.collect(root, events, **source_policy.options(bootstrap_source, wire_layout)); by_key = {}; by_basis = {}; replies = {}; callbacks = set()
     for capture in captures:
@@ -95,14 +95,43 @@ def grants(root, events, rows, *, bootstrap_source='EMPTY', wire_layout='JSON'):
         # exact retry shares the original task/forced grant, even when its
         # response arrives first or the original response is never delivered.
         first = min(attempts, key=lambda row: row['received'])
-        need(first['received'] < by_key[peer_key]['start'], 'joining network force before promise reply')
         need(all(row['request'] == first['request'] and row['response'] == first['response'] for row in attempts),
              'joining network exact prepare retry')
+    unanswered={}
+    for attempt in failed:
+        if attempt['kind']!='PREPARE' or attempt.get('responseOffered',attempt.get('withheldResponse',False)):continue
+        kind,q=wire(events[attempt['sent']]['bytes']);peer_key=q['recipient']['node'],f.canonical(q['ballot'])
+        if peer_key not in by_key:continue  # A rejected PREPARE need not create a grant.
+        # A connection which never reached the handler, or failed before this
+        # grant existed, cannot be its trigger. It remains a failed transport
+        # attempt; a later actual trigger/reply must still bind the grant.
+        if type(attempt['received']) is not int or type(attempt['serverFailed']) is not int or \
+                attempt['serverFailed']<=by_key[peer_key]['capturedEvent']:continue
+        key=q['sender']['node'],f.canonical(q['ballot'])
+        need(kind=='PREPARE' and key in by_key,'joining network unanswered prepare provenance')
+        own,peer=by_key[key],by_key[peer_key]
+        need(q['root']==own['root']==peer['root'] and q['ballot']['proposer']==q['sender']['node'] and
+             q['payload']==dict(promise=own['promise']) and q['view']==own['view']==peer['view'],
+             'joining network unanswered prepare authority')
+        need(own['capturedEvent']<attempt['sent'] and peer['capturedEvent']<attempt['serverFailed'],
+             'joining network unanswered prepare force boundary')
+        unanswered.setdefault(peer_key,[]).append(dict(attempt,request=q))
+    for peer_key,attempts in unanswered.items():
+        all_attempts=[*attempts,*replies.get(peer_key,[])];first=min(all_attempts,key=lambda v:v['received'])
+        need(len(all_attempts)<=3 and first['received']<by_key[peer_key]['start'] and
+             all(v['request']==first['request'] for v in all_attempts),
+             'joining network unanswered prepare exact trigger')
+    for peer_key,attempts in replies.items():
+        if peer_key not in unanswered:
+            need(min(v['received'] for v in attempts)<by_key[peer_key]['start'],
+                 'joining network force before promise reply')
     # The joining initializer's own grant is local. Every other non-proposer
     # grant needs its original triggering PREPARE. Retries do not add grants.
     required = {key for key,v in by_key.items() if v['node'] != v['ballot']['proposer']}
-    need(set(replies) == required, 'joining network unbound peer grant')
-    return dict(forcedGrants=len(captures), boundPromiseReplies=len(replies)), by_basis
+    need(set(replies)|set(unanswered) == required, 'joining network unbound peer grant')
+    result=dict(forcedGrants=len(captures), boundPromiseReplies=len(replies))
+    if set(unanswered)-set(replies):result['responseLessPreparedGrants']=len(set(unanswered)-set(replies))
+    return result, by_basis
 
 
 def delivered_promises(rows, proposer, basis, before):
@@ -279,7 +308,7 @@ def network(root, *, size=3, kind='ADD', recovery=None, old_owner_lifetimes=None
     identities = s.catalog.identities(replay.states[-1]['identities'])
     failed=[];rows = causal(events,wires,identities,replay.root,failed=failed)
     result = transfers(rows)
-    grant_result,bases = grants(root,events,rows,**source_args)
+    grant_result,bases = grants(root,events,rows,failed=failed,**source_args)
     result.update(grant_result,**installations(root,events,rows,replay,bases,recovery=recovery,old_owner_lifetimes=old_owner_lifetimes))
     result.update(phase.phase_replay(events,rows,replay,phases,old_owner_lifetimes=old_owner_lifetimes))
     result.update(wireExchanges=len(rows),sentRequests=len(rows),receivedRequests=len(rows),deliveredResponses=sum(v['delivered'] is not None for v in rows))

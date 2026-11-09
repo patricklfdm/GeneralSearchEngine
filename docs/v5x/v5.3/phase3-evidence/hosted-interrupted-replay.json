@@ -1,0 +1,194 @@
+{
+  "schema": "gse-v53-hosted-interrupted-replay-v1",
+  "originalSource": "f8761ff107f74d92317edfab57b06ad007e26b24",
+  "originalAttempt": 2,
+  "originalResults": {
+    "requiredFour": {
+      "run": 42470755416,
+      "status": "PASS",
+      "negativeCases": 147
+    },
+    "profiles": {
+      "run": 42470755638,
+      "status": "FAIL",
+      "nativeOriginals": 7,
+      "passedVerifiers": [
+        "3-ADD",
+        "3-REPLACE",
+        "4-REMOVE",
+        "4-REPLACE",
+        "5-REMOVE"
+      ],
+      "failedVerifiers": [
+        "4-ADD",
+        "5-REPLACE"
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "profile": "4-ADD",
+      "id": 13617932559,
+      "sha256": "4ce2a37d5976192547de5e63fe21ad581e73ff6c4eb8928ffeb242d9b1db4c56"
+    },
+    {
+      "profile": "5-REPLACE",
+      "id": 13617453609,
+      "sha256": "1ac49663da3d3aca0a5a4115ccab9b1276193da83e905d73a6a3056e79864a3b"
+    }
+  ],
+  "fixture": {
+    "path": "scripts/v53/fixtures/profile-interrupted-maintenance.json.gz",
+    "bytes": 149850,
+    "sha256": "9158940929ddff58a1ff72d5dbe81d856a832d28d20702f9ae0e5f40f530cbcc",
+    "scope": "component projection of unchanged original; not whole-history acceptance"
+  },
+  "scope": "diagnostic replay of retained originals, not corrected-source hosted acceptance",
+  "runtimeJavaChanged": false,
+  "workflowsChanged": false,
+  "budgetsChanged": false,
+  "failedReceiptsPreserved": true,
+  "phase3Complete": false,
+  "remainingTwelveGroups": "HELD",
+  "validationStatus": "PASS",
+  "originalReplays": [
+    {
+      "profile": "5-REPLACE",
+      "status": "PASS",
+      "elapsedSeconds": 212.195,
+      "scope": "profile-original-continuous-ballot",
+      "receipt": "target/v53-hosted-interrupted-replay/5-replace-complete-original.json",
+      "sha256": "e91941eaa55448fdb6ef50cf71bb292a41701431e219f106938d08cab49192c3"
+    },
+    {
+      "profile": "4-ADD",
+      "status": "PASS",
+      "elapsedSeconds": 216.996,
+      "scope": "profile-original-continuous-ballot",
+      "receipt": "target/v53-hosted-interrupted-replay/4-add-complete-original.json",
+      "sha256": "826298b758c1afaefcbaf18120d716ad9d247109d97d119cd0d5a876a60a4fee"
+    }
+  ],
+  "originalExportNegatives": [
+    {
+      "profile": "4-ADD",
+      "case": "pending-bytes",
+      "status": "REJECTED",
+      "reason": "joining export exact uncommitted object"
+    },
+    {
+      "profile": "4-ADD",
+      "case": "pending-kind",
+      "status": "REJECTED",
+      "reason": "joining export exact uncommitted object"
+    },
+    {
+      "profile": "4-ADD",
+      "case": "pending-window",
+      "status": "REJECTED",
+      "reason": "joining export uncommitted object lifetime"
+    },
+    {
+      "profile": "4-ADD",
+      "case": "missing-reference",
+      "status": "REJECTED",
+      "reason": "joining export abandoned generation boundary"
+    },
+    {
+      "profile": "4-ADD",
+      "case": "selector",
+      "status": "REJECTED",
+      "reason": "joining export abandoned generation boundary"
+    },
+    {
+      "profile": "4-ADD",
+      "case": "missing-claim",
+      "status": "REJECTED",
+      "reason": "joining export exact current generation"
+    },
+    {
+      "profile": "5-REPLACE",
+      "case": "manifest-bytes",
+      "status": "REJECTED",
+      "reason": "joining export exact current generation"
+    },
+    {
+      "profile": "5-REPLACE",
+      "case": "generation-start",
+      "status": "REJECTED",
+      "reason": "joining export interrupted preparation boundary"
+    },
+    {
+      "profile": "5-REPLACE",
+      "case": "selector",
+      "status": "REJECTED",
+      "reason": "joining export interrupted preparation boundary"
+    },
+    {
+      "profile": "5-REPLACE",
+      "case": "missing-claim",
+      "status": "REJECTED",
+      "reason": "joining export inactive current generation"
+    }
+  ],
+  "componentTests": {
+    "tests": 111,
+    "status": "PASS",
+    "scope": "final touched replay modules and focused positive/negative regressions"
+  },
+  "checks": [
+    "unchanged full original replay for 4-ADD and 5-REPLACE",
+    "10 retained-original export mutations rejected",
+    "111 final touched-module regressions passed",
+    "documentation/format contract and whitespace"
+  ],
+  "validations": [
+    {
+      "path": "target/v53-hosted-interrupted-replay/original-replays.json",
+      "sha256": "72063d0b55aed4e054e6809e1eed83dce8b1a0900ce6e649bf69e2f165b1a3a0"
+    },
+    {
+      "path": "target/v53-hosted-interrupted-replay/original-export-negatives.json",
+      "sha256": "318e030ee55ba8472d0df32304e2174a357e31800d1dd83111928a2e5485544d"
+    },
+    {
+      "path": "target/v53-hosted-interrupted-replay/final-touched-tests-corrected.log",
+      "sha256": "bb3c8e37c39859e38157833bddce14f75c820c93e36da043bfb213a6340911b6"
+    },
+    {
+      "path": "target/v53-hosted-interrupted-replay/contract-check.json",
+      "sha256": "04eb0243b2690fea860b4611090285751c98495857c0fddd80cdf4061860f48f"
+    }
+  ],
+  "finalNetworkReplay": {
+    "status": "PASS",
+    "profiles": [
+      "4-ADD",
+      "5-REPLACE"
+    ],
+    "path": "target/v53-hosted-interrupted-replay/final-network.json",
+    "sha256": "96d88c16a3d1e7e87fb26d746af939ce7ab25cf2f3eba5dd9e5b724d92f46ac5"
+  },
+  "hostedReplacementStatus": "PENDING",
+  "pythonSuite": {
+    "tests": 4629,
+    "elapsedSeconds": 229.888,
+    "status": "PASS",
+    "path": "target/v53-hosted-interrupted-replay/validated-source-tests.log",
+    "sha256": "19575d06814a39f81f10ab630aa715568d521db9ae34ae240046d653befbaf50"
+  },
+  "validatedReaderAndTestFiles": {
+    "scripts/v53/fixtures/profile-interrupted-maintenance.json.gz": "9158940929ddff58a1ff72d5dbe81d856a832d28d20702f9ae0e5f40f530cbcc",
+    "scripts/v53/joining_aborted_prefix.py": "b4504f95f46c48eae8945faef1271aefccb091440ccaf8f4da7ff84a71977ecd",
+    "scripts/v53/joining_export_evidence.py": "ebbdc91b309fbe8398512f331afa97f7fe622eed23efad23501e22679bc9a31a",
+    "scripts/v53/joining_interrupted_preparation.py": "e665b691bb18fe879fb840438315971e373e534c6ac389073059f930aaf4bc2a",
+    "scripts/v53/joining_maintenance_evidence.py": "d223995e5649a0c7b9ee6980c46879a220abc10d6a501247b45a1fcf43a7d77c",
+    "scripts/v53/joining_network_evidence.py": "96346d7f7251a17e19b29221440d7aa4f875106cb72da7ef1c30afeaa773a250",
+    "scripts/v53/joining_profile_control_evidence.py": "51e88a68894d3f3ff7434c4fa9bc7bcab5a9fcbce7da0e46af7dcd87ebe9cfeb",
+    "scripts/v53/joining_profile_export_evidence.py": "bb24a194ee14357fb0ea7ebfbfef113ae234a01d35e85ab53ac73da380e9958a",
+    "scripts/v53/joining_transcript.py": "e2ea20e8dad7bdc1e704680cbe54f17bfa0c326c9dac97280ad06c862e547083",
+    "scripts/v53/test_joining_aborted_prefix.py": "3101b980669ada04305d43af36fc4bf77fe60416603fa6c74edf930827e670d2",
+    "scripts/v53/test_joining_interrupted_preparation.py": "6b61df96484b36b82e6adec182a9757bbcd9cf44098eda3227f11ef87f68ed19",
+    "scripts/v53/test_joining_prepare_retries.py": "7b2e0711459314f2e4462014885a8d4f524b5954b8a4c8062b701f63df9b23ea"
+  }
+}

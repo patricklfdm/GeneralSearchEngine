@@ -30,7 +30,7 @@ def fixture():
 
 
 class JoiningPrepareRetryTest(unittest.TestCase):
-    def check(self,data):
+    def check(self,data,**options):
         events,captures,rows,_=data
         def inventory(path):
             node=path.parent.name
@@ -39,7 +39,50 @@ class JoiningPrepareRetryTest(unittest.TestCase):
             return [('PROMISE',raw+b'-promise',{}),('BASIS',raw+b'-basis',dict(view='view'))]
         with patch.object(n.p.captures,'collect',return_value=captures),patch.object(n.disk,'inventory',side_effect=inventory), \
              patch.object(n.disk,'journal',side_effect=journal),patch.object(n.disk.p,'decode',return_value=dict(images={})):
-            return n.grants(Path('/conditional'),events,rows)[0]
+            return n.grants(Path('/conditional'),events,rows,**options)[0]
+
+    def unanswered(self):
+        data=fixture();first=data[2][0];data[0][first['sent']]['bytes']='original'
+        failure=dict(kind='PREPARE',sent=first['sent'],received=first['received'],
+                     serverFailed=first['offered'],finished=first['offered']+1,
+                     responseOffered=False,clientReason='IO',serverReason='PROTOCOL')
+        data[2].clear()
+        return data,first,failure
+
+    def test_received_prepare_can_force_grant_without_offering_any_vote(self):
+        data,first,failure=self.unanswered()
+        with patch.object(n,'wire',return_value=('PREPARE',first['request'])):
+            counts=self.check(data,failed=[failure])
+        self.assertEqual(2,counts['forcedGrants']);self.assertEqual(0,counts['boundPromiseReplies'])
+        self.assertEqual(1,counts['responseLessPreparedGrants'])
+        self.assertEqual([],n.delivered_promises(data[2],'node-1','unused',999))
+
+    def test_failed_original_trigger_and_later_offered_retry_remain_one_grant(self):
+        data,first,failure=self.unanswered();reply=copy.deepcopy(first)
+        reply.update(sent=len(data[0]),received=len(data[0])+1,offered=first['offered']+3,delivered=first['offered']+4)
+        data[2].append(reply)
+        with patch.object(n,'wire',return_value=('PREPARE',first['request'])):counts=self.check(data,failed=[failure])
+        self.assertEqual(dict(forcedGrants=2,boundPromiseReplies=1),counts)
+
+    def test_unreceived_retry_cannot_replace_or_invalidate_the_real_trigger(self):
+        data=fixture();first=data[2][0];sent=len(data[0]);data[0].append(dict(event='SEND',bytes='original'))
+        failure=dict(kind='PREPARE',sent=sent,received=None,serverFailed=None,responseOffered=False)
+        with patch.object(n,'wire',return_value=('PREPARE',first['request'])):
+            self.assertEqual(dict(forcedGrants=2,boundPromiseReplies=1),self.check(data,failed=[failure]))
+
+    def test_unanswered_prepare_requires_original_trigger_authority_and_terminal(self):
+        for change in ('no-read','late-read','early-failure','promise','view','response-offered','no-terminal','wrong-root'):
+            data,first,failure=self.unanswered()
+            if change=='no-read':failure['received']=None
+            elif change=='late-read':failure['received']=data[3]+1
+            elif change=='early-failure':failure['serverFailed']=data[1][1]['capturedEvent']
+            elif change=='promise':first['request']['payload']['promise']='foreign'
+            elif change=='view':first['request']['view']='foreign'
+            elif change=='wrong-root':first['request']['root']='foreign'
+            elif change=='response-offered':failure['responseOffered']=True
+            else:failure['serverFailed']=None
+            with self.subTest(change=change),patch.object(n,'wire',return_value=('PREPARE',first['request'])),self.assertRaises(ValueError):
+                self.check(data,failed=[failure])
 
     def test_failed_delivery_then_exact_retry_share_one_original_force_chain(self):
         result=self.check(fixture())

@@ -1,12 +1,62 @@
 # Phase 3 — hosted ordinary membership profiles
 
 Status: the isolated workflow, portable seed, seven whole-history collectors and
-seven independent downloaded verifiers are implemented. The first authorized
-hosted campaign at `5652d074` and its replacement at `37b0bf4f` remain failed
-originals. The latter completed all eight native histories across the two groups,
-but exposed further replay assumptions and Java-download failures. The corrections
-below require a new matching-source execution; the final-source cohort and
-Phase 3 remain OPEN.
+seven independent downloaded verifiers are implemented. Historical failures at
+`5652d074` and `37b0bf4f` remain retained. At `f8761ff1`, attempt 2 passed the
+required-four workflow and all seven ordinary native histories, but only five
+of seven ordinary downloaded verifiers passed. The corrections below require a
+new matching-source execution; the final-source cohort and Phase 3 remain OPEN.
+
+## Third source: interrupted commits and unanswered preparation
+
+At `f8761ff107f74d92317edfab57b06ad007e26b24`, both first attempts stopped at
+the pinned Java download with HTTP 504. After the unchanged download recovered,
+both whole workflows were rerun as attempt 2. The
+[required-four workflow](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/42470755416/attempts/2)
+passed its native history, complete downloaded replay and all 147 exact negatives.
+The [profiles workflow](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/42470755638/attempts/2)
+completed all seven native histories; five downloaded verifiers passed, while
+4-ADD and 5-REPLACE failed. Its aggregate therefore failed too. This is separate
+from the Java download failure and does not close Phase 3.
+
+The retained originals expose two additional reader boundaries:
+
+- **4-ADD:** node-5 committed a generation manifest from node-2 and received the
+  next object's complete bytes. Node-2 then replaced its selector before that
+  object's TRANSFER_COMMIT could succeed. All three identical commit attempts
+  failed without a response. The reader now preserves the uncommitted bytes
+  separately and compares them with the exact next independently derived member.
+  They do not become committed content or a floor copy. Partial chunks, changed
+  retries, missing paired terminals, a foreign selector and a continued dead
+  trace still fail.
+- **5-REPLACE:** node-6 forced a nonselected ballot-8 grant, then acquired an
+  old packet from node-2. The separate metadata transfer crossed node-2's
+  same-cut installation and returned its new manifest. The runtime correctly
+  rejected the different capsule (`ancestry manifest owner/capsule`); it never
+  advertised a PROMISE from that invocation. Bind the forced grant to the
+  original received PREPARE and its terminal, without adding a delivered vote.
+  Authenticate the two actual generation windows, exact packet/manifest bytes,
+  physical selector edge, completed manifest-only transfer and failed control.
+  That manifest is retained as an interrupted maintenance read, not a complete
+  generation copy, learner read, retention acknowledgement or quorum member.
+
+The small compressed regression projection retains the second case's original
+bytes and event positions with explicit source/run/artifact provenance. Its
+component tests do not claim full physical qualification. The unchanged complete
+originals are independently replayed through storage, network, exports, control,
+maintenance, peer/future/learner ledgers and ballot composition; see the
+[validation and original evidence index](phase3-evidence/hosted-interrupted-replay.json).
+Failure receipts are preserved rather than relabelled as successful executions.
+All 4,629 V5.3 Python tests pass. Both complete unchanged original replays pass,
+as do the final targeted network replays; ten mutations of the retained export
+inputs are rejected. The documentation/format contract and whitespace checks
+pass. Native JVM workloads and their full hosted negative matrices are left to
+the new matching-source execution rather than rerun locally for this reader fix.
+
+Runtime Java, workflow topology, tool pins, formats, capacities and retry/time
+budgets are unchanged. A new matching-source execution of both initial workflows
+is required; the previous required-four PASS describes only `f8761ff1` attempt 2.
+The other twelve groups remain held until both replacement groups pass.
 
 ## Second hosted attempt: original retries and nonselected grants
 

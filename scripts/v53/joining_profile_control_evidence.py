@@ -74,6 +74,11 @@ class Replay(c.Replay):
         for values in self.groups:
             q=values[0]['offer']['request'];first=values[0]['offer'];last=values[-1]['commit']['offered']
             if q['sender']['node']!=self.model.joining:continue
+            if 'abortedPreparation' in first:
+                # A rejected voter maintenance manifest is neither a learner
+                # read nor a retention acknowledgement. Recheck its exact
+                # authenticated prefix instead of extending a mutable window.
+                e.authorize_generation(values,self.windows);continue
             # A verified frozen BASIS is not a learner alias. Its initial offer
             # can itself span a same-authority selector replacement, so use its
             # original source authorization before consulting mutable current.
