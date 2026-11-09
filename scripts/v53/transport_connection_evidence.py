@@ -23,7 +23,8 @@ def case(root,name,reader=None,*,resource_transitions=False):
     failure=result['failed'][0];rows=result['rows'];success=[v for v in rows if v['delivered'] is not None]
     need(len(success)==1 and len(rows)==(2 if name=='late-response' else 1),'connection original response count')
     good=success[0]
-    need(failure['sent']<failure['received']<failure['clientFailed']<good['sent']<good['received']<failure['serverFailed'] and
+    need(type(failure['serverFailed']) is int and
+         failure['sent']<failure['received']<failure['clientFailed']<good['sent']<good['received']<failure['serverFailed'] and
          failure['requestHash']==good['requestHash'] and failure['clientReason']=='DEADLINE' and failure['serverReason']=='IO',
          'connection original overlapping retry')
     need(all(v['kind']=='STATUS_PROBE' and v['answer']=='STATUS' and v['request']['sender']==identities['node-1'] and
@@ -52,7 +53,7 @@ NEGATIVES={
  'crossed-reply':'connection delivered response binding',
  'late-terminal-on-retry':'connection incomplete invocation',
  'missing-caller-terminal':'connection incomplete invocation',
- 'missing-server-terminal':'connection missing receiver terminal',
+ 'missing-server-terminal':'connection incomplete invocation',
  'duplicate-terminal':'connection duplicate boundary',
  'missing-original-response':'connection missing original response',
  'claims-membership':'connection receipt scope',
@@ -72,7 +73,10 @@ def mutate(root,name):
     elif name=='late-terminal-on-retry':
         other=next(v for v in reversed(events) if v['event']==t.OFFER);events[failed]['connection']=other['connection']
     elif name=='missing-caller-terminal':events=[v for v in events if not(v['event']==t.FAIL and v['direction']=='OUTBOUND')]
-    elif name=='missing-server-terminal':events.pop(failed)
+    elif name=='missing-server-terminal':
+        identifier=events[failed]['connection']['id']
+        events=[v for v in events if not (v.get('connection',{}).get('id')==identifier and
+                v.get('event') in (t.FAIL,t.OFFER,'WIRE_RESPONSE'))]
     elif name=='duplicate-terminal':events.insert(failed,dict(events[failed]))
     path.write_bytes(f.canonical(events))
 

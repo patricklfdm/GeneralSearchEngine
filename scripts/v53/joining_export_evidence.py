@@ -235,11 +235,17 @@ def authorize_generation(values,windows):
              aborted['selector']==own['end'] and
              aborted['request']['payload']['digest']==expected[len(values)][0],
              'joining export abandoned generation boundary')
-        if aborted.get('commitPending',False):
+        if aborted.get('commitPending',False) or aborted.get('offerPending',False):
             pending=aborted.get('uncommittedObject')
             need(pending is not None and last['delivered']<pending['offer']['sent'] and
                  pending['last']['offered']<own['end'], 'joining export uncommitted object lifetime')
-            exact([pending],[expected[len(values)]],'joining export exact uncommitted object')
+            if aborted.get('offerPending',False):
+                reference,raw,kind=expected[len(values)];offer=pending['offer']['response']['payload']
+                need(pending['raw']==b'' and pending['last']==pending['offer'] and pending['kind']==kind and
+                     pending['offer']['request']['payload']['digest']==reference and
+                     offer==dict(id=offer['id'],digest=sha(raw),bytes=len(raw),kind=kind),
+                     'joining export exact uncommitted offer')
+            else:exact([pending],[expected[len(values)]],'joining export exact uncommitted object')
         expected=expected[:len(values)]
     exact(values,expected,'joining export exact current generation')
     return 'learner-current-content' if learner else 'current-generation'

@@ -2,10 +2,56 @@
 
 Status: the isolated workflow, portable seed, seven whole-history collectors and
 seven independent downloaded verifiers are implemented. Historical failures
-remain retained. At `f92a69f8`, attempt 1 passed the required-four workflow and
+remain retained. At `31324c79`, attempt 1 passed the required-four workflow and
 all seven ordinary native histories, but only five of seven ordinary downloaded
 verifiers passed. The corrections below require a
 new matching-source execution; the final-source cohort and Phase 3 remain OPEN.
+
+## Fifth source: offered members after a prefix and asymmetric socket outcomes
+
+At `31324c79e02fb6b9cbebb17a6cd4e2e87b5bc826`, attempt 1 of
+[required-four 42573542725](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/42573542725)
+passed its original and all 147 resource negatives.
+[Profiles 42573542558](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/42573542558)
+passed all seven native originals and five downloaded verifiers. Its 4-ADD and
+4-REPLACE verifiers failed, so its aggregate also failed.
+
+- **4-ADD:** two objects were fully committed. The third SOURCE_OFFER was
+  delivered at 30635, then the donor selector changed at 30705 before any bytes
+  of that object were received. Three identical first-chunk attempts failed.
+  Recognize an offered object after any complete committed prefix, in addition
+  to the existing first-object case. Authenticate the pending declaration's
+  digest, extent, kind, reference and lifetime against the independently derived
+  next physical member. Keep its received bytes empty; it contributes neither a
+  commit nor a complete generation copy. Changed offsets, missing preceding
+  commits, partial chunks and a continued dead trace still fail.
+- **4-REPLACE:** one PREPARE socket recorded caller IO at 30291 and an original
+  peer PROMISE offer at 30946, with no peer failure callback. The native transport
+  only emits that callback when the peer encounters a local exception. A caller
+  failure therefore does not require a peer failure when the exact socket's
+  original response is present. Keep the response undelivered, the caller failed,
+  and `serverFailed`/`serverReason` absent. The peer's offer is not proof of a
+  successful write or a delivered vote. Missing original frames, mismatched
+  sockets, changed lifetimes and fabricated delivery remain invalid.
+
+Resource replay still binds the original peer request/reply buffers and their
+nested releases; it does not invent a peer failure timestamp. The existing
+missing-receiver-outcome negative now removes both the offer and failure of that
+exact socket when both exist, leaving its request without any outcome. Removing
+only a failure while retaining a valid offer describes an admissible asymmetric
+outcome. Keep all negative case names and counts; the missing-outcome rejection
+is now `connection incomplete invocation`. Named native late-failure cases still
+require their original peer failure, independently of the general reader.
+
+The unchanged complete 4-ADD and 4-REPLACE originals pass corrected replay in
+232.245 and 230.918 seconds. A 43,914-byte component projection preserves both
+original boundaries for positive and negative regression checks. See the
+[original evidence and validation index](phase3-evidence/hosted-outcome-replay.json).
+All 4,655 V5.3 Python tests pass. The final 64 focused regressions pass with and
+without Python assertions, as do the documentation/format and whitespace checks.
+Runtime Java, workflows, tool pins, formats, capacities and retry/time limits are
+unchanged. Failed receipts remain retained. A fresh matching-source execution
+of both initial workflows is required; the other twelve groups remain held.
 
 ## Fourth source: publication retries and revoked first offers
 

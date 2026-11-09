@@ -1,0 +1,129 @@
+{
+  "schema": "gse-v53-hosted-outcome-replay-v1",
+  "originalSource": "31324c79e02fb6b9cbebb17a6cd4e2e87b5bc826",
+  "originalAttempt": 1,
+  "originalResults": {
+    "requiredFour": {
+      "run": 42573542725,
+      "status": "PASS",
+      "negativeCases": 147
+    },
+    "profiles": {
+      "run": 42573542558,
+      "status": "FAIL",
+      "nativeOriginals": 7,
+      "passedVerifiers": [
+        "3-ADD",
+        "3-REPLACE",
+        "4-REMOVE",
+        "5-REMOVE",
+        "5-REPLACE"
+      ],
+      "failedVerifiers": [
+        "4-ADD",
+        "4-REPLACE"
+      ],
+      "aggregate": "FAIL"
+    }
+  },
+  "artifacts": [
+    {
+      "id": 13656496467,
+      "name": "v53-profiles-raw-42573542558-1-31324c79e02fb6b9cbebb17a6cd4e2e87b5bc826-4-add",
+      "bytes": 38336465,
+      "sha256": "sha256:ac504b4b8d6e5100aad73ae1bb83706c6aa326b3dc569d91e16dfcb67d860499"
+    },
+    {
+      "id": 13655857735,
+      "name": "v53-profiles-raw-42573542558-1-31324c79e02fb6b9cbebb17a6cd4e2e87b5bc826-4-replace",
+      "bytes": 38284560,
+      "sha256": "sha256:21605d71938dca8396a550062d7e902890c7cf4e906a6154b708f94cd5682552"
+    }
+  ],
+  "fixture": {
+    "path": "scripts/v53/fixtures/profile-outcome-boundaries.json.gz",
+    "bytes": 43914,
+    "sha256": "68a429f40e7428239c7d088e349b65fb356bccf2da19b80c8c3f8d8ad201c675",
+    "scope": "two retained original component projections; not whole-history acceptance"
+  },
+  "scope": "corrected reader on retained originals, not corrected-source hosted acceptance",
+  "runtimeJavaChanged": false,
+  "workflowsChanged": false,
+  "budgetsChanged": false,
+  "failedReceiptsPreserved": true,
+  "phase3Complete": false,
+  "remainingTwelveGroups": "HELD",
+  "originalReplays": [
+    {
+      "profile": "4-REPLACE",
+      "status": "PASS",
+      "elapsedSeconds": 230.918,
+      "receipt": "target/v53-hosted-outcome-replay/4-replace-complete-original.json",
+      "sha256": "6edb78373159667a85a64b70735212907a6ff852ce6d16662ed85d087890448b",
+      "scope": "profile-original-continuous-ballot"
+    },
+    {
+      "profile": "4-ADD",
+      "status": "PASS",
+      "elapsedSeconds": 232.245,
+      "receipt": "target/v53-hosted-outcome-replay/4-add-complete-original.json",
+      "sha256": "f6ce66c5835841e023fc1c659dd84f8904bd3dac08a2cdb08dd7778fe22af0df",
+      "scope": "profile-original-continuous-ballot"
+    }
+  ],
+  "pythonSuite": {
+    "tests": 4655,
+    "elapsedSeconds": 232.243,
+    "status": "PASS",
+    "path": "target/v53-hosted-outcome-replay/python-suite.log",
+    "sha256": "5942c21859423dec68cf961ca320f12b0635be52478d9112fe9bd0ecbbef640c"
+  },
+  "finalTouchedTests": {
+    "tests": 64,
+    "elapsedSeconds": 1.441,
+    "status": "PASS",
+    "path": "target/v53-hosted-outcome-replay/final-focused.log",
+    "sha256": "4559fe4e0b313ee85f7e6106ef804c20d35a41a47b7db0b1430f6bddce28d8fd"
+  },
+  "optimizedTests": {
+    "tests": 64,
+    "elapsedSeconds": 1.483,
+    "status": "PASS",
+    "path": "target/v53-hosted-outcome-replay/optimized-tests.log",
+    "sha256": "f69f92eaac4c8ef62811ae8155d338d508f18594b85cd4a3285e66d7e65847b4"
+  },
+  "negativeQualification": {
+    "caseNamesAndCountsPreserved": true,
+    "missingReceiverMutation": "remove all OFFER and FAIL observations on the exact receiver socket; retain original READ and wire",
+    "missingReceiverReason": "connection incomplete invocation"
+  },
+  "hostedReplacementStatus": "PENDING",
+  "validationStatus": "PASS",
+  "checks": [
+    "both unchanged complete original replays",
+    "4655 full-suite Python tests",
+    "64 final focused tests, also with Python assertions disabled",
+    "original pending-offer and asymmetric-outcome projections plus altered identity, digest, extent, lifetime, frame and delivery rejections"
+  ],
+  "validatedReaders": {
+    "scripts/v53/connection_transcript.py": "833f5fdbc44e0c099f01ddc7b2515db162cf067535834e9bbc9b52589c212991",
+    "scripts/v53/joining_aborted_prefix.py": "524744240990391432ad9baaaa1ceae43222f113d3b5b65f18ace37f66f97c14",
+    "scripts/v53/joining_export_evidence.py": "497893f06dc4916c0a63c8be3bc73798cca00e00b7992cb804eb31c10f5e5f1b",
+    "scripts/v53/joining_transcript.py": "b468e6b9feafbb559a803d1fb2a7e2b63d4b9abc3c6907f17d7a7fcfc7faaa6f",
+    "scripts/v53/required_four_network.py": "ede2e18f5a9186fef65530a80795035595541038e381a9b3a35573ae439b551e",
+    "scripts/v53/transport_connection_evidence.py": "2c837b4e4a5a702cb78c7ca0316a374b15a9dddce4ed231fb92a65c3cae1487d",
+    "scripts/v53/transport_resource_evidence.py": "50f92260fe59e7de21f86e7f6e31f3ba9c00d458d1a64b418f19de75b383902f"
+  },
+  "contractCheck": {
+    "path": "target/v53-hosted-outcome-replay/contract-check.json",
+    "sha256": "d0d484e065e50aa6528e1a02eedf6013776b57d7907a37f773f5a8fcd8ac9ae8",
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 3242,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  }
+}

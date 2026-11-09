@@ -81,8 +81,7 @@ def terminal_plan(result):
         if failed is None:continue
         for mode in ('missing','foreign','duplicate'):
             name='terminal-'+side+'-'+mode;targets[name]=failed[field]
-            reason='connection invocation changed' if mode=='foreign' else 'connection duplicate boundary' if mode=='duplicate' else (
-                'connection missing receiver terminal' if side=='receiver' and failed['responseOffered'] else 'connection incomplete invocation')
+            reason='connection invocation changed' if mode=='foreign' else 'connection duplicate boundary' if mode=='duplicate' else 'connection incomplete invocation'
             cases[name]=reason
     return cases,targets
 
@@ -92,7 +91,14 @@ def mutate(root,name,*,terminal=None):
         events,wires=observations(root);row=events[terminal]
         need(row.get('event')==connections.t.FAIL and row.get('direction')==('OUTBOUND' if name.startswith('terminal-caller-') else 'INBOUND'),
              'required-four original terminal target')
-        if name.endswith('-missing'):events.pop(terminal)
+        if name=='terminal-receiver-missing':
+            # An offered response is itself a valid peer outcome, even if the
+            # caller failed. Remove every outcome of this exact receiver socket
+            # to test a genuinely incomplete invocation; keep its request read.
+            identifier=row['connection']['id']
+            events=[v for v in events if not (v.get('connection',{}).get('id')==identifier and
+                    v.get('event') in connections.OFFERS|{connections.t.FAIL})]
+        elif name.endswith('-missing'):events.pop(terminal)
         elif name.endswith('-foreign'):row['node']='foreign-owner'
         elif name.endswith('-duplicate'):events.insert(terminal,dict(row))
         else:raise ValueError('required-four declared terminal mutation')

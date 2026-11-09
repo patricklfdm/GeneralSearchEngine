@@ -119,13 +119,19 @@ def replay(events,wires,identities,root,*,positions=None,allow_withheld=False):
             need(received['node']==receiver,'connection original receiver identity')
             response=answers.get(received['id'])
         if FAIL in steps:
-            need(not received or FAIL in received['steps'],'connection missing receiver terminal')
+            # A caller can time out/close while the peer offers its original
+            # response without a local write error. The two outcomes are not
+            # symmetric. An offered frame is still not a delivered reply.
+            server_failed=received['steps'].get(FAIL) if received else None
+            need(not received or server_failed is not None or response is not None,'connection missing receiver terminal')
             failures.append(dict(sent=steps[SEND],received=received['steps'][READ] if received else None,
-                clientFailed=steps[FAIL],serverFailed=received['steps'][FAIL] if received else None,
+                clientFailed=steps[FAIL],serverFailed=server_failed,
                 requestHash=sent['requestHash'],clientConnection=sent['id'],serverConnection=received['id'] if received else None,
-                clientReason=by_at[steps[FAIL]]['reason'],serverReason=by_at[received['steps'][FAIL]]['reason'] if received else None,
+                clientReason=by_at[steps[FAIL]]['reason'],serverReason=by_at[server_failed]['reason'] if server_failed is not None else None,
                 responseOffered=response is not None,kind=kind,sender=sender,recipient=receiver,
-                finished=max(steps[FAIL],received['steps'][FAIL] if received else steps[FAIL])))
+                # Last observed boundary, not an invented peer write success.
+                finished=max(steps[FAIL],server_failed if server_failed is not None else steps[FAIL],
+                             response['offered'] if response is not None else steps[FAIL])))
         else:
             need(received is not None and FAIL not in received['steps'] and response is not None,'connection missing caller terminal')
             delivery=by_at[steps[DELIVER]]

@@ -181,6 +181,13 @@ def transfers(rows, *, contents=None):
             # An offer is an observation, never received bytes or a commit.
             # Its alias, extent and digest require independent physical replay.
             abandoned+=1
+        elif claim.get('offerPending',False):
+            need(active is not None and active['offset']==0<active['bytes'] and prior is active['offer'] and
+                 claim['request']['payload']==dict(id=active['id'],action='REQUEST',offset=0,digest=active['digest'],bytes=''),
+                 'joining network pending offer without content')
+            if contents is not None:
+                claim['uncommittedObject']=dict(offer=active['offer'],last=prior,raw=b'',kind=active['kind'])
+            uncommitted+=1
         elif claim.get('commitPending',False):
             need(active is not None and active['chunks'] is None and
                  claim['request']['payload']==dict(id=active['id'],digest=active['digest']) and

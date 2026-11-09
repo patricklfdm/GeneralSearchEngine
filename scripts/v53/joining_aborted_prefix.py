@@ -1,8 +1,9 @@
 """Bind an abandoned generation pull; its missing member never becomes content.
 
 Only a response-less next-object request, final object commit, or first chunk
-after an offer with no content is admitted here. A real donor selector replacement must end the old export; the
-physical export reader independently binds that boundary and exact byte prefix.
+after any object's offer with no content is admitted here. A real donor selector
+replacement must end the old export; the physical export reader independently
+binds that boundary, exact committed prefix and pending object declaration.
 Partial chunks, fabricated delivery and continuing the dead trace still fail.
 """
 from collections import defaultdict
@@ -46,9 +47,11 @@ def bind(events,result):
              {k:v for k,v in prefix[0]['request'].items() if k not in ('payload','sequence')},
              'joining aborted prefix next object boundary')
         pending=first['kind']=='TRANSFER_COMMIT'
-        offer_only=first['kind']=='CHUNK' and len(prefix)==1
-        if offer_only:
-            offer=prefix[0]['response']['payload']
+        pending_offer=first['kind']=='CHUNK' and prefix[-1]['answer']=='SOURCE_OFFER'
+        if pending_offer:
+            need(len(prefix)==1 or prefix[-2]['answer']=='TRANSFER_COMMIT',
+                 'joining aborted offered object prior commit')
+            offer=prefix[-1]['response']['payload']
             need(q['payload']==dict(id=offer['id'],action='REQUEST',offset=0,digest=offer['digest'],bytes=''),
                  'joining aborted first chunk binding')
         elif pending:
@@ -69,4 +72,4 @@ def bind(events,result):
         prefix[0]['abortedPrefix']=dict(request=q,firstSent=first['sent'],finished=last['finished'],
                                        selector=changes[0],attempts=len(attempts))
         if pending:prefix[0]['abortedPrefix']['commitPending']=True
-        if offer_only:prefix[0]['abortedPrefix']['offerOnly']=True
+        if pending_offer:prefix[0]['abortedPrefix']['offerOnly' if len(prefix)==1 else 'offerPending']=True

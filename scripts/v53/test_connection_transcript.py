@@ -49,6 +49,34 @@ class ConnectionTranscriptTest(unittest.TestCase):
         events,wires,ids,root=overlap();events.pop(5);wires.pop(0)
         result=e.replay(events,wires,ids,root);self.assertEqual(1,len(result['rows']));self.assertFalse(result['failed'][0]['responseOffered'])
 
+    def test_caller_failure_does_not_require_receiver_failure_after_original_offer(self):
+        for before_offer in (False,True):
+            events,wires,ids,root=trace()
+            fail={k:v for k,v in events[0].items() if k!='bytes'}
+            fail.update(event=e.FAIL,direction='OUTBOUND',reason='IO')
+            events=events[:2]+([fail,events[2]] if before_offer else [events[2],fail])
+            result=e.replay(events,wires,ids,root);row=result['rows'][0];failure=result['failed'][0]
+            self.assertIsNone(row['delivered']);self.assertTrue(row['failedAttempt'])
+            self.assertIsNone(failure['serverFailed']);self.assertIsNone(failure['serverReason'])
+            self.assertEqual(3,failure['finished']);self.assertTrue(failure['responseOffered'])
+
+    def test_unread_offer_cannot_become_the_identical_retry_ack(self):
+        events,wires,ids,root=overlap();events.pop(6) # Server offered; it did not report a failure.
+        result=e.replay(events,wires,ids,root);old,new=result['rows']
+        self.assertIsNone(old['delivered']);self.assertEqual(7,new['delivered'])
+        self.assertEqual(5,result['failed'][0]['finished'])
+        events[-1]['connection']=copy.deepcopy(events[0]['connection'])
+        with self.assertRaisesRegex(ValueError,'incomplete invocation'):e.replay(events,wires,ids,root)
+
+    def test_failed_client_still_requires_complete_authenticated_receiver_observation(self):
+        for change in ('missing-offer','missing-wire','foreign-wire','changed-response'):
+            events,wires,ids,root=overlap();events.pop(6)
+            if change=='missing-offer':events.pop(5)
+            elif change=='missing-wire':wires.pop(0)
+            elif change=='foreign-wire':wires[0]['connection']=copy.deepcopy(wires[1]['connection'])
+            else:events[5]['response']='0'*64
+            with self.subTest(change=change),self.assertRaises(ValueError):e.replay(events,wires,ids,root)
+
     def test_identity_does_not_replace_reversed_original_socket_pair(self):
         events,wires,ids,root=trace()
         for row in (events[1],events[2],wires[0]):row['connection']['remote']['port']+=1
@@ -128,6 +156,16 @@ class ConnectionTranscriptTest(unittest.TestCase):
             root=Path(temp);(root/'original').write_bytes(b'original')
             with self.assertRaisesRegex(ValueError,'declared mutation'):native.mutate(root,'unknown')
             self.assertEqual(b'original',(root/'original').read_bytes())
+
+    def test_component_missing_terminal_mutation_removes_all_receiver_outcomes(self):
+        events,wires,ids,root=overlap()
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/'late-response';path.mkdir()
+            (path/'events.json').write_bytes(e.f.canonical(events));original=e.f.canonical(wires)
+            (path/'wire.json').write_bytes(original);native.mutate(Path(tmp),'missing-server-terminal')
+            changed=native.n.transport.load(path/'events.json')
+            self.assertEqual(original,(path/'wire.json').read_bytes())
+            with self.assertRaisesRegex(ValueError,native.NEGATIVES['missing-server-terminal']):e.replay(changed,wires,ids,root)
 
 
 if __name__=='__main__':unittest.main()

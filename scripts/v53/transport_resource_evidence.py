@@ -130,9 +130,12 @@ def replay(events,wires,traces,boundaries,identities,root,*,require_all_frames=T
             need(point(received,server)<answer['start'] and request['start']<answer['start']<answer['end']<request['end'],
                  'transport resources receiver nested release order')
         else:need(answer is None,'transport resources unobserved offered response')
-        if failure is not None:
+        if failure is not None and failure['serverFailed'] is not None:
             live(request,failure['serverFailed'],size)
             if answer is not None:closed(answer,failure['serverFailed'])
+        # An unread response may have no peer failure callback. Its original
+        # offer and independently captured nested lease releases above still
+        # bind both server buffers; do not invent a server terminal timestamp.
     # Reserved requests can fail before connect/queue dispatch reaches SEND.
     # Bind their own original request and local invocation; never borrow a
     # successful identical retry's connected boundary or manufacture a reply.

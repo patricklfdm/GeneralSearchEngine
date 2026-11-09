@@ -90,6 +90,48 @@ class JoiningAbortedPrefixTest(unittest.TestCase):
             with self.subTest(change=change),self.assertRaises(ValueError):
                 result=self.bind(data);t.transfers(result['rows'])
 
+    def pending_offer(self,count=1):
+        events,result,q=fixture();base=copy.deepcopy(result['rows']);rows=[]
+        for i in range(count):
+            for value in copy.deepcopy(base):
+                value['request']['sequence']+=3*i
+                value['request']['payload']['id']=value['response']['payload']['id']='object-'+str(i)
+                for key in ('sent','received','offered','delivered'):value[key]+=12*i
+                rows.append(value)
+        offer=copy.deepcopy(base[0]);offer['request']['sequence']+=3*count
+        offer['request']['payload']['id']=offer['response']['payload']['id']='pending'
+        for key in ('sent','received','offered','delivered'):offer[key]+=12*count
+        rows.append(offer);result['rows']=rows
+        q=dict(offer['request'],sequence=offer['request']['sequence']+1,
+               payload=dict(id='pending',action='REQUEST',offset=0,digest=offer['response']['payload']['digest'],bytes=''))
+        shift=12*count;events=[dict(event='OTHER') for _ in range(32+shift)]
+        events[18+shift]=dict(event='INSTALL_SELECTOR_RENAMED',node='node-2')
+        for fail in result['failed']:
+            for key in ('sent','received','serverFailed','finished'):fail[key]+=shift
+            events[fail['sent']]=dict(event='NETWORK_SEND',kind='CHUNK',bytes='encoded')
+        return events,result,q
+
+    def test_offer_after_any_committed_prefix_is_not_received_content(self):
+        for committed in (1,2,3):
+            data=self.pending_offer(committed);result=self.bind(data);contents=[]
+            counts=t.transfers(result['rows'],contents=contents)
+            self.assertEqual(committed,counts['committedTransfers']);self.assertEqual(committed,len(contents))
+            self.assertEqual(committed*len(b'original transfer'),counts['transferredBytes'])
+            self.assertNotIn('abandonedOfferSessions',counts)
+            pending=contents[0]['offer']['abortedPrefix']['uncommittedObject']
+            self.assertEqual(b'',pending['raw']);self.assertEqual(pending['offer'],pending['last'])
+            self.assertNotIn('commit',pending);self.assertEqual(1,counts['uncommittedTransferObjects'])
+
+    def test_pending_offer_requires_prior_commit_and_exact_first_chunk(self):
+        for change in ('no-commit','id','digest','offset','sequence','no-response'):
+            data=self.pending_offer()
+            if change=='no-commit':data[1]['rows'].pop(2)
+            elif change=='no-response':data[1]['rows'][-1]['delivered']=None
+            elif change=='sequence':data[2]['sequence']+=1
+            else:data[2]['payload'][change]=1 if change=='offset' else 'foreign'
+            with self.subTest(change=change),self.assertRaises(ValueError):
+                result=self.bind(data);t.transfers(result['rows'])
+
     def test_unsupported_transfer_failure_shapes_reject(self):
         for changes in ({'responseOffered':True},{'serverFailed':None},{'received':None},
                         {'clientReason':'CLOSED'},{'serverReason':'IO'},{'kind':'TRANSFER_COMMIT'}):
@@ -162,6 +204,24 @@ class JoiningAbortedPrefixTest(unittest.TestCase):
             elif change=='kind':pending['kind']='APPLICATION'
             elif change=='reference':pending['offer']['request']['payload']['digest']='foreign'
             elif change=='time':pending['last']['offered']=windows[1]['end']
+            else:claim.pop('uncommittedObject')
+            with self.subTest(change=change),self.assertRaises(ValueError):e.authorize_generation(values,windows)
+
+    def offered_export(self):
+        values,windows=self.uncommitted_export();claim=values[0]['offer']['abortedPrefix'];claim.pop('commitPending')
+        claim['offerPending']=True;pending=claim['uncommittedObject'];raw=pending['raw'];pending['raw']=b''
+        pending['last']=pending['offer']
+        pending['offer']['response']=dict(payload=dict(id='next',digest=e.sha(raw),bytes=len(raw),kind=pending['kind']))
+        return values,windows
+
+    def test_pending_offer_requires_exact_next_physical_member_declaration(self):
+        values,windows=self.offered_export();self.assertEqual('current-generation',e.authorize_generation(values,windows))
+        for change in ('digest','bytes','kind','received-bytes','reference','window','missing'):
+            values,windows=self.offered_export();claim=values[0]['offer']['abortedPrefix'];pending=claim['uncommittedObject']
+            if change in ('digest','bytes','kind'):pending['offer']['response']['payload'][change]=0 if change=='bytes' else 'foreign'
+            elif change=='received-bytes':pending['raw']=b'fabricated'
+            elif change=='reference':pending['offer']['request']['payload']['digest']='foreign'
+            elif change=='window':pending['offer']['offered']=windows[1]['end']
             else:claim.pop('uncommittedObject')
             with self.subTest(change=change),self.assertRaises(ValueError):e.authorize_generation(values,windows)
 

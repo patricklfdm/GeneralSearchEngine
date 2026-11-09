@@ -51,6 +51,19 @@ class RequiredFourNetworkTest(unittest.TestCase):
                             'wrong-send-kind','wrong-server-lifetime','wrong-client-lifetime','missing-delivery'}:
                 self.assertEqual(reason,e.NEGATIVES[name])
 
+    def test_missing_receiver_outcome_removes_offer_and_failure_only_on_exact_socket(self):
+        events,wires,ids,root=fixture.joined();result=e.connections.replay(events,wires,ids,root)
+        cases,targets=e.terminal_plan(result);at=targets['terminal-receiver-missing'];identifier=events[at]['connection']['id']
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp);(path/'events.json').write_bytes(e.network.f.canonical(events));original=e.network.f.canonical(wires)
+            (path/'wire.json').write_bytes(original);e.mutate(path,'terminal-receiver-missing',terminal=at)
+            changed,wire=e.observations(path)
+            self.assertEqual(original,(path/'wire.json').read_bytes())
+            self.assertEqual([v for v in events if v.get('connection',{}).get('id')!=identifier],
+                             [v for v in changed if v.get('connection',{}).get('id')!=identifier])
+            self.assertEqual(1,len([v for v in changed if v.get('connection',{}).get('id')==identifier]))
+            with self.assertRaisesRegex(ValueError,'connection incomplete invocation'):e.connections.replay(changed,wire,ids,root)
+
     def test_complete_physical_original_must_pass_before_network_or_mutations(self):
         with patch.object(e.collection,'inventory',return_value={}),patch.object(e.physical,'validate',side_effect=ValueError('physical original')):
             for entry in (e.validate,e.qualify):

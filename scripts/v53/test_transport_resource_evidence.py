@@ -23,8 +23,9 @@ def recount(rows):
     return trace(rows)
 
 
-def fixture(overlap=False,handler=False):
+def fixture(overlap=False,handler=False,asymmetric=False):
     events,wires,identities,root=network_fixture.overlap() if overlap else network_fixture.trace()
+    if asymmetric:events.pop(6)
     if handler:events.pop(5);wires.pop(0)
     rows={node:[dict(event='START',removed=[],added=[])] for node in sorted({v['node'] for v in events})};states={node:{} for node in rows};boundaries=[]
     failures={v['connection']['id'] for v in events if v['event']==r.connections.t.FAIL and v['direction']=='INBOUND'}
@@ -78,6 +79,20 @@ class TransportResourceEvidenceTest(unittest.TestCase):
             result=r.replay(*fixture(overlap,handler))
             self.assertEqual(total,result['boundFrameLifetimes']);self.assertTrue(result['allTransportFramesQualified'])
             self.assertFalse(result['controlLifetimesQualified']);self.assertFalse(result['wholeRuntimeResourcesQualified'])
+
+    def test_asymmetric_outcome_still_requires_real_offer_and_nested_frame_releases(self):
+        data=fixture(True,asymmetric=True);result=r.replay(*data)
+        self.assertEqual(8,result['boundFrameLifetimes']);self.assertEqual(1,result['failedAttempts'])
+        self.assertTrue(result['allTransportFramesQualified'])
+        # The old reply is not delivered, but its server leases must close in
+        # nesting order. An internally consistent reordered trace cannot pass.
+        rows=data[2]['node-4']['changes']
+        first=data[0][1]['connection']['id']
+        releases=[i for i,row in enumerate(rows) if row['event']=='RELEASE' and
+                  any(v['owner'].endswith(first) for v in row['removed'])]
+        self.assertEqual(2,len(releases));a,b=releases;rows[a],rows[b]=rows[b],rows[a]
+        data[2]['node-4']=recount(rows)
+        with self.assertRaisesRegex(ValueError,'receiver nested release order'):r.replay(*data)
 
     def test_same_length_identical_retry_cannot_use_original_lease(self):
         data=fixture(True);events,_,traces,*_=data;first=events[0]['connection']['id'];second=events[3]['connection']['id']
