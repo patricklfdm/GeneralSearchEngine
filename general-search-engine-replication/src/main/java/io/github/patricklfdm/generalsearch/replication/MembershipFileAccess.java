@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.*;
 import java.nio.channels.*;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.function.Consumer;
 import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
@@ -54,14 +55,27 @@ final class MembershipFileAccess {
         }
     }
     static FileChannel open(Path path,OpenOption... options)throws IOException {return open(path,Set.of(options));}
+    /** One fresh path walk and metadata observation per side of open. No result
+     * survives this call: subsequent opens still reject replaced/linked paths. */
+    private static Object regularKey(Path path)throws IOException {
+        AdmissionPaths.safe(path);
+        var attributes=Files.readAttributes(path,BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS);
+        if(!attributes.isRegularFile() || ((Number)Files.getAttribute(path,"unix:nlink",LinkOption.NOFOLLOW_LINKS)).longValue()!=1)
+            throw new ReplicationException(ReplicationException.Reason.STORAGE_FAILURE,"authority member is not a single regular file: "+path);
+        require(attributes.fileKey()!=null,"membership file inode unavailable");return attributes.fileKey();
+    }
+    static Object key(FileChannel channel) {
+        require(channel instanceof View,"membership file view required");return ((View)channel).key;
+    }
     static synchronized FileChannel open(Path requested,Set<? extends OpenOption> options)throws IOException {
-        Path path=AdmissionPaths.safe(requested);
+        Path path=requested.toAbsolutePath().normalize();
         require(OPTIONS.containsAll(options),"unsupported membership file open options");
         var requestedOptions=new HashSet<OpenOption>(options);requestedOptions.add(LinkOption.NOFOLLOW_LINKS);
         boolean write=requestedOptions.contains(StandardOpenOption.WRITE),read=requestedOptions.contains(StandardOpenOption.READ) || !write;
         Object before=null;
-        if(Files.exists(path,LinkOption.NOFOLLOW_LINKS)) {
-            AdmissionPaths.regular(path);before=MembershipBasisSources.key(path);var owner=OWNED.get(before);
+        try{before=regularKey(path);}catch(NoSuchFileException absent){/* FileChannel.open enforces CREATE/READ semantics. */}
+        if(before!=null) {
+            var owner=OWNED.get(before);
             if(owner!=null) {
                 if(requestedOptions.contains(StandardOpenOption.CREATE_NEW))throw new FileAlreadyExistsException(path.toString());
                 require(Set.<OpenOption>of(StandardOpenOption.READ,StandardOpenOption.WRITE,StandardOpenOption.CREATE,LinkOption.NOFOLLOW_LINKS).containsAll(requestedOptions),
@@ -72,7 +86,7 @@ final class MembershipFileAccess {
         }
         var channel=FileChannel.open(path,requestedOptions);
         try {
-            Object key=MembershipBasisSources.key(path);require(before==null || before.equals(key),"membership file replaced during open");
+            Object key=regularKey(path);require(before==null || before.equals(key),"membership file replaced during open");
             require(!OWNED.containsKey(key),"membership file became owned during open");
             OPEN.merge(key,1,Integer::sum);return new View(key,channel,null,read,write);
         }catch(IOException|RuntimeException|Error error){try{channel.close();}catch(IOException close){error.addSuppressed(close);}throw error;}

@@ -321,6 +321,55 @@ The [follow-up evidence index](phase3-evidence/hosted-failure-followup.json)
 records exact copied sources, original logs, diagnostics, reader hashes and the
 scope of each completed check.
 
+## Native deadline follow-up at dd1ace0e
+
+[Profiles run 42588017751](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/42588017751)
+passed six complete native histories and their downloaded replays. The original
+5REMOVE history failed its 600-second round deadline while publishing the final
+BARRIER at index 7, after INTENT and FINAL. Its dependent verifier and aggregate
+correctly failed. [Required-four run 42588017493](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/42588017493)
+separately failed the joining voter's three 30-second ACCEPT exchanges at FINAL
+index 10, after installed cut 9. Neither failure was the workflow's outer timeout.
+The authenticated originals and exact-attempt API records remain at
+`target/v53-hosted-dd1ace0e`; earlier successful histories do not replace these
+failed members.
+
+The unchanged 5REMOVE runtime completed locally in 405.3 JUnit seconds with JFR
+and transport diagnostics. A separate 60-second recording during the native
+round, excluding seed preparation, identified repeated path walks and filesystem
+identity checks. Normal socket waits also appear in samples; those counts are
+not CPU time or proof of a deadlock. The local run did not reproduce the hosted
+terminal failure, so GitHub scheduling is not established as its cause.
+
+File inspection now combines the immediate regular-file and inode checks within
+each open. Inspection uses that same open's identity and actual descriptor size,
+rehashes every byte, then checks the path identity again. Subsequent opens still
+walk the full path, reject links and freshly observe the current inode. Unowned descriptors
+still check identity before and after opening; owned views still borrow the
+original descriptor and cannot release its POSIX lock. There is no cross-call
+cache, relaxation of integrity checks, deadline extension or additional retry.
+Both hosted producers also enable the existing optional transport diagnostics:
+monotonic request/response marks, resource observations and failure stacks are
+retained outside the authority history under `v53-native-dispatch-diagnostics`.
+These records aid latency investigation; they supply no votes, proof or acceptance.
+The exact producer-command admission includes this flag as well.
+The 71 focused ownership, storage and replay Java tests, three V5.0 offline-path
+compatibility tests and 86 producer/hosted Python tests pass. A small A-B-B-A
+comparison of 2,000 inspection/exact-read pairs on 1,024-byte files has a
+post-warmup median of 0.195 seconds before and 0.105 seconds after; this measures
+only that hotspot. The corrected full 5REMOVE original passes in 337.2 JUnit
+seconds with the same local JFR/diagnostic flags (405.3 seconds before). This
+single pair is not a hosted performance guarantee or reproduction of the original
+deadline failure. Both local traces retain 28 handler-failure observations and
+1,152 successful response reads; no new request attempts were added.
+Independent original-only ballot/retirement replay completes with its declared
+`PARTIAL` scope and successful physical, network and floor prerequisites. The
+full hosted negative qualification is still pending; this local replay does not
+replace it.
+The local diagnostics and comparisons are retained at
+`target/v53-native-deadline`. Final-source hosted execution and independent replay
+remain required; the other twelve hosted groups stay on hold.
+
 ## Entry and topology
 
 [The workflow](../../../.github/workflows/v53-membership-profiles.yml) has only

@@ -66,6 +66,12 @@ failure or establish its hosted cause. The
 [investigation](PHASE_3_PROFILE_HOSTED.md#required-four-local-investigation)
 retains the recoverable timeouts and the independent export-boundary correction;
 corrected-source hosted qualification remains pending.
+At `dd1ace0e`, six profile originals and downloaded replays passed; 5REMOVE and
+required-four instead failed their native deadlines. The
+[native deadline follow-up](PHASE_3_PROFILE_HOSTED.md#native-deadline-follow-up-at-dd1ace0e)
+retains both failures and profiles redundant filesystem inspection. Its targeted
+file-open correction preserves fresh identity/hash checks and existing bounds;
+it does not establish a completed hosted cohort.
 
 [Membership control ownership](PHASE_3_MEMBERSHIP_CONTROL_RESOURCES.md) adds
 original local PUBLISH capture and voting/slot/activation composition to the

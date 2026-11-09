@@ -138,10 +138,14 @@ final class MembershipBasisSources implements AutoCloseable {
         return packet;
     }
     static FileIdentity inspect(Path path,long size,String digest) throws IOException {
-        AdmissionPaths.regular(path);require(Files.size(path)==size,"retained source file length");Object before=key(path);
+        Object before;
         MessageDigest sha;
         try {sha=MessageDigest.getInstance("SHA-256");}catch(NoSuchAlgorithmException error){throw new AssertionError(error);}
         try(var channel=MembershipFileAccess.open(path,StandardOpenOption.READ,LinkOption.NOFOLLOW_LINKS)) {
+            // Reuse only this open's freshly validated inode, never a prior
+            // inspection. Hash the actual descriptor and check the path again
+            // afterwards, including when it was borrowed from a lock owner.
+            before=MembershipFileAccess.key(channel);require(channel.size()==size,"retained source file length");
             // Most repeatedly checked records are much smaller than a chunk.
             // Keep a positive buffer even for an empty interrupted file so the
             // EOF/growth probe still reads; never cache bytes or skip rehashing.

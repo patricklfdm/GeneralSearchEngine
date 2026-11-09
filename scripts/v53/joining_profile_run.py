@@ -60,7 +60,7 @@ def run(output,maven,profile,*,source_from=None,complete=False,same_view=False,p
         receipt['toolchainSha256']=h.digest((output/'toolchain.json').read_bytes())
         command=[maven,'-o','-B','-ntp','-f','reactor/pom.xml','-pl','../'+h.MODULE,'-am',
                  '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+h.CLASS.rsplit('.',1)[-1]+'#'+method,
-                 '-Dv53.transport.connections=true','-Dv53.joining.profile='+profile,'test']
+                 '-Dv53.transport.connections=true','-Dv53.transport.diagnostics=true','-Dv53.joining.profile='+profile,'test']
         receipt['command']=command;h.save(output/'receipt.json',receipt)
         execution=h.execute(command,work,output/'maven.log',stage=stage+'-'+profile)
         receipt['execution']=execution;h.save(output/'execution.json',execution);h.check_source(work,source)

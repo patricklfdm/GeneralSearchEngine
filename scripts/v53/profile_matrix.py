@@ -54,7 +54,7 @@ def command(profile):
     method=remove_run.METHOD if remove else joining_run.COMPLETE_METHOD
     args=['-o','-B','-ntp','-f','reactor/pom.xml','-pl','../'+h.MODULE,'-am',
           '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+cls.rsplit('.',1)[-1]+'#'+method,
-          '-Dv53.transport.connections=true','-Dv53.'+('remove' if remove else 'joining')+'.profile='+profile]
+          '-Dv53.transport.connections=true','-Dv53.transport.diagnostics=true','-Dv53.'+('remove' if remove else 'joining')+'.profile='+profile]
     if remove:args.append('-Dv53.remove.retirement.captures=true')
     return args+['test']
 

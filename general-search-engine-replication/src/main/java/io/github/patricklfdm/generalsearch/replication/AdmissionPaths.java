@@ -82,7 +82,7 @@ final class AdmissionPaths {
     }
 
     static byte[] read(Path path, int maximum) throws IOException {
-        regular(path);
+        // open checks the complete path, regular-file/link identity and custody.
         try (var channel = MembershipFileAccess.open(path, StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS)) {
             long size = channel.size();
             require(size <= maximum, CAPACITY_EXCEEDED, "authority member exceeds bound");

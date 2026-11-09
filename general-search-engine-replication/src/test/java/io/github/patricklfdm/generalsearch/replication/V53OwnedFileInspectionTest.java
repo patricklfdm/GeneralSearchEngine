@@ -12,6 +12,29 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*
 
 class V53OwnedFileInspectionTest {
     @TempDir Path temp;
+    @Test void everyInspectionRechecksBytesAndEachNewOpenRechecksLinksAndParents()throws Exception {
+        Path parent=Files.createDirectory(temp.resolve("parent")),path=parent.resolve("data");byte[] original={1,2,3};
+        Files.write(path,original);var first=MembershipBasisSources.inspect(path,3,hash(original));
+        Files.write(path,new byte[]{3,2,1});
+        assertThrows(IllegalArgumentException.class,()->MembershipBasisSources.inspect(path,3,hash(original)));
+        assertArrayEquals(new byte[]{3,2,1},AdmissionPaths.read(path,3));Files.write(path,original);
+        Path moved=parent.resolve("old");Files.move(path,moved);Files.write(path,original);
+        assertNotEquals(first.key(),MembershipBasisSources.inspect(path,3,hash(original)).key());
+        Path link=parent.resolve("link");Files.createLink(link,path);
+        assertThrows(ReplicationException.class,()->AdmissionPaths.read(path,3));Files.delete(link);
+        Files.createSymbolicLink(link,path);
+        assertThrows(ReplicationException.class,()->MembershipFileAccess.open(link,StandardOpenOption.READ));Files.delete(link);
+        Path saved=temp.resolve("saved");Files.move(parent,saved);Files.createSymbolicLink(parent,saved);
+        assertThrows(ReplicationException.class,()->AdmissionPaths.read(path,3));Files.delete(parent);
+    }
+    @Test void rejectedLinkedOwnedFileDoesNotOpenOrCloseAnotherDescriptor()throws Exception {
+        Path path=temp.resolve("linked.lock"),link=temp.resolve("link");
+        try(var owner=MembershipOwnership.own(path,true)) {
+            Files.createLink(link,path);
+            assertThrows(ReplicationException.class,()->MembershipFileAccess.open(path,StandardOpenOption.READ));
+            Files.delete(link);new V53MembershipOwnershipTest().probe(path);
+        }
+    }
     @Test void evidenceSnapshotsPreserveLocksAndHashAliasedAndOrdinaryFiles()throws Exception {
         Path lock=temp.resolve("replica.lock"),data=temp.resolve("payload.bin");byte[] bytes={1,2,3};Files.write(data,bytes);
         try(var owner=MembershipOwnership.own(lock,true)) {
