@@ -148,6 +148,26 @@ def forced_interval(events, node, lower, upper, names, reason, times=1):
     need(observed == names * times, reason)
 
 
+def publication_sends(events, publications, lower):
+    """Pair each original send boundary with its own response attempt.
+
+    Identical retries share a request hash, not a socket or response time. The
+    connection reader binds actual sends; legacy captures retain the boundary.
+    Phase control separately requires identical bytes and a delivered ACK.
+    """
+    groups=defaultdict(list);result=[]
+    for row in publications:groups[row['requestHash']].append(row)
+    for request,rows in groups.items():
+        sends=[at for at,v in enumerate(events) if v.get('event')=='PUBLICATION_SEND_BOUNDARY' and
+               v.get('node')=='node-1' and v.get('request')==request]
+        rows=sorted(rows,key=lambda r:r.get('sent',r['offered']))
+        need(len(sends)==len(rows) and all(lower<at<row['offered'] and
+             ('sent' not in row or row['sent']<at) for at,row in zip(sends,rows)),
+             'joining original publication send')
+        result.extend(sends)
+    return sorted(result)
+
+
 def phase_replay(events, rows, replay, physical, *, old_owner_lifetimes=None):
     lifetimes = cold_owners.validate(old_owner_lifetimes,owners=replay.old,maximum=len(events),reason='joining declared old owner lifetimes')
     used = set(); target_count = 0; storage_callbacks = 0
@@ -253,15 +273,12 @@ def phase_replay(events, rows, replay, physical, *, old_owner_lifetimes=None):
         # Old producer retained every PUBLISH send even though other sends lack
         # observations. A response cannot move this permission boundary later.
         publications = [v for v in rows if v['kind'] == 'PUBLISH' and v['request']['payload'] == dict(certificate=sha(parts['CERTIFICATE']))]
-        for publication in publications:
-            sends = [at for at, v in enumerate(events) if v.get('event') == 'PUBLICATION_SEND_BOUNDARY'
-                     and v.get('node') == 'node-1' and v.get('request') == publication['requestHash']]
-            need(sends and all(applied < at < publication['offered'] for at in sends), 'joining original publication send')
-            need(all(max(deliveries) < at for at in sends), 'joining publication before delivered future quorum')
-            for node in voters:
-                forces = [at for at, v in enumerate(events) if v.get('node') == node and v['event'] == 'FUTURE_RETENTION_PARENT_FORCED'
-                          and applied < at < physical[index, node]['PUBLICATION_VALIDATED']]
-                need(all(max(forces) < at for at in sends), 'joining publication before future quorum')
+        sends=publication_sends(events,publications,applied)
+        need(all(max(deliveries) < at for at in sends), 'joining publication before delivered future quorum')
+        for node in voters:
+            forces = [at for at, v in enumerate(events) if v.get('node') == node and v['event'] == 'FUTURE_RETENTION_PARENT_FORCED'
+                      and applied < at < physical[index, node]['PUBLICATION_VALIDATED']]
+            need(all(max(forces) < at for at in sends), 'joining publication before future quorum')
         need(leader['PUBLICATION_BEFORE_RETURN'] < (physical[index+1, 'node-1']['ACCEPT_VALIDATED'] if index < len(replay.phases) else len(events)),
              'joining completed publication before next slot')
     bound = {'ACCEPT', 'PROOF', 'APPLY', 'PUBLISH', 'FUTURE_RETENTION_INTENT'}

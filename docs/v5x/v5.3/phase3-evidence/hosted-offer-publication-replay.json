@@ -1,0 +1,124 @@
+{
+  "schema": "gse-v53-hosted-offer-publication-replay-v1",
+  "originalSource": "f92a69f85fc636fb039a807ef723063d973a34d9",
+  "originalAttempt": 1,
+  "originalResults": {
+    "requiredFour": {
+      "run": 42556900989,
+      "status": "PASS",
+      "negativeCases": 147
+    },
+    "profiles": {
+      "run": 42556901240,
+      "status": "FAIL",
+      "nativeOriginals": 7,
+      "passedVerifiers": [
+        "3-ADD",
+        "3-REPLACE",
+        "4-ADD",
+        "4-REMOVE",
+        "5-REMOVE"
+      ],
+      "failedVerifiers": [
+        "4-REPLACE",
+        "5-REPLACE"
+      ],
+      "aggregate": "FAIL"
+    }
+  },
+  "artifacts": [
+    {
+      "id": 13648898748,
+      "name": "v53-profiles-raw-42556901240-1-f92a69f85fc636fb039a807ef723063d973a34d9-5-replace",
+      "bytes": 38716743,
+      "sha256": "sha256:ac2f8be5c88699fa88cd05ba8bc2e1375d4e6dfb86b0fc8b1557ce65808063ce"
+    },
+    {
+      "id": 13648552272,
+      "name": "v53-profiles-raw-42556901240-1-f92a69f85fc636fb039a807ef723063d973a34d9-4-replace",
+      "bytes": 37887046,
+      "sha256": "sha256:6408b6b5e6bd941589a78de35d3bf7f3782073aead51044da96a7d68931a51b2"
+    }
+  ],
+  "fixture": {
+    "path": "scripts/v53/fixtures/profile-offer-publication.json.gz",
+    "bytes": 39613,
+    "sha256": "58f0d9024014012f3379d143f6401cbdc760ffac60d0d02262349576fa9c3702",
+    "scope": "two retained original component projections; not whole-history acceptance"
+  },
+  "scope": "corrected reader on retained originals, not corrected-source hosted acceptance",
+  "runtimeJavaChanged": false,
+  "workflowsChanged": false,
+  "budgetsChanged": false,
+  "failedReceiptsPreserved": true,
+  "phase3Complete": false,
+  "remainingTwelveGroups": "HELD",
+  "originalReplays": [
+    {
+      "profile": "4-REPLACE",
+      "status": "PASS",
+      "elapsedSeconds": 203.268,
+      "receipt": "target/v53-hosted-f92a69f8/4-replace-complete-original.json",
+      "sha256": "f2f9e29d505a1660564a2d4e3ac79c4bdb22dd157de06e71f71b4171c8d7d619",
+      "scope": "profile-original-continuous-ballot"
+    },
+    {
+      "profile": "5-REPLACE",
+      "status": "PASS",
+      "elapsedSeconds": 227.381,
+      "receipt": "target/v53-hosted-f92a69f8/5-replace-complete-original.json",
+      "sha256": "c1b7521349674e417fb23f11a4e1589a69fe06f74262c790fee2a677fffc4de7",
+      "scope": "profile-original-continuous-ballot"
+    }
+  ],
+  "pythonSuite": {
+    "tests": 4637,
+    "elapsedSeconds": 235.248,
+    "status": "PASS",
+    "path": "target/v53-hosted-f92a69f8/python-suite.log",
+    "sha256": "5e9c31158bb68c2c23a3c06682db969b42f0aeddbc29af2b90a6f8a0dacd0977"
+  },
+  "finalTouchedTests": {
+    "tests": 94,
+    "elapsedSeconds": 0.688,
+    "status": "PASS",
+    "path": "target/v53-hosted-f92a69f8/final-component-tests.log",
+    "sha256": "8ab8094a033a1825a38e86db8f7339e1286a57aa07bebd828b9b9dc8d47f3412",
+    "note": "Includes five final regression tests added after the full suite was collected. All 4642 final discovered tests were executed across these two passing runs."
+  },
+  "optimizedTests": {
+    "tests": 40,
+    "status": "PASS",
+    "path": "target/v53-hosted-f92a69f8/optimized-tests.log",
+    "sha256": "edc59c5d5b016bd9bdb059310b1f85356afaab2aee4eaefdc204ca1a083607e9"
+  },
+  "hostedReplacementStatus": "PENDING",
+  "validationStatus": "PASS",
+  "checks": [
+    "both unchanged complete original replays",
+    "4637 full-suite Python tests and final 94 touched tests covering all 4642 final discovered tests",
+    "40 focused tests with Python assertions disabled",
+    "paired publication boundary mutations; zero-content transfer identity, byte declaration, selector and accounting mutations rejected"
+  ],
+  "validatedReaders": {
+    "scripts/v53/joining_abandoned_offer.py": "03d6bbbb348924a6b2a75127be823cc2e63ffb945772e3c5aa5861f8f0e48b90",
+    "scripts/v53/joining_phase_evidence.py": "a9fe1975525abfe029f6eb8be607b24a752231cd7233ab08b118d7138ba272af",
+    "scripts/v53/joining_aborted_prefix.py": "b5297901abd7eb0bdf20889b3e60f058a2292ed0212d64fbeb21c110e6eb3d75",
+    "scripts/v53/joining_profile_control_evidence.py": "a12fd2f90509987af5fa245e3c8e0d2cd2c1edb762fb1cc3fd394d42be7bedce",
+    "scripts/v53/required_four_exports.py": "e7ced603a873906fa0a764f8b42e8bf8cf541fb4b37cc8805ae9c46092e3d213",
+    "scripts/v53/joining_profile_export_evidence.py": "f753fcb91c390d28f2909dc1e10f5da9374930e36cc161ae7e6ea7834a31eb14",
+    "scripts/v53/joining_transcript.py": "8ff8f3c35c4aee21b1e5e44b57597762c553712f9eed7c2648c18870e1064384"
+  },
+  "contractCheck": {
+    "path": "target/v53-hosted-f92a69f8/contract-check.json",
+    "sha256": "68caab0ec0975ed89992006d20401ccaff643904f9d2b37adffd123946958475",
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 3241,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  }
+}

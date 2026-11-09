@@ -101,7 +101,7 @@ def validate(root,profile):
     prior=exports.validate(root,profile);result=replay(root,profile,prior['exports'])
     counts=prior['precondition']['network']
     need(result['observedCommittedContents']==counts['committedTransfers'] and
-         result['observedContentSessions']==counts['transferSessions']-counts['rejectedTransferAttempts'],
+         result['observedContentSessions']==exports.abandoned.content_sessions(counts,prior['exports']),
          'joining profile control complete transfer coverage')
     need(collection.inventory(root)==before,'joining profile control original changed')
     return dict(status='PARTIAL',scope='profile-original-control-exports-and-retention-quorums',profile=profile,

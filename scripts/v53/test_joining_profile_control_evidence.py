@@ -201,6 +201,15 @@ class ProfileControlTest(unittest.TestCase):
              patch.object(p,'replay',return_value=dict(observedCommittedContents=100,observedContentSessions=48)):
             with self.assertRaisesRegex(ValueError,'^joining profile control original changed$'):p.validate('/unused','4-ADD')
 
+    def test_empty_offer_is_separate_from_committed_control_coverage(self):
+        prior=dict(exports=dict(abandonedGenerationOffers=[dict(committedObjects=0)]),
+            precondition=dict(network=dict(committedTransfers=100,transferSessions=51,rejectedTransferAttempts=2,abandonedOfferSessions=1)))
+        result=dict(observedCommittedContents=100,observedContentSessions=48)
+        with patch.object(p.collection,'inventory',return_value={}),patch.object(p.exports,'validate',return_value=prior),patch.object(p,'replay',return_value=result):
+            p.validate('/unused','5-REPLACE')
+            result['observedCommittedContents']+=1
+            with self.assertRaisesRegex(ValueError,'complete transfer coverage'):p.validate('/unused','5-REPLACE')
+
     def test_invalid_original_does_not_reach_control_or_mutations(self):
         with patch.object(p.collection,'inventory',return_value={}),patch.object(p.exports,'validate',side_effect=ValueError('invalid original')), \
              patch.object(p,'replay') as replay,patch.object(p.shutil,'copytree') as copied:

@@ -131,6 +131,36 @@ class JoiningPhaseEvidenceTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'^original failed$'):j.qualify(Path('/original'))
             copied.assert_not_called()
 
+    def publication_retry(self):
+        # The first socket times out; its response is offered but not read.
+        # The identical second request is sent after that first offer.
+        events=[dict(event='OTHER') for _ in range(20)]
+        for at in (5,12):events[at]=dict(node='node-1',event='PUBLICATION_SEND_BOUNDARY',request='same')
+        rows=[dict(requestHash='same',sent=4,offered=10,delivered=None),
+              dict(requestHash='same',sent=11,offered=16,delivered=17)]
+        return events,rows
+
+    def test_publication_retry_binds_each_send_to_its_own_offer(self):
+        events,rows=self.publication_retry()
+        self.assertEqual([5,12],j.publication_sends(events,rows,3))
+
+    def test_publication_boundaries_cannot_be_missing_extra_early_or_foreign(self):
+        for change in ('missing','extra','early','late','foreign','before-quorum'):
+            events,rows=self.publication_retry();lower=3
+            if change=='missing':events[12]=dict(event='OTHER')
+            elif change=='extra':events[13]=dict(events[12])
+            elif change in ('early','late'):
+                events[4 if change=='early' else 16]=events[12];events[12]=dict(event='OTHER')
+            elif change=='foreign':events[12]['request']='foreign'
+            else:lower=5
+            with self.subTest(change=change),self.assertRaisesRegex(ValueError,'joining original publication send'):
+                j.publication_sends(events,rows,lower)
+
+    def test_legacy_publication_responses_still_bind_distinct_original_sends(self):
+        events,rows=self.publication_retry()
+        for row in rows:row.pop('sent')
+        self.assertEqual([5,12],j.publication_sends(events,rows,3))
+
     def test_profile_force_owners_do_not_alias_old_node_four_with_the_joiner(self):
         for size in (3,4,5):
             old=tuple('node-'+str(i) for i in range(1,size+1));joining='node-'+str(size+1)

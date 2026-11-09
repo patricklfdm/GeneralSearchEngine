@@ -15,6 +15,7 @@ from . import wire_archive
 from . import bootstrap_replay_contract as source_policy
 from . import joining_profile_network_evidence as network
 from . import joining_export_evidence as exports
+from . import joining_abandoned_offer as abandoned
 from .joining_control_evidence import owner_lifetime
 from .joining_profile_evidence import PROFILES, topology
 
@@ -44,13 +45,15 @@ def context(root,profile,*,old_owner_lifetimes=None,required_four=False, bootstr
     # original generation, and cannot justify borrowing another owner's bytes.
     nodes=(*old,model.joining)
     windows=e.generation_windows(root,events,model,nodes=nodes,final_adoption=True)
+    abandoned_offers=abandoned.authorize(rows,windows)
     sources=e.source_windows(root,events,replay=model)
     from . import joining_interrupted_preparation
     diagnostics=collection.read_json(root,'joining-continuation-failures.json',1024*1024)
     joining_interrupted_preparation.bind(events,rows,failed,contents,windows,sources,diagnostics)
     records=e.record_windows(root,events,model,windows,sources,nodes=nodes,old_owner_lifetimes=old_owner_lifetimes)
     return SimpleNamespace(model=model,events=events,rows=rows,contents=contents,
-                           groups=e.sessions(contents),windows=windows,sources=sources,records=records)
+                           groups=e.sessions(contents),windows=windows,sources=sources,records=records,
+                           abandoned_offers=abandoned_offers)
 
 
 def replay(root,profile,*,required_four=False, bootstrap_source='EMPTY', wire_layout='JSON'):
@@ -58,6 +61,7 @@ def replay(root,profile,*,required_four=False, bootstrap_source='EMPTY', wire_la
     need(type(required_four) is bool,'joining export required-four profile')
     reader=context(root,profile,**({'required_four':True} if required_four else {}),**source_args)
     result=e.authorize_contents(reader.model,reader.events,reader.contents,reader.windows,reader.sources,reader.records)
+    if reader.abandoned_offers:result['abandonedGenerationOffers']=reader.abandoned_offers
     bound=0
     for values in reader.groups:
         first,last=values[0]['offer'],values[-1]['commit'];node=first['request']['recipient']['node']
@@ -75,7 +79,7 @@ def validate(root,profile):
     counts=original['network']
     need(sum(result['boundTransfers'].values())+result['unqualifiedTransfers']==counts['committedTransfers'] and
          sum(result['boundSessions'].values())+result['unqualifiedSessionCount']==
-         counts['transferSessions']-counts['rejectedTransferAttempts'],
+         abandoned.content_sessions(counts,result),
          'joining profile export complete session accounting')
     need(collection.inventory(root)==before,'joining profile export original changed')
     return dict(status='PARTIAL',scope='profile-temporal-original-export-capabilities',profile=profile,

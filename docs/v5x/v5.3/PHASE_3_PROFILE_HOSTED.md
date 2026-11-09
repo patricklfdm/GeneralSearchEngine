@@ -1,11 +1,52 @@
 # Phase 3 — hosted ordinary membership profiles
 
 Status: the isolated workflow, portable seed, seven whole-history collectors and
-seven independent downloaded verifiers are implemented. Historical failures at
-`5652d074` and `37b0bf4f` remain retained. At `f8761ff1`, attempt 2 passed the
-required-four workflow and all seven ordinary native histories, but only five
-of seven ordinary downloaded verifiers passed. The corrections below require a
+seven independent downloaded verifiers are implemented. Historical failures
+remain retained. At `f92a69f8`, attempt 1 passed the required-four workflow and
+all seven ordinary native histories, but only five of seven ordinary downloaded
+verifiers passed. The corrections below require a
 new matching-source execution; the final-source cohort and Phase 3 remain OPEN.
+
+## Fourth source: publication retries and revoked first offers
+
+At `f92a69f85fc636fb039a807ef723063d973a34d9`, attempt 1 of
+[required-four 42556900989](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/42556900989)
+passed the native original, downloaded replay and all 147 exact negatives.
+[Profiles 42556901240](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/42556901240)
+passed all seven native originals and five downloaded verifiers. Its 4-REPLACE
+and 5-REPLACE verifiers failed; the aggregate failed as a consequence.
+
+- **4-REPLACE:** the first PUBLISH response was offered at event 23394 after its
+  client deadline, with no delivered ACK. The exact retry sent at 23396 received
+  its ACK at 23401. The old reader compared both publication send boundaries to
+  the first response's time. Bind each boundary to its own original attempt;
+  continue requiring exact retry bytes, a delivered ACK, and every send after
+  the physically forced and delivered future quorum. Missing, extra, foreign,
+  early or late boundaries still fail.
+- **5-REPLACE:** node-6 received node-2's generation metadata SOURCE_OFFER at
+  event 30569. Before its first chunk could be read, node-2 replaced its selector
+  at 30637. The original handler reported `prefix export closed/expired/replaced`;
+  all three identical chunk attempts failed without a response. No object bytes
+  or TRANSFER_COMMIT were received. Bind that exact first-chunk request, terminal
+  attempts and original selector; independently derive the offered manifest's
+  alias, owner, authority, digest and extent from the physical generation window.
+  Record an abandoned offer separately from received content, committed objects,
+  checkpoint ACKs and complete generation copies. The session accounting requires
+  a separately authenticated offer for every such session; none is silently dropped.
+
+This adds the zero-content boundary alongside the earlier completed-prefix and
+pending-commit cases. Partial chunk streams remain unqualified. The small original
+component projection and focused negative cases cover the new boundaries; they
+do not substitute for complete original replay or matching-source hosted execution.
+See the [original evidence and validation index](phase3-evidence/hosted-offer-publication-replay.json).
+Both unchanged complete original replays pass (203.268 and 227.381 seconds).
+The 4,637-test Python suite and final 94-test component run pass; together they
+cover all 4,642 final discovered tests, including the five last-added regressions.
+Forty focused tests also pass with assertions disabled. The documentation/format
+contract and whitespace checks pass. Failed hosted receipts remain unchanged.
+Runtime Java, workflow topology, tool
+pins, formats, capacities and retry/time budgets are unchanged. Both initial
+workflows must run on the replacement source; the other twelve groups remain held.
 
 ## Third source: interrupted commits and unanswered preparation
 

@@ -142,7 +142,7 @@ class JoiningProfileExportTest(unittest.TestCase):
     def test_larger_joining_exports_use_the_actual_open_owner_interval(self):
         for node in ('node-5','node-6'):
             reader=SimpleNamespace(model=SimpleNamespace(joining=node),events=[{},dict(scope='continuation-endpoint')],
-                contents=[],windows=[],sources=[],records=[],groups=[[
+                contents=[],windows=[],sources=[],records=[],abandoned_offers=[],groups=[[
                     dict(raw=b'export',offer=dict(received=1,request=dict(recipient=dict(node=node))),commit=dict(offered=8))]])
             with patch.object(p,'context',return_value=reader),patch.object(e,'authorize_contents',return_value={}), \
                  patch.object(e,'pending_ack',return_value=b'pending'),patch.object(p,'owner_lifetime') as owner:
@@ -169,6 +169,16 @@ class JoiningProfileExportTest(unittest.TestCase):
                 result[field]+=1
                 with self.assertRaisesRegex(ValueError,'^joining profile export complete session accounting$'):p.validate('/unused','4-ADD')
                 result[field]-=1
+
+    def test_empty_offer_needs_separate_authority_and_does_not_inflate_content(self):
+        original,result=self.result();original['network'].update(transferSessions=6,abandonedOfferSessions=1)
+        result['abandonedGenerationOffers']=[dict(committedObjects=0,receivedBytes=0)]
+        with patch.object(p.collection,'inventory',return_value={}),patch.object(p.network,'validate',return_value=original),patch.object(p,'replay',return_value=result):
+            p.validate('/unused','5-REPLACE')
+            result['unqualifiedSessionCount']+=1
+            with self.assertRaisesRegex(ValueError,'complete session accounting'):p.validate('/unused','5-REPLACE')
+            result['unqualifiedSessionCount']-=1;result['abandonedGenerationOffers'].clear()
+            with self.assertRaisesRegex(ValueError,'abandoned offer complete accounting'):p.validate('/unused','5-REPLACE')
 
     def test_original_inventory_cannot_change_during_replay(self):
         original,result=self.result()

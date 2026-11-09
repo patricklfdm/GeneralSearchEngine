@@ -67,6 +67,29 @@ class JoiningAbortedPrefixTest(unittest.TestCase):
         self.assertEqual(3,contents[0]['offer']['abortedPrefix']['attempts'])
         self.assertEqual(3,len(result['failed']));self.assertEqual(3,len(result['rows']))
 
+    def offer_only(self):
+        events,result,q=fixture();result['rows']=result['rows'][:1]
+        offer=result['rows'][0]['response']['payload']
+        q=dict(q,sequence=2,payload=dict(id=offer['id'],action='REQUEST',offset=0,digest=offer['digest'],bytes=''))
+        return events,result,q
+
+    def test_revoked_first_offer_never_becomes_received_content(self):
+        data=self.offer_only();result=self.bind(data);contents=[]
+        counts=t.transfers(result['rows'],contents=contents)
+        self.assertEqual([],contents);self.assertEqual(0,counts['committedTransfers'])
+        self.assertEqual(0,counts['transferredBytes']);self.assertEqual(1,counts['abandonedOfferSessions'])
+        self.assertTrue(result['rows'][0]['abortedPrefix']['offerOnly'])
+
+    def test_revoked_first_offer_requires_exact_next_chunk_and_no_received_bytes(self):
+        for change in ('id','digest','offset','sequence','partial-chunk'):
+            data=self.offer_only()
+            if change in ('id','digest'):data[2]['payload'][change]='foreign'
+            elif change=='offset':data[2]['payload']['offset']=1
+            elif change=='sequence':data[2]['sequence']=3
+            else:data[1]['rows'].append(fixture()[1]['rows'][1])
+            with self.subTest(change=change),self.assertRaises(ValueError):
+                result=self.bind(data);t.transfers(result['rows'])
+
     def test_unsupported_transfer_failure_shapes_reject(self):
         for changes in ({'responseOffered':True},{'serverFailed':None},{'received':None},
                         {'clientReason':'CLOSED'},{'serverReason':'IO'},{'kind':'TRANSFER_COMMIT'}):

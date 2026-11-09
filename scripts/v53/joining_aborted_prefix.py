@@ -1,7 +1,7 @@
 """Bind an abandoned generation pull; its missing member never becomes content.
 
-Only a response-less next-object request or final object commit after complete
-committed objects is admitted here. A real donor selector replacement must end the old export; the
+Only a response-less next-object request, final object commit, or first chunk
+after an offer with no content is admitted here. A real donor selector replacement must end the old export; the
 physical export reader independently binds that boundary and exact byte prefix.
 Partial chunks, fabricated delivery and continuing the dead trace still fail.
 """
@@ -46,7 +46,12 @@ def bind(events,result):
              {k:v for k,v in prefix[0]['request'].items() if k not in ('payload','sequence')},
              'joining aborted prefix next object boundary')
         pending=first['kind']=='TRANSFER_COMMIT'
-        if pending:
+        offer_only=first['kind']=='CHUNK' and len(prefix)==1
+        if offer_only:
+            offer=prefix[0]['response']['payload']
+            need(q['payload']==dict(id=offer['id'],action='REQUEST',offset=0,digest=offer['digest'],bytes=''),
+                 'joining aborted first chunk binding')
+        elif pending:
             committed=[i for i,r in enumerate(prefix) if r['answer']=='TRANSFER_COMMIT']
             need(committed and committed[-1]<len(prefix)-2,'joining aborted prefix missing committed prefix')
             tail=prefix[committed[-1]+1:];offer=tail[0]
@@ -64,3 +69,4 @@ def bind(events,result):
         prefix[0]['abortedPrefix']=dict(request=q,firstSent=first['sent'],finished=last['finished'],
                                        selector=changes[0],attempts=len(attempts))
         if pending:prefix[0]['abortedPrefix']['commitPending']=True
+        if offer_only:prefix[0]['abortedPrefix']['offerOnly']=True

@@ -108,7 +108,7 @@ def transfers(rows, *, contents=None):
         # Group by trace and endpoints; changing root/view/ballot within a
         # session must fail, rather than silently create a different session.
         sessions[q['sender']['node'], q['recipient']['node'], q['trace']].append(row)
-    complete = retries = rejected = total = uncommitted = 0
+    complete = retries = rejected = total = uncommitted = abandoned = 0
     for values in sessions.values():
         values.sort(key=lambda v: v['sent']); header = None; prior = None; sequence = 0
         active = None; identifiers = set(); terminal = False
@@ -174,7 +174,14 @@ def transfers(rows, *, contents=None):
                 total += active['offset']; complete += 1; active = None
             prior = row
         claim=values[0].get('abortedPrefix',{})
-        if claim.get('commitPending',False):
+        if claim.get('offerOnly',False):
+            need(len(values)==1 and active is not None and active['offset']==0<active['bytes'] and
+                 claim['request']['payload']==dict(id=active['id'],action='REQUEST',offset=0,digest=active['digest'],bytes=''),
+                 'joining network abandoned offer without content')
+            # An offer is an observation, never received bytes or a commit.
+            # Its alias, extent and digest require independent physical replay.
+            abandoned+=1
+        elif claim.get('commitPending',False):
             need(active is not None and active['chunks'] is None and
                  claim['request']['payload']==dict(id=active['id'],digest=active['digest']) and
                  active['offset']==active['bytes'] and active['digest_state'].hexdigest()==active['digest'],
@@ -189,4 +196,5 @@ def transfers(rows, *, contents=None):
     result=dict(transferSessions=len(sessions), committedTransfers=complete, transferredBytes=total,
                 exactTransferRetries=retries, rejectedTransferAttempts=rejected)
     if uncommitted:result['uncommittedTransferObjects']=uncommitted
+    if abandoned:result['abandonedOfferSessions']=abandoned
     return result

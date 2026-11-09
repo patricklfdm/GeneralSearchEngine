@@ -45,7 +45,7 @@ def controls(root,prior, *, bootstrap_source='EMPTY', wire_layout='JSON'):
 def coverage(result,counts):
     need(sum(result['boundTransfers'].values())+result['unqualifiedTransfers']==counts['committedTransfers'] and
          sum(result['boundSessions'].values())+result['unqualifiedSessionCount']==
-         counts['transferSessions']-counts['rejectedTransferAttempts'],
+         exports.abandoned.content_sessions(counts,result),
          'required-four export complete session accounting')
     # Each of the three old INTENT voters reads the actual joining ACK once.
     # Unlike the ordinary profiles this required-four producer cannot omit it.
@@ -60,7 +60,7 @@ def validate(directory, *, bootstrap_source='EMPTY', wire_layout='JSON'):
     coverage(contents,counts)
     result=controls(root,contents,**source_args)
     need(result['observedCommittedContents']==counts['committedTransfers'] and
-         result['observedContentSessions']==counts['transferSessions']-counts['rejectedTransferAttempts'],
+         result['observedContentSessions']==exports.abandoned.content_sessions(counts,contents),
          'required-four control complete transfer coverage')
     need(source_policy.inventory(root, bootstrap_source=bootstrap_source, wire_layout=wire_layout)==before,'required-four export original changed')
     return source_policy.receipt(dict(status='PASS',scope='required-four-observed-temporal-content-and-control-exports',profile=PROFILE,
