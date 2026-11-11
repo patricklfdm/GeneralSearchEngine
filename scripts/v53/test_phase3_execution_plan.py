@@ -32,6 +32,10 @@ class ExecutionPlanTest(unittest.TestCase):
         self.assertEqual((14,4),(value['pushEntryWorkflows'],value['manualOnlyWorkflows']))
         self.assertEqual('PLANNED',value['status']);self.assertFalse(value['phase3Complete']);self.assertFalse(value['runtimeQualified'])
         self.assertEqual(0,value['workflowsDispatched']);self.assertEqual(5,len(value['openGaps']))
+        joining=next(row for row in value['workflows'] if row['id']=='histories/joining-process')
+        for role in ('execute','verify'):
+            self.assertIsNone(joining['roles'][role]['matrixMaximumParallel'])
+            self.assertEqual(120,joining['roles'][role]['jobs'])
         for row in value['workflows']:
             self.assertEqual(row['selectedJobs'],sum(r['jobs'] for r in row['roles'].values()))
             self.assertEqual(['gh','workflow','run',Path(row['workflow']).name,'--repo',m.workflows.REPOSITORY,'--ref',self.ref],row['dispatchCommand'])

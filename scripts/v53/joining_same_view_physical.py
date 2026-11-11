@@ -45,11 +45,17 @@ def covering_floor(files,copies,node):
     return dict(files,**{'floor-copies':None,'floor-copies/proposal.gsr':raw,'floor-copies/floor.gsr':raw},**stored)
 
 
-def floor_voters(group,node):
-    """Healthy known-voter order; stop at both majorities, not all live owners."""
+def floor_voters(group,node,*,prefer_installed=False):
+    """Derive copy order from the original selection, then both majorities."""
+    need(type(prefer_installed) is bool,'joining same-view floor ordering mode')
     view=disk.current(group[node])[2]['capsule']['cut']['view'];selected=[node]
     own=disk.current(group[node])[2]['capsule']
-    for peer in sorted(set(view['old']+view['new'])):
+    installed=set()
+    if prefer_installed:
+        record=f.decode(disk.current(group[node])[1]['selected.gsr'],'records','SELECTED')
+        installed={v['voter'] for v in record['sources']}
+        need(installed<=set(view['old']+view['new']),'joining same-view installed floor identities')
+    for peer in sorted(set(view['old']+view['new']),key=lambda n:(n not in installed,n)):
         if all(len(set(selected)&set(view[key]))>len(view[key])//2 for key in ('old','new')):break
         if peer==node or peer not in group:continue
         other=disk.current(group[peer])[2]['capsule']

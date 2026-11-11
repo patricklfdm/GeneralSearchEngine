@@ -112,6 +112,7 @@ class JoiningHistoryRunTest(unittest.TestCase):
                  patch.object(h.subprocess,'run',return_value=SimpleNamespace(returncode=0,stdout='test',stderr='')),redirect_stdout(io.StringIO()):
                 with self.assertRaisesRegex(ValueError,'Maven failed'):h.run(output,'mvn',fault=fault)
             execute.assert_called_once();command=execute.call_args.args[0]
+            self.assertIn('-Dv53.transport.connections=true',command)
             self.assertEqual(['-Dv53.joining.sourceFault='+fault,'test'],command[-2:]);self.assertIn('-Dtest='+h.TEST,command)
             receipt=json.loads((output/'receipt.json').read_text());self.assertEqual(fault,receipt['sourceFault']);self.assertEqual(0,receipt['retries'])
 

@@ -87,7 +87,7 @@ def maintain(group,owners,*,campaign=False):
                  f.decode(frames['ENTRY'],'records','ENTRY')['kind'] in t.KINDS,
                  'context process maintenance exact transferred vote')
         copies=copy.deepcopy(group);copies[node]['pending.accept']=c.EMPTY
-        voters=floors.floor_voters(group,node)
+        voters=floors.floor_voters(group,node,prefer_installed=not campaign)
         projected=t.maintenance.maintenance(copies,voters,owners=(node,))[node]
         if frames:
             if campaign:t.current.retained_carried_sources(files,projected,node,frames,packet)

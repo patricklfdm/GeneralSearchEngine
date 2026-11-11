@@ -73,7 +73,6 @@ jobs:
     timeout-minutes: 360
     strategy:
       fail-fast: false
-      max-parallel: 8
       matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     env:
       JOINING_PROCESS_SHARD: ${{ matrix.id }}
@@ -125,7 +124,6 @@ jobs:
     timeout-minutes: 360
     strategy:
       fail-fast: false
-      max-parallel: 8
       matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     env:
       JOINING_PROCESS_SHARD: ${{ matrix.id }}

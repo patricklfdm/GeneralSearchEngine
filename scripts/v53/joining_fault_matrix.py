@@ -40,7 +40,7 @@ def member(path,kind,source_sha256,build_sha256):
     need(receipt.get('sourceSha256')==source_sha256==h.digest((path/'source.json').read_bytes()) and
          receipt.get('baseHead')==source['head'],'joining matrix exact producer source: '+kind)
     command=receipt.get('command');wanted=['-o','-B','-ntp','-f','reactor/pom.xml','-pl','../'+h.MODULE,'-am',
-        '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+h.TEST,'-Dv53.joining.sourceFault='+kind,'test']
+        '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+h.TEST,'-Dv53.transport.connections=true','-Dv53.joining.sourceFault='+kind,'test']
     need(type(command) is list and len(command)==len(wanted)+1 and type(command[0]) is str and
          Path(command[0]).name=='mvn' and command[1:]==wanted,'joining matrix exact whole command: '+kind)
     work=path/'workspace'
@@ -90,7 +90,7 @@ def validate(paths,source_sha256,build_sha256,progress=None):
         value=members[kind]
         if progress:progress(dict(stage='original-first-replay',case=kind))
         result=gate.qualify(value['raw'],None if progress is None else lambda row:progress(dict(row,member=kind)))
-        original=result['original'];expected=[dict(case=name,status='REJECTED',reason=reason) for name,reason in gate.NEGATIVES.items()]
+        original=result['original'];expected=[dict(case=name,status='REJECTED',reason=reason) for name,reason in gate.negative_reasons(original.get('transportFormat','legacy')).items()]
         need(original.get('status')=='PASS' and original.get('sourceFault')==kind and original.get('joiningSourceFaultQualified') is True and
              original.get('lostReplies')==original.get('recoveredLostReplies')==1 and original.get('phase3Complete') is False and
              result.get('originalPreserved') is True and result.get('negatives')==expected,'joining matrix complete replay result: '+kind)

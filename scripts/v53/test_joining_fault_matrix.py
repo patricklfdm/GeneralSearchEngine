@@ -33,7 +33,7 @@ class JoiningFaultMatrixTest(unittest.TestCase):
         collection=dict(status='PARTIAL',collectionComplete=True,nativeHistoryQualified=False,forceAndNetworkQualified=False,
                         phase3Complete=False,inventory=m.h.inventory(raw));m.h.save(path/'collection.json',collection)
         command=['mvn','-o','-B','-ntp','-f','reactor/pom.xml','-pl','../'+m.h.MODULE,'-am','-Dsurefire.failIfNoSpecifiedTests=false',
-                 '-Dtest='+m.h.TEST,'-Dv53.joining.sourceFault='+kind,'test']
+                 '-Dtest='+m.h.TEST,'-Dv53.transport.connections=true','-Dv53.joining.sourceFault='+kind,'test']
         receipt=dict(schema=m.h.SCHEMA,status='PARTIAL',executionStatus='PASS',sourceFault=kind,collectionComplete=True,
                      nativeHistoryQualified=False,phase3Complete=False,retries=0,execution=dict(exit=0),collectionExecution=dict(exit=0),
                      sourceSha256=m.h.digest((path/'source.json').read_bytes()),baseHead=source['head'],command=command,

@@ -59,6 +59,13 @@ final class V53JoiningInitializationProcess {
     @FunctionalInterface interface Observation {void at(String stage)throws Exception;}
     @FunctionalInterface interface Probe {boolean initialized()throws Exception;}
 
+    static List<String> command(Path area,Path raw,Path lifetime,String mode,String point,boolean connections) {
+        return List.of(Path.of(System.getProperty("java.home"),"bin/java").toString(),"-XX:-UsePerfData",
+            "-Dv53.transport.connections="+connections,"-cp",System.getProperty("java.class.path"),
+            V53JoiningInitializationWorker.class.getName(),area.resolve("spec.json").toAbsolutePath().toString(),
+            raw.resolve("process-trace.jsonl").toAbsolutePath().toString(),mode,point,lifetime.resolve("scratch").toAbsolutePath().toString());
+    }
+
     static void run(Path raw,Spec spec,Case selected,Observation snapshot,Probe probe)throws Exception {
         Path area=Files.createDirectory(raw.resolve("joining-process"));Files.write(area.resolve("spec.json"),spec.bytes());
         var children=new ArrayList<Map<String,Object>>();boolean success=false;
@@ -66,9 +73,7 @@ final class V53JoiningInitializationProcess {
             snapshot.at("before-process");
             for(String mode:List.of(selected.mode(),"resume")) {
                 Path lifetime=Files.createDirectory(area.resolve(mode));
-                var command=List.of(Path.of(System.getProperty("java.home"),"bin/java").toString(),"-XX:-UsePerfData","-cp",System.getProperty("java.class.path"),
-                    V53JoiningInitializationWorker.class.getName(),area.resolve("spec.json").toAbsolutePath().toString(),
-                    raw.resolve("process-trace.jsonl").toAbsolutePath().toString(),mode,selected.point(),lifetime.resolve("scratch").toAbsolutePath().toString());
+                var command=command(area,raw,lifetime,mode,selected.point(),Boolean.getBoolean("v53.transport.connections"));
                 Process child=new ProcessBuilder(command).redirectError(lifetime.resolve("stderr").toFile()).start();
                 var row=new TreeMap<String,Object>();row.put("mode",mode);row.put("pid",child.pid());children.add(row);
                 var control=new LinkedBlockingQueue<Map<String,Object>>();

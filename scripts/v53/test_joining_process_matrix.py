@@ -156,6 +156,16 @@ class JoiningProcessMemberTest(unittest.TestCase):
 
 
 class JoiningProcessMatrixTest(unittest.TestCase):
+    def test_connected_original_requires_its_exact_negative_catalogue(self):
+        value=qualification(m.KINDS[0]);prior=value['physical']['original']
+        prior['transportFormat']='connections'
+        value['authority']['original']['precondition']=prior
+        with self.assertRaisesRegex(ValueError,'exact physical negatives'):m.check_result(value,m.KINDS[0])
+        value['physical']['negatives']=m.expected_negatives(m.physical.negative_reasons('connections'))
+        m.check_result(value,m.KINDS[0])
+        prior['transportFormat']='unknown'
+        with self.assertRaisesRegex(ValueError,'transport format'):m.check_result(value,m.KINDS[0])
+
     def setUp(self):
         self.pins = ['a'*64, 'b'*64, 'c'*64, 'd'*64]
         self.paths = {case: Path('/synthetic')/m.slug(case) for case in m.KINDS}

@@ -26,11 +26,13 @@ def read_json(path):
     return json.loads(p.t.plans.read(path, 8*e.MIB))
 
 
-def native_order(events, count):
+def native_order(events, count, *, voting=True):
+    need(type(voting) is bool, 'native application voting eligibility')
+    directory = 'APPLY_ACK_DIRECTORY_FORCED' if voting else 'APPLY_NONVOTING_DIRECTORY_FORCED'
     names = {'NATIVE_CERTIFICATE_RETAINED', 'APPLICATION_AUTHORITY_VALIDATED',
-             'APPLY_ACK_DIRECTORY_FORCED', 'APPLY_BEFORE_RETURN'}
+             'APPLY_ACK_DIRECTORY_FORCED', 'APPLY_NONVOTING_DIRECTORY_FORCED', 'APPLY_BEFORE_RETURN'}
     expected = ['NATIVE_CERTIFICATE_RETAINED', 'APPLICATION_AUTHORITY_VALIDATED',
-                'APPLY_ACK_DIRECTORY_FORCED', 'APPLY_BEFORE_RETURN']*count
+                directory, 'APPLY_BEFORE_RETURN']*count
     need([v for v in events if v in names] == expected, 'native application exact force order')
     previous = -1
     for index, event in enumerate(events):

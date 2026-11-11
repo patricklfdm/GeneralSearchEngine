@@ -4,7 +4,9 @@
 connects the [360-case process matrix](PHASE_3_JOINING_PROCESS_MATRIX.md) to one
 immutable prepared source and independent downloaded replay. It is an opt-in
 entry, not an existing Required gate. Adding this workflow does not qualify a
-native cohort or close Phase 3; **hosted execution remains pending**.
+native cohort or close Phase 3; **corrected-source hosted qualification remains
+pending**. The completed frozen-source run and its failures are recorded in the
+[expansion review](PHASE_3_EXPANSION_FAILURE_REVIEW.md).
 
 ## Complete coverage within the hosted topology
 
@@ -13,8 +15,8 @@ The workflow has four stages:
 | Stage | Jobs | Work |
 | --- | --- | --- |
 | Prepare | 1 | Freeze exact source, reference classes, tools and offline dependencies |
-| Execute | 120 | Three whole histories sequentially per group, at most eight groups in parallel |
-| Verify | 120 | Independently download and replay those three complete originals, at most eight groups in parallel |
+| Execute | 120 | Three whole histories sequentially per group; no workflow matrix parallel cap |
+| Verify | 120 | Independently download and replay those three complete originals; no workflow matrix parallel cap |
 | Aggregate | 1 | Check all same-attempt verifier receipts and exactly 360 distinct histories |
 
 The 120 ordered groups contain consecutive triples from the immutable matrix
@@ -23,6 +25,14 @@ setup and the seed download; each history still has its own original workspace,
 raw archive, manifest and qualification result. No death/recovery/FINAL/BARRIER/
 cold-open boundary is divided between jobs. Cases are never retried or replaced
 with another member's success.
+
+The former `max-parallel: 8` setting is removed from both matrices at the
+operator's request. GitHub account/runner capacity still determines actual
+concurrency; the change does not promise that all 120 jobs start together.
+Per-group ordering, `fail-fast: false`, source/attempt bindings and aggregate
+requirements are unchanged. Fresh producers enable connection identities in
+both parent and halt/kill/resume JVMs so overlapping retry callbacks remain
+attributable to their original attempts.
 
 The topology generates 240 matrix jobs and 242 jobs overall. Each matrix is
 below the documented 256-job ceiling. The platform's six-hour hosted-job limit
@@ -108,8 +118,9 @@ diagnostic result and leave the original unchanged. The new cohort gate still
 rejects that producer because the current reader is absent from its source.
 This portable diagnostic does not upgrade the old source to final-source evidence.
 
-No new native workload, hosted dispatch or paid-cloud experiment runs in this
-development batch. The complete final-source process campaign, other required
+The initial workflow-development batch did not run a new native workload,
+hosted dispatch or paid-cloud experiment. Subsequent diagnostic executions are
+recorded in the expansion review. The complete final-source process campaign, other required
 cohorts, combined resource limits and frozen requirement-to-evidence mapping
 remain open. Rollback removes this optional workflow, wrapper and tests without
 changing runtime Java, protocol formats, the matrix readers or existing workflows.

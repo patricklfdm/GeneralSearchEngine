@@ -6,6 +6,21 @@ from . import native_application_evidence as evidence
 
 
 class NativeApplicationEvidenceTest(unittest.TestCase):
+    def test_departing_application_requires_nonvoting_force_and_rejects_invented_ack(self):
+        one = ['CERTIFICATE_ACTIVE_FORCED', 'CERTIFICATE_ACTIVE_PARENT_FORCED',
+               'NATIVE_CERTIFICATE_RETAINED', 'APPLICATION_AUTHORITY_VALIDATED',
+               'APPLY_NONVOTING_DIRECTORY_FORCED', 'APPLY_BEFORE_RETURN']
+        evidence.native_order(one, 1, voting=False)
+        for missing in one:
+            with self.subTest(missing=missing), self.assertRaises(ValueError):
+                evidence.native_order([v for v in one if v != missing], 1, voting=False)
+        for changed in (one + ['APPLY_ACK_DIRECTORY_FORCED'],
+                        [v.replace('NONVOTING', 'ACK') for v in one]):
+            with self.assertRaisesRegex(ValueError, 'exact force order'):
+                evidence.native_order(changed, 1, voting=False)
+        with self.assertRaisesRegex(ValueError, 'exact force order'):
+            evidence.native_order(one, 1)
+
     def test_native_force_is_required_for_each_new_application(self):
         one = ['CERTIFICATE_ACTIVE_FORCED', 'CERTIFICATE_ACTIVE_PARENT_FORCED',
                'NATIVE_CERTIFICATE_RETAINED', 'APPLICATION_AUTHORITY_VALIDATED',

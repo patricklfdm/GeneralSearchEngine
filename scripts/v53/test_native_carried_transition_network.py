@@ -9,6 +9,78 @@ from . import native_carried_transition_network as m
 
 
 class NativeCarriedTransitionNetworkTest(unittest.TestCase):
+    def unanswered(self,change=None):
+        selected=dict(root='root',view='view',ballot=dict(counter=4),sources=[dict(voter='node-1'),dict(voter='node-3')],
+                      cut=dict(view=dict(old=['node-1','node-2','node-3'],new=['node-1','node-2','node-3'])))
+        q=dict(sender=dict(node='node-1'),recipient=dict(node='node-2'),ballot=selected['ballot'],view='view',
+               payload=dict(promise=m.e.digest(b'promise')))
+        values=[dict(kind='PREPARE',request=q,at=2,response=None)]
+        events=[dict(node='node-1',event=p) for p in ('begin','GRANT_BEFORE_RETURN','send','SELECTED_FORCED','end')]
+        history=SimpleNamespace(root=Path('/original'),ranges=[dict(kind='campaign',start=0,stop=4,after='installed')])
+        if change=='selected':q['recipient']['node']='node-3'
+        elif change=='foreign':q['recipient']['node']='node-4'
+        elif change=='view':q['view']='wrong'
+        elif change=='promise':q['payload']['promise']='wrong'
+        elif change=='response':values[0]['response']=3
+        elif change=='too-early':values[0]['at']=1
+        elif change=='too-late':values[0]['at']=3
+        elif change=='extra':values*=4
+        with patch.object(m.c,'inventory',return_value={}),patch.object(m.c,'current',return_value=('',{'promise.gsr':b'promise','selected.gsr':b'selected'},{})),\
+                patch.object(m.f,'decode',return_value=selected):return m.unanswered_prepare(history,events,values)
+
+    def test_unanswered_prepare_cannot_contribute_a_vote_or_skip_the_original_promise(self):
+        self.assertTrue(self.unanswered())
+        for change in ('selected','foreign'):
+            with self.subTest(change=change):self.assertFalse(self.unanswered(change))
+        for change in ('view','promise','response','too-early','too-late','extra'):
+            with self.subTest(change=change),self.assertRaisesRegex(ValueError,'unanswered prepare authority'):self.unanswered(change)
+
+    def checkpoint(self,change=None):
+        catalog=m.f.catalog();types=catalog['types'];sample=lambda kind:m.f.sample(catalog['records'][kind]['schema'],types)
+        statement=sample('CHECKPOINT');statement['end']['view'].update(old=['node-1','node-2','node-3'],new=['node-1','node-2','node-3'])
+        raw=m.f.encode('records','CHECKPOINT',statement);selected=sample('SELECTED')
+        selected['sources']=[dict(selected['sources'][0],voter=node) for node in ('node-1','node-3')]
+        selected['root']=statement['root'];selected_raw=m.f.encode('records','SELECTED',selected)
+        ids={n:dict(m.f.sample(types['identity'],types),node=n) for n in ('node-1','node-2')}
+        original={'identity':ids['node-1'],'applied-end/statement.gsr':raw}
+        ack=m.f.encode('records','CHECKPOINT_ACK',dict(root=statement['root'],voter='node-2',incarnation=ids['node-2']['storage'],
+            cut=statement['end'],statement=m.e.digest(raw)))
+        q=dict(root=statement['root'],view=selected['view'],ballot=selected['ballot'],sender=ids['node-1'],recipient=ids['node-2'],
+            trace='00000000-0000-0000-0000-000000000010',sequence=1,
+            payload=dict(id='00000000-0000-0000-0000-000000000011',action='REQUEST',offset=0,digest=m.e.digest(ack),bytes=''))
+        values=[dict(kind='CHUNK',request=q,at=3,received=4,response=None)]
+        history=SimpleNamespace(phases=[dict(SELECTED=selected_raw)],applied={(1,'node-1'):original,(1,'node-2'):{'identity':ids['node-2']}})
+        if change=='digest':q['payload']['digest']='a'*64
+        elif change=='view':q['view']='a'*64
+        elif change=='offset':q['payload']['offset']=1
+        elif change=='delivered':values[0]['response']=5
+        elif change=='outside':values[0]['at']=11
+        elif change=='extra':values*=4
+        elif change=='selected':
+            selected['sources'][1]['voter']='node-2';history.phases[0]['SELECTED']=m.f.encode('records','SELECTED',selected)
+        with patch.object(m.d.future,'identity',side_effect=lambda v:v['identity']):
+            return m.unused_checkpoint(history,values,{(1,'node-1'):dict(APPLY_BEFORE_RETURN=2,PUBLICATION_VALIDATED=10)})
+
+    def test_silent_checkpoint_lookup_requires_original_statement_unselected_peer_and_interval(self):
+        self.assertTrue(self.checkpoint())
+        for change in ('digest','outside','selected'):
+            with self.subTest(change=change):self.assertFalse(self.checkpoint(change))
+        for change in ('view','offset','delivered','extra'):
+            with self.subTest(change=change),self.assertRaisesRegex(ValueError,'unused checkpoint lookup'):self.checkpoint(change)
+
+    def test_lost_or_late_vote_ack_needs_exact_delivered_retry_in_same_phase(self):
+        for kind in ('PREPARE','SELECTED','ACCEPT','PROOF','APPLY'):
+            original=dict(kind=kind,answer=kind+'_ACK',request={'trace':'original','sequence':1},
+                          response={'receipt':'original'},offered=4,delivered=None)
+            good=dict(original,offered=8,delivered=9);stage=dict(start=0,stop=10)
+            self.assertTrue(m.recovered_delivery(original,[original,good],stage))
+            self.assertTrue(m.recovered_delivery(original,[dict(good,offered=2,delivered=3),original],stage))
+            for change in ({'request':{'trace':'new','sequence':1}}, {'response':{'receipt':'forged'}},
+                           {'kind':'STATUS_PROBE'}, {'answer':'STATUS'}, {'delivered':None},
+                           {'offered':-2,'delivered':-1}, {'delivered':11}):
+                with self.subTest(kind=kind,change=change):
+                    self.assertFalse(m.recovered_delivery(original,[original,dict(good,**change)],stage))
+
     def transport(self,change=None):
         catalog=m.f.catalog();types=catalog['types'];events=[];wires=[];groups={}
         base=m.f.sample(catalog['wire']['STATUS_PROBE']['schema'],types)

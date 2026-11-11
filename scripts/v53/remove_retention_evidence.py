@@ -50,8 +50,8 @@ class PeerReplay(peer.Replay,e.Replay):
         else:self.__dict__.update(base.__dict__)
         self.phases=n.phase.blocks(self.events,self.history)
         self.floor_inputs=[];self.state={};self.steps=[];self.used=set();self.files_cache={};self.comparisons=0
-        self.tx=peer.transactions(self.events);self.completions=set();self.reseals=peer_reseals(self.events,self.history.old)
         peer_event_shapes(self.events,self.history.old)
+        self.tx=peer.transactions(self.events);self.completions=set();self.reseals=peer_reseals(self.events,self.history.old)
 
     def acquired(self,own,lower,start):
         copies,used=e.Replay.acquired(self,own,lower,start)

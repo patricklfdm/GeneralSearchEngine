@@ -10,6 +10,22 @@ from . import test_joining_retirement_replay as fixtures
 
 
 class JoiningSameViewPhysicalTest(unittest.TestCase):
+    def test_installed_cohort_order_is_used_only_after_selection(self):
+        voters=['node-1','node-2','node-3','node-4']
+        view=dict(old=voters,new=voters)
+        group={n:dict(node=n) for n in voters}
+        def current(files):
+            return '',{'selected.gsr':b'original selected'},dict(capsule=dict(cut=dict(view=view,index=4)))
+        selected=dict(sources=[dict(voter=n) for n in ('node-1','node-3','node-4')])
+        with patch.object(e.disk,'current',side_effect=current),patch.object(e.f,'decode',return_value=selected), \
+             patch.object(e,'covering_floor'):
+            self.assertEqual(('node-1','node-2','node-3'),e.floor_voters(group,'node-1'))
+            self.assertEqual(('node-1','node-3','node-4'),e.floor_voters(group,'node-1',prefer_installed=True))
+            self.assertEqual(('node-3','node-1','node-4'),e.floor_voters(group,'node-3',prefer_installed=True))
+            selected['sources'].append(dict(voter='node-5'))
+            with self.assertRaisesRegex(ValueError,'installed floor identities'):
+                e.floor_voters(group,'node-1',prefer_installed=True)
+
     def copies(self,joint=False):
         group,models,current=fixtures.JoiningRetirementReplayTest().owners(joint)
         for files in group.values():files['root.gsr']=b'original-root'

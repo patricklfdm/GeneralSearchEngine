@@ -1,5 +1,6 @@
 """Composition boundaries; full original TCP histories remain separate evidence."""
 from pathlib import Path
+from copy import deepcopy
 import tempfile
 from types import SimpleNamespace
 import unittest
@@ -8,6 +9,44 @@ from . import remove_network_evidence as n
 
 
 class RemoveNetworkEvidenceTest(unittest.TestCase):
+    def unselected(self,change=None):
+        ballot=dict(counter=4,proposer='node-1',incarnation='original')
+        selected=dict(root='root',view='view',ballot=ballot,sources=[dict(voter='node-1'),dict(voter='node-3')])
+        basis=dict(ballot=ballot,basisId='basis')
+        journal=[('PROMISE',b'promise',dict(ballot=ballot)),('BASIS',b'basis',basis)]
+        q=dict(sender=dict(node='node-1'),recipient=dict(node='node-2'),ballot=ballot,view='view',payload=dict(promise=n.sha(b'proposer')))
+        row=dict(kind='PREPARE',answer='PROMISE',sent=1,received=2,offered=6,delivered=7,
+                 request=q,response=dict(payload=dict(basis=n.sha(b'basis'))))
+        rows=[row,dict(deepcopy(row),sent=3,received=4,offered=8,delivered=None)]
+        events=[dict(node='node-2',event=point) for point in
+                ('begin','send','receive','CURRENT_BEFORE_CAPTURE','working','GRANT_BEFORE_RETURN','reply','delivery','reply','end')]
+        if change=='selected':selected['sources'].append(dict(voter='node-2'))
+        elif change=='journal':journal.append(('SELECTED',b'selected',dict(ballot=ballot)))
+        elif change=='force':events[5]['event']='missing'
+        elif change=='selection':events[4]['event']='SELECTED_FORCED'
+        elif change=='basis':rows[0]['response']['payload']['basis']='forged'
+        elif change=='duplicate':rows+=deepcopy(rows)
+        elif change=='early-delivery':rows[0]['delivered']=5
+        elif change=='cross-phase':rows[0]['delivered']=10
+        elif change=='wrong-request':rows[1]['request']['view']='other'
+        elif change=='none':
+            for row in rows:row['delivered']=None
+        files={'node.gsr':b'node','grants.gsr':b'journal','sources/basis/source.gscp':b'packet'}
+        with patch.object(n.f,'decode',return_value=dict(identity=dict(node='node-2'))),\
+                patch.object(n.c,'journal',return_value=journal),patch.object(n.c.p,'decode',return_value={}),\
+                patch.object(n.shared,'grant_capture_order',return_value={3,5}) as forces:
+            result=n.cancelled_grant(events,rows,files,selected,b'proposer',0,9)
+            forces.assert_called_once_with(events,'node-2',None,3,5,{})
+            return result
+
+    def test_unselected_original_grant_does_not_require_a_fabricated_selection_or_delivery(self):
+        self.assertEqual({3,5},self.unselected())
+        self.assertEqual({3,5},self.unselected('none'))
+
+    def test_unselected_grant_rejects_wrong_authority_missing_force_and_invalid_replies(self):
+        for change in ('selected','journal','force','selection','basis','duplicate','early-delivery','cross-phase','wrong-request'):
+            with self.subTest(change=change),self.assertRaises(ValueError):self.unselected(change)
+
     def test_invalid_profile_precedes_filesystem_and_authority(self):
         with patch.object(n.collection,'inventory') as inventory:
             with self.assertRaisesRegex(ValueError,'^REMOVE network profile$'):n.validate('/unused','3-REMOVE')

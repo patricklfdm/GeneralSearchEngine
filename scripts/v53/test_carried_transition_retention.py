@@ -9,6 +9,15 @@ from . import carried_transition_retention as r
 
 
 class CarriedRetentionTest(unittest.TestCase):
+    def test_forged_peer_write_fails_at_the_declared_shape_gate(self):
+        # Exercise the real shared constructor, not a mocked negative result.
+        # The generic transaction parser must not obscure this exact rejection.
+        base=SimpleNamespace(events=[dict(node='node-1',event=r.r.peer.WRITES[0],revision=99)],
+                             history=SimpleNamespace(old=('node-1',)))
+        with patch.object(r.r.n.phase,'blocks',return_value={}):
+            with self.assertRaisesRegex(ValueError,'^REMOVE peer event shape$'):
+                r.r.PeerReplay('/unused','INTENT',base=base)
+
     def test_admitted_prelude_is_derived_for_both_starting_kinds(self):
         for kind in ('INTENT','FINAL'):
             reader=r.PeerReplay.__new__(r.PeerReplay);reader.root=Path('/original');reader.kind=kind

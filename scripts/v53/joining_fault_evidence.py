@@ -14,6 +14,8 @@ import sys
 from . import joining_peer_evidence as peer
 from . import joining_source_loss as loss
 from . import joining_profile_ballot_evidence as ballots
+from . import joining_connections as connections
+from . import joining_attempts as attempts
 
 n=peer.n;need=n.need
 
@@ -33,7 +35,12 @@ def trace(events,wires,identities,root):
     result=n.transfers(rows);lost,retry=pairs[0]
     return dict(result,sourceFault=lost['answer'],lostReplies=1,recoveredLostReplies=1,
                 wireExchanges=len(rows),deliveredResponses=sum(v['delivered'] is not None for v in rows),
-                lossEvent=lost['offered'],retryEvent=retry['offered'])
+                lossEvent=lost['offered'],retryEvent=retry['offered'],transportFormat=transport_format(events,wires))
+
+
+def transport_format(events,wires):
+    if connections.present(events,wires):return 'connections'
+    return 'terminals' if any(v.get('event')==attempts.EVENT for v in events) else 'legacy'
 
 
 def validate(root,*,full_chain=False):
@@ -65,6 +72,18 @@ NEGATIVES={
     'missing-retry':'joining source loss exact retry count',
     'changed-retry':'joining source loss identical recovered response',
 }
+
+
+def negative_reasons(format):
+    """Exact first rejection gates for the original, validated capture format."""
+    need(format in ('legacy','terminals','connections'),'joining fault known transport format')
+    result=dict(NEGATIVES)
+    if format=='terminals':result.update({'missing-send':'joining failure without attempted send',
+                                         'missing-read':'joining failure without received request'})
+    if format=='connections':result.update({'no-loss':'joining connection unqualified transfer attempt',
+        'false-delivery':'connection boundary without start','missing-send':'connection boundary without start',
+        'missing-read':'connection boundary without start','new-client':'connection invocation changed'})
+    return result
 
 
 def mutate(events,wires,identities,root,name):
@@ -102,7 +121,7 @@ def qualify(root,progress=None,*,full_chain=False):
     before=n.s.collection.inventory(root)
     original_inputs=inputs(root);outcomes=[]
     if progress:progress(dict(stage='original',status='PASS'))
-    for name,reason in NEGATIVES.items():
+    for name,reason in negative_reasons(transport_format(*original_inputs[:2])).items():
         values=copy.deepcopy(original_inputs);mutate(*values,name)
         try:trace(*values)
         except ValueError as error:need(str(error)==reason,'joining unrelated fault negative: '+name+': '+str(error))

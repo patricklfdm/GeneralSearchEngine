@@ -43,7 +43,8 @@ final class V53JointFloorProcess {
             V53JointFloorRecoveryTest.WriterCut cut,String mode,long started,Path scratch)throws Exception {
         Path area=Files.createDirectory(raw.resolve("process"));var spec=new Spec(n.f.result.root(),identity,replica,application,scratch,cut,mode,started);
         Files.write(area.resolve("spec.json"),spec.bytes());V53JournalApplicationTest.copy(replica,area.resolve("before-open"));
-        var command=List.of(Path.of(System.getProperty("java.home"),"bin/java").toString(),"-XX:-UsePerfData","-cp",System.getProperty("java.class.path"),
+        var command=List.of(Path.of(System.getProperty("java.home"),"bin/java").toString(),"-XX:-UsePerfData",
+            "-Dv53.transport.connections="+Boolean.getBoolean("v53.transport.connections"),"-cp",System.getProperty("java.class.path"),
             V53JointFloorWorker.class.getName(),area.resolve("spec.json").toAbsolutePath().toString());
         Process child=new ProcessBuilder(command).redirectError(area.resolve("stderr").toFile()).start();
         var result=new TreeMap<String,Object>(Map.of("schema",SCHEMA,"status","FAIL","pid",child.pid(),"parentPid",ProcessHandle.current().pid(),

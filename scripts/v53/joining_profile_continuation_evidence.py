@@ -173,11 +173,84 @@ def deferred(files,ballot):
             files['pending.accept']==disk.EMPTY)
 
 
+def retirement_end(events,node,start):
+    for i in range(start+1,len(events)):
+        row=events[i]
+        if row.get('node')!=node:continue
+        if row['event']=='GRANT_CAPTURED':return None
+        if row['event']=='SOURCE_RETIREMENT_BEFORE_RETURN':return i
+    return None
+
+
+def maintenance_copies(rows,events,node,ballot,start,before,installed,voters):
+    """Select only independently derived generations seen in original replies.
+
+    A slow unselected grant can acquire some peers before selected installation
+    and others after it. The enclosing network/export/floor gates still require
+    complete original transfers and durable floor authority. No ledger or final
+    snapshot is used to manufacture a matching confirmation.
+    """
+    end=retirement_end(events,node,start)
+    need(end is not None,'joining profile unselected retirement completion')
+    floors=[i for i,v in enumerate(events) if start<i<end and v.get('node')==node and v['event']=='FLOOR_RESERVED']
+    need(len(floors)==1,'joining profile unselected original floor')
+    received={(v.get('request'),v.get('response')) for v in events[start+1:floors[0]]
+              if v.get('node')==node and v['event'] in ('NETWORK_RECEIVED','AFTER_RESPONSE_READ')}
+    wanted=set(voters)-{node};copies={node:before[node]}
+    generation_id=f.catalog()['records']['GENERATION']['id']
+    for row in rows:
+        request=base64.b64decode(row['request'],validate=True);response=base64.b64decode(row['response'],validate=True)
+        if (sha(request),sha(response)) not in received:continue
+        _,q=c.exchange.wire(row['request']);answer,a=c.exchange.wire(row['response'])
+        if answer!='CHUNK' or q['ballot']!=ballot or q['sender']['node']!=node:continue
+        raw=base64.b64decode(a['payload'].get('bytes',''),validate=True)
+        if raw[:4]!=b'GSER' or int.from_bytes(raw[8:10],'big')!=generation_id:continue
+        peer=q['recipient']['node']
+        need(peer in wanted and row['withheld'] is False,'joining profile unselected copy peer')
+        candidates=[]
+        for group in (before,installed):
+            files=group[peer];prefix=disk.current(files)[0]
+            if files[prefix+'generation.gsr']==raw:candidates.append(files)
+        need(candidates,'joining profile unselected copy not independently derived')
+        if peer in copies:
+            prefix=disk.current(copies[peer])[0]
+            need(copies[peer][prefix+'generation.gsr']==raw,'joining profile unselected conflicting copies')
+        copies[peer]=candidates[0]
+    need(set(copies)==wanted|{node},'joining profile unselected missing original copy')
+    return copies
+
+
 class Continuation(p.Continuation):
     preparation_label="joining profile"
     def __init__(self, root, initialization, originals, *, old_owner_lifetimes=None):
         super().__init__(root, initialization, originals)
         self.old_owner_lifetimes = old_owner_lifetimes
+        self.unselected_maintenance = {}
+        self.events = s.collection.read_json(self.root,'events.json',s.collection.EVENT_BYTES)
+
+    def match(self,label):
+        # An unselected PREPARE can finish its post-grant maintenance after
+        # the selected majority is installed. Derive it from original generation
+        # copies, then apply it only after its original retirement completes.
+        # Snapshot bytes remain comparison targets, never input to this choice.
+        if label.startswith('continuation-installed-'):
+            cut=int(label.removeprefix('continuation-installed-'))
+            digest=sha(self.replay.phases[cut]['SELECTED'])
+            boundaries=[i for i,v in enumerate(self.events) if v['event']=='JOINING_ROUND_INSTALLED' and v.get('record')==digest]
+        elif label.startswith(('applied-','published-')):
+            kind,index=label.split('-');point='JOINING_SLOT_'+kind.upper()
+            boundaries=[i for i,v in enumerate(self.events) if v['event']==point and v.get('index')==int(index)]
+        else:boundaries=[]
+        if self.unselected_maintenance and boundaries:
+            need(len(boundaries)==1,'joining profile unselected maintenance snapshot boundary')
+            stop=boundaries[0]
+            for node,(start,before,after) in list(self.unselected_maintenance.items()):
+                local=[v['event'] for v in self.events[start+1:stop] if v.get('node')==node]
+                if 'SOURCE_RETIREMENT_BEFORE_RETURN' not in local:continue
+                p.retirement_order(local,p.source_deletions(before,after))
+                need(self.group[node]==before,'joining profile unselected maintenance owner changed')
+                self.group[node]=after;del self.unselected_maintenance[node]
+        super().match(label)
 
     def prepare(self,node,ballot):
         files=self.group[node];actual=self.captures.original(node,ballot)
@@ -227,9 +300,22 @@ class Continuation(p.Continuation):
         need(set(self.voters)<=prepared<=set((*self.initialization.voters,self.joining)),
              'joining profile campaign prepared owners')
         sources={node:self.prepare(node,ballot) for node in sorted(prepared)}
+        self.unselected_maintenance={};unselected={};before_group=copy.deepcopy(self.group)
+        for node in sorted(prepared-set(self.voters)):
+            before=copy.deepcopy(self.group[node]);after=self.maintenance(self.group,node)
+            if p.source_deletions(before,after):
+                captured=self.captures.by_ballot[node,f.canonical(ballot)]['capturedEvent']
+                unselected[node]=(captured,before)
         sources={node:sources[node] for node in self.voters}
         maintained={node:self.maintenance(self.group,node) for node in self.voters}
         for node in self.voters:self.group[node]=c.install(maintained[node],sources,selected)
+        for node,(captured,before) in unselected.items():
+            # An interrupted/unfinished maintenance does not authorize deletion.
+            if retirement_end(self.events,node,captured) is None:continue
+            copies=maintenance_copies(wire_archive.from_model(self.root,self.replay),self.events,node,ballot,
+                                      captured,before_group,self.group,self.voters)
+            after=self.maintenance(copies,node)
+            self.unselected_maintenance[node]=(captured,before,after)
         self.match('continuation-installed-'+str(cut))
         for node in self.voters:
             need((self.root/f'continuation-grants-{cut}-{node}.gsr').read_bytes()==self.group[node]['grants.gsr'],

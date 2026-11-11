@@ -69,12 +69,13 @@ class V53CurrentHeadNetworkTest {
             }
             assertEquals(0,resources.usage().leases());n.f.snapshot("after-current-retirement");
             round.submit("PREPARE",canonical(Map.of("number",1L,"revision",3L),8192));
+            var thirdCut=n.owners.getFirst().activationContext().cut;
             try(var store=MembershipLearnerStore.resume(summary,resources,events::add);
                     var typed=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(store.promotedSuccessor(),2),builder().configuration(),config,events::add)) {
                 var head=typed.currentHead();var baseline=resources.usage();var original=head.source().packet.bytes();
                 MembershipLearnerSlot.View pending=null;
                 try(var refresh=MembershipLearnerSource.refresh(head,targets.getFirst(),n.bounds,capture,System::nanoTime,System.nanoTime(),BUDGET)) {
-                    var received=refresh.fetch(temp.resolve("third-receiving"));assertEquals(5L,number(received.capsule.context.cut.get("index")));
+                    var received=refresh.fetch(temp.resolve("third-receiving"));assertEquals(thirdCut,received.capsule.context.cut);
                     assertEquals(3L,number(object(list(received.capsule.context.catalog.get("results")).getFirst()).get("revision")));
                     assertEquals(1,resources.usage().counts().get(Unit.GENERATION));assertEquals(1,resources.usage().counts().get(Unit.LEARNER));
                     assertFalse(received.capsule.context.voters().contains(joining.nodeId().value()));copy(received,raw.resolve("revision-three"));
@@ -148,13 +149,17 @@ class V53CurrentHeadNetworkTest {
                     String stage="cycle-"+revision;int firstExchange=wire.size();byte[] receipt;
                     System.out.println("v53LearnerNativeRevision="+revision);
                     n.f.snapshot(stage+"-before-prepare");round.submit("PREPARE",canonical(Map.of("number",1L,"revision",revision),8192));n.f.snapshot(stage+"-after-prepare");
+                    var preparedCut=n.owners.getFirst().activationContext().cut;
                     try(var store=MembershipLearnerStore.resume(summary,resources,events::add);
                             var current=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(store.currentSource(),revision-1),builder().configuration(),config,events::add)) {
                         var previous=current.currentHead();MembershipLearnerSlot.View pending;
                         observe(raw.resolve(stage+"-before-transfer"),summary,resources,events,wire,observations);
                         try(var refresh=MembershipLearnerSource.refresh(previous,targets.getFirst(),n.bounds,capture,System::nanoTime,System.nanoTime(),BUDGET)) {
                             var received=refresh.fetch(temp.resolve(stage+"-receiving"));
-                            assertEquals(revision+2,number(received.capsule.context.cut.get("index")));
+                            // Renewal reconciliation can publish a fresh BARRIER. Bind the
+                            // complete received cut to the actual donor PREPARE result,
+                            // not a formula counting only the user operations.
+                            assertEquals(preparedCut,received.capsule.context.cut);
                             assertEquals(revision,number(object(list(received.capsule.context.catalog.get("results")).getFirst()).get("revision")));
                             assertFalse(received.capsule.context.voters().contains(joining.nodeId().value()));copy(received,raw.resolve(stage+"-received"));
                             pending=refresh.installSlot(events::add);

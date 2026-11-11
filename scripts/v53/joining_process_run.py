@@ -30,7 +30,8 @@ def command(case):
     value=selected(case)
     return ['-o','-B','-ntp','-f','reactor/pom.xml','-pl','../'+h.MODULE,'-am',
             '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+CLASS.rsplit('.',1)[-1]+'#'+METHOD,
-            '-Dv53.joining.profile='+value['profile'],'-Dv53.joining.process='+value['point']+','+value['mode'],'test']
+            '-Dv53.transport.connections=true','-Dv53.joining.profile='+value['profile'],
+            '-Dv53.joining.process='+value['point']+','+value['mode'],'test']
 
 
 def junit(reports,case):

@@ -83,6 +83,7 @@ class NativeProcessJointFloorTest(unittest.TestCase):
         self.assertEqual(32,len(m.CASES));self.assertEqual(32,len(set(m.CASES)))
         for case in m.CASES:
             command=m.command(case);self.assertIn('-Dv53.native.process.joint='+case,command)
+            self.assertIn('-Dv53.transport.connections=true',command)
             self.assertIn('-Dtest='+m.CLASS.rsplit('.',1)[-1]+'#'+m.METHOD,command)
             self.assertFalse(any('retry' in v.lower() for v in command))
         for case in (None,False,'','01,FLOOR_MEMBER_FORCED,kill','4,FLOOR_MEMBER_FORCED,retry','4,FLOOR_MEMBER_FORCED,kill '):

@@ -42,20 +42,7 @@ def interrupted_records(root,events,history,windows,model):
 
 def retirement_boundaries(events,node,before,current,lower,upper,starts):
     """One sorted source per completed native transaction, never one shared end."""
-    removed=sorted(before.keys()-current.keys())
-    need(len(starts)==len(removed) and starts==sorted(set(starts)),'application export exact source retirement count')
-    ends={}
-    for index,(identifier,start) in enumerate(zip(removed,starts)):
-        stop=starts[index+1] if index+1<len(starts) else upper
-        rows=[v['event'] for at,v in enumerate(events) if start<=at<stop and v.get('node')==node and
-              v['event'].startswith('SOURCE_RETIREMENT_')]
-        expected=['SOURCE_RETIREMENT_CREATED','SOURCE_RETIREMENT_WRITTEN','SOURCE_RETIREMENT_FORCED',
-            'SOURCE_RETIREMENT_PARENT_FORCED','SOURCE_RETIREMENT_JOURNAL_PRUNED']
-        expected+=['SOURCE_RETIREMENT_FILE_DELETED']*len(before[identifier]['members'])
-        expected+=['SOURCE_RETIREMENT_DIRECTORY_DELETED','SOURCE_RETIREMENT_CLEARED','SOURCE_RETIREMENT_BEFORE_RETURN']
-        need(lower<start<stop and rows==expected,'application export complete per-source retirement')
-        ends[identifier]=start
-    return ends
+    return exports.sources.per_source_retirements(events,node,before,current,lower,upper,starts)
 
 
 class Replay(exports.Replay):

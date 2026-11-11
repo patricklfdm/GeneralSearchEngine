@@ -87,7 +87,7 @@ class NativeCarriedApplicationOwnershipTest(unittest.TestCase):
         before={'node-1':{'applied-end':None},'node-2':{}};voters=list(before)
         with patch.object(m.protocol,'pin_current',return_value=False) as pin:
             current,eligible,annotations=m.stage_projector(before,copy.deepcopy(before),voters,dict(kind='campaign'),voters,m.protocol.application.CUT)
-            self.assertEqual(['node-2'],eligible);self.assertIn('applied-end',current['node-1']);pin.assert_called_once_with(current,'node-2')
+            self.assertEqual(['node-2'],eligible);self.assertIn('applied-end',current['node-1']);pin.assert_called_once_with(current,'node-2',campaign=True)
         before={node:{} for node in voters}
         with patch.object(m.protocol,'pin_current',return_value=True):
             current,eligible,annotations=m.stage_projector(before,copy.deepcopy(before),[],dict(kind='interrupted'),voters,m.protocol.application.CUT)

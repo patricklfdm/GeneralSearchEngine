@@ -20,7 +20,7 @@ def stage_projector(before,current,eligible,stage,voters,point):
             if 'applied-end' not in before[node]:continue
             frames,_=p.data.pending(before[node]);protocol.application.retire(before[node],frames['ENTRY'],frames['PAYLOAD'])
             current[node]=protocol.retirement.staging.without_staging(current[node])
-    return current,eligible,{node:dict(pinned=protocol.pin_current(current,node)) for node in eligible}
+    return current,eligible,{node:dict(pinned=protocol.pin_current(current,node,campaign=stage['kind']=='campaign')) for node in eligible}
 
 
 def expected_floors(root,history):

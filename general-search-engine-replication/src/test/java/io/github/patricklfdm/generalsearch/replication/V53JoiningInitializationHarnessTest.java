@@ -12,6 +12,22 @@ import static org.junit.jupiter.api.Assertions.*;
 /** Harness bounds/provenance only; never substitutes for the native history. */
 class V53JoiningInitializationHarnessTest {
     @TempDir Path temp;
+    public static final class ConnectionSettingProbe {
+        public static void main(String[] args) {System.out.print(Boolean.getBoolean("v53.transport.connections"));}
+    }
+    @Test void bothFreshChildrenReceiveTheOriginalConnectionCaptureSetting()throws Exception {
+        for(boolean enabled:List.of(false,true))for(String mode:List.of("halt","kill","resume")) {
+            var args=new ArrayList<>(V53JoiningInitializationProcess.command(temp,temp,temp,mode,
+                "JOINING_RETENTION_SEED_CREATED",enabled));
+            args.set(args.indexOf(V53JoiningInitializationWorker.class.getName()),ConnectionSettingProbe.class.getName());
+            var process=new ProcessBuilder(args).redirectErrorStream(true).start();
+            try {
+                assertTrue(process.waitFor(10,TimeUnit.SECONDS));
+                var output=new String(process.getInputStream().readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);
+                assertEquals(0,process.exitValue(),output);assertEquals(Boolean.toString(enabled),output);
+            }finally {if(process.isAlive()){process.destroyForcibly();assertTrue(process.waitFor(5,TimeUnit.SECONDS));}}
+        }
+    }
     V53JoiningInitializationProcess.Spec spec() {
         var nodes=V53DeclarationsTest.members(4);var root=V53DeclarationsTest.ROOT;
         var change=new MembershipChangeRequest(new MembershipOperationId(root,1),V53DeclarationsTest.HASH,MembershipChangeKind.ADD,nodes);

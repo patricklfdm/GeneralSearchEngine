@@ -16,6 +16,7 @@ import tempfile
 from . import joining_initialization_process_evidence as transaction
 from . import joining_profile_continuation_evidence as continuation
 from . import joining_network_evidence as network
+from . import joining_connections
 from .joining_profile_evidence import topology
 
 run = transaction.run
@@ -211,6 +212,7 @@ def validate(raw, case):
                 transaction=original, continuation=derived, transfers=transfers, childLifecycle=lifecycle, durableNetwork=durable,
                 eventCount=len(observed['events']), wireCount=len(rows), failedAttempts=len(failed),
                 projectionSha256=run.h.digest(f.canonical(observed['positions'])),
+                transportFormat='connections' if joining_connections.present(observed['events'],observed['wires']) else 'legacy',
                 originalPhysicalHistoryVerified=True, observedTransportVerified=True, durableACKsVerified=True,
                 completeNetworkAuthorityQualified=False, continuousLedgersQualified=False,
                 processDeathQualified=False, phase3Complete=False)
@@ -229,6 +231,13 @@ NEGATIVES = {
     'cold-extra-allocation': 'joining continuation exact family: joining-originals-stable-cold: replica',
     'missing-cold-force': 'joining continuation original cold reseal order',
 }
+
+
+def negative_reasons(transport_format):
+    need(transport_format in ('legacy','connections'),'joining process transport format')
+    reasons=dict(NEGATIVES)
+    if transport_format=='connections':reasons['missing-child-response']='connection missing original response'
+    return reasons
 
 
 def save_trace(raw, trace):
@@ -282,7 +291,7 @@ def mutate(raw, case, name):
 
 def qualify(raw, case, *, progress=None):
     raw = Path(raw); before = run.h.inventory(raw); original = validate(raw, case); results = []
-    for name, reason in NEGATIVES.items():
+    for name, reason in negative_reasons(original['transportFormat']).items():
         with tempfile.TemporaryDirectory(prefix='v53-joining-process-negative-') as directory:
             copied = Path(directory)/'raw'; shutil.copytree(raw, copied); mutate(copied, case, name)
             try: validate(copied, case)

@@ -46,7 +46,7 @@ def check_result(result,kind):
          all(type(original.get(k)) is int and original[k]==1 for k in ('lostReplies','recoveredLostReplies')) and
          original.get('phase3Complete') is False and original.get('processDeathQualified') is False and result.get('originalPreserved') is True,
          'joining cohort complete original fault composition')
-    need(result.get('negatives')==[dict(case=k,status='REJECTED',reason=v) for k,v in gate.NEGATIVES.items()],
+    need(result.get('negatives')==[dict(case=k,status='REJECTED',reason=v) for k,v in gate.negative_reasons(original.get('transportFormat','legacy')).items()],
          'joining cohort exact fault negatives')
     ballot=result.get('ballotQualification',{});profile.check_result(ballot,'3-ADD')
     need(ballot['original']==original.get('ballotPrecondition'),'joining cohort same original ballot result')

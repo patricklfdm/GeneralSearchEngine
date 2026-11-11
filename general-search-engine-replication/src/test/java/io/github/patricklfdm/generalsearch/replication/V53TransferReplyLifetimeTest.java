@@ -18,6 +18,13 @@ class V53TransferReplyLifetimeTest {
     static final List<String> BOUNDARIES=List.of("offer","data","commit","cached-commit");
     static final List<String> FAULTS=List.of("expiry","service-close","owner-close","higher-ballot");
 
+    @Test void serviceCloseRevokesOutsideTheActiveHandlerAndThenDrains()throws Exception {
+        Path root=Files.createDirectory(temp.resolve("service-close"));
+        scenario(root,3,"offer","service-close");
+        var events=list(parse(Files.readAllBytes(root.resolve("events.json")),1024*1024));
+        assertEquals(1,events.stream().map(MembershipFormat::object).filter(v->v.get("event").equals("REVOKED")).count());
+    }
+
     static void resource(List<Map<String,Object>> rows,String side,String event,Decoded q,Decoded a,MembershipResources budget) {
         var row=new TreeMap<String,Object>();row.put("side",side);row.put("event",event);row.put("request",encoded(q));
         if(a!=null)row.put("response",encoded(a));row.put("resources",usage(budget));rows.add(row);
@@ -53,6 +60,7 @@ class V53TransferReplyLifetimeTest {
     void scenario(Path root,int size,String boundary,String fault)throws Exception {
         var helper=new V53MembershipTransportTest();helper.temp=temp;var trace=new Trace("reply-lifetime");
         var receiving=resources();var ref=new AtomicReference<MembershipTransferService>();var injected=new AtomicBoolean();
+        var closing=new AtomicReference<CompletableFuture<Void>>();
         var resourceRows=new ArrayList<Map<String,Object>>();
         boolean success=false;Path source=Files.createDirectory(root.resolve("source"));
         try(var group=helper.new Group(size,source)) {
@@ -89,7 +97,17 @@ class V53TransferReplyLifetimeTest {
                         trace.add("REVOKE","request",encoded(q),"fault",fault);
                         switch(fault) {
                             case "expiry"->{offset.set(BUDGET);trace.add("CLOCK_OFFSET","offset",BUDGET);}
-                            case "service-close"->ref.get().close();
+                            case "service-close"->{
+                                // A handler cannot synchronously wait for its own drain.
+                                // Observe real revocation here; join the external closer
+                                // only after this callback and the transport call return.
+                                closing.set(CompletableFuture.runAsync(()->ref.get().close()));
+                                long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(10);
+                                while(!ref.get().usage().closed()) {
+                                    if(System.nanoTime()>=deadline)throw new java.io.IOException("external service close did not revoke");
+                                    java.util.concurrent.locks.LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(1));
+                                }
+                            }
                             case "owner-close"->owner.close();
                             case "higher-ballot"->{owner.observeCurrent(higher);trace.add("OBSERVED_BALLOT","ballot",higher);
                                 assertThrows(MembershipGrantJournal.HigherBallot.class,()->owner.checkActivation(original.basis,null,false));}
@@ -114,6 +132,9 @@ class V53TransferReplyLifetimeTest {
                     for(int n=0;n<=stop;n++) {
                         call(trace,server,client,original.owner,requests.get(n),answers.get(n),started+BUDGET,n==stop);
                     }
+                    if(closing.get()!=null)closing.get().get(15,TimeUnit.SECONDS);
+                    assertEquals(1,trace.events.stream().filter(v->v.get("event").equals("REVOKED")).count(),
+                            "injection itself must complete before its IO failure can qualify");
                     assertTrue(injected.get());assertEquals(new MembershipTransferService.Usage(0,0,0,true),service.usage());
                     trace.add("DRAINED","usage",V53TransferServiceTest.observed(service.usage()),"resources",usage(fixture.resources));
                     if(fault.equals("expiry")){offset.set(0);trace.add("RESET_CLOCK","offset",0L);}

@@ -123,7 +123,9 @@ class NativeSlot(x.Walk):
         # Their exact bytes are included in the independently matched applied end.
 
     def checkpoint_voters(self,view,node):
-        eligible=set(view['old'])|set(view['new'])
+        # Only the installed cohort produced original application ACKs. Other
+        # live voters in the governing view cannot supply a missing endorsement.
+        eligible=(set(view['old'])|set(view['new'])) & set(self.voters)
         chosen={node} if node in eligible else set()
         for peer in sorted(eligible):
             if all(len(chosen & set(view[side]))>len(view[side])//2 for side in ('old','new')):break

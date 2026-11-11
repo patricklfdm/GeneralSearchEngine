@@ -52,7 +52,8 @@ def expected_floors(root,history,*,stage_projector=None):
         for node in eligible:
             projected=p.maintain(current,(node,),campaign=campaign)[node]
             if projected==current[node]:continue
-            copies={peer:copy_of(current[peer],peer) for peer in p.floors.floor_voters(current,node)}
+            copies={peer:copy_of(current[peer],peer) for peer in p.floors.floor_voters(current,node,prefer_installed=not campaign)}
+            annotations.setdefault(node,dict(pinned=forces.pins_local_original(current,node,campaign=campaign)))
             old=f.decode(c.current(before[node])[1]['promise.gsr'],'records','PROMISE')['ballot']
             result[ordinal,node]=dict(copies=copies,ballot=old if campaign and node=='node-1' else selected['ballot'],
                 phase=stage['kind'],life=stage['life'],**annotations.get(node,{}))
@@ -71,6 +72,10 @@ class Replay(x.Replay):
     def stage(self,at):
         found=[(i,s) for i,s in enumerate(self.history.ranges) if s['start']<at<s['stop']]
         need(len(found)==1,'transition maintenance original phase');return found[0]
+
+    def expected_events(self,copies,own,network,start,end):
+        ordinal,_=self.stage(start)
+        return maintenance.floor_events(copies,own['node'],network,pinned=self.expected[ordinal,own['node']]['pinned'])
 
     def statuses(self):
         super().statuses()
@@ -129,15 +134,40 @@ class Replay(x.Replay):
              'transition maintenance local recheck before complete acquisition')
         return row
 
+    def declined_hints(self):
+        used=self.discovery_statuses|self.acquired_statuses;declined=set();peers={}
+        for row in self.status_rows:
+            if row['requestHash'] in used:continue
+            need(all(k in row for k in ('sent','delivered','request','response')),'transition maintenance unbound discovery')
+            ordinal,stage=self.stage(row['sent']);q=row['request'];node=q['sender']['node'];peer=q['recipient']['node']
+            expected=self.expected.get((ordinal,node))
+            need(expected is not None and peer not in expected['copies'],'transition maintenance unexplained discovery')
+            own=expected['copies'][node];cut=own['packet']['capsule']['cut']
+            before=forces.group(self.root,stage['before']);remote=copy_of(before[peer],peer)
+            observed=row['response']['payload']['cut']
+            points=[i for i,v in enumerate(self.events) if stage['start']<i<stage['stop'] and
+                    v.get('node')==node and v['event']=='FLOOR_COPY_BEFORE_RETURN']
+            need(len(points)==2 and points[0]<row['sent']<row['delivered']<points[1] and
+                 peer in set(cut['view']['old']+cut['view']['new']) and q['sender']==own['identity'] and
+                 q['recipient']==remote['identity'] and q['ballot']==expected['ballot'] and
+                 observed==remote['packet']['capsule']['cut'] and
+                 (observed['view']!=cut['view'] or observed['index']<cut['index']),
+                 'transition maintenance exact declined hint')
+            key=ordinal,node,peer
+            need(peers.setdefault(key,row['requestHash'])==row['requestHash'],'transition maintenance repeated declined discovery')
+            declined.add(row['requestHash'])
+        return declined
+
     def run(self):
         self.statuses();result=self.floors()
         need(self.used_floors==set(self.expected),'transition maintenance missing required floor')
         need(self.copy_callbacks=={at for at,v in enumerate(self.events) if v['event']=='FLOOR_COPY_BEFORE_RETURN'},
              'transition maintenance unbound local copy')
-        need(self.discovery_statuses|self.acquired_statuses=={v['requestHash'] for v in self.status_rows},
+        declined=self.declined_hints()
+        need(self.discovery_statuses|self.acquired_statuses|declined=={v['requestHash'] for v in self.status_rows},
              'transition maintenance unbound discovery')
         return dict(status='PARTIAL',kind=self.kind,**result,initialDiscoveryHints=len(self.discovery_statuses),
-            acquisitionHints=len(self.acquired_statuses),localCopyCallbacks=len(self.copy_callbacks),
+            acquisitionHints=len(self.acquired_statuses),declinedDiscoveryHints=len(declined),localCopyCallbacks=len(self.copy_callbacks),
             floorsByPhase=dict(Counter(v['phase'] for v in self.expected.values())),
             completeCopyFloorLifetimesQualified=True,transientBytesCaptured=False,retentionRevisionCompositionQualified=False,
             cohortAdmitted=False,phase3Complete=False)

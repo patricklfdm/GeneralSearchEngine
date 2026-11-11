@@ -47,6 +47,7 @@ class JoiningProcessRunTest(unittest.TestCase):
             value=r.selected(case);cmd=r.command(case)
             self.assertIn('-Dv53.joining.profile='+value['profile'],cmd)
             self.assertIn('-Dv53.joining.process='+value['point']+','+value['mode'],cmd)
+            self.assertIn('-Dv53.transport.connections=true',cmd)
             self.assertEqual(1,sum(v.startswith('-Dtest=') for v in cmd));self.assertEqual('test',cmd[-1])
         with self.assertRaisesRegex(ValueError,'exact case'):r.selected('3-ADD,UNKNOWN,halt')
 

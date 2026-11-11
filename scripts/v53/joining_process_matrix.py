@@ -114,7 +114,8 @@ def check_result(result, case):
          all(prior.get(k) is True for k in ('originalPhysicalHistoryVerified', 'observedTransportVerified', 'durableACKsVerified')) and
          prior.get('phase3Complete') is False and prior.get('processDeathQualified') is False,
          'joining process matrix same original physical replay')
-    need(composed.get('negatives') == expected_negatives(physical.NEGATIVES), 'joining process matrix exact physical negatives')
+    need(composed.get('negatives') == expected_negatives(physical.negative_reasons(prior.get('transportFormat','legacy'))),
+         'joining process matrix exact physical negatives')
     need(result.get('transactionNegatives') == expected_negatives(physical.transaction.NEGATIVES),
          'joining process matrix exact transaction negatives')
 

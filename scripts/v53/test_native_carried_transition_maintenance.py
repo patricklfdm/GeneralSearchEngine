@@ -8,6 +8,34 @@ from . import native_carried_transition_maintenance as m
 
 
 class NativeCarriedTransitionMaintenanceTest(unittest.TestCase):
+    def declined(self,change=None):
+        reader=m.Replay.__new__(m.Replay)
+        view=dict(old=['node-1','node-2','node-3'],new=['node-1','node-2','node-3'])
+        own=dict(identity=dict(node='node-1'),packet=dict(capsule=dict(cut=dict(index=5,view=view))))
+        remote=dict(identity=dict(node='node-2'),packet=dict(capsule=dict(cut=dict(index=4,view=view))))
+        row=dict(requestHash='original',sent=2,delivered=3,
+                 request=dict(sender=own['identity'],recipient=remote['identity'],ballot={'counter':3}),
+                 response=dict(payload=dict(cut=deepcopy(remote['packet']['capsule']['cut']))))
+        reader.events=[dict(node='node-1',event=v) for v in ('begin','FLOOR_COPY_BEFORE_RETURN','send','reply','FLOOR_COPY_BEFORE_RETURN','end')]
+        reader.history=SimpleNamespace(ranges=[dict(start=0,stop=5,before='original')]);reader.root=Path('/original')
+        reader.expected={(0,'node-1'):dict(copies={'node-1':own,'node-3':{}},ballot={'counter':3})}
+        reader.discovery_statuses=set();reader.acquired_statuses=set();reader.status_rows=[row]
+        if change=='fresh':
+            remote['packet']['capsule']['cut']['index']=5;row['response']['payload']['cut']['index']=5
+        elif change=='invented':row['response']['payload']['cut']['index']=3
+        elif change=='early':row['sent']=1
+        elif change=='late':row['delivered']=4
+        elif change=='ballot':row['request']['ballot']={'counter':4}
+        elif change=='duplicate':reader.status_rows.append(dict(deepcopy(row),requestHash='other'))
+        elif change=='claimed-copy':reader.expected[0,'node-1']['copies']['node-2']=remote
+        with patch.object(m.forces,'group',return_value={'node-2':remote}),patch.object(m,'copy_of',side_effect=lambda files,node:files):
+            return reader.declined_hints()
+
+    def test_old_unselected_hint_is_classified_without_becoming_a_floor_copy(self):
+        self.assertEqual({'original'},self.declined())
+        for change in ('fresh','invented','early','late','ballot','duplicate','claimed-copy'):
+            with self.subTest(change=change),self.assertRaises(ValueError):self.declined(change)
+
     def discovery(self,change=None):
         reader=m.Replay.__new__(m.Replay);reader.active_floor=(10,30,dict(ballot={'counter':3}))
         q=dict(view='original view',ballot={'counter':3})

@@ -260,7 +260,7 @@ def run(output, maven, *, fault=None, source_from=None, portable_toolchain=False
         receipt['toolchainSha256'] = digest((output / 'toolchain.json').read_bytes())
         command = [maven, '-o', '-B', '-ntp', '-f', 'reactor/pom.xml', '-pl', '../' + MODULE, '-am',
                    '-Dsurefire.failIfNoSpecifiedTests=false', '-Dtest=' + TEST, 'test']
-        if fault is not None: command.insert(-1,'-Dv53.joining.sourceFault='+fault)
+        if fault is not None: command[-1:-1]=['-Dv53.transport.connections=true','-Dv53.joining.sourceFault='+fault]
         receipt['command'] = command; save(output / 'receipt.json', receipt)
         execution = execute(command, work, output / 'maven.log'); receipt['execution'] = execution
         save(output / 'execution.json', execution)

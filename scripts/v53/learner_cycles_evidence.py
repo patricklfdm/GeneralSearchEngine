@@ -13,6 +13,7 @@ import tempfile
 from . import learner_cycle_bytes as states
 from . import learner_cycle_forces as forces
 from . import learner_typed_evidence as t
+from . import remove_maintenance_evidence as maintenance
 
 b,c,d,a,e,f,need=t.b,t.c,t.d,t.a,t.e,t.f,t.need
 STAGES=('before-seed-handoff','selected-seed-head','retired-seed-predecessor',
@@ -38,9 +39,38 @@ def inventory(root):
            'retired-successor','retired-typed','installed-slot','installed-slot-typed','before-current-head',
            'after-current-retirement','after-third-acquisition','current-head-result.json','current-head-events.json',
            'current-head-wire.json','current-head-stages.json'}|set(STAGES)|set(COPIES.values())
-    names|={f'{stage}-{i}' for stage in ('applied','published') for i in range(1,10)}
+    names|={f'{stage}-{i}' for stage in ('applied','published') for i in range(1,17)}
+    names|={f'installed-{i}' for i in range(2,9)}|{f'selected-{i}.gsr' for i in range(2,9)}
     names|={f'cycle-{i}-{stage}' for i in range(4,7) for stage in ('before-prepare','after-prepare','receipt.gsr')}
     b.selection.layout(root,names,'learner cycles')
+
+
+def reconcile(root,model,ordinal):
+    """Reduce a fresh renewal campaign and its BARRIER from original grants."""
+    model.group=maintenance.maintenance(model.group,t.VOTERS)
+    group={n:model.group[n] for n in t.VOTERS};stage='installed-'+str(ordinal)
+    _,_,installed=d.s.campaign(root,group,ordinal+1,stage,selected_prefix=d.slot.prefix,
+        merge_ledgers=lambda before,sources:maintenance.merge(model.group,before,sources))
+    for node,files in installed.items():
+        prefix,members,packet=c.current(files);_,prior,_=c.current(group[node]);cuts={}
+        def add(cut):
+            index=cut['index']
+            need(index not in cuts or cuts[index]==cut,'learner cycles conflicting retained cut');cuts[index]=cut
+        for name,raw in group[node].items():
+            if name.startswith('sources/') and name.endswith('/source.gscp'):add(e.p.decode(raw)['capsule']['cut'])
+        for original in group.values():
+            for row in d.s.r.decode(original[d.s.FILE])['plan']['peers']:
+                for point in [*row['possible'],*row.get('renewals',[])]:add(point['cut'])
+        ancestry=b''.join(a.x.retained_campaign_ancestry(prior,packet,cuts[index]) for index in sorted(cuts))
+        if ancestry:
+            members=dict(members,**{'ancestry.gsr':ancestry})
+            selector,generation=c.generation(members,packet['capsule'],node,prefix.split('/')[1],None)
+            files.update(generation);files['selector.gsr']=selector
+    model.group.update(installed);b.match(root,stage,model.group)
+    need((root/f'selected-{ordinal}.gsr').read_bytes()==c.current(model.group['node-1'])[1]['selected.gsr'],
+         'learner cycles exact renewal selection')
+    model.counter=ordinal+1;model.first=None
+    model.group=maintenance.maintenance(model.group,t.VOTERS);model.publish('BARRIER',None)
 
 
 def physical(root):
@@ -50,7 +80,7 @@ def physical(root):
     _,_,installed=d.s.campaign(root,{n:group[n] for n in t.VOTERS},2,'installed',selected_prefix=d.slot.prefix)
     group.update(installed);b.match(root,'installed',group)
     need((root/'selected.gsr').read_bytes()==c.current(group['node-1'])[1]['selected.gsr'],'learner cycles original selection')
-    model=a.NativeSlot.__new__(a.NativeSlot)
+    model=t.source.r.CurrentSlot.__new__(t.source.r.CurrentSlot)
     model.root=root;model.group=group;model.active=list(t.VOTERS);model.voters=t.VOTERS
     model.required=set();model.slot=0;model.counter=2;model.first=None
     model.observed=set();model.phases={};model.documents=[]
@@ -60,11 +90,12 @@ def physical(root):
          and type(request.get('target')) is list and len(request['target'])==4,'learner cycles native request')
     joining=[v for v in request['target'] if v['node']=='node-4'];need(len(joining)==1,'learner cycles joining identity');learner=joining[0]
     def publish(kind,payload):
-        model.group=a.maintenance(model.group,t.VOTERS);model.publish(kind,payload)
+        model.group=maintenance.maintenance(model.group,t.VOTERS);model.publish(kind,payload)
     publish('BARRIER',None);publish('RESERVE',supplied)
     revisions={};receipts={};originals={}
     for revision in range(1,7):
         if revision>=4:b.match(root,f'cycle-{revision}-before-prepare',model.group)
+        reconcile(root,model,revision+1)
         publish('PREPARE',dict(number=1,revision=revision));revisions[revision]=copy.deepcopy(model.group)
         if revision<=3:b.match(root,{1:'before-current-head',2:'after-current-retirement',3:'after-third-acquisition'}[revision],model.group)
         else:b.match(root,f'cycle-{revision}-after-prepare',model.group)
@@ -79,6 +110,7 @@ def physical(root):
         if revision>1:
             name={2:'current-receipt.gsr',3:'third-receipt.gsr'}.get(revision,f'cycle-{revision}-receipt.gsr')
             need((root/name).read_bytes()==receipts[revision],'learner cycles exact native receipt')
+    reconcile(root,model,8)
     publish('CANCEL',dict(number=1));b.match(root,'after-close',model.group)
     need(d.read(root/'failures.json')==[],'learner cycles native failures')
     descriptor=e.parse((root/'original-plan.gsbp').read_bytes()[48:])['descriptor']

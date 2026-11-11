@@ -11,6 +11,7 @@ from pathlib import Path
 import shutil
 import sys
 import tempfile
+import uuid
 from types import SimpleNamespace
 from . import native_carried_transition_forces as forces
 from . import remove_network_evidence as network
@@ -24,7 +25,7 @@ c,d,e,f,need=p.c,p.d,p.e,p.f,p.need
 class History(network.History):
     def __init__(self,root,kind,events):
         self.root=Path(root);self.old=process.NODES
-        self.phases=[];self.states=[None];self.applied={};self.published={};self.installed={};self.ranges=[]
+        self.phases=[];self.states=[None];self.applied={};self.published={};self.installed={};self.ranges=[];self.nonvoting=set()
         first,count,_=p.t.shape(kind)
         start=-1;life=1;ordinal=0;prior='life-1-opened'
         for at,row in enumerate(events):
@@ -43,6 +44,8 @@ class History(network.History):
                 for node in self.old:
                     self.installed[ordinal,node]=c.inventory(root/prior/node)
                     self.applied[ordinal,node]=c.inventory(root/f'life-2-applied-{index}'/node)
+                    if 'applied-end/statement.gsr' in self.applied[ordinal,node] and 'applied-end/ack.gsr' not in self.applied[ordinal,node]:
+                        self.nonvoting.add((ordinal,node))
                     self.published[ordinal,node]=c.inventory(root/after/node)
                 frames,_=p.data.pending(self.applied[ordinal,'node-1'])
                 self.phases.append(dict(SELECTED=selected,**{k:frames[k] for k in ('ENTRY','ACCEPT','PROOF','CERTIFICATE')}))
@@ -52,13 +55,38 @@ class History(network.History):
         need(len(self.phases)==count and len(self.ranges)==2+2*count,'transition network complete phase inventory')
 
     def activations(self):
-        phases=[];installed={}
+        phases=[];installed={};unselected={}
         for stage in self.ranges:
             if stage['kind']!='campaign':continue
             ordinal=len(phases)+1;raw=(self.root/(stage['after']+'.gsr')).read_bytes()
             phases.append(dict(SELECTED=raw))
-            for node in self.old:installed[ordinal,node]=c.inventory(self.root/stage['after']/node)
-        return SimpleNamespace(phases=phases,installed=installed)
+            selected=f.decode(raw,'records','SELECTED');voters={v['voter'] for v in selected['sources']}
+            for node in self.old:
+                files=c.inventory(self.root/stage['after']/node);installed[ordinal,node]=files
+                if node not in voters and any(kind=='BASIS' and value['ballot']==selected['ballot']
+                        for kind,_,value in c.journal(files['grants.gsr'],selected['root'],node)):
+                    unselected[ordinal,node]=files
+        return SimpleNamespace(phases=phases,installed=installed,unselected=unselected)
+
+
+def unselected_prepare(row,stage,history):
+    if stage.get('kind')!='campaign' or row['kind']!='PREPARE' or row['answer']!='PROMISE':return False
+    selected=f.decode((history.root/(stage['after']+'.gsr')).read_bytes(),'records','SELECTED')
+    return (row['request']['ballot']==selected['ballot'] and
+            row['request']['recipient']['node'] not in {v['voter'] for v in selected['sources']})
+
+
+def recovered_delivery(row,rows,stage):
+    """Require a real identical ACK in this phase; never mark a lost ACK delivered.
+
+    An old server response can arrive after the successful retry. Legacy capture
+    cannot assign identical responses to sockets, so no attempt-order claim is
+    made here. The immutable request, reply, phase and actual delivery must match.
+    """
+    if row['kind'] not in ('PREPARE','SELECTED','ACCEPT','PROOF','APPLY'):return False
+    return any(other['delivered'] is not None and stage['start']<other['offered']<other['delivered']<stage['stop']
+               and other['kind']==row['kind'] and other['answer']==row['answer']
+               and other['request']==row['request'] and other['response']==row['response'] for other in rows)
 
 
 def transport(root,history,original):
@@ -95,7 +123,10 @@ def transport(root,history,original):
             # remaining callers. A server may have offered an exact ACK whose
             # client was already cancelled. contacts() still requires the
             # original delivered majority; this observation gives no credit.
-            need(row['kind']=='HEARTBEAT' and row['answer']=='HEARTBEAT_ACK',
+            # Slot delivery also retries identical requests. Retain late or
+            # lost duplicate ACKs, requiring an exact delivered ACK in this phase.
+            need((row['kind']=='HEARTBEAT' and row['answer']=='HEARTBEAT_ACK') or recovered_delivery(row,rows,stage)
+                 or unselected_prepare(row,stage,history),
                  'transition network undelivered required response')
         else:
             need(stage['start']<row['delivered']<stage['stop'] and
@@ -179,13 +210,76 @@ def interrupted(root,history,events,rows):
     return len(used)
 
 
+def unused_checkpoint(history,values,blocks):
+    """Bind an unanswered lookup to a derived statement and unselected voter.
+
+    Publication may probe old voters before obtaining the selected majority.
+    Such an absent response supplies no endorsement; physical publication and
+    the successful export history must independently establish the real quorum.
+    """
+    if not values or values[0]['kind']!='CHUNK':return False
+    q=values[0]['request'];sender=q['sender']['node'];recipient=q['recipient']['node']
+    for ordinal,parts in enumerate(history.phases,1):
+        selected=f.decode(parts['SELECTED'],'records','SELECTED');voters={v['voter'] for v in selected['sources']}
+        if sender not in voters or recipient in voters or (ordinal,sender) not in blocks:continue
+        original=history.applied[ordinal,sender];identity=d.future.identity(history.applied[ordinal,recipient])
+        lower=blocks[ordinal,sender]['APPLY_BEFORE_RETURN'];upper=blocks[ordinal,sender]['PUBLICATION_VALIDATED']
+        if q['ballot']!=selected['ballot'] or not lower<values[0]['at']<upper:continue
+        for name,raw in original.items():
+            if not name.startswith('applied-end/') or not name.endswith('statement.gsr'):continue
+            statement=f.decode(raw,'records','CHECKPOINT');view=statement['end']['view']
+            if recipient not in set(view['old']+view['new']):continue
+            ack=f.encode('records','CHECKPOINT_ACK',dict(root=statement['root'],voter=recipient,
+                incarnation=identity['storage'],cut=statement['end'],statement=e.digest(raw)))
+            if q['payload'].get('digest')!=e.digest(ack):continue
+            trace=q['trace'];identifier=q['payload'].get('id')
+            need(str(uuid.UUID(trace))==trace and uuid.UUID(trace).int!=0 and
+                 str(uuid.UUID(identifier))==identifier and uuid.UUID(identifier).int!=0,
+                 'transition network checkpoint lookup identity')
+            need(q==dict(root=statement['root'],view=selected['view'],ballot=selected['ballot'],
+                sender=d.future.identity(original),recipient=identity,trace=trace,sequence=1,
+                payload=dict(id=identifier,action='REQUEST',offset=0,digest=e.digest(ack),bytes=''))
+                and 0<len(values)<=3 and all(v['request']==q and v['kind']=='CHUNK' and v['response'] is None
+                    and lower<v['at']<upper and (v['received'] is None or v['at']<v['received']<upper) for v in values),
+                 'transition network unused checkpoint lookup')
+            return True
+    return False
+
+
+def unanswered_prepare(history,events,values):
+    if not values or values[0]['kind']!='PREPARE':return False
+    q=values[0]['request'];peer=q['recipient']['node']
+    for stage in history.ranges:
+        if stage['kind']!='campaign' or not stage['start']<values[0]['at']<stage['stop']:continue
+        files=c.inventory(history.root/stage['after']/'node-1');members=c.current(files)[1]
+        selected=f.decode(members['selected.gsr'],'records','SELECTED');voters={v['voter'] for v in selected['sources']}
+        if peer in voters or peer not in set(selected['cut']['view']['old']+selected['cut']['view']['new']):continue
+        local=[(at,v['event']) for at,v in enumerate(events) if stage['start']<at<stage['stop'] and v.get('node')=='node-1']
+        granted=[at for at,point in local if point=='GRANT_BEFORE_RETURN'];selected_at=[at for at,point in local if point=='SELECTED_FORCED']
+        need(len(granted)==len(selected_at)==1,'transition network unanswered prepare interval')
+        need(q['sender']['node']=='node-1' and q['ballot']==selected['ballot'] and q['view']==selected['view'] and
+             q['payload']==dict(promise=e.digest(members['promise.gsr'])) and 0<len(values)<=3 and
+             all(v['request']==q and v['kind']=='PREPARE' and v['response'] is None and granted[0]<v['at']<selected_at[0]
+                 for v in values),'transition network unanswered prepare authority')
+        return True
+    return False
+
+
 def silents(history,events,rows,sent,heartbeat_silent,blocks):
-    classified=set(heartbeat_silent);results=[]
+    classified=set(heartbeat_silent);results=[];checkpoint_traces=set();checkpoint_ids=set()
     for digest,values in sent.items():
         unanswered=[v for v in values if v['response'] is None]
         if not unanswered:continue
         if digest in heartbeat_silent:
             results.append(dict(kind='HEARTBEAT',attempts=len(unanswered)));continue
+        if unused_checkpoint(history,values,blocks):
+            q=values[0]['request'];trace=q['trace'];identifier=q['payload']['id']
+            need(trace not in checkpoint_traces and identifier not in checkpoint_ids and
+                 all(v['request']['trace']!=trace for v in rows),'transition network reused checkpoint lookup')
+            checkpoint_traces.add(trace);checkpoint_ids.add(identifier)
+            classified.add(digest);results.append(dict(kind='CHECKPOINT_ACK_LOOKUP',attempts=len(values)));continue
+        if unanswered_prepare(history,events,values):
+            classified.add(digest);results.append(dict(kind='PREPARE',attempts=len(values)));continue
         q=values[0]['request'];recipient=q['recipient']['node'];matched=False
         for ordinal,parts in enumerate(history.phases,1):
             selected=f.decode(parts['SELECTED'],'records','SELECTED');voters=[v['voter'] for v in selected['sources']]

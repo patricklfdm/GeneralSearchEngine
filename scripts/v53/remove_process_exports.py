@@ -76,12 +76,38 @@ def frozen_sources(files,node):
     return result
 
 
+def per_source_retirements(events,node,before,current,lower,upper,starts):
+    """Bind each sorted source to its own complete original retirement."""
+    removed=sorted(before.keys()-current.keys())
+    need(len(starts)==len(removed) and starts==sorted(set(starts)),'application export exact source retirement count')
+    ends={}
+    for index,(identifier,start) in enumerate(zip(removed,starts)):
+        stop=starts[index+1] if index+1<len(starts) else upper
+        rows=[v['event'] for at,v in enumerate(events) if start<=at<stop and v.get('node')==node and
+              v['event'].startswith('SOURCE_RETIREMENT_')]
+        expected=['SOURCE_RETIREMENT_CREATED','SOURCE_RETIREMENT_WRITTEN','SOURCE_RETIREMENT_FORCED',
+            'SOURCE_RETIREMENT_PARENT_FORCED','SOURCE_RETIREMENT_JOURNAL_PRUNED']
+        expected+=['SOURCE_RETIREMENT_FILE_DELETED']*len(before[identifier]['members'])
+        expected+=['SOURCE_RETIREMENT_DIRECTORY_DELETED','SOURCE_RETIREMENT_CLEARED','SOURCE_RETIREMENT_BEFORE_RETURN']
+        need(lower<start<stop and rows==expected,'application export complete per-source retirement')
+        ends[identifier]=start
+    return ends
+
+
 def source_windows(root,events,history,activation,*,snapshots=None,retirement_boundaries=None):
     grants={};prior=-1
     for ordinal,parts in enumerate(activation.phases,1):
         selected=f.decode(parts['SELECTED'],'records','SELECTED');digest=sha(parts['SELECTED'])
         end=next(i for i,v in enumerate(events) if v['event']=='ROUND_INSTALLED' and v['record']==digest)
-        for row in selected['sources']:
+        sources=list(selected['sources'])
+        for (number,node),files in getattr(activation,'unselected',{}).items():
+            if number!=ordinal:continue
+            bases=[(raw,value) for kind,raw,value in c.journal(files['grants.gsr'],selected['root'],node)
+                   if kind=='BASIS' and value['ballot']==selected['ballot']]
+            need(len(bases)==1 and node not in {v['voter'] for v in selected['sources']},
+                 'REMOVE process export exact unselected grant')
+            raw,value=bases[0];sources.append(dict(voter=node,basisId=value['basisId'],basisDigest=sha(raw)))
+        for row in sources:
             found=[i for i,v in enumerate(events) if prior<i<end and v['node']==row['voter'] and v['event']=='GRANT_BEFORE_RETURN']
             need(len(found)==1,'REMOVE process export original source grant')
             grants[row['voter'],row['basisId']]=(found[0],row['basisDigest'])

@@ -4,6 +4,11 @@ Status: tooling implemented; final-source execution and Phase 3 remain OPEN.
 The operator will arrange a qualifying native Linux machine after development.
 This entry neither provisions it nor dispatches any workflow.
 
+The [2026-11-10 expansion failure review](PHASE_3_EXPANSION_FAILURE_REVIEW.md)
+records the first twelve expanded hosted runs at `5217a556`, their retained
+failures and the subsequent local corrections. That review does not admit the
+cohort or replace the remaining original executions and independent replays.
+
 ## Generate from the final checkout
 
 The [offline planner](../../../scripts/v53/phase3_execution_plan.py) reads the
@@ -39,8 +44,9 @@ The current actual contracts expand as follows:
 The three large workflows are maximum-transition (inside the supplemental set),
 maximum-native and maximum-queue. The other fifteen use GitHub-hosted runners.
 These are scheduling counts, not executed outcomes or a measured duration.
-Continuous histories remain indivisible. Existing in-workflow parallel limits
-remain unchanged; an unspecified limit is recorded as null, not an invented
+Continuous histories remain indivisible. The Joining process execute/verify
+matrices now omit their former eight-job cap; other in-workflow parallel limits
+remain unchanged. An unspecified limit is recorded as null, not an invented
 concurrency or runner-availability estimate.
 
 ## Large runner queue and capacity

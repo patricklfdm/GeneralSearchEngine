@@ -14,6 +14,89 @@ from .test_joining_retention_evidence import Inputs
 
 
 class JoiningProfileContinuationEvidenceTest(unittest.TestCase):
+    def original_maintenance_copies(self,change=None):
+        v=Inputs(4,False);ids={i['node']:i for i in v.identities}
+        before={};installed={};rows=[];events=[dict(node='node-5',event='GRANT_BEFORE_RETURN')]
+        for peer in ('node-1','node-2','node-5'):
+            value=e.f.sample(e.f.catalog()['records']['GENERATION']['schema'],e.f.catalog()['types'])
+            value.update(node=peer,generation='a')
+            before[peer]={'generation.gsr':e.f.encode('records','GENERATION',value)}
+            installed[peer]={'generation.gsr':e.f.encode('records','GENERATION',dict(value,generation='b'))}
+        for i,peer in enumerate(('node-1','node-2'),1):
+            raw=(before if peer=='node-1' else installed)[peer]['generation.gsr']
+            if change=='unknown' and peer=='node-1':raw=e.f.encode('records','GENERATION',dict(value,node=peer,capsule='f'*64))
+            fields=dict(root=v.cap['root'],view=e.s.catalog.authority(v.cap['root'],v.cap['cut']['view']),ballot=v.ballot,
+                        trace='00000000-0000-0001-0000-'+str(i).zfill(12),sequence=2)
+            payload=dict(id='00000000-0000-0002-0000-'+str(i).zfill(12),offset=0,digest=e.sha(raw))
+            request=e.f.encode('wire','CHUNK',dict(fields,sender=ids['node-5'],recipient=ids[peer],
+                               payload=dict(payload,action='REQUEST',bytes='')))
+            response=e.f.encode('wire','CHUNK',dict(fields,sender=ids[peer],recipient=ids['node-5'],
+                                payload=dict(payload,action='DATA',bytes=base64.b64encode(raw).decode())))
+            rows.append(dict(request=base64.b64encode(request).decode(),response=base64.b64encode(response).decode(),withheld=False))
+            events.append(dict(node='node-5',event='AFTER_RESPONSE_READ',request=e.sha(request),response=e.sha(response)))
+        events.extend(dict(node='node-5',event=point) for point in ('FLOOR_RESERVED','SOURCE_RETIREMENT_BEFORE_RETURN'))
+        if change=='missing':rows.pop()
+        elif change=='late':events.insert(3,events.pop(1))
+        elif change=='wrong-owner':events[1]['node']='node-4'
+        elif change=='withheld':rows[0]['withheld']=True
+        elif change=='wrong-ballot':v.ballot=dict(v.ballot,counter=v.ballot['counter']+1)
+        elif change=='no-floor':events=[v for v in events if v['event']!='FLOOR_RESERVED']
+        elif change=='next-grant':events.insert(1,dict(node='node-5',event='GRANT_CAPTURED'))
+        elif change=='legacy-read':
+            for row in events:
+                if row['event']=='AFTER_RESPONSE_READ':row['event']='NETWORK_RECEIVED'
+        with patch.object(e.disk,'current',return_value=('',{},{})):
+            copies=e.maintenance_copies(rows,events,'node-5',v.ballot,0,before,installed,('node-1','node-2'))
+        return copies,before,installed
+
+    def test_unselected_cleanup_derives_mixed_pre_and_post_install_copies_from_delivery(self):
+        for mode in (None,'legacy-read'):
+            copies,before,installed=self.original_maintenance_copies(mode)
+            self.assertEqual({'node-1':before['node-1'],'node-2':installed['node-2'],'node-5':before['node-5']},copies)
+
+    def test_unselected_cleanup_cannot_invent_a_manifest_or_borrow_later_delivery(self):
+        for change,reason in (('unknown','not independently derived'),('missing','missing original copy'),
+                              ('late','missing original copy'),('wrong-owner','missing original copy'),
+                              ('withheld','copy peer'),('wrong-ballot','missing original copy'),('no-floor','original floor'),
+                              ('next-grant','retirement completion')):
+            with self.subTest(change=change),self.assertRaisesRegex(ValueError,reason):self.original_maintenance_copies(change)
+
+    def delayed_retirement(self,change=None):
+        reader=e.Continuation.__new__(e.Continuation)
+        before={'sources/old':None,'sources/old/source.gscp':b'original','grants.gsr':b'prior'}
+        after={'grants.gsr':b'derived'};reader.group={'node-5':dict(before)}
+        reader.unselected_maintenance={'node-5':(0,before,after)}
+        points=['SOURCE_RETIREMENT_'+v for v in ('CREATED','WRITTEN','FORCED','PARENT_FORCED')]
+        points+=['JOURNAL_ROTATION_'+v for v in ('CREATED','WRITTEN','FORCED','RENAMED','PARENT_FORCED')]
+        points+=['SOURCE_RETIREMENT_'+v for v in ('JOURNAL_PRUNED','FILE_DELETED','DIRECTORY_DELETED','CLEARED','BEFORE_RETURN')]
+        reader.events=[dict(node='node-5',event='GRANT_BEFORE_RETURN')]
+        reader.events.extend(dict(node='node-5',event=v) for v in points)
+        boundary=dict(node='node-1',event='JOINING_SLOT_APPLIED',index=10)
+        reader.events.append(boundary)
+        if change=='later':reader.events.insert(1,reader.events.pop())
+        elif change=='missing-force':reader.events=[v for v in reader.events if v['event']!='SOURCE_RETIREMENT_FORCED']
+        elif change=='wrong-owner':
+            for v in reader.events:
+                if v['node']=='node-5':v['node']='node-6'
+        elif change=='changed-owner':reader.group['node-5']['extra']=b'not derived'
+        elif change=='duplicate-boundary':reader.events.append(boundary)
+        with patch.object(e.c.Continuation,'match') as compare:reader.match('applied-10')
+        compare.assert_called_once_with('applied-10')
+        return reader,before,after
+
+    def test_unselected_grant_retirement_is_applied_only_after_original_completion(self):
+        reader,_,after=self.delayed_retirement()
+        self.assertEqual(after,reader.group['node-5']);self.assertEqual({},reader.unselected_maintenance)
+        for change in ('later','wrong-owner'):
+            with self.subTest(change=change):
+                reader,before,_=self.delayed_retirement(change)
+                self.assertEqual(before,reader.group['node-5']);self.assertIn('node-5',reader.unselected_maintenance)
+
+    def test_unselected_cleanup_never_accepts_missing_force_or_changed_authority(self):
+        for change,reason in (('missing-force','source retirement order'),('changed-owner','owner changed'),
+                              ('duplicate-boundary','snapshot boundary')):
+            with self.subTest(change=change),self.assertRaisesRegex(ValueError,reason):self.delayed_retirement(change)
+
     def reconcile(self, profile, change=None):
         size, kind, _, new = e.topology(profile); v = Inputs(size,kind=='REPLACE')
         state=dict(root=v.cap['root'],owner=v.identities[0],revision=5,previous='d'*64,plan=copy.deepcopy(v.peer_plans[0]))

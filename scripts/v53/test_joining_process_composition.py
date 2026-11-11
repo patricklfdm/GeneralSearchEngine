@@ -10,6 +10,14 @@ from . import test_joining_process_run as fixtures
 
 
 class JoiningProcessCompositionTest(unittest.TestCase):
+    def test_connection_capture_preserves_every_negative_with_exact_format_specific_reason(self):
+        expected=dict(m.NEGATIVES,**{'missing-child-response':'connection missing original response'})
+        self.assertEqual(m.NEGATIVES,m.negative_reasons('legacy'))
+        self.assertEqual(expected,m.negative_reasons('connections'))
+        self.assertEqual(set(m.NEGATIVES),set(expected))
+        for value in ('unknown',None,True):
+            with self.subTest(value=value),self.assertRaisesRegex(ValueError,'transport format'):m.negative_reasons(value)
+
     def setUp(self):
         fixture = fixtures.JoiningProcessRunTest(); fixture.setUp(); self.addCleanup(fixture.doCleanups)
         self.raw = fixture.raw(); self.case = fixture.case
@@ -109,7 +117,7 @@ class JoiningProcessCompositionTest(unittest.TestCase):
             mutated.assert_not_called()
 
     def test_unrelated_negative_failure_is_not_a_rejection_success(self):
-        with patch.object(m, 'validate', side_effect=[dict(status='PARTIAL'), ValueError('unrelated original error')]):
+        with patch.object(m, 'validate', side_effect=[dict(status='PARTIAL',transportFormat='legacy'), ValueError('unrelated original error')]):
             with self.assertRaisesRegex(ValueError, 'unrelated composition negative'): m.qualify(self.raw, self.case)
 
     def test_shared_ordinary_reader_keeps_early_copy_requirement(self):

@@ -54,6 +54,31 @@ class History:
         return next(v['possible'][0] for v in state['plan']['peers'] if v['identity']['node']==target)
 
 
+def cancelled_grant(events,rows,files,selected,promise,lower,upper):
+    """Validate an unselected grant; even an arrived reply adds no authority."""
+    node=f.decode(files['node.gsr'],'records','NODE')['identity']['node']
+    need(node not in {v['voter'] for v in selected['sources']},'REMOVE network cancelled selected voter')
+    journal=[(kind,raw,value) for kind,raw,value in c.journal(files['grants.gsr'],selected['root'],node)
+             if value['ballot']==selected['ballot']]
+    need([kind for kind,_,_ in journal]==['PROMISE','BASIS'],'REMOVE network cancelled grant journal')
+    basis=journal[1][2];packet=c.p.decode(files['sources/'+basis['basisId']+'/source.gscp'])
+    positions=lambda point:[i for i,v in enumerate(events) if lower<i<upper and v['node']==node and v['event']==point]
+    starts,returns,selections=positions('CURRENT_BEFORE_CAPTURE'),positions('GRANT_BEFORE_RETURN'),positions('SELECTED_FORCED')
+    need(len(starts)==len(returns)==1 and starts[0]<returns[0] and not selections,'REMOVE network cancelled grant interval')
+    need(0<len(rows)<=3 and all(row['kind']=='PREPARE' and row['answer']=='PROMISE'
+         and (row['delivered'] is None or type(row['delivered']) is int and row['offered']<row['delivered']<upper)
+         and row['request']==rows[0]['request'] and row['response']==rows[0]['response']
+         and lower<row['sent']<row['received']<row['offered']<upper and returns[0]<row['offered'] for row in rows),
+         'REMOVE network cancelled grant replies')
+    need(min(row['received'] for row in rows)<starts[0],'REMOVE network cancelled grant request before capture')
+    q,a=rows[0]['request'],rows[0]['response']
+    need(q['sender']['node']==selected['ballot']['proposer'] and q['recipient']['node']==node
+         and q['ballot']==selected['ballot'] and q['view']==selected['view']
+         and q['payload']==dict(promise=sha(promise)) and a['payload']==dict(basis=sha(journal[1][1])),
+         'REMOVE network cancelled grant authority')
+    return shared.grant_capture_order(events,node,None,starts[0],returns[0],packet)
+
+
 def activations(events,rows,history):
     used=set();grants=installations=0;prior=-1;capture_callbacks=set();journal_bounds=[]
     for ordinal,parts in enumerate(history.phases,1):
@@ -95,6 +120,9 @@ def activations(events,rows,history):
         for row in rows:
             if row['kind'] not in ('PREPARE','SELECTED') or row['request']['ballot']!=selected['ballot']:continue
             q,a=row['request'],row['response'];node=q['recipient']['node'];own=members.get(node)
+            if (ordinal,node) in getattr(history,'unselected',{}):
+                need(row['kind']=='PREPARE' and q in requests.values(),'REMOVE network cancelled activation authority')
+                used.add(row['offered']);continue
             need(q['sender']['node']==proposer and node in voters and node!=proposer and q['view']==selected['view'] and
                  q in requests.values(),
                  'REMOVE network activation authority')
@@ -121,6 +149,13 @@ def activations(events,rows,history):
                 propagation.append(dict(row,request=q));installations+=1
         need(sorted(prepare)==sorted(v for v in voters if v!=proposer) and
              sorted(v['request']['recipient']['node'] for v in propagation)==sorted(prepare),'REMOVE network complete peer activation')
+        for (number,node),files in getattr(history,'unselected',{}).items():
+            if number!=ordinal:continue
+            own=[row for row in rows if row['request']['ballot']==selected['ballot'] and row['request']['recipient']['node']==node
+                 and row['kind'] in ('PREPARE','SELECTED')]
+            bound=cancelled_grant(events,own,files,selected,members[proposer]['promise.gsr'],grant_returns[proposer],end)
+            need(not capture_callbacks.intersection(bound),'REMOVE network reused grant capture callback')
+            capture_callbacks.update(bound)
         shared.proposer_forces(events,proposer,None,positions[proposer][2],end,propagation,members[proposer])
         for node in voters:
             if node==proposer:
@@ -131,7 +166,7 @@ def activations(events,rows,history):
             journal_bounds.append(dict(node=node,scope=None,selection=digest,forced=positions[node][2],lower=lower,upper=upper))
         prior=end
     need(used=={v['offered'] for v in rows if v['kind'] in ('PREPARE','SELECTED')},'REMOVE network unbound activation')
-    need(sum(v['event']=='GRANT_BEFORE_RETURN' for v in events)==grants and
+    need(sum(v['event']=='GRANT_BEFORE_RETURN' for v in events)==grants+len(getattr(history,'unselected',{})) and
          sum(v['event']=='SELECTED_FORCED' for v in events)==grants,'REMOVE network unexplained grant/selection')
     need(capture_callbacks=={i for i,v in enumerate(events) if shared.capture_callback(v['event'])},
          'REMOVE network unbound grant capture callback')

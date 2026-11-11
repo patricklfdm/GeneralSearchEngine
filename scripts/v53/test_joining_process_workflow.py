@@ -18,10 +18,10 @@ class JoiningProcessWorkflowTest(unittest.TestCase):
         self.assertNotRegex(self.text,r'secrets\.|id-token:|workflow_call:|continue-on-error:|retry')
         self.assertIn('cancel-in-progress: false',self.text)
 
-    def test_separate_original_and_downloaded_replay_with_bounded_concurrency(self):
+    def test_separate_original_and_downloaded_replay_without_workflow_parallel_cap(self):
         self.assertEqual({'prepare','execute','verify','aggregate'},set(self.jobs))
         for job in ('execute','verify'):
-            self.assertIn('fail-fast: false',self.jobs[job]);self.assertIn('max-parallel: 8',self.jobs[job])
+            self.assertIn('fail-fast: false',self.jobs[job]);self.assertNotIn('max-parallel:',self.jobs[job])
             self.assertIn('matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}',self.jobs[job])
         self.assertIn('needs: [prepare, execute]',self.jobs['verify'])
         self.assertIn('needs: [prepare, execute, verify]',self.jobs['aggregate'])

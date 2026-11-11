@@ -92,7 +92,8 @@ def model(root,history):
         else:need(entry['kind']=='BARRIER','transition export original command');payload=b''
         need(sha(payload)==entry['payload'],'transition export original payload')
         phases.append(dict(parts,PAYLOAD=payload))
-    return SimpleNamespace(root=entry['root'],phases=phases,old=history.old,joining=None,owner=history.owner)
+    return SimpleNamespace(root=entry['root'],phases=phases,old=history.old,joining=None,owner=history.owner,
+                           nonvoting=history.nonvoting)
 
 
 def interrupted_records(root,events,history,windows,model):
@@ -146,7 +147,7 @@ class Replay(shared.Replay):
         self.windows=generation_windows(self.root,self.events,self.history,self.live)
         activation=self.history.activations()
         self.sources=sources.source_windows(self.root,self.events,self.history,activation,
-            snapshots=snapshots(self.root,self.events),retirement_boundaries=retirement_boundaries)
+            snapshots=snapshots(self.root,self.events),retirement_boundaries=retirement_boundaries or sources.per_source_retirements)
         self.model=model(self.root,self.history)
         # Interrupted callbacks belong to the mandatory crash reducer, not to
         # the complete successor slots. Keep journal/fencing events in place.

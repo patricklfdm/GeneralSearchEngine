@@ -20,7 +20,7 @@ class V53AutomaticRestartTest {
     @Test void higherBallotAutomaticallyDrainsAndReactivatesBeforeNewData()throws Exception {
         var nativeHelper=new V53NativeDispatchTest();nativeHelper.temp=temp;
         var n=nativeHelper.new Network(3,ReplicationBounds.defaults(),BUDGET,f->{});
-        V53RestartLifecycleCapture capture=null;MembershipAutomaticOwner observedOwner=null;boolean passed=false;
+        V53RestartLifecycleCapture capture=null;MembershipAutomaticOwner observedOwner=null;boolean passed=false;Throwable primary=null;
         try(n) {
             if(Boolean.getBoolean("v53.restart.lifecycle.captures")) {
                 synchronized(n.events){capture=new V53RestartLifecycleCapture(n.f.raw,n.events);n.restartLifecycleCapture=capture;}
@@ -72,9 +72,13 @@ class V53AutomaticRestartTest {
                     "barriers",2,"dataCalls",1,"originalBudgetNanos",BUDGET,"physicalReplay",false,"phase3Complete",false),4096));
                 passed=true;
             }
-        }finally {
-            if(capture!=null)capture.save(n.f.raw,passed,observedOwner!=null && observedOwner.drained(),
-                observedOwner==null?Optional.of(new IOException("automatic owner not constructed")):observedOwner.observationFailure(),n.resources);
+        }catch(Exception|Error error){primary=error;throw error;}
+        finally {
+            if(capture!=null) {
+                var retained=capture;var observed=observedOwner;boolean producerPassed=passed;
+                V53NodeProcessDiagnostics.finish(primary,()->{},()->retained.save(n.f.raw,producerPassed,observed!=null && observed.drained(),
+                    observed==null?Optional.of(new IOException("automatic owner not constructed")):observed.observationFailure(),n.resources));
+            }
         }
     }
 }

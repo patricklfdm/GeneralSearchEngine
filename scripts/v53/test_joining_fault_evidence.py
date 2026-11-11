@@ -7,7 +7,41 @@ from . import joining_fault_evidence as gate
 from . import test_joining_source_loss as fixture
 
 
+def observed_trace(kind, connections=False):
+    """Synthetic fixture with the terminals and socket metadata used by live capture."""
+    values=fixture.trace(kind);events,wires,ids,root=values
+    rows=gate.n.causal(*values);insertions=[]
+    for i,row in enumerate(rows):
+        send=events[row['sent']];receive=events[row['received']]
+        client=dict(id=f'00000000-0000-0000-0000-{2*i+1:012d}',
+                    local=dict(address='127.0.0.1',port=57000+i),
+                    remote=dict(address='127.0.0.1',port=ids[receive['node']]['port']))
+        server=dict(id=f'00000000-0000-0000-0000-{2*i+2:012d}',local=copy.deepcopy(client['remote']),remote=copy.deepcopy(client['local']))
+        if connections:
+            for field in ('sent','received','offered','delivered'):
+                if row[field] is not None:events[row[field]]['connection']=copy.deepcopy(client if field in ('sent','delivered') else server)
+            wires[i]['connection']=copy.deepcopy(server)
+        if row['delivered'] is None:
+            for original,direction in ((receive,'INBOUND'),(send,'OUTBOUND')):
+                terminal={k:copy.deepcopy(v) for k,v in original.items() if k!='bytes'}
+                terminal.update(event='NETWORK_ATTEMPT_FAILED',direction=direction,reason='IO')
+                insertions.append((row['offered']+1,terminal))
+    for at,event in reversed(insertions):events.insert(at,event)
+    return values
+
+
 class JoiningFaultEvidenceTest(unittest.TestCase):
+    def test_all_negatives_keep_exact_reasons_for_terminal_and_connection_formats(self):
+        for connections in (False,True):
+            for kind in gate.loss.KINDS:
+                original=observed_trace(kind,connections);result=gate.trace(*original)
+                expected=gate.negative_reasons(result['transportFormat'])
+                self.assertEqual(set(gate.NEGATIVES),set(expected))
+                for name,reason in expected.items():
+                    values=copy.deepcopy(original);gate.mutate(*values,name)
+                    with self.subTest(connections=connections,kind=kind,case=name),self.assertRaises(ValueError) as caught:
+                        gate.trace(*values)
+                    self.assertEqual(reason,str(caught.exception))
     def test_every_declared_negative_rejects_its_exact_boundary_for_all_reply_kinds(self):
         for kind in gate.loss.KINDS:
             original=fixture.trace(kind);self.assertEqual(kind,gate.trace(*original)['sourceFault'])

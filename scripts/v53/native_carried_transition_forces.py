@@ -16,6 +16,7 @@ from . import carried_transition_retirement as retirement
 from . import floor_evidence as floor
 from . import floor_release_evidence as release
 from . import applied_end_evidence as applied
+from . import departing_end_evidence as departing
 from . import allocator_evidence as allocator
 from . import native_campaign_files as campaign_files
 from . import native_vote_files as vote_files
@@ -72,11 +73,20 @@ def floor_steps(initial,rows,files,writes,directories,*,peer_ledger=None):
     return steps
 
 
-def maintenance(group_,node,*,campaign=False,prefixes=None,floor_prefixes=None,floor_peer_ledger=None,pin_current=False):
+def pins_local_original(group,node,*,campaign=False):
+    files=group[node];prefix,members,_=c.current(files)
+    inactive=any(k.startswith('generations/') and k!=prefix[:-1] and not k.startswith(prefix) for k in files)
+    sources={k.split('/')[1] for k in files if k.startswith('sources/') and k.endswith('/source.gscp')}
+    voters=p.floors.floor_voters(group,node,prefer_installed=not campaign) if p.needs_maintenance(files) else ()
+    return inactive and 'selected.gsr' in members and 2+len(voters)+len(sources)>7
+
+
+def maintenance(group_,node,*,campaign=False,prefixes=None,floor_prefixes=None,floor_peer_ledger=None,pin_current=None):
     """Project every FLOOR, generation/source retirement and release callback."""
     expected=p.maintain(group_,(node,),campaign=campaign)[node]
     if expected==group_[node]:return [],dict(generations=0,sources=0,borrowed=0)
-    voters=p.floors.floor_voters(group_,node);files=p.floors.covering_floor(group_[node],{n:group_[n] for n in voters},node)
+    if pin_current is None:pin_current=pins_local_original(group_,node,campaign=campaign)
+    voters=p.floors.floor_voters(group_,node,prefer_installed=not campaign);files=p.floors.covering_floor(group_[node],{n:group_[n] for n in voters},node)
     copies={}
     for peer in voters:
         prefix,members,_=c.current(group_[peer]);manifest=group_[peer][prefix+'generation.gsr']
@@ -268,9 +278,12 @@ def vote_order(events,phase,*,renamed=False,ack=False):
 
 def publication_order(events,applied_files,published,peer,count):
     end={k.removeprefix('applied-end/'):v for k,v in applied_files.items() if k.startswith('applied-end/')}
-    _,_,writes=applied.simulate(end,{},False)
+    # Physical replay has already derived eligibility from the FINAL end view.
+    # A departing voter persists a nonvoting end and must never invent an ACK.
+    voting='ack.gsr' in end
+    _,_,writes=(applied if voting else departing).simulate(end,{},False)
     exact(events,('APPLY_',),[v['event'] for v in writes],'transition forces complete applied end')
-    native.retirement.native.native_order(events,1)
+    native.retirement.native.native_order(events,1,voting=voting)
     exact(events,('CERTIFICATE_ACTIVE_',),['CERTIFICATE_ACTIVE_FORCED','CERTIFICATE_ACTIVE_PARENT_FORCED'],
           'transition forces applied certificate force')
     exact(events,('INSTALL_',),install_events(published,returned=False),'transition forces published generation')
@@ -295,7 +308,8 @@ def publication_order(events,applied_files,published,peer,count):
     native.ordered(events,['ACCEPT_PARENT_FORCED','PROOF_PARENT_FORCED','CERTIFICATE_PARENT_FORCED',
         'NATIVE_CERTIFICATE_RETAINED','APPLICATION_AUTHORITY_VALIDATED','REPLAY_CLAIM_FORCED',
         'REPLAY_BEFORE_APPLICATION','REPLAY_APPLICATION_FINISHED','REPLAY_BEFORE_RETURN',
-        'APPLY_VALIDATED','APPLY_ACK_DIRECTORY_FORCED','APPLY_BEFORE_RETURN','PUBLICATION_VALIDATED',
+        'APPLY_VALIDATED','APPLY_ACK_DIRECTORY_FORCED' if voting else 'APPLY_NONVOTING_DIRECTORY_FORCED',
+        'APPLY_BEFORE_RETURN','PUBLICATION_VALIDATED',
         'PUBLICATION_SELECTOR_FORCED','PUBLICATION_BEFORE_RETURN'],'transition forces complete slot durable order')
     force_set=tuple('FUTURE_RETENTION_'+v for v in LEDGER)
     exact(events,force_set,list(force_set)*count,'transition forces exact future ledger writes')

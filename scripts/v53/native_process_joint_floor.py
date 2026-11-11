@@ -48,7 +48,7 @@ def command(case):
     selected(case)
     return ['-o','-B','-ntp','-f','reactor/pom.xml','-pl','../'+h.MODULE,'-am',
         '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+CLASS.rsplit('.',1)[-1]+'#'+METHOD,
-        '-Dv53.native.process.joint='+case,'test']
+        '-Dv53.transport.connections=true','-Dv53.native.process.joint='+case,'test']
 
 
 def junit(reports):return base.junit(reports,CLASS,METHOD)

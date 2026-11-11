@@ -12,6 +12,15 @@ def sample(kind):
 
 
 class NativeCarriedTransitionPhysicalTest(unittest.TestCase):
+    def test_checkpoint_endorsements_come_only_from_original_selected_voters(self):
+        slot=m.NativeSlot.__new__(m.NativeSlot);slot.voters=('node-1','node-3','node-4')
+        view=dict(old=['node-1','node-2','node-3','node-4'],new=['node-1','node-2','node-3','node-4'])
+        self.assertEqual(set(slot.voters),slot.checkpoint_voters(view,'node-1'))
+        view=dict(old=view['old'],new=['node-1','node-3','node-4'])
+        self.assertEqual(set(slot.voters),slot.checkpoint_voters(view,'node-3'))
+        view=dict(old=['node-1','node-3'],new=['node-1','node-3'])
+        self.assertEqual({'node-1','node-3'},slot.checkpoint_voters(view,'node-4'))
+
     def command(self,kind='INTENT'):
         selected=sample('SELECTED');selected['ballot']['counter']=9
         entry=sample('ENTRY');payload=b'original command'
