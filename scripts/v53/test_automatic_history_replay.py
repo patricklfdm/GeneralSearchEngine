@@ -12,9 +12,10 @@ def original(case,branch='pregrant'):
         publication=dict(physicalPublicationQualified=True,clientCompletionQualified=True,scratchTransfersDrained=True,slots=2,clientMutations=1,
                          precondition=dict(precondition={}))
         activation=dict(fullNetworkQualified=True,originalActivationNetworkQualified=True,pregrantLosses=[{}] if branch=='pregrant' else [],precondition=publication)
+        if branch=='local-grant':activation['localGrantLosses']=[{}]
         exports=dict(status='PARTIAL',observedTemporalExportAuthorityQualified=True,completeExportLifetimesQualified=False,processDeathQualified=False,
                      finalSourceCohortQualified=False,phase3Complete=False,precondition=activation,
-                     sourceWindows=2 if branch=='pregrant' else 4,incompleteTransfers=0 if branch=='pregrant' else 1)
+                     sourceWindows={'pregrant':2,'local-grant':3,'superseded':4}[branch],incompleteTransfers=int(branch=='superseded'))
         life=dict(status='PARTIAL',actualStateTransitionsQualified=True,originalDeadlinePreserved=True,physicalNetworkQualified=False,lossCauseQualified=False,
                   fullLifecycleQualified=False,finalSourceCohortQualified=False,phase3Complete=False,
                   owners=[dict(node=n,started=True,drained=True) for n in ('node-1','node-2','node-3')])
@@ -22,7 +23,7 @@ def original(case,branch='pregrant'):
     if case=='higher-ballot-restart':
         return dict(status='PARTIAL',scope='one-native-higher-ballot-observed-restart',actualStateTransitionsQualified=True,originalDeadlinePreserved=True,
                     lossCauseQualified=True,physicalNetworkQualified=True,fullLifecycleQualified=False,processRestart=False,finalSourceCohortQualified=False,
-                    phase3Complete=False,state=dict(rounds=2,losses=['HIGHER_BALLOT'],drained=True,started=True,readyCallbacks=[1,2]),precondition=dict(phase3Complete=False))
+                    phase3Complete=False,state=dict(rounds=2,losses=['HIGHER_BALLOT'],drained=True,started=True,readyCallbacks=[1,2]),precondition=dict(phase3Complete=False,unusedSourcePulls=1))
     return dict(status='PASS',scope='native-PROMISE-export-pre-return-revocation',caseCount=48,remoteElectionQualified=False,
         allExportKindsQualified=False,phase3Complete=False,clockInjection='explicit-offset',higherBallotInjection='local-native-owner-observation',
         cases=[dict(size=n,boundary=b,fault=f,attempts=3,materialized=1,delivered=0,refused=3,
@@ -48,6 +49,8 @@ class AutomaticHistoryReplayTest(unittest.TestCase):
         for case in ('competition','higher-ballot-restart','reply-revocation'):
             r.check_result(result(case),case)
         r.check_result(result('competition','superseded'),'competition')
+        r.check_result(result('competition','local-grant'),'competition')
+        self.assertEqual(39,len(result('competition','local-grant')['negatives']))
         self.assertEqual(39,len(result('competition')['negatives']))
         self.assertEqual(7,len(result('competition')['notApplicable']))
         self.assertEqual(73,len(result('higher-ballot-restart')['negatives']))
@@ -83,6 +86,24 @@ class AutomaticHistoryReplayTest(unittest.TestCase):
         for name,bad in [('sourceWindows',True),('incompleteTransfers',False)]:
             value=original('competition')['exports'];value[name]=bad
             with self.assertRaisesRegex(ValueError,'derived shape'):r.competition_branch(value)
+
+    def test_local_grant_requires_its_exact_derived_loss_and_export_shape(self):
+        for change in (lambda v:v.update(sourceWindows=2),lambda v:v.update(incompleteTransfers=1),
+                       lambda v:v['precondition'].update(localGrantLosses=[]),
+                       lambda v:v['precondition'].update(pregrantLosses=[{}]),
+                       lambda v:v['precondition'].update(localGrantLosses=[{},{}])):
+            value=original('competition','local-grant')['exports'];change(value)
+            with self.assertRaisesRegex(ValueError,'unsupported original'):r.competition_branch(value)
+
+    def test_absent_unused_source_is_explicit_and_not_rejection_credit(self):
+        value=original('higher-ballot-restart');value['precondition']['unusedSourcePulls']=0
+        rows,absent=r.vector('higher-ballot-restart',value)
+        self.assertEqual(72,len(rows));self.assertEqual({'current/unused-offer-bytes':
+            'Original history contains no unused-source transfer.'},absent)
+        result=dict(original=value,negatives=rows,notApplicable=absent,originalPreserved=True)
+        r.check_result(result,'higher-ballot-restart')
+        result['notApplicable']={}
+        with self.assertRaisesRegex(ValueError,'explicit inapplicable'):r.check_result(result,'higher-ballot-restart')
 
     def test_unknown_case_refuses(self):
         for case in (None,'other','',False):

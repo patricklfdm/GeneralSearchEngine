@@ -134,6 +134,20 @@ class JoiningProcessMemberTest(unittest.TestCase):
                 m.qualify_member(self.path, self.case, *self.pins)
             following.assert_not_called()
 
+    def test_parallel_negatives_keep_the_complete_catalogue_and_all_following_gates(self):
+        result = qualification(self.case)
+        with patch.object(m.gate, 'qualify', return_value=result['authority']) as authority, \
+             patch.object(m.physical, 'qualify', return_value=result['physical']) as physical, \
+             patch.object(m.physical.transaction, 'negatives', return_value=result['transactionNegatives']) as transaction:
+            actual = m.qualify_member(self.path, self.case, *self.pins, negative_workers=3)
+        authority.assert_called_once_with(self.raw, self.case, workers=3, progress=None)
+        physical.assert_called_once_with(self.raw, self.case, progress=None); transaction.assert_called_once_with(self.raw, self.case)
+        self.assertEqual(result, actual['qualification'])
+        for workers in (0,4,True,1.5):
+            with self.subTest(workers=workers),patch.object(m, 'member') as read,self.assertRaisesRegex(ValueError,'negative workers'):
+                m.qualify_member(self.path,self.case,*self.pins,negative_workers=workers)
+            read.assert_not_called()
+
     def test_replay_cannot_change_original_receipt(self):
         result = qualification(self.case)
         def mutate(*_):

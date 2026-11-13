@@ -1,6 +1,7 @@
 """Maintenance evidence boundaries; native qualification remains separate."""
 import copy
 import unittest
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from . import joining_maintenance_evidence as m
@@ -23,8 +24,8 @@ class JoiningMaintenanceEvidenceTest(unittest.TestCase):
         copies=self.copies();own,remote=copies['node-1'],copies['node-2'];_,q=fixture.JoiningExportEvidenceTest().inputs()
         q=dict(q,payload=dict(digest=m.e.native.current_reference(remote['packet']['capsule'],'retained-current-generation-metadata')))
         packet_q=dict(q,payload=dict(digest=m.e.native.current_reference(remote['packet']['capsule'],'retained-current-packet')))
-        packet=[dict(raw=remote['members']['source.gscp'],offer=dict(sent=6,received=7,request=packet_q),commit=dict(delivered=9,offered=8))]
-        generation=[dict(offer=dict(sent=10,received=11,request=q),commit=dict(delivered=15,offered=14))]
+        packet=[dict(raw=remote['members']['source.gscp'],offer=dict(sent=6,received=7,offered=7,request=packet_q),commit=dict(delivered=9,offered=8))]
+        generation=[dict(offer=dict(sent=10,received=11,offered=12,request=q),commit=dict(delivered=15,offered=14))]
         replay=m.Replay.__new__(m.Replay);replay.windows=list(copies.values());replay.groups=[packet,generation]
         replay.status_rows=[dict(sent=1,delivered=5,requestHash='status',request=q,response=dict(payload=dict(cut=remote['packet']['capsule']['cut'])))]
         return replay,own,generation
@@ -38,6 +39,22 @@ class JoiningMaintenanceEvidenceTest(unittest.TestCase):
             else:changed['node-2']['packet']['capsule'][mutation]='e'*64
             with self.subTest(mutation=mutation),self.assertRaisesRegex(ValueError,'^joining maintenance exact governing copies$'):
                 m.same_cut(changed,copies['node-1'])
+
+    def test_discovery_waiting_for_same_cut_install_remains_only_a_hint(self):
+        windows,q,_=fixture.JoiningExportEvidenceTest().installed_offer()
+        q=dict(q,sequence=1,payload=dict(nonce='original'))
+        a=dict(payload=dict(nonce='original',cut=windows[-1]['packet']['capsule']['cut'],ready=False))
+        r=m.Replay.__new__(m.Replay);r.windows=windows;r.model=SimpleNamespace(joining='node-4');r.expected_status_count=1
+        r.rows=[dict(kind='STATUS_PROBE',answer='STATUS',request=q,response=a,received=10,offered=17)]
+        r.statuses();self.assertEqual(r.rows,r.status_rows)
+        for change in ('no-link','wrong-cut','ready'):
+            row=copy.deepcopy(r.rows[0]);original=copy.deepcopy(windows)
+            if change=='no-link':windows[-1].pop('sourcePredecessor')
+            elif change=='wrong-cut':row['response']['payload']['cut']['index']+=1
+            else:row['response']['payload']['ready']=True
+            r.rows=[row]
+            with self.subTest(change=change),self.assertRaises(ValueError):r.statuses()
+            windows[:]=original;r.rows=[dict(kind='STATUS_PROBE',answer='STATUS',request=q,response=a,received=10,offered=17)]
 
     def test_governing_copy_set_needs_local_owner_and_actual_majority(self):
         copies=self.copies()
@@ -88,6 +105,18 @@ class JoiningMaintenanceEvidenceTest(unittest.TestCase):
                 with self.subTest(change=change),self.assertRaisesRegex(ValueError,'^joining maintenance acquisition before discovery$'):
                     replay.acquired(own,0,20)
                 replay.status_rows=original
+
+    def test_waiting_packet_is_not_mistaken_for_a_complete_copy(self):
+        replay,own,generation=self.acquisition();before=copy.deepcopy(replay.windows[1]);before['end']=7
+        after=replay.windows[1];after.update(start=9,sourcePredecessor=(0,7))
+        replay.windows.append(before)
+        packet=replay.groups[0][0];packet['offer'].update(received=6,offered=10);packet['commit'].update(offered=11,delivered=12)
+        generation[0]['offer'].update(sent=13,received=14,offered=15);generation[0]['commit'].update(offered=16,delivered=17)
+        with patch.object(m.e,'authorize_generation'):
+            copies,used=replay.acquired(own,0,20)
+            self.assertIs(after,copies['node-2']);self.assertEqual(['status'],used)
+            replay.groups.remove(generation)
+            with self.assertRaisesRegex(ValueError,'absent acquired copies'):replay.acquired(own,0,20)
 
     def test_retirement_force_and_delete_must_stay_inside_original_floor(self):
         original=self.retirement();self.assertEqual(1,m.retirement_order(original,'node-1',0,len(original)-1,None))

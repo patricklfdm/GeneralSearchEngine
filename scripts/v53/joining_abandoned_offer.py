@@ -10,7 +10,7 @@ def authorize(rows,windows):
         claim=row.get('abortedPrefix',{})
         if not claim.get('offerOnly',False):continue
         q=row['request'];node=q['recipient']['node']
-        own=e.current(windows,node,row['received'],row['offered']);cap=own['packet']['capsule']
+        own=e.generation_offer(windows,q,row['received'],row['offered'],row['offered']);cap=own['packet']['capsule']
         identities=e.n.s.catalog.identities(e.f.decode(own['packet']['objects'][cap['catalog']],'records','CATALOG')['identities'])
         proposer=identities.get(q['ballot']['proposer'])
         need(q['sender']==identities.get(q['sender']['node']) and q['recipient']==own['identity'] and
@@ -18,9 +18,8 @@ def authorize(rows,windows):
              q['root']==cap['root'] and q['view']==e.n.s.catalog.authority(cap['root'],cap['cut']['view']),
              'joining abandoned offer permanent authority')
         reference=q['payload']['digest']
-        expected=[values[0] for values in e.native.maintenance_generations(own['manifest'],own['members'],own['packet'])
-                  if values[0][0]==reference]
-        need(len(expected)==1 and claim['selector']==own['end'], 'joining abandoned offer generation boundary')
+        _,_,expected=e.generation_objects(own,q)
+        need(claim['selector']==own['end'], 'joining abandoned offer generation boundary')
         _,raw,kind=expected[0];offer=row['response']['payload']
         need(row['answer']=='SOURCE_OFFER' and row['request']['sequence']==1 and
              q['payload']==dict(id=offer['id'],action='REQUEST',offset=0,digest=reference,bytes='') and
@@ -28,7 +27,7 @@ def authorize(rows,windows):
              claim['request']['payload']==dict(id=offer['id'],action='REQUEST',offset=0,digest=e.sha(raw),bytes=''),
              'joining abandoned offer exact original manifest')
         result.append(dict(owner=node,reader=q['sender']['node'],trace=q['trace'],selector=claim['selector'],
-            manifest=e.sha(raw),offeredBytes=len(raw),receivedBytes=0,committedObjects=0,
+            contentSha256=e.sha(raw),contentKind=kind,offeredBytes=len(raw),receivedBytes=0,committedObjects=0,
             generationCopy=False,terminalAttempts=claim['attempts']))
     return result
 

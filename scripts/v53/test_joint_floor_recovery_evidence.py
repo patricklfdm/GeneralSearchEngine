@@ -7,6 +7,34 @@ from . import joint_floor_recovery_evidence as r
 
 
 class JointFloorRecoveryEvidenceTest(unittest.TestCase):
+    def test_connection_replies_require_original_socket_pair_and_delivery(self):
+        from .test_connection_transcript import trace, overlap
+        events, rows, ids, root = trace()
+        r.delivered_replies(rows, events, ids, root, {events[0]['request']})
+        # The parent observes NETWORK_* while a resumed child is scoped.
+        # The legacy-named delivery deliberately carries no request hash.
+        for row in events:
+            row.pop('scope')
+            if row['event']==r.joining_connections.t.SEND:row['event']='NETWORK_SEND'
+            elif row['event']==r.joining_connections.t.READ:row['event']='NETWORK_REQUEST'
+            elif row['event']==r.joining_connections.t.OFFER:
+                row['event']='WIRE_RESPONSE';row.pop('kind');row.pop('responseKind')
+            elif row['event']==r.joining_connections.t.DELIVER:
+                row['event']='NETWORK_RECEIVED';row['kind']=row.pop('responseKind');row.pop('request')
+        r.delivered_replies(rows, events, ids, root, {events[0]['request']})
+        for change in ('missing', 'foreign', 'withheld', 'delivery', 'mixed'):
+            events, rows, ids, root = trace()
+            if change == 'missing': del rows[0]['connection']
+            elif change == 'foreign': rows[0]['connection']['remote']['port'] += 1
+            elif change == 'withheld': rows[0]['withheld'] = True
+            elif change == 'delivery': events.pop()
+            else: rows.append({k: v for k, v in rows[0].items() if k != 'connection'})
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                r.delivered_replies(rows, events, ids, root, {events[0]['request']})
+        events, rows, ids, root = overlap()
+        with self.assertRaisesRegex(ValueError, 'joint floor delivered original replies'):
+            r.delivered_replies(rows, events, ids, root, {events[0]['request']})
+
     def test_missing_empty_and_linked_originals_refuse(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); (root/'empty').mkdir(); (root/'link').symlink_to(root/'empty', target_is_directory=True)

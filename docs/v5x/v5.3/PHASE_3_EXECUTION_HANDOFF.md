@@ -8,6 +8,9 @@ The [2026-11-10 expansion failure review](PHASE_3_EXPANSION_FAILURE_REVIEW.md)
 records the first twelve expanded hosted runs at `5217a556`, their retained
 failures and the subsequent local corrections. That review does not admit the
 cohort or replace the remaining original executions and independent replays.
+The [2026-11-12 rerun review](PHASE_3_RERUN_FAILURE_REVIEW.md) records all nine
+follow-up runs at `defd80d2`, confirmed replay fixes and still-open original
+failures. Successful families do not admit the remaining failed families.
 
 ## Generate from the final checkout
 

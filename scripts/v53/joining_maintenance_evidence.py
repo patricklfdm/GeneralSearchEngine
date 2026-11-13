@@ -100,7 +100,8 @@ class Replay(c.Replay):
         self.status_rows=[]
         for row in self.rows:
             if row['kind']!='STATUS_PROBE':continue
-            q,a=row['request'],row['response'];own=self.current(q['recipient']['node'],row['received'],row['offered'])
+            q,a=row['request'],row['response']
+            own=e.generation_offer(self.windows,q,row['received'],row['offered'],row['offered'])
             ids=n.s.catalog.identities(c.catalog(own)['identities']);proposer=ids.get(q['ballot']['proposer'])
             need(q['sequence']==1 and set(q['payload'])=={'nonce'} and q['sender']==ids.get(q['sender']['node']) and
                  proposer is not None and q['ballot']['incarnation']==proposer['storage'],
@@ -123,9 +124,13 @@ class Replay(c.Replay):
             first,last=values[0]['offer'],values[-1]['commit'];q=first['request'];peer=q['recipient']['node']
             if 'abortedPrefix' in first or 'abortedPreparation' in first:continue
             if q['sender']['node']!=node or not lower<first['sent']<start:continue
-            remote=self.current(peer,first['received'],last['offered'])
+            # Classify the actual first offer before requiring a complete-copy
+            # lifetime. Packet-only discovery can wait through an installation
+            # and supplies no copy credit by itself.
+            remote=self.current(peer,first['offered'],first['offered'])
             reference=e.native.current_reference(remote['packet']['capsule'],'retained-current-generation-metadata')
             if q['payload']['digest']!=reference:continue
+            remote=e.generation_offer(self.windows,q,first['received'],first['offered'],last['offered'])
             need(peer not in copies,'joining maintenance duplicate acquired copy')
             need(last['delivered']<start,'joining maintenance copy delivered after floor')
             packets=[v for v in self.groups if v[0]['offer']['request']['sender']==q['sender'] and

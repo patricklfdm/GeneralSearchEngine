@@ -120,11 +120,12 @@ def check_result(result, case):
          'joining process matrix exact transaction negatives')
 
 
-def qualify_member(path, case, source, build, toolchain, reader, *, progress=None):
+def qualify_member(path, case, source, build, toolchain, reader, *, progress=None, negative_workers=1):
+    need(type(negative_workers) is int and 1 <= negative_workers <= 3, 'joining process matrix negative workers')
     before = member(path, case, source, build, toolchain, reader)
     # Full original-first validation is part of each driver. Do not turn an
     # unrelated original failure into successful negative qualification.
-    authority = gate.qualify(before['raw'], case, workers=1, progress=progress)
+    authority = gate.qualify(before['raw'], case, workers=negative_workers, progress=progress)
     need(authority['status'] == 'PASS', 'joining process matrix authority qualification failed')
     composed = physical.qualify(before['raw'], case, progress=progress)
     transaction = physical.transaction.negatives(before['raw'], case)

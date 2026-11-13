@@ -84,6 +84,13 @@ class Replay(c.Replay):
             # original source authorization before consulting mutable current.
             if e.record_kind(values[0]['raw'])=='BASIS':
                 e.authorize_source(values,self.windows,self.sources);continue
+            if values[0].get('kind')=='CAPSULE':
+                # A packet-only maintenance lookup is not a learner permit.
+                # Authenticate the new-current bytes when its first request
+                # waited for the owner monitor through a same-cut install.
+                candidate=e.generation_offer(self.windows,q,first['received'],first['offered'],last)
+                if q['payload']['digest']==e.native.current_reference(candidate['packet']['capsule'],'retained-current-packet'):
+                    e.authorize_generation(values,self.windows);continue
             # Learner aliases require the current generation's permit through
             # the complete session, not merely through the initial offer.
             own=self.current(q['recipient']['node'],first['received'],first['offered']);cap=own['packet']['capsule']

@@ -37,7 +37,8 @@ def selected(case):
 def command(case):
     cls,method,_=selected(case)
     return ['-o','-B','-ntp','-f','reactor/pom.xml','-pl','../'+h.MODULE,'-am',
-            '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+cls+'#'+method,*(['-Dv53.restart.lifecycle.captures=true'] if case=='higher-ballot-restart' else []),'test']
+            '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+cls+'#'+method,
+            *(['-Dv53.restart.lifecycle.captures=true','-Dv53.transport.diagnostics=true'] if case=='higher-ballot-restart' else []),'test']
 
 
 def junit(reports,case):

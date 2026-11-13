@@ -31,8 +31,9 @@ reader and falling back after failure. Every lower reader's original result must
 match the original composition exactly; all originals and attachments are checked
 again afterward.
 
-Competition currently recognizes two **derived** shapes: the retained pre-grant
-loss with two sources and no partial selection transfer, and the superseded
+Competition currently recognizes three **derived** shapes: the retained pre-grant
+loss with two sources and no partial selection transfer; one local-only grant
+lost to a delivered higher-ballot rejection, with three sources; and the superseded
 selection with four sources and an incomplete transfer. Classification occurs
 after complete original validation. An unknown shape is retained and refused;
 it is not simplified, rerun, or assigned the easiest passing catalogue.
@@ -46,8 +47,15 @@ incomplete transfer. It has no inapplicable export mutation. The exact first
 captured owner supplies the prefix reader's owner-specific rejection message.
 These paths do not claim arbitrary multiple-round competition coverage.
 
-Restart requires all 51 current physical/network negatives and 22 attached
-lifecycle negatives. Reply revocation now requires all 44 original-first negatives
+The local-only-grant branch requires seven original loss/physical negatives,
+twenty export negatives and twelve lifecycle negatives, with the same seven
+explicitly inapplicable export mutations as the pre-grant branch. A local BASIS
+and unanswered PREPAREs never supply a remote vote or installation.
+
+Restart requires 51 current physical/network negatives when an unused source
+was actually pulled, or 50 with `current/unused-offer-bytes` explicitly
+`notApplicable` when the complete original replay proves none. All 22 attached
+lifecycle negatives remain required. Reply revocation requires all 44 original-first negatives
 and v2 [resource observations](PHASE_3_TRANSFER_RESOURCE_LIFETIME.md).
 The aggregate compares exact ordered case/status/reason vectors, not just counts.
 A stage's unrelated failure cannot satisfy its negative expectation.

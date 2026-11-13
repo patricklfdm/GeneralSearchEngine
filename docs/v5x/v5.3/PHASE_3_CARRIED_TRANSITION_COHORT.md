@@ -40,7 +40,7 @@ Each of the following readers then runs its complete original-first vector:
 | Reader | Checks per original |
 | --- | ---: |
 | Physical bytes and lifecycle | 30 |
-| Attempted network and durable replies | 153 |
+| Attempted network and durable replies | 157 |
 | Export authority and floor lifetimes | 22 |
 | Continuous peer/future ledgers | 41 |
 | Retirement transactions | 36 |
@@ -51,12 +51,17 @@ inside the complete prefix result. Exact negative rows retain their original
 reasons and prerequisites; truncation, unrelated failures, changed authority or
 inflated scope block admission. Original and sidecar inventories are checked
 again after replay. Distinct producer directories and bootstrap plans are
-required. These first two histories retain **602 checks**. The [eight process
+required. These first two histories retain **610 checks**. The [eight process
 histories](PHASE_3_CARRIED_CAPTURE_COHORT.md) add 1,680 capture/owner checks after
-the complete original process/storage/protocol/resource chain: 2,282 checks. The four [application-ACK histories](PHASE_3_CARRIED_APPLICATION_COHORT.md)
-add 1,072 checks, giving 3,354 checks. The two [SOURCE-refusal histories](PHASE_3_NATIVE_REFUSAL_COHORT.md)
-add 560 checks, giving **3,914 total**. Their wrappers retain both complete
+the complete original process/storage/protocol/resource chain: 2,290 checks. The four [application-ACK histories](PHASE_3_CARRIED_APPLICATION_COHORT.md)
+add 1,072 checks, giving 3,362 checks. The two [SOURCE-refusal histories](PHASE_3_NATIVE_REFUSAL_COHORT.md)
+add 560 checks, giving **3,922 total**. Their wrappers retain both complete
 originals and refusal sidecars under one inventory.
+
+The ordinary two histories now require complete per-connection observations.
+Their four additional metadata negatives explain the eight-check increase;
+legacy failure records are never synthesized. See the
+[rerun review](PHASE_3_RERUN_FAILURE_REVIEW.md) for original-backed validation.
 
 ## Local entry
 

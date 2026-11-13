@@ -190,6 +190,37 @@ class JoiningExportEvidenceTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'inactive current generation'):
             e.authorize_generation(values,windows)
 
+    def installed_offer(self):
+        windows,q=self.inputs();before=copy.deepcopy(windows[1]);before['end']=12
+        after=copy.deepcopy(windows[1]);after.update(start=15,sourcePredecessor=(0,12))
+        after['manifest']=b'new manifest';after['members']['source.gscp']=b'new packet'
+        reference=e.native.current_reference(after['packet']['capsule'],'retained-current-packet')
+        values=self.values(q,[(reference,b'new packet','CAPSULE')],start=16)
+        values[0]['offer']['received']=10
+        return [windows[0],before,after],q,values
+
+    def test_first_current_offer_can_wait_for_a_completed_same_cut_install(self):
+        windows,q,values=self.installed_offer()
+        self.assertEqual('current-generation',e.authorize_generation(values,windows))
+        values[0]['offer']['received']=13
+        self.assertEqual('current-generation',e.authorize_generation(values,windows))
+
+    def test_waiting_current_offer_needs_new_bytes_exact_edge_and_unchanged_cut(self):
+        for change in ('no-link','wrong-link','missing','duplicate','old-bytes','owner','root','cut','unfinished','reversed','late-commit'):
+            windows,q,values=self.installed_offer();after=windows[-1]
+            if change=='no-link':after.pop('sourcePredecessor')
+            elif change=='wrong-link':after['sourcePredecessor']=(0,11)
+            elif change=='missing':windows.pop(1)
+            elif change=='duplicate':windows.append(copy.deepcopy(windows[1]))
+            elif change=='old-bytes':values[0]['raw']=b'original packet'
+            elif change=='owner':windows[1]['identity']['storage']='foreign'
+            elif change=='root':windows[1]['packet']['capsule']['root']='f'*64
+            elif change=='cut':windows[1]['packet']['capsule']['cut']['index']+=1
+            elif change=='unfinished':values[0]['offer']['offered']=14
+            elif change=='reversed':values[0]['offer']['received']=18
+            else:values[0]['commit']['offered']=after['end']
+            with self.subTest(change=change),self.assertRaises(ValueError):e.authorize_generation(values,windows)
+
     def test_empty_ancestry_is_not_a_malformed_frame(self):
         windows,q=self.inputs();self.assertEqual({},e.current_records(windows[1]))
 

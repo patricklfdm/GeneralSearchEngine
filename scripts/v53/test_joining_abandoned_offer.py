@@ -21,6 +21,24 @@ class JoiningAbandonedOfferTest(unittest.TestCase):
         self.assertEqual(0,result[0]['committedObjects']);self.assertFalse(result[0]['generationCopy'])
         self.assertNotIn('raw',result[0])
 
+    def test_revoked_packet_offer_authenticates_packet_without_claiming_receipt(self):
+        rows,windows=self.data();own=windows[1];row=rows[0];cap=own['packet']['capsule']
+        row['request']['payload']['digest']=a.e.native.current_reference(cap,'retained-current-packet')
+        raw=own['members']['source.gscp'];offer=row['response']['payload']
+        offer.update(digest=a.e.sha(raw),bytes=len(raw),kind='CAPSULE')
+        row['abortedPrefix']['request']['payload']['digest']=offer['digest']
+        result=a.authorize(rows,windows)
+        self.assertEqual(0,result[0]['receivedBytes']);self.assertFalse(result[0]['generationCopy'])
+        self.assertEqual(a.e.sha(raw),result[0]['contentSha256']);self.assertEqual('CAPSULE',result[0]['contentKind'])
+        for change in ('bytes','kind','packet','selector'):
+            import copy
+            changed=copy.deepcopy(rows);copies=copy.deepcopy(windows)
+            if change=='bytes':changed[0]['response']['payload']['bytes']+=1
+            elif change=='kind':changed[0]['response']['payload']['kind']='RECORD'
+            elif change=='packet':copies[1]['members']['source.gscp']=b'wrong packet'
+            else:changed[0]['abortedPrefix']['selector']+=1
+            with self.subTest(change=change),self.assertRaises(ValueError):a.authorize(changed,copies)
+
     def test_offer_cannot_authenticate_itself_by_its_own_digest(self):
         for change in ('alias','digest','bytes','kind','selector','manifest','owner','sender','root','view','proposer','early','late','chunk'):
             rows,windows=self.data();r=rows[0];q=r['request'];offer=r['response']['payload']

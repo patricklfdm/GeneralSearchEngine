@@ -106,6 +106,7 @@ class CarriedTransitionHistoryTest(unittest.TestCase):
             text=(m.h.ROOT/m.h.MODULE/('src/test/java/'+m.PACKAGE.replace('.','/')+cls+'.java')).read_text()
             self.assertIn('void '+method+'()',text)
             args=m.command(case);self.assertEqual(1,sum(v.startswith('-Dtest=') for v in args))
+            self.assertEqual(m.adapter(case) is None,'-Dv53.transport.connections=true' in args)
             self.assertFalse(any('retry' in v.lower() or 'timeout' in v.lower() or '.case=' in v for v in args))
         for value in ('other','',False):
             with self.subTest(value=value),self.assertRaisesRegex(ValueError,'exact case'):m.command(value)
@@ -180,7 +181,7 @@ class CarriedTransitionHistoryTest(unittest.TestCase):
     def test_complete_two_histories_replay_once_and_preserve_scope(self):
         with patch.object(m,'replay',side_effect=lambda raw,case:replay(case)) as reader:result=self.aggregate(workers=4)
         self.assertEqual(16,reader.call_count);self.assertEqual('PASS',result['status'])
-        self.assertEqual(16,result['nativeCases']);self.assertEqual(16,result['wholeOwnershipHistories']);self.assertEqual(3914,result['negativeCases'])
+        self.assertEqual(16,result['nativeCases']);self.assertEqual(16,result['wholeOwnershipHistories']);self.assertEqual(3922,result['negativeCases'])
         for key in ('phase3Complete','combinedPeakResourcesQualified','autonomousCompetitionQualified','completePhysicalQualified','powerLossQualified','processDeathQualified'):
             self.assertIs(False,result[key])
 
@@ -300,7 +301,7 @@ class CarriedTransitionHistoryTest(unittest.TestCase):
                     return dict(original=copy.deepcopy(chain[stage]),negatives=negatives)
                 stack.enter_context(patch.object(reader,'qualify',side_effect=qualify))
             got=m.replay(self.raw(),self.case)
-        self.assertEqual(list(m.STAGES),order);self.assertEqual(original,got);self.assertEqual(301,len(got['negatives']))
+        self.assertEqual(list(m.STAGES),order);self.assertEqual(original,got);self.assertEqual(305,len(got['negatives']))
 
     def test_different_stage_original_cannot_borrow_a_passing_prefix(self):
         original=replay(self.case)

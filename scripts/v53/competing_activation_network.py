@@ -14,6 +14,7 @@ import uuid
 
 from . import competing_campaign_publication as publication
 from . import competing_pregrant_evidence as pregrant
+from . import competing_local_grant_evidence as local_grant
 
 p=publication.p;net=publication.network;f=publication.f;disk=publication.disk
 need=publication.need;sha=publication.sha
@@ -116,7 +117,7 @@ class Replay:
         rows=[v for v in r.rows if v['request']['trace'] not in r.maintenance_traces]
         phase=net.net.Phase(events,rows,-1,stop,r.identities);self.phase=phase
         self.original=original;self.replay=r
-        allowed=set();discoveries=0;campaigns=0;abandoned=0;pregrant_losses=[]
+        allowed=set();discoveries=0;campaigns=0;abandoned=0;pregrant_losses=[];local_losses=[]
         for reservation in r.allocations:
             node=reservation['node'];ballot=reservation['ballot'];campaigns+=1
             allocated=phase.at(node,'ALLOCATOR_BEFORE_WRITE')
@@ -137,6 +138,10 @@ class Replay:
                 continue
             local=locals[0]
             grants=[v for v in r.by_basis.values() if v['ballot']==ballot and v['node']!=node]
+            if not grants:
+                loss=local_grant.validate(r,reservation,local,stop,phase)
+                allowed.update(loss['unanswered']);local_losses.append(loss)
+                continue
             need(len(grants)==1,'competing activation bootstrap first remote majority')
             remote=grants[0];peer=remote['node']
             choice=[v for v in r.selections.values() if v['value']['ballot']==ballot]
@@ -201,7 +206,7 @@ class Replay:
         return dict(status='PARTIAL',scope='competing-bootstrap-original-activation-network',precondition=precondition,
             campaigns=campaigns,discoveryProbes=discoveries,activation=summary,maintenanceExchanges=covered-summary['exchanges'],
             preinstallationExchanges=covered,abandonedSelections=abandoned,unansweredAttempts=len(allowed),
-            pregrantLosses=pregrant_losses,
+            pregrantLosses=pregrant_losses,**(dict(localGrantLosses=local_losses) if local_losses else {}),
             wholeHistoryExchanges=len(r.rows),wholeHistoryAttempts=len(r.attempts),
             originalActivationNetworkQualified=True,fullNetworkQualified=True,
             completeExportLifetimesQualified=False,processDeathQualified=False,finalSourceCohortQualified=False,phase3Complete=False)

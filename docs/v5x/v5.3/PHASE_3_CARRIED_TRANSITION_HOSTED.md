@@ -15,12 +15,12 @@ Their continuous ownership, revision and publication history is never split
 between jobs.
 
 Sixteen verifier jobs download those complete originals and the same seed, validate
-their provenance, then run the applicable original-first readers: 301 exact checks for each
+their provenance, then run the applicable original-first readers: 305 exact checks for each
 ordinary history and 210 capture/owner checks for each ACCEPT/PROOF process history and 268 for each
 application-ACK process history. Each of the two [SOURCE-refusal histories](PHASE_3_NATIVE_REFUSAL_COHORT.md)
 retains 268 file/owner checks plus twelve probe-record checks. Preparation, execution and verification return
 `PARTIAL`. Component acceptance requires all sixteen execution jobs and all sixteen verifier
-jobs to succeed, all 3,914 negative results, exact input inventories and distinct
+jobs to succeed, all 3,922 negative results, exact input inventories and distinct
 original plans, archives and producer receipts.
 
 Every artifact name and manifest binds the workflow, source, run, attempt, role

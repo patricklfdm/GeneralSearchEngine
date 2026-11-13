@@ -11,6 +11,23 @@ from . import test_joining_process_composition as fixtures
 
 
 class ProcessAuthorityTest(unittest.TestCase):
+    def test_authenticated_unreceived_offers_are_not_committed_sessions(self):
+        from .test_joining_abandoned_offer import JoiningAbandonedOfferTest
+        rows,windows=JoiningAbandonedOfferTest().data()
+        offers=m.exports.abandoned.authorize(rows,windows)
+        reader=SimpleNamespace(model=None,events=[],contents=[],windows=windows,sources=[],records=[],
+                               groups=[],abandoned_offers=offers)
+        with patch.object(m.e,'authorize_contents',return_value={}):exported=m.content(reader)
+        self.assertEqual(offers,exported['abandonedGenerationOffers'])
+        counts=dict(committedTransfers=7,transferSessions=5,rejectedTransferAttempts=1,abandonedOfferSessions=1)
+        observed=dict(observedCommittedContents=7,observedContentSessions=3)
+        m.coverage(observed,counts,exported)
+        for declared in ([],offers*2):
+            with self.assertRaisesRegex(ValueError,'abandoned offer complete accounting'):
+                m.coverage(observed,counts,dict(exported,abandonedGenerationOffers=declared))
+        for changes in (dict(observedCommittedContents=8),dict(observedContentSessions=4)):
+            with self.assertRaisesRegex(ValueError,'complete export coverage'):m.coverage(dict(observed,**changes),counts,exported)
+
     def setUp(self):
         fixture = fixtures.JoiningProcessCompositionTest(); fixture.setUp(); self.addCleanup(fixture.doCleanups)
         self.raw, self.case = fixture.raw, fixture.case

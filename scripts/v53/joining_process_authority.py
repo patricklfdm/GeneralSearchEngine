@@ -130,6 +130,7 @@ class Control(control.Replay):
 
 def content(reader):
     result = e.authorize_contents(reader.model, reader.events, reader.contents, reader.windows, reader.sources, reader.records)
+    if reader.abandoned_offers: result['abandonedGenerationOffers'] = reader.abandoned_offers
     bound = 0
     for values in reader.groups:
         first, last = values[0]['offer'], values[-1]['commit']
@@ -180,12 +181,15 @@ class Learner(ProcessLedgers, learner.Replay):
         super().__init__(root, base=maintenance.Replay(root, run.selected(case)['profile']))
 
 
+def coverage(controlled, counts, exported):
+    need(controlled['observedCommittedContents'] == counts['committedTransfers'] and
+         controlled['observedContentSessions'] == exports.abandoned.content_sessions(counts, exported),
+         'joining process complete export coverage')
+
+
 def replay(root, case, observed, prior):
     reader = Control(root, case, observed); exported = content(reader); controlled = reader.run(exported)
-    counts = prior['transfers']
-    need(controlled['observedCommittedContents'] == counts['committedTransfers'] and
-         controlled['observedContentSessions'] == counts['transferSessions']-counts['rejectedTransferAttempts'],
-         'joining process complete export coverage')
+    coverage(controlled, prior['transfers'], exported)
     maintained = maintenance.Replay(root, run.selected(case)['profile']).run()
     peers = Peers(root, case).run(); futures = Future(root, case).run(); learned = Learner(root, case); learners = learned.run()
     ballots = ballot.Replay(root, base=maintenance.Replay(root, run.selected(case)['profile'])).run()

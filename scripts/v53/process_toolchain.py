@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 import re
 import subprocess
+import sys
+import time
 from . import joining_history_run as h
 
 SCHEMA='gse-v53-process-toolchain-v2'
@@ -80,8 +82,40 @@ def pin(raw):
     return h.digest(raw)
 
 
+def initialization_detail(value):
+    """Keep setup failures in the job/receipt even before a producer exists."""
+    def text(value):
+        if isinstance(value,bytes):value=value.decode('utf-8',errors='replace')
+        value=re.sub(r'\x1b\[[0-9;]*m','',value or '')
+        value=re.sub(r'(https?://)[^\s/@]+:[^\s/@]+@',r'\1[redacted]@',value)
+        value=re.sub(r'(https?://[^\s?]+)\?[^\s]+',r'\1?[redacted]',value)
+        return value[-4000:]
+    return dict(exit=getattr(value,'returncode',None),stdout=text(value.stdout),stderr=text(value.stderr))
+
+
+def transient_initialization(value):
+    # Only a completed wrapper bootstrap may be retried. No reactor, original
+    # history, deadline, checksum or authorization failure is hidden here.
+    text=(value.stdout+'\n'+value.stderr).lower()
+    if any(v in text for v in ('checksum','sha-256','sha256','permission denied','401','403','404',
+                              'certificate','java_home','command not found')):return False
+    return bool(re.search(r'curl: \((?:6|7|18|28|52|56)\)|temporary failure in name resolution|'
+                          r'connection timed out|connection reset by peer|'
+                          r'(?:error|status(?: code)?|returned error:)[ :]*(?:429|50[234])\b',text))
+
+
 def locate(wrapper,work):
-    value=subprocess.run([str(wrapper),'-version'],cwd=work,text=True,capture_output=True,timeout=300)
-    h.need(value.returncode==0,'process Maven wrapper initialization')
+    attempts=[]
+    for attempt in range(1,4):
+        try:value=subprocess.run([str(wrapper),'-version'],cwd=work,text=True,capture_output=True,timeout=300)
+        except subprocess.TimeoutExpired as error:
+            attempts.append(dict(attempt=attempt,timeoutSeconds=300,**initialization_detail(error)))
+            raise ValueError('process Maven wrapper initialization: '+json.dumps(attempts)) from error
+        if value.returncode==0:break
+        attempts.append(dict(attempt=attempt,**initialization_detail(value)))
+        if attempt==3 or not transient_initialization(value):
+            raise ValueError('process Maven wrapper initialization: '+json.dumps(attempts))
+        print(json.dumps(dict(stage='maven-wrapper-initialization',retry=attempt,diagnostic=attempts[-1])),file=sys.stderr,flush=True)
+        time.sleep(attempt*2)
     maven=Path(paths(value.stdout)['mavenHome'])/'bin/mvn'
     h.need(maven.is_file(),'process Maven executable missing');return str(maven)

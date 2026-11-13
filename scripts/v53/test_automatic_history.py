@@ -82,6 +82,7 @@ class AutomaticHistoryTest(unittest.TestCase):
             text=(m.h.ROOT/m.h.MODULE/('src/test/java/'+m.PACKAGE.replace('.','/')+cls+'.java')).read_text()
             self.assertIn('void '+method+'()',text)
             args=m.command(case);self.assertEqual(1,sum(v.startswith('-Dtest=') for v in args))
+            self.assertEqual(case=='higher-ballot-restart','-Dv53.transport.diagnostics=true' in args)
             self.assertFalse(any('retry' in v.lower() or 'timeout' in v.lower() or '.case=' in v for v in args))
         for value in ('other','',False):
             with self.subTest(value=value),self.assertRaisesRegex(ValueError,'exact case'):m.command(value)

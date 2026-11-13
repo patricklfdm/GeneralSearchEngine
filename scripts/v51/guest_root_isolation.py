@@ -8,7 +8,16 @@ import ctypes
 import os
 from pathlib import Path
 import subprocess
+import shutil
 import sys
+
+
+def chroot_executable():
+    # coreutils installations can place chroot in bin or sbin. Never search a
+    # caller-controlled PATH while this qualification helper holds namespace root.
+    executable=shutil.which('chroot',path='/usr/sbin:/usr/bin:/sbin:/bin')
+    if executable is None:raise ValueError('system chroot executable missing')
+    return executable
 
 
 def main():
@@ -19,6 +28,7 @@ def main():
     if not root.is_absolute() or root.name != 'rootfs' or not root.is_dir() or any(p.is_symlink() for p in (root, *root.parents)):
         raise ValueError('root fixture path')
     if root.stat().st_uid != owner: raise ValueError('root fixture owner')
+    chroot=chroot_executable()
     # Validate before elevating ownership of this private fixture tree. A test
     # symlink is never followed by chown; all system bind targets are directories.
     paths = [root, *root.rglob('*')]
@@ -37,7 +47,7 @@ def main():
             libc = ctypes.CDLL(None, use_errno=True)
             if libc.syscall(442, -100, os.fsencode(target), 0x8000, ctypes.byref(attrs), ctypes.sizeof(attrs)) != 0:
                 raise OSError(ctypes.get_errno(), 'recursive read-only mount_setattr')
-        result = subprocess.run(['/usr/sbin/chroot', str(root), *command], env=dict(PATH='/usr/bin:/bin',
+        result = subprocess.run([chroot, str(root), *command], env=dict(PATH='/usr/bin:/bin',
             SUDO_USER=(root/'account').read_text(), SUDO_UID='1001', SUDO_GID='1001'))
     finally:
         for target in reversed(mounted): subprocess.run(['umount', '--lazy', str(target)], check=True, timeout=10)

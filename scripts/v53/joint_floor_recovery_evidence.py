@@ -17,6 +17,7 @@ from . import generation_copy_evidence as generation
 from . import automatic_floor_resume_evidence as resume
 from . import joining_placement_evidence as placement
 from . import joining_initialization_evidence as initialization
+from . import joining_connections
 
 c, f, h, need = catalog.disk, catalog.f, catalog.collection, catalog.need
 NODES = ('node-1', 'node-2', 'node-3', 'node-6')
@@ -94,6 +95,27 @@ def bounded(rows, images, sources):
          rows[-1]['usage']['counts'].get('SOURCE') == sources, 'joint floor physical originals remain charged')
 
 
+def delivered_replies(rows, events, identities, root, sent_ids):
+    """Qualify connection metadata, rather than strip it to a legacy reply."""
+    connected = any('connection' in row for row in rows) or any(
+        'connection' in row for row in events if row.get('request') in sent_ids)
+    expected = {'request', 'response', 'withheld'} | ({'connection'} if connected else set())
+    need(all(set(row) == expected and row['withheld'] is False for row in rows),
+         'joint floor delivered original replies')
+    if connected:
+        # Parent observers use NETWORK_* names; the child uses native names.
+        # Include complete invocations (legacy delivery has no request hash).
+        connections = {row['connection']['id'] for row in rows}
+        connections.update(row['connection']['id'] for row in events
+                           if row.get('request') in sent_ids and 'connection' in row)
+        observed = [row for row in events if row.get('event') in joining_connections.TRANSPORT and
+                    (row.get('request') in sent_ids or row.get('connection', {}).get('id') in connections)]
+        result = joining_connections.replay(observed, rows, identities, root)
+        need(not result['failed'] and len(result['rows']) == len(rows) and
+             all(row['delivered'] is not None for row in result['rows']),
+             'joint floor delivered original replies')
+
+
 def transfer_sessions(root, events, copies, identities, cap, ballot, *, scope='joint-floor-reopened'):
     sent = [v for v in events if v.get('node') == 'node-2' and v.get('scope') == scope and
             v['event'] == 'BEFORE_REQUEST_WRITE']
@@ -105,10 +127,9 @@ def transfer_sessions(root, events, copies, identities, cap, ballot, *, scope='j
     # Every returned reply must have its own observed send and local receive;
     # neither a remote producer label nor a retained packet supplies a delivery.
     need(len(rows) == len(sent) == len(received), 'joint floor complete fresh exchange observations')
+    delivered_replies(rows, events, identities, cap['root'], sent_ids)
     used = set(); discovered = set(); peers = {node: [] for node in NODES if node != 'node-2'}
     for row in rows:
-        need(set(row) == {'request', 'response', 'withheld'} and row['withheld'] is False,
-             'joint floor delivered original replies')
         kind, q = generation.t.t.wire(row['request'])
         answer, a = generation.t.t.wire(row['response'])
         request = catalog.sha(base64.b64decode(row['request'], validate=True)); response = catalog.sha(base64.b64decode(row['response'], validate=True))

@@ -119,13 +119,18 @@ class Phase3CoverageTest(unittest.TestCase):
                 self.assertEqual(c.authored(owner.negative_cases(unit)), c.negative_selectors(cohort, unit))
         from . import automatic_history_replay as gate
         for unit in ('higher-ballot-restart', 'reply-revocation'):
-            self.assertEqual(c.authored(gate.vector(unit, None)[0]), c.negative_selectors('automatic-histories', unit))
+            expected=c.authored(gate.vector(unit, None)[0])
+            if unit=='higher-ballot-restart':
+                for row in expected:
+                    if row['selector']['suite']=='current' and row['selector']['case']=='unused-offer-bytes':
+                        row['condition']='original-unused-source-transfer'
+            self.assertEqual(expected, c.negative_selectors('automatic-histories', unit))
 
     def test_competition_variants_are_not_elected_using_a_fake_original(self):
         from . import automatic_history_replay as gate
         with patch.object(gate, 'competition_branch', side_effect=AssertionError('no original exists')):
             vector = c.negative_selectors('automatic-histories', 'competition')
-        self.assertEqual({'pregrant', 'superseded'}, {v['selector']['variant'] for v in vector})
+        self.assertEqual({'pregrant', 'local-grant', 'superseded'}, {v['selector']['variant'] for v in vector})
         self.assertTrue(all(v['condition'] == 'original-competition-' + v['selector']['variant'] for v in vector))
         self.assertTrue(any('{node}' in v['reason'] for v in vector))
         self.assertFalse(any(v['selector']['case'] == 'journal-after-retirement' and

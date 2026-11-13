@@ -24,11 +24,14 @@ class ProfileUnselectedPreparationTest(unittest.TestCase):
         c=object.__new__(e.Continuation);c.root=Path('/unused');c.replay=SimpleNamespace(root=value['root'])
         c.group=copy.deepcopy(value['group']);c.identifiers=set(value['identifiers']);c.voters=tuple(value['voters'])
         c.initialization=SimpleNamespace(voters=tuple(value['oldVoters']));c.joining=value['joining']
+        # This inventory fixture has no completed retirement observations. It
+        # must not synthesize a deletion from a possible maintenance plan.
+        c.events=[]
         compared=[]
         def match(node,files):
             e.need({k:v for k,v in files.items() if k!='.'}==value['captured'][node], 'fixture exact original capture')
             compared.append(node)
-        c.captures=SimpleNamespace(by_ballot={(n,e.f.canonical(value['ballot'])):{} for n in value['captured']},
+        c.captures=SimpleNamespace(by_ballot={(n,e.f.canonical(value['ballot'])):dict(capturedEvent=0) for n in value['captured']},
             original=lambda node,ballot:value['captured'][node],match=match)
         def installed(label):
             self.assertEqual('continuation-installed-9',label)

@@ -195,16 +195,30 @@ def learner_alias(own,request):
     return None
 
 
-def authorize_generation(values,windows):
-    first,last=values[0]['offer'],values[-1]['commit'];q=first['request'];node=q['recipient']['node']
-    interrupted=first.get('abortedPreparation')
-    own=current(windows,node,first['offered'] if interrupted else first['received'],last['offered'])
+def generation_offer(windows,q,received,offered,last):
+    """Receipt can wait outside the owner monitor; bytes must be new-current.
+
+    Permit only one physically proven same-cut install before the FIRST offer.
+    Every subsequent chunk/commit still belongs to that completed generation;
+    this does not extend an old export past revocation or across an owner open.
+    """
+    node=q['recipient']['node'];own=current(windows,node,offered,last)
+    need(received<=offered,'joining export inactive current generation')
+    if own['start']<received:return own
+    previous=[w for w in windows if w['node']==node and
+              (w['start'],w['end'])==own.get('sourcePredecessor') and
+              w['start']<received<own['start'] and w['end']<own['start']]
+    need(len(previous)==1,'joining export inactive current generation');before=previous[0]
+    need(before['identity']==own['identity']==q['recipient'] and
+         before['packet']['capsule']['root']==own['packet']['capsule']['root']==q['root'] and
+         before['packet']['capsule']['cut']==own['packet']['capsule']['cut'],
+         'joining export inactive current generation')
+    return own
+
+
+def generation_objects(own,q):
+    """Derive each original alias/content pair for complete and revoked offers."""
     cap=own['packet']['capsule'];members=own['members']
-    identities=n.s.catalog.identities(f.decode(own['packet']['objects'][cap['catalog']],'records','CATALOG')['identities'])
-    proposer=identities.get(q['ballot']['proposer'])
-    need(q['sender']==identities.get(q['sender']['node']) and q['recipient']==own['identity'] and
-         proposer is not None and q['ballot']['incarnation']==proposer['storage'],
-         'joining export current permanent identities')
     reference=q['payload']['digest'];original_reference=reference;learner=learner_alias(own,q)
     generation=native.current_reference(cap,'retained-current-generation')
     metadata=native.current_reference(cap,'retained-current-generation-metadata')
@@ -222,6 +236,24 @@ def authorize_generation(values,windows):
         if reference==cut:expected += [(h,members[h+'.image'],'APPLICATION') for h in sorted(own['packet']['images'])]
     else:raise ValueError('joining export current generation alias')
     expected[0]=(original_reference,*expected[0][1:])
+    return reference,learner,expected
+
+
+def authorize_generation(values,windows):
+    first,last=values[0]['offer'],values[-1]['commit'];q=first['request']
+    interrupted=first.get('abortedPreparation')
+    own=generation_offer(windows,q,first['received'],first['offered'],last['offered'])
+    cap=own['packet']['capsule'];members=own['members']
+    identities=n.s.catalog.identities(f.decode(own['packet']['objects'][cap['catalog']],'records','CATALOG')['identities'])
+    proposer=identities.get(q['ballot']['proposer'])
+    need(q['sender']==identities.get(q['sender']['node']) and q['recipient']==own['identity'] and
+         proposer is not None and q['ballot']['incarnation']==proposer['storage'],
+         'joining export current permanent identities')
+    need(all(own['start']<v['offer']['received']<=v['commit']['offered']<own['end'] for v in values[1:]),
+         'joining export inactive current generation')
+    reference,learner,expected=generation_objects(own,q)
+    generation=native.current_reference(cap,'retained-current-generation')
+    metadata=native.current_reference(cap,'retained-current-generation-metadata')
     if interrupted:
         need(reference==metadata and len(values)==1<len(expected) and interrupted['generationStart']==own['start'] and
              interrupted['selector']==own.get('sourcePredecessor',(None,None))[1],

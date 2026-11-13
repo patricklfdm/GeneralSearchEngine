@@ -68,6 +68,7 @@ class DiscoveredServiceEvidenceTest(unittest.TestCase):
         reader = object.__new__(d.transition.NativeSlot)
         for size in (3,4,5):
             old=['node-'+str(i) for i in range(1,size+1)];new=old[:-1]
+            reader.voters=tuple(old)
             for node in old:
                 chosen=reader.checkpoint_voters(dict(old=old,new=new),node)
                 self.assertGreater(len(chosen&set(old)),len(old)//2)

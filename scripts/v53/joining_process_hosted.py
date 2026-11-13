@@ -117,7 +117,9 @@ def verify_member(seed_root, seed, seed_manifest, bundle, output, case, ctx):
             def progress(value):
                 stream.write(json.dumps(value, sort_keys=True)+'\n'); stream.flush()
                 print(json.dumps(dict(stage='negative', member=case, **value), sort_keys=True), flush=True)
-            member = m.qualify_member(raw/'producer', case, *pins(seed), progress=progress)
+            # Only independent mutated copies run in parallel. The complete
+            # original still passes first, and all 150 declared slots remain.
+            member = m.qualify_member(raw/'producer', case, *pins(seed), progress=progress, negative_workers=3)
         need(member['producerReceiptSha256'] == claimed.get('producerReceiptSha256') and
              member['originalPlanSha256'] == claimed.get('originalPlanSha256'), 'joining hosted original receipt binding')
         seed_inputs(seed_root, ctx)

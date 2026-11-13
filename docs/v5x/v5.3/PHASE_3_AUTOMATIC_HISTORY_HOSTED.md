@@ -35,11 +35,12 @@ declared component cohort can become `PASS`. That result retains
 and `combinedPeakResourcesQualified=false`.
 
 The competition reader first validates the entire original, then derives its
-supported shape. Pre-grant loss requires 39 negatives and seven explicit
+supported shape. Pre-grant or local-only-grant loss requires 39 negatives and seven explicit
 inapplicable mutations; superseded selection requires 104 negatives and none
-inapplicable. Restart requires 73 negatives and the v2 reply matrix requires 44,
+inapplicable. Restart requires 73 negatives when an unused source was pulled,
+or 72 and one explicit inapplicable mutation when none was pulled. The v2 reply matrix requires 44,
 including the [observed resource lifetimes](PHASE_3_TRANSFER_RESOURCE_LIFETIME.md).
-The aggregate therefore requires **156 or 221 exact ordered negative results**,
+The aggregate therefore requires **155/156 or 220/221 exact ordered negative results**,
 with case, status and reason checked by the existing composed reader. Inapplicable
 mutations are reported separately and never counted as rejected. Unknown original
 shapes are retained and refused; operators cannot select a smaller catalogue.

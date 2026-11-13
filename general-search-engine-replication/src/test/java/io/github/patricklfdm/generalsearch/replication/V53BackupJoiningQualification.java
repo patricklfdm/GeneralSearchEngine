@@ -12,7 +12,7 @@ class V53BackupJoiningQualification {
     @TempDir Path temp;
     static final List<String> OBSERVATIONS=List.of(
         "v53.joining.requiredFour","v53.publication.resources","v53.resource.transitions",
-        "v53.transport.connections","v53.transport.unsent","v53.resource.storage.transfers",
+        "v53.transport.connections","v53.transport.diagnostics","v53.transport.unsent","v53.resource.storage.transfers",
         "v53.resource.owner.close","v53.resource.joined.close","v53.resource.source.control",
         "v53.resource.control.close","v53.resource.export.ownership","v53.resource.slot.control");
 

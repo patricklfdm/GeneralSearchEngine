@@ -46,6 +46,7 @@ def unused_source(phase,expected,ballot,lower):
     values=[v for v in phase.sources if v['sender']=='node-1' and v['peer']=='node-3' and v['first']==expected[0][0]]
     network.need(len(values)<=1,'restart current one unused source')
     if values:sources.unused_source(phase,values[0],expected,ballot,lower)
+    return len(values)
 
 
 def rejection_reason(root,events,entries,index):
@@ -111,15 +112,19 @@ def heartbeats(root,events,entries,boundaries):
 
 
 def validate(root):
-    root=Path(root)
+    root=Path(root);unused=[]
+    def observed_unused(*args):unused.append(unused_source(*args))
     value=network.validate(root,physical_reader=replay_physical,maintenance_replay=current.maintenance_network,
-                           background_replay=heartbeats,unused_source_replay=unused_source,rejection_reason=rejection_reason)
+                           background_replay=heartbeats,unused_source_replay=observed_unused,rejection_reason=rejection_reason)
     events=physical.n.read(root/'events.json');held=[i for i,v in enumerate(events) if v['event'].startswith('ROUND_')]
     for start,stop,number in ((-1,held[0],1),(held[2],held[4],2)):
         group=network.group(root,f'installed-{number}')
         selected=physical.f.decode((root/f'selected-{number}.gsr').read_bytes(),'records','SELECTED')
         confirmations.installation_retention(events,start,stop,group,selected)
-    return dict(value,retentionSemantics='original-copy-confirmation')
+    # The complete activation reader admits an optional third candidate only
+    # in the second campaign. No callback means no such received source.
+    network.need(len(unused)<=1,'restart current complete unused-source observations')
+    return dict(value,retentionSemantics='original-copy-confirmation',unusedSourcePulls=sum(unused))
 
 
 # The old fixed capsule-offer boundary is not present in every cancelled pull.
@@ -137,6 +142,16 @@ CURRENT_NEGATIVES={
 NEGATIVES={**{k:v[1] for k,v in physical.NEGATIVES.items()},**NETWORK_NEGATIVES,**CURRENT_NEGATIVES}
 NEGATIVES.update({name:'node owner original selection' for name in ('first-selection','second-selection')})
 NEGATIVES['missing-retirement']='current node exact maintenance forces: node-1'
+
+
+def negative_cases(original):
+    count=original.get('unusedSourcePulls')
+    network.need(type(count) is int and 0<=count<=1,'restart current derived unused sources')
+    cases=dict(NEGATIVES);absent={}
+    if count==0:
+        del cases['unused-offer-bytes']
+        absent['unused-offer-bytes']='Original history contains no unused-source transfer.'
+    return cases,absent
 
 
 def mutate(root,name):
@@ -182,13 +197,14 @@ def mutate(root,name):
 
 def qualify(root):
     root=Path(root);before=history.inventory(root);original=validate(root);negatives=[]
-    for name,reason in NEGATIVES.items():
+    cases,absent=negative_cases(original)
+    for name,reason in cases.items():
         with tempfile.TemporaryDirectory(prefix='v53-current-restart-negative-') as temp:
             path=Path(temp)/'raw';shutil.copytree(root,path);mutate(path,name)
             try:validate(path)
             except ValueError as error:network.need(str(error)==reason,'restart current unrelated negative '+name+': '+str(error))
             else:raise ValueError('restart current accepted negative '+name)
         negatives.append(dict(case=name,status='REJECTED',reason=reason))
-        print(json.dumps(dict(case=name,completed=len(negatives),total=len(NEGATIVES))),flush=True)
+        print(json.dumps(dict(case=name,completed=len(negatives),total=len(cases))),flush=True)
     network.need(history.inventory(root)==before,'restart current original changed')
-    return dict(original=original,negatives=negatives)
+    return dict(original=original,negatives=negatives,notApplicable=absent)

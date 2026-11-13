@@ -91,7 +91,8 @@ class JoiningProcessHostedTest(unittest.TestCase):
         self.assertEqual(list(self.cases), [call.args[2] for call in calls.call_args_list])
         self.assertEqual({w.m.slug(v) for v in self.cases}, {p.name for p in (self.root/'execute/artifact').iterdir()})
         result, calls = self.verify(); self.assertEqual('PARTIAL', result['status']); self.assertEqual(3, calls.call_count)
-        for call in calls.call_args_list: self.assertIn('original/data/producer', str(call.args[0]))
+        for call in calls.call_args_list:
+            self.assertIn('original/data/producer', str(call.args[0])); self.assertEqual(3, call.kwargs['workers'])
         self.assertTrue(all(v['originalFirstDownloadedReplay'] for v in result['cases']))
 
     def test_one_native_failure_is_retained_without_skipping_or_retrying_others(self):

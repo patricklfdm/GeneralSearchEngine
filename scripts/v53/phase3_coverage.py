@@ -73,7 +73,11 @@ def negative_selectors(name, unit):
     if name == 'automatic-histories':
         gate = m.m.gate
         if unit == 'higher-ballot-restart':
-            return rows(gate.current.NEGATIVES, 'current') + rows(gate.restart.NEGATIVES, 'restart')
+            values=rows(gate.current.NEGATIVES, 'current') + rows(gate.restart.NEGATIVES, 'restart')
+            for row in values:
+                if row['selector']['suite']=='current' and row['selector']['case']=='unused-offer-bytes':
+                    row['condition']='original-unused-source-transfer'
+            return values
         if unit == 'reply-revocation':
             return rows(gate.replies.NEGATIVES, 'replies')
         need(unit == 'competition', 'coverage automatic unit')

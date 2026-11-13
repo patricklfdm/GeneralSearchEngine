@@ -61,7 +61,8 @@ def selected(case):
 def command(case):
     cls,method,_=selected(case)
     return ['-o','-B','-ntp','-f','reactor/pom.xml','-pl','../'+h.MODULE,'-am',
-            '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+cls+'#'+method,'-Dv53.carried.retirement.captures=true','test']
+            '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+cls+'#'+method,'-Dv53.carried.retirement.captures=true',
+            *(['-Dv53.transport.connections=true','-Dv53.transport.diagnostics=true'] if adapter(case) is None else []),'test']
 
 
 def junit(reports,case):

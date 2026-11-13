@@ -3,7 +3,7 @@
   "status": "PLANNED",
   "phase3Complete": false,
   "acceptancePlanSha256": "cdb67a09eb2acc2b2f7d7348204d4a2e4cebc7996aaeacdec6145864f5f846f1",
-  "sourceCatalogueSha256": "9d2c3f5eeaaa1583e486942c74970696fd0b2254471f2aa87bf4947919d2dd7c",
+  "sourceCatalogueSha256": "ea6301a45602073e652b7006fdab7ffbffa972ee7dc3556c8ed286721b811b73",
   "requirements": [
     {
       "id": "3A-activation",

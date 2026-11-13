@@ -46,7 +46,8 @@ def selected(case):
 def command(case):
     cls, method = selected(case)
     return ['-o', '-B', '-ntp', '-f', 'reactor/pom.xml', '-pl', '../'+h.MODULE, '-am',
-            '-Dsurefire.failIfNoSpecifiedTests=false', '-Dtest='+cls+'#'+method, 'test']
+            '-Dsurefire.failIfNoSpecifiedTests=false', '-Dtest='+cls+'#'+method,
+            *(['-Dv53.transport.diagnostics=true'] if case=='alternating-slots' else []), 'test']
 
 
 def junit(reports, case):

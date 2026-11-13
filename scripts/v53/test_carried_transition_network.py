@@ -7,9 +7,40 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 from . import carried_transition_network as m
+from . import test_joining_connections as fixture
 
 
 class CarriedTransitionNetworkTest(unittest.TestCase):
+    def test_basic_history_requires_connections_instead_of_legacy_fallback(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);(root/'events.json').write_text('[]');(root/'wire.json').write_text('[]')
+            with patch.object(m.network,'replay') as old,self.assertRaisesRegex(ValueError,'original connection observations absent'):
+                m.replay(root,'INTENT')
+            old.assert_not_called()
+
+    def test_connection_mutations_reject_overlapping_late_terminal_on_exact_socket(self):
+        for name in m.network.profile_network.TERMINAL_NEGATIVES:
+            events,wires,ids,identity=fixture.joined()
+            result=m.connected.connections.replay(events,wires,ids,identity)
+            with self.subTest(case=name),tempfile.TemporaryDirectory() as temp:
+                root=Path(temp);(root/'events.json').write_bytes(m.network.f.canonical(events));(root/'wire.json').write_bytes(m.network.f.canonical(wires))
+                with patch.object(m,'failed_attempts',return_value=(events,result)):m.mutate(root,'INTENT',name)
+                changed,wire=m.observations(root)
+                with self.assertRaises(ValueError) as caught:m.connected.connections.replay(changed,wire,ids,identity)
+                self.assertEqual(m.NEGATIVES[name],str(caught.exception))
+
+    def test_excess_attempts_use_distinct_invocations_to_reach_actual_bound(self):
+        events,wires,ids,identity=fixture.joined();events.pop(7);wires.pop(0)
+        result=m.connected.connections.replay(events,wires,ids,identity);failed=result['failed'][0]
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);(root/'events.json').write_bytes(m.network.f.canonical(events));(root/'wire.json').write_bytes(m.network.f.canonical(wires))
+            (root/'failures.json').write_bytes(m.network.f.canonical([dict(node=failed['recipient'],kind=failed['kind'],request=failed['requestHash'],failure='original')]))
+            with patch.object(m,'failed_attempts',return_value=(events,result)):m.mutate(root,'INTENT','failed-control-over-attempts')
+            changed,wire=m.observations(root)
+            replay=m.connected.connections.replay(changed,wire,ids,identity)
+            self.assertEqual(4,replay['attempts'])
+            with self.assertRaisesRegex(ValueError,'bounded total attempts'):m.network.bounded_attempts(changed)
+
     def test_exact_kind_precedes_filesystem(self):
         for kind in ('BARRIER','DATA','',None,True):
             with patch.object(m.network.collection,'inventory') as inventory,self.assertRaisesRegex(ValueError,'exact kind'):
@@ -59,7 +90,7 @@ class CarriedTransitionNetworkTest(unittest.TestCase):
         for after,error,reason in ((dict(files={'owner/selector.gsr':'changed'},directories=['owner']),None,'negative changed physical'),
                                    (before,ValueError('other'), 'unrelated network negative'),(before,None,'mutation accepted')):
             with tempfile.TemporaryDirectory() as temp,patch.object(m,'validate',return_value={}),\
-                 patch.object(m.network.collection,'inventory',side_effect=[before,after]),patch.object(m.network,'mutate'),\
+                 patch.object(m.network.collection,'inventory',side_effect=[before,after]),patch.object(m,'mutate'),\
                  patch.object(m,'replay',side_effect=error),patch.object(m,'NEGATIVES',{'one':'expected'}):
                 with self.assertRaisesRegex(ValueError,reason):m.qualify(temp,'INTENT')
 

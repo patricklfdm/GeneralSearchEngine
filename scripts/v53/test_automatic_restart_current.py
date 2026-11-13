@@ -102,8 +102,18 @@ class AutomaticRestartCurrentTest(unittest.TestCase):
 
     def test_qualifier_does_not_count_unrelated_or_missing_rejection(self):
         for bad,reason in ((ValueError('other'),'unrelated negative'),({},'accepted negative')):
-            with tempfile.TemporaryDirectory() as temp,patch.object(m,'validate',side_effect=[{},bad]),patch.object(m,'mutate'):
+            with tempfile.TemporaryDirectory() as temp,patch.object(m,'validate',side_effect=[dict(unusedSourcePulls=0),bad]),patch.object(m,'mutate'):
                 with self.subTest(reason=reason),self.assertRaisesRegex(ValueError,reason):m.qualify(temp)
+
+    def test_unused_transfer_negative_requires_derived_original_presence(self):
+        for count in (0,1):
+            cases,absent=m.negative_cases(dict(unusedSourcePulls=count))
+            self.assertEqual(count>0,'unused-offer-bytes' in cases)
+            self.assertEqual(count==0,'unused-offer-bytes' in absent)
+            self.assertEqual(set(m.NEGATIVES),set(cases)|set(absent))
+        for bad in (None,False,True,-1,2,3,'1'):
+            with self.subTest(value=bad),self.assertRaisesRegex(ValueError,'derived unused sources'):
+                m.negative_cases(dict(unusedSourcePulls=bad))
 
     def test_ordinary_slot_payload_and_current_maintenance_compose_without_pending_tail(self):
         service=m.Service.__new__(m.Service);service.group={'original':'bytes'};service.voters=('node-1','node-2')

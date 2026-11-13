@@ -77,7 +77,8 @@ class ProfileControlTest(unittest.TestCase):
         return reader
 
     def grouped_run(self,reader):
-        with patch.object(reader,'local_recording') as local,patch.object(p.e,'learner_alias',return_value='prefix'), \
+        original=p.e.learner_alias
+        with patch.object(reader,'local_recording') as local,patch.object(p.e,'learner_alias',side_effect=lambda own,q: 'prefix' if 'marker' in q else original(own,q)), \
              patch.object(p.c.disk,'anchor',side_effect=lambda cap:dict(marker=cap['marker'])):
             reader.quorum()
             return local
@@ -135,6 +136,20 @@ class ProfileControlTest(unittest.TestCase):
     def test_basis_kind_alone_cannot_skip_quorum_source_authorization(self):
         reader=self.frozen_group();reader.groups[-1][1]['raw']=b'foreign promise'
         with self.assertRaisesRegex(ValueError,'^joining export exact frozen source$'):self.grouped_run(reader)
+
+    def waiting_packet(self):
+        reader=self.grouped();windows,q,values=export_fixture.JoiningExportEvidenceTest().installed_offer()
+        reader.model.joining=q['sender']['node']
+        for group in reader.groups:group[0]['offer']['request']['sender']=q['sender']
+        reader.windows=windows;reader.groups.append(values)
+        return reader
+
+    def test_waiting_packet_is_authenticated_without_inventing_learner_recording(self):
+        reader=self.waiting_packet();self.grouped_run(reader);self.assertEqual(2,len(reader.recordings))
+        reader=self.waiting_packet();reader.groups[-1][0]['raw']=b'foreign packet'
+        with self.assertRaisesRegex(ValueError,'exact current generation'):self.grouped_run(reader)
+        reader=self.waiting_packet();reader.windows[-1].pop('sourcePredecessor')
+        with self.assertRaisesRegex(ValueError,'inactive current generation'):self.grouped_run(reader)
 
     def test_actual_learner_export_cannot_cross_generation_switch(self):
         reader=self.grouped();current=reader.current

@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+import subprocess
+from unittest.mock import patch
 from . import process_toolchain as t
 
 
@@ -50,3 +52,39 @@ class ProcessToolchainTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             p=Path(root)/'module';p.write_bytes(b'x'*(1024*1024+19))
             self.assertEqual(t.h.digest(p.read_bytes()),t.file_hash(p))
+
+    def test_only_completed_transient_wrapper_failure_retries_before_locating(self):
+        with tempfile.TemporaryDirectory() as root:
+            home=Path(root);maven=home/'maven/bin/mvn';maven.parent.mkdir(parents=True);maven.touch()
+            failed=subprocess.CompletedProcess([],22,'','curl: (22) The requested URL returned error: 503')
+            good=subprocess.CompletedProcess([],0,record(root)['stdout'],'')
+            with patch.object(t.subprocess,'run',side_effect=[failed,good]) as run,patch.object(t.time,'sleep') as sleep:
+                self.assertEqual(str(maven),t.locate(home/'mvnw',home))
+                self.assertEqual(2,run.call_count);sleep.assert_called_once_with(2)
+                self.assertTrue(all(v.args[0]==[str(home/'mvnw'),'-version'] for v in run.call_args_list))
+
+    def test_failure_threshold_keeps_all_attempt_diagnostics(self):
+        failed=subprocess.CompletedProcess([],6,'bootstrap','curl: (6) Could not resolve host')
+        with patch.object(t.subprocess,'run',return_value=failed) as run,patch.object(t.time,'sleep'):
+            with self.assertRaisesRegex(ValueError,'process Maven wrapper initialization:') as caught:t.locate('/wrapper','/work')
+            attempts=json.loads(str(caught.exception).split(': ',1)[1])
+            self.assertEqual([1,2,3],[v['attempt'] for v in attempts]);self.assertEqual(3,run.call_count)
+            self.assertTrue(all(v['exit']==6 and v['stdout']=='bootstrap' and 'resolve host' in v['stderr'] for v in attempts))
+
+    def test_permanent_unknown_and_timeout_fail_without_retry(self):
+        for message in ('checksum failed; connection timed out','curl: (22) HTTP status 403',
+                        'permission denied','unexpected bootstrap error','JAVA_HOME missing',
+                        'SSL certificate error','curl: (22) HTTP status 404'):
+            with self.subTest(message=message),patch.object(t.subprocess,'run',return_value=subprocess.CompletedProcess([],1,'',message)) as run,patch.object(t.time,'sleep') as sleep:
+                with self.assertRaisesRegex(ValueError,'process Maven wrapper initialization:'):t.locate('/wrapper','/work')
+                self.assertEqual(1,run.call_count);sleep.assert_not_called()
+        error=subprocess.TimeoutExpired(['/wrapper','-version'],300,output=b'download started',stderr=b'stalled')
+        with patch.object(t.subprocess,'run',side_effect=error) as run,patch.object(t.time,'sleep') as sleep:
+            with self.assertRaisesRegex(ValueError,'download started') as caught:t.locate('/wrapper','/work')
+            self.assertIn('timeoutSeconds',str(caught.exception));self.assertEqual(1,run.call_count);sleep.assert_not_called()
+
+    def test_setup_diagnostic_redacts_url_secrets_and_is_bounded(self):
+        value=subprocess.CompletedProcess([],1,'x'*9000,'https://user:secret@example.org/distribution?token=secret')
+        result=t.initialization_detail(value)
+        self.assertNotIn('secret',json.dumps(result));self.assertEqual(4000,len(result['stdout']))
+        self.assertIn('example.org/distribution',result['stderr'])

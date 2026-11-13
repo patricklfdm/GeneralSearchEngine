@@ -47,7 +47,7 @@ No previous development run is relabelled as a final-source member.
 
 ## Current scheduling and limits
 
-The carried-transition subset now contains sixteen histories and **3,914 exact
+The carried-transition subset now contains sixteen histories and **3,922 exact
 negative checks**. Across twelve subsets, source inspection derives **566 whole
 histories, 260 execution groups, 500 raw archives and 544 selected workflow jobs**.
 These are scheduling counts, not results or frozen-scenario coverage. The
