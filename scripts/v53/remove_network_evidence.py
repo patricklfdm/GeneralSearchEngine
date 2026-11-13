@@ -379,10 +379,22 @@ def mutate(root,name):
         diagnostic=next(v for v in diagnostics if v['request']==digest)
         diagnostics.extend(dict(diagnostic) for _ in range(extra))
     elif name in ('failed-control-unbound','failed-control-sequence','failed-control-trace'):
-        terminal=next(v for v in events if v['event']=='NETWORK_ATTEMPT_FAILED' and v['direction']=='OUTBOUND')
+        # A transport timeout may precede a real delivered retry of the same
+        # request. Altering all of its hashes without altering that response
+        # would test broken wire binding, not an unbound failed control. Choose
+        # an original unanswered operation; never discard its successful ACK.
+        answered={sha(base64.b64decode(row['request'])) for row in wires}
+        candidates=[v for v in events if v['event']=='NETWORK_ATTEMPT_FAILED' and v['direction']=='OUTBOUND'
+                    and v['kind'] in ('PREPARE','SELECTED','FUTURE_RETENTION_INTENT') and v['request'] not in answered]
+        need(candidates,'REMOVE negative requires unanswered control')
+        terminal=candidates[0]
         old=terminal['request'];send=next(v for v in events if v['event'] in transcript.SENDS and v['request']==old)
         kind,value=transcript.wire(send['bytes'])
-        if name=='failed-control-unbound':value['payload']['certificate']='f'*64
+        if name=='failed-control-unbound':
+            # Change an existing authority digest, not the frozen wire schema.
+            field={'PREPARE':'promise','SELECTED':'selection','FUTURE_RETENTION_INTENT':'certificate'}.get(kind)
+            need(field is not None and field in value['payload'],'REMOVE failed control mutation kind')
+            value['payload'][field]='f'*64
         elif name=='failed-control-sequence':value['sequence']+=1
         else:value['trace']='00000000-0000-0000-0000-000000000001'
         raw=f.encode('wire',kind,value)

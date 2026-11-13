@@ -124,6 +124,7 @@ class Replay:
 
     def run(self):
         gate=activation.Replay(self.root);self.precondition=gate.run();self.replay=gate.replay
+        self.activation_at=gate.original.activation_at
         history=gate.original.history
         self.windows=generation_windows(self.replay.events,history)
         self.sources=source_windows(self.replay)

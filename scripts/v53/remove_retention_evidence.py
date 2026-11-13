@@ -183,7 +183,7 @@ def validate(root,profile):
 
 NEGATIVES={'peers':dict(peer.NEGATIVES),'future':dict(future.NEGATIVES)}
 NEGATIVES['peers'].update({'foreign-write-owner':'REMOVE peer event shape',
-                          'unbound-reseal':'joining peer exact open reseal count',
+                          'unbound-reseal':'REMOVE peer event shape',
                           'completion-forged-scope':'REMOVE peer event shape',
                           'write-forged-field':'REMOVE peer event shape'})
 

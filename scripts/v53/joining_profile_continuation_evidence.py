@@ -302,10 +302,12 @@ class Continuation(p.Continuation):
         sources={node:self.prepare(node,ballot) for node in sorted(prepared)}
         self.unselected_maintenance={};unselected={};before_group=copy.deepcopy(self.group)
         for node in sorted(prepared-set(self.voters)):
-            before=copy.deepcopy(self.group[node]);after=self.maintenance(self.group,node)
-            if p.source_deletions(before,after):
-                captured=self.captures.by_ballot[node,f.canonical(ballot)]['capturedEvent']
-                unselected[node]=(captured,before)
+            # This peer can acquire copies after selected peers install. Do not
+            # run a speculative retirement here: subclasses compare and consume
+            # original durable prefixes. Derive the actual mixed copy set below
+            # and perform that comparison exactly once.
+            captured=self.captures.by_ballot[node,f.canonical(ballot)]['capturedEvent']
+            unselected[node]=(captured,copy.deepcopy(self.group[node]))
         sources={node:sources[node] for node in self.voters}
         maintained={node:self.maintenance(self.group,node) for node in self.voters}
         for node in self.voters:self.group[node]=c.install(maintained[node],sources,selected)

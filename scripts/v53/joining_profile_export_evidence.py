@@ -53,7 +53,7 @@ def context(root,profile,*,old_owner_lifetimes=None,required_four=False, bootstr
     records=e.record_windows(root,events,model,windows,sources,nodes=nodes,old_owner_lifetimes=old_owner_lifetimes)
     return SimpleNamespace(model=model,events=events,rows=rows,contents=contents,
                            groups=e.sessions(contents),windows=windows,sources=sources,records=records,
-                           abandoned_offers=abandoned_offers)
+                           abandoned_offers=abandoned_offers,old_owner_lifetimes=old_owner_lifetimes or {})
 
 
 def replay(root,profile,*,required_four=False, bootstrap_source='EMPTY', wire_layout='JSON'):

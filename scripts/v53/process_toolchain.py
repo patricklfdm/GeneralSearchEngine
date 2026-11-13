@@ -1,6 +1,7 @@
 """Stable tool identities with original per-host diagnostics retained separately."""
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -100,14 +101,18 @@ def transient_initialization(value):
     if any(v in text for v in ('checksum','sha-256','sha256','permission denied','401','403','404',
                               'certificate','java_home','command not found')):return False
     return bool(re.search(r'curl: \((?:6|7|18|28|52|56)\)|temporary failure in name resolution|'
-                          r'connection timed out|connection reset by peer|'
+                          r'connection timed out|connection reset by peer|unable to resolve host address|'
                           r'(?:error|status(?: code)?|returned error:)[ :]*(?:429|50[234])\b',text))
 
 
 def locate(wrapper,work):
     attempts=[]
     for attempt in range(1,4):
-        try:value=subprocess.run([str(wrapper),'-version'],cwd=work,text=True,capture_output=True,timeout=300)
+        # The stock wrapper otherwise uses wget --quiet and erases the HTTP/
+        # network cause. Verbose (never shell tracing) preserves classification;
+        # a bare "Failed to fetch" remains unknown and cannot earn a retry.
+        try:value=subprocess.run([str(wrapper),'-version'],cwd=work,text=True,capture_output=True,timeout=300,
+                                 env=dict(os.environ,MVNW_VERBOSE='true'))
         except subprocess.TimeoutExpired as error:
             attempts.append(dict(attempt=attempt,timeoutSeconds=300,**initialization_detail(error)))
             raise ValueError('process Maven wrapper initialization: '+json.dumps(attempts)) from error

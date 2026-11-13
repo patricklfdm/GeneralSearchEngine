@@ -1,6 +1,8 @@
 """Composition boundaries; full original TCP histories remain separate evidence."""
 from pathlib import Path
 from copy import deepcopy
+import base64
+import json
 import tempfile
 from types import SimpleNamespace
 import unittest
@@ -9,6 +11,27 @@ from . import remove_network_evidence as n
 
 
 class RemoveNetworkEvidenceTest(unittest.TestCase):
+    def test_unbound_negative_changes_unanswered_authority_without_corrupting_recovered_reply(self):
+        catalog=n.f.catalog()
+        for kind,field in (('PREPARE','promise'),('SELECTED','selection'),('FUTURE_RETENTION_INTENT','certificate')):
+            with self.subTest(kind=kind),tempfile.TemporaryDirectory() as temp:
+                root=Path(temp);sample=lambda k:n.f.sample(catalog['wire'][k]['schema'],catalog['types'])
+                prior=n.f.encode('wire','PROOF',sample('PROOF'));value=sample(kind)
+                raw=n.f.encode('wire',kind,value);encoded=base64.b64encode(raw).decode()
+                events=[];failures=[]
+                for k,b in (('PROOF',prior),(kind,raw)):
+                    events += [dict(node='node-1',event='NETWORK_SEND',kind=k,request=n.sha(b),bytes=base64.b64encode(b).decode()),
+                               dict(node='node-1',event='NETWORK_ATTEMPT_FAILED',direction='OUTBOUND',kind=k,request=n.sha(b))]
+                    failures.append(dict(request=n.sha(b)))
+                wires=[dict(request=base64.b64encode(prior).decode(),response='unchanged-original')]
+                for name,rows in (('events',events),('wire',wires),('failures',failures)):
+                    (root/(name+'.json')).write_bytes(n.f.canonical(rows))
+                n.mutate(root,'failed-control-unbound')
+                updated=json.loads((root/'events.json').read_text());_,changed=n.transcript.wire(updated[2]['bytes'])
+                self.assertEqual(dict(value,payload=dict(value['payload'],**{field:'f'*64})),changed)
+                self.assertEqual(events[:2],updated[:2]);self.assertEqual(wires,json.loads((root/'wire.json').read_text()))
+                self.assertNotEqual(encoded,updated[2]['bytes']);self.assertEqual(updated[2]['request'],updated[3]['request'])
+
     def unselected(self,change=None):
         ballot=dict(counter=4,proposer='node-1',incarnation='original')
         selected=dict(root='root',view='view',ballot=ballot,sources=[dict(voter='node-1'),dict(voter='node-3')])

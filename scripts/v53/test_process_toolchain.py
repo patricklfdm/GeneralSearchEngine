@@ -62,6 +62,16 @@ class ProcessToolchainTest(unittest.TestCase):
                 self.assertEqual(str(maven),t.locate(home/'mvnw',home))
                 self.assertEqual(2,run.call_count);sleep.assert_called_once_with(2)
                 self.assertTrue(all(v.args[0]==[str(home/'mvnw'),'-version'] for v in run.call_args_list))
+                self.assertTrue(all(v.kwargs['env']['MVNW_VERBOSE']=='true' for v in run.call_args_list))
+
+    def test_verbose_wget_classifies_network_and_server_failures_only(self):
+        for message in ('wget: unable to resolve host address example.invalid',
+                        'HTTP request sent, awaiting response... 503 Service Unavailable\nERROR 503: Service Unavailable.'):
+            self.assertTrue(t.transient_initialization(subprocess.CompletedProcess([],1,'',message)))
+        for message in ('wget: Failed to fetch https://repo.maven.apache.org/maven.zip',
+                        'ERROR 404: Not Found.', 'ERROR 403: Forbidden.',
+                        'ERROR 503: certificate failure', 'checksum mismatch; ERROR 503'):
+            self.assertFalse(t.transient_initialization(subprocess.CompletedProcess([],1,'',message)))
 
     def test_failure_threshold_keeps_all_attempt_diagnostics(self):
         failed=subprocess.CompletedProcess([],6,'bootstrap','curl: (6) Could not resolve host')

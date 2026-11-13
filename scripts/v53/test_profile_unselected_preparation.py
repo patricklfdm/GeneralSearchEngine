@@ -33,6 +33,14 @@ class ProfileUnselectedPreparationTest(unittest.TestCase):
             compared.append(node)
         c.captures=SimpleNamespace(by_ballot={(n,e.f.canonical(value['ballot'])):dict(capturedEvent=0) for n in value['captured']},
             original=lambda node,ballot:value['captured'][node],match=match)
+        maintenance=c.maintenance
+        def checked(group,node):
+            # No completed retirement exists for the unselected voter in this
+            # retained fixture. A prefix-consuming override must never be
+            # called speculatively on that voter.
+            e.need(node in c.voters,'fixture premature unselected retirement comparison')
+            return maintenance(group,node)
+        c.maintenance=checked
         def installed(label):
             self.assertEqual('continuation-installed-9',label)
             for node,files in c.group.items():

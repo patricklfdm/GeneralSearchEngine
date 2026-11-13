@@ -3,12 +3,24 @@ from contextlib import ExitStack
 from pathlib import Path
 from types import SimpleNamespace
 import copy
+import tempfile
 import unittest
 from unittest.mock import patch
 from . import carried_transition_retention as r
 
 
 class CarriedRetentionTest(unittest.TestCase):
+    def test_unbound_reseal_mutation_hits_strict_event_shape_before_count(self):
+        events=[dict(node='node-1',event=p) for p in r.r.peer.RESEAL]
+        reader=SimpleNamespace(events=events,steps=[dict(node='node-1',start=0,end=1)],run=lambda:None)
+        with tempfile.TemporaryDirectory() as temp:
+            path=Path(temp)
+            r.r.peer.mutate(path,'unbound-reseal',reader=reader)
+            changed=r.n.collection.read_json(path,'events.json',r.n.collection.EVENT_BYTES)
+            self.assertEqual(events[:2],changed[:2]);self.assertEqual(4,len(changed))
+            with self.assertRaisesRegex(ValueError,'^'+r.NEGATIVES['peers']['unbound-reseal']+'$'):
+                r.r.peer_event_shapes(changed,('node-1',))
+
     def test_forged_peer_write_fails_at_the_declared_shape_gate(self):
         # Exercise the real shared constructor, not a mocked negative result.
         # The generic transaction parser must not obscure this exact rejection.

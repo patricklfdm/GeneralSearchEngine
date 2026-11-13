@@ -187,7 +187,7 @@ NEGATIVES={
     'child-current':('owners','process history child current force order'),
     'overlapping-child':('owners','process history disjoint original cold owners'),
     'original-allocator':('physical','process history independently derived interrupted owner'),
-    'child-request':('network','joining network response without request'),
+    'child-request':('network','connection boundary without start'),
     'export-owner':('exports','joining control original owner lifetime'),
     'child-copy-force':('maintenance','process history complete interrupted floor callbacks'),
     'resumed-copy-force':('maintenance','process history complete interrupted floor callbacks'),

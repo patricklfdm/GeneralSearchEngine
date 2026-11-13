@@ -15,6 +15,7 @@ import uuid
 from . import competing_campaign_publication as publication
 from . import competing_pregrant_evidence as pregrant
 from . import competing_local_grant_evidence as local_grant
+from . import competing_discovery_evidence as discovery
 
 p=publication.p;net=publication.network;f=publication.f;disk=publication.disk
 need=publication.need;sha=publication.sha
@@ -189,6 +190,7 @@ class Replay:
                 allowed.add(attempt['sent']);allowed|=incomplete_selected(phase,r.attempts,r.rows,choice['raw'],ballot,
                     peer,node,attempt['received'],min(stop,end_of_source(r,local)))
                 abandoned+=1
+        discovery_only=discovery.consume(r,phase,stop)
         summary=phase.finish();traces=summary.pop('_traces')
         need(not traces&r.maintenance_traces,'competing activation distinct maintenance traces')
         after={v['request']['trace'] for v in r.attempts if v['sent']>stop}
@@ -207,6 +209,7 @@ class Replay:
             campaigns=campaigns,discoveryProbes=discoveries,activation=summary,maintenanceExchanges=covered-summary['exchanges'],
             preinstallationExchanges=covered,abandonedSelections=abandoned,unansweredAttempts=len(allowed),
             pregrantLosses=pregrant_losses,**(dict(localGrantLosses=local_losses) if local_losses else {}),
+            **(dict(discoveryOnly=discovery_only) if discovery_only else {}),
             wholeHistoryExchanges=len(r.rows),wholeHistoryAttempts=len(r.attempts),
             originalActivationNetworkQualified=True,fullNetworkQualified=True,
             completeExportLifetimesQualified=False,processDeathQualified=False,finalSourceCohortQualified=False,phase3Complete=False)

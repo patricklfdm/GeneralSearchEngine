@@ -504,6 +504,29 @@ NEGATIVES={
 }
 
 
+def connection_safe_gap(events,moving,at,*,after):
+    """Move whole exchanges without overlapping an unrelated reused TCP route.
+
+    Keep original socket identities and every remaining event in order. Moving
+    a negative's exchange into the middle of a later use of its ephemeral port
+    would test broken transport instead of the intended authority lifetime.
+    """
+    def route(row):
+        value=row.get('connection')
+        if value is None:return None
+        return tuple(sorted((v['address'],v['port']) for v in (value['local'],value['remote'])))
+    routes={route(row) for row in moving}-{None};spans={}
+    for i,row in enumerate(events):
+        if route(row) not in routes:continue
+        key=row['connection']['id']
+        if key not in spans:spans[key]=[i,i]
+        spans[key][1]=i
+    while True:
+        crossed=[(lo,hi) for lo,hi in spans.values() if lo<at<=hi]
+        if not crossed:return at
+        at=max(hi+1 for _,hi in crossed) if after else min(lo for lo,_ in crossed)
+
+
 def mutate(root,name,*,kind='ADD',recovery=None,reader=None,receipt_phase=None):
     events=n.s.collection.read_json(root,'events.json',n.s.collection.EVENT_BYTES)
     wires=n.s.collection.read_json(root,'wire.json',n.s.collection.WIRE_BYTES)
@@ -553,6 +576,7 @@ def mutate(root,name,*,kind='ADD',recovery=None,reader=None,receipt_phase=None):
         point='SOURCE_RETIREMENT_CREATED' if name=='source-after-retirement' else 'ACCEPT_BEFORE_RETURN' if name=='receipt-before-force' else 'LEARNER_JOINING_RETAIN_CREATED'
         at=next(i for i,v in enumerate(events) if v is retirement) if retirement is not None else next(i for i,v in enumerate(events) if v.get('node')==owner and v['event']==point)
         if name!='receipt-before-force':at+=1
+        at=connection_safe_gap(events,moving,at,after=name!='receipt-before-force')
         events[at:at]=moving
     elif name in ('generation-alias','source-alias','receipt-alias'):
         row=next(v for v in wires if sha(base64.b64decode(v['request']))==first['requestHash']);kind,value=n.wire(row['request'])

@@ -14,8 +14,32 @@ import sys
 import tempfile
 
 from . import joining_control_evidence as control
+from . import old_owner_lifetimes as owner_lifetimes
 
 c=control; e=c.e; n=c.n; f=c.f; disk=c.disk; need=c.need; sha=c.sha
+
+
+def discovery_generation(windows,events,row,lifetimes):
+    """A reopened owner's queued STATUS is a hint, not an old export borrow.
+
+    It may observe one same-cut install in its *new* owner lifetime. Both
+    generations remain independently derived; a request spanning the actual
+    cold-open boundary is still rejected. Data exports keep generation_offer.
+    """
+    q=row['request'];node=q['recipient']['node'];received,offered=row['received'],row['offered']
+    own=e.current(windows,node,offered,offered)
+    if node not in lifetimes or own['start']<received:
+        return e.generation_offer(windows,q,received,offered,offered)
+    before=e.current(windows,node,received,received)
+    scope=owner_lifetimes.scope(lifetimes,node,received)
+    need(received<own['start'] and before['end']<own['start'] and scope is not None and
+         owner_lifetimes.scope(lifetimes,node,offered)==scope==events[own['start']].get('scope') and
+         not any(w['node']==node and before['end']<w['start']<own['start'] for w in windows) and
+         before['identity']==own['identity']==q['recipient'] and
+         before['packet']['capsule']['root']==own['packet']['capsule']['root']==q['root'] and
+         before['packet']['capsule']['cut']==own['packet']['capsule']['cut'],
+         'joining maintenance discovery cold-owner interval')
+    return own
 
 
 def floor_events(copies,local,network,*,pinned=False):
@@ -101,7 +125,7 @@ class Replay(c.Replay):
         for row in self.rows:
             if row['kind']!='STATUS_PROBE':continue
             q,a=row['request'],row['response']
-            own=e.generation_offer(self.windows,q,row['received'],row['offered'],row['offered'])
+            own=discovery_generation(self.windows,self.events,row,getattr(self,'old_owner_lifetimes',{}))
             ids=n.s.catalog.identities(c.catalog(own)['identities']);proposer=ids.get(q['ballot']['proposer'])
             need(q['sequence']==1 and set(q['payload'])=={'nonce'} and q['sender']==ids.get(q['sender']['node']) and
                  proposer is not None and q['ballot']['incarnation']==proposer['storage'],

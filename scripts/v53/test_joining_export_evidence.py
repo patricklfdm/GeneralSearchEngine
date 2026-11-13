@@ -9,6 +9,31 @@ from . import test_joining_catalog_evidence as fixture
 
 
 class JoiningExportEvidenceTest(unittest.TestCase):
+    def test_relocated_exchange_keeps_reused_socket_invocations_disjoint(self):
+        from .test_connection_transcript import trace
+        from . import connection_transcript as conn
+        moving,wires,ids,root=trace();remaining=copy.deepcopy(moving);other=copy.deepcopy(wires)
+        for row in remaining:
+            row['connection']['id']=row['connection']['id'].replace('00000000001','00000000002')
+        other[0]['connection']=copy.deepcopy(remaining[2]['connection'])
+        original=copy.deepcopy((moving,remaining,wires,other))
+        for after,wanted in ((True,4),(False,0)):
+            at=e.connection_safe_gap(remaining,moving,2,after=after)
+            self.assertEqual(wanted,at)
+            combined=remaining[:at]+moving+remaining[at:]
+            self.assertEqual(2,conn.replay(combined,wires+other,ids,root)['attempts'])
+        self.assertEqual(original,(moving,remaining,wires,other))
+        # Inserting at the old boundary falsely blames socket reuse.
+        with self.assertRaises(ValueError):conn.replay(remaining[:2]+moving+remaining[2:],wires+other,ids,root)
+
+    def test_route_gap_does_not_move_legacy_or_unrelated_exchange(self):
+        self.assertEqual(1,e.connection_safe_gap([{},{}],[{}],1,after=True))
+        from .test_connection_transcript import trace
+        moving,_,_,_=trace();other=copy.deepcopy(moving)
+        for row in other:
+            row['connection']['local' if row['event'] in ('BEFORE_REQUEST_WRITE','AFTER_RESPONSE_READ') else 'remote']['port']+=1
+        self.assertEqual(2,e.connection_safe_gap(other,moving,2,after=True))
+
     def inputs(self):
         _,parent,ids,root=fixture.JoiningCatalogEvidenceTest().phase()
         schema=e.f.catalog();catalog=e.f.sample(schema['records']['CATALOG']['schema'],schema['types'])

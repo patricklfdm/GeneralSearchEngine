@@ -4,6 +4,11 @@ Status: tooling implemented; final-source execution and Phase 3 remain OPEN.
 The operator will arrange a qualifying native Linux machine after development.
 This entry neither provisions it nor dispatches any workflow.
 
+The [373da301 hosted review](PHASE_3_HOSTED_REVIEW_373DA301.md) separates the
+five latest failed aggregates into original failures, dependent failures and
+replay defects. It records retained-original corrections and keeps native
+deadline investigations and final-source qualification open.
+
 The [2026-11-10 expansion failure review](PHASE_3_EXPANSION_FAILURE_REVIEW.md)
 records the first twelve expanded hosted runs at `5217a556`, their retained
 failures and the subsequent local corrections. That review does not admit the

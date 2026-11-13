@@ -18,6 +18,13 @@ def events():
 
 
 class ProcessJointHistoryTest(unittest.TestCase):
+    def test_missing_child_request_uses_the_connection_boundary_rejection(self):
+        from . import test_joining_connections as fixture
+        events,wires,ids,root=fixture.joined()
+        events.pop(6)  # Scoped AFTER_REQUEST_READ; its later OFFER remains.
+        with self.assertRaisesRegex(ValueError,'^'+m.NEGATIVES['child-request'][1]+'$'):
+            fixture.e.replay(events,wires,ids,root)
+
     def test_exact_disjoint_original_cold_boundaries_without_event_projection(self):
         original=events();before=copy.deepcopy(original)
         self.assertEqual({m.NODE:((1,m.process.SCOPE),(7,m.SCOPE))},m.lifetimes(original));self.assertEqual(before,original)

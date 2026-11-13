@@ -13,9 +13,10 @@ def original(case,branch='pregrant'):
                          precondition=dict(precondition={}))
         activation=dict(fullNetworkQualified=True,originalActivationNetworkQualified=True,pregrantLosses=[{}] if branch=='pregrant' else [],precondition=publication)
         if branch=='local-grant':activation['localGrantLosses']=[{}]
+        if branch=='discovery-only':activation['discoveryOnly']=[{}]
         exports=dict(status='PARTIAL',observedTemporalExportAuthorityQualified=True,completeExportLifetimesQualified=False,processDeathQualified=False,
                      finalSourceCohortQualified=False,phase3Complete=False,precondition=activation,
-                     sourceWindows={'pregrant':2,'local-grant':3,'superseded':4}[branch],incompleteTransfers=int(branch=='superseded'))
+                     sourceWindows={'pregrant':2,'local-grant':3,'discovery-only':2,'superseded':4}[branch],incompleteTransfers=int(branch=='superseded'))
         life=dict(status='PARTIAL',actualStateTransitionsQualified=True,originalDeadlinePreserved=True,physicalNetworkQualified=False,lossCauseQualified=False,
                   fullLifecycleQualified=False,finalSourceCohortQualified=False,phase3Complete=False,
                   owners=[dict(node=n,started=True,drained=True) for n in ('node-1','node-2','node-3')])
@@ -50,6 +51,8 @@ class AutomaticHistoryReplayTest(unittest.TestCase):
             r.check_result(result(case),case)
         r.check_result(result('competition','superseded'),'competition')
         r.check_result(result('competition','local-grant'),'competition')
+        r.check_result(result('competition','discovery-only'),'competition')
+        self.assertEqual(38,len(result('competition','discovery-only')['negatives']))
         self.assertEqual(39,len(result('competition','local-grant')['negatives']))
         self.assertEqual(39,len(result('competition')['negatives']))
         self.assertEqual(7,len(result('competition')['notApplicable']))

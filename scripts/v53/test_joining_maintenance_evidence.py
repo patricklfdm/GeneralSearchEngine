@@ -9,6 +9,26 @@ from . import test_joining_export_evidence as fixture
 
 
 class JoiningMaintenanceEvidenceTest(unittest.TestCase):
+    def test_reopened_status_can_wait_for_same_cut_install_without_borrowing_old_source(self):
+        windows,q=fixture.JoiningExportEvidenceTest().inputs();before=windows[1]
+        before.update(start=0,end=10);after=copy.deepcopy(before);after.update(start=12,end=20)
+        events=[{} for _ in range(21)];events[12]=dict(scope='reopened')
+        row=dict(request=q,received=8,offered=14);life={'node-2':(5,'reopened')}
+        self.assertIs(after,m.discovery_generation([before,after],events,row,life))
+        # This exception applies only to a STATUS hint. A content borrow still
+        # has no predecessor edge across the original cold open.
+        with self.assertRaisesRegex(ValueError,'inactive current generation'):
+            m.e.generation_offer([before,after],q,8,14,14)
+        for mode in ('across-open','changed-cut','foreign-scope','wrong-identity','skipped-generation'):
+            changed=copy.deepcopy(after);declared=copy.deepcopy(life);extra=[]
+            if mode=='across-open':declared['node-2']=(9,'reopened')
+            elif mode=='changed-cut':changed['packet']['capsule']['cut']['index']+=1
+            elif mode=='foreign-scope':declared['node-2']=(5,'other')
+            elif mode=='wrong-identity':changed['identity']['node']='node-3'
+            else:extra=[dict(copy.deepcopy(after),start=11,end=12)]
+            with self.subTest(mode=mode),self.assertRaisesRegex(ValueError,'cold-owner interval'):
+                m.discovery_generation([before,*extra,changed],events,row,declared)
+
     def copies(self):
         windows,_=fixture.JoiningExportEvidenceTest().inputs()
         for own in windows:own['packet']['capsule']['application']='f'*64
@@ -44,7 +64,7 @@ class JoiningMaintenanceEvidenceTest(unittest.TestCase):
         windows,q,_=fixture.JoiningExportEvidenceTest().installed_offer()
         q=dict(q,sequence=1,payload=dict(nonce='original'))
         a=dict(payload=dict(nonce='original',cut=windows[-1]['packet']['capsule']['cut'],ready=False))
-        r=m.Replay.__new__(m.Replay);r.windows=windows;r.model=SimpleNamespace(joining='node-4');r.expected_status_count=1
+        r=m.Replay.__new__(m.Replay);r.windows=windows;r.events=[];r.model=SimpleNamespace(joining='node-4');r.expected_status_count=1
         r.rows=[dict(kind='STATUS_PROBE',answer='STATUS',request=q,response=a,received=10,offered=17)]
         r.statuses();self.assertEqual(r.rows,r.status_rows)
         for change in ('no-link','wrong-cut','ready'):
