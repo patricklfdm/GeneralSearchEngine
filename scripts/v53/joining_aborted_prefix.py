@@ -56,8 +56,9 @@ def bind(events,result):
                  'joining aborted first chunk binding')
         elif pending:
             committed=[i for i,r in enumerate(prefix) if r['answer']=='TRANSFER_COMMIT']
-            need(committed and committed[-1]<len(prefix)-2,'joining aborted prefix missing committed prefix')
-            tail=prefix[committed[-1]+1:];offer=tail[0]
+            start=committed[-1]+1 if committed else 0
+            need(start<len(prefix)-1,'joining aborted prefix missing object bytes')
+            tail=prefix[start:];offer=tail[0]
             need(offer['answer']=='SOURCE_OFFER' and all(r['answer']=='CHUNK' for r in tail[1:]) and
                  q['payload']==dict(id=offer['response']['payload']['id'],digest=offer['response']['payload']['digest']),
                  'joining aborted prefix uncommitted object binding')
@@ -72,4 +73,5 @@ def bind(events,result):
         prefix[0]['abortedPrefix']=dict(request=q,firstSent=first['sent'],finished=last['finished'],
                                        selector=changes[0],attempts=len(attempts))
         if pending:prefix[0]['abortedPrefix']['commitPending']=True
+        if pending and not committed:prefix[0]['abortedPrefix']['commitOnly']=True
         if pending_offer:prefix[0]['abortedPrefix']['offerOnly' if len(prefix)==1 else 'offerPending']=True

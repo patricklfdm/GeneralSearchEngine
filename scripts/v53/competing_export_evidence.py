@@ -232,9 +232,18 @@ def negative_cases(reader):
         for name in tuple(cases):
             if name.startswith('partial-'):
                 not_applicable[name]='Original history has no incomplete SELECTED transfer.';del cases[name]
-    if not any(v['retiredSources'] for v in reader.replay.transactions):
+    retired=any(v['retiredSources'] for v in reader.replay.transactions)
+    # A retired source alone does not supply an exported retired journal claim.
+    # Incoming fencing can retire a local BASIS that was never sent to anyone.
+    exported=retired and any(len(v)==1 and
+        any(z['family']=='journal' and z['reference']==v[0]['offer']['request']['payload']['digest'] and
+            z['node']==v[0]['offer']['request']['recipient']['node'] and z['end']<len(reader.replay.events)
+            for z in reader.records) and
+        authorize_session(v,reader.windows,reader.sources,reader.records)=='journal' for v in reader.groups)
+    if not exported:
         cases.pop('journal-after-retirement')
-        not_applicable['journal-after-retirement']='Original history has no source retirement.'
+        not_applicable['journal-after-retirement']=('Original history has no retired journal export.' if retired
+                                                   else 'Original history has no source retirement.')
         cases['journal-after-history']='joining export inactive current generation'
     return cases,not_applicable
 

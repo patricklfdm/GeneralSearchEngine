@@ -39,9 +39,11 @@ final class MembershipPublicationEndpoint implements MembershipTransport.Handler
         owner.checkRetentionResources(resources);publication=owner.publication(applied);
         transfers=MembershipTransferService.publication(owner,publication,resources,bounds,this::check,clock,started,budget);
     }
-    private void check()throws IOException {
+    private void time() {
         long elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"publication endpoint original deadline/closed");
-        publication.check();elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"publication endpoint original deadline/closed");
+    }
+    private void check()throws IOException {
+        time();publication.check();time();
     }
     private boolean quorum(Decoded statement,Collection<String> voters) {
         var view=object(object(statement.value().get("end")).get("view"));
@@ -124,10 +126,11 @@ final class MembershipPublicationEndpoint implements MembershipTransport.Handler
         check();owner.publishCurrent(applied,original.acknowledgements,original.owned,bridges);check();
     }
     @Override public Decoded handle(MembershipIdentity sender,Decoded request)throws IOException {
-        check();
-        if(request.kind().equals("FUTURE_RETENTION_INTENT"))return owner.recordFutureRetention(sender,request);
-        if(request.kind().equals("CHUNK") || request.kind().equals("TRANSFER_COMMIT"))return transfers.handle(sender,request);
-        publication.request(sender,request);CompletableFuture<Void> work;
+        if(request.kind().equals("FUTURE_RETENTION_INTENT")){check();return owner.recordFutureRetention(sender,request);}
+        if(request.kind().equals("CHUNK") || request.kind().equals("TRANSFER_COMMIT")){check();return transfers.handle(sender,request);}
+        // request() performs the same fresh owner/fence validation; avoid
+        // repeating it immediately before authentication with no work between.
+        time();publication.request(sender,request);time();CompletableFuture<Void> work;
         synchronized(this) {
             check();
             if(completion==null) {

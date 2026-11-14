@@ -4,6 +4,11 @@ Status: tooling implemented; final-source execution and Phase 3 remain OPEN.
 The operator will arrange a qualifying native Linux machine after development.
 This entry neither provisions it nor dispatches any workflow.
 
+The [276dcdf5 hosted review](PHASE_3_HOSTED_REVIEW_276DCDF5.md) records two complete
+successful families and the remaining infrastructure, native capture and replay
+failures. Native capture changes require new-source executions; earlier green
+receipts do not qualify the correction.
+
 The [373da301 hosted review](PHASE_3_HOSTED_REVIEW_373DA301.md) separates the
 five latest failed aggregates into original failures, dependent failures and
 replay defects. It records retained-original corrections and keeps native

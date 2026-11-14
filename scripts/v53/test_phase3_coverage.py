@@ -130,7 +130,7 @@ class Phase3CoverageTest(unittest.TestCase):
         from . import automatic_history_replay as gate
         with patch.object(gate, 'competition_branch', side_effect=AssertionError('no original exists')):
             vector = c.negative_selectors('automatic-histories', 'competition')
-        self.assertEqual({'pregrant', 'local-grant', 'discovery-only', 'superseded'}, {v['selector']['variant'] for v in vector})
+        self.assertEqual({'pregrant', 'local-grant', 'incoming-fence', 'discovery-only', 'superseded'}, {v['selector']['variant'] for v in vector})
         self.assertTrue(all(v['condition'] == 'original-competition-' + v['selector']['variant'] for v in vector))
         self.assertTrue(any('{node}' in v['reason'] for v in vector))
         self.assertFalse(any(v['selector']['case'] == 'journal-after-retirement' and

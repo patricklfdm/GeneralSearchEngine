@@ -51,6 +51,18 @@ class JoiningAbortedPrefixTest(unittest.TestCase):
         self.assertEqual(b'original transfer',pending['raw']);self.assertNotIn('commit',pending)
         self.assertEqual(1,counts['uncommittedTransferObjects'])
 
+    def test_first_object_commit_loss_never_creates_committed_content(self):
+        events,result,q=self.pending_commit()
+        result['rows']=result['rows'][3:]
+        for row in result['rows']:row['request']['sequence']-=3
+        q['sequence']-=3
+        result=self.bind((events,result,q));contents=[]
+        counts=t.transfers(result['rows'],contents=contents)
+        self.assertEqual([],contents);self.assertEqual(0,counts['committedTransfers'])
+        self.assertEqual(0,counts['transferredBytes']);self.assertEqual(1,counts['abandonedOfferSessions'])
+        self.assertTrue(result['rows'][0]['abortedPrefix']['commitOnly'])
+        self.assertEqual(b'original transfer',result['rows'][0]['abortedPrefix']['uncommittedObject']['raw'])
+
     def test_failed_commit_still_requires_all_bytes_and_original_object(self):
         for change in ('id','digest','truncated','no-prior-commit'):
             data=self.pending_commit()

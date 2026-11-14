@@ -81,6 +81,24 @@ class V53CaptureRecoveryTest {
         try(var store=open(path,f,r,e->{})){assertEquals(f.accepted,store.originalBasis().orElseThrow().value().get("accepted"));assertEquals(20L,object(store.promised().orElseThrow().value().get("ballot")).get("counter"));}
         assertEquals(0,r.usage().leases());
     }
+    @Test void higherObservationDuringOriginalCaptureDoesNotPoisonTheLiveWriter()throws Exception {
+        var points=new ArrayList<>(V53CaptureRecoveryWorker.CUTS);points.addAll(List.of("PROMISE_WRITTEN","PROMISE_FORCED","GRANT_BEFORE_RETURN"));
+        for(String point:new LinkedHashSet<>(points)) {
+            Path path=temp.resolve("live-fence-"+point);var f=new V53CurrentGenerationFixture(3,1,true);f.provision(path);
+            var ref=new AtomicReference<MembershipGrantJournal>();var r=resources();var once=new java.util.concurrent.atomic.AtomicBoolean();
+            try(var store=open(path,f,r,e->{if(e.equals(point) && once.compareAndSet(false,true))ref.get().observeCurrent(f.fixture.source.ballot(21));})) {
+                ref.set(store);
+                assertThrows(MembershipGrantJournal.HigherBallot.class,()->store.prepareCurrent(f.fixture.source.ballot(20)),point);
+                assertTrue(once.get(),point);assertFalse(Files.exists(path.resolve(MembershipCaptureFiles.FILE)),point);
+                var original=store.originalBasis().orElseThrow();assertEquals(f.accepted,original.value().get("accepted"));
+                assertEquals(20L,object(original.value().get("ballot")).get("counter"));
+                assertThrows(MembershipGrantJournal.HigherBallot.class,()->store.prepareCurrent(f.fixture.source.ballot(20)));
+                var newer=store.prepareCurrent(f.fixture.source.ballot(21));assertEquals(f.accepted,newer.value().get("accepted"));
+                assertNotEquals(original.digest(),newer.digest());
+            }
+            assertEquals(0,r.usage().leases(),point);
+        }
+    }
     @Test void capacityRefusalOccursBeforePromiseOrIntentAndKeepsLiveLeases()throws Exception {
         Path path=temp.resolve("capacity");var f=new V53CurrentGenerationFixture(3,1,false);f.provision(path);var r=resources();
         try(var store=open(path,f,r,e->{})) {

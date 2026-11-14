@@ -71,6 +71,9 @@ def validate(replay,allocation,local,stop,phase):
     need(len(begins)==1 and begins[0]['ordinal']<losses[0]['ordinal'] and
          (-1 if begins[0]['afterEvent']==-1 else indices[begins[0]['afterEvent']])<allocation['start'],
          'competing local-grant round before allocation')
+    if not any(v['request']['ballot']==allocation['ballot'] for v in replay.rows):
+        from . import competing_incoming_loss as incoming
+        return incoming.bind(incoming.claim(replay,allocation,local,losses[0],stop))
     result,reply=bind(replay,allocation,local,losses[0],stop)
     q=reply['request']
     phase.control('PREPARE',allocation['node'],q['recipient']['node'],q['payload'],'REJECT',

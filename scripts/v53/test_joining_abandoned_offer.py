@@ -5,6 +5,19 @@ from . import test_joining_export_evidence as fixture
 
 
 class JoiningAbandonedOfferTest(unittest.TestCase):
+    def test_complete_first_object_without_commit_requires_original_bytes_and_selector(self):
+        rows,windows=self.data();row=rows[0];claim=row['abortedPrefix'];raw=windows[1]['manifest']
+        claim.pop('offerOnly');claim.update(commitOnly=True,commitPending=True,
+            uncommittedObject=dict(offer=row,last=dict(offered=row['offered']+1),raw=raw,kind='RECORD'))
+        claim['request']['payload']=dict(id=row['response']['payload']['id'],digest=a.e.sha(raw))
+        result=a.authorize(rows,windows)
+        self.assertEqual(len(raw),result[0]['receivedBytes']);self.assertEqual(0,result[0]['committedObjects'])
+        self.assertFalse(result[0]['generationCopy'])
+        for field,value in (('raw',b'forged'),('kind','CAPSULE'),('last',dict(offered=100))):
+            pending=claim['uncommittedObject'];original=pending[field];pending[field]=value
+            with self.subTest(field=field),self.assertRaises(ValueError):a.authorize(rows,windows)
+            pending[field]=original
+
     def data(self):
         windows,q=fixture.JoiningExportEvidenceTest().inputs();own=windows[1]
         reference,raw,kind=a.e.native.maintenance_generations(own['manifest'],own['members'],own['packet'])[1][0]

@@ -13,10 +13,11 @@ def original(case,branch='pregrant'):
                          precondition=dict(precondition={}))
         activation=dict(fullNetworkQualified=True,originalActivationNetworkQualified=True,pregrantLosses=[{}] if branch=='pregrant' else [],precondition=publication)
         if branch=='local-grant':activation['localGrantLosses']=[{}]
+        if branch=='incoming-fence':activation['localGrantLosses']=[dict(cause='incoming-prepare')]
         if branch=='discovery-only':activation['discoveryOnly']=[{}]
         exports=dict(status='PARTIAL',observedTemporalExportAuthorityQualified=True,completeExportLifetimesQualified=False,processDeathQualified=False,
                      finalSourceCohortQualified=False,phase3Complete=False,precondition=activation,
-                     sourceWindows={'pregrant':2,'local-grant':3,'discovery-only':2,'superseded':4}[branch],incompleteTransfers=int(branch=='superseded'))
+                     sourceWindows={'pregrant':2,'local-grant':3,'incoming-fence':3,'discovery-only':2,'superseded':4}[branch],incompleteTransfers=int(branch=='superseded'))
         life=dict(status='PARTIAL',actualStateTransitionsQualified=True,originalDeadlinePreserved=True,physicalNetworkQualified=False,lossCauseQualified=False,
                   fullLifecycleQualified=False,finalSourceCohortQualified=False,phase3Complete=False,
                   owners=[dict(node=n,started=True,drained=True) for n in ('node-1','node-2','node-3')])
@@ -51,6 +52,11 @@ class AutomaticHistoryReplayTest(unittest.TestCase):
             r.check_result(result(case),case)
         r.check_result(result('competition','superseded'),'competition')
         r.check_result(result('competition','local-grant'),'competition')
+        r.check_result(result('competition','incoming-fence'),'competition')
+        self.assertEqual(39,len(result('competition','incoming-fence')['negatives']))
+        self.assertEqual(7,len(result('competition','incoming-fence')['notApplicable']))
+        self.assertNotIn('journal-after-retirement',r.export_vector('incoming-fence')[0])
+        self.assertIn('journal-after-history',r.export_vector('incoming-fence')[0])
         r.check_result(result('competition','discovery-only'),'competition')
         self.assertEqual(38,len(result('competition','discovery-only')['negatives']))
         self.assertEqual(39,len(result('competition','local-grant')['negatives']))

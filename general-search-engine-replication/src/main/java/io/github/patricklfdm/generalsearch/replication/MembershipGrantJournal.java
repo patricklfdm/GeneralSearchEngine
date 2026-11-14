@@ -2213,6 +2213,11 @@ final class MembershipGrantJournal implements AutoCloseable {
         boolean published()throws IOException {
             synchronized(MembershipGrantJournal.this) {
                 checkOwner();fence(ballot);
+                return publishedAfterOwner();
+            }
+        }
+        private boolean publishedAfterOwner()throws IOException {
+                require(Thread.holdsLock(MembershipGrantJournal.this),"publication writer monitor required");
                 require(promise!=null && promise.value().get("ballot").equals(ballot)
                         && current.manifest.value().get("selection").equals(selection)
                         && current.manifest.value().get("promise").equals(promise.digest()),"publication scope authority changed");
@@ -2220,7 +2225,6 @@ final class MembershipGrantJournal implements AutoCloseable {
                     require(current.capsule.terminal().equals(target),"publication scope target changed");return true;
                 }
                 require(pending!=null,"published acknowledgement generation changed");pending.checkAfterOwner();return false;
-            }
         }
         void check()throws IOException {published();}
         List<MembershipSelection.Bridge> retainedBridges()throws IOException {
@@ -2232,7 +2236,11 @@ final class MembershipGrantJournal implements AutoCloseable {
         }
         void request(MembershipIdentity sender,Decoded request)throws IOException {
             synchronized(MembershipGrantJournal.this) {
-                check();require(request.kind().equals("PUBLISH"),"publication request kind");var value=request.value();
+                requestChecked(sender,request);
+            }
+        }
+        private boolean requestChecked(MembershipIdentity sender,Decoded request)throws IOException {
+                boolean complete=published();require(request.kind().equals("PUBLISH"),"publication request kind");var value=request.value();
                 MembershipWire.envelope(request,before.context.root,sender,identity);
                 require(value.get("view").equals(requestView) && value.get("ballot").equals(ballot)
                         && sender.equals(before.context.identities.get(sender.nodeId().value()))
@@ -2240,12 +2248,12 @@ final class MembershipGrantJournal implements AutoCloseable {
                         "publication request original authority/identities");
                 require(sender.nodeId().value().equals(ballot.get("proposer"))
                         && object(value.get("payload")).get("certificate").equals(certificate),"publication request original proposer/certificate");
-            }
+                return complete;
         }
         Decoded acknowledge(MembershipIdentity sender,Decoded request)throws IOException {
             synchronized(MembershipGrantJournal.this) {
-                request(sender,request);require(published(),"publication acknowledgement before selector");
-                cut.at("PUBLICATION_ACK_BEFORE_RETURN");request(sender,request);require(published(),"publication acknowledgement lost selector");
+                require(requestChecked(sender,request),"publication acknowledgement before selector");
+                cut.at("PUBLICATION_ACK_BEFORE_RETURN");require(requestChecked(sender,request),"publication acknowledgement lost selector");
                 var response=new TreeMap<>(request.value());response.put("sender",request.value().get("recipient"));response.put("recipient",request.value().get("sender"));
                 response.put("payload",Map.of("certificate",certificate,"selection",selection,
                         "published",MembershipRetentionIntent.anchor(target),"generation",current.manifest.digest()));
@@ -4017,6 +4025,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             context.control((String)entry.value().get("kind"),command((String)entry.value().get("kind"),source.packet.objectBytes((String)entry.value().get("payload"))));
         }
         var reservation=sources==null?null:sources.prepare(frozen,source,images);
+        if(capture!=null && deferred==null)return captureOriginalGrant(grant,frozen,next,reservation);
         try(var retained=reservation) {
             if(deferred==null){append(grant,next);promise=grant;basis=null;selection=null;promises.put((String)grant.value().get("basisId"),grant);}
             else {deferred.check();deferred.finished=true;}
@@ -4033,6 +4042,44 @@ final class MembershipGrantJournal implements AutoCloseable {
             if(capture!=null)capture.clear(this::checkOwner,cut);
             cut.at("GRANT_BEFORE_RETURN");checkOwner();fence(next);return frozen;
         } catch(IOException | RuntimeException | Error error) {failed=true;throw error;}
+    }
+
+    /** Once this writer has begun a recoverable original capture, finish only
+     * those frozen bytes. A higher observation still fences every response;
+     * it must not turn normal competition into a poisoned storage owner.
+     * No incoming higher PROMISE can be written under this writer monitor.
+     * I/O, callback and integrity failures retain the ordinary failed owner. */
+    private Decoded captureOriginalGrant(Decoded grant,Decoded frozen,Map<String,Object> next,
+            MembershipBasisSources.Prepared reservation)throws IOException {
+        try(var retained=reservation) {
+            checkOwner();cut.at("PROMISE_BEFORE_WRITE");checkOwner();fence(next);
+            try {
+                appendCaptureRecord(grant,false);promise=grant;basis=null;selection=null;
+                promises.put((String)grant.value().get("basisId"),grant);
+                var plan=capturePlan(grant);
+                require(Arrays.equals(plan.basis().bytes(),frozen.bytes()),"capture differs from current original");
+                capture.write(plan,this::checkOwner,cut);retained.captureRecovering(this::checkOwner);
+                appendCaptureRecord(frozen,true);basis=frozen;bases.put(plan.id(),frozen);
+                capture.clear(this::checkOwner,cut);cut.at("GRANT_BEFORE_RETURN");checkOwner();
+            }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+        }
+        // Volatile observation is checked after the complete durable original,
+        // outside the failed-storage catch. It cannot authorize an old ACK.
+        fence(next);return frozen;
+    }
+    private void appendCaptureRecord(Decoded record,boolean announce)throws IOException {
+        checkOwner();require(tornBasis.length==0,"pending torn BASIS must recover before append");
+        byte[] bytes=record.bytes();require(bytes.length<=maximum-journal.length-pendingBytes(),"grant journal overflow");
+        if(announce)cut.at(record.kind()+"_BEFORE_WRITE");
+        try(var channel=MembershipFileAccess.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+            require(channel.size()==journal.length,"capture journal length changed");channel.position(channel.size());
+            if(record.kind().equals("BASIS")) {
+                int half=bytes.length/2;AdmissionPaths.write(channel,Arrays.copyOf(bytes,half));cut.at("BASIS_PREFIX_WRITTEN");
+                AdmissionPaths.write(channel,Arrays.copyOfRange(bytes,half,bytes.length));
+            }else AdmissionPaths.write(channel,bytes);
+            cut.at(record.kind()+"_WRITTEN");channel.force(true);cut.at(record.kind()+"_FORCED");
+        }
+        int offset=journal.length;journal=Arrays.copyOf(journal,offset+bytes.length);System.arraycopy(bytes,0,journal,offset,bytes.length);
     }
 
     private void resumeCapture(MembershipCaptureFiles.Plan plan)throws IOException {

@@ -66,6 +66,18 @@ jobs:
           retention-days: 90
           compression-level: 0
 
+      - name: Pack checksum-verified Maven distribution with executable modes
+        run: tar -czf target/v53-joining-process-hosted/maven.tar.gz -C "$HOME/.m2/wrapper" dists
+      - name: Retain checksum-verified Maven distribution for this attempt
+        if: ${{ success() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v53-joining-process-maven-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: target/v53-joining-process-hosted/maven.tar.gz
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 0
+
   execute:
     name: Joining process group original (${{ matrix.id }})
     needs: prepare
@@ -89,7 +101,17 @@ jobs:
         with:
           name: v53-joining-process-seed-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
           path: target/v53-joining-process-hosted/download-seed
+      - name: Download prepared Maven from this exact attempt
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: v53-joining-process-maven-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: target/v53-joining-process-hosted/download-maven
+      - name: Restore prepared Maven installation
+        run: |
+          mkdir -p "$HOME/.m2/wrapper"
+          tar -xzf target/v53-joining-process-hosted/download-maven/maven.tar.gz -C "$HOME/.m2/wrapper"
       - name: Run three original histories once each
+        # Tool bytes are checked against the immutable seed before any history.
         run: >-
           python -B -m scripts.v53.joining_process_hosted execute
           --seed target/v53-joining-process-hosted/download-seed --shard "$JOINING_PROCESS_SHARD"

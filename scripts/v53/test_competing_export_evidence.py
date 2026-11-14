@@ -32,8 +32,18 @@ class CompetingExportEvidenceTest(unittest.TestCase):
         self.assertEqual(20,len(cases));self.assertEqual(7,len(omitted))
         self.assertFalse(any(v.startswith('partial-') for v in cases))
         self.assertIn('journal-after-history',cases);self.assertIn('journal-after-retirement',omitted)
-        reader.partial={};reader.replay.transactions=[dict(retiredSources=1)]
-        self.assertEqual((m.NEGATIVES,{}),m.negative_cases(reader))
+    def test_retirement_negative_requires_an_actually_exported_retired_journal(self):
+        value,windows,records=partial()
+        reader=SimpleNamespace(partial={},groups=[[value]],windows=windows,sources=[],records=records,
+                               replay=SimpleNamespace(transactions=[dict(retiredSources=1)],events=[{}]*50))
+        with patch.object(m,'authorize_session',return_value='journal'):
+            self.assertEqual((m.NEGATIVES,{}),m.negative_cases(reader))
+            reader.records[0]['end']=50
+            cases,omitted=m.negative_cases(reader)
+            self.assertIn('journal-after-history',cases)
+            self.assertEqual('Original history has no retired journal export.',omitted['journal-after-retirement'])
+            reader.records[0]['end']=40;reader.records[0]['reference']='0'*64
+            self.assertEqual((cases,omitted),m.negative_cases(reader))
 
     def test_absent_incomplete_transfer_never_invents_journal_authority(self):
         with patch.object(m,'authorize_session',side_effect=['current-generation','frozen-source']), \

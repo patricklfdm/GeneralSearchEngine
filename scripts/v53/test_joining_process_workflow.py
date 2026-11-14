@@ -55,3 +55,12 @@ class JoiningProcessWorkflowTest(unittest.TestCase):
         props=(h.h.ROOT/'.mvn/wrapper/maven-wrapper.properties').read_text()
         self.assertIn('apache-maven-3.9.11-bin.zip',props)
         self.assertRegex(props,r'distributionSha256Sum=[0-9a-f]{64}')
+
+    def test_originals_restore_the_same_attempt_maven_with_executable_modes(self):
+        prepare=self.jobs['prepare'];execute=self.jobs['execute']
+        name='v53-joining-process-maven-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}'
+        self.assertIn(name,prepare);self.assertIn(name,execute)
+        self.assertIn('tar -czf target/v53-joining-process-hosted/maven.tar.gz',prepare)
+        self.assertIn('tar -xzf target/v53-joining-process-hosted/download-maven/maven.tar.gz',execute)
+        self.assertLess(execute.index('Restore prepared Maven'),execute.index('Run three original histories'))
+        for name in ('verify','aggregate'):self.assertNotIn('download-maven',self.jobs[name])

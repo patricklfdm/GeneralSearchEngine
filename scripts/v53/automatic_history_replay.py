@@ -14,6 +14,7 @@ from . import competing_export_evidence as exports
 from . import competing_pregrant_evidence as pregrant
 from . import competing_local_grant_evidence as local_grant
 from . import competing_discovery_evidence as discovery
+from . import competing_incoming_loss as incoming
 from . import competing_campaign_prefix as prefix
 from . import competing_campaign_maintenance as maintenance
 from . import competing_campaign_publication as publication
@@ -24,6 +25,7 @@ need=h.need;f=h.snapshot.f
 COMPETING={'prefix':prefix,'maintenance':maintenance,'publication':publication,'activation':activation,'exports':exports,'lifecycle':lifecycle,'pregrant':pregrant}
 COMPETING['local-grant']=local_grant
 COMPETING['discovery-only']=discovery
+COMPETING['incoming-fence']=incoming
 
 
 def same(actual,expected,reason):need(f.canonical(actual)==f.canonical(expected),reason)
@@ -32,6 +34,7 @@ def same(actual,expected,reason):need(f.canonical(actual)==f.canonical(expected)
 def suites(case):
     need(case in ('competition','higher-ballot-restart','reply-revocation'),'automatic replay case')
     return (dict(pregrant=['pregrant','exports','lifecycle'],**{'local-grant':['local-grant','exports','lifecycle'],
+                 'incoming-fence':['incoming-fence','exports','lifecycle'],
                  'discovery-only':['discovery-only','exports','lifecycle']},superseded=['prefix','maintenance','publication','activation','exports','lifecycle']) if case=='competition'
             else ['current','restart'] if case=='higher-ballot-restart' else ['replies'])
 
@@ -49,20 +52,23 @@ def competition_branch(original):
              'automatic unsupported original competition shape; preserve evidence')
         return 'discovery-only'
     if len(losses)==1 and not local and sources==2 and partial==0:return 'pregrant'
-    if not losses and len(local)==1 and sources==3 and partial==0:return 'local-grant'
+    if not losses and len(local)==1 and sources==3 and partial==0:
+        return 'incoming-fence' if local[0].get('cause')=='incoming-prepare' else 'local-grant'
     if not losses and not local and sources==4 and partial==1:return 'superseded'
     raise ValueError('automatic unsupported original competition shape; preserve evidence')
 
 
 def export_vector(branch):
-    need(branch in ('pregrant','local-grant','discovery-only','superseded'),'automatic competition declared branch')
+    need(branch in ('pregrant','local-grant','incoming-fence','discovery-only','superseded'),'automatic competition declared branch')
     cases=dict(exports.NEGATIVES);not_applicable={}
-    if branch in ('pregrant','local-grant','discovery-only'):
+    if branch in ('pregrant','local-grant','incoming-fence','discovery-only'):
         for name in tuple(cases):
             if name.startswith('partial-'):
                 not_applicable[name]='Original history has no incomplete SELECTED transfer.';del cases[name]
+    if branch in ('pregrant','local-grant','incoming-fence','discovery-only'):
         del cases['journal-after-retirement']
-        not_applicable['journal-after-retirement']='Original history has no source retirement.'
+        not_applicable['journal-after-retirement']=('Original history has no retired journal export.' if branch=='incoming-fence'
+                                                   else 'Original history has no source retirement.')
         cases['journal-after-history']='joining export inactive current generation'
     return cases,not_applicable
 
@@ -161,7 +167,7 @@ def replay(raw,case,sidecar=None):
         same((actual_cases,actual_skipped),(expected_cases,skipped),'automatic competition derived applicability')
         links=prefix.g.json_file(raw/prefix.collection.FILE)[1]
         original=dict(exports=exported,lifecycle=life,branch=branch,firstCapture=links[0]['node'])
-        chains={'exports':exported,'lifecycle':life,'pregrant':exported,'local-grant':exported,'discovery-only':exported};value=exported
+        chains={'exports':exported,'lifecycle':life,'pregrant':exported,'local-grant':exported,'incoming-fence':exported,'discovery-only':exported};value=exported
         for stage in ('activation','publication','maintenance','prefix'):
             value=value['precondition'];chains[stage]=value
         selected=suites(case)[branch]

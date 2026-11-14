@@ -199,6 +199,7 @@ def transfers(rows, *, contents=None):
                 claim['uncommittedObject']=dict(offer=active['offer'],last=prior,
                     raw=bytes(active['parts']),kind=active['kind'])
             uncommitted+=1
+            if claim.get('commitOnly',False):abandoned+=1
         else:need(active is None, 'joining network incomplete transfer')
     result=dict(transferSessions=len(sessions), committedTransfers=complete, transferredBytes=total,
                 exactTransferRetries=retries, rejectedTransferAttempts=rejected)
