@@ -142,7 +142,8 @@ class Replay(shared.Replay):
         self.root=Path(root);self.kind=kind
         original=process.read(self.root/'events.json');self.history=network.History(self.root,kind,original)
         self.events,self.rows,_,_=network.transport(self.root,self.history,original)
-        contents=[];network.network.transcript.transfers(self.rows,contents=contents);self.groups=e.sessions(contents)
+        complete,self.cancelled=network.cancelled.partition(self.history,self.events,self.rows)
+        contents=[];network.network.transcript.transfers(complete,contents=contents);self.groups=e.sessions(contents)
         self.live=lifetimes(self.events)
         self.windows=generation_windows(self.root,self.events,self.history,self.live)
         activation=self.history.activations()
@@ -162,8 +163,9 @@ class Replay(shared.Replay):
 
     def run(self):
         transfer_lifetimes(self.groups,self.live)
+        cancelled=network.cancelled.authority(self.cancelled,self.windows,self.sources)
         result=self.exports()
-        return dict(status='PARTIAL',kind=self.kind,**result,ownerLifetimes=sum(map(len,self.live.values())),
+        return dict(status='PARTIAL',kind=self.kind,**result,cancelledSourcePrefixes=cancelled,ownerLifetimes=sum(map(len,self.live.values())),
             observedExportAuthorityQualified=True,completeCopyFloorLifetimesQualified=False,
             transientBytesCaptured=False,cohortAdmitted=False,phase3Complete=False)
 

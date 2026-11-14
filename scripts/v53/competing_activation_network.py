@@ -113,6 +113,10 @@ class Replay:
     def run(self):
         original=publication.Replay(self.root);precondition=original.run();r=original.preceding
         events=r.events;stop=original.activation_at
+        if getattr(r,'interleaved',False):
+            from . import competing_interleaved_bootstrap as continuation
+            self.original=original;self.replay=r
+            return continuation.activation(r,precondition,stop)
         # Maintenance already consumes the whole original copies/floor/release
         # interval. Keep its traces disjoint and account for them in the total.
         rows=[v for v in r.rows if v['request']['trace'] not in r.maintenance_traces]

@@ -15,9 +15,10 @@ def original(case,branch='pregrant'):
         if branch=='local-grant':activation['localGrantLosses']=[{}]
         if branch=='incoming-fence':activation['localGrantLosses']=[dict(cause='incoming-prepare')]
         if branch=='discovery-only':activation['discoveryOnly']=[{}]
+        if branch=='interleaved':activation.update(interleavedBootstrap=True,undeliveredOriginalResponses=2)
         exports=dict(status='PARTIAL',observedTemporalExportAuthorityQualified=True,completeExportLifetimesQualified=False,processDeathQualified=False,
                      finalSourceCohortQualified=False,phase3Complete=False,precondition=activation,
-                     sourceWindows={'pregrant':2,'local-grant':3,'incoming-fence':3,'discovery-only':2,'superseded':4}[branch],incompleteTransfers=int(branch=='superseded'))
+                     sourceWindows={'pregrant':2,'local-grant':3,'incoming-fence':3,'discovery-only':2,'superseded':4,'interleaved':5}[branch],incompleteTransfers=int(branch=='superseded'))
         life=dict(status='PARTIAL',actualStateTransitionsQualified=True,originalDeadlinePreserved=True,physicalNetworkQualified=False,lossCauseQualified=False,
                   fullLifecycleQualified=False,finalSourceCohortQualified=False,phase3Complete=False,
                   owners=[dict(node=n,started=True,drained=True) for n in ('node-1','node-2','node-3')])
@@ -51,6 +52,8 @@ class AutomaticHistoryReplayTest(unittest.TestCase):
         for case in ('competition','higher-ballot-restart','reply-revocation'):
             r.check_result(result(case),case)
         r.check_result(result('competition','superseded'),'competition')
+        r.check_result(result('competition','interleaved'),'competition')
+        self.assertEqual(42,len(result('competition','interleaved')['negatives']))
         r.check_result(result('competition','local-grant'),'competition')
         r.check_result(result('competition','incoming-fence'),'competition')
         self.assertEqual(39,len(result('competition','incoming-fence')['negatives']))

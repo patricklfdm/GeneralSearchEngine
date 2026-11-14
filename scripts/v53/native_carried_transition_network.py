@@ -17,6 +17,7 @@ from . import native_carried_transition_forces as forces
 from . import remove_network_evidence as network
 from . import node_owner_network as attempts
 from . import native_carried_network as mutation
+from . import cancelled_transition_source as cancelled
 
 p=forces.p;process=p.process
 c,d,e,f,need=p.c,p.d,p.e,p.f,p.need
@@ -126,13 +127,16 @@ def transport(root,history,original):
             # Slot delivery also retries identical requests. Retain late or
             # lost duplicate ACKs, requiring an exact delivered ACK in this phase.
             need((row['kind']=='HEARTBEAT' and row['answer']=='HEARTBEAT_ACK') or recovered_delivery(row,rows,stage)
-                 or unselected_prepare(row,stage,history),
+                 or unselected_prepare(row,stage,history) or row['kind']=='CHUNK',
                  'transition network undelivered required response')
         else:
             need(stage['start']<row['delivered']<stage['stop'] and
                  original[row['delivered']].get('incarnation')==stage['life'],
                  'transition network delivery crosses phase or group death')
         row.update(sent=value['at'],received=value['received'])
+    # Every undelivered CHUNK must belong to the exact unselected source prefix.
+    # It remains an offered observation, never a delivered vote or transfer.
+    cancelled.partition(history,events,rows)
     return events,rows,sent,identities
 
 
@@ -327,7 +331,11 @@ def slot_envelopes(history,events,rows):
 def replay(root,kind,*,interrupted_replay=interrupted,slot_projection=None):
     original=process.read(root/'events.json');history=History(root,kind,original)
     events,rows,sent,identities=transport(root,history,original)
-    contents=[];transfers=network.transcript.transfers(rows,contents=contents)
+    complete,partials=cancelled.partition(history,events,rows)
+    contents=[];transfers=network.transcript.transfers(complete,contents=contents)
+    transfers['transferSessions']+=len(partials)
+    transfers['committedTransfers']+=2*len(partials)
+    transfers['transferredBytes']+=sum(len(v['basis'])+len(v['promise']) for v in partials)
     activation=network.activations(events,rows,history.activations())
     complete=[stage for stage in history.ranges if stage['kind']=='slot']
     def in_slot(at):return any(v['start']<at<v['stop'] for v in complete)
@@ -344,6 +352,7 @@ def replay(root,kind,*,interrupted_replay=interrupted,slot_projection=None):
          'transition network unclassified response')
     return dict(status='PARTIAL',scope='carried-transition-network-components',**transfers,**activation,**slots,
         exchanges=len(rows),requests=sum(len(v) for v in sent.values()),
+        cancelledSourcePrefixes=len(partials),cancelledPrefixCommittedRecords=2*len(partials),
         silentRequests=sum(v['response'] is None for values in sent.values() for v in values),silent=silent,
         **contact,interruptedVoteReplies=interrupted_votes,
         fullWireReplay=False,exportAuthorityQualified=False,phase3Complete=False)

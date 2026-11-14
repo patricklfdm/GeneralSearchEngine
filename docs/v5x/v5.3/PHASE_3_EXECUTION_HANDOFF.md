@@ -22,6 +22,11 @@ The [2026-11-12 rerun review](PHASE_3_RERUN_FAILURE_REVIEW.md) records all nine
 follow-up runs at `defd80d2`, confirmed replay fixes and still-open original
 failures. Successful families do not admit the remaining failed families.
 
+The [a2606899 hosted review](PHASE_3_HOSTED_REVIEW_A2606899.md) records all
+183 passing originals, two replay failures, and the original-bound reader
+corrections. Only Automatic and Carried transition are selected for follow-up;
+the three green families retain their earlier source identity.
+
 ## Generate from the final checkout
 
 The [offline planner](../../../scripts/v53/phase3_execution_plan.py) reads the

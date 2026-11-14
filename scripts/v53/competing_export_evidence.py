@@ -23,8 +23,11 @@ def generation_windows(events,history):
     result=[]
     for node,initial in history.initial.items():
         changes=[]
-        if node in history.voters:
+        if hasattr(history,'generation_changes'):
+            changes=[('INSTALL_BEFORE_RETURN',v['files']) for v in history.generation_changes if v['node']==node]
+        elif node in history.voters:
             changes=[('INSTALL_BEFORE_RETURN',history.installed[node])]
+        if node in history.voters:
             changes += [('PUBLICATION_BEFORE_RETURN',history.snapshots[f'slot-{i}-published'][node]) for i in (1,2)]
         renames=[i for i,v in enumerate(events) if v==dict(node=node,event='INSTALL_SELECTOR_RENAMED')]
         returns=[(i,v['event']) for i,v in enumerate(events) if v.get('node')==node and

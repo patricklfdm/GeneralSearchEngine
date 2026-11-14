@@ -20,10 +20,12 @@ from . import competing_node_network as network
 p,f,disk,need,sha=preceding.p,preceding.f,preceding.disk,preceding.need,preceding.sha
 
 
-def selected_install(group, chosen):
+def selected_install(group, chosen, *, owners=None):
     selected=f.decode(chosen,'records','SELECTED');proposer=selected['ballot']['proposer']
     names=[v['voter'] for v in selected['sources']];sources={};grants={};ledgers=[]
     need(proposer in names and len(names)==2 and set(names)<=set(group),'competing installation original majority')
+    need(owners is None or len(owners)==len(set(owners)) and set(owners)<=set(names) and owners,
+         'competing installation owner subset')
     for node in names:
         files=group[node];_,_,current=disk.current(files)
         need(files['pending.accept']==disk.EMPTY and selected['nextEntry'] is None and
@@ -42,7 +44,7 @@ def selected_install(group, chosen):
              'competing installation unchanged frozen retention')
         sources[node]=(basis,packet,wrappers[0]);grants[node]=(promise,basis);ledgers.append(ledger)
     result=copy.deepcopy(group)
-    for node in names:
+    for node in names if owners is None else owners:
         files=group[node];prefix,old,_=disk.current(files);packet=sources[proposer][1]
         slot='b' if prefix=='generations/a/' else 'a'
         need('generations/'+slot not in files,'competing installation occupied destination')
@@ -130,7 +132,8 @@ def failed_checkpoints(history,entries,by_hash,sends,index,lower,upper):
 def published_network(replay, history, held):
     events=replay.events;entries=replay.rows;identities=replay.identities
     by_hash,sends,unanswered=network.raw_sends(events,entries,identities,history.selected)
-    nonheartbeat=[v for v in entries if v['kind']!='HEARTBEAT'];results=[];callbacks=0
+    nonheartbeat=[v for v in entries if v['kind']!='HEARTBEAT' and
+                  v['offered'] not in getattr(replay,'bootstrap_offers',set())];results=[];callbacks=0
     unused=next(v for v in identities if v not in history.voters);allowed=set();traces=set();failed=set()
     for index,(lower,upper) in enumerate(((held[0][0],held[2][0]),(held[2][0],held[5][0])),1):
         result=network.slot(history,events,nonheartbeat,identities,lower,upper,index,sends)
@@ -183,8 +186,9 @@ def closed(root,replay,history,events,activation_at):
     # Observed diagnostics cannot grant authority. Prior losing writes have
     # already been derived; the nonselected owner stays nonwriting after install.
     unused=next(v for v in history.initial if v not in history.voters)
-    need(all(v['event'] in ('NETWORK_SEND','NETWORK_REQUEST','NETWORK_RECEIVED','WIRE_RESPONSE')
-             for v in events[activation_at+1:] if v['node']==unused),
+    need(all(v['event'] in ('NETWORK_SEND','NETWORK_REQUEST','NETWORK_RECEIVED','WIRE_RESPONSE') or
+             i in getattr(replay,'continuation_covered',set())
+             for i,v in enumerate(events) if i>activation_at and v['node']==unused),
          'competing publication nonselected owner work')
     # Activation owns OUTGOING before reserving its ballot. A higher PREPARE
     # may fence it before any local grant exists; retained grants alone cannot
@@ -204,11 +208,18 @@ class Replay:
         at,row=rounds[0];chosen,selected=p.record(row,'records','SELECTED')
         need(row['node']==selected['ballot']['proposer'] and sha(chosen) in replay.selections,
              'competing publication original activated choice')
-        group=selected_install(replay.group,chosen)
-        order=installation_order(replay,group,chosen,selected,at)
+        if getattr(replay,'interleaved',False):
+            group=copy.deepcopy(replay.group)
+            need(all(disk.current(group[v['voter']])[1]['selected.gsr']==chosen for v in selected['sources']),
+                 'competing continuation winning installed bytes')
+            order=dict(owners=2,originalInstallations=len(replay.generation_changes))
+        else:
+            group=selected_install(replay.group,chosen)
+            order=installation_order(replay,group,chosen,selected,at)
         history=p.History(self.root,group,selected,events)
         history.initial=replay.initial;history.prepared=replay.group;history.installed=copy.deepcopy(group)
         history.selected=selected;history.chosen=chosen
+        if getattr(replay,'interleaved',False):history.generation_changes=replay.generation_changes
         history.advance('BARRIER');history.advance('DATA');p.b.match(self.root,'after-close',history.group)
         held=p.completion_lifecycle(self.root,history,events)
         net=published_network(replay,history,held);closed(self.root,replay,history,events,at)

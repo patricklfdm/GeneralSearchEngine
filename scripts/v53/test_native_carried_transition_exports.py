@@ -116,6 +116,7 @@ class NativeCarriedTransitionExportsTest(unittest.TestCase):
 
     def test_export_component_does_not_claim_transient_or_full_cohort_acceptance(self):
         reader=m.Replay.__new__(m.Replay);reader.kind='FINAL';reader.groups=[];reader.live={'node-1':[(0,1),(2,3)]}
+        reader.cancelled=[];reader.windows=[];reader.sources=[]
         with patch.object(reader,'exports',return_value={}):result=reader.run()
         self.assertTrue(result['observedExportAuthorityQualified'])
         for flag in ('completeCopyFloorLifetimesQualified','transientBytesCaptured','cohortAdmitted','phase3Complete'):

@@ -67,6 +67,8 @@ class Replay(prefix.Replay):
         return after, details
 
     def run(self):
+        from . import competing_interleaved_bootstrap as continuation
+        if continuation.needed(self):return continuation.run(self)
         preceding = super().run()
         installs = [i for i,v in enumerate(self.events) if v['event'] == 'INSTALL_RESERVED']
         need(installs and self.stop <= min(installs), 'competing maintenance first installation boundary')

@@ -9,7 +9,7 @@ from . import competing_campaign_maintenance as m
 def replay(events):
     r=m.Replay.__new__(m.Replay);r.root=Path('/original');r.group={'node-1':{}}
     r.events=[dict(node=node,event=kind) for node,kind in events]
-    r.stop=0;r.bindings=[]
+    r.stop=0;r.bindings=[];r.by_basis={}
     return r
 
 
