@@ -81,14 +81,14 @@ def unreceived_prepare(phase, peer, promise, basis, ballot, lower, upper, sequen
 
 
 def activate(root, events, entries, start, stop, identities, number, *, carried=False, reconciled=False, maintenance_replay=None,
-             grant_maintenance_replay=None, late_prepares=None):
+             grant_maintenance_replay=None, late_prepares=None, before_stage=None, observed_ballot=None, ancestry_replay=None):
     need(type(reconciled) is bool and (not reconciled or number == 3 and not carried), 'node network reconciliation scope')
     maintain = maintenance_replay or a.maintenance
-    before = a.group(root,'published-3' if reconciled else 'before-network' if number == 1 else 'before-reopen')
+    before = a.group(root,before_stage or ('published-3' if reconciled else 'before-network' if number == 1 else 'before-reopen'))
     installed = a.group(root,f'installed-{number}')
     chosen = (root/f'selected-{number}.gsr').read_bytes(); selected = f.decode(chosen,'records','SELECTED')
     ballot = selected['ballot']; voters = tuple(v['voter'] for v in selected['sources']); peer = voters[1]
-    old = f.decode(c.current(before['node-1'])[1]['promise.gsr'],'records','PROMISE')['ballot']
+    old = observed_ballot or f.decode(c.current(before['node-1'])[1]['promise.gsr'],'records','PROMISE')['ballot']
     phase = a.Phase(events,entries,start,stop,identities)
     late_peers=set()
     if late_prepares:
@@ -152,6 +152,7 @@ def activate(root, events, entries, start, stop, identities, number, *, carried=
         sequence=len(prepared)+1,trace=campaign_trace)
     need(delivered < phase.at('node-1','INSTALL_SELECTOR_FORCED'),'node network installed peer before local')
     if grant_maintenance_replay:grant_maintenance_replay(phase,selected)
+    if ancestry_replay:ancestry_replay(phase,before,installed,selected)
     result = phase.finish(); result['voters'] = list(voters); return result
 
 

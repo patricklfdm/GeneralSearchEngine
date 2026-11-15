@@ -87,7 +87,10 @@ def collect(raw,case):
             need(h.snapshot.s.regular(raw/'failure.txt',h.snapshot.MIB)==h.snapshot.s.regular(raw/'close-failure.txt',h.snapshot.MIB)==b'',
                  'automatic competition producer failure')
         else:
-            expected=dict(status='PARTIAL',producerPassed=True,rounds=2,barriers=2,dataCalls=1,originalBudgetNanos=restart.BUDGET,physicalReplay=False,phase3Complete=False)
+            barriers=read(raw/'restart-result.json').get('barriers')
+            need(type(barriers) is int and barriers in (2,3),'automatic restart bounded campaigns')
+            need('restart-sends.json' in before['files'],'automatic restart original sends required')
+            expected=dict(status='PARTIAL',producerPassed=True,rounds=2,barriers=barriers,dataCalls=1,originalBudgetNanos=restart.BUDGET,requestTimeoutMillis=30_000,leadershipPolicyMillis=[5000,15000,25000,20000],physicalReplay=False,phase3Complete=False)
             name='restart-result.json';captures=h.inventory(sidecar(raw,case))
             need(set(captures['files'])=={restart.CAPTURE,restart.OBSERVATIONS} and not captures['directories'],'automatic restart exact captures')
             attachment=read(sidecar(raw,case)/restart.CAPTURE)

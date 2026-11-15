@@ -63,21 +63,23 @@ def transfers(phase,before,node,voters,ballot,lower,upper):
 
 
 class Replay:
-    def __init__(self,derived):
-        self.derived=derived;self.used=set();self.results=[]
+    def __init__(self,derived,*,allow_selected=False):
+        need(type(allow_selected) is bool,'node grant maintenance selected policy')
+        self.derived=derived;self.used=set();self.results=[];self.allow_selected=allow_selected
 
     def __call__(self,phase,selected):
         ballot=selected['ballot'];voters={v['voter'] for v in selected['sources']}
         for key,value in self.derived.items():
             counter,node=key
             if counter!=ballot['counter']:continue
-            need(key not in self.used and node not in voters,'node grant maintenance unselected original owner')
+            need(key not in self.used and (self.allow_selected or node not in voters),'node grant maintenance unselected original owner')
             before,after,cohort=value['before'],value['after'],value['voters']
             fresh=p.net.a.frozen(before[node],ballot)
             rows=[v for v in phase.entries if v['kind']=='PREPARE' and v['request']['recipient']['node']==node]
             need(rows and all(v['answer']=='PROMISE' and v['response']['payload']==dict(basis=e.digest(fresh[1]))
                  and v['request']['ballot']==ballot for v in rows), 'node grant maintenance original advertised grant')
-            lower=phase.at(node,'GRANT_BEFORE_RETURN');upper=min(v['offered'] for v in rows)
+            lower=phase.at(node,'PROMISE_FORCED' if node in voters else 'GRANT_BEFORE_RETURN')
+            upper=phase.at(node,'BASIS_FORCED') if node in voters else min(v['offered'] for v in rows)
             need(lower<upper,'node grant maintenance grant interval')
             expected,sources=transaction(before,after,node,cohort)
             observed=[v for v in phase.events[lower+1:upper] if v['node']==node and v['event'].startswith(PREFIXES)]

@@ -27,8 +27,8 @@ def raw_tree(raw,case):
             for name in ('failure.txt','close-failure.txt'):(raw/name).write_bytes(b'')
             m.h.save(raw/'result.json',dict(status='PARTIAL',producerPassed=True,nodes=3,automaticOwners=3,defaultBounds=True,physicalReplay=False,phase3Complete=False))
         else:
-            m.h.save(raw/'restart-result.json',dict(status='PARTIAL',producerPassed=True,rounds=2,barriers=2,dataCalls=1,originalBudgetNanos=m.restart.BUDGET,physicalReplay=False,phase3Complete=False))
-            (raw/'events.json').write_bytes(b'[]');side=m.sidecar(raw,case);side.mkdir()
+            m.h.save(raw/'restart-result.json',dict(status='PARTIAL',producerPassed=True,rounds=2,barriers=2,dataCalls=1,originalBudgetNanos=m.restart.BUDGET,requestTimeoutMillis=30_000,leadershipPolicyMillis=[5000,15000,25000,20000],physicalReplay=False,phase3Complete=False))
+            (raw/'events.json').write_bytes(b'[]');(raw/'restart-sends.json').write_bytes(b'[]');side=m.sidecar(raw,case);side.mkdir()
             m.h.save(side/m.restart.CAPTURE,dict(schema=m.restart.SCHEMA,producerPassed=True,ownerDrained=True,captureFailure='',observationFailure='',
                 eventsSha256=m.h.digest((raw/'events.json').read_bytes()),planSha256=m.h.digest((raw/'original-plan.gsbp').read_bytes())))
             (side/m.restart.OBSERVATIONS).write_bytes(b'[]')
@@ -96,6 +96,19 @@ class AutomaticHistoryTest(unittest.TestCase):
     def test_collection_is_only_bounded_inventory_not_authority_replay(self):
         with patch.object(m,'replay') as validator:result=m.collect(self.raw(),self.case)
         validator.assert_not_called();self.assertEqual('PARTIAL',result['status']);self.assertFalse(result['nativeHistoryQualified'])
+
+    def test_restart_collector_requires_sends_and_explicit_original_policies(self):
+        raw=self.raw(self.paths['higher-ballot-restart'])
+        original=m.read(raw/'restart-result.json')
+        for fields in (dict(barriers=3),dict(barriers=2)):
+            m.h.save(raw/'restart-result.json',dict(original,**fields))
+            self.assertEqual('PARTIAL',m.collect(raw,'higher-ballot-restart')['status'])
+        for fields in (dict(barriers=True),dict(barriers=4),dict(requestTimeoutMillis=5000),
+                       dict(leadershipPolicyMillis=[30000,90000,150000,120000])):
+            m.h.save(raw/'restart-result.json',dict(original,**fields))
+            with self.subTest(fields=fields),self.assertRaises(ValueError):m.collect(raw,'higher-ballot-restart')
+        m.h.save(raw/'restart-result.json',original);(raw/'restart-sends.json').unlink()
+        with self.assertRaisesRegex(ValueError,'original sends required'):m.collect(raw,'higher-ballot-restart')
 
     def test_producer_failure_scope_and_missing_attachment_refuse(self):
         raw=self.raw();saved=(raw/'result.json').read_bytes();value=m.read(raw/'result.json');value['producerPassed']=False;m.h.save(raw/'result.json',value)

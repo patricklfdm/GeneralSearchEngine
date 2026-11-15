@@ -27,6 +27,12 @@ The [a2606899 hosted review](PHASE_3_HOSTED_REVIEW_A2606899.md) records all
 corrections. Only Automatic and Carried transition are selected for follow-up;
 the three green families retain their earlier source identity.
 
+The [b23242fa hosted review](PHASE_3_HOSTED_REVIEW_B23242FA.md) records the now
+complete Carried transition family and two Automatic original failures. It
+separates the durable-allocation race from restart transport/profile and
+reconciliation handling. Only Automatic is selected for the next new-source run;
+prior green sources remain distinct and Phase 3 remains OPEN.
+
 ## Generate from the final checkout
 
 The [offline planner](../../../scripts/v53/phase3_execution_plan.py) reads the

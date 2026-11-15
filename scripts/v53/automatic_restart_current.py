@@ -61,7 +61,7 @@ def rejection_reason(root,events,entries,index):
     return 'retention intent installed selection required'
 
 
-def heartbeats(root,events,entries,boundaries):
+def heartbeats(root,events,entries,boundaries,*,stages=None):
     """Consume actual contact replies, never a vote, source, grant or READY.
 
     This legacy producer records replies rather than every attempted send. No
@@ -70,7 +70,7 @@ def heartbeats(root,events,entries,boundaries):
     n,c,e,f,need=network.n,network.c,network.e,network.f,network.need
     cuts={node:[(-1,c.current(files)[2]['capsule']['cut'])] for node,files in network.group(root,'before-network').items()}
     installed=[]
-    for ordinal,stage in enumerate(('installed-1','published-1','installed-2','published-2','published-3')):
+    for ordinal,stage in enumerate(stages or ('installed-1','published-1','installed-2','published-2','published-3')):
         start,stop=boundaries[ordinal];group=network.group(root,stage)
         selected=f.decode(c.current(group['node-1'])[1]['selected.gsr'],'records','SELECTED')
         installing=stage.startswith('installed')
@@ -112,7 +112,12 @@ def heartbeats(root,events,entries,boundaries):
 
 
 def validate(root):
-    root=Path(root);unused=[]
+    root=Path(root)
+    if (root/'restart-sends.json').is_file() or ((root/'restart-result.json').is_file() and
+            'requestTimeoutMillis' in network.n.read(root/'restart-result.json')):
+        from . import automatic_restart_schedule as schedule
+        return schedule.validate(root)
+    unused=[]
     def observed_unused(*args):unused.append(unused_source(*args))
     value=network.validate(root,physical_reader=replay_physical,maintenance_replay=current.maintenance_network,
                            background_replay=heartbeats,unused_source_replay=observed_unused,rejection_reason=rejection_reason)
@@ -145,6 +150,9 @@ NEGATIVES['missing-retirement']='current node exact maintenance forces: node-1'
 
 
 def negative_cases(original):
+    if original.get('declaredControlProfile') is True:
+        from . import automatic_restart_schedule as schedule
+        return schedule.negative_cases(original)
     count=original.get('unusedSourcePulls')
     network.need(type(count) is int and 0<=count<=1,'restart current derived unused sources')
     cases=dict(NEGATIVES);absent={}
@@ -155,6 +163,13 @@ def negative_cases(original):
 
 
 def mutate(root,name):
+    if (root/'restart-sends.json').is_file():
+        from . import automatic_restart_schedule as schedule
+        return schedule.mutate(root,name)
+    return legacy_mutate(root,name)
+
+
+def legacy_mutate(root,name):
     if name in ('first-selection','second-selection'):
         path=root/('selected-1.gsr' if name=='first-selection' else 'selected-2.gsr')
         value=network.f.decode(path.read_bytes(),'records','SELECTED');value['sources'][0]['basisDigest']='0'*64

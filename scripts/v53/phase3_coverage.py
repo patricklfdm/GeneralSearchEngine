@@ -77,6 +77,11 @@ def negative_selectors(name, unit):
             for row in values:
                 if row['selector']['suite']=='current' and row['selector']['case']=='unused-offer-bytes':
                     row['condition']='original-unused-source-transfer'
+            from . import automatic_restart_schedule as schedule
+            values += rows(schedule.NEGATIVES,'current',condition='original-declared-control-profile',variant='control-profile')
+            for row in values:
+                if row['selector'].get('variant')=='control-profile' and row['selector']['case']=='unused-offer-bytes':
+                    row['condition']='original-control-profile-unused-source-transfer'
             return values
         if unit == 'reply-revocation':
             return rows(gate.replies.NEGATIVES, 'replies')

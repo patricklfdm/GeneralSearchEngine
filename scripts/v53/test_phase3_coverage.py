@@ -124,6 +124,11 @@ class Phase3CoverageTest(unittest.TestCase):
                 for row in expected:
                     if row['selector']['suite']=='current' and row['selector']['case']=='unused-offer-bytes':
                         row['condition']='original-unused-source-transfer'
+                from . import automatic_restart_schedule as schedule
+                for name,reason in schedule.NEGATIVES.items():
+                    expected.append(dict(selector=dict(suite='current',case=name,variant='control-profile'),reason=reason,
+                        condition='original-control-profile-unused-source-transfer' if name=='unused-offer-bytes'
+                        else 'original-declared-control-profile'))
             self.assertEqual(expected, c.negative_selectors('automatic-histories', unit))
 
     def test_competition_variants_are_not_elected_using_a_fake_original(self):

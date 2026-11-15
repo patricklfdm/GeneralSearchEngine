@@ -3199,10 +3199,17 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
 
     synchronized long reserveCounter() throws IOException {
+        final long result;
         try {
-            checkOwner();rotationIdle();var before=observed.get();long result=allocator.reserve(before==null?0:number(before.get("counter")));
-            var after=observed.get();require(after==null || number(after.get("counter"))<result,"allocation fenced by higher observation");return result;
+            checkOwner();rotationIdle();var before=observed.get();result=allocator.reserve(before==null?0:number(before.get("counter")));
         } catch(IOException | RuntimeException | Error error) {failed=true;throw error;}
+        // The reservation is now fully durable. An observation received while
+        // forcing it burns this counter but does not corrupt the writer. Let
+        // the outgoing owner cancel its campaign and reserve above the new
+        // floor on a fresh round. Failed force/ownership checks stay terminal.
+        var after=observed.get();
+        if(after!=null && number(after.get("counter"))>=result)throw new HigherBallot();
+        return result;
     }
 
     synchronized Decoded prepare(MembershipCapsule source,Map<String,Object> incoming,String accepted) throws IOException {

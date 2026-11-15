@@ -34,6 +34,19 @@ class NodeGrantMaintenanceTest(unittest.TestCase):
         replay,phase,selection=self.replay(selected=True)
         with self.assertRaisesRegex(ValueError,'unselected original owner'):self.run_replay(replay,phase,selection)
 
+    def test_selected_reconciliation_retirement_must_finish_before_basis(self):
+        old,phase,selection=self.replay(selected=True)
+        replay=m.Replay(old.derived,allow_selected=True)
+        phase.at=lambda node,event:{'PROMISE_FORCED':1,'BASIS_FORCED':4}[event]
+        self.run_replay(replay,phase,selection);self.assertEqual(1,len(replay.complete()))
+        for event,at in (('PROMISE_FORCED',3),('BASIS_FORCED',2)):
+            replay=m.Replay(old.derived,allow_selected=True)
+            times={'PROMISE_FORCED':1,'BASIS_FORCED':4};times[event]=at
+            phase.at=lambda node,event:times[event]
+            with self.subTest(event=event),self.assertRaisesRegex(ValueError,'complete original callbacks'):
+                self.run_replay(replay,phase,selection)
+            self.assertFalse(replay.used)
+
     def test_force_must_precede_actual_advertised_grant_and_have_exact_shape(self):
         for options in (dict(offered=2),dict(changed=True)):
             with self.subTest(options=options):

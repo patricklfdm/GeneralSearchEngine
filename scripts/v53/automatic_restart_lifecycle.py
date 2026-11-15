@@ -81,9 +81,12 @@ def attachment(events,value,rows,events_hash,plan_hash):
     # State-machine validation already demands close -> open -> next round. Bind
     # these observations to the next actual native campaign and its fresh READY.
     begins=[v for v in rows if v['event']=='ROUND_BEGIN'];installed=[i for i,v in enumerate(events) if v['event']=='ROUND_INSTALLED']
-    need(len(begins)==len(installed)==2 and all(v['afterEvent']<at for v,at in zip(begins,installed)) and
+    need(len(begins)==2 and len(installed) in (2,3) and all(v['afterEvent']<at for v,at in zip(begins,installed)) and
          state['readyCallbacks'][0]<begins[1]['afterEvent']<installed[1]<state['readyCallbacks'][1],
          'restart lifecycle new session before native reactivation')
+    if len(installed)==3:
+        need(state['readyCallbacks'][1]<installed[2] and all(v['afterEvent']<installed[2] for v in rows if v['event']=='ROUND_BEGIN'),
+             'restart lifecycle reconciliation inside second session')
     return dict(state=state,observations=len(rows),eventClocks=len(clocks),originalStarted=begun,
                 lossAfterEvent=loss['afterEvent'],receivedAfterEvent=received['afterEvent'])
 

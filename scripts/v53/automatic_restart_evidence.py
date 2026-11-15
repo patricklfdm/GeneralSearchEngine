@@ -55,9 +55,12 @@ def inventory(root):
     names = {'initial', 'original-plan.gsbp', 'original-application.image', 'before-network',
         'calls.json', 'events.json', 'wire.json', 'failures.json', 'restart-result.json',
         'first-ready', 'after-fence', 'second-ready', 'after-close', 'fence-request.gsw'}
-    names |= {f'{label}-{i}' for label in ('applied', 'published') for i in (1, 2, 3)}
-    names |= {f'installed-{i}' for i in (1, 2)} | {f'selected-{i}.gsr' for i in (1, 2)}
+    campaigns = 3 if (root/'selected-3.gsr').is_file() else 2
+    if (root/'restart-sends.json').is_file():names.add('restart-sends.json')
+    names |= {f'{label}-{i}' for label in ('applied', 'published') for i in range(1,campaigns+2)}
+    names |= {f'installed-{i}' for i in range(1,campaigns+1)} | {f'selected-{i}.gsr' for i in range(1,campaigns+1)}
     b.selection.layout(root, names, 'automatic restart original history')
+    return campaigns
 
 
 class Service(t.NativeSlot):
@@ -105,7 +108,8 @@ class Service(t.NativeSlot):
 def lifecycle(root):
     events = n.read(root/'events.json')
     held = [(i, row) for i, row in enumerate(events) if row['event'].startswith('ROUND_')]
-    expected = ['INSTALLED', 'SLOT_BEGIN', 'SLOT_COMPLETE', 'BEFORE_READY']*2+['SLOT_BEGIN', 'SLOT_COMPLETE']
+    campaigns = 3 if (root/'selected-3.gsr').is_file() else 2
+    expected = ['INSTALLED', 'SLOT_BEGIN', 'SLOT_COMPLETE', 'BEFORE_READY']*campaigns+['SLOT_BEGIN', 'SLOT_COMPLETE']
     need([v['event'] for _, v in held] == ['ROUND_'+v for v in expected], 'automatic restart lifecycle order')
     campaign = slot = 0; completion = None
     for at, row in held:
@@ -119,7 +123,7 @@ def lifecycle(root):
         elif row['event'] == 'ROUND_SLOT_BEGIN':
             slot += 1; entry = f.decode(raw, 'records', 'ENTRY')
             _, _, packet = c.current(c.inventory(root/f'published-{slot}/node-1'))
-            need(entry['index'] == slot and entry['kind'] == ('DATA' if slot == 3 else 'BARRIER')
+            need(entry['index'] == slot and entry['kind'] == ('DATA' if slot == campaigns+1 else 'BARRIER')
                  and entry['origin'] == selected['ballot'] and e.digest(raw) == packet['capsule']['cut']['entry'],
                  'automatic restart original entry')
         elif row['event'] == 'ROUND_SLOT_COMPLETE':
@@ -162,7 +166,7 @@ def fence(root, before, after, events, held):
 
 
 def validate(root, *, service_type=Service):
-    root = Path(root); inventory(root)
+    root = Path(root); campaigns=inventory(root)
     group = n.s.initialize(b.original(root, 3, False))
     group = {node: dict(files, **{n.future.FILE:n.future.frame(n.future.initial(files), {})}) for node, files in group.items()}
     b.match(root, 'before-network', group)
@@ -174,12 +178,16 @@ def validate(root, *, service_type=Service):
     files['allocator.gsr'] = f.encode('records', 'ALLOCATOR', dict(allocator, counter=max(allocator['counter'], 2)+1))
     b.match(root, 'after-fence', service.group); after = copy.deepcopy(service.group)
     service.campaign(2, 4); service.advance('BARRIER'); b.match(root, 'second-ready', service.group)
+    if campaigns==3:
+        service.campaign(3,5); service.advance('BARRIER')
     service.advance('DATA'); b.match(root, 'after-close', service.group)
     events, held = lifecycle(root); fence(root, before, after, events, held)
-    need(n.read(root/'restart-result.json') == dict(status='PARTIAL', producerPassed=True, rounds=2, barriers=2,
-         dataCalls=1, originalBudgetNanos=300_000_000_000, physicalReplay=False, phase3Complete=False), 'automatic restart producer scope')
+    result=n.read(root/'restart-result.json');expected=dict(status='PARTIAL', producerPassed=True, rounds=2, barriers=campaigns,
+         dataCalls=1, originalBudgetNanos=300_000_000_000, physicalReplay=False, phase3Complete=False)
+    if 'requestTimeoutMillis' in result:expected.update(requestTimeoutMillis=30_000,leadershipPolicyMillis=[5000,15000,25000,20000])
+    need(f.canonical(result) == f.canonical(expected), 'automatic restart producer scope')
     return dict(status='PARTIAL', scope='automatic-two-campaign-physical-replay', physicalReplay=True,
-        campaigns=2, slots=3, snapshotGroups=14, nativeFence=True, fullWireReplay=False,
+        campaigns=campaigns, slots=campaigns+1, snapshotGroups=14+3*(campaigns-2), nativeFence=True, fullWireReplay=False,
         processRestart=False, publicRuntime=False, phase3Complete=False)
 
 
