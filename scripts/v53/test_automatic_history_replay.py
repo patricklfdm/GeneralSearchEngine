@@ -16,9 +16,11 @@ def original(case,branch='pregrant'):
         if branch=='incoming-fence':activation['localGrantLosses']=[dict(cause='incoming-prepare')]
         if branch=='discovery-only':activation['discoveryOnly']=[{}]
         if branch=='interleaved':activation.update(interleavedBootstrap=True,undeliveredOriginalResponses=2)
+        if branch=='single-campaign':activation.update(campaigns=1,discoveryProbes=2,abandonedSelections=0,
+            unansweredAttempts=0,maintenanceExchanges=0)
         exports=dict(status='PARTIAL',observedTemporalExportAuthorityQualified=True,completeExportLifetimesQualified=False,processDeathQualified=False,
                      finalSourceCohortQualified=False,phase3Complete=False,precondition=activation,
-                     sourceWindows={'pregrant':2,'local-grant':3,'incoming-fence':3,'discovery-only':2,'superseded':4,'interleaved':5}[branch],incompleteTransfers=int(branch=='superseded'))
+                     sourceWindows={'pregrant':2,'local-grant':3,'incoming-fence':3,'discovery-only':2,'superseded':4,'interleaved':5,'single-campaign':2}[branch],incompleteTransfers=int(branch=='superseded'))
         life=dict(status='PARTIAL',actualStateTransitionsQualified=True,originalDeadlinePreserved=True,physicalNetworkQualified=False,lossCauseQualified=False,
                   fullLifecycleQualified=False,finalSourceCohortQualified=False,phase3Complete=False,
                   owners=[dict(node=n,started=True,drained=True) for n in ('node-1','node-2','node-3')])
@@ -40,6 +42,27 @@ def result(case,branch='pregrant'):
 
 
 class AutomaticHistoryReplayTest(unittest.TestCase):
+    def test_single_campaign_requires_complete_explicit_shape(self):
+        value=original('competition','single-campaign')['exports']
+        self.assertEqual('single-campaign',r.competition_branch(value))
+        for key in ('campaigns','discoveryProbes','abandonedSelections','unansweredAttempts','maintenanceExchanges'):
+            for bad in (None,True,False,value['precondition'][key]+1):
+                changed=copy.deepcopy(value);changed['precondition'][key]=bad
+                with self.subTest(key=key,bad=bad),self.assertRaisesRegex(ValueError,'unsupported original'):
+                    r.competition_branch(changed)
+        for change in (lambda v:v.update(sourceWindows=3),lambda v:v.update(incompleteTransfers=1),
+                       lambda v:v['precondition'].update(pregrantLosses=[{},{}]),
+                       lambda v:v['precondition'].update(localGrantLosses=[{}]),
+                       lambda v:v['precondition'].update(discoveryOnly=[{},{}])):
+            changed=copy.deepcopy(value);change(changed)
+            with self.assertRaisesRegex(ValueError,'unsupported original'):r.competition_branch(changed)
+
+    def test_single_campaign_has_explicit_negative_and_inapplicable_vectors(self):
+        value=result('competition','single-campaign');r.check_result(value,'competition')
+        self.assertEqual(42,len(value['negatives']))
+        self.assertEqual(7,len(value['notApplicable']))
+        self.assertEqual(['single-campaign','exports','lifecycle'],r.suites('competition')['single-campaign'])
+
     def test_reply_resource_coverage_and_scope_are_required(self):
         for mutate in (lambda v:v.pop('resources'),lambda v:v['resources'].update(observations=6),
                        lambda v:v['resources'].update(observedControlChargesQualified=False),

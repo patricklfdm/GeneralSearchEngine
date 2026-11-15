@@ -33,6 +33,13 @@ separates the durable-allocation race from restart transport/profile and
 reconciliation handling. Only Automatic is selected for the next new-source run;
 prior green sources remain distinct and Phase 3 remains OPEN.
 
+The [9444e4d2 hosted review](PHASE_3_HOSTED_REVIEW_9444E4D2.md) records all three
+Automatic originals passing, with only competition's unclassified single-campaign
+replay and its dependent aggregate failing. The correction preserves the raw
+history and adds explicit classification and negatives; only Automatic needs a
+new-source run. A single winner with two idle automatic sessions is not credited
+as a competing-ballot loss history.
+
 ## Generate from the final checkout
 
 The [offline planner](../../../scripts/v53/phase3_execution_plan.py) reads the

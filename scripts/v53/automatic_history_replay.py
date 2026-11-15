@@ -16,6 +16,7 @@ from . import competing_local_grant_evidence as local_grant
 from . import competing_discovery_evidence as discovery
 from . import competing_incoming_loss as incoming
 from . import competing_interleaved_bootstrap as interleaved
+from . import competing_single_campaign as single
 from . import competing_campaign_prefix as prefix
 from . import competing_campaign_maintenance as maintenance
 from . import competing_campaign_publication as publication
@@ -28,6 +29,7 @@ COMPETING['local-grant']=local_grant
 COMPETING['discovery-only']=discovery
 COMPETING['incoming-fence']=incoming
 COMPETING['interleaved']=interleaved
+COMPETING['single-campaign']=single
 
 
 def same(actual,expected,reason):need(f.canonical(actual)==f.canonical(expected),reason)
@@ -38,7 +40,8 @@ def suites(case):
     return (dict(pregrant=['pregrant','exports','lifecycle'],**{'local-grant':['local-grant','exports','lifecycle'],
                  'incoming-fence':['incoming-fence','exports','lifecycle'],
                  'discovery-only':['discovery-only','exports','lifecycle'],
-                 'interleaved':['interleaved','exports','lifecycle']},superseded=['prefix','maintenance','publication','activation','exports','lifecycle']) if case=='competition'
+                 'interleaved':['interleaved','exports','lifecycle'],
+                 'single-campaign':['single-campaign','exports','lifecycle']},superseded=['prefix','maintenance','publication','activation','exports','lifecycle']) if case=='competition'
             else ['current','restart'] if case=='higher-ballot-restart' else ['replies'])
 
 
@@ -63,17 +66,23 @@ def competition_branch(original):
     if not losses and len(local)==1 and sources==3 and partial==0:
         return 'incoming-fence' if local[0].get('cause')=='incoming-prepare' else 'local-grant'
     if not losses and not local and sources==4 and partial==1:return 'superseded'
+    if not losses and not local and not discovered and sources==2 and partial==0:
+        counters=dict(campaigns=1,discoveryProbes=2,abandonedSelections=0,unansweredAttempts=0,maintenanceExchanges=0)
+        need(all(type(original['precondition'].get(k)) is int and original['precondition'][k]==v for k,v in counters.items()),
+             'automatic unsupported original competition shape; preserve evidence')
+        return 'single-campaign'
     raise ValueError('automatic unsupported original competition shape; preserve evidence')
 
 
 def export_vector(branch):
-    need(branch in ('pregrant','local-grant','incoming-fence','discovery-only','superseded','interleaved'),'automatic competition declared branch')
+    need(branch in ('pregrant','local-grant','incoming-fence','discovery-only','superseded','interleaved','single-campaign'),
+         'automatic competition declared branch')
     cases=dict(exports.NEGATIVES);not_applicable={}
-    if branch in ('pregrant','local-grant','incoming-fence','discovery-only','interleaved'):
+    if branch in ('pregrant','local-grant','incoming-fence','discovery-only','interleaved','single-campaign'):
         for name in tuple(cases):
             if name.startswith('partial-'):
                 not_applicable[name]='Original history has no incomplete SELECTED transfer.';del cases[name]
-    if branch in ('pregrant','local-grant','incoming-fence','discovery-only'):
+    if branch in ('pregrant','local-grant','incoming-fence','discovery-only','single-campaign'):
         del cases['journal-after-retirement']
         not_applicable['journal-after-retirement']=('Original history has no retired journal export.' if branch=='incoming-fence'
                                                    else 'Original history has no source retirement.')
@@ -175,7 +184,7 @@ def replay(raw,case,sidecar=None):
         same((actual_cases,actual_skipped),(expected_cases,skipped),'automatic competition derived applicability')
         links=prefix.g.json_file(raw/prefix.collection.FILE)[1]
         original=dict(exports=exported,lifecycle=life,branch=branch,firstCapture=links[0]['node'])
-        chains={'exports':exported,'lifecycle':life,'pregrant':exported,'local-grant':exported,'incoming-fence':exported,'discovery-only':exported,'interleaved':exported};value=exported
+        chains={'exports':exported,'lifecycle':life,'pregrant':exported,'local-grant':exported,'incoming-fence':exported,'discovery-only':exported,'interleaved':exported,'single-campaign':exported};value=exported
         for stage in ('activation','publication','maintenance','prefix'):
             value=value['precondition'];chains[stage]=value
         selected=suites(case)[branch]
