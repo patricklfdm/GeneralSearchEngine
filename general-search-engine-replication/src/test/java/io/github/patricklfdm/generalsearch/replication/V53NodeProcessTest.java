@@ -83,19 +83,19 @@ class V53NodeProcessTest {
                     phase="open-wait";phaseBegan=System.nanoTime();
                     assertTrue(opened.await(30,TimeUnit.SECONDS),"child open: "+stderr);
                     if(life==1)for(int index:List.of(1,2)) {
-                        var target=f.request.targets().get(index);var bounds=ReplicationBounds.defaults();Path area=Files.createDirectory(temp.resolve("follower-"+index));
+                        var target=f.request.targets().get(index);var bounds=V53NodeProcessWorker.bounds(point);Path area=Files.createDirectory(temp.resolve("follower-"+index));
                         var config=new MembershipReplicaConfig<>(f.result.root(),target.identity(),f.request.targets().stream().map(MembershipBootstrapTarget::identity).filter(i->!i.equals(target.identity())).toList(),
                                 target.replicaDirectory(),target.materialization(),bounds,AutomaticLeadershipPolicy.forBounds(bounds));
-                        var node=new MembershipNodeOwner<>(config,builder().configuration(),area.resolve("incoming"),area.resolve("outgoing"),System::nanoTime,V53NodeOwnerNetworkTest.BUDGET,V53NodeProcessWorker.hooks(target.identity().nodeId().value(),1,sink));
+                        var node=new MembershipNodeOwner<>(config,builder().configuration(),area.resolve("incoming"),area.resolve("outgoing"),System::nanoTime,V53NodeProcessWorker.serviceBudget(point),V53NodeProcessWorker.hooks(target.identity().nodeId().value(),1,sink));
                         followers.add(node);node.open();events.add(Map.of("node",target.identity().nodeId().value(),"incarnation",1,"event","NODE_OPEN"));
                     }
                     proceed.countDown();
                     if(life==1) {
                         phase="cut-wait";phaseBegan=System.nanoTime();
-                        assertTrue(cut.await(210,TimeUnit.SECONDS),"child cut: "+stderr);
+                        assertTrue(cut.await(V53NodeProcessWorker.serviceSeconds(point)+30,TimeUnit.SECONDS),"child cut: "+stderr);
                         if(mode.equals("kill"))child.destroyForcibly();
                     }
-                    phase="finish-wait";phaseBegan=System.nanoTime();assertTrue(child.waitFor(210,TimeUnit.SECONDS),"child finish: "+stderr);
+                    phase="finish-wait";phaseBegan=System.nanoTime();assertTrue(child.waitFor(V53NodeProcessWorker.serviceSeconds(point)+30,TimeUnit.SECONDS),"child finish: "+stderr);
                     phase="reader-drain";phaseBegan=System.nanoTime();reader.get(10,TimeUnit.SECONDS);
                     phase="exit-check";phaseBegan=System.nanoTime();
                     int expected=life==2?0:mode.equals("halt")?73:137;row.put("exit",child.exitValue());assertEquals(expected,child.exitValue(),Files.readString(stderr));
@@ -117,7 +117,7 @@ class V53NodeProcessTest {
                             .map(v->decode(Base64.getDecoder().decode((String)v.get("bytes")),"records","ENTRY"))
                             .filter(v->v.value().get("kind").equals("BARRIER")).count();
                     Files.write(raw.resolve("node-result.json"),canonical(Map.of("status","PARTIAL","producerPassed",passed && closing==null,"coldReopens",1,"barriers",barriers,"dataCalls",2,
-                            "physicalReplay",false,"processRestart",true,"phase3Complete",false,"serviceBudgetNanos",V53NodeOwnerNetworkTest.BUDGET),4096));
+                            "physicalReplay",false,"processRestart",true,"phase3Complete",false,"serviceBudgetNanos",V53NodeProcessWorker.serviceBudget(point)),4096));
                     Files.write(processes.resolve("result.json"),canonical(Map.of("mode",mode,"cut",point,"children",records,"status",passed && closing==null?"PARTIAL":"FAIL","powerLoss",false,"phase3Complete",false),65536));
                     if(closing!=null)throw closing;
                 });

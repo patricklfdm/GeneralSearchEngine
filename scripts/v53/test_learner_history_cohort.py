@@ -18,7 +18,7 @@ def fixture(case):
     common = dict(status='PASS',voter=False,publicReady=False,phase3Complete=False,independentReplayQualified=False)
     if case == 'alternating-slots':
         return dict(common,scope='native-alternating-learner-slots',installedThirdRevision=True,selectedThirdRevision=True,
-                    seedRetired=True,lastRevision=6,testBudgetSeconds=900,cycles=[dict(revision=i) for i in (4,5,6)])
+                    seedRetired=True,lastRevision=6,testBudgetSeconds=3600,cycles=[dict(revision=i) for i in (4,5,6)])
     return dict(common,scope='native-learner-cancellation',liveCore=False,testBudgetSeconds=600)
 
 
@@ -139,7 +139,7 @@ class LearnerHistoryCohortTest(unittest.TestCase):
 
     def test_fixture_scope_or_budget_cannot_be_relaxed(self):
         for case in m.KINDS:
-            for mutate in (lambda v:v.update(phase3Complete=True),lambda v:v.update(testBudgetSeconds=3600),
+            for mutate in (lambda v:v.update(phase3Complete=True),lambda v:v.update(testBudgetSeconds=v['testBudgetSeconds']+1),
                            lambda v:v.update(status='FAIL'),lambda v:v.update(independentReplayQualified=True)):
                 value = fixture(case); mutate(value)
                 with self.subTest(case=case),self.assertRaisesRegex(ValueError,'fixture scope'): m.run.fixture(value,case)

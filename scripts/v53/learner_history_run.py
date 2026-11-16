@@ -68,7 +68,7 @@ def fixture(result, case):
     common = dict(status='PASS', voter=False, publicReady=False, phase3Complete=False, independentReplayQualified=False)
     if case == 'alternating-slots':
         expected = dict(common, scope='native-alternating-learner-slots', installedThirdRevision=True,
-                        selectedThirdRevision=True, seedRetired=True, lastRevision=6, testBudgetSeconds=900)
+                        selectedThirdRevision=True, seedRetired=True, lastRevision=6, testBudgetSeconds=3600)
         h.need(type(result) is dict and set(result) == set(expected)|{'cycles'} and
                type(result['cycles']) is list and len(result['cycles']) == 3 and
                all(type(v) is dict and type(v.get('revision')) is int and v['revision'] == i

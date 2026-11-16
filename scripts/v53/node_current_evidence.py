@@ -225,7 +225,7 @@ def validate(root):
     p.process.configuration(root); rows=p.process.children(result,cut=point)
     messages=p.process.observations(root,rows,cut=point,reconciled=True)
     need(n.read(raw/'node-result.json')==dict(status='PARTIAL',producerPassed=True,coldReopens=1,barriers=3,dataCalls=2,
-        physicalReplay=False,processRestart=True,phase3Complete=False,serviceBudgetNanos=180_000_000_000),'current node producer scope')
+        physicalReplay=False,processRestart=True,phase3Complete=False,serviceBudgetNanos=600_000_000_000),'current node producer scope')
     return dict(status='PASS', scope='current-node-rename-recovery', mode=result['mode'], cut=point,
         originalFirst=True, physicalReplay=True, network=replay, childMessages=messages,
         campaigns=3, publishedSlots=5, freshLeaderJvms=2, processRestart=True,

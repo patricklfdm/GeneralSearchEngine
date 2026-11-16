@@ -104,6 +104,14 @@ class NodeRenameMatrixTest(unittest.TestCase):
         for key in ('physicalHistoryQualified','processDeathQualified','phase3Complete'):self.assertFalse(result[key])
         with self.assertRaises(ValueError):m.gate.validate(self.raw())
 
+    def test_repeated_snapshot_is_retained_but_cannot_pass_declared_trajectory(self):
+        raw=self.raw();path=raw/'process/life-2.jsonl'
+        messages=m.gate.p.process.transcript(path)
+        at=next(i for i,v in enumerate(messages) if v==dict(action='snapshot',value='applied-3'))
+        messages.insert(at+1,dict(action='snapshot',value='applied-3-repeat-2'))
+        path.write_bytes(b'\n'.join(m.gate.f.canonical(v) for v in messages)+b'\n')
+        with self.assertRaisesRegex(ValueError,'node process exact child snapshots'):m.run.collect(raw,self.case)
+
     def test_complete_cohort_replays_all_originals_and_keeps_scope(self):
         with patch.object(m.gate,'qualify',side_effect=self.replay) as replay:result=self.matrix()
         self.assertEqual(4,replay.call_count);self.assertEqual('PASS',result['status']);self.assertEqual(136,result['negativeCases'])

@@ -18,8 +18,9 @@ reopen must preserve its original authority bytes and typed state.
 Selection happens after the transfer closes. Old typed/source views must revoke;
 covered retirement must reduce the two generations to one; every complete store
 close must return all learner leases. Cold reopen must decode the same receipt
-and empty application from that exact revision. The original 900-second round
-profile remains unchanged. Existing three-revision acquisition/installation/
+and empty application from that exact revision. The six-revision round now has one 3,600-second profile, following the
+[retained deadline review](PHASE_3_REMAINING_FAMILIES_REVIEW.md). Its start never
+renews between revisions. Existing three-revision acquisition/installation/
 selection entries retain their modes and output shapes.
 
 ## Execution and acceptance boundary

@@ -1,5 +1,9 @@
 # Phase 3 — native pending-vote rename interruption
 
+The later [2026-11-16 qualification correction](PHASE_3_REMAINING_FAMILIES_REVIEW.md)
+changes the new experiment profile explicitly. All earlier failed originals and
+their original deadlines described below remain unchanged and unqualified.
+
 The later [allocation and late-reply batch](PHASE_3_NODE_LATE_PREPARE.md) retains
 a successful ACCEPT/halt original on `a7d35e71`. Its independent replay models
 an undelivered unused PREPARE response after installation. The failures described

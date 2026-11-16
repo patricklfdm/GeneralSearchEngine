@@ -27,8 +27,12 @@ class V53CurrentHeadNetworkTest {
         assertTrue(installInactive || !selectInactive,"selection requires original inactive installation");
         assertTrue(!alternate || selectInactive,"alternation requires the selected original third revision");
         var driver=new V53RoundDriverTest();driver.temp=temp;var helper=new V53NativeDispatchTest();helper.temp=temp;
-        try(var n=helper.new Network(3,driver.controlBounds(),BUDGET,f->{},true);
-                var round=driver.driver(n,MembershipRoundDriver.Events.NONE,BUDGET)) {
+        // Six retained learner revisions include typed materialization, physical
+        // observations, retirement and cold reopens inside this same deadline.
+        // Never renew it per cycle or retry the original history.
+        long budget=alternate?TimeUnit.SECONDS.toNanos(3600):BUDGET;
+        try(var n=helper.new Network(3,driver.controlBounds(),budget,f->{},true);
+                var round=driver.driver(n,MembershipRoundDriver.Events.NONE,budget)) {
             Path raw=n.f.raw;System.out.println((alternate?"v53LearnerAlternationEvidence=":selectInactive?"v53LearnerSlotHeadEvidence=":installInactive?"v53LearnerSlotEvidence=":"v53CurrentHeadEvidence=")+raw.toAbsolutePath());round.start();int port;
             try(var socket=new ServerSocket(0,1,InetAddress.getByName("127.0.0.1"))){port=socket.getLocalPort();}
             var joining=new MembershipIdentity(new ReplicationNodeId("node-4"),UUID.randomUUID(),new ReplicationEndpoint("127.0.0.1",port));
@@ -44,12 +48,12 @@ class V53CurrentHeadNetworkTest {
             round.submit("RESERVE",reserve);round.submit("PREPARE",canonical(Map.of("number",1L,"revision",1L),8192));n.f.snapshot("before-current-head");
             MembershipLearnerPlan summary;
             try(var noListener=new ServerSocket(port,1,InetAddress.getByName("127.0.0.1"));
-                    var source=new MembershipLearnerSource(request,targets.getFirst(),resources,n.bounds,capture,()->{},System::nanoTime,System.nanoTime(),BUDGET)) {
+                    var source=new MembershipLearnerSource(request,targets.getFirst(),resources,n.bounds,capture,()->{},System::nanoTime,System.nanoTime(),budget)) {
                 var original=source.fetch(temp.resolve("first-receiving"));copy(original,raw.resolve("revision-one"));summary=source.plan(events::add);
                 try(var store=source.admit(summary,events::add);
                         var first=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(store,1),builder().configuration(),config,events::add)) {
                     source.close();var prepared=first.retainGeneration();round.submit("PREPARE",canonical(Map.of("number",1L,"revision",2L),8192));
-                    try(var refresh=MembershipLearnerSource.refresh(prepared,targets.getFirst(),n.bounds,capture,System::nanoTime,System.nanoTime(),BUDGET)) {
+                    try(var refresh=MembershipLearnerSource.refresh(prepared,targets.getFirst(),n.bounds,capture,System::nanoTime,System.nanoTime(),budget)) {
                         copy(refresh.fetch(temp.resolve("second-receiving")),raw.resolve("revision-two"));
                         var installed=refresh.installSuccessor(events::add);
                         try(var second=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(installed,2),builder().configuration(),config,events::add)) {
@@ -74,7 +78,7 @@ class V53CurrentHeadNetworkTest {
                     var typed=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(store.promotedSuccessor(),2),builder().configuration(),config,events::add)) {
                 var head=typed.currentHead();var baseline=resources.usage();var original=head.source().packet.bytes();
                 MembershipLearnerSlot.View pending=null;
-                try(var refresh=MembershipLearnerSource.refresh(head,targets.getFirst(),n.bounds,capture,System::nanoTime,System.nanoTime(),BUDGET)) {
+                try(var refresh=MembershipLearnerSource.refresh(head,targets.getFirst(),n.bounds,capture,System::nanoTime,System.nanoTime(),budget)) {
                     var received=refresh.fetch(temp.resolve("third-receiving"));assertEquals(thirdCut,received.capsule.context.cut);
                     assertEquals(3L,number(object(list(received.capsule.context.catalog.get("results")).getFirst()).get("revision")));
                     assertEquals(1,resources.usage().counts().get(Unit.GENERATION));assertEquals(1,resources.usage().counts().get(Unit.LEARNER));
@@ -154,7 +158,7 @@ class V53CurrentHeadNetworkTest {
                             var current=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(store.currentSource(),revision-1),builder().configuration(),config,events::add)) {
                         var previous=current.currentHead();MembershipLearnerSlot.View pending;
                         observe(raw.resolve(stage+"-before-transfer"),summary,resources,events,wire,observations);
-                        try(var refresh=MembershipLearnerSource.refresh(previous,targets.getFirst(),n.bounds,capture,System::nanoTime,System.nanoTime(),BUDGET)) {
+                        try(var refresh=MembershipLearnerSource.refresh(previous,targets.getFirst(),n.bounds,capture,System::nanoTime,System.nanoTime(),budget)) {
                             var received=refresh.fetch(temp.resolve(stage+"-receiving"));
                             // Renewal reconciliation can publish a fresh BARRIER. Bind the
                             // complete received cut to the actual donor PREPARE result,
@@ -196,7 +200,7 @@ class V53CurrentHeadNetworkTest {
             }
             round.submit("CANCEL",canonical(Map.of("number",1L),8192));
             var result=new TreeMap<String,Object>(Map.of("status","PASS","scope",alternate?"native-alternating-learner-slots":selectInactive?"native-selected-slot-head":installInactive?"native-inactive-slot":"native-current-head-acquisition",
-                    "installedThirdRevision",installInactive,"voter",false,"publicReady",false,"phase3Complete",false,"testBudgetSeconds",900L));
+                    "installedThirdRevision",installInactive,"voter",false,"publicReady",false,"phase3Complete",false,"testBudgetSeconds",TimeUnit.NANOSECONDS.toSeconds(budget)));
             if(selectInactive){result.put("selectedThirdRevision",true);result.put("seedRetired",true);}
             if(alternate){result.put("cycles",cycles);result.put("lastRevision",6L);result.put("independentReplayQualified",false);}
             Files.write(raw.resolve("current-head-result.json"),canonical(result,4096));

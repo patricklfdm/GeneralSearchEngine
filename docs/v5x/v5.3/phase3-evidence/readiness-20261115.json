@@ -1,0 +1,497 @@
+{
+  "schema": "gse-v53-phase3-readiness-review-v1",
+  "observedAt": "2026-11-16T03:31:08.642393+00:00",
+  "source": "659377b3ea89245fb939d124a0783f5b840492b1",
+  "ref": "feat/v53-cluster-operations",
+  "status": "OPEN",
+  "phase3Complete": false,
+  "observationWindowStart": "2026-11-07T00:00:00Z",
+  "repositoryRuns": 63,
+  "matchingRuns": 54,
+  "historicalExtraAttempts": 2,
+  "familyCount": 18,
+  "selectedJobs": 550,
+  "statusCounts": {
+    "SUCCESS": 12,
+    "FAILURE": 2,
+    "NOT_RUN": 4
+  },
+  "distinctSelectedSources": [
+    "5217a5569ee457f29e01dbfee8d0ae95ee7d15de",
+    "659377b3ea89245fb939d124a0783f5b840492b1",
+    "a260689977679acb8582001bb00a135784ce9531",
+    "b23242fae2f55acee96bbdffdf3993bb82a14c2a",
+    "defd80d258845a4965fb1a51d9073f5cd8c8a409"
+  ],
+  "artifactCount": 947,
+  "artifactBytes": 19843192024,
+  "jobExecutionSeconds": 1514388.0,
+  "missingLargeHost": true,
+  "finalSourceQualified": false,
+  "families": [
+    {
+      "id": "histories/profiles",
+      "workflow": ".github/workflows/v53-membership-profiles.yml",
+      "expectedJobs": 16,
+      "requiresLargeHost": false,
+      "registered": true,
+      "observedRuns": 7,
+      "phase3Complete": false,
+      "status": "SUCCESS",
+      "runId": 42699337007,
+      "attempt": 1,
+      "source": "5217a5569ee457f29e01dbfee8d0ae95ee7d15de",
+      "url": "https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/42699337007",
+      "jobCount": 16,
+      "jobConclusions": {
+        "success": 16
+      },
+      "jobExecutionSeconds": 13232.0,
+      "failedJobs": [],
+      "artifactCount": 24,
+      "artifactBytes": 277754770,
+      "expiredArtifacts": 0,
+      "earliestArtifactExpiry": "2027-02-07T21:06:36Z",
+      "artifactContentReplayedInThisAudit": false
+    },
+    {
+      "id": "histories/joining-reply-loss",
+      "workflow": ".github/workflows/v53-joining-source-faults.yml",
+      "expectedJobs": 8,
+      "requiresLargeHost": false,
+      "registered": true,
+      "observedRuns": 2,
+      "phase3Complete": false,
+      "status": "SUCCESS",
+      "runId": 43123624778,
+      "attempt": 1,
+      "source": "defd80d258845a4965fb1a51d9073f5cd8c8a409",
+      "url": "https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/43123624778",
+      "jobCount": 8,
+      "jobConclusions": {
+        "success": 8
+      },
+      "jobExecutionSeconds": 5564.0,
+      "failedJobs": [],
+      "artifactCount": 12,
+      "artifactBytes": 135979948,
+      "expiredArtifacts": 0,
+      "earliestArtifactExpiry": "2027-02-09T23:56:46Z",
+      "artifactContentReplayedInThisAudit": false
+    },
+    {
+      "id": "histories/remove-process",
+      "workflow": ".github/workflows/v53-remove-process.yml",
+      "expectedJobs": 106,
+      "requiresLargeHost": false,
+      "registered": true,
+      "observedRuns": 1,
+      "phase3Complete": false,
+      "status": "SUCCESS",
+      "runId": 42716178420,
+      "attempt": 1,
+      "source": "5217a5569ee457f29e01dbfee8d0ae95ee7d15de",
+      "url": "https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/42716178420",
+      "jobCount": 106,
+      "jobConclusions": {
+        "success": 106
+      },
+      "jobExecutionSeconds": 46954.0,
+      "failedJobs": [],
+      "artifactCount": 159,
+      "artifactBytes": 2172028006,
+      "expiredArtifacts": 0,
+      "earliestArtifactExpiry": "2027-02-07T22:55:50Z",
+      "artifactContentReplayedInThisAudit": false
+    },
+    {
+      "id": "histories/node-renames",
+      "workflow": ".github/workflows/v53-node-renames.yml",
+      "expectedJobs": 10,
+      "requiresLargeHost": false,
+      "registered": true,
+      "observedRuns": 2,
+      "phase3Complete": false,
+      "status": "FAILURE",
+      "runId": 43123631252,
+      "attempt": 1,
+      "source": "defd80d258845a4965fb1a51d9073f5cd8c8a409",
+      "url": "https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/43123631252",
+      "jobCount": 10,
+      "jobConclusions": {
+        "success": 1,
+        "failure": 9
+      },
+      "jobExecutionSeconds": 1402.0,
+      "failedJobs": [
+        {
+          "id": 130870501058,
+          "name": "Node rename original (proof_renamed__kill)",
+          "conclusion": "failure"
+        },
+        {
+          "id": 130870501161,
+          "name": "Node rename original (proof_renamed__halt)",
+          "conclusion": "failure"
+        },
+        {
+          "id": 130870501193,
+          "name": "Node rename original (accept_renamed__kill)",
+          "conclusion": "failure"
+        },
+        {
+          "id": 130870501219,
+          "name": "Node rename original (accept_renamed__halt)",
+          "conclusion": "failure"
+        },
+        {
+          "id": 130886301604,
+          "name": "Node rename downloaded replay (accept_renamed__halt)",
+          "conclusion": "failure"
+        },
+        {
+          "id": 130886301629,
+          "name": "Node rename downloaded replay (proof_renamed__kill)",
+          "conclusion": "failure"
+        },
+        {
+          "id": 130886301753,
+          "name": "Node rename downloaded replay (accept_renamed__kill)",
+          "conclusion": "failure"
+        },
+        {
+          "id": 130886301782,
+          "name": "Node rename downloaded replay (proof_renamed__halt)",
+          "conclusion": "failure"
+        },
+        {
+          "id": 130890899054,
+          "name": "Node rename complete exact-attempt matrix",
+          "conclusion": "failure"
+        }
+      ],
+      "artifactCount": 15,
+      "artifactBytes": 140590464,
+      "expiredArtifacts": 0,
+      "earliestArtifactExpiry": "2027-02-09T23:56:50Z",
+      "artifactContentReplayedInThisAudit": false
+    },
+    {
+      "id": "histories/joining-process",
+      "workflow": ".github/workflows/v53-joining-process.yml",
+      "expectedJobs": 242,
+      "requiresLargeHost": false,
+      "registered": true,
+      "observedRuns": 5,
+      "phase3Complete": false,
+      "status": "SUCCESS",
+      "runId": 43582470815,
+      "attempt": 1,
+      "source": "a260689977679acb8582001bb00a135784ce9531",
+      "url": "https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/43582470815",
+      "jobCount": 242,
+      "jobConclusions": {
+        "success": 242
+      },
+      "jobExecutionSeconds": 1350363.0,
+      "failedJobs": [],
+      "artifactCount": 484,
+      "artifactBytes": 13555734529,
+      "expiredArtifacts": 0,
+      "earliestArtifactExpiry": "2027-02-12T09:50:54Z",
+      "artifactContentReplayedInThisAudit": false
+    },
+    {
+      "id": "histories/learner-histories",
+      "workflow": ".github/workflows/v53-learner-histories.yml",
+      "expectedJobs": 6,
+      "requiresLargeHost": false,
+      "registered": true,
+      "observedRuns": 2,
+      "phase3Complete": false,
+      "status": "FAILURE",
+      "runId": 43123639693,
+      "attempt": 1,
+      "source": "defd80d258845a4965fb1a51d9073f5cd8c8a409",
+      "url": "https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/43123639693",
+      "jobCount": 6,
+      "jobConclusions": {
+        "success": 3,
+        "failure": 3
+      },
+      "jobExecutionSeconds": 1767.0,
+      "failedJobs": [
+        {
+          "id": 130870568477,
+          "name": "Native learner original (alternating-slots)",
+          "conclusion": "failure"
+        },
+        {
+          "id": 130878427369,
+          "name": "Native learner downloaded replay (alternating-slots)",
+          "conclusion": "failure"
+        },
+        {
+          "id": 130887101636,
+          "name": "Native learner complete exact-attempt matrix",
+          "conclusion": "failure"
+        }
+      ],
+      "artifactCount": 9,
+      "artifactBytes": 93109711,
+      "expiredArtifacts": 0,
+      "earliestArtifactExpiry": "2027-02-09T23:56:55Z",
+      "artifactContentReplayedInThisAudit": false
+    },
+    {
+      "id": "histories/transfer-histories",
+      "workflow": ".github/workflows/v53-transfer-histories.yml",
+      "expectedJobs": 6,
+      "requiresLargeHost": false,
+      "registered": true,
+      "observedRuns": 1,
+      "phase3Complete": false,
+      "status": "SUCCESS",
+      "runId": 42716179974,
+      "attempt": 1,
+      "source": "5217a5569ee457f29e01dbfee8d0ae95ee7d15de",
+      "url": "https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/42716179974",
+      "jobCount": 6,
+      "jobConclusions": {
+        "success": 6
+      },
+      "jobExecutionSeconds": 462.0,
+      "failedJobs": [],
+      "artifactCount": 9,
+      "artifactBytes": 87856390,
+      "expiredArtifacts": 0,
+      "earliestArtifactExpiry": "2027-02-07T22:55:51Z",
+      "artifactContentReplayedInThisAudit": false
+    },
+    {
+      "id": "histories/round-histories",
+      "workflow": ".github/workflows/v53-round-histories.yml",
+      "expectedJobs": 16,
+      "requiresLargeHost": false,
+      "registered": true,
+      "observedRuns": 2,
+      "phase3Complete": false,
+      "status": "SUCCESS",
+      "runId": 43123647228,
+      "attempt": 1,
+      "source": "defd80d258845a4965fb1a51d9073f5cd8c8a409",
+      "url": "https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/43123647228",
+      "jobCount": 16,
+      "jobConclusions": {
+        "success": 16
+      },
+      "jobExecutionSeconds": 1462.0,
+      "failedJobs": [],
+      "artifactCount": 24,
+      "artifactBytes": 211595701,
+      "expiredArtifacts": 0,
+      "earliestArtifactExpiry": "2027-02-09T23:56:59Z",
+      "artifactContentReplayedInThisAudit": false
+    },
+    {
+      "id": "histories/carried-data-histories",
+      "workflow": ".github/workflows/v53-carried-data-histories.yml",
+      "expectedJobs": 26,
+      "requiresLargeHost": false,
+      "registered": true,
+      "observedRuns": 5,
+      "phase3Complete": false,
+      "status": "SUCCESS",
+      "runId": 43582470403,
+      "attempt": 1,
+      "source": "a260689977679acb8582001bb00a135784ce9531",
+      "url": "https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/43582470403",
+      "jobCount": 26,
+      "jobConclusions": {
+        "success": 26
+      },
+      "jobExecutionSeconds": 3177.0,
+      "failedJobs": [],
+      "artifactCount": 39,
+      "artifactBytes": 346428891,
+      "expiredArtifacts": 0,
+      "earliestArtifactExpiry": "2027-02-12T09:50:53Z",
+      "artifactContentReplayedInThisAudit": false
+    },
+    {
+      "id": "histories/carried-transition-histories",
+      "workflow": ".github/workflows/v53-carried-transition-histories.yml",
+      "expectedJobs": 34,
+      "requiresLargeHost": false,
+      "registered": true,
+      "observedRuns": 6,
+      "phase3Complete": false,
+      "status": "SUCCESS",
+      "runId": 43653110389,
+      "attempt": 1,
+      "source": "b23242fae2f55acee96bbdffdf3993bb82a14c2a",
+      "url": "https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/43653110389",
+      "jobCount": 34,
+      "jobConclusions": {
+        "success": 34
+      },
+      "jobExecutionSeconds": 24243.0,
+      "failedJobs": [],
+      "artifactCount": 51,
+      "artifactBytes": 636408894,
+      "expiredArtifacts": 0,
+      "earliestArtifactExpiry": "2027-02-12T23:24:46Z",
+      "artifactContentReplayedInThisAudit": false
+    },
+    {
+      "id": "histories/automatic-histories",
+      "workflow": ".github/workflows/v53-automatic-histories.yml",
+      "expectedJobs": 8,
+      "requiresLargeHost": false,
+      "registered": true,
+      "observedRuns": 8,
+      "phase3Complete": false,
+      "status": "SUCCESS",
+      "runId": 43705461994,
+      "attempt": 1,
+      "source": "659377b3ea89245fb939d124a0783f5b840492b1",
+      "url": "https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/43705461994",
+      "jobCount": 8,
+      "jobConclusions": {
+        "success": 8
+      },
+      "jobExecutionSeconds": 1172.0,
+      "failedJobs": [],
+      "artifactCount": 12,
+      "artifactBytes": 118559409,
+      "expiredArtifacts": 0,
+      "earliestArtifactExpiry": "2027-02-13T10:43:35Z",
+      "artifactContentReplayedInThisAudit": false
+    },
+    {
+      "id": "histories/joint-floor-process",
+      "workflow": ".github/workflows/v53-joint-floor-process.yml",
+      "expectedJobs": 66,
+      "requiresLargeHost": false,
+      "registered": true,
+      "observedRuns": 5,
+      "phase3Complete": false,
+      "status": "SUCCESS",
+      "runId": 43582470481,
+      "attempt": 1,
+      "source": "a260689977679acb8582001bb00a135784ce9531",
+      "url": "https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/43582470481",
+      "jobCount": 66,
+      "jobConclusions": {
+        "success": 66
+      },
+      "jobExecutionSeconds": 58451.0,
+      "failedJobs": [],
+      "artifactCount": 99,
+      "artifactBytes": 1335453127,
+      "expiredArtifacts": 0,
+      "earliestArtifactExpiry": "2027-02-12T09:50:54Z",
+      "artifactContentReplayedInThisAudit": false
+    },
+    {
+      "id": "resources/required-four",
+      "workflow": ".github/workflows/v53-required-four-resources.yml",
+      "expectedJobs": 3,
+      "requiresLargeHost": false,
+      "registered": true,
+      "observedRuns": 7,
+      "phase3Complete": false,
+      "status": "SUCCESS",
+      "runId": 42699339465,
+      "attempt": 1,
+      "source": "5217a5569ee457f29e01dbfee8d0ae95ee7d15de",
+      "url": "https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/42699339465",
+      "jobCount": 3,
+      "jobConclusions": {
+        "success": 3
+      },
+      "jobExecutionSeconds": 4679.0,
+      "failedJobs": [],
+      "artifactCount": 5,
+      "artifactBytes": 81891105,
+      "expiredArtifacts": 0,
+      "earliestArtifactExpiry": "2027-02-07T21:06:38Z",
+      "artifactContentReplayedInThisAudit": false
+    },
+    {
+      "id": "resources/maximum-image",
+      "workflow": ".github/workflows/v53-maximum-transition.yml",
+      "expectedJobs": 3,
+      "requiresLargeHost": true,
+      "registered": false,
+      "observedRuns": 0,
+      "phase3Complete": false,
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "resources/capacity-completion",
+      "workflow": ".github/workflows/v53-capacity-completion.yml",
+      "expectedJobs": 3,
+      "requiresLargeHost": false,
+      "registered": true,
+      "observedRuns": 1,
+      "phase3Complete": false,
+      "status": "SUCCESS",
+      "runId": 42716181225,
+      "attempt": 1,
+      "source": "5217a5569ee457f29e01dbfee8d0ae95ee7d15de",
+      "url": "https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/42716181225",
+      "jobCount": 3,
+      "jobConclusions": {
+        "success": 3
+      },
+      "jobExecutionSeconds": 1460.0,
+      "failedJobs": [],
+      "artifactCount": 5,
+      "artifactBytes": 649801079,
+      "expiredArtifacts": 0,
+      "earliestArtifactExpiry": "2027-02-07T22:55:52Z",
+      "artifactContentReplayedInThisAudit": false
+    },
+    {
+      "id": "resources/queue-resources",
+      "workflow": ".github/workflows/v53-queue-resources.yml",
+      "expectedJobs": 6,
+      "requiresLargeHost": false,
+      "registered": false,
+      "observedRuns": 0,
+      "phase3Complete": false,
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "maximum/maximum-native",
+      "workflow": ".github/workflows/v53-maximum-native-resources.yml",
+      "expectedJobs": 3,
+      "requiresLargeHost": true,
+      "registered": false,
+      "observedRuns": 0,
+      "phase3Complete": false,
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "maximum/maximum-queue",
+      "workflow": ".github/workflows/v53-maximum-queue.yml",
+      "expectedJobs": 3,
+      "requiresLargeHost": true,
+      "registered": false,
+      "observedRuns": 0,
+      "phase3Complete": false,
+      "status": "NOT_RUN"
+    }
+  ],
+  "scope": "workflow metadata and logs; not artifact byte binding, physical replay, billing or cohort admission",
+  "retainedAuditDirectory": "target/v53-phase3-readiness-20261115",
+  "inputHashesSha256": "6ff2e483a39f8414858ed90161eb68814bce83bc8b79fc73c849bb9e4f985915",
+  "gaps": [
+    "two failed ordinary families",
+    "four manual workflows unregistered",
+    "three large originals unexecuted",
+    "mixed source identities",
+    "complete cohort/coverage/combined-resource admission still open"
+  ]
+}

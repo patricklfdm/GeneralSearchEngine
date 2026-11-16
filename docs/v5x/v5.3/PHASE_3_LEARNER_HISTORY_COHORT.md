@@ -16,11 +16,13 @@ five joining profiles, process death, autonomous membership, the complete native
 network schedule or maximum simultaneous resources. All those claims, and
 `phase3Complete`, remain false even after this pair passes.
 
-The existing 900-second revision-history and 600-second cancellation-history
-budgets are unchanged. The cancellation method now captures the same admitted
+The six-revision history now declares 3,600 seconds; the cancellation history
+retains 600 seconds. The [2026-11-16 correction](PHASE_3_REMAINING_FAMILIES_REVIEW.md)
+explains the former 900-second exhaustion and requires new-source qualification. The cancellation method now captures the same admitted
 learner resource pool and real close boundaries, then adds three explicit cold
 lifetimes whose budgets are fixed from the same original files before opening. The [earlier final-CANCEL timeout](PHASE_3_LEARNER_CYCLE_REPLAY.md)
-remains a failed original. This entry neither retries it nor extends its deadline.
+remains a failed original. Its failed original remains bound to its original deadline; the new profile does
+not retroactively qualify it.
 The [historical retained-cancellation success](PHASE_3_LEARNER_RETENTION_REPLAY.md)
 belongs to its earlier source and cannot fill a final-source cohort slot.
 

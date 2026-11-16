@@ -14,8 +14,16 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*
  * This pipe is instrumentation only; protocol traffic uses the real TCP link. */
 public final class V53NodeProcessWorker {
     @FunctionalInterface interface Sink {void accept(String action,Object value)throws IOException;}
+    // Rename recovery captures every force/copy through a parent observation
+    // pipe. Use the established control-exchange profile and one finite budget
+    // per service lifetime, including all automatic campaigns and client work.
+    static boolean rename(String point){return Set.of("ACCEPT_RENAMED","PROOF_RENAMED").contains(point);}
+    static long serviceSeconds(String point){return rename(point)?600:180;}
+    static long serviceBudget(String point){return TimeUnit.SECONDS.toNanos(serviceSeconds(point));}
+    static ReplicationBounds bounds(String point){return rename(point)?new V53RoundDriverTest().controlBounds():ReplicationBounds.defaults();}
     static MembershipNodeOwner.Hooks hooks(String name,int life,Sink sink) {
         var installation=new AtomicLong(life-1);
+        var snapshots=new java.util.concurrent.ConcurrentHashMap<String,Integer>();
         return new MembershipNodeOwner.Hooks(event->sink.accept("event",Map.of("node",name,"incarnation",life,"event",event)),
             (event,request,response)->{
                 if(event.equals("BEFORE_REQUEST_WRITE"))sink.accept("event",Map.of("node",name,"incarnation",life,"event","NETWORK_SEND",
@@ -32,7 +40,14 @@ public final class V53NodeProcessWorker {
                 if(event.equals("INSTALLED"))sink.accept("installed",Map.of("number",installation.incrementAndGet(),"bytes",Base64.getEncoder().encodeToString(record.bytes())));
             },(event,record,voters)->{
                 if(event.equals("FUTURE_QUORUM_COMPLETE"))sink.accept("event",Map.of("node",name,"event",event,"index",record.value().get("index"),"voters",voters.stream().sorted().toList()));
-                if(event.equals("APPLIED") || event.equals("PUBLISHED"))sink.accept("snapshot",event.toLowerCase(Locale.ROOT)+"-"+record.value().get("index"));
+                if(event.equals("APPLIED") || event.equals("PUBLISHED")) {
+                    String nameOfSnapshot=event.toLowerCase(Locale.ROOT)+"-"+record.value().get("index");
+                    int occurrence=snapshots.merge(nameOfSnapshot,1,Integer::sum);
+                    // Retain an unexpected recovery observation, never overwrite
+                    // or silently discard it. The exact independent trajectory
+                    // reader still rejects additional campaigns/snapshots.
+                    sink.accept("snapshot",nameOfSnapshot+(occurrence==1?"":"-repeat-"+occurrence));
+                }
             });
     }
     static final class Pipe implements Sink {
@@ -66,7 +81,7 @@ public final class V53NodeProcessWorker {
         Path replica=Path.of((String)paths.getFirst().get("replica")),materialization=Path.of((String)paths.getFirst().get("application"));
         var root=decode(Files.readAllBytes(replica.resolve("root.gsr")),"records","ROOT");
         var history=new MembershipRoot(new ReplicationGroupId(UUID.fromString((String)root.value().get("groupId"))),UUID.fromString((String)root.value().get("historyId")),root.rootDigest());
-        var bounds=ReplicationBounds.defaults();var config=new MembershipReplicaConfig<>(history,identities.getFirst(),identities.subList(1,3),replica,
+        var bounds=bounds(point);var config=new MembershipReplicaConfig<>(history,identities.getFirst(),identities.subList(1,3),replica,
                 storage(materialization,2),bounds,AutomaticLeadershipPolicy.forBounds(bounds));
         Path scratch=Path.of((String)values.get("scratch"));var sink=new Pipe();
         sink.accept("started",Map.of("pid",ProcessHandle.current().pid(),"life",life,"mode",mode));
@@ -78,7 +93,7 @@ public final class V53NodeProcessWorker {
             if(event.equals("SLOT_BEGIN"))activeSlot.set(number(record.value().get("index")));
             original.round().at(event,record);
         },original.slot());
-        var node=new MembershipNodeOwner<>(config,builder().configuration(),scratch.resolve("incoming"),scratch.resolve("outgoing"),System::nanoTime,V53NodeOwnerNetworkTest.BUDGET,instrumented);
+        var node=new MembershipNodeOwner<>(config,builder().configuration(),scratch.resolve("incoming"),scratch.resolve("outgoing"),System::nanoTime,serviceBudget(point),instrumented);
         Throwable primary=null;String phase="open";long phaseBegan=System.nanoTime();
         long startBefore=0,startAfter=0,stopped=0;boolean startReturned=false;
         // A real halt/kill bypasses this finally and every owner close method.
@@ -89,7 +104,7 @@ public final class V53NodeProcessWorker {
             phase="parent-open-ack";phaseBegan=System.nanoTime();
             sink.accept("opened",life); // Parent starts unchanged follower owners before acknowledging life 1.
             phase="startup-await";phaseBegan=System.nanoTime();startBefore=System.nanoTime();var starting=node.start();
-            startAfter=System.nanoTime();startReturned=true;starting.await(180,TimeUnit.SECONDS);
+            startAfter=System.nanoTime();startReturned=true;starting.await(serviceSeconds(point),TimeUnit.SECONDS);
             phase="ready-snapshot";phaseBegan=System.nanoTime();sink.accept("snapshot",life==1?"first-ready":"second-ready");
             phase="encode-client";phaseBegan=System.nanoTime();
             int id=99+life;byte[] payload;
@@ -97,7 +112,7 @@ public final class V53NodeProcessWorker {
                 payload=MembershipApplicationReplay.data("ADD",encoder.documents("ADD",List.of(new Doc(id,"node-owner-"+id))));
             }
             phase="client-await";phaseBegan=System.nanoTime();
-            if(!node.submit("DATA",payload).await(180,TimeUnit.SECONDS).kind().equals("PUBLISH_ACK"))throw new AssertionError("missing DATA publication");
+            if(!node.submit("DATA",payload).await(serviceSeconds(point),TimeUnit.SECONDS).kind().equals("PUBLISH_ACK"))throw new AssertionError("missing DATA publication");
             if(life==1) {
                 if(!point.equals("AFTER_DATA_RETURN"))throw new AssertionError("declared write boundary not reached");
                 phase="crash-cut";phaseBegan=System.nanoTime();

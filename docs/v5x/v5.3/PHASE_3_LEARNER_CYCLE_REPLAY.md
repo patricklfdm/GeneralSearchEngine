@@ -1,5 +1,9 @@
 # Phase 3 — independent continuous learner replay
 
+The later [2026-11-16 qualification correction](PHASE_3_REMAINING_FAMILIES_REVIEW.md)
+changes the new experiment profile explicitly. All earlier failed originals and
+their original deadlines described below remain unchanged and unqualified.
+
 The reader `scripts.v53.learner_cycles_evidence` consumes one complete original
 `V53LearnerAlternationNetworkTest` history. It never combines different executions
 or opens a filesystem path recorded inside a plan. Copied bytes are checked against

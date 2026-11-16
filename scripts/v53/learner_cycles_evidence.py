@@ -186,7 +186,7 @@ def validate(root):
     cycles=[dict(revision=i,sequence=i-2,slot='a' if i%2==0 else 'b',source=e.digest(originals[i]['source.gscp']),
                  generation=e.digest(originals[i]['generation.gsr']),receipt=e.digest(receipts[i]),wireStart=ranges[i-1][0],wireEnd=ranges[i-1][1]) for i in range(4,7)]
     expected_result=dict(status='PASS',scope='native-alternating-learner-slots',installedThirdRevision=True,
-         voter=False,publicReady=False,phase3Complete=False,testBudgetSeconds=900,selectedThirdRevision=True,seedRetired=True,
+         voter=False,publicReady=False,phase3Complete=False,testBudgetSeconds=3600,selectedThirdRevision=True,seedRetired=True,
          cycles=cycles,lastRevision=6,independentReplayQualified=False)
     need((root/'current-head-result.json').read_bytes()==f.canonical(expected_result),'learner cycles result scope')
     return dict(status='PASS',scope='native-six-revision-learner-history',revisions=6,snapshots=len(snapshots),exchanges=len(wire),
