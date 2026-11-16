@@ -5,6 +5,7 @@ learner copies. Recorded paths are data only. This focused reader cannot qualify
 the complete network/process/profile matrix or confer voting authority.
 """
 import argparse
+import base64
 import copy
 import json
 from pathlib import Path
@@ -14,6 +15,7 @@ from . import learner_cycle_bytes as states
 from . import learner_cycle_forces as forces
 from . import learner_typed_evidence as t
 from . import remove_maintenance_evidence as maintenance
+from . import learner_cycle_rejections as rejections
 
 b,c,d,a,e,f,need=t.b,t.c,t.d,t.a,t.e,t.f,t.need
 STAGES=('before-seed-handoff','selected-seed-head','retired-seed-predecessor',
@@ -21,6 +23,16 @@ STAGES=('before-seed-handoff','selected-seed-head','retired-seed-predecessor',
     f'cycle-{revision}-{stage}' for revision in range(4,7) for stage in
     ('before-transfer','installed','before-selection','selected','retired','reopened'))
 COPIES={1:'revision-one',2:'revision-two',3:'revision-three',**{i:f'cycle-{i}-received' for i in range(4,7)}}
+
+
+class CycleSlot(t.source.r.CurrentSlot):
+    def publication_group(self,group,*,before_local_cleanup=None):
+        recorded={}
+        result=super().publication_group(group,before_local_cleanup=recorded)
+        # Retain small expected frames from the physical reduction, never from
+        # the network ACK or the fixture's PASS/result claim.
+        self.recordings[self.slot]=rejections.recording(self.applied,group,recorded)
+        return result
 
 
 def inventory(root):
@@ -80,7 +92,7 @@ def physical(root):
     _,_,installed=d.s.campaign(root,{n:group[n] for n in t.VOTERS},2,'installed',selected_prefix=d.slot.prefix)
     group.update(installed);b.match(root,'installed',group)
     need((root/'selected.gsr').read_bytes()==c.current(group['node-1'])[1]['selected.gsr'],'learner cycles original selection')
-    model=t.source.r.CurrentSlot.__new__(t.source.r.CurrentSlot)
+    model=CycleSlot.__new__(CycleSlot);model.recordings={}
     model.root=root;model.group=group;model.active=list(t.VOTERS);model.voters=t.VOTERS
     model.required=set();model.slot=0;model.counter=2;model.first=None
     model.observed=set();model.phases={};model.documents=[]
@@ -112,7 +124,7 @@ def physical(root):
             need((root/name).read_bytes()==receipts[revision],'learner cycles exact native receipt')
     reconcile(root,model,8)
     publish('CANCEL',dict(number=1));b.match(root,'after-close',model.group)
-    need(d.read(root/'failures.json')==[],'learner cycles native failures')
+    rejections.validate(root,model.recordings)
     descriptor=e.parse((root/'original-plan.gsbp').read_bytes()[48:])['descriptor']
     return revisions,originals,receipts,request,learner,{k:descriptor[k] for k in ('application','core')}
 
@@ -207,6 +219,11 @@ NEGATIVES={
     'missing-force':'learner cycles exact force interval: cycle-5-selected',
     'early-release':'learner cycles exact force interval: cycle-5-retired',
     'false-ready':'learner cycles result scope',
+    'native-failure-owner':'learner cycles native failures',
+    'native-failure-request':'learner cycles native failures',
+    'native-failure-retries':'learner cycles native failure retries',
+    'native-recording-ack':'learner cycles exact recording exchange',
+    'native-recording-missing':'learner cycles complete recording exchanges',
 }
 
 
@@ -215,6 +232,24 @@ def mutate(root,name):
         path=root/path;value=d.read(path);action(value);path.write_bytes(f.canonical(value))
     if name=='extra-file':(root/'extra').write_bytes(b'foreign')
     elif name=='native-receipt':(root/'cycle-5-receipt.gsr').write_bytes(b'changed')
+    elif name.startswith('native-failure-'):
+        wire=d.read(root/'wire.json')
+        request=next(value for row in wire for kind,value in [d.transfer.t.wire(row['request'])] if kind=='FUTURE_RETENTION_INTENT')
+        third=f.decode((root/'before-network/node-3/node.gsr').read_bytes(),'records','NODE')['identity']
+        failure=dict(node='node-3',kind='FUTURE_RETENTION_INTENT',failure=rejections.FAILURE,
+                     request=e.digest(f.encode('wire','FUTURE_RETENTION_INTENT',dict(request,recipient=third,sequence=3))))
+        if name=='native-failure-owner':failure['node']='node-2'
+        if name=='native-failure-request':failure['request']='f'*64
+        (root/'failures.json').write_bytes(f.canonical([failure]*(4 if name=='native-failure-retries' else 1)))
+    elif name in ('native-recording-ack','native-recording-missing'):
+        wire=d.read(root/'wire.json')
+        index=next(i for i,row in enumerate(wire) if d.transfer.t.wire(row['request'])[0]=='FUTURE_RETENTION_INTENT')
+        if name=='native-recording-ack':
+            kind,value=d.transfer.t.wire(wire[index]['response']);value['payload']['intent']='f'*64
+            wire[index]['response']=base64.b64encode(f.encode('wire',kind,value)).decode()
+        else:
+            request=wire[index]['request'];wire=[row for row in wire if row['request']!=request]
+        (root/'wire.json').write_bytes(f.canonical(wire))
     elif name=='original-published':(root/'published-6/node-1/selector.gsr').write_bytes(b'changed')
     elif name=='received-generation':(root/'cycle-5-received/generation.gsr').write_bytes(b'changed')
     elif name=='missing-stage':change('current-head-stages.json',lambda v:v.pop('cycle-5-retired'))

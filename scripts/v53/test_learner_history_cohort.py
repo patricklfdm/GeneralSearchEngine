@@ -116,8 +116,8 @@ class LearnerHistoryCohortTest(unittest.TestCase):
         with patch.object(m,'ProcessPoolExecutor',ThreadPoolExecutor):
             return m.validate(self.paths if paths is None else paths,*self.pins,**kwargs)
 
-    def test_two_declared_whole_native_methods_and_exact_74_negatives(self):
-        self.assertEqual((12,62),tuple(len(m.negative_cases(case)) for case in m.KINDS))
+    def test_two_declared_whole_native_methods_and_exact_79_negatives(self):
+        self.assertEqual((17,62),tuple(len(m.negative_cases(case)) for case in m.KINDS))
         for case,(cls,method) in m.run.METHODS.items():
             source = m.h.ROOT/m.h.MODULE/('src/test/java/'+m.run.PACKAGE.replace('.','/')+cls+'.java')
             self.assertIn('void '+method+'()',source.read_text())
@@ -219,7 +219,7 @@ class LearnerHistoryCohortTest(unittest.TestCase):
              patch.object(m,'replay_cancellation',return_value=replay('retained-cancellation')) as cancel:
             result = self.matrix(workers=2,progress=progress.append)
         cycles.assert_called_once(); cancel.assert_called_once_with(self.raw(self.paths['retained-cancellation']))
-        self.assertEqual(2,len(progress)); self.assertEqual(74,result['negativeCases']); self.assertEqual('PASS',result['status'])
+        self.assertEqual(2,len(progress)); self.assertEqual(79,result['negativeCases']); self.assertEqual('PASS',result['status'])
         self.assertIs(True,result['declaredLearnerHistoryPairQualified'])
         for key in ('phase3Complete','allMembershipProfilesQualified','processDeathQualified','fullNetworkQualification','combinedPeakResourcesQualified'):
             self.assertIs(False,result[key])

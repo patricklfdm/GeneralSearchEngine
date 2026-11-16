@@ -5,13 +5,27 @@ Status: **OPEN; preparation only**. Source inspected:
 `feat/v53-cluster-operations`. This review changes no runtime, workflow, frozen
 limit, or acceptance decision. It launches no experiment.
 
-The latest Automatic run now passes all eight jobs, including the complete
-exact-attempt aggregate. Across the full plan, however, **12 families have a
-successful latest run, two remain failed and four have not run**. The successful
-families span five source commits. This is a progress inventory, not a qualifying
-final-source cohort.
+At the November 15 audit, Automatic passed all eight jobs, including the complete
+exact-attempt aggregate. That selection contained **12 successful families,
+two failed and four unexecuted**, across five successful source commits.
+The dated follow-up below updates those results. Neither inventory is a
+qualifying final-source cohort.
 
-## Complete current inventory
+## 2026-11-16 follow-up
+
+At source `b7b378a61ca188919bb12ed04ecf7fe46f629f80`,
+[node-renames 43803439569](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/43803439569)
+passes all ten jobs (attempt 1, 16m10s).
+[learner-histories 43803439571](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/43803439571)
+finishes both originals, but alternating-slot replay fails on 48 retained
+nonselected-voter refusals; the aggregate fails downstream. Retained-cancellation
+passes original and replay. The updated progress inventory is **13 successful,
+one failed and four unexecuted families**, across six sources, not final-source
+acceptance. See the [original-byte review and correction](PHASE_3_REMAINING_FAMILIES_REVIEW.md).
+The historical sample counts/cost totals below still describe the November 15
+selection, not these two additional runs.
+
+## November 15 inventory
 
 The offline planner reads the actual 18 workflows: 565 selected jobs, including
 12 history families, four supplemental resource families and two maximum

@@ -85,3 +85,52 @@ not an excuse for an automatic original rerun.
 
 Large-runner deployment and the four default-branch registration entries remain
 unexecuted; see [the prepared GCP runbook](PHASE_3_GCP_RUNNER_RUNBOOK.md).
+
+## November 16 corrected-source results and learner replay
+
+Both follow-ups use `b7b378a61ca188919bb12ed04ecf7fe46f629f80`, attempt 1.
+[Node renames 43803439569](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/43803439569)
+passes all four originals, four independent replays and the aggregate (ten jobs
+including preparation). No further rename run is selected for this reader fix.
+[Learner histories 43803439571](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/43803439571)
+passes both original executions and retained-cancellation replay, but alternating
+replay rejects `learner cycles native failures`; its aggregate also fails.
+
+The unchanged alternating ZIP, SHA-256
+`337b537fedbe1cf5cffec9b50031594f2b0ea9c3798538954adfa698ceb5adf0`,
+contains all six revisions. Its 48 failures are 16 distinct
+`FUTURE_RETENTION_INTENT` requests to `node-3`, each attempted three times.
+That voter remains at its original bootstrap promise and does not install the
+two-voter campaign. The fence's equality guard raises
+`higher ballot observed; fresh campaign required`: this shared error text does
+not prove the receiver observed a strictly higher ballot. Original node-three
+files stay unchanged throughout the independently reconstructed history.
+
+The existing native-dispatch and retained-cancellation readers already classify
+such bounded nonselected-voter refusals. The six-revision reader's unconditional
+empty-failure-list requirement was inconsistent with this fixture and protocol.
+The correction is Python-only. It derives all sixteen original recording
+intents and selected-peer ACKs from the physical replay, binds wire root/view,
+ballot, identities, trace, sequence, certificate, endpoints, ledger revision and
+digest, and requires matching response events. Each refused request must hash
+to the exact same recording with recipient `node-3` and sequence 3. Only the
+existing exception type/message, that voter and kind, and at most three attempts
+per request (48 total) are admitted. Refusals never count as acknowledgements.
+Other errors, forged requests, changed ACKs and extra retries remain failures.
+
+The old reader reproduces the failure on the retained original. The repaired
+reader replays the same unchanged bytes successfully: six revisions, 186 learner
+exchanges and 25 physical snapshots. Seven focused regression tests cover
+refusal binding, successful recording evidence, finite retries and foreign
+authority. Five additional original-evidence mutations raise the alternating
+negative count to 17 and the complete pair to 79. All 17 mutations of the retained
+original are rejected for their exact expected reasons; all 68 focused Python
+reader/cohort/hosted tests pass. Validation and original ZIP
+are retained under `target/v53-retention-readiness-fix/` and
+`target/v53-action-review-b7b378a6/`.
+
+The complete two-history workflow will run on the new source/reader identity;
+its exact-attempt aggregate cannot reuse the previous cancellation receipt.
+This local retained-original replay is not a new hosted PASS. No production
+Java, timing/resource limit, workload, retry policy or workflow is changed, and
+large/paid execution remains unstarted.
