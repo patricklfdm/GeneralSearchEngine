@@ -4,8 +4,11 @@ Prepared 2026-11-15 against `659377b3ea89245fb939d124a0783f5b840492b1`.
 Status: **GCP option selected; no host provisioned, no large workflow dispatched**.
 The concrete [deployment runbook](PHASE_3_GCP_RUNNER_RUNBOOK.md) retains the
 reviewed profile, installation steps and unapplied registration package.
-The [acceptance inventory](PHASE_3_ACCEPTANCE_STATUS.md) records the remaining
-ordinary failures separately from the hardware-dependent work.
+The [acceptance inventory](PHASE_3_ACCEPTANCE_STATUS.md) records the now-passing
+ordinary corrections separately from the hardware-dependent work. The
+[November 16 prelaunch review](PHASE_3_PRELAUNCH_REVIEW.md) found only 500 GiB
+of SSD quota available in the proposed region; the 1056 GiB deployment needs
+a quota adjustment before creation. The profile below is not yet deployable.
 
 ## Recommended arrangement
 
@@ -76,8 +79,9 @@ Before spending money:
 1. Decide region, architecture and machine/disk size; verify quota, availability
    and the final provider estimate. Use on-demand capacity for the uninterrupted
    original. Spot/preemptible termination can invalidate a whole history.
-2. Resolve the two ordinary failed families; freeze the intended source after
-   corrections. Regenerate the execution plan from a clean checkout. The
+2. The two ordinary failed families now pass their corrected-source reruns.
+   Freeze the intended source after corrections and preparation changes.
+   Regenerate the execution plan from a clean checkout. The
    current local plan is a snapshot, not a future source authorization.
 3. Register the four manual workflows separately. Do not broaden their triggers
    or remove Required checks to make them visible.

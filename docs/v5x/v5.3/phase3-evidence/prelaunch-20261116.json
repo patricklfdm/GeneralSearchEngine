@@ -1,0 +1,71 @@
+{
+  "schema": "gse-v53-prelaunch-review-v1",
+  "status": "PREPARED_WITH_EXTERNAL_PREREQUISITES",
+  "sourceInspected": "571c3d69a995d6802a10e0af8528e0a4ea3945f2",
+  "ordinaryFamilyCorrections": {
+    "node-renames": {
+      "run": 43803439569,
+      "attempt": 1,
+      "jobs": 10,
+      "status": "SUCCESS"
+    },
+    "learner-histories": {
+      "run": 43823342145,
+      "attempt": 1,
+      "jobs": 6,
+      "status": "SUCCESS"
+    }
+  },
+  "familyProgress": {
+    "passed": 14,
+    "unexecuted": 4,
+    "distinctSuccessfulSources": 7,
+    "finalSourceCohort": false
+  },
+  "localTests": 38,
+  "checkedShellBlocks": 5,
+  "pending": [
+    "SSD_TOTAL_GB quota adjustment",
+    "Four manual workflow registrations on master",
+    "Ordinary queue resources hosted qualification",
+    "Explicit large-start authorization",
+    "Paid provisioning and actual-host checks",
+    "Final same-source qualification"
+  ],
+  "paidResourcesCreated": false,
+  "largeRunsStarted": false,
+  "workflowsDispatched": 0,
+  "phase3Complete": false,
+  "defaultBranch": "1216bc9e87fd6cc0ce96c44903864a882950035e",
+  "cloudCatalogueStatus": "BLOCKED",
+  "cloudInputFiles": {
+    "image.json": {
+      "sha256": "1f3d512492a50a59377af712044036dba19c837b1b1b2ed67afd915643611e96",
+      "size": 258
+    },
+    "machine.json": {
+      "sha256": "c3264903204e5a2142cc61c2e93fabbd085e0e494035b1655d3a37acfa6f619a",
+      "size": 96
+    },
+    "project.json": {
+      "sha256": "2db87b1dda5240cecd780af08366ff53c20d165b196519323a6a80da01253a58",
+      "size": 4485
+    },
+    "region.json": {
+      "sha256": "9428145d6ef8eee895e882c28f2238cda111338c4f4f93a592bb27207f480e31",
+      "size": 10787
+    }
+  },
+  "requiredSsdGiB": 1056,
+  "availableSsdGiB": 500,
+  "image": {
+    "name": "ubuntu-2404-noble-amd64-v20261105",
+    "id": "1892012953239034119"
+  },
+  "proposedNetwork": {
+    "name": "gse-v53-large-net",
+    "subnet": "gse-v53-large-us-central1",
+    "range": "10.253.0.0/24",
+    "created": false
+  }
+}

@@ -25,6 +25,16 @@ acceptance. See the [original-byte review and correction](PHASE_3_REMAINING_FAMI
 The historical sample counts/cost totals below still describe the November 15
 selection, not these two additional runs.
 
+The subsequent corrected-reader run
+[43823342145](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/43823342145)
+at `571c3d69a995d6802a10e0af8528e0a4ea3945f2`, attempt 1, passes all six
+jobs: two originals, two downloaded replays, preparation and aggregate. Its
+created-to-updated interval is 14m37s. The latest progress inventory therefore
+has **14 successful families and four unexecuted**, across seven successful
+source commits. This is progress, not a same-source final cohort. The
+[prelaunch review](PHASE_3_PRELAUNCH_REVIEW.md) records fresh cloud/registration
+observations; none starts a large experiment.
+
 ## November 15 inventory
 
 The offline planner reads the actual 18 workflows: 565 selected jobs, including
@@ -87,16 +97,11 @@ GitHub fetch tool does not support that collection endpoint.
 
 ## Remaining work that does not need a large host
 
-1. **Node renames:** four original jobs failed in `43123631252`; their replay
-   and aggregate failures are downstream. Logs retain
-   `node rename Maven failed; original retained`, not a proven GitHub outage.
-   Inspect the retained original Maven/Surefire evidence against current source
-   before selecting a correction or rerun.
-2. **Learner histories:** the alternating-slot original failed in
-   `43123639693`; the retained-cancellation original/replay passed. The
-   [earlier retained-evidence review](PHASE_3_RERUN_FAILURE_REVIEW.md) records
-   the alternating-slot deadline. The fresh job log confirms the failed original
-   but does not independently establish a scheduling root cause.
+1. **Node renames:** corrected-source original/replay/aggregate passed in
+   `43803439569`. Earlier failed originals remain retained and reviewed.
+2. **Learner histories:** corrected-source original/replay/aggregate passed in
+   `43823342145`. The refusal-reader correction and exact negative checks are
+   recorded in the [remaining-family review](PHASE_3_REMAINING_FAMILIES_REVIEW.md).
 3. **Queue resources:** the existing two-original/six-job workflow runs on
    ordinary `ubuntu-24.04`. It does not need the maximum host. Its manual-only
    workflow is absent from the current registry.
@@ -111,7 +116,8 @@ Linux host. See [large-runner preparation and costs](PHASE_3_LARGE_RUNNER_PREPAR
 
 ## Execution order after preparation
 
-* Resolve the two ordinary failed families first, with their originals retained.
+* The two previously failed ordinary families have passed their targeted reruns;
+  retain their originals and source identities.
 * Register the manual entries, then run ordinary queue resources; prepare the
   large machine and perform its capacity/toolchain checks.
 * Execute maximum-image transition, maximum-native and maximum-queue as whole
@@ -126,7 +132,7 @@ Linux host. See [large-runner preparation and costs](PHASE_3_LARGE_RUNNER_PREPAR
   combined-resources, frozen-coverage, cohort-admission and final-source-execution.
   Only their acceptance permits progress beyond Phase 3.
 
-The present task prepares acceptance reconciliation and resource execution.
-Remaining corrective work, registration, costly execution, final cohort
-qualification and subsequent phase work are separate tasks.
+Preparation now includes the registration patch, read-only quota/image review
+and deployment checklist. Registration, ordinary queue execution, paid deployment,
+large execution and final cohort qualification remain explicitly separate states.
 

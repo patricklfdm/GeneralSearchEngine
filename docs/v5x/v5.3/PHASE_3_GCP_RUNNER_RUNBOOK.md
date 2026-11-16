@@ -14,7 +14,11 @@ Use one on-demand `e2-standard-8` VM (8 vCPU / 32 GiB), Ubuntu 24.04 x86-64,
 `us-west4` subnet cannot be attached in this region. Before authorization, select
 an existing approved regional subnet or review a new dedicated subnet; do not
 silently alter the V5.2 network. Zone/quota, image identity, network access and
-the final price remain deployment prerequisites.
+the final price remain deployment prerequisites. The
+[November 16 prelaunch review](PHASE_3_PRELAUNCH_REVIEW.md) now resolves the
+catalogue and identifies two corrections: SSD quota is only 500 GiB (1056 GiB
+needed), and default networking has unrestricted inbound SSH/RDP. Request 2048
+GiB SSD quota and use the dedicated network below; neither change was applied.
 
 No application service account, WIF credential or production secret belongs on
 this runner. It executes local multi-process qualification and uploads evidence
@@ -24,10 +28,35 @@ repository's self-hosted workflow access before bringing it online, and remove
 the runner registration when this campaign finishes. Do not give arbitrary PR
 jobs this host.
 
-The following is a **future paid deployment template, not an executed command**.
-All three variables must be supplied from the reviewed deployment inventory;
-`V53_IMAGE` is an exact Ubuntu image name, not a moving family. Resolve the
-current family in `ubuntu-os-cloud` during deployment and retain its numeric ID.
+The following are **future deployment templates, not executed commands**. Do
+not execute before the operator says to start, the SSD quota is sufficient and
+fresh read-only checks confirm all proposed names are unused. If any name is
+already present, inspect its ID/ownership rather than reusing or deleting it.
+Existing networks and firewall rules are not edited.
+
+```bash
+export V53_PROJECT=gse-benchmark
+export V53_SUBNET=gse-v53-large-us-central1
+export V53_IMAGE=ubuntu-2404-noble-amd64-v20261105
+
+# Recheck image numeric ID 1892012953239034119 and READY/X86_64 before creation.
+gcloud compute images describe "$V53_IMAGE" --project=ubuntu-os-cloud \
+  --format='json(name,id,status,architecture,deprecated)'
+
+# Future isolated network: no shared application ports or public SSH/RDP.
+gcloud compute networks create gse-v53-large-net \
+  --project="$V53_PROJECT" --subnet-mode=custom
+gcloud compute networks subnets create "$V53_SUBNET" \
+  --project="$V53_PROJECT" --network=gse-v53-large-net \
+  --region=us-central1 --range=10.253.0.0/24
+gcloud compute firewall-rules create gse-v53-large-iap \
+  --project="$V53_PROJECT" --network=gse-v53-large-net \
+  --direction=INGRESS --action=ALLOW --rules=tcp:22 \
+  --source-ranges=35.235.240.0/20 --target-tags=gse-v53-large-evidence
+```
+
+Keep the exact image name/ID in the deployment receipt. If its observation
+changes, refresh and review the plan; do not silently select a moving family.
 
 ```bash
 : "${V53_PROJECT:?review project}"
@@ -41,6 +70,8 @@ gcloud compute instances create gse-v53-large-runner \
   --boot-disk-size=32GB --boot-disk-type=pd-balanced \
   --create-disk=name=gse-v53-large-work,type=pd-balanced,size=1024GB,device-name=v53-work,auto-delete=no \
   --no-service-account --no-scopes \
+  --tags=gse-v53-large-evidence \
+  --metadata=block-project-ssh-keys=TRUE \
   --labels=purpose=v53-large-evidence
 ```
 
@@ -73,6 +104,18 @@ tool versions and checksum-pinned Maven wrapper. Validate that the service user
 can write the workspace/tool cache and establish local TCP sockets. No changes
 to the existing local WSL/V5.2 runner are required.
 
+The dedicated user's home must also be on `/srv/gse-v53`, so default Maven and
+other caches cannot fill the 32 GiB boot disk. Set
+`AGENT_TOOLSDIRECTORY=/srv/gse-v53/runner/_work/_tool` in the runner's own `.env`
+before starting its service, and make that path owned by the service user.
+This is supported by [setup-python on Ubuntu self-hosted runners](https://github.com/actions/setup-python/blob/main/docs/advanced-usage.md#ubuntu).
+Keep `_work/_temp` on the same filesystem, and confirm the service user's
+effective environment rather than only an interactive shell. Install native
+runner prerequisites (`git`, `curl`, `tar`, `gzip`, `unzip`, CA certificates and
+the runner's published Linux dependencies) before starting the service.
+Registration and runner tokens belong only on that dedicated host, never in
+retained evidence. Do not install GCP application credentials on the runner.
+
 From the reviewed checkout on that machine:
 
 ```bash
@@ -95,8 +138,9 @@ Remote master was read again on 2026-11-16 UTC:
 default-branch registration: queue-resources, maximum-transition,
 maximum-native-resources and maximum-queue.
 
-A local review package is at `target/v53-large-runner-preparation-20261116/`:
-`master-registration.patch`, `registration/` and `manifest.json`. Its four
+A refreshed local review package is at `target/v53-prelaunch-20261116/registration/`:
+`master-registration.patch`, `stubs/`, `manifest.json`, `PR.md` and `COMMANDS.md`.
+The previous package is retained unchanged. Its four
 default-branch stubs deliberately fail with an explanation if run from master.
 They contain no checkout, cloud action or self-hosted job. Their purpose is
 registration only; dispatch against the reviewed V5.3 branch uses that branch's
@@ -113,8 +157,9 @@ development source; never treat this preparation's baseline SHA as new evidence.
 
 ## Execution and retirement, still pending
 
-Resolve the ordinary failed families first. Only after explicit permission to
-spend and run, bring the dedicated runner online and use the final planner's
+The two ordinary failed families now pass their targeted reruns. Register and
+execute the ordinary queue family before the large originals. Only after
+explicit permission to spend and run, bring the dedicated runner online and use the final planner's
 exact commands. The three large workflows retain their shared serialized queue;
 continuous histories and reservations stay intact. The ordinary queue-resources
 workflow does not need this VM, but its registration is still separate work.
@@ -124,3 +169,12 @@ and egress estimates. Retain raw failures and replay results. Verify downloaded
 archives and hashes before de-registering the runner and deleting the VM/disk.
 `auto-delete=no` preserves the data disk on VM deletion; it continues to incur
 charges until deliberately removed. Stopping compute alone is not final cleanup.
+
+Retirement order: stop accepting runner jobs after the active workflow finishes;
+download and verify original/replay inventories off-host; remove runner registration;
+verify the recorded VM/disk IDs still match; delete only that VM, its retained
+work disk and this campaign's isolated firewall/subnet/network. Check the resource
+API again for absence. Keep cleanup observations and cost/egress notes with the
+run record. If evidence transfer is incomplete, preserve the disk and record its
+ongoing cost rather than deleting the only copy. Never use broad project cleanup
+or alter the existing V5.2 runner/network during this process.

@@ -3,17 +3,19 @@
 The [remaining-family review](PHASE_3_REMAINING_FAMILIES_REVIEW.md) records
 original rename/learner failures, the explicit qualification timing changes,
 the passing rename rerun and the subsequent learner refusal-reader correction.
-Only the learner family needs this targeted follow-up; its complete new-source
-aggregate remains required. The [GCP runbook](PHASE_3_GCP_RUNNER_RUNBOOK.md)
-is prepared only; no large original or paid host has been started.
+The learner follow-up now passes all six jobs at `571c3d69`, including its
+exact-attempt aggregate. The [prelaunch review](PHASE_3_PRELAUNCH_REVIEW.md)
+records the remaining manual-registration and SSD-quota prerequisites. The
+[GCP runbook](PHASE_3_GCP_RUNNER_RUNBOOK.md) is prepared only; no large original
+or paid host has been started.
 
 Status: tooling implemented; final-source execution and Phase 3 remain OPEN.
 The operator will arrange a qualifying native Linux machine after development.
 This entry neither provisions it nor dispatches any workflow.
 
 The [2026-11-15 acceptance inventory](PHASE_3_ACCEPTANCE_STATUS.md) reconciles all
-18 families. Its November 16 follow-up records thirteen successes, one failed
-family and four unexecuted manual entries, across six distinct source commits.
+18 families. Its latest November 16 follow-up records fourteen successes and
+four unexecuted manual entries, across seven distinct successful source commits.
 The historical inventory and cost sample remain dated separately. The
 [large-runner preparation](PHASE_3_LARGE_RUNNER_PREPARATION.md) records current
 hardware gates, registration prerequisites and provider cost estimates; it

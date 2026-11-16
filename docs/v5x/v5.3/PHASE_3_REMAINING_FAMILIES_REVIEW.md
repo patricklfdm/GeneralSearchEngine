@@ -129,8 +129,14 @@ reader/cohort/hosted tests pass. Validation and original ZIP
 are retained under `target/v53-retention-readiness-fix/` and
 `target/v53-action-review-b7b378a6/`.
 
-The complete two-history workflow will run on the new source/reader identity;
-its exact-attempt aggregate cannot reuse the previous cancellation receipt.
-This local retained-original replay is not a new hosted PASS. No production
-Java, timing/resource limit, workload, retry policy or workflow is changed, and
-large/paid execution remains unstarted.
+The complete two-history workflow subsequently passed on the new source/reader
+identity `571c3d69a995d6802a10e0af8528e0a4ea3945f2`:
+[run 43823342145](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/43823342145),
+attempt 1, all six jobs successful. Both originals and downloaded replays ran;
+the exact-attempt aggregate did not reuse the previous cancellation receipt.
+The API/job/log observation is retained in
+`target/v53-retention-readiness-fix/hosted-success-43823342145.json`.
+This hosted PASS is separate from the preceding local retained-original replay.
+No production Java, timing/resource limit, workload, retry policy or workflow
+was changed by that reader correction. Large/paid execution remains unstarted;
+the [prelaunch review](PHASE_3_PRELAUNCH_REVIEW.md) identifies the remaining work.
