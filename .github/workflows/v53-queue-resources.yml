@@ -1,0 +1,16 @@
+# Registration only. The V5.3 branch owns the complete exact-source workflow.
+name: V5.3 queue resource histories (no GCP)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  select-reviewed-v53-ref:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Require the reviewed V5.3 source branch
+        run: |
+          echo 'This default-branch entry only registers manual dispatch.' >&2
+          echo 'Select the reviewed frozen V5.3 ref; do not execute this stub.' >&2
+          exit 1
