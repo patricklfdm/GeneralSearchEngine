@@ -29,7 +29,7 @@ def validate(value, source):
 
 def collect(root, env, source, registry, bindings, get=None, now=None):
     result = empty(source)
-    get = get or (lambda path: api.github(env["GITHUB_REPOSITORY"], path, env=env))
+    get = get or api.reader(env["GITHUB_REPOSITORY"], env=env)
     now = time.time() if now is None else now
     try:
         s.need(shadow.sha(source), "full health source")

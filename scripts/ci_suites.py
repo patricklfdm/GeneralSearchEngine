@@ -413,7 +413,7 @@ def validate_workflow(registry, workflow, related, actions=None):
         elif key == "required":
             need(scalar(values["if"]) == ALWAYS, "Required must always run")
             need(set(dependencies(values.get("needs"))) == set(suites) | {"changes"}, "Required needs differ")
-            need("strategy" not in values and scalar(values["timeout-minutes"]) == "2", "Required execution boundary")
+            need("strategy" not in values and scalar(values["timeout-minutes"]) == "5", "Required execution boundary")
             checkout = parsed_steps.get("Check out the Required validator", {})
             need(string_map(checkout.get("with", ("", "")), 10) ==
                  {"persist-credentials": "false", "fetch-depth": "0"}, "Required complete comparison history")

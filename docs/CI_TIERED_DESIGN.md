@@ -100,6 +100,25 @@ occurs. The GitHub token has only contents/actions read access; no cloud token i
 introduced. These health observations are not cloud/release admission receipts;
 `cloud_ci.py` still rejects schedule and integration.
 
+Control-plane GET requests allow 30 seconds per attempt and at most three
+attempts, with two- and four-second backoffs. Only timeouts, recognized transport
+failures and HTTP 408/429/500/502/503/504 are retryable. Authentication, permission,
+missing-resource, malformed/oversized JSON and provenance errors fail immediately.
+Each complete observation shares a 120-second deadline across pagination and
+final identity rechecks; retrying a page never resets that deadline. Required
+can make separate observations for the carried Change scope and integration
+health. Change scope and Required each have a five-minute job boundary to cover
+these bounded reads, checkout and local validation. Other suite budgets and
+acceptance rules are unchanged. Retry diagnostics contain only fixed reason codes
+and counters, never CLI stderr or credentials.
+
+This corrects the Required-only failures in PR #368 run `43851257286`, including
+attempt 5: all suite results were successful, but the accepted-attempt jobs query
+exceeded the old ten-second request limit. A read-only replay with the corrected
+reader recovered an HTTP 502 and verified the original/carried scope identity in
+26.728 seconds. That replay validates the observation path, not a new hosted CI
+acceptance; the corrected source still needs its own CI result.
+
 The historical counterfactual integration critical paths are 21:23 (PR) and 20:37
 (master timings), compared with roughly 48-minute full runs. These are estimates,
 not integration measurements or billing estimates. Historical full summed job
