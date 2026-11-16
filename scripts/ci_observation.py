@@ -1,19 +1,76 @@
 """Bounded read-only GitHub observations for local CI control-plane decisions."""
 from datetime import datetime
+import json
 import re
 import subprocess
+import sys
+import time
 
 from scripts import ci_shadow_plan as shadow, ci_suites as s
 
 
-def github(repository, path, env=None):
+REQUEST_SECONDS = 30
+REQUEST_ATTEMPTS = 3
+OBSERVATION_SECONDS = 120
+RETRY_DELAYS = (2, 4)
+TRANSIENT_HTTP = frozenset((408, 429, 500, 502, 503, 504))
+
+
+def _command_failure(result):
+    # Only gh's HTTP diagnostic or a known transport failure permits retry.
+    # Never expose stderr, response bodies, credentials or exception text.
+    if result.returncode != 1: return 'PROCESS_FAILED', False
+    statuses = re.findall(rb'^gh: (?:[^\r\n]* \()?HTTP ([1-5][0-9]{2})\)?\r?$', result.stderr, re.M)
+    if len(statuses) == 1 and len(re.findall(rb'\bHTTP [1-5][0-9]{2}\b', result.stderr)) == 1:
+        status = int(statuses[0])
+        return 'HTTP_' + str(status), status in TRANSIENT_HTTP
+    transport = (b'connection reset by peer', b'TLS handshake timeout', b'i/o timeout',
+                 b'context deadline exceeded', b'unexpected EOF', b'no such host',
+                 b'error connecting to api.github.com')
+    if b'HTTP ' not in result.stderr and any(word in result.stderr for word in transport):
+        return 'TRANSPORT', True
+    return 'PROCESS_FAILED', False
+
+
+def reader(repository, env=None):
+    """One shared deadline for all pages and final identity rechecks."""
+    deadline = time.monotonic() + OBSERVATION_SECONDS
+    return lambda path: github(repository, path, env=env, deadline=deadline)
+
+
+def github(repository, path, env=None, *, deadline=None):
     s.need(re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository) is not None, "GitHub repository")
     s.need(type(path) is str and path.startswith("actions/") and ".." not in path and "\n" not in path,
            "GitHub read path")
-    result = subprocess.run(["gh", "api", "--hostname", "github.com", "--method", "GET",
-                             "repos/" + repository + "/" + path], capture_output=True, timeout=10, env=env)
-    s.need(result.returncode == 0 and len(result.stdout) <= 8 << 20, "GitHub read unavailable/oversized")
-    return shadow.strict_json(result.stdout)
+    if deadline is None: deadline = time.monotonic() + OBSERVATION_SECONDS
+    command = ["gh", "api", "--hostname", "github.com", "--method", "GET", "repos/" + repository + "/" + path]
+    for attempt in range(1, REQUEST_ATTEMPTS + 1):
+        remaining = deadline - time.monotonic()
+        s.need(remaining > 0, 'GitHub observation budget exhausted')
+        try:
+            result = subprocess.run(command, capture_output=True, timeout=min(REQUEST_SECONDS, remaining), env=env)
+        except subprocess.TimeoutExpired:
+            reason, retryable = 'TIMEOUT', True
+        except OSError:
+            raise ValueError('GitHub read failed (START_FAILED)') from None
+        else:
+            s.need(len(result.stdout) <= 8 << 20 and len(result.stderr) <= 16384, 'GitHub read oversized')
+            if result.returncode == 0:
+                s.need(time.monotonic() <= deadline, 'GitHub observation budget exhausted')
+                try:
+                    return shadow.strict_json(result.stdout)
+                except (ValueError, UnicodeError, RecursionError):
+                    raise ValueError('GitHub read invalid JSON') from None
+            reason, retryable = _command_failure(result)
+        if not retryable:
+            raise ValueError(f'GitHub read failed ({reason}; attempts={attempt})')
+        if attempt == REQUEST_ATTEMPTS:
+            raise ValueError(f'GitHub read exhausted ({reason}; attempts={attempt})')
+        delay = RETRY_DELAYS[attempt - 1]
+        s.need(deadline - time.monotonic() > delay, 'GitHub observation budget exhausted')
+        print(json.dumps(dict(githubRead='retry', attempt=attempt, limit=REQUEST_ATTEMPTS,
+                              reason=reason, delaySeconds=delay)), file=sys.stderr, flush=True)
+        time.sleep(delay)
 
 
 def jobs(get, run_id, attempt):
@@ -52,7 +109,7 @@ def producer_environment(plan, env, get=None):
     producer, accepted = int(identity["runAttempt"]), int(env["GITHUB_RUN_ATTEMPT"])
     s.need(producer <= accepted, "future plan producing attempt")
     if producer == accepted:return env
-    get = get or (lambda path: github(env["GITHUB_REPOSITORY"], path, env=env))
+    get = get or reader(env["GITHUB_REPOSITORY"], env=env)
     run_id = int(env["GITHUB_RUN_ID"])
     before = get(f"actions/runs/{run_id}")
     expected_head = identity["headSha"] if env["GITHUB_EVENT_NAME"] == "pull_request" else env["GITHUB_SHA"]

@@ -139,6 +139,7 @@ class SuiteContractTest(unittest.TestCase):
             self.rejected(self.replace_job("required", "      - reactor-core\n", replacement))
         self.rejected(self.replace_job("required", s.ALWAYS, "${{ success() }}"))
         self.rejected(self.replace_job("required", "name: Required", "name: Other"))
+        self.rejected(self.replace_job("required", "timeout-minutes: 5", "timeout-minutes: 2"))
 
     def test_classifier_and_validator_binding_cannot_be_skipped_or_replaced(self):
         for job, before, after in (

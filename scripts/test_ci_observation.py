@@ -1,5 +1,9 @@
 """Original/accepted scope attempts and bounded read-only pagination."""
 import copy
+import contextlib
+import io
+import json
+import subprocess
 import unittest
 from unittest.mock import patch
 
@@ -88,12 +92,120 @@ class ObservationTest(unittest.TestCase):
     def test_network_is_get_only_bounded_and_does_not_print_credentials(self):
         with patch.object(o.subprocess, "run") as run:
             run.return_value.returncode = 0;run.return_value.stdout = b'{"ok":true}'
+            run.return_value.stderr = b''
             self.assertEqual(dict(ok=True), o.github("owner/repo", "actions/runs/1"))
             args = run.call_args.args[0]
             self.assertEqual(["gh", "api", "--hostname", "github.com", "--method", "GET"], args[:6])
-            self.assertEqual(10, run.call_args.kwargs["timeout"])
+            self.assertEqual(30, run.call_args.kwargs["timeout"])
             run.return_value.returncode = 1
+            run.return_value.stderr = b'gh: Forbidden (HTTP 403)'
             with self.assertRaises(ValueError):o.github("owner/repo", "actions/runs/1")
+
+
+class GitHubReadTest(unittest.TestCase):
+    def setUp(self):
+        self.clock = 0.0
+        self.delays = []
+        def sleep(seconds):
+            self.delays.append(seconds); self.clock += seconds
+        self.enterContext(patch('time.monotonic', side_effect=lambda: self.clock))
+        self.enterContext(patch('time.sleep', side_effect=sleep))
+        self.diagnostics = self.enterContext(contextlib.redirect_stderr(io.StringIO()))
+
+    @staticmethod
+    def reply(status=0, stdout=b'{"ok":true}', stderr=b''):
+        return subprocess.CompletedProcess(['gh'], status, stdout, stderr)
+
+    def test_timeout_then_success_repeats_only_the_same_get(self):
+        with patch.object(o.subprocess, 'run', side_effect=[
+                subprocess.TimeoutExpired('private-token', 10, stderr=b'private-token'), self.reply()]) as run:
+            self.assertEqual({'ok': True}, o.github('owner/repo', 'actions/runs/1', env={'GH_TOKEN':'private-token'}))
+        self.assertEqual(2, run.call_count)
+        self.assertEqual(run.call_args_list[0], run.call_args_list[1])
+        self.assertEqual(30, run.call_args.kwargs['timeout'])
+        self.assertEqual([2], self.delays)
+        self.assertNotIn('private-token', self.diagnostics.getvalue())
+
+    def test_transient_http_and_transport_recover_but_attempts_are_bounded(self):
+        errors = [self.reply(1, stderr=f'gh: Unavailable (HTTP {status})\n'.encode())
+                  for status in (408, 429, 500, 502, 503, 504)]
+        errors.append(self.reply(1, stderr=b'error connecting to api.github.com'))
+        errors.append(subprocess.TimeoutExpired('gh', 30))
+        for failure in errors:
+            with self.subTest(failure=failure), patch.object(o.subprocess, 'run', side_effect=[failure, self.reply()]):
+                self.assertEqual({'ok': True}, o.github('owner/repo', 'actions/runs/1'))
+        self.delays.clear()
+        with patch.object(o.subprocess, 'run', side_effect=[errors[0]]*4) as run:
+            with self.assertRaisesRegex(ValueError, 'exhausted.*attempts=3'):
+                o.github('owner/repo', 'actions/runs/1')
+        self.assertEqual(3, run.call_count); self.assertEqual([2, 4], self.delays)
+
+    def test_auth_not_found_unknown_and_ambiguous_fail_without_retry(self):
+        errors = [f'gh: Rejected (HTTP {status})\nconnection reset by peer'.encode()
+                  for status in (400, 401, 403, 404, 422)]
+        errors += [b'unknown private-token failure', b'gh: Failed (HTTP 503)\ngh: Forbidden (HTTP 403)',
+                   b'HTTP 403: connection reset by peer', b'gh: Failed (HTTP 503)\nother HTTP 403']
+        for stderr in errors:
+            with self.subTest(stderr=stderr), patch.object(o.subprocess, 'run', return_value=self.reply(1, stderr=stderr)) as run:
+                with self.assertRaises(ValueError) as failure:o.github('owner/repo', 'actions/runs/1')
+                self.assertNotIn('private-token', str(failure.exception)); self.assertEqual(1, run.call_count)
+        self.assertEqual([], self.delays)
+
+    def test_cli_cancellation_and_auth_exit_are_not_transient_http_failures(self):
+        for code in (-15, 2, 4):
+            with self.subTest(code=code), patch.object(o.subprocess, 'run',
+                    return_value=self.reply(code, stderr=b'gh: Unavailable (HTTP 503)')) as run:
+                with self.assertRaises(ValueError):o.github('owner/repo', 'actions/runs/1')
+                self.assertEqual(1, run.call_count)
+        self.assertEqual([], self.delays)
+
+    def test_invalid_json_and_oversized_response_are_not_retried(self):
+        for data in (b'{', b'{"ok":true,"ok":false}', b'{"value":NaN}', b'\xff', b'x'*(8*1024*1024+1)):
+            with self.subTest(size=len(data)), patch.object(o.subprocess, 'run', return_value=self.reply(stdout=data)) as run:
+                with self.assertRaises(ValueError):o.github('owner/repo', 'actions/runs/1')
+                self.assertEqual(1, run.call_count)
+        self.assertEqual([], self.delays)
+
+    def test_shared_observation_deadline_bounds_all_requests_and_retry_sleep(self):
+        get = o.reader('owner/repo')
+        def response(*args, **kwargs):
+            self.clock += 29
+            return self.reply()
+        with patch.object(o.subprocess, 'run', side_effect=response) as run:
+            for _ in range(4):get('actions/runs/1')
+            self.assertEqual(4, run.call_count)
+        def timeout(*args, **kwargs):
+            self.assertEqual(4, kwargs['timeout']); self.clock += 4
+            raise subprocess.TimeoutExpired('gh', 4)
+        with patch.object(o.subprocess, 'run', side_effect=timeout) as run:
+            with self.assertRaisesRegex(ValueError, 'budget exhausted'):get('actions/runs/1')
+            self.assertEqual(1, run.call_count)
+        with patch.object(o.subprocess, 'run') as run:
+            with self.assertRaisesRegex(ValueError, 'budget exhausted'):get('actions/runs/1')
+            run.assert_not_called()
+        self.assertEqual([], self.delays)
+
+    def test_unavailable_cli_fails_without_retry_or_private_exception_text(self):
+        with patch.object(o.subprocess, 'run', side_effect=FileNotFoundError('private-token')) as run:
+            with self.assertRaisesRegex(ValueError, 'START_FAILED') as failure:o.github('owner/repo', 'actions/runs/1')
+            self.assertEqual(1, run.call_count); self.assertNotIn('private-token', str(failure.exception))
+        self.assertEqual([], self.delays)
+
+    def test_carried_scope_uses_retried_observation_and_still_checks_identity(self):
+        original = ObservationTest('test_same_attempt_needs_no_network_and_carried_job_binds_original_execution')
+        original.setUp(); self.addCleanup(original.doCleanups)
+        timeouts = set()
+        def response(argv, **kwargs):
+            path = argv[-1].split(original.f.env['GITHUB_REPOSITORY']+'/', 1)[1]
+            if '/jobs?' in path and path not in timeouts:
+                timeouts.add(path); raise subprocess.TimeoutExpired('gh', 30)
+            return self.reply(stdout=json.dumps(original.get(path)).encode())
+        with patch.object(o.subprocess, 'run', side_effect=response) as run:
+            env = o.producer_environment(original.plan, original.f.env)
+            self.assertEqual('1', env['GITHUB_RUN_ATTEMPT']); self.assertEqual(6, run.call_count)
+            original.current['head_sha'] = 'a'*40
+            with self.assertRaisesRegex(ValueError, 'scope producing job identity'):
+                o.producer_environment(original.plan, original.f.env)
 
 
 if __name__ == "__main__":unittest.main()
