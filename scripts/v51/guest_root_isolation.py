@@ -7,6 +7,7 @@ from the real namespace-root receiver file operations.
 import ctypes
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 
@@ -23,6 +24,10 @@ def main():
     # symlink is never followed by chown; all system bind targets are directories.
     paths = [root, *root.rglob('*')]
     if any(p.lstat().st_uid != owner for p in paths): raise ValueError('root fixture contents')
+    # Coreutils layouts differ across runner images. Search only host system
+    # directories, never the invoking job's PATH, before changing any ownership.
+    chroot = shutil.which('chroot', path='/usr/sbin:/usr/bin:/sbin:/bin')
+    if chroot is None: raise ValueError('qualification system chroot unavailable')
     mounted = []
     try:
         for p in paths: os.chown(p, 0, 0, follow_symlinks=False)
@@ -37,7 +42,7 @@ def main():
             libc = ctypes.CDLL(None, use_errno=True)
             if libc.syscall(442, -100, os.fsencode(target), 0x8000, ctypes.byref(attrs), ctypes.sizeof(attrs)) != 0:
                 raise OSError(ctypes.get_errno(), 'recursive read-only mount_setattr')
-        result = subprocess.run(['/usr/sbin/chroot', str(root), *command], env=dict(PATH='/usr/bin:/bin',
+        result = subprocess.run([chroot, str(root), *command], env=dict(PATH='/usr/bin:/bin',
             SUDO_USER=(root/'account').read_text(), SUDO_UID='1001', SUDO_GID='1001'))
     finally:
         for target in reversed(mounted): subprocess.run(['umount', '--lazy', str(target)], check=True, timeout=10)
