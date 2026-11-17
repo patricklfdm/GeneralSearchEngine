@@ -28,6 +28,7 @@ class V53RetainedImageBorrowTest {
                     for(int n=f.resources.usage().counts().get(MembershipResources.Unit.APPLICATION);n<7;n++)
                         extra.add(f.resources.reserve(MembershipResources.Unit.APPLICATION,"occupied-"+n,1));
                     var before=f.resources.usage();assertTrue(local.hasImage(image.digest(),image.bytes()));assertTrue(local.pinsSource(id));
+                    local.checkImage(image.digest(),image.bytes());
                     assertEquals(before,f.resources.usage());assertEquals(contents,local.contents());assertEquals(references,local.references());
                     assertThrows(IllegalArgumentException.class,()->local.read(image.digest(),0,1));
                     var source=original.source();
@@ -54,7 +55,8 @@ class V53RetainedImageBorrowTest {
                 var image=original.contents().stream().filter(v->v.kind()==MembershipTransfer.Kind.APPLICATION).findFirst().orElseThrow();
                 var before=f.resources.usage();assertFalse(local.hasImage(image.digest(),image.bytes()+1));assertFalse(local.hasImage("0".repeat(64),1));
                 assertEquals(before,f.resources.usage());assertTrue(local.hasImage(image.digest(),image.bytes()));
-                clock.set(10);assertThrows(IllegalArgumentException.class,()->local.image(image.digest(),image.bytes()));
+                clock.set(10);assertThrows(IllegalArgumentException.class,()->local.checkImage(image.digest(),image.bytes()));
+                assertThrows(IllegalArgumentException.class,()->local.image(image.digest(),image.bytes()));
                 clock.set(0);assertThrows(IllegalArgumentException.class,()->local.hasImage(image.digest(),image.bytes()));
             }
         }
@@ -68,10 +70,14 @@ class V53RetainedImageBorrowTest {
                 try(var original=owner.exportSource(old,BUDGET);var local=owner.exportSource(fresh.basis,BUDGET)) {
                     var image=original.contents().stream().filter(v->v.kind()==MembershipTransfer.Kind.APPLICATION).findFirst().orElseThrow();
                     assertTrue(local.hasImage(image.digest(),image.bytes()));
+                    local.checkImage(image.digest(),image.bytes());
                     Path path=target.replicaDirectory().resolve("sources").resolve((String)old.value().get("basisId")).resolve(image.digest()+".image");
                     byte[] bytes=Files.readAllBytes(path);Path saved=temp.resolve("saved-"+UUID.randomUUID());
                     if(replacement){Files.move(path,saved);Files.write(path,bytes);}else{bytes[bytes.length-1]^=1;Files.write(path,bytes);}
-                    try{assertThrows(Exception.class,()->local.image(image.digest(),image.bytes()));}
+                    try{
+                        assertThrows(Exception.class,()->local.checkImage(image.digest(),image.bytes()));
+                        assertThrows(Exception.class,()->local.image(image.digest(),image.bytes()));
+                    }
                     finally{if(replacement){Files.delete(path);Files.move(saved,path);}}
                 }
             }

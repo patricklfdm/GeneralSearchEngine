@@ -83,11 +83,21 @@ final class MembershipSourceExport implements MembershipTransferExport,Membershi
     }
     @Override public byte[] image(String digest,long size)throws IOException {
         synchronized(owner) {
-            require(hasImage(digest,size),"pinned original image unavailable");byte[] bytes=new byte[Math.toIntExact(size)];int offset=0;
+            require(hasImage(digest,size),"pinned original image unavailable");
             var member=members.get(digest);if(member==null)member=borrowedImages.get(digest);
-            while(offset<bytes.length){byte[] part=readMember(member,offset,4*1024*1024);System.arraycopy(part,0,bytes,offset,part.length);offset+=part.length;}
+            // One local whole-image read under the same writer. hasImage has
+            // checked every retained original byte/inode and pinned this exact
+            // source. No callback, mutation or network wait separates these
+            // boundaries; do not revalidate all storage for every wire chunk.
+            byte[] bytes=readBytes(member,0,Math.toIntExact(size));
             require(hash(bytes).equals(digest),"pinned original image changed");owner.checkSourceExport(this);return bytes;
         }
+    }
+    @Override public void checkImage(String digest,long size)throws IOException {
+        // checkSourceExport -> checkOwner -> sources.check validates all bytes,
+        // extents and inodes, including a pinned supplemental older source.
+        // This is a fresh physical check, never a cache or hash-only authority.
+        require(hasImage(digest,size),"pinned original image unavailable");
     }
     /** No caller-controlled filesystem path; one bounded content-addressed chunk only.
      * The owning journal serializes this check/read/recheck against retirement. */
@@ -100,7 +110,14 @@ final class MembershipSourceExport implements MembershipTransferExport,Membershi
         owner.checkSourceExport(this);
         require(member!=null && maximum>0 && maximum<=4*1024*1024,"source export member/chunk bound");
         require(offset>=0 && offset<member.content.bytes,"source export offset");
-        int count=(int)Math.min(maximum,member.content.bytes-offset);byte[] bytes;
+        int count=(int)Math.min(maximum,member.content.bytes-offset);
+        byte[] bytes=readBytes(member,offset,count);
+        owner.checkSourceExport(this);return bytes;
+    }
+    /** Called only inside a fully guarded, serialized read; caller rechecks
+     * the physical owner and original deadline before exposing any bytes. */
+    private byte[] readBytes(Member member,long offset,int count)throws IOException {
+        byte[] bytes;
         if(member.record!=null)bytes=Arrays.copyOfRange(member.record,Math.toIntExact(offset),Math.toIntExact(offset)+count);
         else {
             AdmissionPaths.regular(member.path);require(member.fileKey.equals(MembershipBasisSources.key(member.path)),"source export inode changed");
@@ -112,7 +129,7 @@ final class MembershipSourceExport implements MembershipTransferExport,Membershi
             }
             bytes=buffer.array();
         }
-        owner.checkSourceExport(this);return bytes;
+        return bytes;
     }
     @Override public void close(){owner.releaseSourceExport(this);}
 }

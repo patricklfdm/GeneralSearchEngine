@@ -9,7 +9,10 @@ resource accounting or extend a transport deadline.
 `MembershipImageBorrow.checkImage()` separates checking an exact original from
 returning a byte array. Its default implementation still calls `image()`: a
 retained source, including a supplemental older image, keeps its existing full
-read and hash checks.
+read and hash checks. The later [retained-source correction](PHASE_3_SOURCE_IMAGE_VALIDATION.md)
+specializes that fallback after the first maximum-native execution exposed its
+per-chunk repeated owner validation; the observations below describe this
+earlier increment.
 
 The current-prefix implementation checks the owning journal under its monitor.
 That check verifies the current selector, every generation member's bytes,
