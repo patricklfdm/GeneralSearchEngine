@@ -33,7 +33,7 @@ class MaximumNativeRunTest(unittest.TestCase):
     def test_new_command_preserves_ordinary_and_small_backup_entries(self):
         ordinary=m.command(m.PROFILE);small=m.command(m.BACKUP_PROFILE);maximum=m.command(m.MAXIMUM_PROFILE)
         timeout='-Dv53.maximumNative.requestTimeoutMillis=300000'
-        self.assertEqual([v for v in small if v.startswith('-Dv53.')]+[timeout],[v for v in maximum if v.startswith('-Dv53.')])
+        self.assertEqual([v for v in small if v.startswith('-Dv53.')]+[timeout,'-Dv53.maximumNative.roundLifetimeSeconds=43200'],[v for v in maximum if v.startswith('-Dv53.')])
         self.assertNotIn(timeout,ordinary)
         self.assertIn('-Dtest='+m.MAXIMUM_CLASS+'#'+m.MAXIMUM_METHOD,maximum)
         self.assertIn('-Dtest='+m.CLASS+'#'+m.METHOD,ordinary)
@@ -63,6 +63,25 @@ class MaximumNativeRunTest(unittest.TestCase):
         tree=ET.parse(report);prop=tree.find(f"./properties/property[@name='{m.MAXIMUM_TIMEOUT_PROPERTY}']")
         prop.set('value','30000');tree.write(report)
         with self.assertRaisesRegex(ValueError,'JUnit request timeout'):m.member(helper.path,m.MAXIMUM_PROFILE,helper.pins)
+
+    def test_round_limit_and_duration_are_independently_bound(self):
+        helper,_=self.producer();path=helper.path/'receipt.json';original=m.read(path)
+        def reject(reason):
+            with self.assertRaisesRegex(ValueError,reason):m.member(helper.path,m.MAXIMUM_PROFILE,helper.pins)
+        for value in (None,2400,86400,43200.0):
+            changed=dict(original,roundLifetimeSeconds=value)
+            if value is None:del changed['roundLifetimeSeconds']
+            m.h.save(path,changed);reject('receipt round lifetime')
+        m.h.save(path,dict(original,command=[v for v in original['command'] if m.MAXIMUM_ROUND_PROPERTY not in v]))
+        reject('exact complete command')
+        m.h.save(path,original)
+        report=helper.path/'workspace'/m.h.MODULE/'target/surefire-reports/TEST-original.xml'
+        tree=ET.parse(report);prop=tree.find(f"./properties/property[@name='{m.MAXIMUM_ROUND_PROPERTY}']")
+        prop.set('value','2400');tree.write(report);reject('JUnit round lifetime')
+        prop.set('value','43200')
+        case=tree.find('testcase')
+        for elapsed in ('43200.01','nan','-1','inf'):
+            case.set('time',elapsed);tree.write(report);reject('JUnit round duration')
 
     def test_capture_capacity_failure_precedes_source_copy_or_maven(self):
         output=self.root/'refused'
@@ -97,6 +116,8 @@ class MaximumNativeRunTest(unittest.TestCase):
         properties=suite.find('properties')
         if properties is None:properties=ET.SubElement(suite,'properties')
         ET.SubElement(properties,'property',name=m.MAXIMUM_TIMEOUT_PROPERTY,value=str(m.MAXIMUM_TIMEOUT_MS))
+        ET.SubElement(properties,'property',name=m.MAXIMUM_ROUND_PROPERTY,value=str(m.MAXIMUM_ROUND_SECONDS))
+        suite.find('testcase').set('time','3046.125')
         tree.write(report)
         m.h.save(path/'collection.json',m.collect(raw,m.MAXIMUM_PROFILE));m.h.save(path/'capacity.json',capacity_record())
         value=m.read(path/'receipt.json');value.update(profile=m.MAXIMUM_PROFILE,command=['mvn',*m.command(m.MAXIMUM_PROFILE)],

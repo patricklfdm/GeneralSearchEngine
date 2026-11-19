@@ -22,7 +22,12 @@ use 30,000 ms. The producer binds the maximum setting to the Maven command and
 the test JVM checks it before bootstrap. Independent replay checks the command,
 the Surefire XML property, and the receipt. The transport still uses the
 earlier of the individual request deadline and the remaining owner lifetime.
-The original 40-minute round, retry counts and resource budgets still apply.
+The maximum-image run has one 43,200-second (12-hour) JUnit deadline including seed
+preparation and final binding. Its active joining history passes the remaining window
+to subsequent round, learner and maintenance work. The transport caps each request at
+300 seconds. Capture and replay bind both time settings and check the duration of the
+individual JUnit test. Ordinary required-four histories keep their 40-minute round
+and the existing child budgets; the original retry counts and storage limits apply.
 
 In run 44203209993, both remote voters prepared valid installation replies.
 From the first SELECTED request to the first reply ready for writing took
@@ -30,6 +35,21 @@ From the first SELECTED request to the first reply ready for writing took
 the 30 s request timeout had expired. The caller observed zero replies for
 either request digest. The run failed initial activation before it could
 qualify the replacement history. [Failed run and original artifacts](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/44203209993)
+
+With the 300-second RPC setting and the earlier 40-minute round, both SELECTED replies
+arrived about 195 s after the first PREPARE. The initial BARRIER completed. During
+maintenance before the first RESERVE, the caller still received a CHUNK reply at
+2,389 s. The stack then reported an ended activation scope. The retained exception
+did not record which caller first closed it; its timing is consistent with the
+2,400-second owner expiry. Subsequent runs retain that guard and first-end reason
+when available. [Failed run 44487786088](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/44487786088)
+
+For this path, a local whole-image borrow formerly read the selected file in 4 MiB
+pieces and hashed the entire file before and after each piece. The reader now checks
+the live export, reads its exact selected inode and size once, verifies the bytes
+and path identity, and rechecks the export before returning. Network chunk readers
+continue to validate each transfer. A Linux regression compares per-thread read
+bytes with the cost of the two live-owner checks.
 
 Private Java bootstrap and replica files now live beneath the copied module's
 `target/v53-maximum-native-work/`, on the capacity-admitted workspace volume.

@@ -285,6 +285,23 @@ final class MembershipCurrentGeneration implements AutoCloseable {
         else {file=files.get("ancestry.gsr");require(file!=null && file.digest().equals(digest),"current ancestry content absent");source=path.resolve("ancestry.gsr");}
         return readChunk(source,file,offset,maximum);
     }
+    /** Local whole-image materialization under the journal's guarded prefix export.
+     * Check the open descriptor and its final path identity around one bounded read. */
+    byte[] readApplicationImage(String digest,long size)throws IOException {
+        MembershipValidation.digest(digest);
+        String name=digest+".image";var file=files.get(name);
+        require(file!=null && file.digest().equals(digest) && file.bytes()==size &&
+                size>0 && size<=MembershipResources.Unit.APPLICATION.bytes,"current application image extent");
+        Path member=path.resolve(name);
+        try(var channel=MembershipFileAccess.open(member,StandardOpenOption.READ,LinkOption.NOFOLLOW_LINKS)) {
+            require(file.key().equals(MembershipFileAccess.key(channel)) && channel.size()==size,"current application image identity");
+            var buffer=java.nio.ByteBuffer.allocate(Math.toIntExact(size));
+            while(buffer.hasRemaining())require(channel.read(buffer)>0,"current application incomplete read");
+            byte[] bytes=buffer.array();
+            require(channel.size()==size && hash(bytes).equals(digest) && file.key().equals(key(member)),"current application image changed");
+            return bytes;
+        }
+    }
     byte[] transferChunk(String digest,long offset,int maximum)throws IOException {
         var entry=files.entrySet().stream().filter(v->(v.getKey().equals(PACKET) || v.getKey().endsWith(".image"))
                 && v.getValue().digest().equals(digest)).findFirst().orElseThrow(()->new IllegalArgumentException("current content absent"));

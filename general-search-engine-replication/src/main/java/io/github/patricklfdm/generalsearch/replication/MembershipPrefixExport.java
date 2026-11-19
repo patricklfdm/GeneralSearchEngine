@@ -100,12 +100,9 @@ final class MembershipPrefixExport implements MembershipTransferExport,Membershi
     }
     @Override public byte[] image(String digest,long bytes)throws IOException {
         synchronized(owner) {
-            require(hasImage(digest,bytes),"prefix original image unavailable");byte[] result=new byte[Math.toIntExact(bytes)];
-            for(int offset=0;offset<result.length;) {
-                byte[] part=generation.transferChunk(digest,offset,4*1024*1024);
-                System.arraycopy(part,0,result,offset,part.length);offset+=part.length;
-            }
-            require(hash(result).equals(digest),"prefix original image changed");owner.checkPrefixExport(this);return result;
+            require(hasImage(digest,bytes),"prefix original image unavailable");
+            byte[] result=generation.readApplicationImage(digest,bytes);
+            owner.checkPrefixExport(this);return result;
         }
     }
     @Override public void checkImage(String digest,long bytes)throws IOException {

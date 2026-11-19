@@ -3,6 +3,8 @@ package io.github.patricklfdm.generalsearch.replication;
 import java.nio.file.*;
 import java.util.*;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.extension.AnnotatedElementContext;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.io.CleanupMode;
@@ -18,10 +20,13 @@ class V53MaximumNativeQualification {
     @TempDir(factory=WorkspaceTemporaryDirectory.class,cleanup=CleanupMode.ON_SUCCESS) Path temp;
     static final String SEED="maximum-native-seed";
     static final String REQUEST_TIMEOUT_PROPERTY="v53.maximumNative.requestTimeoutMillis";
+    static final String ROUND_PROPERTY="v53.maximumNative.roundLifetimeSeconds";
+    static final int ROUND_SECONDS=12*60*60;
     private static final int REQUEST_TIMEOUT_MILLIS=300_000;
     static ReplicationBounds checkConfiguration(){
         V53BackupJoiningQualification.checkConfiguration();
         assertEquals(Integer.toString(REQUEST_TIMEOUT_MILLIS),System.getProperty(REQUEST_TIMEOUT_PROPERTY),REQUEST_TIMEOUT_PROPERTY);
+        assertEquals(Integer.toString(ROUND_SECONDS),System.getProperty(ROUND_PROPERTY),ROUND_PROPERTY);
         return V53RoundDriverTest.controlBounds(REQUEST_TIMEOUT_MILLIS);
     }
 
@@ -70,7 +75,9 @@ class V53MaximumNativeQualification {
         }
     }
 
+    @Timeout(value=ROUND_SECONDS,unit=TimeUnit.SECONDS,threadMode=Timeout.ThreadMode.SAME_THREAD)
     @Test void maximumImageCompletesRequiredFourReplacement()throws Exception {
+        var timing=new V53JoiningIntentExportTest.RunTiming(true,System.nanoTime());
         var bounds=checkConfiguration();
         Path evidence=Files.createDirectories(Path.of("target/v53-maximum-native-seed/run-"+UUID.randomUUID()));
         System.out.println("v53MaximumNativeSeedEvidence="+evidence.toAbsolutePath());
@@ -80,8 +87,14 @@ class V53MaximumNativeQualification {
         var bootstrap=new V53BootstrapSeedTest();bootstrap.temp=temp;
         var request=bootstrap.request(temp.resolve("group"),5,seed.source());
         var history=new V53JoiningIntentExportTest();history.temp=temp;
-        Path raw=history.requiredFourFromVerifiedBackup(request,V53WireArchive.Layout.SEGMENTED_BACKUP,
-                V53NativeResourceProfile.DEFAULT_SNAPSHOT_STAGING,bounds);
+        Path raw;
+        try {
+            raw=history.requiredFourFromVerifiedBackup(request,V53WireArchive.Layout.SEGMENTED_BACKUP,
+                    V53NativeResourceProfile.DEFAULT_SNAPSHOT_STAGING,bounds,timing);
+        }catch(Exception error){
+            System.err.println("v53MaximumNativeFailure="+V53NodeProcessDiagnostics.causes(error));
+            throw error;
+        }
         assertEquals(original,V53ReplayFilesTest.files(seed.source()));
         var binding=seedBinding(seed,raw,temp.resolve("seed-inspection"));
         Files.write(evidence.resolve("binding.json"),canonical(binding,16384),StandardOpenOption.CREATE_NEW);
