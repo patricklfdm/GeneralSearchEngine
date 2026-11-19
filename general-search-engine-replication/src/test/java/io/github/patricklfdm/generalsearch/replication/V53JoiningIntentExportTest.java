@@ -243,7 +243,7 @@ class V53JoiningIntentExportTest {
             for(var target:f.request.targets())try(var owner=f.open(target,"initialize-learners")){owner.initializeLearnerRetention();}
         };
         try(var n=bootstrapRequest==null?network.new Network(profile.size(),bounds,lifetime,preparation,true):
-                network.new Network(bootstrapRequest,bounds,lifetime,preparation,true,false,layout,resourceProfile);
+                network.new Network(bootstrapRequest,bounds,lifetime,preparation,true,false,layout,resourceProfile,timing);
             var round=helper.driver(n,MembershipRoundDriver.Events.NONE,timing.fromNow(ordinaryRound))) {
             lastOriginal=n.f.raw;
             // Preserve original attempts and receives for full causal replay.
@@ -254,9 +254,7 @@ class V53JoiningIntentExportTest {
                 n.grantCapture=new V53GrantCapture(n.f.raw,n.events,n.f.request.source(),layout);
                 n.retirementCapture=new V53SourceRetirementCapture(n.f.raw,n.events,n.f.request.source(),layout);
             }
-            // The short Network.activate helper fixes a 180-second campaign.
-            // This complete typed-learner history uses one declared
-            // owner lifetime from its start, without extending any RPC timeout.
+            // The complete joining history includes this activation in its owner lifetime.
             for(int i=profile.majority();i<profile.size();i++)n.transports.get(i).close();
             round.start();assertEquals(profile.liveIndices(),n.voters);
             if(installJoined)probeOldLocks(n);

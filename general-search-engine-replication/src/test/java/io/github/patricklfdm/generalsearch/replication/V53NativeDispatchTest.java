@@ -32,7 +32,16 @@ class V53NativeDispatchTest {
         return requested;
     }
     @FunctionalInterface interface Preparation {void prepare(V53BootstrapPublicationTest.Fixture fixture)throws Exception;}
+    record OperationWindow(long started,long budget) {}
     final class Network implements AutoCloseable {
+        private final V53JoiningIntentExportTest.RunTiming timing;
+        OperationWindow operationWindow(String operation) {
+            long started=System.nanoTime();
+            long budget=timing.remaining(started,BUDGET);
+            if(timing.maximum())System.out.println("v53NativeDispatchWindow="+operation+
+                    " remainingSeconds="+TimeUnit.NANOSECONDS.toSeconds(budget)+" deadlineNanos="+(started+budget));
+            return new OperationWindow(started,budget);
+        }
         final V53BootstrapPublicationTest.Fixture f;
         final List<MembershipGrantJournal> owners=new ArrayList<>();
         final List<MembershipResources> resources=new ArrayList<>();
@@ -125,6 +134,14 @@ class V53NativeDispatchTest {
         Network(MembershipBootstrapRequest<Integer,Doc> request,ReplicationBounds bounds,long endpointBudget,
                 Preparation preparation,boolean liveDirectory,boolean observeExports,V53WireArchive.Layout layout,
                 V53NativeResourceProfile resourceProfile)throws Exception {
+            this(request,bounds,endpointBudget,preparation,liveDirectory,observeExports,layout,resourceProfile,
+                    V53JoiningIntentExportTest.RunTiming.ORDINARY);
+        }
+        Network(MembershipBootstrapRequest<Integer,Doc> request,ReplicationBounds bounds,long endpointBudget,
+                Preparation preparation,boolean liveDirectory,boolean observeExports,V53WireArchive.Layout layout,
+                V53NativeResourceProfile resourceProfile,V53JoiningIntentExportTest.RunTiming timing)throws Exception {
+            this.timing=Objects.requireNonNull(timing);
+            assertTrue(!timing.maximum() || resourceProfile==V53NativeResourceProfile.DEFAULT_SNAPSHOT_STAGING);
             assertNotNull(layout);
             assertNotNull(resourceProfile);resourceProfile.check(request.source(),layout);
             assertTrue(resourceProfile==V53NativeResourceProfile.SMALL_FIXTURE ||
@@ -171,6 +188,7 @@ class V53NativeDispatchTest {
         }
         private Network(V53BootstrapPublicationTest.Fixture retained,ReplicationBounds bounds,long endpointBudget,boolean liveDirectory,boolean observeExports,
                 int wireLimit,V53WireArchive.Layout layout,V53NativeResourceProfile profile)throws Exception {
+            timing=V53JoiningIntentExportTest.RunTiming.ORDINARY;
             assertEquals(profile,retained.resourceProfile,"retained native resource policy");
             profile.check(retained.request.source(),layout);
             assertTrue(profile==V53NativeResourceProfile.SMALL_FIXTURE || bounds.maxSnapshotStagingBytes()==profile.stagingBytes,
@@ -283,9 +301,11 @@ class V53NativeDispatchTest {
             }
         }
         void activate()throws Exception {
+            var window=operationWindow("activation");
             driver=new MembershipActivationDriver(owners.getFirst(),endpoints.getFirst(),resources.getFirst(),bounds,transports.getFirst()::exchange,
-                    List.of(),List.of(),temp.resolve("outgoing-"+UUID.randomUUID()),System::nanoTime,BUDGET,2);
-            selected=driver.run();ballot=object(selected.value().get("ballot"));assertEquals(1,driver.campaigns());
+                    List.of(),List.of(),temp.resolve("outgoing-"+UUID.randomUUID()),System::nanoTime,window.budget(),2);
+            selected=timing.maximum()?driver.run(window.started()):driver.run();
+            ballot=object(selected.value().get("ballot"));assertEquals(1,driver.campaigns());
             voters=list(selected.value().get("sources")).stream().map(v->Integer.parseInt(((String)object(v).get("voter")).substring(5))-1).sorted().toList();
             assertEquals(java.util.stream.IntStream.range(0,f.request.targets().size()/2+1).boxed().toList(),voters);f.snapshot("installed");Files.write(f.raw.resolve("selected.gsr"),selected.bytes());
             System.out.println("v53NativeDispatchStage=installed");
@@ -295,13 +315,16 @@ class V53NativeDispatchTest {
                     ballot,UUID.randomUUID(),1,payload);
         }
         Decoded send(int index,Decoded request)throws Exception {
+            var window=operationWindow(request.kind());
             return MembershipSlotDelivery.deliver(owners.getFirst(),owners.get(index).activationIdentity(),request,resources.getFirst(),transports.getFirst(),
-                    System::nanoTime,System.nanoTime(),BUDGET);
+                    System::nanoTime,window.started(),window.budget());
         }
         MembershipContext.Owned observation(int index,Decoded record)throws Exception {
+            var window=operationWindow("observe-"+record.kind());
             var own=owners.getFirst();if(index==0)return own.voting(resources.getFirst()).observation(record);
             try(var pull=new MembershipSourcePull(own.activationCapsule(),own.activationIdentity(),owners.get(index).activationIdentity(),ballot,UUID.randomUUID(),resources.getFirst(),
-                    ReplicationBounds.defaults(),transports.getFirst()::exchange,()->own.voting(resources.getFirst()).check(),System::nanoTime,System.nanoTime(),BUDGET)) {
+                    timing.maximum()?bounds:ReplicationBounds.defaults(),transports.getFirst()::exchange,()->own.voting(resources.getFirst()).check(),
+                    System::nanoTime,window.started(),window.budget())) {
                 return pull.fetchVoteObservation(record);
             }
         }
@@ -369,8 +392,10 @@ class V53NativeDispatchTest {
             var ready=new ArrayList<MembershipFutureRetentionQuorum.Recorded>();
             try {
                 for(int voter:voters)if(voter!=0) {
-                    var remote=new MembershipFutureRetentionQuorum(own,owners.get(voter).activationIdentity(),ballot,own.pendingPublication(applied),resources.getFirst(),
-                            transports.getFirst()::exchange,System::nanoTime,System.nanoTime(),BUDGET);
+                    var publication=own.pendingPublication(applied);
+                    var window=operationWindow("publish-node-"+(voter+1));
+                    var remote=new MembershipFutureRetentionQuorum(own,owners.get(voter).activationIdentity(),ballot,publication,resources.getFirst(),
+                            transports.getFirst()::exchange,System::nanoTime,window.started(),window.budget());
                     recordings.add(remote);var recorded=remote.record();ready.add(recorded);
                     events.add(Map.of("node","node-1","event","FUTURE_QUORUM_COMPLETE","index",certificate.value().get("index"),"voters",recorded.voters().stream().sorted().toList()));
                 }

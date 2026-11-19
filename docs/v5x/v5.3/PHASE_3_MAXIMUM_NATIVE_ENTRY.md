@@ -44,6 +44,17 @@ did not record which caller first closed it; its timing is consistent with the
 2,400-second owner expiry. Subsequent runs retain that guard and first-end reason
 when available. [Failed run 44487786088](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/44487786088)
 
+Run 44531213031 completed SEAL and fetched its original record. On the following
+INTENT, node 2 read the first remote ACCEPT 0.132 s after node 1 sent it and was
+still fetching records when the caller's 180 s fixture wait expired. The handler
+recorded endpoint closure at 179.683 s from the send. The JUnit test had run for
+8 h 15 min. An earlier ACCEPT in the same run succeeded after an identical
+retry at 300.8 s, with the reply received 497.9 s after its first send.
+Direct slot delivery, vote observation and future publication now
+use the time left until the original 12-hour deadline, including retries. The
+fixture logs the remaining window when each of these operations starts.
+[Failed run 44531213031](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/44531213031)
+
 For this path, a local whole-image borrow formerly read the selected file in 4 MiB
 pieces and hashed the entire file before and after each piece. The reader now checks
 the live export, reads its exact selected inode and size once, verifies the bytes
