@@ -18,9 +18,11 @@ class V53MaximumNativeEntryTest {
     }
     private void configured(Runnable action) {
         var keys=new ArrayList<>(V53BackupJoiningQualification.OBSERVATIONS);keys.add("v53.joining.sourceFault");
+        keys.add(V53MaximumNativeQualification.REQUEST_TIMEOUT_PROPERTY);
         var previous=new HashMap<String,String>();for(String key:keys)previous.put(key,System.getProperty(key));
         try {
             for(String key:V53BackupJoiningQualification.OBSERVATIONS)System.setProperty(key,"true");
+            System.setProperty(V53MaximumNativeQualification.REQUEST_TIMEOUT_PROPERTY,"300000");
             System.clearProperty("v53.joining.sourceFault");action.run();
         }finally {for(String key:keys){String value=previous.get(key);if(value==null)System.clearProperty(key);else System.setProperty(key,value);}}
     }
@@ -31,6 +33,18 @@ class V53MaximumNativeEntryTest {
                 System.clearProperty(key);assertThrows(AssertionError.class,V53MaximumNativeQualification::checkConfiguration,key);
                 System.setProperty(key,"true");
             }
+        });
+    }
+    @Test void maximumWaitIsExplicitAndOnlyTheRequestWaitDiffers() {
+        configured(()->{
+            assertEquals(30_000,V53RoundDriverTest.controlBounds().requestTimeoutMillis());
+            assertEquals(V53RoundDriverTest.controlBounds(300_000),V53MaximumNativeQualification.checkConfiguration());
+            for(String timeout:List.of("30000","600000","")) {
+                System.setProperty(V53MaximumNativeQualification.REQUEST_TIMEOUT_PROPERTY,timeout);
+                assertThrows(AssertionError.class,V53MaximumNativeQualification::checkConfiguration);
+            }
+            System.clearProperty(V53MaximumNativeQualification.REQUEST_TIMEOUT_PROPERTY);
+            assertThrows(AssertionError.class,V53MaximumNativeQualification::checkConfiguration);
         });
     }
     @Test void maximumEntryDoesNotAcceptAnInjectedSourceFault() {

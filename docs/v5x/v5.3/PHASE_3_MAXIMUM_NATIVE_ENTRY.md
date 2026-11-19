@@ -3,9 +3,8 @@
 The explicit `maximum-application-required-four-backup-segmented` profile now
 connects a calibrated maximum verified backup to the complete native five-voter
 replacement history. This is an execution and independent replay entry, **not a
-record of a completed maximum native run**. The operator has no qualifying Linux
-acceptance host yet and will arrange one after development. Environment checks
-remain enabled.
+record of a completed maximum native run**. Capture and independent replay run on the dedicated native Linux host after
+capacity admission. A failed capture retains its diagnostics.
 
 ## Execution and evidence boundary
 
@@ -15,8 +14,22 @@ required-four joining history, with all twelve resource observations enabled.
 The normalized source image is 67,108,832 bytes (64 MiB minus the core backup
 writer's 32-byte request administration), with 1,024 typed documents and
 application sequence 41. It uses explicit segmented-backup wire evidence and
-the frozen 16 GiB staging default. Protocol limits, observation lifetimes,
-timeouts and retry policy are unchanged.
+the frozen 16 GiB staging default.
+
+The maximum-native capture fixes the transport request timeout at 300,000 ms.
+The resource result applies at that setting. Ordinary and small-backup histories
+use 30,000 ms. The producer binds the maximum setting to the Maven command and
+the test JVM checks it before bootstrap. Independent replay checks the command,
+the Surefire XML property, and the receipt. The transport still uses the
+earlier of the individual request deadline and the remaining owner lifetime.
+The original 40-minute round, retry counts and resource budgets still apply.
+
+In run 44203209993, both remote voters prepared valid installation replies.
+From the first SELECTED request to the first reply ready for writing took
+140.012 s on node 2 and 137.570 s on node 3. By then, all three attempts using
+the 30 s request timeout had expired. The caller observed zero replies for
+either request digest. The run failed initial activation before it could
+qualify the replacement history. [Failed run and original artifacts](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/44203209993)
 
 Private Java bootstrap and replica files now live beneath the copied module's
 `target/v53-maximum-native-work/`, on the capacity-admitted workspace volume.
@@ -80,7 +93,7 @@ existing child-process runner prints minute progress and retains Maven and
 collection logs. Independent replay reports stage progress. These commands do
 not dispatch Actions or provision a machine. The [dedicated maximum-native
 hosted transport](PHASE_3_MAXIMUM_NATIVE_HOSTED.md) now has separate archive and
-download/extraction capacity checks; its actual execution remains pending.
+download/extraction capacity checks. Independent verification still requires a successful capture.
 The existing small-backup workflow's archive budget is unchanged. Neither the EMPTY supplemental slot,
 the small-backup profile nor the synchronous maximum-storage component is
 replaced by this development entry.

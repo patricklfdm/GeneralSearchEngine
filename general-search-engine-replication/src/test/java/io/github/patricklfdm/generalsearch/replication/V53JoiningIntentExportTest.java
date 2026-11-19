@@ -65,28 +65,29 @@ class V53JoiningIntentExportTest {
                 "ballot",MembershipLearnerDiscovery.correlation(request.identity()),"sender",MembershipBootstrapSeed.identity(request.identity()),
                 "recipient",MembershipBootstrapSeed.identity(peer),"trace",trace.toString(),"sequence",sequence,"payload",payload)),"wire",kind);
     }
-    static Decoded exchange(MembershipSourcePull.Link contact,MembershipResources resources,MembershipIdentity peer,Decoded request,String kind)throws Exception {
+    static Decoded exchange(MembershipSourcePull.Link contact,MembershipResources resources,MembershipIdentity peer,Decoded request,String kind,int timeoutMillis)throws Exception {
         try(var held=resources.reserve(MembershipResources.Unit.CONTROL,MembershipSourceResources.request("source-request",request),request.size())) {
-            var response=contact.exchange(peer,request,kind,System.nanoTime()+TimeUnit.SECONDS.toNanos(30)).get(35,TimeUnit.SECONDS);
+            long deadline=System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
+            var response=contact.exchange(peer,request,kind,deadline).get(timeoutMillis+5_000L,TimeUnit.MILLISECONDS);
             MembershipWire.correlated(request,response,kind);assertEquals(kind,response.kind());return response;
         }
     }
-    static byte[] fetch(MembershipTransport contact,MembershipResources resources,MembershipLearnerRequest learner,MembershipIdentity peer,Decoded first)throws Exception {
-        var offer=exchange(contact::exchange,resources,peer,first,"SOURCE_OFFER");var content=object(offer.value().get("payload"));
+    static byte[] fetch(MembershipTransport contact,MembershipResources resources,MembershipLearnerRequest learner,MembershipIdentity peer,Decoded first,int timeoutMillis)throws Exception {
+        var offer=exchange(contact::exchange,resources,peer,first,"SOURCE_OFFER",timeoutMillis);var content=object(offer.value().get("payload"));
         assertEquals("RECORD",content.get("kind"));assertEquals(object(first.value().get("payload")).get("id"),content.get("id"));
-        assertArrayEquals(offer.bytes(),exchange(contact::exchange,resources,peer,first,"SOURCE_OFFER").bytes());
+        assertArrayEquals(offer.bytes(),exchange(contact::exchange,resources,peer,first,"SOURCE_OFFER",timeoutMillis).bytes());
         var out=new java.io.ByteArrayOutputStream();long sequence=1;var trace=UUID.fromString((String)first.value().get("trace"));
         while(out.size()<number(content.get("bytes"))) {
             var request=frame(learner,peer,trace,++sequence,"CHUNK",Map.of("id",content.get("id"),"action","REQUEST",
                     "offset",(long)out.size(),"digest",content.get("digest"),"bytes",""));
-            var response=exchange(contact::exchange,resources,peer,request,"CHUNK");var payload=object(response.value().get("payload"));
+            var response=exchange(contact::exchange,resources,peer,request,"CHUNK",timeoutMillis);var payload=object(response.value().get("payload"));
             assertEquals((long)out.size(),payload.get("offset"));assertEquals(content.get("id"),payload.get("id"));
             byte[] bytes=Base64.getDecoder().decode((String)payload.get("bytes"));assertEquals(hash(bytes),payload.get("digest"));out.writeBytes(bytes);
         }
         assertEquals(number(content.get("bytes")),out.size());assertEquals(hash(out.toByteArray()),content.get("digest"));
         var last=frame(learner,peer,trace,++sequence,"TRANSFER_COMMIT",Map.of("id",content.get("id"),"digest",content.get("digest")));
-        var done=exchange(contact::exchange,resources,peer,last,"TRANSFER_COMMIT");
-        assertArrayEquals(done.bytes(),exchange(contact::exchange,resources,peer,last,"TRANSFER_COMMIT").bytes());return out.toByteArray();
+        var done=exchange(contact::exchange,resources,peer,last,"TRANSFER_COMMIT",timeoutMillis);
+        assertArrayEquals(done.bytes(),exchange(contact::exchange,resources,peer,last,"TRANSFER_COMMIT",timeoutMillis).bytes());return out.toByteArray();
     }
     @Test void minimalOldMajorityCanServeOriginalIntentBeforeJointCheckpointExists()throws Exception {
         nativeJoining(false);
@@ -189,15 +190,15 @@ class V53JoiningIntentExportTest {
         requiredFourFromVerifiedBackup(request,V53WireArchive.Layout.JSON);
     }
     void requiredFourFromVerifiedBackup(MembershipBootstrapRequest<Integer,Doc> request,V53WireArchive.Layout layout)throws Exception {
-        requiredFourFromVerifiedBackup(request,layout,V53NativeResourceProfile.SMALL_FIXTURE);
+        requiredFourFromVerifiedBackup(request,layout,V53NativeResourceProfile.SMALL_FIXTURE,V53RoundDriverTest.controlBounds());
     }
     Path requiredFourFromVerifiedBackup(MembershipBootstrapRequest<Integer,Doc> request,V53WireArchive.Layout layout,
-            V53NativeResourceProfile resourceProfile)throws Exception {
+            V53NativeResourceProfile resourceProfile,ReplicationBounds bounds)throws Exception {
         assertEquals(MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP,request.source());
         assertEquals(5,request.targets().size());
         assertTrue(System.getProperty("v53.joining.sourceFault","").isEmpty());
         assertNotNull(resourceProfile);resourceProfile.check(request.source(),layout);
-        nativeJoining(true,true,true,true,true,true,true,true,true,V53JoiningProfile.parse("5-REPLACE-required-four"),false,request,layout,resourceProfile);
+        nativeJoining(true,true,true,true,true,true,true,true,true,V53JoiningProfile.parse("5-REPLACE-required-four"),false,request,layout,resourceProfile,bounds);
         return Objects.requireNonNull(lastOriginal,"complete native original");
     }
     private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined,boolean maintainJoined,boolean seedJoined,
@@ -210,11 +211,11 @@ class V53JoiningIntentExportTest {
             boolean initializeJoined,boolean continueJoint,boolean remoteRetention,boolean earlyStartup,V53JoiningProfile profile,boolean prefixOnly,
             MembershipBootstrapRequest<Integer,Doc> bootstrapRequest,V53WireArchive.Layout layout)throws Exception {
         nativeJoining(retainPending,publishJoint,installJoined,maintainJoined,seedJoined,initializeJoined,continueJoint,
-                remoteRetention,earlyStartup,profile,prefixOnly,bootstrapRequest,layout,V53NativeResourceProfile.SMALL_FIXTURE);
+                remoteRetention,earlyStartup,profile,prefixOnly,bootstrapRequest,layout,V53NativeResourceProfile.SMALL_FIXTURE,V53RoundDriverTest.controlBounds());
     }
     private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined,boolean maintainJoined,boolean seedJoined,
             boolean initializeJoined,boolean continueJoint,boolean remoteRetention,boolean earlyStartup,V53JoiningProfile profile,boolean prefixOnly,
-            MembershipBootstrapRequest<Integer,Doc> bootstrapRequest,V53WireArchive.Layout layout,V53NativeResourceProfile resourceProfile)throws Exception {
+            MembershipBootstrapRequest<Integer,Doc> bootstrapRequest,V53WireArchive.Layout layout,V53NativeResourceProfile resourceProfile,ReplicationBounds bounds)throws Exception {
         assertTrue(bootstrapRequest!=null || resourceProfile==V53NativeResourceProfile.SMALL_FIXTURE);
         assertTrue(!prefixOnly || retainPending && publishJoint && !installJoined && !continueJoint && !earlyStartup);
         assertTrue(!earlyStartup || remoteRetention && initializeJoined && continueJoint);
@@ -234,8 +235,8 @@ class V53JoiningIntentExportTest {
         V53NativeDispatchTest.Preparation preparation=f->{
             for(var target:f.request.targets())try(var owner=f.open(target,"initialize-learners")){owner.initializeLearnerRetention();}
         };
-        try(var n=bootstrapRequest==null?network.new Network(profile.size(),helper.controlBounds(),lifetime,preparation,true):
-                network.new Network(bootstrapRequest,helper.controlBounds(),lifetime,preparation,true,false,layout,resourceProfile);
+        try(var n=bootstrapRequest==null?network.new Network(profile.size(),bounds,lifetime,preparation,true):
+                network.new Network(bootstrapRequest,bounds,lifetime,preparation,true,false,layout,resourceProfile);
             var round=helper.driver(n,MembershipRoundDriver.Events.NONE,lifetime)) {
             lastOriginal=n.f.raw;
             // Preserve original attempts and receives for full causal replay.
@@ -331,7 +332,7 @@ class V53JoiningIntentExportTest {
                                 p.put("digest",MembershipLearnerDiscovery.reference(request));forbidden.put("payload",p);
                                 assertEquals(MembershipTransport.Reason.PROTOCOL,V53MembershipTransportTest.failure(contact.exchange(targets.getFirst(),
                                         decode(encode("wire","CHUNK",forbidden),"wire","CHUNK"),"SOURCE_OFFER",System.nanoTime()+BUDGET)).reason);
-                                var bytes=fetch(contact,pool,request,targets.getFirst(),first);var value=object(parse(bytes,FRAME));var records=object(value.get("records"));
+                                var bytes=fetch(contact,pool,request,targets.getFirst(),first,n.bounds.requestTimeoutMillis());var value=object(parse(bytes,FRAME));var records=object(value.get("records"));
                                 assertEquals("gse-v53-joining-intent-metadata/1.3",value.get("schema"));assertEquals(sealed.get("request"),value.get("request"));
                                 assertEquals(MembershipRetentionIntent.anchor(owner.activationCapsule().terminal()),value.get("parent"));
                                 assertEquals(MembershipBootstrapSeed.identity(joining),value.get("learner"));

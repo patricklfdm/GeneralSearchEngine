@@ -12,7 +12,10 @@ class V53JoiningFixtureRequestTest {
         for(boolean failure:List.of(false,true))try(var f=new V53LearnerDiscoveryTest().new Fixture()) {
             var pool=new MembershipResources(MembershipResources.METADATA_LIMIT,512*MembershipResources.MIB,MembershipResources.QUEUE_LIMIT,32);
             var request=V53JoiningIntentExportTest.initial(f.request,f.peer,f.capsule.context.cut);
+            int timeoutMillis=failure?30_000:300_000;
+            long earliest=System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
             MembershipSourcePull.Link link=(peer,original,kind,deadline)->{
+                assertTrue(deadline>=earliest && deadline<=System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(timeoutMillis));
                 var row=pool.observations().changes().getLast();assertEquals("RESERVE",row.event());
                 var charge=row.added().getFirst();assertTrue(charge.owner().startsWith("source-request-"+original.digest()+"-"));
                 assertEquals(original.size(),charge.bytes());assertEquals(MembershipResources.Unit.CONTROL,charge.unit());
@@ -20,8 +23,8 @@ class V53JoiningFixtureRequestTest {
                         V53LearnerDiscoveryTest.response(original,"SOURCE_OFFER",Map.of("id",object(original.value().get("payload")).get("id"),
                                 "digest",f.fixture.source.rootHash,"kind","RECORD","bytes",(long)f.content.length)));
             };
-            if(failure)assertThrows(ExecutionException.class,()->V53JoiningIntentExportTest.exchange(link,pool,f.peer,request,"SOURCE_OFFER"));
-            else assertEquals("SOURCE_OFFER",V53JoiningIntentExportTest.exchange(link,pool,f.peer,request,"SOURCE_OFFER").kind());
+            if(failure)assertThrows(ExecutionException.class,()->V53JoiningIntentExportTest.exchange(link,pool,f.peer,request,"SOURCE_OFFER",timeoutMillis));
+            else assertEquals("SOURCE_OFFER",V53JoiningIntentExportTest.exchange(link,pool,f.peer,request,"SOURCE_OFFER",timeoutMillis).kind());
             assertEquals(0,pool.usage().leases());assertEquals("RELEASE",pool.observations().changes().getLast().event());
         }
     }

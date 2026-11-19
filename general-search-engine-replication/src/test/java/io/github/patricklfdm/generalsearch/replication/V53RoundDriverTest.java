@@ -22,10 +22,11 @@ class V53RoundDriverTest {
         var helper=new V53NativeDispatchTest();helper.temp=temp;
         return helper.new Network(3,bounds,f->{if(old!=null)V53CarriedSlotDriverTest.prepare(f,old);});
     }
-    ReplicationBounds controlBounds() {
+    static ReplicationBounds controlBounds() { return controlBounds(30_000); }
+    static ReplicationBounds controlBounds(int requestTimeoutMillis) {
         var b=ReplicationBounds.defaults();
         return new ReplicationBounds(b.maxFrameBytes(),b.maxEntriesPerAppend(),b.maxInFlightPerPeer(),b.maxPendingClientOperations(),
-                b.maxRetryAttempts(),30_000,b.retryBackoffMillis(),b.snapshotChunkBytes(),b.maxRetainedLogBytes(),b.maxSnapshotStagingBytes());
+                b.maxRetryAttempts(),requestTimeoutMillis,b.retryBackoffMillis(),b.snapshotChunkBytes(),b.maxRetainedLogBytes(),b.maxSnapshotStagingBytes());
     }
     MembershipRoundDriver<?,?> driver(V53NativeDispatchTest.Network n,MembershipRoundDriver.Events callback)throws Exception {
         return driver(n,callback,V53NativeDispatchTest.BUDGET);

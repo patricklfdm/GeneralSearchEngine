@@ -32,12 +32,14 @@ class MaximumNativeRunTest(unittest.TestCase):
 
     def test_new_command_preserves_ordinary_and_small_backup_entries(self):
         ordinary=m.command(m.PROFILE);small=m.command(m.BACKUP_PROFILE);maximum=m.command(m.MAXIMUM_PROFILE)
-        self.assertEqual({v for v in small if v.startswith('-Dv53.')},{v for v in maximum if v.startswith('-Dv53.')})
+        timeout='-Dv53.maximumNative.requestTimeoutMillis=300000'
+        self.assertEqual([v for v in small if v.startswith('-Dv53.')]+[timeout],[v for v in maximum if v.startswith('-Dv53.')])
+        self.assertNotIn(timeout,ordinary)
         self.assertIn('-Dtest='+m.MAXIMUM_CLASS+'#'+m.MAXIMUM_METHOD,maximum)
         self.assertIn('-Dtest='+m.CLASS+'#'+m.METHOD,ordinary)
         self.assertIn('-Dtest='+m.BACKUP_CLASS+'#'+m.BACKUP_METHOD,small)
         self.assertIn('-DargLine=-Xmx4g',maximum)
-        self.assertFalse(any('retry' in v.lower() or 'skipTests' in v or 'timeout' in v.lower() for v in maximum))
+        self.assertFalse(any('retry' in v.lower() or 'skipTests' in v or 'timeout' in v.lower() for v in maximum if v!=timeout))
         self.assertNotIn(m.MAXIMUM_PROFILE,[v[1] for v in cohort.MEMBERS.values()])
 
     def test_default_staging_receipts_cannot_be_relabelled_as_old_profiles(self):
@@ -45,6 +47,22 @@ class MaximumNativeRunTest(unittest.TestCase):
         for other in (m.PROFILE,m.BACKUP_PROFILE):
             with self.assertRaises(ValueError):m.check_markers(marked,other)
             with self.assertRaises(ValueError):m.check_markers(m.marked({'status':'PARTIAL'},other),m.MAXIMUM_PROFILE)
+
+    def test_timeout_must_match_receipt_command_and_actual_test_jvm(self):
+        helper,_=self.producer()
+        path=helper.path/'receipt.json';original=m.read(path)
+        for value in (None,30_000,300000.0):
+            changed=dict(original,requestTimeoutMillis=value)
+            if value is None:del changed['requestTimeoutMillis']
+            m.h.save(path,changed)
+            with self.assertRaisesRegex(ValueError,'receipt request timeout'):m.member(helper.path,m.MAXIMUM_PROFILE,helper.pins)
+        m.h.save(path,dict(original,command=[v for v in original['command'] if m.MAXIMUM_TIMEOUT_PROPERTY not in v]))
+        with self.assertRaisesRegex(ValueError,'exact complete command'):m.member(helper.path,m.MAXIMUM_PROFILE,helper.pins)
+        m.h.save(path,original)
+        report=helper.path/'workspace'/m.h.MODULE/'target/surefire-reports/TEST-original.xml'
+        tree=ET.parse(report);prop=tree.find(f"./properties/property[@name='{m.MAXIMUM_TIMEOUT_PROPERTY}']")
+        prop.set('value','30000');tree.write(report)
+        with self.assertRaisesRegex(ValueError,'JUnit request timeout'):m.member(helper.path,m.MAXIMUM_PROFILE,helper.pins)
 
     def test_capture_capacity_failure_precedes_source_copy_or_maven(self):
         output=self.root/'refused'
@@ -75,7 +93,11 @@ class MaximumNativeRunTest(unittest.TestCase):
         (seed/'binding.json').write_bytes(m.h.snapshot.f.canonical(m.maximum_native.binding('a'*64,42,'00000000-0000-0000-0000-000000000001','b'*64)))
         report=work/m.h.MODULE/'target/surefire-reports/TEST-original.xml';tree=ET.parse(report);suite=tree.getroot()
         suite.set('name',m.PACKAGE+m.MAXIMUM_CLASS);suite.find('testcase').set('classname',m.PACKAGE+m.MAXIMUM_CLASS)
-        suite.find('testcase').set('name',m.MAXIMUM_METHOD);tree.write(report)
+        suite.find('testcase').set('name',m.MAXIMUM_METHOD)
+        properties=suite.find('properties')
+        if properties is None:properties=ET.SubElement(suite,'properties')
+        ET.SubElement(properties,'property',name=m.MAXIMUM_TIMEOUT_PROPERTY,value=str(m.MAXIMUM_TIMEOUT_MS))
+        tree.write(report)
         m.h.save(path/'collection.json',m.collect(raw,m.MAXIMUM_PROFILE));m.h.save(path/'capacity.json',capacity_record())
         value=m.read(path/'receipt.json');value.update(profile=m.MAXIMUM_PROFILE,command=['mvn',*m.command(m.MAXIMUM_PROFILE)],
             junit=m.junit(report.parent,m.MAXIMUM_PROFILE),collectionSha256=m.h.digest((path/'collection.json').read_bytes()),

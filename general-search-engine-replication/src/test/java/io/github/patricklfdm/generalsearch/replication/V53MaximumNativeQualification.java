@@ -17,7 +17,13 @@ import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*
 class V53MaximumNativeQualification {
     @TempDir(factory=WorkspaceTemporaryDirectory.class,cleanup=CleanupMode.ON_SUCCESS) Path temp;
     static final String SEED="maximum-native-seed";
-    static void checkConfiguration(){V53BackupJoiningQualification.checkConfiguration();}
+    static final String REQUEST_TIMEOUT_PROPERTY="v53.maximumNative.requestTimeoutMillis";
+    private static final int REQUEST_TIMEOUT_MILLIS=300_000;
+    static ReplicationBounds checkConfiguration(){
+        V53BackupJoiningQualification.checkConfiguration();
+        assertEquals(Integer.toString(REQUEST_TIMEOUT_MILLIS),System.getProperty(REQUEST_TIMEOUT_PROPERTY),REQUEST_TIMEOUT_PROPERTY);
+        return V53RoundDriverTest.controlBounds(REQUEST_TIMEOUT_MILLIS);
+    }
 
     /** Bootstrap preserves application content, but allocates a new history. */
     static Map<String,Object> reboundImage(Path raw,byte[] sourceImage,UUID sourceHistory,Path scratch)throws Exception {
@@ -65,7 +71,7 @@ class V53MaximumNativeQualification {
     }
 
     @Test void maximumImageCompletesRequiredFourReplacement()throws Exception {
-        checkConfiguration();
+        var bounds=checkConfiguration();
         Path evidence=Files.createDirectories(Path.of("target/v53-maximum-native-seed/run-"+UUID.randomUUID()));
         System.out.println("v53MaximumNativeSeedEvidence="+evidence.toAbsolutePath());
         var seed=V53MaximumApplicationTest.captureMaximum(temp,evidence);
@@ -75,7 +81,7 @@ class V53MaximumNativeQualification {
         var request=bootstrap.request(temp.resolve("group"),5,seed.source());
         var history=new V53JoiningIntentExportTest();history.temp=temp;
         Path raw=history.requiredFourFromVerifiedBackup(request,V53WireArchive.Layout.SEGMENTED_BACKUP,
-                V53NativeResourceProfile.DEFAULT_SNAPSHOT_STAGING);
+                V53NativeResourceProfile.DEFAULT_SNAPSHOT_STAGING,bounds);
         assertEquals(original,V53ReplayFilesTest.files(seed.source()));
         var binding=seedBinding(seed,raw,temp.resolve("seed-inspection"));
         Files.write(evidence.resolve("binding.json"),canonical(binding,16384),StandardOpenOption.CREATE_NEW);

@@ -36,6 +36,8 @@ BACKUP_METHOD='verifiedBackupCompletesReplacementFinalAndStableBarrier'
 MAXIMUM_PROFILE=maximum_native.PROFILE
 MAXIMUM_CLASS='V53MaximumNativeQualification'
 MAXIMUM_METHOD='maximumImageCompletesRequiredFourReplacement'
+MAXIMUM_TIMEOUT_PROPERTY='v53.maximumNative.requestTimeoutMillis'
+MAXIMUM_TIMEOUT_MS=300_000
 
 
 def selected(profile):
@@ -57,7 +59,9 @@ def original_inventory(root,profile):
 def marked(value,profile):
     selected(profile)
     value=value if profile==PROFILE else source_policy.receipt(value,source_policy.BACKUP,source_policy.SEGMENTED)
-    return resource_policy.receipt(value,resource_policy.DEFAULT) if profile==MAXIMUM_PROFILE else value
+    if profile==MAXIMUM_PROFILE:
+        return resource_policy.receipt(dict(value,requestTimeoutMillis=MAXIMUM_TIMEOUT_MS),resource_policy.DEFAULT)
+    return value
 
 
 def check_markers(value,profile):
@@ -65,6 +69,11 @@ def check_markers(value,profile):
     source_policy.check_receipt(value,source_policy.EMPTY if profile==PROFILE else source_policy.BACKUP,
                                 source_policy.JSON if profile==PROFILE else source_policy.SEGMENTED)
     resource_policy.check_receipt(value,resource_policy.DEFAULT if profile==MAXIMUM_PROFILE else resource_policy.SMALL)
+    if profile==MAXIMUM_PROFILE:
+        need(type(value.get('requestTimeoutMillis')) is int and value['requestTimeoutMillis']==MAXIMUM_TIMEOUT_MS,
+             'maximum native receipt request timeout')
+    else:
+        need('requestTimeoutMillis' not in value,'unexpected required-four receipt request timeout')
 
 
 def command(profile):
@@ -76,7 +85,8 @@ def command(profile):
             '-Dv53.resource.storage.transfers=true','-Dv53.resource.owner.close=true',
             '-Dv53.resource.joined.close=true','-Dv53.resource.source.control=true',
             '-Dv53.resource.control.close=true','-Dv53.resource.export.ownership=true','-Dv53.resource.slot.control=true',
-            *([] if profile==PROFILE else ['-DargLine=-Xmx4g']),'test']
+            *([] if profile==PROFILE else ['-DargLine=-Xmx4g']),
+            *([f'-D{MAXIMUM_TIMEOUT_PROPERTY}={MAXIMUM_TIMEOUT_MS}'] if profile==MAXIMUM_PROFILE else []),'test']
 
 
 def junit(reports,profile):
@@ -88,6 +98,9 @@ def junit(reports,profile):
          tests[0].get('classname')==cls and tests[0].get('name')==method and
          not any(v.tag in ('failure','error','skipped') or v.tag.startswith(('flaky','rerun')) for v in suite.iter()),
          'required-four run exact unretried passing test')
+    if profile==MAXIMUM_PROFILE:
+        observed=[p.get('value') for p in suite.findall('./properties/property') if p.get('name')==MAXIMUM_TIMEOUT_PROPERTY]
+        need(observed==[str(MAXIMUM_TIMEOUT_MS)],'maximum native JUnit request timeout')
     return dict(className=cls,method=method,tests=1,failures=0,errors=0,skipped=0,retries=0)
 
 
