@@ -23,7 +23,7 @@ class V53MaximumNativeEntryTest {
         try {
             for(String key:V53BackupJoiningQualification.OBSERVATIONS)System.setProperty(key,"true");
             System.setProperty(V53MaximumNativeQualification.REQUEST_TIMEOUT_PROPERTY,"300000");
-            System.setProperty(V53MaximumNativeQualification.ROUND_PROPERTY,"43200");
+            System.setProperty(V53MaximumNativeQualification.ROUND_PROPERTY,"72000");
             System.clearProperty("v53.joining.sourceFault");action.run();
         }finally {for(String key:keys){String value=previous.get(key);if(value==null)System.clearProperty(key);else System.setProperty(key,value);}}
     }
@@ -48,9 +48,9 @@ class V53MaximumNativeEntryTest {
             assertThrows(AssertionError.class,V53MaximumNativeQualification::checkConfiguration);
         });
     }
-    @Test void maximumRoundRequiresTwelveHoursAndNeverRenewsAChildBudget()throws Exception {
+    @Test void maximumRoundRequiresTwentyHoursAndNeverRenewsAChildBudget()throws Exception {
         configured(()->{
-            for(String value:List.of("2400","86400","")) {
+            for(String value:List.of("2400","43200","86400","")) {
                 System.setProperty(V53MaximumNativeQualification.ROUND_PROPERTY,value);
                 assertThrows(AssertionError.class,V53MaximumNativeQualification::checkConfiguration);
             }
@@ -59,7 +59,7 @@ class V53MaximumNativeEntryTest {
         });
         var annotation=V53MaximumNativeQualification.class.getDeclaredMethod("maximumImageCompletesRequiredFourReplacement")
                 .getAnnotation(org.junit.jupiter.api.Timeout.class);
-        long limit=java.util.concurrent.TimeUnit.HOURS.toNanos(12);
+        long limit=java.util.concurrent.TimeUnit.HOURS.toNanos(20);
         assertEquals(limit,annotation.unit().toNanos(annotation.value()));
         var max=new V53JoiningIntentExportTest.RunTiming(true,10);
         assertEquals(limit,max.remaining(10,100));

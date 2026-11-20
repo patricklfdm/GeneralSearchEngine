@@ -33,7 +33,7 @@ class MaximumNativeRunTest(unittest.TestCase):
     def test_new_command_preserves_ordinary_and_small_backup_entries(self):
         ordinary=m.command(m.PROFILE);small=m.command(m.BACKUP_PROFILE);maximum=m.command(m.MAXIMUM_PROFILE)
         timeout='-Dv53.maximumNative.requestTimeoutMillis=300000'
-        self.assertEqual([v for v in small if v.startswith('-Dv53.')]+[timeout,'-Dv53.maximumNative.roundLifetimeSeconds=43200'],[v for v in maximum if v.startswith('-Dv53.')])
+        self.assertEqual([v for v in small if v.startswith('-Dv53.')]+[timeout,'-Dv53.maximumNative.roundLifetimeSeconds=72000'],[v for v in maximum if v.startswith('-Dv53.')])
         self.assertNotIn(timeout,ordinary)
         self.assertIn('-Dtest='+m.MAXIMUM_CLASS+'#'+m.MAXIMUM_METHOD,maximum)
         self.assertIn('-Dtest='+m.CLASS+'#'+m.METHOD,ordinary)
@@ -68,7 +68,7 @@ class MaximumNativeRunTest(unittest.TestCase):
         helper,_=self.producer();path=helper.path/'receipt.json';original=m.read(path)
         def reject(reason):
             with self.assertRaisesRegex(ValueError,reason):m.member(helper.path,m.MAXIMUM_PROFILE,helper.pins)
-        for value in (None,2400,86400,43200.0):
+        for value in (None,2400,43200,86400,72000.0):
             changed=dict(original,roundLifetimeSeconds=value)
             if value is None:del changed['roundLifetimeSeconds']
             m.h.save(path,changed);reject('receipt round lifetime')
@@ -78,9 +78,11 @@ class MaximumNativeRunTest(unittest.TestCase):
         report=helper.path/'workspace'/m.h.MODULE/'target/surefire-reports/TEST-original.xml'
         tree=ET.parse(report);prop=tree.find(f"./properties/property[@name='{m.MAXIMUM_ROUND_PROPERTY}']")
         prop.set('value','2400');tree.write(report);reject('JUnit round lifetime')
-        prop.set('value','43200')
+        prop.set('value','72000')
         case=tree.find('testcase')
-        for elapsed in ('43200.01','nan','-1','inf'):
+        case.set('time','71999.9');tree.write(report)
+        self.assertEqual(original['junit'],m.junit(report.parent,m.MAXIMUM_PROFILE))
+        for elapsed in ('72000.01','nan','-1','inf'):
             case.set('time',elapsed);tree.write(report);reject('JUnit round duration')
 
     def test_capture_capacity_failure_precedes_source_copy_or_maven(self):

@@ -54,6 +54,16 @@ final class MembershipLearnerCustody implements AutoCloseable {
         return Collections.unmodifiableMap(result);
     }
     static List<Object> capture(Map<String,Path> roots,Set<Path> managed)throws IOException {
+        return inventory(roots,managed,(path,size)->inspect(path,size,digest(path,size)));
+    }
+    /** The caller compares every observed identity with a previously bound inventory. */
+    static List<Object> inventoryForVerification(Map<String,Path> roots)throws IOException {
+        return inventory(roots,null,MembershipBasisSources::inspect);
+    }
+    @FunctionalInterface private interface FileInspection {
+        FileIdentity inspectFile(Path path,long size)throws IOException;
+    }
+    private static List<Object> inventory(Map<String,Path> roots,Set<Path> managed,FileInspection inspection)throws IOException {
         var result=new ArrayList<Object>();int count=0;long bytes=0;
         for(var row:roots.entrySet()) {
             Path root=AdmissionPaths.safe(row.getValue());var value=new TreeMap<String,Object>();value.put("name",row.getKey());value.put("path",AdmissionPaths.binding(root));
@@ -70,7 +80,7 @@ final class MembershipLearnerCustody implements AutoCloseable {
                             AdmissionPaths.regular(path);long size=Files.size(path);require(size<=MembershipApplicationImage.MAXIMUM,"learner custody file bound");
                             bytes=Math.addExact(bytes,size);require(bytes<=MembershipResources.METADATA_LIMIT+7L*MembershipApplicationImage.MAXIMUM,"learner custody inventory extent");
                             // Stream the hash; do not allocate a second application image.
-                            var identity=inspect(path,size,digest(path,size));
+                            var identity=inspection.inspectFile(path,size);
                             files.put(name,Map.of("key",identity.key().toString(),"size",size,"sha256",identity.digest()));
                         }
                     }
@@ -195,7 +205,7 @@ final class MembershipLearnerCustody implements AutoCloseable {
             AdmissionPaths.recheck(binding);require(directoryKey.equals(key(directory)) && children(directory,1).equals(Set.of(FILE)),"learner installation decision changed");
             require(decision.equals(inspect(directory.resolve(FILE),plan.length,hash(plan))),"learner installation decision changed");
             if(retirement!=null)retirement.checkOriginals();
-            else if(placement==null)require(originals.equals(capture(roots,null)),"learner installation originals changed");
+            else if(placement==null)require(originals.equals(inventoryForVerification(roots)),"learner installation originals changed");
             else placement.checkOriginals();
         }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }

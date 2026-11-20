@@ -143,7 +143,7 @@ def summary(path,ctx,stage,result):
     rows=[('Status',result['status']),('Source',ctx['source']),('Run / attempt',ctx['run']+' / '+ctx['attempt']),
           ('Profile',PROFILE),('Scope','One complete maximum native history; 150 exact negatives'),('Bootstrap source',m.source_policy.BACKUP),('Wire layout',m.source_policy.SEGMENTED),
           ('Artifact byte ceiling',BUNDLE_BYTES),('Staging bytes',16*1024**3),('Phase 3 complete',False)]
-    for key in (*m.PINS,'wholeHistories','observedResourcesQualified','combinedResourcesQualified'):
+    for key in ('roundLifetimeSeconds','requestTimeoutMillis',*m.PINS,'wholeHistories','observedResourcesQualified','combinedResourcesQualified'):
         if key in result:rows.append((key,result[key]))
     if 'readerMemory' in result:rows.extend((k,result['readerMemory'][k]) for k in ('peakRssBytes','elapsedNanos','cpuNanos'))
     if 'failure' in result:rows.append(('Failure',result['failure']['message'].replace('|','/').replace('\n',' ')))

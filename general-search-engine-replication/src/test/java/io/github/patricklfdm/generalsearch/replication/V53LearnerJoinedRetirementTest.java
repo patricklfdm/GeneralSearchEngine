@@ -6,6 +6,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import static org.junit.jupiter.api.Assertions.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
 
@@ -134,6 +136,29 @@ class V53LearnerJoinedRetirementTest {
             assertThrows(Exception.class,()->MembershipLearnerJoinedRetirement.retire(joined,f.local.captured,f.local.config,e->{
                 if(e.equals("JOINED_RETIREMENT_BEFORE_DELETE:0")){hit.set(true);Files.writeString(first,"changed");}}));
             assertTrue(hit.get());assertEquals("changed",Files.readString(first));
+        }
+    }
+    @ParameterizedTest
+    @ValueSource(booleans={false,true})
+    void sameLengthRewriteOrIdenticalReplacementAtLastBoundaryStopsDeletion(boolean replace)throws Exception {
+        var h=helper();try(var f=h.fixture();var placement=h.place(f)) {
+            var joined=h.join(placement,f,e->{});
+            var plan=new MembershipLearnerJoinedRetirementPlan(f.local.summary);
+            Path target=plan.path(plan.deletions.getFirst());
+            byte[] original=Files.readAllBytes(target);assertTrue(original.length>0);
+            byte[] changed=original.clone();changed[0]^=1;
+            var hit=new AtomicBoolean();
+            assertThrows(IllegalArgumentException.class,()->MembershipLearnerJoinedRetirement.retire(joined,f.local.captured,f.local.config,event->{
+                if(event.equals("JOINED_RETIREMENT_BEFORE_DELETE:0")) {
+                    hit.set(true);
+                    if(replace) {
+                        Path saved=temp.resolve("original-before-delete");
+                        Files.move(target,saved);Files.copy(saved,target);
+                    }else Files.write(target,changed);
+                }
+            }));
+            assertTrue(hit.get());assertArrayEquals(replace?original:changed,Files.readAllBytes(target));
+            assertTrue(Files.exists(plan.path(plan.deletions.get(1))));
         }
     }
 }

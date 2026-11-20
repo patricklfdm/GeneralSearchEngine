@@ -374,7 +374,7 @@ final class MembershipLearnerPlacement implements AutoCloseable {
             return canonical(Map.of("schema","gse-v53-learner-placed/1.3","plan",hash(plan),"planKey",planKey.toString(),"custody",hash(decision),"moves",MOVES),MAXIMUM);
         }
         int project()throws IOException {
-            var actual=MembershipLearnerCustody.capture(roots,null);var a=root(actual,"voterStage");var b=root(actual,"replica");
+            var actual=MembershipLearnerCustody.inventoryForVerification(roots);var a=root(actual,"voterStage");var b=root(actual,"replica");
             var source=files(a);var destination=files(b);int moved=0;boolean stayed=false;
             for(String name:MOVES) {
                 boolean from=source.containsKey(name),to=destination.containsKey(name);require(from!=to,"learner placement needs exactly one original location: "+name);

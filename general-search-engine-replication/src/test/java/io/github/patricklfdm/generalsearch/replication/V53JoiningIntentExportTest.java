@@ -40,6 +40,13 @@ class V53JoiningIntentExportTest {
             return limit-elapsed;
         }
         long fromNow(long ordinaryBudget){return remaining(System.nanoTime(),ordinaryBudget);}
+        private String elapsed(){return " elapsedSeconds="+TimeUnit.NANOSECONDS.toSeconds(System.nanoTime()-started);}
+        void stage(String name){System.out.println("v53JoiningIntentStage="+name+(maximum?elapsed():""));}
+        void progress(String name){if(maximum)System.out.println("v53MaximumNativeProgress="+name+elapsed());}
+        MembershipBallotAllocator.Cut retirement(MembershipBallotAllocator.Cut trace) {
+            if(!maximum)return trace;
+            return event->{progress(event);trace.at(event);};
+        }
     }
     record Input(Decoded entry,byte[] payload) {}
     static Input input(V53NativeDispatchTest.Network n,String kind,Object command)throws Exception {
@@ -256,7 +263,9 @@ class V53JoiningIntentExportTest {
             }
             // The complete joining history includes this activation in its owner lifetime.
             for(int i=profile.majority();i<profile.size();i++)n.transports.get(i).close();
+            timing.progress("initial-barrier-start");
             round.start();assertEquals(profile.liveIndices(),n.voters);
+            timing.progress("initial-barrier-complete");
             if(installJoined)probeOldLocks(n);
             int port;try(var socket=new ServerSocket(0,1,InetAddress.getByName("127.0.0.1"))){port=socket.getLocalPort();}
             var joining=new MembershipIdentity(new ReplicationNodeId(profile.joining()),UUID.randomUUID(),new ReplicationEndpoint("127.0.0.1",port));
@@ -266,9 +275,10 @@ class V53JoiningIntentExportTest {
             var change=new MembershipChangeRequest(new MembershipOperationId(n.f.result.root(),1),owner.activationContext().authority(),profile.kind(),targets);
             var request=new MembershipLearnerRequest(n.f.result.root(),joining,change,temp.resolve("learner"),temp.resolve("operation"));
             round.submit("RESERVE",canonical(Map.of("request",MembershipLearnerDiscovery.request(change)),8192));
+            timing.progress("reserve-complete");
             round.submit("PREPARE",canonical(Map.of("number",1L,"revision",1L),8192));
             long preparedIndex=number(owner.activationContext().cut.get("index"));
-            System.out.println("v53JoiningIntentStage=prepared");
+            timing.stage("prepared");
             var pool=n.resourceBudget(joining);
             var config=new MembershipReplicaConfig<>(request.root(),joining,List.of(),request.replicaDirectory(),storage(temp.resolve("core"),2),
                     n.bounds,AutomaticLeadershipPolicy.forBounds(n.bounds));
@@ -295,10 +305,12 @@ class V53JoiningIntentExportTest {
                     source.close();
                     try(var typed=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(store,1),builder().configuration(),config,trace.cut("learner-materialization"))) {
                         round.submit("READY",canonical(Map.of("number",1L,"receipt",typed.receipt().value().get("receipt")),8192));
+                        timing.progress("ready-published");
                         round.maintainReady(); // Preserve real pre-SEAL retention reconciliation and its fresh BARRIER.
+                        timing.progress("ready-maintenance-complete");
                         publish(n,"SEAL",Map.of("number",1L),timing);var before=owner.activationContext();var first=initial(request,targets.getFirst(),before.cut);
                         long sealedIndex=number(before.cut.get("index"));
-                        System.out.println("v53JoiningIntentStage=sealed");
+                        timing.stage("sealed");
                         if(installJoined)assertThrows(IllegalArgumentException.class,()->owner.publishedLearnerSource(joining,resources));
                         // A SEALED catalog alone cannot mint an original pending source.
                         assertThrows(IllegalArgumentException.class,()->new MembershipJoiningIntentExport(owner,joining,first,resources,
@@ -310,7 +322,7 @@ class V53JoiningIntentExportTest {
                                 trace.transport("sealed-progress"),System::nanoTime,System.nanoTime(),timing.fromNow(BUDGET)):null) {
                             if(progress!=null) {
                                 progress.fetch(temp.resolve("joining-progress"));
-                                System.out.println("v53JoiningIntentStage=original-sealed-received");
+                                timing.stage("original-sealed-received");
                             }
                             var row=object(list(before.catalog.get("results")).getLast());var sealed=new TreeMap<String,Object>();
                             for(String field:List.of("request","prepared","receipt"))sealed.put(field,row.get(field));
@@ -371,7 +383,7 @@ class V53JoiningIntentExportTest {
                                     Files.write(n.f.raw.resolve("joining-forced-ack.gsr"),added.acknowledgement().bytes());
                                     Files.write(n.f.raw.resolve("joining-force-events.json"),canonical(events,16384));
                                     Files.write(n.f.raw.resolve("joining-complete-capsule.gscp"),checkpoint.packet.bytes());
-                                    System.out.println("v53JoiningIntentStage=new-side-end-forced");
+                                    timing.stage("new-side-end-forced");
                                     if(publishJoint) {
                                         var readers=java.util.concurrent.ConcurrentHashMap.<String>newKeySet();
                                         var ackWire=n.auxiliaryWire.open(ACK);
@@ -390,7 +402,7 @@ class V53JoiningIntentExportTest {
                                             assertEquals(0,listener.usage().exports());
                                         }
                                         n.auxiliaryWire.snapshot(ACK);
-                                        System.out.println("v53JoiningIntentStage=joint-published-by-old-majority");
+                                        timing.stage("joint-published-by-old-majority");
                                         if(prefixOnly) {
                                             pendingSnapshot(plan,config.materialization().directory(),n.f.raw.resolve("joining-originals-pending"));
                                             Files.write(n.f.raw.resolve("joining-profile.json"),canonical(Map.of("profile",profile.name(),"initialSize",profile.size(),
@@ -445,13 +457,13 @@ class V53JoiningIntentExportTest {
                                             assertEquals(originalLedger,owner.learnerRetentionState());
                                             n.auxiliaryWire.snapshot(HEAD);
                                             assertEquals(profile.majority(),confirmationWire.size());
-                                            System.out.println("v53JoiningIntentStage=selected-old-voters-confirmed-original-sealed-source");
+                                            timing.stage("selected-old-voters-confirmed-original-sealed-source");
                                             try(var published=new MembershipLearnerProgress(retained,targets.getFirst(),n.bounds,
                                                     trace.transport("published-progress"),System::nanoTime,System.nanoTime(),timing.fromNow(BUDGET))) {
                                                 published.fetch(temp.resolve("joining-published-progress"));
                                                 assertEquals(originalLedger,owner.learnerRetentionState(),"configured-member read does not add learner uncertainty");
                                                 assertEquals(sealedIndex+1,number(published.source().capsule.context.cut.get("index")));
-                                                System.out.println("v53JoiningIntentStage=original-joint-source-received");
+                                                timing.stage("original-joint-source-received");
                                                 try(var intent=published.retainPublishedIntent(trace.cut("published-intent"))) {
                                                     published.close();
                                                     try(var stage=MembershipLearnerVoterStage.install(intent.forced(),trace.cut("voter-stage"));
@@ -460,8 +472,8 @@ class V53JoiningIntentExportTest {
                                                         var joined=MembershipLearnerJoinedAdmission.install(placement,builder().configuration(),config,trace.cut("joined-admission"));
                                                         MembershipLearnerJoinedOriginal.verify(joined,builder().configuration(),config);
                                                         joinedSnapshot(plan,config.materialization().directory(),n.f.raw.resolve("joining-originals-placed"));
-                                                        System.out.println("v53JoiningIntentStage=actual-joined-placement");
-                                                        try(var retired=MembershipLearnerJoinedRetirement.retire(joined,builder().configuration(),config,trace.cut("retirement"));
+                                                        timing.stage("actual-joined-placement");
+                                                        try(var retired=MembershipLearnerJoinedRetirement.retire(joined,builder().configuration(),config,timing.retirement(trace.cut("retirement")));
                                                                 var journal=MembershipGrantJournal.openJoined(retired,builder().configuration(),config,trace.cut("initial-owner"));
                                                                 var initialClose=trace.ownerClose("initial-owner",journal)) {
                                                             assertEquals(1,pool.usage().counts().get(MembershipResources.Unit.GENERATION));
@@ -486,7 +498,7 @@ class V53JoiningIntentExportTest {
                                                                 assertEquals(originalLedger,owner.learnerRetentionState());
                                                                 Files.write(n.f.raw.resolve("joining-floor-reconciled.json"),reconciled.plan().bytes());
                                                                 probeOldLocks(n);
-                                                                System.out.println("v53JoiningIntentStage=actual-joining-floor-reconciled");
+                                                                timing.stage("actual-joining-floor-reconciled");
                                                             }
                                                             if(seedJoined) {
                                                                 var copies=joiningFloorCopies(n,journal);
@@ -550,13 +562,13 @@ class V53JoiningIntentExportTest {
                                                                         initializing=initializer.submit(()->{joiningEndpoint.initialize();return null;});
                                                                         assertTrue(firstAbsent.await(n.bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS),"actual absent preparation response before old campaign");
                                                                         assertFalse(initializing.isDone(),"no published preparation may initialize the new owner");
-                                                                        System.out.println("v53JoiningIntentStage=initializer-observed-absence-before-old-preparation");
+                                                                        timing.stage("initializer-observed-absence-before-old-preparation");
                                                                     }
                                                                     prepared=retentionPreparation.run();
                                                                     if(!earlyStartup)assertFalse(retentionPreparation.probeInitialized(),"original read-only joining owner is not initialized");
                                                                     for(String node:new TreeSet<>(prepared.sources().keySet()))originals.add(n.owners.stream()
                                                                             .filter(old->old.activationIdentity().nodeId().value().equals(node)).findFirst().orElseThrow().originalSource());
-                                                                    System.out.println("v53JoiningIntentStage=old-majority-retention-prepared-over-tcp");
+                                                                    timing.stage("old-majority-retention-prepared-over-tcp");
                                                                 }else {
                                                                     long counter=owner.reserveCounter();var ballot=Map.<String,Object>of("counter",counter,
                                                                             "proposer",owner.activationIdentity().nodeId().value(),"incarnation",owner.activationIdentity().storageId().toString());
@@ -602,7 +614,7 @@ class V53JoiningIntentExportTest {
                                                                         assertNotNull(joiningEndpoint.votingEndpoint());
                                                                         assertTrue(retentionPreparation.probeInitialized(),"old proposer observes native completion through TCP");
                                                                         n.auxiliaryWire.snapshot(RETENTION);
-                                                                        System.out.println("v53JoiningIntentStage=remote-old-majority-retention-initialized-and-endpoint-promoted");
+                                                                        timing.stage("remote-old-majority-retention-initialized-and-endpoint-promoted");
                                                                     }else if(continueJoint)journal.initializeJoinedRetention(originals);
                                                                     if(transport!=null)transport.close();if(joiningEndpoint!=null)joiningEndpoint.close();
                                                                     initialClose.close();
@@ -612,7 +624,7 @@ class V53JoiningIntentExportTest {
                                                                     assertThrows(IllegalArgumentException.class,()->journal.joiningRetentionSeed(originals));
                                                                 }
                                                                 probeOldLocks(n);
-                                                                System.out.println("v53JoiningIntentStage=original-old-majority-retention-seed-read-only");
+                                                                timing.stage("original-old-majority-retention-seed-read-only");
                                                                 }
                                                             }
                                                             // Recovery owns the original joining root; it is never
@@ -643,7 +655,7 @@ class V53JoiningIntentExportTest {
                                             joinedSnapshot(plan,config.materialization().directory(),n.f.raw.resolve("joining-originals-native"));
                                             Files.write(n.f.raw.resolve("joining-native-basis.gsr"),nativeBasis.bytes());
                                             assertFalse(Files.exists(request.replicaDirectory().resolve(MembershipBootstrapAdmissionData.FILE)));
-                                            System.out.println("v53JoiningIntentStage=actual-joined-native-cold-reopened");
+                                            timing.stage("actual-joined-native-cold-reopened");
                                             if(continueJoint) {
                                                 round.close();n.f.snapshot("before-joint-continuation");
                                                 continueJoint(n,plan,pool,config,timing,ordinaryRound,remoteRetention,trace,profile);
@@ -839,6 +851,7 @@ class V53JoiningIntentExportTest {
         result.put("status","PASS");result.put("stableColdReopened",true);
         Files.write(n.f.raw.resolve("joining-continuation-result.json"),canonical(result,65536));
         System.out.println("v53JoiningContinuation=stable-cold-reopened");
+        timing.progress("continuation-cold-reopen-complete");
     }
     private static byte[] seedFrom(Path raw)throws Exception {return Files.readAllBytes(raw.resolve("joining-retention-seed.json"));}
     private static void assertJoinedRetention(MembershipGrantJournal journal,byte[] raw,MembershipIdentity identity)throws Exception {

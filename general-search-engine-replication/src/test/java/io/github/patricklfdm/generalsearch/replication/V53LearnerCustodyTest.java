@@ -17,6 +17,18 @@ class V53LearnerCustodyTest {
     V53LearnerCancellationTest.Fixture fixture(boolean promoted)throws Exception {
         var helper=new V53LearnerIntentTest();helper.temp=temp;return helper.fixture("JOINT",3,"ADD",promoted);
     }
+    @Test void frozenInventoryScansEachFileOnceAndKeepsItsBoundIdentity()throws Exception {
+        Path counters=Path.of("/proc/thread-self/io");
+        Assumptions.assumeTrue(Files.isReadable(counters));
+        var roots=Map.of("replica",temp);
+        int bytes=4*1024*1024;
+        Files.write(temp.resolve("payload.image"),new byte[bytes]);
+        var original=MembershipLearnerCustody.capture(roots,Set.of(temp));
+        long before=V53PrefixWholeImageTest.readBytes(counters);
+        assertEquals(original,MembershipLearnerCustody.inventoryForVerification(roots));
+        long read=V53PrefixWholeImageTest.readBytes(counters)-before;
+        assertTrue(read>=bytes && read<bytes+256*1024,"single inventory read bytes="+read);
+    }
     @Test void initialHeadTransfersEveryRealLockAndLeaseWithoutOldCloseReleasingThem()throws Exception {exercise(false);}
     @Test void promotedHeadTransfersCurrentAndRetainedOwnersWithoutThirdGeneration()throws Exception {exercise(true);}
     @Test void selectedSlotColdOwnerTransfersSeedAndTypedLocksWithoutRecreatingRetiredFiles()throws Exception {

@@ -138,6 +138,11 @@ final class MembershipBasisSources implements AutoCloseable {
         return packet;
     }
     static FileIdentity inspect(Path path,long size,String digest) throws IOException {
+        var actual=inspect(path,size);
+        require(actual.digest().equals(digest),"retained source file integrity");
+        return actual;
+    }
+    static FileIdentity inspect(Path path,long size) throws IOException {
         Object before;
         MessageDigest sha;
         try {sha=MessageDigest.getInstance("SHA-256");}catch(NoSuchAlgorithmException error){throw new AssertionError(error);}
@@ -154,8 +159,8 @@ final class MembershipBasisSources implements AutoCloseable {
             require(count==size,"retained source file length");
         }
         String actual=HexFormat.of().formatHex(sha.digest());
-        require(actual.equals(digest) && before.equals(key(path)),"retained source file integrity");
-        return new FileIdentity(before,size,digest);
+        require(before.equals(key(path)),"retained source file integrity");
+        return new FileIdentity(before,size,actual);
     }
     private static Map<String,FileIdentity> snapshot(Path path,MembershipSourcePacket packet) throws IOException {
         var names=new TreeSet<String>();names.add(PACKET);for(String hash:packet.images().keySet())names.add(hash+".image");

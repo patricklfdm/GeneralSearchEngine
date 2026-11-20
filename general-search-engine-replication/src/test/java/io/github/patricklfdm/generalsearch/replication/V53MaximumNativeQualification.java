@@ -21,7 +21,7 @@ class V53MaximumNativeQualification {
     static final String SEED="maximum-native-seed";
     static final String REQUEST_TIMEOUT_PROPERTY="v53.maximumNative.requestTimeoutMillis";
     static final String ROUND_PROPERTY="v53.maximumNative.roundLifetimeSeconds";
-    static final int ROUND_SECONDS=12*60*60;
+    static final int ROUND_SECONDS=20*60*60;
     private static final int REQUEST_TIMEOUT_MILLIS=300_000;
     static ReplicationBounds checkConfiguration(){
         V53BackupJoiningQualification.checkConfiguration();
@@ -82,6 +82,7 @@ class V53MaximumNativeQualification {
         Path evidence=Files.createDirectories(Path.of("target/v53-maximum-native-seed/run-"+UUID.randomUUID()));
         System.out.println("v53MaximumNativeSeedEvidence="+evidence.toAbsolutePath());
         var seed=V53MaximumApplicationTest.captureMaximum(temp,evidence);
+        timing.progress("seed-ready");
         assertEquals(MembershipApplicationImage.MAXIMUM-32,seed.image().length);
         var original=V53ReplayFilesTest.files(seed.source());
         var bootstrap=new V53BootstrapSeedTest();bootstrap.temp=temp;
@@ -96,6 +97,7 @@ class V53MaximumNativeQualification {
             throw error;
         }
         assertEquals(original,V53ReplayFilesTest.files(seed.source()));
+        timing.progress("binding-seed");
         var binding=seedBinding(seed,raw,temp.resolve("seed-inspection"));
         Files.write(evidence.resolve("binding.json"),canonical(binding,16384),StandardOpenOption.CREATE_NEW);
         // Only this newly generated seed observation moves, after the complete

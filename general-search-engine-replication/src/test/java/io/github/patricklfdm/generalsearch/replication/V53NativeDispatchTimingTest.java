@@ -10,7 +10,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.o
 
 class V53NativeDispatchTimingTest {
     @TempDir Path temp;
-    private static final long LIMIT=TimeUnit.HOURS.toNanos(12);
+    private static final long LIMIT=TimeUnit.HOURS.toNanos(20);
 
     private V53NativeDispatchTest.Network network(V53JoiningIntentExportTest.RunTiming timing)throws Exception {
         var seed=new V53NativeSeedTest();seed.temp=temp;

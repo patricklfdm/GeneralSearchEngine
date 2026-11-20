@@ -22,7 +22,7 @@ use 30,000 ms. The producer binds the maximum setting to the Maven command and
 the test JVM checks it before bootstrap. Independent replay checks the command,
 the Surefire XML property, and the receipt. The transport still uses the
 earlier of the individual request deadline and the remaining owner lifetime.
-The maximum-image run has one 43,200-second (12-hour) JUnit deadline including seed
+The maximum-native required-four run has one 72,000-second (20-hour) JUnit deadline including seed
 preparation and final binding. Its active joining history passes the remaining window
 to subsequent round, learner and maintenance work. The transport caps each request at
 300 seconds. Capture and replay bind both time settings and check the duration of the
@@ -51,9 +51,29 @@ recorded endpoint closure at 179.683 s from the send. The JUnit test had run for
 8 h 15 min. An earlier ACCEPT in the same run succeeded after an identical
 retry at 300.8 s, with the reply received 497.9 s after its first send.
 Direct slot delivery, vote observation and future publication now
-use the time left until the original 12-hour deadline, including retries. The
+use the time left until the original round deadline, including retries. The
 fixture logs the remaining window when each of these operations starts.
 [Failed run 44531213031](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/44531213031)
+
+Run 44624736872 passed INTENT and placed the new voter. Its minute samples first
+showed PREPARE at minute 205, SEAL at minute 457 and the original JOINT source
+at minute 622. The previous 12-hour JUnit deadline interrupted the check before
+the third of 46 predecessor deletions. The first two files were absent from the
+retained workspace and the third still matched the original digest. The current
+20-hour bound leaves three hours in the execution job for setup and artifact
+collection. The minute heartbeat includes the latest stage or retirement event
+and the elapsed time it was reached. [Failed run 44624736872](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/44624736872)
+
+Placement, retirement and joined-owner checks compare freshly read file bytes
+and identities with the bound inventory. Each verification now hashes each file once.
+Initial custody capture still takes two readings. Checks on both sides of callbacks,
+ordered deletion, directory forces and cold recovery use the same evidence as before.
+A local probe reproduced the 46 deletion steps using the failed run's file names
+and sizes, synthetic contents, and the seven inventory checks per step. With image
+sizes capped at 1 MiB it measured 1.61 GiB read before the change and 0.86 GiB
+after. With the original near-64 MiB images it measured 91.31 GiB and 45.71 GiB.
+These are per-thread read counts, including page-cache hits, for the inventory
+checks. The full-history duration is measured by the native run.
 
 For this path, a local whole-image borrow formerly read the selected file in 4 MiB
 pieces and hashed the entire file before and after each piece. The reader now checks

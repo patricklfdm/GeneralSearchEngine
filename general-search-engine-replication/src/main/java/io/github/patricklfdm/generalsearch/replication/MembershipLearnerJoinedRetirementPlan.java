@@ -62,7 +62,7 @@ final class MembershipLearnerJoinedRetirementPlan {
             }
             expected.add(row);
         }
-        require(expected.equals(MembershipLearnerCustody.capture(roots,null)),"joined retirement original inventory changed");return prefix;
+        require(expected.equals(MembershipLearnerCustody.inventoryForVerification(roots)),"joined retirement original inventory changed");return prefix;
     }
     /** Cold accounting must cover the entire original group, including payloads
      * already deleted. Never derive a smaller reservation from today's disk. */

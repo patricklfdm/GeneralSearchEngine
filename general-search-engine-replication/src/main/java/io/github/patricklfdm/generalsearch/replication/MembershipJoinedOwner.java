@@ -135,7 +135,8 @@ final class MembershipJoinedOwner implements AutoCloseable {
                 && record.equals(inspect(directory.resolve(FILE),decision.length,hash(decision))),"native joining original handoff changed");
     }
     private void checkProofs()throws IOException {
-        proof.check();require(key(MembershipLearnerJoinedRetirement.directory(summary)).toString().equals(retirementDirectoryKey),"native joining retirement directory changed");require(surviving.equals(MembershipLearnerCustody.capture(sidecars,null)),"native joining surviving sidecars changed");
+        proof.check();require(key(MembershipLearnerJoinedRetirement.directory(summary)).toString().equals(retirementDirectoryKey),"native joining retirement directory changed");
+        require(surviving.equals(MembershipLearnerCustody.inventoryForVerification(sidecars)),"native joining surviving sidecars changed");
         for(var row:retirement.entrySet()){var f=row.getValue();require(f.equals(inspect(row.getKey(),f.bytes(),f.digest())),"native joining retirement original changed");}
         for(String name:List.of(".","root.gsr","genesis.gsr","node.gsr","replica.lock")) {
             Path path=name.equals(".")?summary.request().replicaDirectory():summary.request().replicaDirectory().resolve(name);var expected=object(proof.installed().get(name));

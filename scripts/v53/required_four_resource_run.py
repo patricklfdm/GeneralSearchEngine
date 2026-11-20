@@ -39,7 +39,7 @@ MAXIMUM_METHOD='maximumImageCompletesRequiredFourReplacement'
 MAXIMUM_TIMEOUT_PROPERTY='v53.maximumNative.requestTimeoutMillis'
 MAXIMUM_TIMEOUT_MS=300_000
 MAXIMUM_ROUND_PROPERTY='v53.maximumNative.roundLifetimeSeconds'
-MAXIMUM_ROUND_SECONDS=43_200
+MAXIMUM_ROUND_SECONDS=72_000
 
 
 def selected(profile):

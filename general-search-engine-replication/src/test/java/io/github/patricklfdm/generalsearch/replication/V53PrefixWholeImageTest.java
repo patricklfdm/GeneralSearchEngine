@@ -14,7 +14,7 @@ class V53PrefixWholeImageTest {
 
     // Linux counts bytes read by the calling thread, including page-cache hits.
     // Comparing with this same export's owner checks avoids wall-clock thresholds.
-    private static long readBytes(Path counters)throws Exception {
+    static long readBytes(Path counters)throws Exception {
         String value=Files.readAllLines(counters).stream().filter(s->s.startsWith("rchar:")).findFirst().orElseThrow();
         return Long.parseLong(value.substring(6).trim());
     }
