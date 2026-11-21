@@ -21,6 +21,7 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
     private final MembershipGrantJournal owner;
     private final MembershipGrantJournal.Voting original;
     private final MembershipGrantJournal.PublishedMaintenance published;
+    private final MembershipGrantJournal.DeferredGrant grant;
     private final MembershipContext context;
     private final Map<String,Object> ballot;
     private final MembershipResources resources;
@@ -36,15 +37,22 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
     private boolean used;
     MembershipGenerationMaintenance(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
             MembershipSourcePull.Link link,MembershipSourcePull.Guard guard,Path scratch,LongSupplier clock,long started,long budget)throws IOException {
-        this(owner,resources,bounds,link,guard,scratch,clock,started,budget,false);
+        this(owner,resources,bounds,link,guard,scratch,clock,started,budget,false,null);
     }
     static MembershipGenerationMaintenance beforeGrant(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
             MembershipSourcePull.Link link,MembershipSourcePull.Guard guard,Path scratch,LongSupplier clock,long started,long budget)throws IOException {
-        return new MembershipGenerationMaintenance(owner,resources,bounds,link,guard,scratch,clock,started,budget,true);
+        return beforeGrant(owner,resources,bounds,link,guard,scratch,clock,started,budget,null);
+    }
+    static MembershipGenerationMaintenance beforeGrant(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
+            MembershipSourcePull.Link link,MembershipSourcePull.Guard guard,Path scratch,LongSupplier clock,long started,long budget,
+            MembershipGrantJournal.DeferredGrant grant)throws IOException {
+        return new MembershipGenerationMaintenance(owner,resources,bounds,link,guard,scratch,clock,started,budget,true,grant);
     }
     private MembershipGenerationMaintenance(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
-            MembershipSourcePull.Link link,MembershipSourcePull.Guard guard,Path scratch,LongSupplier clock,long started,long budget,boolean beforeGrant)throws IOException {
+            MembershipSourcePull.Link link,MembershipSourcePull.Guard guard,Path scratch,LongSupplier clock,long started,long budget,boolean beforeGrant,
+            MembershipGrantJournal.DeferredGrant grant)throws IOException {
         require(budget>0 && budget<Long.MAX_VALUE/2,"native maintenance budget");this.owner=Objects.requireNonNull(owner);
+        this.grant=grant;
         this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);this.link=Objects.requireNonNull(link);
         this.guard=Objects.requireNonNull(guard);this.scratch=Objects.requireNonNull(scratch);this.clock=Objects.requireNonNull(clock);
         this.started=started;this.budget=budget;original=beforeGrant?null:owner.voting(resources);
@@ -54,7 +62,7 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
     private void check()throws IOException {
         if(closed)guard.check(); // Preserve a positive parent revocation, never infer one.
         long elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"native maintenance closed/original deadline");
-        guard.check();if(published==null)original.check();else published.check();elapsed=clock.getAsLong()-started;
+        guard.check();if(published==null)original.check();else published.check(grant);elapsed=clock.getAsLong()-started;
         require(!closed && elapsed>=0 && elapsed<budget,"native maintenance closed/original deadline");
     }
     private boolean quorum(Collection<String> voters) {

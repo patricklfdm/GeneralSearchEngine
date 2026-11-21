@@ -102,6 +102,23 @@ class V53FloorFilesTest {
         var fixture=new V53CurrentGenerationFixture(3,through,false);
         return MembershipGrantJournal.openFloors(path,fixture.root(),V53DeclarationsTest.node(1),resources,fixture::verify,cut);
     }
+    @Test void writingNextMemberCannotRebindAnAlreadyForcedProposal()throws Exception {
+        Path parent=temp.resolve("floor-owner");
+        var local=copy(parent,6,1);
+        var peer=copy(temp.resolve("peer-original"),6,2);
+        var fixture=new V53CurrentGenerationFixture(3,6,false);
+        var replace=new java.util.concurrent.atomic.AtomicBoolean();
+        Path proposal=parent.resolve("floor-copies/proposal.gsr");
+        try(var floor=new MembershipFloorFiles(parent,fixture.root(),V53DeclarationsTest.node(1),resources(),fixture::verify)) {
+            assertThrows(IllegalArgumentException.class,()->floor.establish(local,List.of(local,peer),()->{
+                if(replace.getAndSet(false)) {
+                    Path retained=temp.resolve("original-proposal");Files.move(proposal,retained);Files.copy(retained,proposal);
+                }
+            },event->{if(event.equals("FLOOR_PROPOSAL_FORCED"))replace.set(true);}));
+            assertTrue(Files.exists(temp.resolve("original-proposal")));
+            assertFalse(Files.exists(parent.resolve("floor-copies/floor.gsr")));
+        }
+    }
     @Test void forcedCopiesAndFloorSurviveReopenAndExactDuplicate()throws Exception {
         for(int through:List.of(0,6,7)) {
             Path path=temp.resolve("local-"+through);var a=copy(path,through,1);var b=copy(temp.resolve("peer-"+through),through,2);var resources=resources();byte[] floor;

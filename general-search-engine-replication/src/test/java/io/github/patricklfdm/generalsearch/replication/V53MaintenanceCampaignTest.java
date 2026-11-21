@@ -12,6 +12,38 @@ import static org.junit.jupiter.api.Assertions.*;
  * disguise corruption as a fresh-campaign opportunity. */
 class V53MaintenanceCampaignTest {
     @TempDir Path temp;
+    @Test void identicalPrepareAfterRpcDeadlineKeepsOneDurablePromise()throws Exception {
+        var helper=new V53NativeDispatchTest();helper.temp=temp;
+        try(var n=helper.new Network(3,V53RoundDriverTest.controlBounds());
+            var campaign=new MembershipActivation(n.owners.getFirst(),n.resources.getFirst(),System::nanoTime,V53NativeDispatchTest.BUDGET)) {
+            var peer=n.owners.get(1).activationIdentity();
+            n.endpoints.getFirst().serve(campaign);
+            var request=campaign.prepare(peer);
+            var entered=new CountDownLatch(1);var release=new CountDownLatch(1);var retrySent=new CountDownLatch(1);
+            var forces=new java.util.concurrent.atomic.AtomicInteger();
+            n.hook.set(event->{
+                if(event.equals("PROMISE_FORCED")) {
+                    forces.incrementAndGet();entered.countDown();
+                    try{assertTrue(release.await(30,TimeUnit.SECONDS));}
+                    catch(InterruptedException error){Thread.currentThread().interrupt();throw new IOException(error);}
+                }
+            });
+            try {
+                var transport=n.transports.getFirst();
+                var first=transport.exchange(peer,request,"PROMISE",System.nanoTime()+TimeUnit.SECONDS.toNanos(5));
+                assertTrue(entered.await(5,TimeUnit.SECONDS),"original PREPARE entered durable force");
+                var timeout=assertThrows(ExecutionException.class,()->first.get(8,TimeUnit.SECONDS));
+                assertEquals(MembershipTransport.Reason.DEADLINE,assertInstanceOf(MembershipTransport.Failure.class,timeout.getCause()).reason);
+                n.beforeSend.set(frame->{if(frame.digest().equals(request.digest()))retrySent.countDown();});
+                var retry=transport.exchange(peer,request,"PROMISE",System.nanoTime()+TimeUnit.SECONDS.toNanos(30));
+                assertTrue(retrySent.await(5,TimeUnit.SECONDS));release.countDown();
+                var response=retry.get(30,TimeUnit.SECONDS);
+                assertEquals("PROMISE",response.kind());
+                assertEquals(n.owners.get(1).originalBasis().orElseThrow().digest(),MembershipFormat.object(response.value().get("payload")).get("basis"));
+                assertEquals(1,forces.get());
+            }finally{release.countDown();}
+        }
+    }
     @Test void unavailableOriginalCopiesStopBeforeGrantAndPermitBoundedFreshWait()throws Exception {
         check(true);
     }

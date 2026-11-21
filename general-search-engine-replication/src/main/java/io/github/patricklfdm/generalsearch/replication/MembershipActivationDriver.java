@@ -86,11 +86,11 @@ final class MembershipActivationDriver implements AutoCloseable {
         if(cause instanceof MembershipCampaignLost lost)return lost;
         return new IOException(message,cause);
     }
-    private void maintainPublished(MembershipSourcePull.Guard grant)throws IOException {
-        remaining();grant.check();
-        var work=MembershipGenerationMaintenance.beforeGrant(owner,resources,bounds,link,()->{remaining();grant.check();},scratch,clock,started,budget);
+    private void maintainPublished(MembershipGrantJournal.DeferredGrant grant)throws IOException {
+        remaining();if(grant!=null)grant.check();
+        var work=MembershipGenerationMaintenance.beforeGrant(owner,resources,bounds,link,this::remaining,scratch,clock,started,budget,grant);
         synchronized(lifecycle){if(closed){work.close();throw new IOException("activation driver closed before maintenance");}maintenance=work;}
-        try(work){work.run();remaining();grant.check();}
+        try(work){work.run();remaining();if(grant!=null)grant.check();}
         catch(MembershipGenerationMaintenance.Unavailable unavailable) {
             // Preserve the original promise and every partial copy; unavailable
             // originals cannot authorize a source capture or deletion.
@@ -110,7 +110,7 @@ final class MembershipActivationDriver implements AutoCloseable {
         String deferred=null;PeerUnavailable lastUnavailable=null;
         try {
             if(nativeHistory && owner.campaignMaintenanceRequired()) {
-                maintainPublished(()->{});
+                maintainPublished(null);
             }
             while(campaigns<maximumCampaigns) {
                 remaining();Round round=new Round();active=round;campaigns++;
@@ -173,7 +173,7 @@ final class MembershipActivationDriver implements AutoCloseable {
         boolean success;
         Round()throws IOException {
             try{campaign=new MembershipActivation(owner,resources,clock,started,budget,
-                    nativeHistory?grant->maintainPublished(grant::check):null);}
+                    nativeHistory?MembershipActivationDriver.this::maintainPublished:null);}
             catch(MembershipOperationException unavailable) {
                 // Only initial grant admission, before an original grant is
                 // submitted. Concurrent incoming copies can own this headroom;

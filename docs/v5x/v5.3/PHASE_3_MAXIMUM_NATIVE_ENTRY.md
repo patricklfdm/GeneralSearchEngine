@@ -64,6 +64,26 @@ retained workspace and the third still matched the original digest. The current
 collection. The minute heartbeat includes the latest stage or retirement event
 and the elapsed time it was reached. [Failed run 44624736872](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/44624736872)
 
+In run 44725829368 all 46 predecessor deletions finished. The joined voter
+cold-reopened at 44,743 s. In the first continuation ballot it read three
+identical PREPARE requests and prepared the same PROMISE for all three after
+their individual deadlines. The second ballot also exhausted its three attempts.
+The test stopped at 50,537 s, before FINAL. An interrupted transport observer
+also left the shared event array unsealed. [Failed run and artifacts](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/44725829368)
+
+During pre-grant maintenance, the published generation and any deferred promise
+now validate their common physical journal once per maintenance check under the
+writer lock. Each check still validates the endpoint fence and both permits.
+Live floor writes and deletes update only the original member they own. All
+other recorded identities and digests remain pinned through the force and
+observer boundaries. In a local probe with four near-64 MiB floor images and
+three 256-byte member writes, the calling thread read 5.25 GiB before the
+change and 2.25 GiB after it. These counts include page-cache reads and cover
+only the three writes. Maximum-run progress now reports incoming PREPAREs,
+reply preparation and floor milestones with elapsed seconds. An interrupted
+evidence writer waits for its one submitted I/O to finish and preserves its
+interrupt flag. The original and its downloaded replay determine qualification.
+
 Placement, retirement and joined-owner checks compare freshly read file bytes
 and identities with the bound inventory. Each verification now hashes each file once.
 Initial custody capture still takes two readings. Checks on both sides of callbacks,

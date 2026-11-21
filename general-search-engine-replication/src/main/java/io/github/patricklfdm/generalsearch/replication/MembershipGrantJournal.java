@@ -2748,9 +2748,12 @@ final class MembershipGrantJournal implements AutoCloseable {
         private final String originalVote=pendingAccept==null || pendingAccept.active()==null?null:hash(pendingAccept.active().bytes());
         final MembershipContext context=current.capsule.context;
         final Map<String,Object> ballot=Map.copyOf(observed.get());
-        void check()throws IOException {
+        void check()throws IOException {check(null);}
+        void check(DeferredGrant grant)throws IOException {
             synchronized(MembershipGrantJournal.this) {
-                checkOwner();applicationReferencesIdle();contextTransactionIdle();
+                checkOwner();
+                if(grant!=null)grant.checkState(MembershipGrantJournal.this);
+                applicationReferencesIdle();contextTransactionIdle();
                 if(contextCarried)require(pendingContext==null || pendingContext.active().isEmpty(),
                         "campaign maintenance cannot replace pending context");
                 require(current==generation && Objects.equals(originalPromise,promise==null?null:promise.digest())
@@ -3252,14 +3255,19 @@ final class MembershipGrantJournal implements AutoCloseable {
         private DeferredGrant() { }
         void check()throws IOException {
             synchronized(MembershipGrantJournal.this) {
-                checkOwner();fence(object(originalPromise.value().get("ballot")));
-                require(!finished && current==generation && promise!=null && basis==null && selection==null
-                        && Arrays.equals(promise.bytes(),originalPromise.bytes()),"deferred grant authority changed");
-                require(voteAccepted()==null && (pendingAccept==null || !pendingAccept.pending() && pendingAccept.active()==null)
-                        && (pendingContext==null || !pendingContext.pending() && pendingContext.active().isEmpty()),
-                        "deferred grant cannot replace pending vote/context");
-                applicationReferencesIdle();
+                checkOwner();checkState(MembershipGrantJournal.this);
             }
+        }
+        // The caller has just checked this physical owner under the same writer lock.
+        private void checkState(MembershipGrantJournal checked)throws IOException {
+            require(checked==MembershipGrantJournal.this && Thread.holdsLock(checked),"deferred grant owner mismatch");
+            fence(object(originalPromise.value().get("ballot")));
+            require(!finished && current==generation && promise!=null && basis==null && selection==null
+                    && Arrays.equals(promise.bytes(),originalPromise.bytes()),"deferred grant authority changed");
+            require(voteAccepted()==null && (pendingAccept==null || !pendingAccept.pending() && pendingAccept.active()==null)
+                    && (pendingContext==null || !pendingContext.pending() && pendingContext.active().isEmpty()),
+                    "deferred grant cannot replace pending vote/context");
+            applicationReferencesIdle();
         }
     }
     /** Before another complete source consumes the floor's headroom, supersede

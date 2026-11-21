@@ -1,6 +1,7 @@
 package io.github.patricklfdm.generalsearch.replication;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.*;
 import java.util.*;
@@ -85,6 +86,12 @@ final class MembershipFloorFiles implements AutoCloseable {
         }
         require(total<=6*MembershipResources.Unit.SOURCE.bytes,"floor retained total capacity");
     }
+    private void createCopyDirectory(String id)throws IOException {
+        require(directories.size()<6,"floor copy directory count/name");
+        Path created=Files.createDirectory(path.resolve(id));
+        directories.put(id,key(created));
+        check();
+    }
     private FileIdentity captureFile(String name) throws IOException {
         byte[] bytes=AdmissionPaths.read(path.resolve(name),Math.toIntExact(limit(name)));var identity=inspect(path.resolve(name),bytes.length,hash(bytes));files.put(name,identity);return identity;
     }
@@ -94,7 +101,12 @@ final class MembershipFloorFiles implements AutoCloseable {
         var expected=new TreeSet<>(directories.keySet());for(String name:List.of(PROPOSAL,FLOOR,RELEASE,LOCAL))if(files.containsKey(name))expected.add(name);
         require(pathKey.equals(key(path)) && children(path,9).equals(expected),"floor inventory changed");
         for(var directory:directories.entrySet()) {
-            String prefix=directory.getKey()+"/";var names=new TreeSet<String>();for(String name:files.keySet())if(name.startsWith(prefix))names.add(name.substring(prefix.length()));
+            String prefix=directory.getKey()+"/";var names=new TreeSet<String>();long metadata=0;
+            for(var file:files.entrySet())if(file.getKey().startsWith(prefix)) {
+                names.add(file.getKey().substring(prefix.length()));
+                if(!file.getKey().endsWith(".image"))metadata=Math.addExact(metadata,file.getValue().bytes());
+            }
+            require(metadata<=MembershipResources.Unit.SOURCE.bytes,"floor retained metadata capacity");
             require(directory.getValue().equals(key(path.resolve(directory.getKey()))) && children(path.resolve(directory.getKey()),32).equals(names),"floor source directory changed");
         }
         for(var file:files.entrySet())require(file.getValue().equals(inspect(path.resolve(file.getKey()),file.getValue().bytes(),file.getValue().digest())),"floor file inode changed");
@@ -258,7 +270,7 @@ final class MembershipFloorFiles implements AutoCloseable {
                     "partial floor original copy changed");
         reserveCopy(plan,id);cut.at("FLOOR_RESUME_RESERVED");check();owner.check();
         completeFile(PROPOSAL,proposal.bytes(),owner,cut,"FLOOR_PROPOSAL");
-        if(!directories.containsKey(id)){Files.createDirectory(path.resolve(id));capture();}
+        if(!directories.containsKey(id))createCopyDirectory(id);
         cut.at("FLOOR_COPY_CREATED");check();owner.check();
         completeFile(id+"/generation.gsr",plan.get(id+"/generation.gsr"),owner,cut,"FLOOR_MANIFEST");
         for(var file:plan.entrySet())if(!file.getKey().endsWith("/generation.gsr"))
@@ -371,7 +383,7 @@ final class MembershipFloorFiles implements AutoCloseable {
             reserveCopy(plan,ordered.getFirst());reserved=floor.digest();
         }
         cut.at("FLOOR_RESERVED");check();owner.check();
-        if(!exists){Files.createDirectory(path);capture();}cut.at("FLOOR_DIRECTORY_CREATED");check();owner.check();
+        if(!exists){Files.createDirectory(path);pathKey=key(path);exists=true;check();}cut.at("FLOOR_DIRECTORY_CREATED");check();owner.check();
         if(pinned!=null) {
             pinned.sealFloorOriginal();cut.at("FLOOR_LOCAL_ORIGINAL_FORCED");check();owner.check();
             completeFile(LOCAL,plan.get(LOCAL),owner,cut,"FLOOR_LOCAL_SELECTOR");
@@ -380,7 +392,7 @@ final class MembershipFloorFiles implements AutoCloseable {
         completeFile(PROPOSAL,plan.get(PROPOSAL),owner,cut,"FLOOR_PROPOSAL");
         for(String id:ordered) {
             if(handoff!=null)reserveCopy(plan,id);
-            if(!directories.containsKey(id)){Files.createDirectory(path.resolve(id));capture();}cut.at("FLOOR_COPY_CREATED");check();owner.check();
+            if(!directories.containsKey(id))createCopyDirectory(id);cut.at("FLOOR_COPY_CREATED");check();owner.check();
             completeFile(id+"/generation.gsr",plan.get(id+"/generation.gsr"),owner,cut,"FLOOR_MANIFEST");
             for(var file:plan.entrySet())if(file.getKey().startsWith(id+"/") && !file.getKey().endsWith("/generation.gsr"))
                 completeFile(file.getKey(),file.getValue(),owner,cut,file.getKey().endsWith(".image")?"FLOOR_IMAGE":"FLOOR_MEMBER");
@@ -488,35 +500,51 @@ final class MembershipFloorFiles implements AutoCloseable {
         for(String name:new TreeSet<>(files.keySet()))if(name.contains("/"))deleteReleased(name,record,current,owner,cut,"FLOOR_RELEASE_FILE_DELETED");
         for(String name:new TreeSet<>(directories.keySet())) {
             validateRelease(record,current);owner.check();require(children(path.resolve(name),32).isEmpty(),"floor release source not empty");
-            Files.delete(path.resolve(name));capture();AdmissionPaths.forceDirectory(path);cut.at("FLOOR_RELEASE_COPY_DELETED");validateRelease(record,current);owner.check();
+            Files.delete(path.resolve(name));directories.remove(name);check();AdmissionPaths.forceDirectory(path);cut.at("FLOOR_RELEASE_COPY_DELETED");validateRelease(record,current);owner.check();
         }
         if(files.containsKey(PROPOSAL))deleteReleased(PROPOSAL,record,current,owner,cut,"FLOOR_RELEASE_PROPOSAL_CLEARED");
         if(files.containsKey(LOCAL))deleteReleased(LOCAL,record,current,owner,cut,"FLOOR_RELEASE_LOCAL_CLEARED");
         require(files.keySet().equals(Set.of(RELEASE)) && directories.isEmpty(),"floor release authority must clear last");
-        validateRelease(record,current);owner.check();Files.delete(path.resolve(RELEASE));capture();AdmissionPaths.forceDirectory(path);
+        validateRelease(record,current);owner.check();Files.delete(path.resolve(RELEASE));files.remove(RELEASE);check();AdmissionPaths.forceDirectory(path);
         cut.at("FLOOR_RELEASE_AUTHORITY_CLEARED");check();owner.check();clearReleased(owner,cut);
     }
     private void deleteReleased(String name,Decoded record,MembershipCurrentGeneration current,MembershipGenerationFiles.Guard owner,
             MembershipBallotAllocator.Cut cut,String event)throws IOException {
-        validateRelease(record,current);owner.check();Files.delete(path.resolve(name));capture();AdmissionPaths.forceDirectory(path.resolve(name).getParent());
+        validateRelease(record,current);owner.check();Files.delete(path.resolve(name));files.remove(name);check();AdmissionPaths.forceDirectory(path.resolve(name).getParent());
         cut.at(event);validateRelease(record,current);owner.check();
     }
     private void clearReleased(MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
         check();owner.check();require(files.isEmpty() && directories.isEmpty(),"floor release still owns bytes");
-        Files.delete(path);capture();AdmissionPaths.forceDirectory(parent);cut.at("FLOOR_RELEASE_CLEARED");check();owner.check();close();
+        Files.delete(path);exists=false;pathKey=null;check();AdmissionPaths.forceDirectory(parent);cut.at("FLOOR_RELEASE_CLEARED");check();owner.check();close();
     }
 
     private void completeFile(String name,byte[] bytes,MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut,String event) throws IOException {
         check();owner.check();Path file=path.resolve(name);
-        if(Files.exists(file,LinkOption.NOFOLLOW_LINKS))require(prefix(AdmissionPaths.read(file,bytes.length),bytes),"floor member changed from exact prefix");
-        boolean creating=name.equals(RELEASE) && !Files.exists(file,LinkOption.NOFOLLOW_LINKS);
-        try(var channel=MembershipFileAccess.open(file,StandardOpenOption.CREATE,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
-            if(creating){capture();cut.at("FLOOR_RELEASE_AUTHORITY_CREATED");check();owner.check();}
-            channel.position(channel.size());AdmissionPaths.write(channel,Arrays.copyOfRange(bytes,Math.toIntExact(channel.size()),bytes.length));capture();
+        require(bytes.length<=limit(name),"floor member size");
+        var prior=files.get(name);
+        if(prior!=null)require(prefix(AdmissionPaths.read(file,bytes.length),bytes),"floor member changed from exact prefix");
+        try(var channel=MembershipFileAccess.open(file,prior==null?Set.of(StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS):
+                Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS))) {
+            Object inode=MembershipFileAccess.key(channel);
+            require(prior==null || prior.key().equals(inode),"floor member inode changed");
+            if(prior==null && name.equals(RELEASE)) {
+                files.put(name,new FileIdentity(inode,0,hash(new byte[0])));
+                cut.at("FLOOR_RELEASE_AUTHORITY_CREATED");check();owner.check();
+            }
+            int offset=prior==null?0:Math.toIntExact(prior.bytes());
+            require(channel.size()==offset,"floor member prefix length changed");
+            channel.position(offset);
+            var suffix=ByteBuffer.wrap(bytes,offset,bytes.length-offset);
+            while(suffix.hasRemaining())require(channel.write(suffix)>0,"floor member write stalled");
+            // Only this descriptor changed. Keep all other original inodes and
+            // digests pinned across the callback; never adopt an unrelated file.
+            var written=inspect(file,bytes.length,hash(bytes));
+            require(inode.equals(written.key()),"floor member inode changed");
+            files.put(name,written);
             cut.at(event+"_WRITTEN");check();owner.check();channel.force(true);cut.at(event+"_FORCED");check();owner.check();
         }
-        AdmissionPaths.exact(file,bytes);capture();
+        AdmissionPaths.exact(file,bytes);
     }
-    private static boolean prefix(byte[] actual,byte[] expected){return actual.length<=expected.length && Arrays.equals(actual,Arrays.copyOf(expected,actual.length));}
+    private static boolean prefix(byte[] actual,byte[] expected){return actual.length<=expected.length && Arrays.equals(actual,0,actual.length,expected,0,actual.length);}
     @Override public void close(){leases.forEach(MembershipResources.Lease::close);leases.clear();copyLeases.clear();reserved=null;pinned=null;}
 }

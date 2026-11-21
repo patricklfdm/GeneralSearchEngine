@@ -21,6 +21,30 @@ class V53DeferredSourceMaintenanceTest {
         assertTrue(owner.publishedMaintenanceRequired());assertFalse(owner.nativeGenerationMaintenanceRequired());
         assertEquals(2,budget.usage().counts().get(MembershipResources.Unit.SOURCE));
     }
+    @Test void publishedAndDeferredPermitRecheckStorageAndHigherBallots()throws Exception {
+        var helper=new V53NativeDispatchTest();helper.temp=temp;
+        try(var n=helper.new Network()) {
+            sources(n,0);var owner=n.owners.getFirst();var budget=n.resources.getFirst();
+            Path journal=n.f.request.targets().getFirst().replicaDirectory().resolve("grants.gsr");
+            var failure=assertThrows(IOException.class,()->owner.beginActivation(grant->{
+                var permit=owner.campaignMaintenance(budget);
+                permit.check(grant);
+                byte[] original=Files.readAllBytes(journal),changed=original.clone();changed[changed.length-1]^=1;
+                try{
+                    Files.write(journal,changed);
+                    assertEquals(ReplicationException.Reason.CONFLICTING_HISTORY,
+                            assertThrows(ReplicationException.class,()->permit.check(grant)).reason());
+                }finally{Files.write(journal,original);}
+                permit.check(grant);
+                var higher=new TreeMap<>(permit.ballot);higher.put("counter",number(higher.get("counter"))+1);
+                owner.observeCurrent(higher);
+                assertThrows(MembershipGrantJournal.HigherBallot.class,()->permit.check(grant));
+                throw new IOException("test maintenance ended after fencing");
+            },()->{}));
+            assertEquals("test maintenance ended after fencing",failure.getMessage());
+            assertTrue(owner.originalBasis().isEmpty());
+        }
+    }
     @Test void missingOldCutCopiesRetainAllSourcesAndAllowANormallyReservedGrant()throws Exception {
         var helper=new V53NativeDispatchTest();helper.temp=temp;
         try(var n=helper.new Network()) {

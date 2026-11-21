@@ -43,6 +43,14 @@ class V53JoiningIntentExportTest {
         private String elapsed(){return " elapsedSeconds="+TimeUnit.NANOSECONDS.toSeconds(System.nanoTime()-started);}
         void stage(String name){System.out.println("v53JoiningIntentStage="+name+(maximum?elapsed():""));}
         void progress(String name){if(maximum)System.out.println("v53MaximumNativeProgress="+name+elapsed());}
+        MembershipBallotAllocator.Cut continuation(MembershipBallotAllocator.Cut trace) {
+            if(!maximum)return trace;
+            return event->{
+                trace.at(event);
+                if(Set.of("PROMISE_FORCED","FLOOR_RESERVED","FLOOR_COPIES_FORCED","FLOOR_BEFORE_RETURN",
+                        "FLOOR_RELEASE_CLEARED","BASIS_FORCED").contains(event))progress("joined-activation-"+event);
+            };
+        }
         MembershipBallotAllocator.Cut retirement(MembershipBallotAllocator.Cut trace) {
             if(!maximum)return trace;
             return event->{progress(event);trace.at(event);};
@@ -694,7 +702,7 @@ class V53JoiningIntentExportTest {
         var events=new ArrayList<Object>();var failures=Collections.synchronizedList(new ArrayList<Object>());
         var result=new TreeMap<String,Object>();result.put("status","FAIL");result.put("publicReady",false);
         var selections=new ArrayList<Object>();var currentSelected=new java.util.concurrent.atomic.AtomicReference<Set<String>>();
-        try(var owner=MembershipGrantJournal.reopenJoinedRetaining(plan,resources,builder().configuration(),config,trace.cut("continuation-owner"));
+        try(var owner=MembershipGrantJournal.reopenJoinedRetaining(plan,resources,builder().configuration(),config,timing.continuation(trace.cut("continuation-owner")));
                 var continuationClose=trace.ownerClose("continuation-owner",owner)) {
             var link=new java.util.concurrent.atomic.AtomicReference<MembershipTransport>();
             MembershipSourcePull.Link outgoing=(peer,request,kind,deadline)->{
@@ -711,6 +719,9 @@ class V53JoiningIntentExportTest {
                         failures.add(Map.of("kind",request.kind(),"request",request.digest(),"failure",error.toString()));throw error;
                     }
                 },trace.transport("continuation-endpoint",(event,request,response)->{
+                    if(timing.maximum() && request.kind().equals("PREPARE") &&
+                            (event.equals("AFTER_REQUEST_READ") || event.equals("BEFORE_RESPONSE_WRITE")))
+                        timing.progress("joined-PREPARE-"+event+"-"+request.digest());
                     n.diagnostic(owner.activationIdentity().nodeId().value(),event,request,null);
                     if(event.equals("BEFORE_RESPONSE_WRITE"))wire.add(V53SelectedPullTest.wire(request,response));
                 }))) {

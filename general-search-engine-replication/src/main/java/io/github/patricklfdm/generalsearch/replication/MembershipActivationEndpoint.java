@@ -260,15 +260,26 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             }
             check();require(active!=null,"activation endpoint grant not available");return active.handle(sender,request);
         }
-        void maintain()throws IOException {
-            maintain(false);
-        }
-        void maintain(boolean beforeGrant)throws IOException {maintain(beforeGrant,()->{});}
-        void maintain(boolean beforeGrant,MembershipSourcePull.Guard pulse)throws IOException {
+        void maintain()throws IOException {maintain(()->{});}
+        void maintain(MembershipSourcePull.Guard pulse)throws IOException {
             MembershipSourcePull.Guard guarded=()->{pulse.check();check();};
-            guarded.check();if(!(beforeGrant?owner.campaignMaintenanceRequired():owner.nativeGenerationMaintenanceRequired()))return;
-            var work=beforeGrant?MembershipGenerationMaintenance.beforeGrant(owner,resources,bounds,this::exchange,guarded,scratch,clock,started,limit):
-                    new MembershipGenerationMaintenance(owner,resources,bounds,this::exchange,guarded,scratch,clock,started,limit);
+            guarded.check();
+            if(owner.nativeGenerationMaintenanceRequired())
+                runMaintenance(new MembershipGenerationMaintenance(owner,resources,bounds,this::exchange,guarded,scratch,clock,started,limit));
+        }
+        void maintainBeforeGrant(MembershipGrantJournal.DeferredGrant grant)throws IOException {
+            if(grant!=null)grant.check();
+            check();
+            if(!owner.campaignMaintenanceRequired())return;
+            // The published maintenance permit checks the full physical journal
+            // and deferred grant on every pulse. Also guard this endpoint's
+            // own scratch, lifetime, view and ballot before each such check.
+            runMaintenance(MembershipGenerationMaintenance.beforeGrant(owner,resources,bounds,this::exchange,()->{
+                if(revoked!=null)throw revoked;
+                live();scratchOwner.check();owner.checkActivationWait(capsule.context.authority(),ballot);live();
+            },scratch,clock,started,limit,grant));
+        }
+        private void runMaintenance(MembershipGenerationMaintenance work)throws IOException {
             synchronized(this){if(ended || closed){work.close();throw new IOException("native maintenance scope ended");}
                 require(maintenance==null,"native maintenance already active");maintenance=work;}
             try(work){work.run();}finally{synchronized(this){if(maintenance==work && work.drained())maintenance=null;}}
@@ -392,7 +403,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         active.granted();
         // The newly forced promise may make an intermediate source obsolete.
         // Reclaim it while only the current generation occupies image capacity.
-        if(nativeHistory)active.maintain(true);
+        if(nativeHistory)active.maintainBeforeGrant(null);
     }
     /** Revoke only the outgoing owner's failed round, never an intervening peer scope. */
     void abandon(Map<String,Object> ballot) {
@@ -417,7 +428,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         require(slots!=null,"typed native endpoint required");var active=scope;
         require(active!=null,"native maintenance requires active campaign");active.check();
         synchronized(active.slotRegistry){require(!active.slotChanging && active.slotCalls==0,"native slot busy before maintenance");active.slotChanging=true;}
-        try{active.maintain(false,pulse);}finally{synchronized(active.slotRegistry){active.slotChanging=false;active.slotRegistry.notifyAll();}}
+        try{active.maintain(pulse);}finally{synchronized(active.slotRegistry){active.slotChanging=false;active.slotRegistry.notifyAll();}}
     }
     private void releaseEndedControl() {
         synchronized(registry){if(control!=null && control.finished && control.active.ended){control.close();control=null;}}
@@ -495,13 +506,13 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                             require(value.value().get("view").equals(active.capsule.context.authority())
                                     && value.value().get("ballot").equals(active.ballot) && value.value().get("basisId")!=null,"activation endpoint original promise");
                         });
-                        active.check();if(nativeHistory)active.maintain(true);
+                        active.check();if(nativeHistory)active.maintainBeforeGrant(null);
                         active.check();response=MembershipActivation.prepare(owner,sender,request,promise,
-                                nativeHistory?grant->active.maintain(true,grant::check):null,active::check).response();active.granted();
+                                nativeHistory?active::maintainBeforeGrant:null,active::check).response();active.granted();
                         // Complete same-cut retirement before advertising this
                         // grant. All selected receivers must finish PREPARE
                         // before any installation can replace a source generation.
-                        if(nativeHistory)active.maintain(true);
+                        if(nativeHistory)active.maintainBeforeGrant(null);
                     }
                 } else if(request.kind().equals("SELECTED")) {
                     Path destination=scratch.resolve("selected-"+UUID.randomUUID());

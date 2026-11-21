@@ -102,6 +102,22 @@ class V53EvidenceSpoolTest {
         assertSame(failure,assertThrows(IllegalStateException.class,spool::close).getCause());
         assertArrayEquals(original,Files.readAllBytes(retained));assertFalse(Files.exists(path));
     }
+    @Test void interruptedTransportCallbackPreservesTheRowTheFlagAndOtherWriters()throws Exception {
+        Path path=temp.resolve("interrupted"),snapshot=temp.resolve("snapshot");
+        try(var spool=new V53EvidenceSpool(path,4096,(index,row)->{
+            if(index==0)Thread.currentThread().interrupt();
+        });var pool=Executors.newVirtualThreadPerTaskExecutor()) {
+            pool.submit(()->{
+                spool.add(ROW);
+                assertEquals(ROW,spool.getFirst());
+                spool.snapshot(snapshot);
+                assertTrue(Thread.currentThread().isInterrupted());
+            }).get(5,TimeUnit.SECONDS);
+            spool.add(Map.of("next",true));
+        }
+        assertArrayEquals(V53EvidenceArray.encode(List.of(ROW),4096),Files.readAllBytes(snapshot));
+        assertArrayEquals(V53EvidenceArray.encode(List.of(ROW,Map.of("next",true)),4096),Files.readAllBytes(path));
+    }
     @Test void concurrentCallbacksPreserveEveryRowAndEachProducerOrder()throws Exception {
         Path path=temp.resolve("wire.json");
         try(var spool=new V53EvidenceSpool(path,1024*1024);var pool=Executors.newFixedThreadPool(4)) {
